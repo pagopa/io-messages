@@ -1,0 +1,25 @@
+{
+  "name": "io-fims",
+  "type": "module",
+  "packageManager": "yarn@4.1.1",
+  "license": "UNLICENSED",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "code-review": "turbo run typecheck format:check lint:check //#test:coverage",
+    "format": "turbo run format",
+    "lint": "turbo run lint",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^1.5.0",
+    "prettier": "3.2.5",
+    "turbo": "^1.13.2",
+    "typescript": "5.4.3",
+    "vitest": "^1.5.0"
+  }
+}
