@@ -10,12 +10,7 @@ data "azurerm_user_assigned_identity" "identity_prod_cd" {
 
 data "azurerm_key_vault" "messages" {
   name                = "io-p-messages-kv"
-  resource_group_name = "io-p-messages-rg"
-}
-
-data "azurerm_key_vault_secret" "codecov_token" {
-  name         = "codecov-token"
-  key_vault_id = data.azurerm_key_vault.messages.id
+  resource_group_name = "io-p-messages-sec-rg"
 }
 
 data "github_organization_teams" "all" {
