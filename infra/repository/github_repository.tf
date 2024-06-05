@@ -1,6 +1,7 @@
 resource "github_repository" "io_messages" {
   name = local.repository
 
+  #tfsec:ignore:github-repositories-private
   visibility = "public"
 
   allow_auto_merge   = false

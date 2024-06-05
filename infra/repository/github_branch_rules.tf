@@ -13,7 +13,9 @@ resource "github_branch_protection" "protection_main" {
   }
 
   require_conversation_resolution = true
-  require_signed_commits          = false
+
+  #tfsec:ignore:github-branch_protections-require_signed_commits
+  require_signed_commits = false
 
   required_pull_request_reviews {
     dismiss_stale_reviews           = false
