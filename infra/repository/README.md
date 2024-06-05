@@ -9,13 +9,6 @@
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 3.94.0 |
 | <a name="requirement_github"></a> [github](#requirement\_github) | 5.45.0 |
 
-## Providers
-
-| Name | Version |
-|------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 3.94.0 |
-| <a name="provider_github"></a> [github](#provider\_github) | 5.45.0 |
-
 ## Modules
 
 No modules.
