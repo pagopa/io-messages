@@ -6,13 +6,10 @@ export const WAIT_MS = Number(process.env.WAIT_MS ?? 5000);
 export const SHOW_LOGS = process.env.SHOW_LOGS === "true";
 
 export const COSMOSDB_URI = process.env.COSMOSDB_URI;
-export const COSMOSDB_KEY = process.env.COSMOSDB_KEY;
 export const COSMOSDB_NAME = process.env.COSMOSDB_NAME ?? "db";
 
 export const REMOTE_CONTENT_COSMOSDB_URI =
   process.env.REMOTE_CONTENT_COSMOSDB_URI;
-export const REMOTE_CONTENT_COSMOSDB_KEY =
-  process.env.REMOTE_CONTENT_COSMOSDB_KEY;
 export const REMOTE_CONTENT_COSMOSDB_NAME =
   process.env.REMOTE_CONTENT_COSMOSDB_NAME ?? "db";
 

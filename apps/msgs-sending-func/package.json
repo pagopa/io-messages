@@ -1,11 +1,11 @@
 {
-  "name": "@pagopa/io-functions-service-messages",
+  "name": "@pagopa/msgs-sending-func",
   "version": "1.10.11",
   "license": "MIT",
   "scripts": {
-    "prebuild": "yarn generate",
+    "prebuild": "yarn generate:definitions && yarn generate:backend-notification-hub",
     "postbuild": "dependency-check package.json --no-dev --missing ./dist/**/*.js",
-    "build": "tsc",
+    "build": "yarn prebuild && tsc && yarn postbuild",
     "watch": "tsc --w",
     "prestart": "npm run build && func extensions install --javascript",
     "start:host": "func start --javascript",
@@ -17,7 +17,6 @@
     "openapi:bundle:internal": "bundle-api-spec -i openapi/index_internal.yaml.template -o openapi/index.yaml -V $npm_package_version",
     "openapi:bundle:external": "bundle-api-spec -i openapi/index_external.yaml.template -o openapi/index_external.yaml -V $npm_package_version",
     "pregenerate": "npm run openapi:bundle",
-    "generate": "npm-run-all generate:*",
     "generate:definitions": "rimraf ./generated/definitions && shx mkdir -p ./generated/definitions && gen-api-models --api-spec ./openapi/index.yaml --no-strict --out-dir ./generated/definitions",
     "generate:backend-notification-hub": "shx rm -rf generated/notifications && shx mkdir -p generated/notifications && gen-api-models --strict 0 --api-spec https://raw.githubusercontent.com/pagopa/io-backend/v8.10.1/notification_queue_messages.yaml --out-dir generated/notifications",
     "deploy": "npm run build && func azure functionapp publish io-functions-service-messages",

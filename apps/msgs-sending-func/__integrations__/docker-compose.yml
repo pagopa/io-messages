@@ -2,11 +2,11 @@ version: "3.2"
 
 services:
 
-  functions-node-18:
-    image: functions-node-18
+  functions-node-20:
+    image: functions-node-20
     build:
       context: ..
-      dockerfile: ./docker/functions-node-18/Dockerfile
+      dockerfile: ./docker/functions-node-20/Dockerfile
     command: /bin/true
 
   redis:
@@ -38,7 +38,7 @@ services:
       context: ../docker/cosmosdb
       dockerfile: ./Dockerfile
     ports:
-      - 3001:${RC_COSMOSDB_PORT}
+      - ${RC_COSMOSDB_PORT}:3001
 
   storage-account:
     image: azurite
@@ -62,7 +62,7 @@ services:
       retries: 5
     build:
       context: ..
-      dockerfile: ./docker/functions/Dockerfile
+      dockerfile: ./docker/functions-node-20/Dockerfile
     ports:
       - ${FUNCTION_PORT}:7071
     links:
@@ -71,7 +71,7 @@ services:
       - redis
       - storage-account
     depends_on:
-      - functions-node-18
+      - functions-node-20
 
   testagent:
     container_name: fn-service-messages-testagent

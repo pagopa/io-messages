@@ -81,19 +81,16 @@ export const IConfig = t.intersection([
     /* eslint-disable sort-keys */
     APPINSIGHTS_INSTRUMENTATIONKEY: NonEmptyString,
 
-    COSMOSDB_KEY: NonEmptyString,
     COSMOSDB_NAME: NonEmptyString,
     COSMOSDB_URI: NonEmptyString,
 
-    REMOTE_CONTENT_COSMOSDB_KEY: NonEmptyString,
     REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
     REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
 
     INTERNAL_USER_ID: NonEmptyString,
 
-    MESSAGE_CONTAINER_NAME: NonEmptyString,
-
-    QueueStorageConnection: NonEmptyString,
+    NOTIFICATION_STORAGE_ACCOUNT_URI: NonEmptyString,
+    NOTIFICATION_QUEUE_NAME: NonEmptyString,
 
     FF_TYPE: withDefault(t.string, "none").pipe(FeatureFlagType),
     USE_FALLBACK: withDefault(t.string, "false").pipe(BooleanFromString),
@@ -104,13 +101,11 @@ export const IConfig = t.intersection([
 
     BACKEND_BASE_URL: NonEmptyString,
     BACKEND_TOKEN: NonEmptyString,
-    MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
-    NOTIFICATION_QUEUE_NAME: NonEmptyString,
-    NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: NonEmptyString,
+
+    MESSAGE_STORAGE_ACCOUNT_URI: NonEmptyString,
+    MESSAGE_CONTAINER_NAME: NonEmptyString,
 
     RC_CONFIGURATION_CACHE_TTL: NonNegativeIntegerFromString,
-
-    MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: NonNegativeInteger,
 
     isProduction: t.boolean
     /* eslint-enable sort-keys */
@@ -123,17 +118,12 @@ export const IConfig = t.intersection([
 const errorOrConfig: t.Validation<IConfig> = IConfig.decode({
   ...process.env,
 
-  MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: pipe(
-    process.env.MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME,
-    NonNegativeIntegerFromString.decode,
-    E.getOrElse(() => 0 as NonNegativeInteger)
-  ),
-
   REDIS_CLUSTER_ENABLED: pipe(
     O.fromNullable(process.env.REDIS_CLUSTER_ENABLED),
     O.map(_ => _.toLowerCase() === "true"),
     O.toUndefined
   ),
+
   REDIS_TLS_ENABLED: pipe(
     O.fromNullable(process.env.REDIS_TLS_ENABLED),
     O.map(_ => _.toLowerCase() === "true"),
@@ -145,6 +135,7 @@ const errorOrConfig: t.Validation<IConfig> = IConfig.decode({
     IntegerFromString.decode,
     E.getOrElse(() => 3600 * 8)
   ),
+
   isProduction: process.env.NODE_ENV === "production"
 });
 

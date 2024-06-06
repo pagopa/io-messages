@@ -155,7 +155,6 @@ export const checkApplicationHealth = (
       // run each taskEither and collect validation errors from each one of them, if any
       sequenceT(applicativeValidation)(
         checkAzureCosmosDbHealth(cosmosDbClient),
-        checkAzureStorageHealth(config.QueueStorageConnection)
       )
     ),
     TE.map(_ => true)
