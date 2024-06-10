@@ -1,5 +1,6 @@
-export const AzureWebJobsStorage = process.env.AzureWebJobsStorage;
-export const QueueStorageConnection = process.env.QueueStorageConnection || "";
+export const NODE_TLS_REJECT_UNAUTHORIZED = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+export const NODE_ENV = process.env.NODE_ENV;
+export const REQ_SERVICE_ID = process.env.REQ_SERVICE_ID;
 
 // Milliseconds to wait for test completion
 export const WAIT_MS = Number(process.env.WAIT_MS ?? 5000);
@@ -15,10 +16,12 @@ export const REMOTE_CONTENT_COSMOSDB_NAME =
 
 export const BACKEND_PORT = Number(process.env.BACKEND_PORT ?? 0);
 
+export const NOTIFICATION_STORAGE_ACCOUNT_URI = process.env.NOTIFICATION_STORAGE_ACCOUNT_URI;
 export const NOTIFICATION_QUEUE_NAME =
-  process.env.NOTIFICATION_QUEUE_NAME ?? "push-notifications";
+process.env.NOTIFICATION_QUEUE_NAME ?? "push-notifications";
 
 export const FF_TYPE = process.env.FF_TYPE;
 
+export const MESSAGE_STORAGE_ACCOUNT_URI = process.env.MESSAGE_STORAGE_ACCOUNT_URI;
 export const MESSAGE_CONTAINER_NAME =
   process.env.MESSAGE_CONTAINER_NAME ?? "message-content";

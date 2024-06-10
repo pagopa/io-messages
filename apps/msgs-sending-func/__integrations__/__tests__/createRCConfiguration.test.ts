@@ -5,7 +5,6 @@ import { CosmosClient, CosmosClientOptions, Database } from "@azure/cosmos";
 import { pipe } from "fp-ts/lib/function";
 import { getNodeFetch } from "../utils/fetch";
 import {
-  REMOTE_CONTENT_COSMOSDB_KEY,
   REMOTE_CONTENT_COSMOSDB_NAME,
   REMOTE_CONTENT_COSMOSDB_URI
 } from "../env";
@@ -19,13 +18,15 @@ import {
   aRemoteContentConfiguration
 } from "../__mocks__/mock.remote_content";
 
-const baseUrl = "http://function:7071";
+const baseUrl = "http://msgs-sending-func:7071";
+
+const dummyBase64Key = "ZHVtbXk=";
 
 export const aRemoteContentConfigurationList = [aRemoteContentConfiguration];
 
 const cosmosClient = new CosmosClient({
   endpoint: REMOTE_CONTENT_COSMOSDB_URI,
-  key: REMOTE_CONTENT_COSMOSDB_KEY
+  key: dummyBase64Key
 } as CosmosClientOptions);
 
 // eslint-disable-next-line functional/no-let

@@ -1,6 +1,6 @@
 import { CosmosClient, CosmosClientOptions, Database } from "@azure/cosmos";
-import { QueueServiceClient } from "@azure/storage-queue";
-import { createBlobService } from "azure-storage";
+import { AnonymousCredential, QueueServiceClient } from "@azure/storage-queue";
+import { ContainerClient } from "@azure/storage-blob";
 
 import * as E from "fp-ts/Either";
 import * as T from "fp-ts/Task";
@@ -14,13 +14,13 @@ import { NotificationTypeEnum } from "../generated/definitions/NotificationType"
 import {
   WAIT_MS,
   SHOW_LOGS,
-  QueueStorageConnection,
   COSMOSDB_URI,
-  COSMOSDB_KEY,
   COSMOSDB_NAME,
+  MESSAGE_STORAGE_ACCOUNT_URI,
   MESSAGE_CONTAINER_NAME,
-  BACKEND_PORT,
-  NOTIFICATION_QUEUE_NAME
+  NOTIFICATION_STORAGE_ACCOUNT_URI,
+  NOTIFICATION_QUEUE_NAME,
+  BACKEND_PORT
 } from "../env";
 import { getNodeFetch } from "../utils/fetch";
 import {
@@ -47,7 +47,9 @@ console.log("ENV: ", WAIT_MS, SHOW_LOGS, BACKEND_PORT);
 const MAX_ATTEMPT = 50;
 jest.setTimeout(WAIT_MS * MAX_ATTEMPT);
 
-const baseUrl = "http://function:7071";
+const baseUrl = "http://msgs-sending-func:7071";
+
+const dummyBase64Key = "ZHVtbXk=";
 
 const customHeaders = {
   "x-user-groups": "ApiReminderNotify"
@@ -57,14 +59,18 @@ const customHeaders = {
 // Setup dbs
 // ----------------
 
-const blobService = createBlobService(QueueStorageConnection);
-const queueServiceClient = QueueServiceClient.fromConnectionString(
-  QueueStorageConnection
+const blobContainerClient = new ContainerClient(
+  `${MESSAGE_STORAGE_ACCOUNT_URI}${MESSAGE_CONTAINER_NAME}`
+);
+
+const queueServiceClient = new QueueServiceClient(
+  `${NOTIFICATION_STORAGE_ACCOUNT_URI}${NOTIFICATION_QUEUE_NAME}`,
+  new AnonymousCredential()
 );
 
 const cosmosClient = new CosmosClient({
   endpoint: COSMOSDB_URI,
-  key: COSMOSDB_KEY
+  key: dummyBase64Key
 } as CosmosClientOptions);
 
 // eslint-disable-next-line functional/no-let
@@ -86,7 +92,7 @@ beforeAll(async () => {
   )();
 
   await pipe(
-    createBlobs(blobService, [MESSAGE_CONTAINER_NAME]),
+    createBlobs(blobContainerClient),
     TE.chainW(_ =>
       pipe(
         createQueues(queueServiceClient, [NOTIFICATION_QUEUE_NAME]),
@@ -103,7 +109,7 @@ beforeAll(async () => {
     })
   )();
 
-  await fillMessages(database, blobService, messagesList);
+  await fillMessages(database, blobContainerClient, messagesList);
   await fillMessagesStatus(database, messageStatusList);
   await fillMessagesView(database, messagesList, messageStatusList);
   await fillServices(database, serviceList);

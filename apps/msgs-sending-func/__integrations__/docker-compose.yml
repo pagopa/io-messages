@@ -18,9 +18,12 @@ services:
       REDIS_TIMEOUT: 300
       REDIS_TCP_KEEPALIVE: 60
       REDIS_MAXMEMORY: 182m
+    networks:
+      - integration-tests-net
 
   cosmosdb:
     image: cosmosdb
+    container_name: cosmosdb
     env_file:
       - ./environments/generated/env.cosmosdb
     build:
@@ -28,6 +31,8 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - ${COSMOSDB_PORT}:3000
+    networks:
+      - integration-tests-net
 
   cosmosdbrc:
     image: cosmosdb
@@ -38,10 +43,13 @@ services:
       context: ../docker/cosmosdb
       dockerfile: ./Dockerfile
     ports:
-      - ${RC_COSMOSDB_PORT}:3001
+      - ${RC_COSMOSDB_PORT}:3000
+    networks:
+      - integration-tests-net
 
   storage-account:
     image: azurite
+    container_name: storage-account
     build:
       context: ../docker/azurite
       dockerfile: ./Dockerfile
@@ -49,20 +57,22 @@ services:
       - 10000:10000
       - 10001:10001
       - 10002:10002
+    networks:
+      - integration-tests-net
 
-  function:
-    container_name: fn-service-messages
-    image: fn
+  msgs-sending-func:
+    image: msgs-sending-func
+    container_name: msgs-sending-func
     env_file:
       - ./environments/generated/env.function
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://function:7071/api/v1/ping"]
+      test: ["CMD", "curl", "-f", "http://msgs-sending-func:7071/api/v1/ping"]
       interval: 12s
       timeout: 10s
       retries: 5
     build:
       context: ..
-      dockerfile: ./docker/functions-node-20/Dockerfile
+      dockerfile: ./docker/msgs-sending-func/Dockerfile
     ports:
       - ${FUNCTION_PORT}:7071
     links:
@@ -72,18 +82,21 @@ services:
       - storage-account
     depends_on:
       - functions-node-20
+    networks:
+      - integration-tests-net
 
   testagent:
-    container_name: fn-service-messages-testagent
-    # FIX: use node 18 instead
-    image: node:16-alpine
+    container_name: msgs-sending-func-testagent
+    image: node:20.11.1-alpine
     working_dir: /usr/src/app
-    command: tail -f /dev/null # to keep it   up&running
+    command: tail -f /dev/null # to keep it up&running
     env_file:
       - environments/generated/env.integration-tests
     volumes:
       - "./:/usr/src/app"
       - "../openapi:/usr/src/openapi"
+    links:
+      - msgs-sending-func
     depends_on:
       cosmosdb:
         condition: service_started
@@ -91,8 +104,13 @@ services:
         condition: service_started
       storage-account:
         condition: service_started
-      function:
+      msgs-sending-func:
         condition: service_healthy
+    networks:
+      - integration-tests-net
 
-    links:
-      - function
+networks:
+  integration-tests-net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1450
