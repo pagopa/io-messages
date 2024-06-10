@@ -1,7 +1,5 @@
 FROM node:18.13.0-alpine as builder
 
-USER root
-
 WORKDIR /opt/azurite
 
 RUN apk update && apk upgrade && \

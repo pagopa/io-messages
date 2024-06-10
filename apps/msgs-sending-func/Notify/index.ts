@@ -79,7 +79,7 @@ const messageModel = new MessageModel(
 );
 
 const blobService = createBlobService(
-  config.MESSAGE_STORAGE_ACCOUNT_URI
+  config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING
 );
 
 const serviceModel = new ServiceModel(
@@ -107,7 +107,7 @@ app.post(
     getService(serviceModel),
     sendNotification(
       new QueueClient(
-        config.NOTIFICATION_STORAGE_ACCOUNT_URI,
+        config.NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING,
         config.NOTIFICATION_QUEUE_NAME
       )
     ),

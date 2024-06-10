@@ -28,7 +28,6 @@ import { MESSAGE_CONTAINER_NAME } from "../env";
 import { flow } from "fp-ts/lib/function";
 import { toError } from "fp-ts/lib/Either";
 import { getOrElseW } from "fp-ts/lib/Either";
-import { ContainerClient } from "@azure/storage-blob";
 
 /**
  * Create "messages" collection, with indexing policy
@@ -301,7 +300,7 @@ export const createRCCosmosDbAndCollections = (
  */
 export const fillMessages = async (
   db: Database,
-  blobContainerClient: ContainerClient,
+  blobService: BlobService,
   messages: ReadonlyArray<MessageCollection.NewMessageWithContent>
 ): Promise<void> => {
   await pipe(
