@@ -28,7 +28,7 @@ export interface IPrintersForTemplate {
 }
 
 const printersConfigurations: {
-  [key in NotificationType]: IPrintersForTemplate;
+  readonly [key in NotificationType]: IPrintersForTemplate;
 } = {
   [NotificationTypeEnum.MESSAGE]: messagePrinter,
   [NotificationTypeEnum.REMINDER_READ]: reminderReadPrinter,
