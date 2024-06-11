@@ -10,7 +10,7 @@ on:
 
 jobs:
   runner_release:
-    uses: pagopa/dx/.github/workflows/infra_apply.yaml@37c4becb6e2bee1459c53184a503868619cf1a57
+    uses: pagopa/dx/.github/workflows/infra_apply.yaml@main
     name: Release Prod WestEurope
     secrets: inherit
     with:
