@@ -3,7 +3,7 @@ version: "3.2"
 services:
 
   functions:
-    image: functions-app:v2.0.0
+    image: msgs-sending-func
     build:
       context: ./
       dockerfile: docker/functions/Dockerfile
@@ -26,7 +26,6 @@ services:
       - "traefik.http.routers.functions.rule=Host(`localhost`)"
       - "traefik.http.routers.functions.entrypoints=web"
       - "traefik.http.services.functions.loadbalancer.server.port=7071"
-
       - "traefik.http.middlewares.testHeader.headers.customrequestheaders.x-user-id=unused"
       - "traefik.http.middlewares.testHeader.headers.customrequestheaders.x-user-groups=${REQ_USER_GROUPS}"
       - "traefik.http.middlewares.testHeader.headers.customrequestheaders.x-subscription-id=${REQ_SERVICE_ID}"

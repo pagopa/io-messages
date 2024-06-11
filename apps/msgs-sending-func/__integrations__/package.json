@@ -7,7 +7,7 @@
   "author": "",
   "scripts": {
     "prestart": "yarn generate-env && yarn generate",
-    "start": "docker-compose --env-file environments/.env up --build -d",
+    "start": "yarn prestart && docker-compose --env-file environments/.env up --build -d",
     "stop": "docker-compose --env-file environments/.env down",
     "stop:all": "docker-compose --env-file environments/.env down && docker image prune -a -f && docker volume prune -f",
     "test": "jest --verbose --runInBand",

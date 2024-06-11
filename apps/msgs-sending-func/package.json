@@ -83,5 +83,8 @@
     "redis": "^4.6.13",
     "ts-pattern": "^4.0.5",
     "winston": "^3.2.1"
+  },
+  "resolutions": {
+    "eslint-plugin-jsdoc":"43.0.5"
   }
 }

@@ -4,15 +4,16 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - main
     paths:
-      - "infra/resources/prod/**"
+      - "infra/resources/**"
 
 jobs:
-  release_prod:
-    uses: pagopa/dx/.github/workflows/infra_apply.yaml@main
+  infra_release:
+    uses: pagopa/dx/.github/workflows/infra_apply.yaml@37c4becb6e2bee1459c53184a503868619cf1a57
     name: Release Infrastructure
     secrets: inherit
     with:
       environment: prod
       base_path: infra/resources
+      use_private_agent: true
