@@ -85,6 +85,6 @@
     "winston": "^3.2.1"
   },
   "resolutions": {
-    "eslint-plugin-jsdoc":"43.0.5"
+    "eslint-plugin-jsdoc": "43.0.5"
   }
 }
