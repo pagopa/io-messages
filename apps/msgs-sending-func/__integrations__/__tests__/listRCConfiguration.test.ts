@@ -22,7 +22,7 @@ import {
 import { UserRCConfiguration } from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 
-const baseUrl = "http://function:7071";
+const baseUrl = "http://functions:7071";
 
 export const aRemoteContentConfigurationList = [
   aRemoteContentConfiguration,

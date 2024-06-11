@@ -1,24 +1,23 @@
 {
-  "name": "@pagopa/io-functions-app-integrations",
+  "name": "@pagopa/msgs-sending-func-integrations",
   "version": "1.0.0",
   "description": "Integration test suite for integration testing",
   "license": "MIT",
   "keywords": [],
   "author": "",
   "scripts": {
-    "prestart": "npm-run-all generate-env generate",
+    "prestart": "yarn generate-env && yarn generate",
     "start": "docker-compose --env-file environments/.env up --build -d",
     "stop": "docker-compose --env-file environments/.env down",
     "stop:all": "docker-compose --env-file environments/.env down && docker image prune -a -f && docker volume prune -f",
     "test": "jest --verbose --runInBand",
-    "generate": "npm-run-all generate:*",
+    "generate": "yarn generate:definitions",
     "generate:definitions": "rimraf ./generated/definitions && shx mkdir -p ./generated/definitions && gen-api-models --api-spec ../openapi/index.yaml --no-strict --out-dir ./generated/definitions",
+    "generate-env": "yarn clean && yarn generate:env:cosmosdb && yarn generate:env:function && yarn generate:env:integration-tests",
     "generate:env:cosmosdb": "dotenv -e environments/.env envsub environments/env.cosmosdb environments/generated/env.cosmosdb",
-    "generate:env:rccosmosdb": "dotenv -e environments/.env envsub environments/env.rc.cosmosdb environments/generated/env.rc.cosmosdb",
     "generate:env:function": "dotenv -e environments/.env envsub environments/env.function environments/generated/env.function",
     "generate:env:integration-tests": "dotenv -e environments/.env envsub environments/env.integration-tests environments/generated/env.integration-tests",
-    "clean": "shx rm -rf environments/generated && shx mkdir environments/generated",
-    "generate-env": "npm-run-all clean generate:env:*"
+    "clean": "shx rm -rf environments/generated && shx mkdir environments/generated"
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",

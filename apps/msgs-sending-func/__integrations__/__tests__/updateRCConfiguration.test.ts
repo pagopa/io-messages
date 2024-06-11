@@ -17,7 +17,7 @@ import {
   aRemoteContentConfiguration
 } from "../__mocks__/mock.remote_content";
 
-const baseUrl = "http://function:7071";
+const baseUrl = "http://functions:7071";
 
 export const aRemoteContentConfigurationList = [aRemoteContentConfiguration];
 

@@ -2,18 +2,18 @@ version: "3.2"
 
 services:
 
-  functions-node-18:
-    image: functions-node-18
+  functions-node-20:
+    image: functions-node-20
     build:
       context: ..
-      dockerfile: ./docker/functions-node-18/Dockerfile
+      dockerfile: ./docker/functions-node-20/Dockerfile
     command: /bin/true
 
   redis:
     container_name: redis
     image: wodby/redis:3.2-2.1.5
     ports:
-      - "6379:6379"
+      - 6379:6379
     environment:
       REDIS_TIMEOUT: 300
       REDIS_TCP_KEEPALIVE: 60
@@ -21,6 +21,7 @@ services:
 
   cosmosdb:
     image: cosmosdb
+    container_name: cosmosdb
     env_file:
       - ./environments/generated/env.cosmosdb
     build:
@@ -29,19 +30,9 @@ services:
     ports:
       - ${COSMOSDB_PORT}:3000
 
-  cosmosdbrc:
-    image: cosmosdb
-    container_name: cosmosdbrc
-    env_file:
-      - ./environments/generated/env.rc.cosmosdb
-    build:
-      context: ../docker/cosmosdb
-      dockerfile: ./Dockerfile
-    ports:
-      - 3001:${RC_COSMOSDB_PORT}
-
   storage-account:
     image: azurite
+    container_name: storage-account
     build:
       context: ../docker/azurite
       dockerfile: ./Dockerfile
@@ -50,13 +41,13 @@ services:
       - 10001:10001
       - 10002:10002
 
-  function:
-    container_name: fn-service-messages
-    image: fn
+  functions:
+    image: functions
+    container_name: msgs-sending-func
     env_file:
       - ./environments/generated/env.function
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://function:7071/api/v1/ping"]
+      test: ["CMD", "curl", "-f", "http://functions:7071/api/v1/ping"]
       interval: 12s
       timeout: 10s
       retries: 5
@@ -67,18 +58,16 @@ services:
       - ${FUNCTION_PORT}:7071
     links:
       - cosmosdb
-      - cosmosdbrc
       - redis
       - storage-account
     depends_on:
-      - functions-node-18
+      - functions-node-20
 
   testagent:
-    container_name: fn-service-messages-testagent
-    # FIX: use node 18 instead
-    image: node:16-alpine
+    container_name: msgs-sending-func-testagent
+    image: node:20.11.1-alpine
     working_dir: /usr/src/app
-    command: tail -f /dev/null # to keep it   up&running
+    command: tail -f /dev/null # to keep it up&running
     env_file:
       - environments/generated/env.integration-tests
     volumes:
@@ -87,12 +76,9 @@ services:
     depends_on:
       cosmosdb:
         condition: service_started
-      cosmosdbrc:
-        condition: service_started
       storage-account:
         condition: service_started
-      function:
+      functions:
         condition: service_healthy
-
     links:
-      - function
+      - functions
