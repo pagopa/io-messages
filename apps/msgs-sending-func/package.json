@@ -5,7 +5,7 @@
   "scripts": {
     "prebuild": "yarn generate:definitions && yarn generate:backend-notification-hub",
     "postbuild": "dependency-check package.json --no-dev --missing ./dist/**/*.js",
-    "build": "yarn prebuild && tsc && yarn postbuild",
+    "build": "yarn install --immutable && yarn prebuild && tsc && yarn postbuild",
     "watch": "tsc --w",
     "prestart": "npm run build && func extensions install --javascript",
     "start:host": "func start --javascript",
