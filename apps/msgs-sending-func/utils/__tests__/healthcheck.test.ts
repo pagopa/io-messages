@@ -11,13 +11,10 @@ import {
   checkUrlHealth
 } from "../healthcheck";
 
-import * as cosmosUtils from "../cosmosdb";
-
 import { pipe } from "fp-ts/lib/function";
 
 import * as TE from "fp-ts/lib/TaskEither";
-import { right } from "fp-ts/lib/Either";
-import { CosmosClient } from "@azure/cosmos";
+import { isRight, isLeft, right } from "fp-ts/lib/Either";
 
 const azure_storage = require("azure-storage");
 
@@ -85,17 +82,9 @@ describe("healthcheck - storage account", () => {
     mockAzureStorageFunctions();
   });
 
-  it("should not throw exception", async done => {
-    expect.assertions(1);
-
-    pipe(
-      "",
-      checkAzureStorageHealth,
-      TE.map(_ => {
-        expect(true).toBeTruthy();
-        done();
-      })
-    )();
+  it("should not throw exception", async () => {
+    const res = await checkAzureStorageHealth("")();
+    expect(isRight(res)).toBe(true);
   });
 
   const testcases: {
@@ -114,29 +103,17 @@ describe("healthcheck - storage account", () => {
       name: "createTableService"
     }
   ];
-  test.each(testcases)(
-    "should throw exception %s",
-    async ({ name }, done: any) => {
-      const blobServiceKO = getBlobServiceKO(name);
-      azureStorageMocks[name].mockReturnValueOnce(blobServiceKO);
-
-      expect.assertions(2);
-
-      pipe(
-        "",
-        checkAzureStorageHealth,
-        TE.mapLeft(err => {
-          expect(err.length).toBe(1);
-          expect(err[0]).toBe(`AzureStorage|error - ${name}`);
-          done();
-        }),
-        TE.map(_ => {
-          expect(true).toBeFalsy();
-          done();
-        })
-      )();
+  test.each(testcases)("should throw exception %s", async ({ name }) => {
+    const blobServiceKO = getBlobServiceKO(name);
+    azureStorageMocks[name].mockReturnValueOnce(blobServiceKO);
+    const res = await checkAzureStorageHealth("")();
+    expect(isLeft(res)).toBe(true);
+    if (isLeft(res)) {
+      const err = res.left;
+      expect(err.length).toBe(1);
+      expect(err[0]).toBe(`AzureStorage|error - ${name}`);
     }
-  );
+  });
 });
 
 describe("healthcheck - cosmos db", () => {
@@ -144,40 +121,15 @@ describe("healthcheck - cosmos db", () => {
     jest.clearAllMocks();
   });
 
-  it("should return no error", async done => {
-    expect.assertions(1);
-
-    pipe(
-      checkAzureCosmosDbHealth(cosmosdbClient),
-      TE.map(_ => {
-        expect(true).toBeTruthy();
-        done();
-      }),
-      TE.mapLeft(_ => {
-        console.log(_);
-        expect(true).toBeFalsy();
-        done();
-      })
-    )();
+  it("should return no error", async () => {
+    const res = await checkAzureCosmosDbHealth(cosmosdbClient)();
+    expect(isRight(res)).toBe(true);
   });
 
-  it("should return an error if CosmosClient fails", async done => {
-    expect.assertions(1);
-
+  it("should return an error if CosmosClient fails", async () => {
     mockGetDatabaseAccount.mockImplementationOnce(mockGetDatabaseAccountKO);
-
-    pipe(
-      checkAzureCosmosDbHealth(cosmosdbClient),
-      TE.map(_ => {
-        expect(false).toBeTruthy();
-        done();
-      }),
-      TE.mapLeft(_ => {
-        console.log(_);
-        expect(true).toBeTruthy();
-        done();
-      })
-    )();
+    const res = await checkAzureCosmosDbHealth(cosmosdbClient)();
+    expect(isLeft(res)).toBe(true);
   });
 });
 
@@ -186,26 +138,9 @@ describe("healthcheck - url health", () => {
     jest.clearAllMocks();
   });
 
-  // todo
-  it("should return no error", () => {
-    expect(true).toBeTruthy();
-  });
-
-  it("should return an error if Url check fails", async done => {
-    expect.assertions(1);
-
-    pipe(
-      checkUrlHealth(""),
-      TE.map(_ => {
-        expect(false).toBeTruthy();
-        done();
-      }),
-      TE.mapLeft(_ => {
-        console.log(_);
-        expect(true).toBeTruthy();
-        done();
-      })
-    )();
+  it("should return an error if Url check fails", async () => {
+    const res = await checkUrlHealth("")();
+    expect(isLeft(res)).toBe(true);
   });
 });
 
@@ -219,26 +154,19 @@ describe("checkApplicationHealth - multiple errors - ", () => {
     mockAzureStorageFunctions();
   });
 
-  it("should return multiple errors from different checks", async done => {
+  it("should return multiple errors from different checks", async () => {
     const blobServiceKO = getBlobServiceKO("createBlobService");
     const queueServiceKO = getBlobServiceKO("createQueueService");
     azureStorageMocks["createBlobService"].mockReturnValueOnce(blobServiceKO);
     azureStorageMocks["createQueueService"].mockReturnValueOnce(queueServiceKO);
 
-    expect.assertions(3);
-
-    pipe(
-      checkApplicationHealth(cosmosdbClient),
-      TE.mapLeft(err => {
-        expect(err.length).toBe(2);
-        expect(err[0]).toBe(`AzureStorage|error - createBlobService`);
-        expect(err[1]).toBe(`AzureStorage|error - createQueueService`);
-        done();
-      }),
-      TE.map(_ => {
-        expect(true).toBeFalsy();
-        done();
-      })
-    )();
+    const res = await checkApplicationHealth(cosmosdbClient)();
+    expect(isLeft(res)).toBe(true);
+    if (isLeft(res)) {
+      const err = res.left;
+      expect(err.length).toBe(2);
+      expect(err[0]).toBe(`AzureStorage|error - createBlobService`);
+      expect(err[1]).toBe(`AzureStorage|error - createQueueService`);
+    }
   });
 });
