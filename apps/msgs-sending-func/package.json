@@ -4,8 +4,7 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "yarn openapi:bundle && yarn generate:definitions && yarn generate:backend-notification-hub",
-    "postbuild": "dependency-check package.json --no-dev --missing ./dist/**/*.js",
-    "build": "yarn prebuild && tsc && yarn postbuild",
+    "build": "tsc",
     "watch": "tsc --w",
     "test": "jest",
     "test:coverage": "jest --coverage",

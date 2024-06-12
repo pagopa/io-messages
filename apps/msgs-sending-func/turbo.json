@@ -4,6 +4,9 @@
         "prebuild" : {},
         "build": {
             "dependsOn": ["prebuild"]
+        },
+        "test:coverage": {
+            "dependsOn": ["build"]
         }
     }
 }
