@@ -37,6 +37,7 @@
       "outputMode": "errors-only"
     },
     "//#test:coverage": {
+      "dependsOn": ["^build"],
       "inputs": ["apps/**/src/**/*.ts", "packages/**/src/**/*.ts"],
       "outputs": ["coverage"],
       "outputMode": "errors-only"
