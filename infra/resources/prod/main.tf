@@ -27,7 +27,7 @@ resource "azurerm_resource_group" "itn_messages" {
 module "redis_messages" {
   source = "github.com/pagopa/terraform-azurerm-v3//redis_cache?ref=v8.8.0"
 
-  name                = "${local.product}-redis-app-messages-std-v6"
+  name                = "${local.project}-msgs-redis-01"
   resource_group_name = azurerm_resource_group.itn_messages.name
   location            = azurerm_resource_group.itn_messages.location
 
