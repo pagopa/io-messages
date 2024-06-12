@@ -62,9 +62,19 @@ variable "cosmos_db_api_endpoint" {
   description = "Cosmos DB endpoint to use as application environment variable"
 }
 
+variable "cosmos_db_api_key" {
+  type        = string
+  description = "Cosmos DB api key"
+}
+
 variable "cosmos_db_remote_content_endpoint" {
   type        = string
   description = "Cosmos DB endpoint to use as application environment variable"
+}
+
+variable "cosmos_db_remote_content_key" {
+  type        = string
+  description = "Cosmos DB api key"
 }
 
 variable "key_vault_weu_id" {
@@ -87,14 +97,14 @@ variable "appbackendli_token" {
   description = "Token to access appbackendli"
 }
 
-variable "message_storage_account_blob_uri" {
+variable "message_storage_account_blob_connection_string" {
   type        = string
-  description = "Uri to connect to message storage account"
+  description = "Connection string to connect to message storage account"
 }
 
-variable "notification_storage_account_queue_uri" {
+variable "notification_storage_account_queue_connection_string" {
   type        = string
-  description = "Uri to connect to notification storage account"
+  description = "Connection string to connect to notification storage account"
 }
 
 variable "internal_user_id" {
@@ -102,4 +112,17 @@ variable "internal_user_id" {
   description = "Internal user to bypass"
 }
 
+variable "redis_url" {
+  type        = string
+  description = "Redis url"
+}
 
+variable "redis_port" {
+  type        = string
+  description = "Redis port"
+}
+
+variable "redis_password" {
+  type        = string
+  description = "Redis password"
+}
