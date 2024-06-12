@@ -25,7 +25,7 @@ resource "azurerm_resource_group" "itn_messages" {
 }
 
 module "redis_messages" {
-  source = "github.com/pagopa/terraform-azurerm-v3//redis_cache?ref=v8.8.0"
+  source = "github.com/pagopa/terraform-azurerm-v3//redis_cache?ref=v8.21.0"
 
   name                = "${local.project}-msgs-redis-01"
   resource_group_name = azurerm_resource_group.itn_messages.name
@@ -36,7 +36,7 @@ module "redis_messages" {
   sku_name              = "Premium"
   redis_version         = "6"
   enable_authentication = true
-  zones                 = 2
+  zones                 = [1, 2]
 
   // when azure can apply patch?
   patch_schedules = [{
@@ -68,7 +68,7 @@ module "redis_messages" {
     private_dns_zone_ids = [data.azurerm_private_dns_zone.privatelink_redis_cache.id]
   }
 
-  tags = var.tags
+  tags = local.tags
 }
 
 module "functions_messages_sending" {
