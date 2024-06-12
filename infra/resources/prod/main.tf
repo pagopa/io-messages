@@ -97,9 +97,9 @@ module "functions_messages_sending" {
 
   cosmos_database_names = []
 
-  redis_url      = data.azurerm_redis_cache.redis_messages.hostname
-  redis_port     = data.azurerm_redis_cache.redis_messages.ssl_port
-  redis_password = data.azurerm_redis_cache.redis_messages.primary_access_key
+  redis_url      = module.redis_messages.hostname
+  redis_port     = module.redis_messages.ssl_port
+  redis_password = module.redis_messages.primary_access_key
 
   key_vault_weu_id          = data.azurerm_key_vault.weu.id
   key_vault_weu_messages_id = data.azurerm_key_vault.weu_messages.id
