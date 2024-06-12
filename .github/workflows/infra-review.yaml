@@ -5,20 +5,19 @@ on:
   pull_request:
     types:
       - opened
-      - edited
       - synchronize
       - reopened
       - ready_for_review
     paths:
+      - ".github/workflows/infra-**.yaml"
       - "infra/resources/**"
-      - ".github/workflows/pr_infra.yaml"
-      - ".github/workflows/release_infra.yaml"
 
 jobs:
-  code_review_prod:
+  infra_review:
     uses: pagopa/dx/.github/workflows/infra_plan.yaml@main
-    name: Code Review Infrastructure Plan
+    name: PR Prod WestEurope
     secrets: inherit
     with:
       environment: prod
       base_path: infra/resources
+      use_private_agent: true

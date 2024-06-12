@@ -13,13 +13,11 @@ services:
     container_name: redis
     image: wodby/redis:3.2-2.1.5
     ports:
-      - "6379:6379"
+      - 6379:6379
     environment:
       REDIS_TIMEOUT: 300
       REDIS_TCP_KEEPALIVE: 60
       REDIS_MAXMEMORY: 182m
-    networks:
-      - integration-tests-net
 
   cosmosdb:
     image: cosmosdb
@@ -31,21 +29,6 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - ${COSMOSDB_PORT}:3000
-    networks:
-      - integration-tests-net
-
-  cosmosdbrc:
-    image: cosmosdb
-    container_name: cosmosdbrc
-    env_file:
-      - ./environments/generated/env.rc.cosmosdb
-    build:
-      context: ../docker/cosmosdb
-      dockerfile: ./Dockerfile
-    ports:
-      - ${RC_COSMOSDB_PORT}:3000
-    networks:
-      - integration-tests-net
 
   storage-account:
     image: azurite
@@ -57,33 +40,28 @@ services:
       - 10000:10000
       - 10001:10001
       - 10002:10002
-    networks:
-      - integration-tests-net
 
-  msgs-sending-func:
-    image: msgs-sending-func
+  functions:
+    image: functions
     container_name: msgs-sending-func
     env_file:
       - ./environments/generated/env.function
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://msgs-sending-func:7071/api/v1/ping"]
+      test: ["CMD", "curl", "-f", "http://functions:7071/api/v1/ping"]
       interval: 12s
       timeout: 10s
       retries: 5
     build:
       context: ..
-      dockerfile: ./docker/msgs-sending-func/Dockerfile
+      dockerfile: ./docker/functions/Dockerfile
     ports:
       - ${FUNCTION_PORT}:7071
     links:
       - cosmosdb
-      - cosmosdbrc
       - redis
       - storage-account
     depends_on:
       - functions-node-20
-    networks:
-      - integration-tests-net
 
   testagent:
     container_name: msgs-sending-func-testagent
@@ -95,22 +73,12 @@ services:
     volumes:
       - "./:/usr/src/app"
       - "../openapi:/usr/src/openapi"
-    links:
-      - msgs-sending-func
     depends_on:
       cosmosdb:
         condition: service_started
-      cosmosdbrc:
-        condition: service_started
       storage-account:
         condition: service_started
-      msgs-sending-func:
+      functions:
         condition: service_healthy
-    networks:
-      - integration-tests-net
-
-networks:
-  integration-tests-net:
-    driver: bridge
-    driver_opts:
-      com.docker.network.driver.mtu: 1450
+    links:
+      - functions

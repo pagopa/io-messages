@@ -39,28 +39,15 @@ data "azurerm_subnet" "pep" {
   resource_group_name  = data.azurerm_virtual_network.vnet_common_itn.resource_group_name
 }
 
-/* data "azurerm_private_dns_zone" "privatelink_documents" {
-  name                = "privatelink.documents.azure.com"
+data "azurerm_private_dns_zone" "privatelink_redis_cache" {
+  name                = "privatelink.redis.cache.windows.net"
   resource_group_name = data.azurerm_resource_group.weu_common.name
-} */
-
-/* data "azuread_group" "io_developers" {
-  display_name = format("%s-%s-adgroup-developers", local.prefix, local.env_short)
-} */
-
-/* data "azuread_group" "io_admin" {
-  display_name = format("%s-%s-adgroup-admin", local.prefix, local.env_short)
-} */
+}
 
 data "azurerm_application_insights" "common" {
   name                = "${local.project_legacy}-ai-common"
   resource_group_name = data.azurerm_resource_group.weu_common.name
 }
-
-/* data "azurerm_log_analytics_workspace" "law" {
-  name                = "${local.project_legacy}-law-common"
-  resource_group_name = data.azurerm_resource_group.weu_common.name
-} */
 
 data "azurerm_key_vault_secret" "appbackendli_token" {
   name         = "appbackendli-token"

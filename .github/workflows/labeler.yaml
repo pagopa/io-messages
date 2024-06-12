@@ -1,0 +1,25 @@
+name: PR - Labeler
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  labeler:
+    name: PR Labeler
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/labeler@main
+        with:
+          sync-labels: true

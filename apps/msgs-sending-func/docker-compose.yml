@@ -3,10 +3,10 @@ version: "3.2"
 services:
 
   functions:
-    image: msgs-sending-func:v2.0.0
+    image: msgs-sending-func
     build:
       context: ./
-      dockerfile: docker/functions-node-20/Dockerfile
+      dockerfile: docker/functions/Dockerfile
     # environment:
     #   - languageWorkers__node__arguments=--inspect=0.0.0.0:5858
     env_file: 
