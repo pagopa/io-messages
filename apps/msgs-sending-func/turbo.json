@@ -1,0 +1,9 @@
+{
+    "extends": ["//"],
+    "pipeline": {
+        "prebuild" : {},
+        "build": {
+            "dependsOn": ["prebuild"]
+        }
+    }
+}
