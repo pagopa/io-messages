@@ -1,5 +1,5 @@
 resource "github_repository" "io_messages" {
-  name = local.repository
+  name        = local.repository
   description = "This is a monorepo that contains all the backend microservices and functionalities related to messaging in IO."
 
   #tfsec:ignore:github-repositories-private
