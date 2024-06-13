@@ -23,4 +23,12 @@ locals {
 
     reviewers_teams = ["io-communication-backend", "engineering-team-cloud-eng"]
   }
+
+  app_cd = {
+    secrets = {
+      "ARM_CLIENT_ID" = data.azurerm_user_assigned_identity.identity_app_prod_cd.client_id
+    }
+
+    reviewers_teams = ["io-communication-backend", "engineering-team-cloud-eng"]
+  }
 }
