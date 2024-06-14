@@ -7,7 +7,7 @@
   "author": "",
   "scripts": {
     "clean": "shx rm -rf environments/generated && shx mkdir environments/generated",
-    "prestart": "yarn clean && yarn generate-env && yarn generate",
+    "prestart": "yarn clean && shx cp environments/env.base environments/.env && yarn generate-env && yarn generate",
     "start": "yarn prestart && docker-compose --env-file environments/.env up --build -d",
     "test": "jest --verbose --runInBand",
     "integrations": "docker exec msgs-sending-func-testagent yarn test",
