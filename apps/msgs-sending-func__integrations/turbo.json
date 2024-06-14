@@ -1,0 +1,12 @@
+{
+    "extends": ["//"],
+    "pipeline": {
+        "prestart" : {},
+        "start": {
+            "dependsOn": ["prestart"]
+        },
+        "integrations": {
+            "dependsOn": ["start"]
+        }
+    }
+}

@@ -4,9 +4,10 @@ services:
 
   functions-node-20:
     image: functions-node-20
+    container_name: functions-node-20
     build:
-      context: ..
-      dockerfile: ./docker/functions-node-20/Dockerfile
+      context: ../msgs-sending-func/docker/functions-node-20
+      dockerfile: ./Dockerfile
     command: /bin/true
 
   redis:
@@ -25,7 +26,7 @@ services:
     env_file:
       - ./environments/generated/env.cosmosdb
     build:
-      context: ../docker/cosmosdb
+      context: ../msgs-sending-func/docker/cosmosdb
       dockerfile: ./Dockerfile
     ports:
       - ${COSMOSDB_PORT}:3000
@@ -34,7 +35,7 @@ services:
     image: azurite
     container_name: storage-account
     build:
-      context: ../docker/azurite
+      context: ../msgs-sending-func/docker/azurite
       dockerfile: ./Dockerfile
     ports:
       - 10000:10000
@@ -52,7 +53,7 @@ services:
       timeout: 10s
       retries: 5
     build:
-      context: ..
+      context: ../msgs-sending-func
       dockerfile: ./docker/functions/Dockerfile
     ports:
       - ${FUNCTION_PORT}:7071
@@ -72,7 +73,7 @@ services:
       - environments/generated/env.integration-tests
     volumes:
       - "./:/usr/src/app"
-      - "../openapi:/usr/src/openapi"
+      - "../msgs-sending-func/openapi:/usr/src/openapi"
     depends_on:
       cosmosdb:
         condition: service_started
