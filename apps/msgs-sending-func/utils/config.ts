@@ -91,10 +91,6 @@ export const IConfig = t.intersection([
 
     INTERNAL_USER_ID: NonEmptyString,
 
-    MESSAGE_CONTAINER_NAME: NonEmptyString,
-
-    QueueStorageConnection: NonEmptyString,
-
     FF_TYPE: withDefault(t.string, "none").pipe(FeatureFlagType),
     USE_FALLBACK: withDefault(t.string, "false").pipe(BooleanFromString),
     FF_BETA_TESTERS: withDefault(t.string, "").pipe(
@@ -104,7 +100,10 @@ export const IConfig = t.intersection([
 
     BACKEND_BASE_URL: NonEmptyString,
     BACKEND_TOKEN: NonEmptyString,
+
     MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
+    MESSAGE_CONTAINER_NAME: NonEmptyString,
+
     NOTIFICATION_QUEUE_NAME: NonEmptyString,
     NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: NonEmptyString,
 

@@ -6,18 +6,17 @@
   "keywords": [],
   "author": "",
   "scripts": {
-    "prestart": "yarn generate-env && yarn generate",
+    "clean": "shx rm -rf environments/generated && shx mkdir environments/generated",
+    "prestart": "yarn clean && shx cp environments/env.base environments/.env && yarn generate-env && yarn generate",
     "start": "yarn prestart && docker-compose --env-file environments/.env up --build -d",
-    "stop": "docker-compose --env-file environments/.env down",
-    "stop:all": "docker-compose --env-file environments/.env down && docker image prune -a -f && docker volume prune -f",
     "test": "jest --verbose --runInBand",
+    "integrations": "docker exec msgs-sending-func-testagent yarn test",
     "generate": "yarn generate:definitions",
-    "generate:definitions": "rimraf ./generated/definitions && shx mkdir -p ./generated/definitions && gen-api-models --api-spec ../openapi/index.yaml --no-strict --out-dir ./generated/definitions",
+    "generate:definitions": "rimraf ./generated/definitions && shx mkdir -p ./generated/definitions && gen-api-models --api-spec ../msgs-sending-func/openapi/index.yaml --no-strict --out-dir ./generated/definitions",
     "generate-env": "yarn clean && yarn generate:env:cosmosdb && yarn generate:env:function && yarn generate:env:integration-tests",
     "generate:env:cosmosdb": "dotenv -e environments/.env envsub environments/env.cosmosdb environments/generated/env.cosmosdb",
     "generate:env:function": "dotenv -e environments/.env envsub environments/env.function environments/generated/env.function",
-    "generate:env:integration-tests": "dotenv -e environments/.env envsub environments/env.integration-tests environments/generated/env.integration-tests",
-    "clean": "shx rm -rf environments/generated && shx mkdir environments/generated"
+    "generate:env:integration-tests": "dotenv -e environments/.env envsub environments/env.integration-tests environments/generated/env.integration-tests"
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",

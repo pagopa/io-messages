@@ -6,7 +6,7 @@ import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/genera
 
 import { NewMessageWithContent } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { NonEmptyString, OrganizationFiscalCode } from "@pagopa/ts-commons/lib/strings";
 import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
 import { aServiceID, serviceList } from "./mock.services";
 import { RetrievedMessage } from "@pagopa/io-functions-commons/dist/src/models/message";
@@ -97,6 +97,7 @@ export const mockEnrichMessage = (
     time_to_live: message.timeToLiveSeconds,
     message_title: message.content.subject,
     service_name: service.serviceName,
+    organization_fiscal_code: service.organizationFiscalCode,
     organization_name: service.organizationName,
     category: { tag: TagEnumBase.GENERIC },
     is_archived: false,
