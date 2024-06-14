@@ -106,8 +106,8 @@ module "functions_messages_sending" {
 
   appbackendli_token = data.azurerm_key_vault_secret.appbackendli_token.value
 
-  message_storage_account_blob_connection_string       = data.azurerm_storage_account.storage_api.primary_blob_endpoint
-  notification_storage_account_queue_connection_string = data.azurerm_storage_account.storage_push_notifications.primary_queue_endpoint
+  message_storage_account_blob_connection_string       = data.azurerm_storage_account.storage_api.primary_connection_string
+  notification_storage_account_queue_connection_string = data.azurerm_storage_account.storage_push_notifications.primary_connection_string
 
   internal_user_id = data.azurerm_key_vault_secret.internal_user.value
 
