@@ -1,4 +1,5 @@
 import { InvocationContext, app } from "@azure/functions";
+
 import { configSchema } from "./config.js";
 
 const config = configSchema.parse({
@@ -24,7 +25,7 @@ export const migrateGcmToFcmV1Handler = async (
 };
 
 app.storageBlob("MigrateGcmToFcmV1", {
-  path: config.storage.gcmMigration.containerName,
   connection: "AzureWebJobsStorage",
   handler: migrateGcmToFcmV1Handler,
+  path: config.storage.gcmMigration.containerName,
 });
