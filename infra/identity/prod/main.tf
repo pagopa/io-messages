@@ -29,6 +29,11 @@ module "federated_identities" {
 
   repositories = [local.repo_name]
 
+  continous_delivery = {
+    enable = true,
+    roles  = local.environment_cd_roles
+  }
+
   tags = local.tags
 }
 
