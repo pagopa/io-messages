@@ -15,4 +15,18 @@ locals {
     Owner       = "IO Comunicazione"
     Source      = "https://github.com/pagopa/io-messages/blob/main/infra/identity/prod"
   }
+
+  environment_cd_roles = {
+    subscription = [
+      "Contributor"
+    ]
+    resource_groups = {
+      terraform-state-rg = [
+        "Storage Blob Data Contributor"
+      ],
+      io-p-itn-msgs-rg-01 = [
+        "Role Based Access Control Administrator"
+      ]
+    }
+  }
 }
