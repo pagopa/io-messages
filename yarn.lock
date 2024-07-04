@@ -57,6 +57,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@azure-rest/core-client@npm:^2.0.0":
+  version: 2.1.0
+  resolution: "@azure-rest/core-client@npm:2.1.0"
+  dependencies:
+    "@azure/abort-controller": "npm:^2.0.0"
+    "@azure/core-auth": "npm:^1.3.0"
+    "@azure/core-rest-pipeline": "npm:^1.5.0"
+    "@azure/core-tracing": "npm:^1.0.1"
+    "@azure/core-util": "npm:^1.0.0"
+    tslib: "npm:^2.6.2"
+  checksum: 10c0/5c3a2dff14cd7f16b6a40c19eae94baf17c1a25110dcde7d8d9ef967a24094cfa5681e0ae7c987f34bb47ed14675b2c6c545d65617e6b49a98fb9eb75d1cd448
+  languageName: node
+  linkType: hard
+
 "@azure/abort-controller@npm:^1.0.0":
   version: 1.1.0
   resolution: "@azure/abort-controller@npm:1.1.0"
@@ -66,7 +80,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/abort-controller@npm:^2.0.0":
+"@azure/abort-controller@npm:^2.0.0, @azure/abort-controller@npm:^2.1.2":
   version: 2.1.2
   resolution: "@azure/abort-controller@npm:2.1.2"
   dependencies:
@@ -75,7 +89,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/core-auth@npm:^1.3.0, @azure/core-auth@npm:^1.4.0, @azure/core-auth@npm:^1.5.0":
+"@azure/core-auth@npm:^1.3.0, @azure/core-auth@npm:^1.4.0, @azure/core-auth@npm:^1.5.0, @azure/core-auth@npm:^1.7.2":
   version: 1.7.2
   resolution: "@azure/core-auth@npm:1.7.2"
   dependencies:
@@ -134,7 +148,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/core-paging@npm:^1.1.1":
+"@azure/core-lro@npm:^2.7.2":
+  version: 2.7.2
+  resolution: "@azure/core-lro@npm:2.7.2"
+  dependencies:
+    "@azure/abort-controller": "npm:^2.0.0"
+    "@azure/core-util": "npm:^1.2.0"
+    "@azure/logger": "npm:^1.0.0"
+    tslib: "npm:^2.6.2"
+  checksum: 10c0/bee809e47661b40021bbbedf88de54019715fdfcc95ac552b1d901719c29d78e293eeab51257b8f5155aac768eb4ea420715004d00d6e32109f5f97db5960d39
+  languageName: node
+  linkType: hard
+
+"@azure/core-paging@npm:^1.1.1, @azure/core-paging@npm:^1.6.2":
   version: 1.6.2
   resolution: "@azure/core-paging@npm:1.6.2"
   dependencies:
@@ -177,6 +203,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@azure/core-rest-pipeline@npm:^1.15.2, @azure/core-rest-pipeline@npm:^1.5.0":
+  version: 1.16.1
+  resolution: "@azure/core-rest-pipeline@npm:1.16.1"
+  dependencies:
+    "@azure/abort-controller": "npm:^2.0.0"
+    "@azure/core-auth": "npm:^1.4.0"
+    "@azure/core-tracing": "npm:^1.0.1"
+    "@azure/core-util": "npm:^1.9.0"
+    "@azure/logger": "npm:^1.0.0"
+    http-proxy-agent: "npm:^7.0.0"
+    https-proxy-agent: "npm:^7.0.0"
+    tslib: "npm:^2.6.2"
+  checksum: 10c0/73ec162dca67f3a41925548efdbd99a67fa38512fa5edd34451d44df12205573c32190a1902329e728320782bb7f083e2204ccf7318f372e8d2a472fce3739fb
+  languageName: node
+  linkType: hard
+
 "@azure/core-tracing@npm:1.0.0-preview.13":
   version: 1.0.0-preview.13
   resolution: "@azure/core-tracing@npm:1.0.0-preview.13"
@@ -187,7 +229,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/core-tracing@npm:^1.0.0, @azure/core-tracing@npm:^1.0.1":
+"@azure/core-tracing@npm:^1.0.0, @azure/core-tracing@npm:^1.0.1, @azure/core-tracing@npm:^1.1.2":
   version: 1.1.2
   resolution: "@azure/core-tracing@npm:1.1.2"
   dependencies:
@@ -206,7 +248,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/core-util@npm:^1.0.0, @azure/core-util@npm:^1.1.0, @azure/core-util@npm:^1.1.1, @azure/core-util@npm:^1.6.1, @azure/core-util@npm:^1.9.0":
+"@azure/core-util@npm:^1.0.0, @azure/core-util@npm:^1.1.0, @azure/core-util@npm:^1.1.1, @azure/core-util@npm:^1.2.0, @azure/core-util@npm:^1.6.1, @azure/core-util@npm:^1.9.0":
   version: 1.9.0
   resolution: "@azure/core-util@npm:1.9.0"
   dependencies:
@@ -216,7 +258,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/core-xml@npm:^1.0.0, @azure/core-xml@npm:^1.3.2":
+"@azure/core-xml@npm:^1.0.0, @azure/core-xml@npm:^1.3.2, @azure/core-xml@npm:^1.4.2":
   version: 1.4.2
   resolution: "@azure/core-xml@npm:1.4.2"
   dependencies:
@@ -293,12 +335,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/logger@npm:^1.0.0":
+"@azure/logger@npm:^1.0.0, @azure/logger@npm:^1.1.2":
   version: 1.1.2
   resolution: "@azure/logger@npm:1.1.2"
   dependencies:
     tslib: "npm:^2.6.2"
   checksum: 10c0/829c1da363b8fe732ca26326400575dc824e1032974dc499db539e9599e0e4f1b1f4bf936b68329171fece7e2d4bba3ffaaebb35ac60b73db4715c6dc026147a
+  languageName: node
+  linkType: hard
+
+"@azure/notification-hubs@npm:^1.2.3":
+  version: 1.2.3
+  resolution: "@azure/notification-hubs@npm:1.2.3"
+  dependencies:
+    "@azure-rest/core-client": "npm:^2.0.0"
+    "@azure/abort-controller": "npm:^2.1.2"
+    "@azure/core-auth": "npm:^1.7.2"
+    "@azure/core-lro": "npm:^2.7.2"
+    "@azure/core-paging": "npm:^1.6.2"
+    "@azure/core-rest-pipeline": "npm:^1.15.2"
+    "@azure/core-tracing": "npm:^1.1.2"
+    "@azure/core-util": "npm:^1.9.0"
+    "@azure/core-xml": "npm:^1.4.2"
+    "@azure/logger": "npm:^1.1.2"
+    tslib: "npm:^2.6.2"
+  checksum: 10c0/0d35a4b1ead22919535a74ee9b88ace2947d85bd888ddcfc8798132e4ce02a23726284cd46cce8512d2d16af1d04ac833bf72b927922f86064a41b76368acd71
   languageName: node
   linkType: hard
 
@@ -7300,6 +7361,7 @@ __metadata:
   resolution: "gcm-migration@workspace:apps/push-gcm-installation-migration"
   dependencies:
     "@azure/functions": "npm:^4.3.0"
+    "@azure/notification-hubs": "npm:^1.2.3"
     "@pagopa/eslint-config": "npm:^4.0.1"
     "@types/node": "npm:^20.12.2"
     "@vitest/coverage-v8": "npm:^1.5.0"
