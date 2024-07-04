@@ -1,3 +1,5 @@
+import { NotificationHubClients } from "@/domain/notification-hub.js";
+import { RestError } from "@azure/core-rest-pipeline";
 import {
   FcmLegacyInstallation,
   NotificationHubsClient,
@@ -27,13 +29,56 @@ const updateGcmInstallation = async (
     },
   });
 
+/*
+ * Return the correct partition of the notification-hub
+ * */
+
+export const nhPartitionSelector = (
+  nhClients: NotificationHubClients,
+  installationId: string,
+): Error | NotificationHubsClient => {
+  switch (installationId.charAt(0)) {
+    case "0":
+    case "1":
+    case "2":
+    case "3":
+      return nhClients.nhClientPartition1;
+    case "4":
+    case "5":
+    case "6":
+    case "7":
+      return nhClients.nhClientPartition2;
+    case "8":
+    case "9":
+    case "A":
+    case "B":
+      return nhClients.nhClientPartition3;
+    case "C":
+    case "D":
+    case "E":
+    case "F":
+      return nhClients.nhClientPartition4;
+    default:
+      return new Error("invalid installationId");
+  }
+};
+
 export const migrateGcmInstallationToFcmV1 = async (
-  installation: FcmLegacyInstallation,
-  nhClient: NotificationHubsClient,
+  installationId: string,
+  nhClients: NotificationHubClients,
 ): Promise<void> => {
+  const nhClient = nhPartitionSelector(nhClients, installationId);
+
+  // The installationId is invalid, we just want to skip
+  if (nhClient instanceof Error) return;
+
   try {
-    await updateGcmInstallation(installation, nhClient);
+    const installation = await nhClient.getInstallation(installationId);
+    if (installation.platform === "gcm")
+      await updateGcmInstallation(installation, nhClient);
   } catch (error) {
+    // if we can't find the installation we just want to throw
+    if (error instanceof RestError && error.statusCode === 404) return;
     throw new Error(JSON.stringify(error));
   }
 };
