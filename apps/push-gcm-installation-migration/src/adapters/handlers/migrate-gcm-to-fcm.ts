@@ -37,7 +37,7 @@ export const nhPartitionSelector = (
   nhClients: NotificationHubClients,
   installationId: string,
 ): Error | NotificationHubsClient => {
-  switch (installationId.charAt(0)) {
+  switch (installationId.charAt(0).toLowerCase()) {
     case "0":
     case "1":
     case "2":
@@ -50,16 +50,16 @@ export const nhPartitionSelector = (
       return nhClients.nhClientPartition2;
     case "8":
     case "9":
-    case "A":
-    case "B":
+    case "a":
+    case "b":
       return nhClients.nhClientPartition3;
-    case "C":
-    case "D":
-    case "E":
-    case "F":
+    case "c":
+    case "d":
+    case "e":
+    case "f":
       return nhClients.nhClientPartition4;
     default:
-      return new Error("invalid installationId");
+      return new Error("Invalid installationId");
   }
 };
 
