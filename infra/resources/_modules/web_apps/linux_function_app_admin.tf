@@ -1,10 +1,3 @@
-locals {
-  notif_func = {
-    common_app_settings = {
-    }
-  }
-}
-
 module "admin_func" {
   source = "git::https://github.com/pagopa/dx.git//infra/modules/azure_function_app?ref=main"
 
@@ -20,13 +13,11 @@ module "admin_func" {
 
   health_check_path = "/api/health"
 
-  app_settings = merge(local.notif_func.common_app_settings, {
-    NODE_ENVIRONMENT = "production"
-  })
-
-  slot_app_settings = merge(local.notif_func.common_app_settings, {
-    NODE_ENVIRONMENT = "staging"
-  })
+  app_settings = {
+    NODE_ENVIRONMENT          = "production",
+    GCM_MIGRATION_PATH        = "gcm-migration/part-{name}",
+    GCM_MIGRATION__serviceUri = var.gcm_migration_blob.endpoint
+  }
 
   sticky_app_setting_names = ["NODE_ENVIRONMENT"]
 
@@ -36,4 +27,11 @@ module "admin_func" {
   subnet_pep_id = var.subnet_pep_id
 
   tags = var.tags
+}
+
+resource "azurerm_role_assignment" "notif_func" {
+  for_each             = toset(["Storage Blob Data Owner", "Storage Queue Data Contributor"])
+  scope                = var.gcm_migration_blob.id
+  role_definition_name = each.key
+  principal_id         = module.admin_func.function_app.function_app.principal_id
 }

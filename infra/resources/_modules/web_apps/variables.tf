@@ -40,3 +40,10 @@ variable "subnet_cidrs" {
     notif_func = string
   })
 }
+
+variable "gcm_migration_blob" {
+  type = object({
+    id       = string
+    endpoint = string
+  })
+}

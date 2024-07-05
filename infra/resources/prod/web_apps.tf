@@ -25,4 +25,9 @@ module "web_apps" {
   subnet_cidrs = {
     notif_func = "10.20.8.0/26"
   }
+
+  gcm_migration_blob = {
+    id       = data.azurerm_storage_account.iopstexportdata.id,
+    endpoint = data.azurerm_storage_account.iopstexportdata.primary_blob_endpoint
+  }
 }
