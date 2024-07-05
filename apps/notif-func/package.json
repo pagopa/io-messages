@@ -17,6 +17,7 @@
   "dependencies": {
     "@azure/functions": "^4.3.0",
     "@azure/notification-hubs": "^1.2.3",
+    "pino": "^9.2.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
