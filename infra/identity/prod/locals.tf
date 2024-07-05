@@ -27,7 +27,7 @@ locals {
       io-p-itn-msgs-rg-01 = [
         "Role Based Access Control Administrator"
       ],
-      io-p-operations-rg = [
+      io-p-rg-operations = [
         "Role Based Access Control Administrator"
       ]
     }
