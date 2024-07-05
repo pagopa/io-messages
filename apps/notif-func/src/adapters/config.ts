@@ -31,7 +31,7 @@ const configFromEnvironment = envSchema
           Object.entries(env)
             .filter(([envName]) => envName.startsWith(prefix))
             .map(([envName, envValue]) => [
-              envName.slice(prefix.length).replace("_", "-"),
+              envName.slice(prefix.length).replaceAll("_", "-"),
               {
                 connectionString: envValue,
               },
