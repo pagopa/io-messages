@@ -1,0 +1,9 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "GCM_MIGRATION_PATH": "my-path/{file}",
+    "NOTIFICATION_HUBS_my-hub-name": "connstring"
+  }
+}
