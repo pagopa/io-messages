@@ -34,4 +34,8 @@ module "web_apps" {
   }
 
   application_insights = data.azurerm_application_insights.common
+
+  common_key_vault = data.azurerm_key_vault.weu_common
+
+  tenant_id = data.azurerm_client_config.current.tenant_id
 }

@@ -57,3 +57,14 @@ variable "application_insights" {
     connection_string = string
   })
 }
+
+variable "common_key_vault" {
+  type = object({
+    id   = string
+    name = string
+  })
+}
+
+variable "tenant_id" {
+  type = string
+}

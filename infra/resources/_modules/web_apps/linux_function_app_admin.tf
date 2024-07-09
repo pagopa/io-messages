@@ -16,11 +16,12 @@ module "admin_func" {
   health_check_path = "/api/health"
 
   app_settings = {
-    NODE_ENVIRONMENT               = "production",
-    GCM_MIGRATION_PATH             = "gcm-migration/part-{name}",
-    GCM_MIGRATION_QUEUE_NAME       = var.gcm_migration_storage.queue.name
-    GCM_MIGRATION__serviceUri      = var.gcm_migration_storage.blob_endpoint,
-    GCM_MIGRATION__queueServiceUri = var.gcm_migration_storage.queue_endpoint
+    NODE_ENVIRONMENT                  = "production",
+    GCM_MIGRATION_PATH                = "gcm-migration/part-{name}",
+    GCM_MIGRATION_QUEUE_NAME          = var.gcm_migration_storage.queue.name
+    GCM_MIGRATION__serviceUri         = var.gcm_migration_storage.blob_endpoint,
+    GCM_MIGRATION__queueServiceUri    = var.gcm_migration_storage.queue_endpoint,
+    NOTIFICATION_HUBS_io_p_ntf_common = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=common-AZURE-NH-ENDPOINT)"
   }
 
   sticky_app_setting_names = ["NODE_ENVIRONMENT"]
@@ -38,4 +39,14 @@ resource "azurerm_role_assignment" "notif_func" {
   scope                = var.gcm_migration_storage.id
   role_definition_name = each.key
   principal_id         = module.admin_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_key_vault_access_policy" "notif_func_kv_access_policy" {
+  key_vault_id = var.common_key_vault.id
+  tenant_id    = var.tenant_id
+  object_id    = module.admin_func.function_app.function_app.principal_id
+
+  secret_permissions      = ["Get"]
+  storage_permissions     = []
+  certificate_permissions = []
 }
