@@ -11,6 +11,9 @@ const logger = pino({
 const prefix = "NOTIFICATION_HUBS_";
 
 export const configSchema = z.object({
+  appInsights: z.object({
+    connectionString: z.string().min(1),
+  }),
   notificationHubs: notificationHubsConfigSchema,
   storage: z.object({
     gcmMigrationInput: z.object({
@@ -26,6 +29,9 @@ export type Config = z.TypeOf<typeof configSchema>;
 const configFromEnvironment = envSchema
   .transform(
     (env): Config => ({
+      appInsights: {
+        connectionString: env.APPLICATIONINSIGHTS_CONNECTION_STRING,
+      },
       // into a map with foo=>{connectionString: my-conn-string}
       notificationHubs: {
         hubs: new Map(

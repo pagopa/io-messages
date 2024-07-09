@@ -1,5 +1,5 @@
 import { app, output } from "@azure/functions";
-import * as appInsights from "applicationinsights";
+import { TelemetryClient } from "applicationinsights";
 
 import { Config, loadConfigFromEnvironment } from "./adapters/config.js";
 import migrateGcmToFcmV1 from "./adapters/functions/migrate-gcm-to-fcm.js";
@@ -7,8 +7,9 @@ import splitInstallationChunks from "./adapters/functions/split-installation-chu
 import { createNotificationHubClientFactory } from "./adapters/notification-hubs/index.js";
 
 async function main(config: Config) {
-  appInsights.setup();
-  appInsights.start();
+  const telemetryClient = new TelemetryClient(
+    config.appInsights.connectionString,
+  );
 
   app.http("Health", {
     authLevel: "anonymous",
@@ -34,13 +35,13 @@ async function main(config: Config) {
   app.storageBlob("SplitInstallationChunks", {
     connection,
     extraOutputs: [queueOutput],
-    handler: splitInstallationChunks(queueOutput, appInsights.defaultClient),
+    handler: splitInstallationChunks(queueOutput, telemetryClient),
     path: config.storage.gcmMigrationInput.path,
   });
 
   app.storageQueue("MigrateGcmToFcmV1", {
     connection,
-    handler: migrateGcmToFcmV1(nhClientFactory, appInsights.defaultClient),
+    handler: migrateGcmToFcmV1(nhClientFactory, telemetryClient),
     queueName,
   });
 }
