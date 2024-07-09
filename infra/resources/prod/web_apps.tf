@@ -26,8 +26,10 @@ module "web_apps" {
     notif_func = "10.20.8.0/26"
   }
 
-  gcm_migration_blob = {
-    id       = data.azurerm_storage_account.iopstexportdata.id,
-    endpoint = data.azurerm_storage_account.iopstexportdata.primary_blob_endpoint
+  gcm_migration_storage = {
+    id             = data.azurerm_storage_account.iopstexportdata.id,
+    blob_endpoint  = data.azurerm_storage_account.iopstexportdata.primary_blob_endpoint
+    queue_endpoint = data.azurerm_storage_account.iopstexportdata.primary_queue_endpoint
+    queue          = azurerm_storage_queue.gcm_migrations
   }
 }

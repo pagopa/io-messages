@@ -41,9 +41,13 @@ variable "subnet_cidrs" {
   })
 }
 
-variable "gcm_migration_blob" {
+variable "gcm_migration_storage" {
   type = object({
-    id       = string
-    endpoint = string
+    id             = string
+    blob_endpoint  = string
+    queue_endpoint = string
+    queue = object({
+      name = string
+    })
   })
 }

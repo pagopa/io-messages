@@ -16,6 +16,7 @@ export const configSchema = z.object({
     gcmMigrationInput: z.object({
       connection: z.string().min(1),
       path: z.string().min(1),
+      queueName: z.string().min(1),
     }),
   }),
 });
@@ -43,6 +44,7 @@ const configFromEnvironment = envSchema
         gcmMigrationInput: {
           connection: "GCM_MIGRATION",
           path: env.GCM_MIGRATION_PATH,
+          queueName: env.GCM_MIGRATION_QUEUE_NAME,
         },
       },
     }),
