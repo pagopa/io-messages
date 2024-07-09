@@ -6,6 +6,8 @@ module "admin_func" {
     instance_number = "01"
   })
 
+  application_insights_connection_string = var.application_insights.connection_string
+
   tier = "test"
 
   resource_group_name                  = var.resource_group_name

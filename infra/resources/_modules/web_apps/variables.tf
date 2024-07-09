@@ -51,3 +51,9 @@ variable "gcm_migration_storage" {
     })
   })
 }
+
+variable "application_insights" {
+  type = object({
+    connection_string = string
+  })
+}

@@ -32,4 +32,6 @@ module "web_apps" {
     queue_endpoint = data.azurerm_storage_account.iopstexportdata.primary_queue_endpoint
     queue          = azurerm_storage_queue.gcm_migrations
   }
+
+  application_insights = data.azurerm_application_insights.common
 }
