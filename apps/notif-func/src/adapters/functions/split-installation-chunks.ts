@@ -12,7 +12,7 @@ const handler =
       ctx.error("Invalid input");
       return;
     }
-    const lines = blob.toString("utf-8").split("\n");
+    const lines = blob.toString("utf-8").trim().split("\n");
 
     const installations = lines.map((line) => {
       const [id, , hubName] = line.split(",");
