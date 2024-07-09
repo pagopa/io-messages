@@ -8,7 +8,6 @@ import { createNotificationHubClientFactory } from "./adapters/notification-hubs
 
 async function main(config: Config) {
   appInsights.setup();
-  appInsights.defaultClient.config.samplingPercentage = 100;
   appInsights.start();
 
   app.http("Health", {
