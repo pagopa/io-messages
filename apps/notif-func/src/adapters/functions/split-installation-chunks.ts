@@ -22,11 +22,13 @@ const handler =
     });
 
     installations.forEach(({ hubName, id }) => {
-      telemetryClient.context.tags[telemetryClient.context.keys.userId] = id;
       telemetryClient.trackEvent({
         name: "io.msgs.installationId.migration.queued",
         properties: {
           hubName,
+        },
+        tagOverrides: {
+          "ai.user.id": id,
         },
       });
     });

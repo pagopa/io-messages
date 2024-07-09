@@ -22,12 +22,13 @@ const handler =
       const installation = installationSchema.parse(item);
       const client = nhClientFactory(installation.hubName);
       await migrateGcmInstallationToFcmV1(installation.id, client);
-      telemetryClient.context.tags[telemetryClient.context.keys.userId] =
-        installation.id;
       telemetryClient.trackEvent({
         name: "io.msgs.installationId.migration.finished",
         properties: {
           hubName: installation.hubName,
+        },
+        tagOverrides: {
+          "ai.user.id": installation.id,
         },
       });
     } catch (err) {
