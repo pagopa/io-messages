@@ -12,7 +12,7 @@ jobs:
       workspace_name: notif-func
       environment: app-prod
       resource_group_name: io-p-itn-msgs-rg-01
-      web_app_name: io-p-itn-msgs-notif-func-01
+      web_app_name: io-p-itn-msgs-notif-func-02
       health_check_path: /api/health
       use_staging_slot: false
       use_private_agent: true

@@ -1,9 +1,9 @@
-/*module "admin_func" {
+module "admin_func" {
   source = "git::https://github.com/pagopa/dx.git//infra/modules/azure_function_app?ref=main"
 
   environment = merge(var.environment, {
     app_name        = "notif",
-    instance_number = "01"
+    instance_number = "02"
   })
 
   application_insights_connection_string   = var.application_insights.connection_string
@@ -50,4 +50,4 @@ resource "azurerm_key_vault_access_policy" "notif_func_kv_access_policy" {
   secret_permissions      = ["Get"]
   storage_permissions     = []
   certificate_permissions = []
-}*/
+}
