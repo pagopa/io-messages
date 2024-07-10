@@ -8,7 +8,7 @@ module "admin_func" {
 
   application_insights_connection_string = var.application_insights.connection_string
 
-  tier = "test"
+  tier = "premium"
 
   resource_group_name                  = var.resource_group_name
   private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name
