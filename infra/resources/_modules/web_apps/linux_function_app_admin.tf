@@ -17,12 +17,16 @@ module "admin_func" {
   health_check_path = "/api/health"
 
   app_settings = {
-    NODE_ENVIRONMENT                  = "production",
-    GCM_MIGRATION_PATH                = "gcm-migration/part-{name}",
-    GCM_MIGRATION_QUEUE_NAME          = var.gcm_migration_storage.queue.name
-    GCM_MIGRATION__serviceUri         = var.gcm_migration_storage.blob_endpoint,
-    GCM_MIGRATION__queueServiceUri    = var.gcm_migration_storage.queue_endpoint,
-    NOTIFICATION_HUBS_io_p_ntf_common = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=common-AZURE-NH-ENDPOINT)"
+    NODE_ENVIRONMENT                              = "production",
+    GCM_MIGRATION_PATH                            = "gcm-migration/part-{name}",
+    GCM_MIGRATION_QUEUE_NAME                      = var.gcm_migration_storage.queue.name
+    GCM_MIGRATION__serviceUri                     = var.gcm_migration_storage.blob_endpoint,
+    GCM_MIGRATION__queueServiceUri                = var.gcm_migration_storage.queue_endpoint,
+    NOTIFICATION_HUBS_io_p_ntf_common             = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=common-AZURE-NH-ENDPOINT)"
+    NOTIFICATION_HUBS_io_p_ntf_common_partition_1 = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=common-partition-1-AZURE-NH-ENDPOINT)"
+    NOTIFICATION_HUBS_io_p_ntf_common_partition_2 = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=common-partition-2-AZURE-NH-ENDPOINT)"
+    NOTIFICATION_HUBS_io_p_ntf_common_partition_3 = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=common-partition-3-AZURE-NH-ENDPOINT)"
+    NOTIFICATION_HUBS_io_p_ntf_common_partition_4 = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=common-partition-4-AZURE-NH-ENDPOINT)"
   }
 
   sticky_app_setting_names = ["NODE_ENVIRONMENT"]
