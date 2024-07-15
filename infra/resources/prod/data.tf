@@ -6,6 +6,10 @@ data "azurerm_resource_group" "weu_common" {
   name = "${local.project_legacy}-rg-common"
 }
 
+data "azurerm_resource_group" "weu_operations" {
+  name = "${local.project_legacy}-rg-operations"
+}
+
 data "azurerm_resource_group" "weu_sec" {
   name = "${local.project_legacy}-sec-rg"
 }
@@ -21,6 +25,11 @@ data "azurerm_resource_group" "notifications_rg" {
 data "azurerm_key_vault" "weu" {
   name                = "${local.project_legacy}-kv"
   resource_group_name = data.azurerm_resource_group.weu_sec.name
+}
+
+data "azurerm_key_vault" "weu_common" {
+  name                = "${local.project_legacy}-kv-common"
+  resource_group_name = data.azurerm_resource_group.weu_common.name
 }
 
 data "azurerm_key_vault" "weu_messages" {
@@ -77,4 +86,9 @@ data "azurerm_storage_account" "storage_api" {
 data "azurerm_storage_account" "storage_push_notifications" {
   name                = replace(format("%s-weu-messages-notifst", local.project_legacy), "-", "")
   resource_group_name = data.azurerm_resource_group.notifications_rg.name
+}
+
+data "azurerm_storage_account" "iopstexportdata" {
+  name                = "iopstexportdata"
+  resource_group_name = data.azurerm_resource_group.weu_operations.name
 }

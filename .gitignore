@@ -89,6 +89,7 @@ generated
 
 # ESLint files
 !.eslintrc.js
+!eslint.config.js
 .eslintcache
 
 azure-functions-core-tools

@@ -40,3 +40,31 @@ variable "subnet_cidrs" {
     notif_func = string
   })
 }
+
+variable "gcm_migration_storage" {
+  type = object({
+    id             = string
+    blob_endpoint  = string
+    queue_endpoint = string
+    queue = object({
+      name = string
+    })
+  })
+}
+
+variable "application_insights" {
+  type = object({
+    connection_string = string
+  })
+}
+
+variable "common_key_vault" {
+  type = object({
+    id   = string
+    name = string
+  })
+}
+
+variable "tenant_id" {
+  type = string
+}
