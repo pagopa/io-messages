@@ -157,7 +157,6 @@ describe("healthcheck - cosmos db", () => {
         done();
       }),
       TE.mapLeft(_ => {
-        console.log(_);
         expect(true).toBeFalsy();
         done();
       })
@@ -176,7 +175,6 @@ describe("healthcheck - cosmos db", () => {
         done();
       }),
       TE.mapLeft(_ => {
-        console.log(_);
         expect(true).toBeTruthy();
         done();
       })
@@ -204,7 +202,6 @@ describe("healthcheck - url health", () => {
         done();
       }),
       TE.mapLeft(_ => {
-        console.log(_);
         expect(true).toBeTruthy();
         done();
       })
