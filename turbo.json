@@ -5,7 +5,7 @@
       "dependsOn": ["^build", "^typecheck"],
       "inputs": ["src/**/*.ts"],
       "outputs": ["dist/**"],
-      "outputMode": "errors-only"
+      "outputMode": "full"
     },
     "lint": {
       "inputs": ["src/**/*.ts"],
@@ -23,7 +23,7 @@
     "test:coverage": {
       "dependsOn": ["^test"],
       "inputs": ["src/**/*.spec.ts"],
-      "outputMode": "errors-only"
+      "outputMode": "full"
     },
     "format": {
       "outputMode": "errors-only"

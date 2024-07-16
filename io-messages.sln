@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apps", "apps", "{78BE1EA2-35CB-4398-A89A-35E6602ED1B9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "extensions", "apps\msgs-sending-func\extensions.csproj", "{F1F59101-2FB1-4ACA-908A-5E85D71E3CED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F1F59101-2FB1-4ACA-908A-5E85D71E3CED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1F59101-2FB1-4ACA-908A-5E85D71E3CED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1F59101-2FB1-4ACA-908A-5E85D71E3CED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1F59101-2FB1-4ACA-908A-5E85D71E3CED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F1F59101-2FB1-4ACA-908A-5E85D71E3CED} = {78BE1EA2-35CB-4398-A89A-35E6602ED1B9}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A398A58C-22DA-46CE-99CB-CBF0CE6ED817}
+	EndGlobalSection
+EndGlobal
