@@ -5,7 +5,7 @@
       "dependsOn": ["^build", "^typecheck"],
       "inputs": ["src/**/*.ts"],
       "outputs": ["dist/**"],
-      "outputMode": "full"
+      "outputMode": "errors-only"
     },
     "lint": {
       "inputs": ["src/**/*.ts"],
