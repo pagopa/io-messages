@@ -7,14 +7,16 @@
     "container-start": "echo 'container starting' && docker-compose --env-file environments/env.base up -d",
     "integrations": "yarn run container-start && docker exec testagent-msgs-sending-func yarn test",
     "container-stop": "echo 'container stopping' && docker-compose --env-file environments/env.base down",
-    "definitions-msgs-sending-func-generate": "gen-api-models --api-spec ../apps/msgs-sending-func/openapi/index.yaml --no-strict --out-dir ./generated/definitions",
+    "definitions-msgs-sending-func-generate": "gen-api-models --api-spec ../apps/msgs-sending-func/openapi/index.yaml --no-strict --out-dir ./msgs-sending-func/generated/definitions",
     "definitions-generate": "yarn run definitions-msgs-sending-func-generate",
     "env-clean": "rm -rf environments/generated/**",
     "definitions-clean": "rm -rf ./generated/definitions/*",
     "env-generate-cosmosdb": "echo 'generating cosmosdb environment' && dotenv -e environments/env.base envsub environments/env.cosmosdb environments/generated/env.cosmosdb",
     "env-generate-msgs-sending-func": "echo 'generating msgs-sending-func environment' && dotenv -e environments/env.base envsub environments/env.msgs-sending-func environments/generated/env.msgs-sending-func",
+    "env-generate-msgs-app-func": "echo 'generating msgs-app-func environment' && dotenv -e environments/env.base envsub environments/env.msgs-app-func environments/generated/env.msgs-app-func",
     "env-generate-testagent-msgs-sending-func": "echo 'generating testagent-msgs-sending-func' && dotenv -e environments/env.base envsub environments/env.testagent-msgs-sending-func environments/generated/env.testagent-msgs-sending-func",
-    "env-generate": "mkdir environments/generated && yarn run env-generate-cosmosdb & yarn run env-generate-msgs-sending-func & yarn run env-generate-testagent-msgs-sending-func",
+    "env-generate-testagent-msgs-app-func": "echo 'generating testagent-msgs-app-func' && dotenv -e environments/env.base envsub environments/env.testagent-msgs-app-func environments/generated/env.testagent-msgs-app-func",
+    "env-generate": "mkdir environments/generated && yarn run env-generate-cosmosdb & yarn run env-generate-msgs-sending-func & yarn run env-generate-msgs-app-func & yarn run env-generate-testagent-msgs-sending-func & yarn run env-generate-testagent-msgs-app-func",
     "test": "jest --verbose --runInBand"
   },
   "dependencies": {

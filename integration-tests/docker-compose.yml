@@ -63,6 +63,28 @@ services:
     depends_on:
       - functions-node-20
 
+  msgs-app-func:
+    image: msgs-app-func
+    container_name: msgs-app-func
+    env_file:
+      - ./environments/generated/env.msgs-app-func
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://msgs-app-func:7071/api/v1/ping"]
+      interval: 12s
+      timeout: 15s
+      retries: 5
+    build:
+      context: ../apps/msgs-app-func
+      dockerfile: ../../integration-tests/docker-files/msgs-app-func/Dockerfile
+    ports:
+      - ${MSGS_APP_FUNC_PORT}:7071
+    links:
+      - cosmosdb
+      - redis
+      - storage-account
+    depends_on:
+      - functions-node-20
+
   testagent-msgs-sending-func:
     container_name: testagent-msgs-sending-func
     image: node:20.11.1-alpine
@@ -82,3 +104,23 @@ services:
         condition: service_healthy
     links:
       - msgs-sending-func
+
+  testagent-msgs-app-func:
+    container_name: testagent-msgs-app-func
+    image: node:20.11.1-alpine
+    working_dir: /usr/src/app
+    command: tail -f /dev/null # to keep it up&running
+    env_file:
+      - environments/generated/env.testagent-msgs-app-func
+    volumes:
+      - "./:/usr/src/app"
+      - "../apps/msgs-app-func/openapi:/usr/src/openapi"
+    depends_on:
+      cosmosdb:
+        condition: service_started
+      storage-account:
+        condition: service_started
+      msgs-sending-func:
+        condition: service_healthy
+    links:
+      - msgs-app-func
