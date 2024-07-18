@@ -4,7 +4,7 @@ COPY . /usr/src/app
 
 RUN func extensions install
 
-RUN yarn install --immutable
+RUN yarn install
 RUN yarn build
 
 CMD ["func", "start", "--javascript"]
