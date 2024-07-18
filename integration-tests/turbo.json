@@ -1,7 +1,6 @@
 {
   "extends": ["//"],
   "pipeline": {
-    "container-start": {},
     "prestart": {},
     "start": {
       "dependsOn": ["prestart"]
