@@ -1,4 +1,4 @@
-module "function_app_messages_app" {
+module "function_app_messages_citizen" {
   source = "github.com/pagopa/dx//infra/modules/azure_function_app?ref=main"
 
   environment = {
@@ -6,15 +6,15 @@ module "function_app_messages_app" {
     env_short       = var.env_short
     location        = var.location
     domain          = var.domain
-    app_name        = "app-l${var.index}"
-    instance_number = "01"
+    app_name        = "citizen"
+    instance_number = var.instance_number
   }
 
   resource_group_name = var.resource_group_name
   health_check_path   = "/api/v1/info"
   node_version        = 20
 
-  subnet_cidr                          = var.cidr_subnet_messages_app_func
+  subnet_cidr                          = var.cidr_subnet_messages_citizen_func
   subnet_pep_id                        = var.private_endpoint_subnet_id
   private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name
 
@@ -23,12 +23,8 @@ module "function_app_messages_app" {
     resource_group_name = var.virtual_network.resource_group_name
   }
 
-  subnet_service_endpoints = {
-    web = true
-  }
-
-  app_settings      = local.messages_app.app_settings
-  slot_app_settings = local.messages_app.app_settings
+  app_settings      = local.messages_citizen.app_settings
+  slot_app_settings = local.messages_citizen.app_settings
 
   tags = var.tags
 }

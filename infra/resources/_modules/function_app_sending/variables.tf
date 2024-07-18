@@ -33,9 +33,9 @@ variable "resource_group_name" {
   description = "Name of the resource group where resources will be created"
 }
 
-variable "cidr_subnet_messages_app_func" {
+variable "cidr_subnet_messages_sending_func" {
   type        = string
-  description = "CIDR block for messages app l1 function app subnet"
+  description = "CIDR block for messages sending function app subnet"
 }
 
 variable "private_endpoint_subnet_id" {
@@ -54,11 +54,6 @@ variable "virtual_network" {
 variable "private_dns_zone_resource_group_name" {
   type        = string
   description = "Resource group name of the private DNS zone to use for private endpoints"
-}
-
-variable "index" {
-  type        = number
-  description = "The index that counts levels of this functions app"
 }
 
 # REPO DEFINED VARIABLES
@@ -82,14 +77,14 @@ variable "cosmos_db_remote_content_key" {
   description = "Cosmos DB api key"
 }
 
-variable "key_vault_weu_id" {
-  type        = string
-  description = "Id of the common Key Vault where save secrets in"
+variable "cosmos_database_names" {
+  type        = list(string)
+  description = "List of Cosmos DB database names"
 }
 
-variable "key_vault_weu_messages_id" {
+variable "appbackendli_token" {
   type        = string
-  description = "Id of the messages Key Vault where save secrets in"
+  description = "Token to access appbackendli"
 }
 
 variable "message_storage_account_blob_connection_string" {
@@ -97,10 +92,14 @@ variable "message_storage_account_blob_connection_string" {
   description = "Connection string to connect to message storage account"
 }
 
-variable "pn_service_id" {
+variable "notification_storage_account_queue_connection_string" {
   type        = string
-  description = "SEND service id"
-  default     = "01G40DWQGKY5GRWSNM4303VNRP"
+  description = "Connection string to connect to notification storage account"
+}
+
+variable "internal_user_id" {
+  type        = string
+  description = "Internal user to bypass"
 }
 
 variable "redis_url" {
@@ -117,24 +116,3 @@ variable "redis_password" {
   type        = string
   description = "Redis password"
 }
-
-variable "use_fallback" {
-  type        = bool
-  description = "Wheter to use fallback to composition or not"
-}
-
-variable "ff_type" {
-  type        = string
-  description = "Specify the type for the feature flag to go for beta testers, canary regex or production users"
-}
-
-variable "ff_beta_tester_list" {
-  type        = string
-  description = "Specify the list of beta testers fiscal codes hashes"
-}
-
-variable "ff_canary_users_regex" {
-  type        = string
-  description = "Specify a regex to match some hashes of production users fiscal codes"
-}
-

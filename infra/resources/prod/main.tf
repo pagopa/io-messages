@@ -101,9 +101,6 @@ module "functions_messages_sending" {
   redis_port     = module.redis_messages.ssl_port
   redis_password = module.redis_messages.primary_access_key
 
-  key_vault_weu_id          = data.azurerm_key_vault.weu.id
-  key_vault_weu_messages_id = data.azurerm_key_vault.weu_messages.id
-
   appbackendli_token = data.azurerm_key_vault_secret.appbackendli_token.value
 
   message_storage_account_blob_connection_string       = data.azurerm_storage_account.storage_api.primary_connection_string
@@ -114,7 +111,7 @@ module "functions_messages_sending" {
   tags = local.tags
 }
 
-module "functions_messages_citizen_l1" {
+module "functions_messages_citizen_1" {
   source = "../_modules/function_app_citizen"
 
   prefix              = local.prefix
@@ -143,9 +140,6 @@ module "functions_messages_citizen_l1" {
   redis_port     = module.redis_messages.ssl_port
   redis_password = module.redis_messages.primary_access_key
 
-  key_vault_weu_id          = data.azurerm_key_vault.weu.id
-  key_vault_weu_messages_id = data.azurerm_key_vault.weu_messages.id
-
   message_storage_account_blob_connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
 
   use_fallback          = false
@@ -156,7 +150,7 @@ module "functions_messages_citizen_l1" {
   tags = local.tags
 }
 
-module "functions_messages_citizen_l2" {
+module "functions_messages_citizen_2" {
   source = "../_modules/function_app_citizen"
 
   prefix              = local.prefix
@@ -184,9 +178,6 @@ module "functions_messages_citizen_l2" {
   redis_url      = module.redis_messages.hostname
   redis_port     = module.redis_messages.ssl_port
   redis_password = module.redis_messages.primary_access_key
-
-  key_vault_weu_id          = data.azurerm_key_vault.weu.id
-  key_vault_weu_messages_id = data.azurerm_key_vault.weu_messages.id
 
   message_storage_account_blob_connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
 

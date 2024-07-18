@@ -1,9 +1,6 @@
 locals {
-  messages_app = {
+  messages_sending = {
     app_settings = {
-      FUNCTIONS_WORKER_RUNTIME       = "node"
-      WEBSITE_RUN_FROM_PACKAGE       = "1"
-      WEBSITE_DNS_SERVER             = "168.63.129.16"
       FUNCTIONS_WORKER_PROCESS_COUNT = 4
       NODE_ENV                       = "production"
 
@@ -21,21 +18,22 @@ locals {
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_storage_account_blob_connection_string
       MESSAGE_CONTAINER_NAME                    = "message-content"
 
+      // QUEUE STORAGE
+      NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING = var.notification_storage_account_queue_connection_string
+      NOTIFICATION_QUEUE_NAME                      = "push-notifications"
+
       // REDIS
       REDIS_URL      = var.redis_url
       REDIS_PORT     = var.redis_port
       REDIS_PASSWORD = var.redis_password
 
-      // INTERNAL USE PROPERTIES
-      PN_SERVICE_ID              = var.pn_service_id
-      SERVICE_CACHE_TTL_DURATION = "28800" // 8 hours
-      RC_CONFIGURATION_CACHE_TTL = "28800"
+      // BACKEND COMMUNICATION
+      BACKEND_BASE_URL = "https://io-p-app-appbackendli.azurewebsites.net"
+      BACKEND_TOKEN    = var.appbackendli_token
 
-      // MESSAGE VIEW FF
-      USE_FALLBACK        = var.use_fallback
-      FF_TYPE             = var.ff_type
-      FF_BETA_TESTER_LIST = var.ff_beta_tester_list
-      FF_CANARY_USERS_REGEX = var.ff_canary_users_regex
+      // INTERNAL USE PROPERTIES
+      INTERNAL_USER_ID           = var.internal_user_id
+      RC_CONFIGURATION_CACHE_TTL = "28800"
 
       // Keepalive fields are all optionals
       FETCH_KEEPALIVE_ENABLED             = "true"
