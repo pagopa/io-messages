@@ -14,7 +14,7 @@
     "env-generate-cosmosdb": "echo 'generating cosmosdb environment' && dotenv -e environments/env.base envsub environments/env.cosmosdb environments/generated/env.cosmosdb",
     "env-generate-msgs-sending-func": "echo 'generating msgs-sending-func environment' && dotenv -e environments/env.base envsub environments/env.msgs-sending-func environments/generated/env.msgs-sending-func",
     "env-generate-testagent-msgs-sending-func": "echo 'generating testagent-msgs-sending-func' && dotenv -e environments/env.base envsub environments/env.testagent-msgs-sending-func environments/generated/env.testagent-msgs-sending-func",
-    "env-generate": "yarn run env-generate-cosmosdb && yarn run env-generate-msgs-sending-func && yarn run env-generate-testagent-msgs-sending-func",
+    "env-generate": "mkdir environments/generated && yarn run env-generate-cosmosdb & yarn run env-generate-msgs-sending-func & yarn run env-generate-testagent-msgs-sending-func",
     "test": "jest --verbose --runInBand"
   },
   "dependencies": {
