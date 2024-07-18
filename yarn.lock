@@ -8626,13 +8626,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fp-ts@npm:^2.16.8":
-  version: 2.16.8
-  resolution: "fp-ts@npm:2.16.8"
-  checksum: 10c0/57e39db2b6ec336cdaaacde831b5e830e9194794028de088b0489a22e741a61ba5ecb4d886e2f308dd823471a159c4d6e790917a2c03c92f86ff65f45f31e766
-  languageName: node
-  linkType: hard
-
 "fresh@npm:0.5.2":
   version: 0.5.2
   resolution: "fresh@npm:0.5.2"
@@ -9703,8 +9696,6 @@ __metadata:
     dotenv: "npm:^16.4.5"
     dotenv-cli: "npm:^7.4.2"
     envsub: "npm:^4.1.0"
-    fp-ts: "npm:^2.16.8"
-    io-ts: "npm:^2.2.21"
     jest: "npm:^29.7.0"
     node-fetch: "npm:^2.6.7"
     redis: "npm:^4.6.13"
@@ -9779,7 +9770,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"io-ts@npm:^2.2.16, io-ts@npm:^2.2.21":
+"io-ts@npm:^2.2.16":
   version: 2.2.21
   resolution: "io-ts@npm:2.2.21"
   peerDependencies:

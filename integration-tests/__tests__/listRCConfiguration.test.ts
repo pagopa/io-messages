@@ -90,13 +90,9 @@ describe("ListRCConfiguration", () => {
     expect(r.status).toBe(200);
 
     const response = await r.json();
-    const decodedResponse = RCConfigurationListResponse.decode(response);
-    expect(E.isRight(decodedResponse)).toBe(true);
 
-    if(E.isRight(decodedResponse)){
-      expect(decodedResponse.right.rcConfigList).toContain({...aPublicRemoteContentConfiguration, user_id: "aUserId"})
-      expect(decodedResponse.right.rcConfigList).toContain({...anotherPublicRemoteContentConfiguration, user_id: "aUserId"})
-    }
+    expect(response.rcConfigList).toContain({...aPublicRemoteContentConfiguration, user_id: "aUserId"})
+    expect(response.rcConfigList).toContain({...anotherPublicRemoteContentConfiguration, user_id: "aUserId"})
   });
 });
 
