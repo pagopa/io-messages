@@ -91,8 +91,8 @@ describe("ListRCConfiguration", () => {
 
     const response = await r.json();
 
-    expect(response.rcConfigList).toContain({...aPublicRemoteContentConfiguration, user_id: "aUserId"})
-    expect(response.rcConfigList).toContain({...anotherPublicRemoteContentConfiguration, user_id: "aUserId"})
+    expect(response.rcConfigList).toHaveLength(2);
+    expect(response.rcConfigList).toEqual(expect.arrayContaining([{...anotherPublicRemoteContentConfiguration, user_id: "aUserId"}, {...aPublicRemoteContentConfiguration, user_id: "aUserId"}]))
   });
 });
 
