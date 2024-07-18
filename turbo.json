@@ -5,6 +5,9 @@
       "dependsOn": ["^build", "^typecheck"],
       "inputs": ["src/**/*.ts"],
       "outputs": ["dist/**"],
+      "outputMode": "errors-only"
+    },
+    "container-start": {
       "outputMode": "full"
     },
     "lint": {

@@ -87,7 +87,7 @@ describe("healthcheck - storage account", () => {
     mockAzureStorageFunctions();
   });
 
-  it("should not throw exception", async done => {
+  it("should not throw exception", done => {
     expect.assertions(1);
 
     pipe(
@@ -118,7 +118,7 @@ describe("healthcheck - storage account", () => {
   ];
   test.each(testcases)(
     "should throw exception %s",
-    async ({ name }, done: any) => {
+    ({ name }, done: any) => {
       const blobServiceKO = getBlobServiceKO(name);
       azureStorageMocks[name].mockReturnValueOnce(blobServiceKO);
 
@@ -147,7 +147,7 @@ describe("healthcheck - cosmos db", () => {
     mockCosmosClient();
   });
 
-  it("should return no error", async done => {
+  it("should return no error", done => {
     expect.assertions(1);
 
     pipe(
@@ -157,14 +157,13 @@ describe("healthcheck - cosmos db", () => {
         done();
       }),
       TE.mapLeft(_ => {
-        console.log(_);
         expect(true).toBeFalsy();
         done();
       })
     )();
   });
 
-  it("should return an error if CosmosClient fails", async done => {
+  it("should return an error if CosmosClient fails", done => {
     expect.assertions(1);
 
     mockGetDatabaseAccount.mockImplementationOnce(mockGetDatabaseAccountKO);
@@ -176,7 +175,6 @@ describe("healthcheck - cosmos db", () => {
         done();
       }),
       TE.mapLeft(_ => {
-        console.log(_);
         expect(true).toBeTruthy();
         done();
       })
@@ -194,7 +192,7 @@ describe("healthcheck - url health", () => {
     expect(true).toBeTruthy();
   });
 
-  it("should return an error if Url check fails", async done => {
+  it("should return an error if Url check fails", done => {
     expect.assertions(1);
 
     pipe(
@@ -204,7 +202,6 @@ describe("healthcheck - url health", () => {
         done();
       }),
       TE.mapLeft(_ => {
-        console.log(_);
         expect(true).toBeTruthy();
         done();
       })
@@ -223,7 +220,7 @@ describe("checkApplicationHealth - multiple errors - ", () => {
     mockAzureStorageFunctions();
   });
 
-  it("should return multiple errors from different checks", async done => {
+  it("should return multiple errors from different checks", done => {
     const blobServiceKO = getBlobServiceKO("createBlobService");
     const queueServiceKO = getBlobServiceKO("createQueueService");
     azureStorageMocks["createBlobService"].mockReturnValueOnce(blobServiceKO);

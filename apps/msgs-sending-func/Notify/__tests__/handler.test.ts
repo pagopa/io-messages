@@ -90,9 +90,9 @@ jest
   .mockReturnValue(mockContextMiddleware);
 
 const logger = {
-  info: s => console.log(`Notify|${s}`),
-  error: s => console.log(`Notify|${s}`),
-  warning: s => console.log(`Notify|${s}`),
+  info: jest.fn(),
+  error: jest.fn(),
+  warning: jest.fn(),
   trackEvent: jest.fn(e => {
     return void 0;
   })

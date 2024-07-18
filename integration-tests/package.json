@@ -1,0 +1,40 @@
+{
+  "name": "integration-tests",
+  "version": "1.0.0",
+  "description": "Integration test for the entire monorepo",
+  "license": "MIT",
+  "scripts": {
+    "container-start": "echo 'container starting' && docker-compose --env-file environments/env.base up -d",
+    "integrations": "yarn run container-start && docker exec testagent-msgs-sending-func yarn test",
+    "container-stop": "echo 'container stopping' && docker-compose --env-file environments/env.base down",
+    "definitions-msgs-sending-func-generate": "gen-api-models --api-spec ../apps/msgs-sending-func/openapi/index.yaml --no-strict --out-dir ./generated/definitions",
+    "definitions-generate": "yarn run definitions-msgs-sending-func-generate",
+    "env-clean": "rm -rf environments/generated/**",
+    "definitions-clean": "rm -rf ./generated/definitions/*",
+    "env-generate-cosmosdb": "echo 'generating cosmosdb environment' && dotenv -e environments/env.base envsub environments/env.cosmosdb environments/generated/env.cosmosdb",
+    "env-generate-msgs-sending-func": "echo 'generating msgs-sending-func environment' && dotenv -e environments/env.base envsub environments/env.msgs-sending-func environments/generated/env.msgs-sending-func",
+    "env-generate-testagent-msgs-sending-func": "echo 'generating testagent-msgs-sending-func' && dotenv -e environments/env.base envsub environments/env.testagent-msgs-sending-func environments/generated/env.testagent-msgs-sending-func",
+    "env-generate": "mkdir environments/generated && yarn run env-generate-cosmosdb & yarn run env-generate-msgs-sending-func & yarn run env-generate-testagent-msgs-sending-func",
+    "test": "jest --verbose --runInBand"
+  },
+  "dependencies": {
+    "@azure/cosmos": "^4.0.0",
+    "@azure/storage-queue": "^12.22.0",
+    "@pagopa/io-functions-commons": "^29.0.4",
+    "@pagopa/ts-commons": "^10.10.0",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^18.11.18",
+    "azure-storage": "^2.10.5",
+    "dotenv": "^16.4.5",
+    "jest": "^29.7.0",
+    "node-fetch": "^2.6.7",
+    "redis": "^4.6.13",
+    "ts-jest": "^29.2.2"
+  },
+  "devDependencies": {
+    "@pagopa/openapi-codegen-ts": "^13.2.0",
+    "dotenv-cli": "^7.4.2",
+    "envsub": "^4.1.0",
+    "typescript": "^5.5.3"
+  }
+}

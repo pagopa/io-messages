@@ -1,0 +1,14 @@
+{
+  "extends": ["//"],
+  "pipeline": {
+    "env-generate": {},
+    "definitions-generate": {},
+    "container-start": {
+      "dependsOn": ["env-generate", "definitions-generate"]
+    },
+    "integrations": {
+      "dependsOn": ["container-start"],
+      "outputMode": "errors-only"
+    }
+  }
+}
