@@ -1,0 +1,84 @@
+version: "3.2"
+
+services:
+  functions-node-20:
+    image: functions-node-20
+    container_name: functions-node-20
+    build:
+      context: ./docker-files/functions-node-20
+      dockerfile: ./Dockerfile
+    command: /bin/true
+
+  redis:
+    container_name: redis
+    image: wodby/redis:3.2-2.1.5
+    ports:
+      - 6379:6379
+    environment:
+      REDIS_TIMEOUT: 300
+      REDIS_TCP_KEEPALIVE: 60
+      REDIS_MAXMEMORY: 182m
+
+  cosmosdb:
+    image: cosmosdb
+    container_name: cosmosdb
+    env_file:
+      - ./environments/generated/env.cosmosdb
+    build:
+      context: ./docker-files/cosmosdb
+      dockerfile: ./Dockerfile
+    ports:
+      - ${COSMOSDB_PORT}:3000
+
+  storage-account:
+    image: azurite
+    container_name: storage-account
+    build:
+      context: ./docker-files/azurite
+      dockerfile: ./Dockerfile
+    ports:
+      - 10000:10000
+      - 10001:10001
+      - 10002:10002
+
+  msgs-sending-func:
+    image: msgs-sending-func
+    container_name: msgs-sending-func
+    env_file:
+      - ./environments/generated/env.msgs-sending-func
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://msgs-sending-func:7071/api/v1/ping"]
+      interval: 12s
+      timeout: 15s
+      retries: 5
+    build:
+      context: ../apps/msgs-sending-func
+      dockerfile: ../../integration-tests/docker-files/msgs-sending-func/Dockerfile
+    ports:
+      - ${MSGS_SENDING_FUNC_PORT}:7071
+    links:
+      - cosmosdb
+      - redis
+      - storage-account
+    depends_on:
+      - functions-node-20
+
+  testagent-msgs-sending-func:
+    container_name: testagent-msgs-sending-func
+    image: node:20.11.1-alpine
+    working_dir: /usr/src/app
+    command: tail -f /dev/null # to keep it up&running
+    env_file:
+      - environments/generated/env.testagent-msgs-sending-func
+    volumes:
+      - "./:/usr/src/app"
+      - "../apps/msgs-sending-func/openapi:/usr/src/openapi"
+    depends_on:
+      cosmosdb:
+        condition: service_started
+      storage-account:
+        condition: service_started
+      msgs-sending-func:
+        condition: service_healthy
+    links:
+      - msgs-sending-func
