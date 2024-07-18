@@ -1,4 +1,5 @@
 import * as TE from "fp-ts/lib/TaskEither";
+import * as E from "fp-ts/lib/Either";
 
 import { CosmosClient, CosmosClientOptions, Database } from "@azure/cosmos";
 import { pipe } from "fp-ts/lib/function";
@@ -21,6 +22,7 @@ import {
 } from "../__mocks__/mock.remote_content";
 import { UserRCConfiguration } from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { RCConfigurationListResponse } from "../generated/definitions/RCConfigurationListResponse";
 
 const baseUrl = "http://msgs-sending-func:7071";
 
@@ -85,15 +87,16 @@ describe("ListRCConfiguration", () => {
       aRemoteContentConfiguration.userId
     );
 
-    const response = await r.json();
-
     expect(r.status).toBe(200);
-    expect(response).toMatchObject({
-      rcConfigList: [
-        { ...aPublicRemoteContentConfiguration, user_id: "aUserId" },
-        { ...anotherPublicRemoteContentConfiguration, user_id: "aUserId" }
-      ]
-    });
+
+    const response = await r.json();
+    const decodedResponse = RCConfigurationListResponse.decode(response);
+    expect(E.isRight(decodedResponse)).toBe(true);
+
+    if(E.isRight(decodedResponse)){
+      expect(decodedResponse.right.rcConfigList).toContain({...aPublicRemoteContentConfiguration, user_id: "aUserId"})
+      expect(decodedResponse.right.rcConfigList).toContain({...anotherPublicRemoteContentConfiguration, user_id: "aUserId"})
+    }
   });
 });
 

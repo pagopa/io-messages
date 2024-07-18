@@ -2,8 +2,9 @@
   "extends": ["//"],
   "pipeline": {
     "env-generate": {},
+    "definitions-generate": {},
     "container-start": {
-      "dependsOn": ["env-generate"]
+      "dependsOn": ["env-generate", "definitions-generate"]
     },
     "integrations": {
       "dependsOn": ["container-start"],
