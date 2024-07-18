@@ -68,6 +68,11 @@ data "azurerm_key_vault_secret" "internal_user" {
   key_vault_id = data.azurerm_key_vault.weu_messages.id
 }
 
+data "azurerm_key_vault_secret" "fn_messages_APP_MESSAGES_BETA_FISCAL_CODES" {
+  name         = "appbackend-APP-MESSAGES-BETA-FISCAL-CODES"
+  key_vault_id = data.azurerm_key_vault.weu_common.id
+}
+
 data "azurerm_cosmosdb_account" "cosmos_api" {
   name                = format("%s-cosmos-api", local.project_legacy)
   resource_group_name = format("%s-rg-internal", local.project_legacy)
