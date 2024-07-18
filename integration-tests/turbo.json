@@ -3,10 +3,11 @@
   "pipeline": {
     "prestart": {},
     "start": {
-      "dependsOn": ["prestart"]
+      "dependsOn": ["env-generate"]
     },
     "integrations": {
-      "dependsOn": ["start"]
+      "dependsOn": ["container-start"],
+      "outputMode": "errors-only"
     }
   }
 }
