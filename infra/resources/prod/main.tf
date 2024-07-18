@@ -72,7 +72,7 @@ module "redis_messages" {
 }
 
 module "functions_messages_sending" {
-  source = "../_modules/function_apps_msgs_sending"
+  source = "../_modules/function_app_sending"
 
   prefix              = local.prefix
   env_short           = local.env_short
@@ -114,18 +114,18 @@ module "functions_messages_sending" {
   tags = local.tags
 }
 
-module "functions_messages_app_l1" {
-  source = "../_modules/function_apps_msgs_app"
+module "functions_messages_citizen_l1" {
+  source = "../_modules/function_app_citizen"
 
   prefix              = local.prefix
   env_short           = local.env_short
   location            = local.location
   project             = local.project
   domain              = local.domain
-  index               = 1
   resource_group_name = azurerm_resource_group.itn_messages.name
 
-  cidr_subnet_messages_app_func        = "10.20.3.0/25"
+  instance_number                      = "01"
+  cidr_subnet_messages_citizen_func    = "10.20.3.0/25"
   private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
   private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
   virtual_network = {
@@ -156,18 +156,18 @@ module "functions_messages_app_l1" {
   tags = local.tags
 }
 
-module "functions_messages_app_l2" {
-  source = "../_modules/function_apps_msgs_app"
+module "functions_messages_citizen_l2" {
+  source = "../_modules/function_app_citizen"
 
   prefix              = local.prefix
   env_short           = local.env_short
   location            = local.location
   project             = local.project
   domain              = local.domain
-  index               = 2
   resource_group_name = azurerm_resource_group.itn_messages.name
 
-  cidr_subnet_messages_app_func        = "10.20.3.128/25"
+  instance_number                      = "02"
+  cidr_subnet_messages_citizen_func    = "10.20.3.128/25"
   private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
   private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
   virtual_network = {
