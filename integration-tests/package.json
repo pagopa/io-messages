@@ -5,7 +5,9 @@
   "license": "MIT",
   "scripts": {
     "container-start": "echo 'container starting' && docker-compose --env-file environments/env.base up -d",
-    "integrations": "yarn run container-start && docker exec testagent-msgs-sending-func yarn test",
+    "integrations": "yarn run container-start && yarn run integrations-msgs-app && yarn-run integrations-msgs-sending",
+    "integrations-msgs-sending": "docker exec testagent-msgs-sending-func yarn test ./msgs-sending-func/__tests__/",
+    "integrations-msgs-app": "docker exec testagent-msgs-app-func yarn test ./msgs-app-func/__tests__/",
     "container-stop": "echo 'container stopping' && docker-compose --env-file environments/env.base down",
     "definitions-msgs-sending-func-generate": "gen-api-models --api-spec ../apps/msgs-sending-func/openapi/index.yaml --no-strict --out-dir ./msgs-sending-func/generated/definitions",
     "definitions-generate": "yarn run definitions-msgs-sending-func-generate",
