@@ -22,11 +22,7 @@ data "azurerm_resource_group" "notifications_rg" {
   name = format("%s-weu-messages-notifications-rg", local.project_legacy)
 }
 
-data "azurerm_key_vault" "weu" {
-  name                = "${local.project_legacy}-kv"
-  resource_group_name = data.azurerm_resource_group.weu_sec.name
-}
-
+### TODO: THIS weu_common KEY VAULT HAS TO BE DISMISSED IN FAVOUR OF weu_messages ###
 data "azurerm_key_vault" "weu_common" {
   name                = "${local.project_legacy}-kv-common"
   resource_group_name = data.azurerm_resource_group.weu_common.name
@@ -65,6 +61,11 @@ data "azurerm_key_vault_secret" "appbackendli_token" {
 
 data "azurerm_key_vault_secret" "internal_user" {
   name         = "internal-user-id-to-skip"
+  key_vault_id = data.azurerm_key_vault.weu_messages.id
+}
+
+data "azurerm_key_vault_secret" "fn_messages_APP_MESSAGES_BETA_FISCAL_CODES" {
+  name         = "BETA-FISCAL-CODES"
   key_vault_id = data.azurerm_key_vault.weu_messages.id
 }
 

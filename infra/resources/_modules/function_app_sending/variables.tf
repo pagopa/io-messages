@@ -77,16 +77,6 @@ variable "cosmos_db_remote_content_key" {
   description = "Cosmos DB api key"
 }
 
-variable "key_vault_weu_id" {
-  type        = string
-  description = "Id of the common Key Vault where save secrets in"
-}
-
-variable "key_vault_weu_messages_id" {
-  type        = string
-  description = "Id of the messages Key Vault where save secrets in"
-}
-
 variable "cosmos_database_names" {
   type        = list(string)
   description = "List of Cosmos DB database names"
