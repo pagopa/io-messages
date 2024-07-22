@@ -61,7 +61,6 @@ const fetch = getNodeFetch();
 // Setup dbs
 // ----------------
 
-console.log("COSMOSDB_URI", COSMOSDB_URI);
 const blobService = createBlobService(QueueStorageConnection);
 
 const cosmosClient = new CosmosClient({
