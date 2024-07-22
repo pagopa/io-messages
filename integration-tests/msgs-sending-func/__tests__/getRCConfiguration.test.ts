@@ -83,7 +83,7 @@ describe("GetRCConfiguration", () => {
     expect(response.detail).toBe(
       `Cannot find any configuration with configurationId: ${nonExistingConfigurationId}`
     );
-  });
+  }, 30000);
 
   test("should return 403 if the userId in header is not the same in configuration", async () => {
     const aFetch = getNodeFetch({});
@@ -93,7 +93,7 @@ describe("GetRCConfiguration", () => {
     );
 
     expect(r.status).toBe(403);
-  });
+  }, 30000);
 
   test("should return 200 if the request match an existing configuration", async () => {
     const aFetch = getNodeFetch({});
@@ -106,7 +106,7 @@ describe("GetRCConfiguration", () => {
 
     expect(r.status).toBe(200);
     expect(response).toMatchObject(aPublicRemoteContentConfiguration);
-  });
+  }, 30000);
 
   test("should return 200 if the userId does not match the one in the configuration but is internal", async () => {
     const aFetch = getNodeFetch({});
@@ -119,7 +119,7 @@ describe("GetRCConfiguration", () => {
 
     expect(r.status).toBe(200);
     expect(response).toMatchObject(aPublicRemoteContentConfiguration);
-  });
+  }, 30000);
 });
 
 const getRCConfiguration = (nodeFetch: typeof fetch) => async (

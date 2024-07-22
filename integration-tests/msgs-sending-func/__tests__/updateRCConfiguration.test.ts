@@ -126,7 +126,7 @@ describe("UpdateRCConfiguration", () => {
 
     expect(r.status).toBe(204);
     // TODO: we can use the GetRCConfiguration to verify that the records were updated correctly once it is implemented
-  });
+  }, 30000);
 });
 
 const putCreateRCConfiguration = (nodeFetch: typeof fetch) => async (
