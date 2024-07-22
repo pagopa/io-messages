@@ -47,7 +47,7 @@ const MAX_ATTEMPT = 50;
 
 jest.setTimeout(WAIT_MS * MAX_ATTEMPT);
 
-const baseUrl = "http://msgs-app-func:7071";
+const baseUrl = "http://citizen-func:7071";
 const fetch = getNodeFetch();
 
 // ----------------

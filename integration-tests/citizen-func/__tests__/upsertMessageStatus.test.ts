@@ -69,7 +69,7 @@ const MAX_ATTEMPT = 50;
 
 jest.setTimeout(WAIT_MS * MAX_ATTEMPT);
 
-const baseUrl = "http://msgs-app-func:7071/api/v1";
+const baseUrl = "http://citizen-func:7071/api/v1";
 const fetch = getNodeFetch();
 
 const getRandomInt = (max: number) => randomInt(0, max)().valueOf();
