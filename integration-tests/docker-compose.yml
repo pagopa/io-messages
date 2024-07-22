@@ -41,19 +41,19 @@ services:
       - 10001:10001
       - 10002:10002
 
-  msgs-sending-func:
-    image: msgs-sending-func
-    container_name: msgs-sending-func
+  sending-func:
+    image: sending-func
+    container_name: sending-func
     env_file:
-      - ./environments/generated/env.msgs-sending-func
+      - ./environments/generated/env.sending-func
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://msgs-sending-func:7071/api/v1/ping"]
+      test: ["CMD", "curl", "-f", "http://sending-func:7071/api/v1/ping"]
       interval: 12s
       timeout: 15s
       retries: 5
     build:
-      context: ../apps/msgs-sending-func
-      dockerfile: ../../integration-tests/docker-files/msgs-sending-func/Dockerfile
+      context: ../apps/sending-func
+      dockerfile: ../../integration-tests/docker-files/sending-func/Dockerfile
     ports:
       - ${MSGS_SENDING_FUNC_PORT}:7071
     links:
@@ -85,25 +85,25 @@ services:
     depends_on:
       - functions-node-20
 
-  testagent-msgs-sending-func:
-    container_name: testagent-msgs-sending-func
+  testagent-sending-func:
+    container_name: testagent-sending-func
     image: node:20.11.1-alpine
     working_dir: /usr/src/app
     command: tail -f /dev/null # to keep it up&running
     env_file:
-      - environments/generated/env.testagent-msgs-sending-func
+      - environments/generated/env.testagent-sending-func
     volumes:
       - "./:/usr/src/app"
-      - "../apps/msgs-sending-func/openapi:/usr/src/openapi"
+      - "../apps/sending-func/openapi:/usr/src/openapi"
     depends_on:
       cosmosdb:
         condition: service_started
       storage-account:
         condition: service_started
-      msgs-sending-func:
+      sending-func:
         condition: service_healthy
     links:
-      - msgs-sending-func
+      - sending-func
 
   testagent-citizen-func:
     container_name: testagent-citizen-func

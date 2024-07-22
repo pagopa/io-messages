@@ -3,13 +3,13 @@ version: "3.2"
 services:
 
   functions:
-    image: msgs-sending-func
+    image: sending-func
     build:
       context: ./
       dockerfile: docker/functions/Dockerfile
     # environment:
     #   - languageWorkers__node__arguments=--inspect=0.0.0.0:5858
-    env_file: 
+    env_file:
       - .env
     working_dir: /usr/src/app
     ports:

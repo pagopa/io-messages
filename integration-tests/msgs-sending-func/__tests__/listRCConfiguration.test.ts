@@ -24,7 +24,7 @@ import { UserRCConfiguration } from "@pagopa/io-functions-commons/dist/src/model
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { RCConfigurationListResponse } from "../generated/definitions/RCConfigurationListResponse";
 
-const baseUrl = "http://msgs-sending-func:7071";
+const baseUrl = "http://sending-func:7071";
 
 export const aRemoteContentConfigurationList = [
   aRemoteContentConfiguration,
@@ -92,7 +92,12 @@ describe("ListRCConfiguration", () => {
     const response = await r.json();
 
     expect(response.rcConfigList).toHaveLength(2);
-    expect(response.rcConfigList).toEqual(expect.arrayContaining([{...anotherPublicRemoteContentConfiguration, user_id: "aUserId"}, {...aPublicRemoteContentConfiguration, user_id: "aUserId"}]))
+    expect(response.rcConfigList).toEqual(
+      expect.arrayContaining([
+        { ...anotherPublicRemoteContentConfiguration, user_id: "aUserId" },
+        { ...aPublicRemoteContentConfiguration, user_id: "aUserId" }
+      ])
+    );
   });
 });
 

@@ -17,7 +17,7 @@ import {
   aRemoteContentConfiguration
 } from "../__mocks__/mock.remote_content";
 
-const baseUrl = "http://msgs-sending-func:7071";
+const baseUrl = "http://sending-func:7071";
 
 export const aRemoteContentConfigurationList = [aRemoteContentConfiguration];
 
