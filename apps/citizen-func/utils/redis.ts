@@ -10,15 +10,16 @@ const createSimpleRedisClient = (
   password?: string,
   port?: string,
   useTls: boolean = true
-): redis.RedisClient => {
+): redis.RedisClientType => {
   const DEFAULT_REDIS_PORT = "6379";
 
   const redisPort: number = parseInt(port || DEFAULT_REDIS_PORT, 10);
   return redis.createClient({
-    auth_pass: password,
-    host: redisUrl,
-    port: redisPort,
-    tls: useTls ? { servername: redisUrl } : undefined
+    password,
+    url: `${redisUrl}:${redisPort}`,
+    socket: {
+      tls: useTls
+    }
   });
 };
 
@@ -26,7 +27,7 @@ const createClusterRedisClient = (
   redisUrl: string,
   password?: string,
   port?: string
-): redis.RedisClient => {
+): redis.RedisClientType => {
   const DEFAULT_REDIS_PORT = "6379";
 
   const redisPort: number = parseInt(port || DEFAULT_REDIS_PORT, 10);
@@ -43,7 +44,7 @@ const createClusterRedisClient = (
         port: redisPort
       }
     ]
-  }) as redis.RedisClient; // Casting RedisClustr with missing typings to RedisClient (same usage).
+  }) as redis.RedisClientType; // Casting RedisClustr with missing typings to RedisClient (same usage).
 };
 
 export const REDIS_CLIENT = pipe(

@@ -25,7 +25,7 @@ import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/gen
 import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
 import { RetrievedMessageStatus } from "@pagopa/io-functions-commons/dist/src/models/message_status";
 import { parse } from "fp-ts/lib/Json";
-import { RedisClient } from "redis";
+import * as redis from "redis";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import { TelemetryClient } from "applicationinsights";
 import { TagEnum as TagEnumPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
@@ -151,7 +151,7 @@ export const mapMessageCategory = (
 export const getOrCacheService = (
   serviceId: ServiceId,
   serviceModel: ServiceModel,
-  redisClient: RedisClient,
+  redisClient: redis.RedisClientType,
   serviceCacheTtl: NonNegativeInteger
 ): TE.TaskEither<Error, RetrievedService> =>
   pipe(
@@ -215,7 +215,7 @@ export const computeFlagFromHasPrecondition = (
 export const enrichServiceData = (
   context: Context,
   serviceModel: ServiceModel,
-  redisClient: RedisClient,
+  redisClient: redis.RedisClientType,
   serviceCacheTtl: NonNegativeInteger
   // eslint-disable-next-line max-params
 ) => <M extends EnrichedMessageWithContent>(
