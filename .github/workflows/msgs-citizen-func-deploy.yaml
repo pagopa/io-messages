@@ -10,7 +10,7 @@ on:
       - ".github/workflows/msgs-citizen-func-deploy.yaml"
 
 jobs:
-  
+
   deploy_fn1:
     name: Deploy FN1
     uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@main
@@ -27,6 +27,7 @@ jobs:
     name: Deploy FN2
     uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@main
     secrets: inherit
+    needs: [deploy_fn1]
     with:
       workspace_name: citizen-func
       environment: app-prod
