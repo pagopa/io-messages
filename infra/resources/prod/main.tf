@@ -122,7 +122,7 @@ module "functions_messages_citizen_1" {
   resource_group_name = azurerm_resource_group.itn_messages.name
 
   instance_number                      = "01"
-  cidr_subnet_messages_citizen_func    = "10.20.3.0/25"
+  cidr_subnet_messages_citizen_func    = "10.20.10.0/26"
   private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
   private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
   virtual_network = {
@@ -161,7 +161,7 @@ module "functions_messages_citizen_2" {
   resource_group_name = azurerm_resource_group.itn_messages.name
 
   instance_number                      = "02"
-  cidr_subnet_messages_citizen_func    = "10.20.3.128/25"
+  cidr_subnet_messages_citizen_func    = "10.20.10.128/26"
   private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
   private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
   virtual_network = {
