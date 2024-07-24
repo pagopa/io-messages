@@ -1,0 +1,34 @@
+name: Deploy Function App (msgs-citizen-func)
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - master
+    paths:
+      - "apps/citizen-func/CHANGELOG.md"
+      - ".github/workflows/msgs-citizen-func-deploy.yaml"
+
+jobs:
+  deploy_fn1:
+    name: Deploy FN1
+    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@main
+    secrets: inherit
+    with:
+      workspace_name: citizen-func
+      environment: app-prod
+      resource_group_name: io-p-itn-msgs-rg-01
+      function_app_name: io-p-itn-msgs-citizen-func-01
+      health_check_path: "/api/v1/ping"
+      use_staging_slot: false
+  deploy_fn2:
+    name: Deploy FN2
+    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@main
+    secrets: inherit
+    with:
+      workspace_name: citizen-func
+      environment: app-prod
+      resource_group_name: io-p-itn-msgs-rg-01
+      function_app_name: io-p-itn-msgs-citizen-func-02
+      health_check_path: "/api/v1/ping"
+      use_staging_slot: false

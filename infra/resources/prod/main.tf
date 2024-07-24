@@ -72,7 +72,7 @@ module "redis_messages" {
 }
 
 module "functions_messages_sending" {
-  source = "../_modules/function_apps_msgs_sending"
+  source = "../_modules/function_app_sending"
 
   prefix              = local.prefix
   env_short           = local.env_short
@@ -101,15 +101,90 @@ module "functions_messages_sending" {
   redis_port     = module.redis_messages.ssl_port
   redis_password = module.redis_messages.primary_access_key
 
-  key_vault_weu_id          = data.azurerm_key_vault.weu.id
-  key_vault_weu_messages_id = data.azurerm_key_vault.weu_messages.id
-
   appbackendli_token = data.azurerm_key_vault_secret.appbackendli_token.value
 
   message_storage_account_blob_connection_string       = data.azurerm_storage_account.storage_api.primary_connection_string
   notification_storage_account_queue_connection_string = data.azurerm_storage_account.storage_push_notifications.primary_connection_string
 
   internal_user_id = data.azurerm_key_vault_secret.internal_user.value
+
+  tags = local.tags
+}
+
+module "functions_messages_citizen_1" {
+  source = "../_modules/function_app_citizen"
+
+  prefix              = local.prefix
+  env_short           = local.env_short
+  location            = local.location
+  project             = local.project
+  domain              = local.domain
+  resource_group_name = azurerm_resource_group.itn_messages.name
+
+  instance_number                      = "01"
+  cidr_subnet_messages_citizen_func    = "10.20.3.0/25"
+  private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
+  private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
+  virtual_network = {
+    resource_group_name = data.azurerm_virtual_network.vnet_common_itn.resource_group_name
+    name                = data.azurerm_virtual_network.vnet_common_itn.name
+  }
+
+  cosmos_db_api_endpoint = data.azurerm_cosmosdb_account.cosmos_api.endpoint
+  cosmos_db_api_key      = data.azurerm_cosmosdb_account.cosmos_api.primary_key
+
+  cosmos_db_remote_content_endpoint = data.azurerm_cosmosdb_account.cosmos_remote_content.endpoint
+  cosmos_db_remote_content_key      = data.azurerm_cosmosdb_account.cosmos_remote_content.primary_key
+
+  redis_url      = module.redis_messages.hostname
+  redis_port     = module.redis_messages.ssl_port
+  redis_password = module.redis_messages.primary_access_key
+
+  message_storage_account_blob_connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
+
+  use_fallback          = false
+  ff_type               = "prod"
+  ff_beta_tester_list   = data.azurerm_key_vault_secret.fn_messages_APP_MESSAGES_BETA_FISCAL_CODES.value
+  ff_canary_users_regex = "^([(0-9)|(a-f)|(A-F)]{62}00)$" // takes 0.4% of users
+
+  tags = local.tags
+}
+
+module "functions_messages_citizen_2" {
+  source = "../_modules/function_app_citizen"
+
+  prefix              = local.prefix
+  env_short           = local.env_short
+  location            = local.location
+  project             = local.project
+  domain              = local.domain
+  resource_group_name = azurerm_resource_group.itn_messages.name
+
+  instance_number                      = "02"
+  cidr_subnet_messages_citizen_func    = "10.20.3.128/25"
+  private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
+  private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
+  virtual_network = {
+    resource_group_name = data.azurerm_virtual_network.vnet_common_itn.resource_group_name
+    name                = data.azurerm_virtual_network.vnet_common_itn.name
+  }
+
+  cosmos_db_api_endpoint = data.azurerm_cosmosdb_account.cosmos_api.endpoint
+  cosmos_db_api_key      = data.azurerm_cosmosdb_account.cosmos_api.primary_key
+
+  cosmos_db_remote_content_endpoint = data.azurerm_cosmosdb_account.cosmos_remote_content.endpoint
+  cosmos_db_remote_content_key      = data.azurerm_cosmosdb_account.cosmos_remote_content.primary_key
+
+  redis_url      = module.redis_messages.hostname
+  redis_port     = module.redis_messages.ssl_port
+  redis_password = module.redis_messages.primary_access_key
+
+  message_storage_account_blob_connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
+
+  use_fallback          = false
+  ff_type               = "prod"
+  ff_beta_tester_list   = data.azurerm_key_vault_secret.fn_messages_APP_MESSAGES_BETA_FISCAL_CODES.value
+  ff_canary_users_regex = "^([(0-9)|(a-f)|(A-F)]{62}00)$" // takes 0.4% of users
 
   tags = local.tags
 }

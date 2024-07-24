@@ -7,6 +7,9 @@
       "outputs": ["dist/**"],
       "outputMode": "errors-only"
     },
+    "container-start": {
+      "outputMode": "full"
+    },
     "lint": {
       "inputs": ["src/**/*.ts"],
       "outputMode": "errors-only"
@@ -23,7 +26,7 @@
     "test:coverage": {
       "dependsOn": ["^test"],
       "inputs": ["src/**/*.spec.ts"],
-      "outputMode": "errors-only"
+      "outputMode": "full"
     },
     "format": {
       "outputMode": "errors-only"

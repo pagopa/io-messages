@@ -6,12 +6,15 @@
   "private": true,
   "workspaces": [
     "apps/*",
+    "integration-tests",
     "packages/*"
   ],
   "scripts": {
     "build": "turbo run build",
     "code-review": "turbo run typecheck format:check lint:check build test:coverage integrations",
+    "code-review-fast": "turbo run typecheck format:check lint:check build test:coverage",
     "format": "turbo run format",
+    "integration-container-start": "turbo run container-start",
     "lint": "turbo run lint"
   },
   "devDependencies": {
