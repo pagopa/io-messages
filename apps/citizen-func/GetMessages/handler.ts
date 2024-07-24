@@ -30,7 +30,7 @@ import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as O from "fp-ts/lib/Option";
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { Context } from "@azure/functions";
-import { RedisClient } from "redis";
+import * as redis from "redis";
 import { enrichServiceData } from "../utils/messages";
 import { IGetMessagesFunctionSelector } from "./getMessagesFunctions/getMessages.selector";
 
@@ -63,7 +63,7 @@ type IGetMessagesHandler = (
 export const GetMessagesHandler = (
   functionSelector: IGetMessagesFunctionSelector,
   serviceModel: ServiceModel,
-  redisClient: RedisClient,
+  redisClient: redis.RedisClientType,
   serviceCacheTtlDuration: NonNegativeInteger
   // eslint-disable-next-line max-params
 ): IGetMessagesHandler => async (
@@ -145,7 +145,7 @@ export const GetMessagesHandler = (
 export const GetMessages = (
   functionSelector: IGetMessagesFunctionSelector,
   serviceModel: ServiceModel,
-  redisClient: RedisClient,
+  redisClient: redis.RedisClientType,
   serviceCacheTtlDuration: NonNegativeInteger
   // eslint-disable-next-line max-params
 ): express.RequestHandler => {
