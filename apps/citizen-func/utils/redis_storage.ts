@@ -13,7 +13,7 @@ export const setWithExpirationTask = (
 ): TE.TaskEither<Error, true> =>
   pipe(
     TE.tryCatch(
-      () => redisClient.set(key, value, { EX: expirationInSeconds }),
+      () => redisClient.setEx(key, expirationInSeconds, value),
       () =>
         new Error(errorMsg ? errorMsg : "Error setting key value pair on redis")
     ),
