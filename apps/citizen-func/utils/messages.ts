@@ -151,11 +151,11 @@ export const mapMessageCategory = (
 export const getOrCacheService = (
   serviceId: ServiceId,
   serviceModel: ServiceModel,
-  redisClient: TE.TaskEither<Error, redis.RedisClientType>,
+  redisClientTask: TE.TaskEither<Error, redis.RedisClientType>,
   serviceCacheTtl: NonNegativeInteger
 ): TE.TaskEither<Error, RetrievedService> =>
   pipe(
-    getTask(redisClient, serviceId),
+    getTask(redisClientTask, serviceId),
     TE.chain(TE.fromOption(() => new Error("Cannot Get Service from Redis"))),
     TE.chainEitherK(
       flow(
@@ -181,7 +181,7 @@ export const getOrCacheService = (
         TE.chain(service =>
           pipe(
             setWithExpirationTask(
-              redisClient,
+              redisClientTask,
               serviceId,
               JSON.stringify(service),
               serviceCacheTtl

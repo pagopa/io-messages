@@ -94,7 +94,7 @@ type IGetMessageHandler = (
 const getErrorOrPaymentData = async (
   context: Context,
   serviceModel: ServiceModel,
-  redisClient: TE.TaskEither<Error, redis.RedisClientType>,
+  redisClientTask: TE.TaskEither<Error, redis.RedisClientType>,
   serviceCacheTtl: NonNegativeInteger,
   senderServiceId: ServiceId,
   maybePaymentData: O.Option<PaymentData>
@@ -117,7 +117,7 @@ const getErrorOrPaymentData = async (
               getOrCacheService(
                 senderServiceId,
                 serviceModel,
-                redisClient,
+                redisClientTask,
                 serviceCacheTtl
               ),
               TE.mapLeft(err => {
@@ -197,7 +197,7 @@ export function GetMessageHandler(
   messageStatusModel: MessageStatusModel,
   blobService: BlobService,
   serviceModel: ServiceModel,
-  redisClient: TE.TaskEither<Error, redis.RedisClientType>,
+  redisClientTask: TE.TaskEither<Error, redis.RedisClientType>,
   serviceCacheTtl: NonNegativeInteger,
   serviceToRCConfigurationMap: ReadonlyMap<string, string>,
   categoryFetcher: ThirdPartyDataWithCategoryFetcher
@@ -254,7 +254,7 @@ export function GetMessageHandler(
     const errorOrMaybePaymentData = await getErrorOrPaymentData(
       context,
       serviceModel,
-      redisClient,
+      redisClientTask,
       serviceCacheTtl,
       retrievedMessage.senderServiceId,
       maybePaymentData
@@ -285,7 +285,7 @@ export function GetMessageHandler(
               service: getOrCacheService(
                 retrievedMessage.senderServiceId,
                 serviceModel,
-                redisClient,
+                redisClientTask,
                 serviceCacheTtl
               )
             }),
@@ -365,7 +365,7 @@ export function GetMessage(
   messageStatusModel: MessageStatusModel,
   blobService: BlobService,
   serviceModel: ServiceModel,
-  redisClient: TE.TaskEither<Error, redis.RedisClientType>,
+  redisClientTask: TE.TaskEither<Error, redis.RedisClientType>,
   serviceCacheTtl: NonNegativeInteger,
   serviceToRCConfigurationMap: ReadonlyMap<string, string>,
   categoryFetcher: ThirdPartyDataWithCategoryFetcher
@@ -375,7 +375,7 @@ export function GetMessage(
     messageStatusModel,
     blobService,
     serviceModel,
-    redisClient,
+    redisClientTask,
     serviceCacheTtl,
     serviceToRCConfigurationMap,
     categoryFetcher
