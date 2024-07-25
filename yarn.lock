@@ -5525,7 +5525,6 @@ __metadata:
     npm-run-all: "npm:^4.1.5"
     prettier: "npm:^1.18.2"
     redis: "npm:^4.6.15"
-    redis-clustr: "npm:^1.7.0"
     shx: "npm:^0.3.2"
     ts-jest: "npm:^29.2.2"
     typescript: "npm:^4.3.5"
@@ -5677,7 +5676,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cluster-key-slot@npm:1.1.2, cluster-key-slot@npm:^1.0.5":
+"cluster-key-slot@npm:1.1.2":
   version: 1.1.2
   resolution: "cluster-key-slot@npm:1.1.2"
   checksum: 10c0/d7d39ca28a8786e9e801eeb8c770e3c3236a566625d7299a47bb71113fb2298ce1039596acb82590e598c52dbc9b1f088c8f587803e697cb58e1867a95ff94d3
@@ -6516,13 +6515,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"denque@npm:^1.1.0":
-  version: 1.5.1
-  resolution: "denque@npm:1.5.1"
-  checksum: 10c0/9e6fc1a63e1c9ded38325290302fef40e5ad28471ad8c66d68eaea623ef847bd25fc75a7c3f47396206dc967922615999066470a364e1786f2758d61337872b7
-  languageName: node
-  linkType: hard
-
 "depd@npm:2.0.0":
   version: 2.0.0
   resolution: "depd@npm:2.0.0"
@@ -6809,13 +6801,6 @@ __metadata:
   version: 8.6.0
   resolution: "dotenv@npm:8.6.0"
   checksum: 10c0/6750431dea8efbd54b9f2d9681b04e1ccc7989486461dcf058bb708d9e3d63b04115fcdf8840e38ad1e24a4a2e1e7c1560626c5e3ac7bc09371b127c49e2d45f
-  languageName: node
-  linkType: hard
-
-"double-ended-queue@npm:^2.1.0-0":
-  version: 2.1.0-0
-  resolution: "double-ended-queue@npm:2.1.0-0"
-  checksum: 10c0/9a412a556b3646e1a4667eaf201b1b8c210926a5ca943c819df7dfa7622cb1636c7ec4de388b48248d44cca799071ea05ca2bd76048d3f7671324ce84e58722f
   languageName: node
   linkType: hard
 
@@ -15299,42 +15284,6 @@ __metadata:
   dependencies:
     esprima: "npm:~4.0.0"
   checksum: 10c0/350f5e39aebab3886713a170235c38155ee64a74f0f7e629ecc0144ba33905efea30c2c3befe1fcbf0b0366e344e7bfa34e6b2502b423c9a467d32f1306ef166
-  languageName: node
-  linkType: hard
-
-"redis-clustr@npm:^1.7.0":
-  version: 1.7.0
-  resolution: "redis-clustr@npm:1.7.0"
-  dependencies:
-    cluster-key-slot: "npm:^1.0.5"
-    denque: "npm:^1.1.0"
-    redis: "npm:^2.6.0"
-  checksum: 10c0/379cacf65e858d1585516f8abe9afc503dae1f627192e94b219f906c301b9c56e59107757486227a9f76447d1613aa098e4b5c2b75c562eabf174e28857acc89
-  languageName: node
-  linkType: hard
-
-"redis-commands@npm:^1.2.0":
-  version: 1.7.0
-  resolution: "redis-commands@npm:1.7.0"
-  checksum: 10c0/c78b46d8d6e811f422961878538c57048a451ab56760d3f1657a7c8f29aaae42cc23890f75655556a59ec67611022e18cb443d2976e6c55036934bfe783aa60e
-  languageName: node
-  linkType: hard
-
-"redis-parser@npm:^2.6.0":
-  version: 2.6.0
-  resolution: "redis-parser@npm:2.6.0"
-  checksum: 10c0/ff9815c3e9b5e9c76bcc417222a9d96fb320a27752a12fdca12a25b075b587420f1eb351f6f2f38c9e2daed4cfc354b80c839e11ee2e91eab5d8ea709a233eff
-  languageName: node
-  linkType: hard
-
-"redis@npm:^2.6.0":
-  version: 2.8.0
-  resolution: "redis@npm:2.8.0"
-  dependencies:
-    double-ended-queue: "npm:^2.1.0-0"
-    redis-commands: "npm:^1.2.0"
-    redis-parser: "npm:^2.6.0"
-  checksum: 10c0/c3769a5bc69ab8f579f76ac6a1461bf780718d6c43db1785ea9f71a9ee010e49dd38ff67381f3be66bd67f6660f67756af7a60e101ac2284aab11dee6464885e
   languageName: node
   linkType: hard
 
