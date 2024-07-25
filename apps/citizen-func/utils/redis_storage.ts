@@ -1,5 +1,5 @@
 import * as E from "fp-ts/lib/Either";
-import { pipe } from "fp-ts/lib/function";
+import { constTrue, pipe } from "fp-ts/lib/function";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as redis from "redis";
@@ -38,13 +38,13 @@ export const setTask = (
 export const deleteTask = (
   redisClient: redis.RedisClientType,
   key: string
-): TE.TaskEither<Error, true> =>
+): TE.TaskEither<Error, boolean> =>
   pipe(
     TE.tryCatch(
       () => redisClient.del(key),
       () => new Error("Error deleting key value pair on redis")
     ),
-    TE.map(_ => true)
+    TE.map(constTrue)
   );
 
 export const getTask = (
