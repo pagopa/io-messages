@@ -19,7 +19,10 @@ export const RC_CONFIGURATION_REDIS_PREFIX = "RC-CONFIGURATION";
 
 export default class RCConfigurationUtility {
   constructor(
-    private readonly redisClient: redis.RedisClientType,
+    private readonly redisClientTask: TE.TaskEither<
+      Error,
+      redis.RedisClientType
+    >,
     private readonly rcConfigurationModel: RCConfigurationModel,
     private readonly rcConfigurationCacheTtl: NonNegativeInteger,
     private readonly serviceToRCConfigurationMap: UlidMapFromString
@@ -72,7 +75,7 @@ export default class RCConfigurationUtility {
   ): TE.TaskEither<Error, O.Option<RetrievedRCConfiguration>> =>
     pipe(
       getTask(
-        this.redisClient,
+        this.redisClientTask,
         `${RC_CONFIGURATION_REDIS_PREFIX}-${configurationId}`
       ),
       TE.chain(
@@ -112,7 +115,7 @@ export default class RCConfigurationUtility {
                 ),
                 TE.chain(rCConfiguration =>
                   setWithExpirationTask(
-                    this.redisClient,
+                    this.redisClientTask,
                     `${RC_CONFIGURATION_REDIS_PREFIX}-${configurationId}`,
                     JSON.stringify(rCConfiguration),
                     this.rcConfigurationCacheTtl

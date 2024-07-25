@@ -94,7 +94,7 @@ type IGetMessageHandler = (
 const getErrorOrPaymentData = async (
   context: Context,
   serviceModel: ServiceModel,
-  redisClient: redis.RedisClientType,
+  redisClient: TE.TaskEither<Error, redis.RedisClientType>,
   serviceCacheTtl: NonNegativeInteger,
   senderServiceId: ServiceId,
   maybePaymentData: O.Option<PaymentData>
@@ -197,7 +197,7 @@ export function GetMessageHandler(
   messageStatusModel: MessageStatusModel,
   blobService: BlobService,
   serviceModel: ServiceModel,
-  redisClient: redis.RedisClientType,
+  redisClient: TE.TaskEither<Error, redis.RedisClientType>,
   serviceCacheTtl: NonNegativeInteger,
   serviceToRCConfigurationMap: ReadonlyMap<string, string>,
   categoryFetcher: ThirdPartyDataWithCategoryFetcher
@@ -365,7 +365,7 @@ export function GetMessage(
   messageStatusModel: MessageStatusModel,
   blobService: BlobService,
   serviceModel: ServiceModel,
-  redisClient: redis.RedisClientType,
+  redisClient: TE.TaskEither<Error, redis.RedisClientType>,
   serviceCacheTtl: NonNegativeInteger,
   serviceToRCConfigurationMap: ReadonlyMap<string, string>,
   categoryFetcher: ThirdPartyDataWithCategoryFetcher

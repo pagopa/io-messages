@@ -9,6 +9,7 @@ import {
 } from "../redis_storage";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as O from "fp-ts/lib/Option";
+import { RedisClientType } from "redis";
 
 const aRedisKey = "KEY";
 const aRedisValue = "VALUE";
@@ -20,12 +21,12 @@ const setMock = jest
 const setExMock = jest.fn();
 const getMock = jest.fn();
 const delMock = jest.fn();
-const redisClientMock = {
+const redisClientMock = ({
   get: getMock,
   set: setMock,
   setEx: setExMock,
   del: delMock
-};
+} as unknown) as RedisClientType;
 
 describe("setWithExpirationTask", () => {
   it("should return true if redis store key-value pair correctly", async () => {
@@ -33,7 +34,7 @@ describe("setWithExpirationTask", () => {
     expect.assertions(1);
     await pipe(
       setWithExpirationTask(
-        redisClientMock as any,
+        TE.of(redisClientMock),
         aRedisKey,
         aRedisValue,
         aRedisDefaultExpiration
@@ -47,7 +48,7 @@ describe("setWithExpirationTask", () => {
     expect.assertions(1);
     await pipe(
       setWithExpirationTask(
-        redisClientMock as any,
+        TE.of(redisClientMock),
         aRedisKey,
         aRedisValue,
         aRedisDefaultExpiration
@@ -62,7 +63,7 @@ describe("setTask", () => {
     setMock.mockReturnValueOnce(Promise.resolve(aRedisValue));
     expect.assertions(1);
     await pipe(
-      setTask(redisClientMock as any, aRedisKey, aRedisValue),
+      setTask(TE.of(redisClientMock), aRedisKey, aRedisValue),
       TE.map(value => expect(value).toEqual(true))
     )();
   });
@@ -71,7 +72,7 @@ describe("setTask", () => {
     setMock.mockReturnValueOnce(Promise.reject({}));
     expect.assertions(1);
     await pipe(
-      setTask(redisClientMock as any, aRedisKey, aRedisValue),
+      setTask(TE.of(redisClientMock), aRedisKey, aRedisValue),
       TE.mapLeft(error => expect(error).toBeInstanceOf(Error))
     )();
   });
@@ -82,7 +83,7 @@ describe("getTask", () => {
     getMock.mockReturnValueOnce(Promise.resolve(aRedisValue));
     expect.assertions(1);
     await pipe(
-      getTask(redisClientMock as any, aRedisKey),
+      getTask(TE.of(redisClientMock), aRedisKey),
       TE.map(
         O.fold(
           () => fail(),
@@ -96,7 +97,7 @@ describe("getTask", () => {
     getMock.mockReturnValueOnce(Promise.resolve(undefined));
     expect.assertions(1);
     await pipe(
-      getTask(redisClientMock as any, aRedisKey),
+      getTask(TE.of(redisClientMock), aRedisKey),
       TE.map(maybeResult => expect(isNone(maybeResult)).toBeTruthy())
     )();
   });
@@ -105,7 +106,7 @@ describe("getTask", () => {
     getMock.mockReturnValueOnce(Promise.reject({}));
     expect.assertions(1);
     await pipe(
-      getTask(redisClientMock as any, aRedisKey),
+      getTask(TE.of(redisClientMock), aRedisKey),
       TE.mapLeft(error => expect(error).toBeInstanceOf(Error))
     )();
   });
@@ -116,7 +117,7 @@ describe("deleteTask", () => {
     delMock.mockReturnValueOnce(Promise.resolve(true));
     expect.assertions(1);
     await pipe(
-      deleteTask(redisClientMock as any, aRedisKey),
+      deleteTask(TE.of(redisClientMock), aRedisKey),
       TE.map(x => expect(x).toBe(true))
     )();
   });
@@ -126,7 +127,7 @@ describe("deleteTask", () => {
     delMock.mockReturnValueOnce(Promise.resolve(0));
     expect.assertions(1);
     await pipe(
-      deleteTask(redisClientMock as any, aRedisKey),
+      deleteTask(TE.of(redisClientMock), aRedisKey),
       TE.map(value => expect(value).toBe(true))
     )();
   });
@@ -135,7 +136,7 @@ describe("deleteTask", () => {
     delMock.mockReturnValueOnce(Promise.reject({}));
     expect.assertions(1);
     await pipe(
-      deleteTask(redisClientMock as any, aRedisKey),
+      deleteTask(TE.of(redisClientMock), aRedisKey),
       TE.mapLeft(error => expect(error).toBeInstanceOf(Error))
     )();
   });

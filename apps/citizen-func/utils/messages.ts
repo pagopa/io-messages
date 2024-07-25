@@ -151,7 +151,7 @@ export const mapMessageCategory = (
 export const getOrCacheService = (
   serviceId: ServiceId,
   serviceModel: ServiceModel,
-  redisClient: redis.RedisClientType,
+  redisClient: TE.TaskEither<Error, redis.RedisClientType>,
   serviceCacheTtl: NonNegativeInteger
 ): TE.TaskEither<Error, RetrievedService> =>
   pipe(
@@ -215,7 +215,7 @@ export const computeFlagFromHasPrecondition = (
 export const enrichServiceData = (
   context: Context,
   serviceModel: ServiceModel,
-  redisClient: redis.RedisClientType,
+  redisClientTask: TE.TaskEither<Error, redis.RedisClientType>,
   serviceCacheTtl: NonNegativeInteger
   // eslint-disable-next-line max-params
 ) => <M extends EnrichedMessageWithContent>(
@@ -231,7 +231,7 @@ TE.TaskEither<Error, ReadonlyArray<EnrichedMessage>> =>
         getOrCacheService(
           serviceId,
           serviceModel,
-          redisClient,
+          redisClientTask,
           serviceCacheTtl
         ),
         TE.mapLeft(e =>

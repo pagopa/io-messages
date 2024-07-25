@@ -24,7 +24,7 @@ import {
 } from "@pagopa/io-functions-commons/dist/src/models/message_status";
 import { cosmosdbInstance } from "../utils/cosmosdb";
 import { getConfigOrThrow } from "../utils/config";
-import { REDIS_CLIENT } from "../utils/redis";
+import { CreateRedisClientSingleton } from "../utils/redis";
 import { initTelemetryClient } from "../utils/appinsights";
 import { getThirdPartyDataWithCategoryFetcher } from "../utils/messages";
 import { GetMessage } from "./handler";
@@ -34,6 +34,8 @@ const app = express();
 secureExpressApp(app);
 
 const config = getConfigOrThrow();
+
+const redisClientTask = CreateRedisClientSingleton(config);
 
 const messageModel = new MessageModel(
   cosmosdbInstance.container(MESSAGE_COLLECTION_NAME),
@@ -59,7 +61,7 @@ app.get(
     messageStatusModel,
     blobService,
     serviceModel,
-    REDIS_CLIENT,
+    redisClientTask,
     config.SERVICE_CACHE_TTL_DURATION,
     config.SERVICE_TO_RC_CONFIGURATION_MAP,
     getThirdPartyDataWithCategoryFetcher(config, telemetryClient)

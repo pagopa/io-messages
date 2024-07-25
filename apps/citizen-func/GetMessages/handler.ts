@@ -63,7 +63,7 @@ type IGetMessagesHandler = (
 export const GetMessagesHandler = (
   functionSelector: IGetMessagesFunctionSelector,
   serviceModel: ServiceModel,
-  redisClient: redis.RedisClientType,
+  redisClientTask: TE.TaskEither<Error, redis.RedisClientType>,
   serviceCacheTtlDuration: NonNegativeInteger
   // eslint-disable-next-line max-params
 ): IGetMessagesHandler => async (
@@ -117,7 +117,7 @@ export const GetMessagesHandler = (
                   enrichServiceData(
                     context,
                     serviceModel,
-                    redisClient,
+                    redisClientTask,
                     serviceCacheTtlDuration
                   ),
                   TE.map((items: PageResults["items"]) => ({
@@ -145,14 +145,14 @@ export const GetMessagesHandler = (
 export const GetMessages = (
   functionSelector: IGetMessagesFunctionSelector,
   serviceModel: ServiceModel,
-  redisClient: redis.RedisClientType,
+  redisClientTask: TE.TaskEither<Error, redis.RedisClientType>,
   serviceCacheTtlDuration: NonNegativeInteger
   // eslint-disable-next-line max-params
 ): express.RequestHandler => {
   const handler = GetMessagesHandler(
     functionSelector,
     serviceModel,
-    redisClient,
+    redisClientTask,
     serviceCacheTtlDuration
   );
   const middlewaresWrap = withRequestMiddlewares(
