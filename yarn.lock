@@ -5517,7 +5517,6 @@ __metadata:
     html-to-text: "npm:^5.1.1"
     io-ts: "npm:^2.2.16"
     jest: "npm:^29.7.0"
-    jest-mock-express: "npm:^0.1.1"
     lolex: "npm:^5.1.1"
     modclean: "npm:^3.0.0-beta.1"
     nock: "npm:^13.0.5"
