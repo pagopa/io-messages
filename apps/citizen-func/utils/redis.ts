@@ -1,6 +1,6 @@
 import * as redis from "redis";
 import * as TE from "fp-ts/TaskEither";
-import { pipe } from "fp-ts/lib/function";
+import { constVoid, pipe } from "fp-ts/lib/function";
 import { RedisParams } from "./config";
 
 export const createSimpleRedisClient = async (
@@ -93,19 +93,14 @@ export const CreateRedisClientSingleton = (
   config: RedisParams
 ): TE.TaskEither<Error, redis.RedisClientType> =>
   pipe(
-    TE.of(void 0),
-    TE.chainW(() =>
-      pipe(
-        REDIS_CLIENT,
-        TE.fromPredicate(
-          (maybeRedisCliend): maybeRedisCliend is redis.RedisClientType =>
-            maybeRedisCliend !== undefined,
-          () => void 0 // Redis Client not yet instantiated
-        ),
-        TE.orElseW(() => CreateRedisClientTask(config)),
-        TE.map(newRedisClient => (REDIS_CLIENT = newRedisClient))
-      )
-    )
+    REDIS_CLIENT,
+    TE.fromPredicate(
+      (maybeRedisCliend): maybeRedisCliend is redis.RedisClientType =>
+        maybeRedisCliend !== undefined,
+      constVoid
+    ),
+    TE.orElseW(() => CreateRedisClientTask(config)),
+    TE.map(newRedisClient => (REDIS_CLIENT = newRedisClient))
   );
 
 export const singleStringReply = (
