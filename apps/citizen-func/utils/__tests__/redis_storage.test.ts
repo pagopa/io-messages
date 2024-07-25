@@ -17,17 +17,19 @@ const aRedisDefaultExpiration = 10;
 const setMock = jest
   .fn()
   .mockImplementation((_, __, ___, ____, cb) => cb(undefined, "OK"));
+const setExMock = jest.fn();
 const getMock = jest.fn();
 const delMock = jest.fn();
 const redisClientMock = {
   get: getMock,
   set: setMock,
+  setEx: setExMock,
   del: delMock
 };
 
 describe("setWithExpirationTask", () => {
   it("should return true if redis store key-value pair correctly", async () => {
-    setMock.mockReturnValueOnce(Promise.resolve(aRedisValue));
+    setExMock.mockReturnValueOnce(Promise.resolve(aRedisValue));
     expect.assertions(1);
     await pipe(
       setWithExpirationTask(
@@ -41,7 +43,7 @@ describe("setWithExpirationTask", () => {
   });
 
   it("should return an error if redis store key-value pair fails", async () => {
-    setMock.mockReturnValueOnce(Promise.reject({}));
+    setExMock.mockReturnValueOnce(Promise.reject({}));
     expect.assertions(1);
     await pipe(
       setWithExpirationTask(
