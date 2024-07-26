@@ -15,12 +15,10 @@ const setMock = jest
   .mockImplementation((_, __, ___, ____, cb) => cb(undefined, "OK"));
 const setExMock = jest.fn();
 const getMock = jest.fn();
-const delMock = jest.fn();
 const redisClientMock = ({
   get: getMock,
   set: setMock,
-  setEx: setExMock,
-  del: delMock
+  setEx: setExMock
 } as unknown) as RedisClientType;
 
 describe("setWithExpirationTask", () => {
