@@ -95,8 +95,8 @@ export const CreateRedisClientSingleton = (
   pipe(
     REDIS_CLIENT,
     TE.fromPredicate(
-      (maybeRedisCliend): maybeRedisCliend is redis.RedisClientType =>
-        maybeRedisCliend !== undefined,
+      (maybeRedisClient): maybeRedisClient is redis.RedisClientType =>
+        maybeRedisClient !== undefined,
       constVoid
     ),
     TE.orElseW(() => CreateRedisClientTask(config)),
