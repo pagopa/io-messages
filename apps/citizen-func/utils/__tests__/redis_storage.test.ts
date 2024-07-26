@@ -30,7 +30,7 @@ const redisClientMock = ({
 
 describe("setWithExpirationTask", () => {
   it("should return true if redis store key-value pair correctly", async () => {
-    setExMock.mockReturnValueOnce(Promise.resolve(aRedisValue));
+    setExMock.mockReturnValueOnce(Promise.resolve("OK"));
     expect.assertions(1);
     await pipe(
       setWithExpirationTask(
@@ -60,7 +60,7 @@ describe("setWithExpirationTask", () => {
 
 describe("setTask", () => {
   it("should return true if redis store key-value pair correctly", async () => {
-    setMock.mockReturnValueOnce(Promise.resolve(aRedisValue));
+    setMock.mockReturnValueOnce(Promise.resolve("OK"));
     expect.assertions(1);
     await pipe(
       setTask(TE.of(redisClientMock), aRedisKey, aRedisValue),
