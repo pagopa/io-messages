@@ -1,12 +1,7 @@
 // tslint:disable: no-any
 import { pipe } from "fp-ts/lib/function";
 import { isNone } from "fp-ts/lib/Option";
-import {
-  deleteTask,
-  getTask,
-  setTask,
-  setWithExpirationTask
-} from "../redis_storage";
+import { getTask, setTask, setWithExpirationTask } from "../redis_storage";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as O from "fp-ts/lib/Option";
 import { RedisClientType } from "redis";
@@ -107,36 +102,6 @@ describe("getTask", () => {
     expect.assertions(1);
     await pipe(
       getTask(TE.of(redisClientMock), aRedisKey),
-      TE.mapLeft(error => expect(error).toBeInstanceOf(Error))
-    )();
-  });
-});
-
-describe("deleteTask", () => {
-  it("should return true if redis delete key-value pair correctly", async () => {
-    delMock.mockReturnValueOnce(Promise.resolve(true));
-    expect.assertions(1);
-    await pipe(
-      deleteTask(TE.of(redisClientMock), aRedisKey),
-      TE.map(x => expect(x).toBe(true))
-    )();
-  });
-
-  it("should return 0 if no key was found for delete", async () => {
-    // when no key is found then 0 is returned as the number of records deleted
-    delMock.mockReturnValueOnce(Promise.resolve(0));
-    expect.assertions(1);
-    await pipe(
-      deleteTask(TE.of(redisClientMock), aRedisKey),
-      TE.map(value => expect(value).toBe(true))
-    )();
-  });
-
-  it("should return an error if redis get value fails", async () => {
-    delMock.mockReturnValueOnce(Promise.reject({}));
-    expect.assertions(1);
-    await pipe(
-      deleteTask(TE.of(redisClientMock), aRedisKey),
       TE.mapLeft(error => expect(error).toBeInstanceOf(Error))
     )();
   });

@@ -2,7 +2,7 @@ import { constTrue, pipe } from "fp-ts/lib/function";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as redis from "redis";
-import { isDelResponseOk, singleStringReply } from "./redis";
+import { singleStringReply } from "./redis";
 
 const falsyResponseToErrorAsync = (error: Error) => (
   response: TE.TaskEither<Error, boolean>
@@ -46,23 +46,6 @@ export const setTask = (
       )
     ),
     singleStringReply,
-    falsyResponseToErrorAsync(new Error(errorMsg))
-  );
-
-export const deleteTask = (
-  redisClientTask: TE.TaskEither<Error, redis.RedisClientType>,
-  key: string,
-  errorMsg: string = "Error deleting key value pair on redis"
-): TE.TaskEither<Error, boolean> =>
-  pipe(
-    redisClientTask,
-    TE.chain(client =>
-      TE.tryCatch(
-        () => client.del(key),
-        () => new Error(errorMsg)
-      )
-    ),
-    TE.map(isDelResponseOk),
     falsyResponseToErrorAsync(new Error(errorMsg))
   );
 
