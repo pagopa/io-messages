@@ -2,9 +2,7 @@ import { constTrue, pipe } from "fp-ts/lib/function";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as redis from "redis";
-
-const isSetResponseOk = (response: string): boolean => response === "OK";
-const isDelResponseOk = (response: number): boolean => response >= 0;
+import { isDelResponseOk, singleStringReply } from "./redis";
 
 const falsyResponseToErrorAsync = (error: Error) => (
   response: TE.TaskEither<Error, boolean>
@@ -29,7 +27,7 @@ export const setWithExpirationTask = (
         () => new Error(errorMsg)
       )
     ),
-    TE.map(isSetResponseOk),
+    singleStringReply,
     falsyResponseToErrorAsync(new Error(errorMsg))
   );
 
@@ -47,7 +45,7 @@ export const setTask = (
         () => new Error(errorMsg)
       )
     ),
-    TE.map(isSetResponseOk),
+    singleStringReply,
     falsyResponseToErrorAsync(new Error(errorMsg))
   );
 

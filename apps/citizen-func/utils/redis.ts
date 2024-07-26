@@ -111,6 +111,8 @@ export const singleStringReply = (
     TE.map(reply => reply === "OK")
   );
 
+export const isDelResponseOk = (response: number): boolean => response >= 0;
+
 export const falsyResponseToErrorAsync = (error: Error) => (
   response: TE.TaskEither<Error, boolean>
 ): TE.TaskEither<Error, true> =>
