@@ -1,5 +1,11 @@
 ### Changelog
 
+## 5.5.2
+
+### Patch Changes
+
+- 2f011ec: Bumped for previous fixes
+
 ## 5.5.1
 
 ### Patch Changes

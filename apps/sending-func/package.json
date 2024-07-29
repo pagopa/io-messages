@@ -1,6 +1,6 @@
 {
   "name": "sending-func",
-  "version": "1.10.11",
+  "version": "1.10.12",
   "license": "MIT",
   "scripts": {
     "prebuild": "yarn openapi:bundle && yarn generate:definitions && yarn generate:backend-notification-hub",
