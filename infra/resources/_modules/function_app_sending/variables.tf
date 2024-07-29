@@ -56,6 +56,21 @@ variable "private_dns_zone_resource_group_name" {
   description = "Resource group name of the private DNS zone to use for private endpoints"
 }
 
+variable "ai_instrumentation_key" {
+  type        = string
+  description = "The key to connect to application insights"
+}
+
+variable "ai_connection_string" {
+  type        = string
+  description = "The connection string to connect to application insights"
+}
+
+variable "ai_sampling_percentage" {
+  type        = string
+  description = "The sampling percentage for application insights"
+}
+
 # REPO DEFINED VARIABLES
 variable "cosmos_db_api_endpoint" {
   type        = string

@@ -4,6 +4,11 @@ locals {
       FUNCTIONS_WORKER_PROCESS_COUNT = 4
       NODE_ENV                       = "production"
 
+      // APP INSIGHTS
+      APPINSIGHTS_INSTRUMENTATIONKEY = var.ai_instrumentation_key
+      APPINSIGHTS_CONNECTION_STRING = var.ai_connection_string
+      APPINSIGHTS_SAMPLING_PERCENTAGE = var.ai_sampling_percentage
+
       // IO COSMOSDB
       COSMOSDB_NAME = "db"
       COSMOSDB_URI  = var.cosmos_db_api_endpoint

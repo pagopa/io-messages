@@ -89,6 +89,10 @@ module "functions_messages_sending" {
     name                = data.azurerm_virtual_network.vnet_common_itn.name
   }
 
+  ai_instrumentation_key = data.azurerm_application_insights.common.instrumentation_key
+  ai_connection_string   = data.azurerm_application_insights.common.connection_string
+  ai_sampling_percentage = 5
+
   cosmos_db_api_endpoint = data.azurerm_cosmosdb_account.cosmos_api.endpoint
   cosmos_db_api_key      = data.azurerm_cosmosdb_account.cosmos_api.primary_key
 
@@ -130,6 +134,10 @@ module "functions_messages_citizen_1" {
     name                = data.azurerm_virtual_network.vnet_common_itn.name
   }
 
+  ai_instrumentation_key = data.azurerm_application_insights.common.instrumentation_key
+  ai_connection_string   = data.azurerm_application_insights.common.connection_string
+  ai_sampling_percentage = 5
+
   cosmos_db_api_endpoint = data.azurerm_cosmosdb_account.cosmos_api.endpoint
   cosmos_db_api_key      = data.azurerm_cosmosdb_account.cosmos_api.primary_key
 
@@ -143,7 +151,7 @@ module "functions_messages_citizen_1" {
   message_storage_account_blob_connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
 
   use_fallback          = false
-  ff_type               = "prod"
+  ff_type               = "none"
   ff_beta_tester_list   = data.azurerm_key_vault_secret.fn_messages_APP_MESSAGES_BETA_FISCAL_CODES.value
   ff_canary_users_regex = "^([(0-9)|(a-f)|(A-F)]{62}00)$" // takes 0.4% of users
 
@@ -169,6 +177,10 @@ module "functions_messages_citizen_2" {
     name                = data.azurerm_virtual_network.vnet_common_itn.name
   }
 
+  ai_instrumentation_key = data.azurerm_application_insights.common.instrumentation_key
+  ai_connection_string   = data.azurerm_application_insights.common.connection_string
+  ai_sampling_percentage = 5
+
   cosmos_db_api_endpoint = data.azurerm_cosmosdb_account.cosmos_api.endpoint
   cosmos_db_api_key      = data.azurerm_cosmosdb_account.cosmos_api.primary_key
 
@@ -182,7 +194,7 @@ module "functions_messages_citizen_2" {
   message_storage_account_blob_connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
 
   use_fallback          = false
-  ff_type               = "prod"
+  ff_type               = "none"
   ff_beta_tester_list   = data.azurerm_key_vault_secret.fn_messages_APP_MESSAGES_BETA_FISCAL_CODES.value
   ff_canary_users_regex = "^([(0-9)|(a-f)|(A-F)]{62}00)$" // takes 0.4% of users
 

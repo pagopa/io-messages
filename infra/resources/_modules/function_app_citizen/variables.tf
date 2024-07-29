@@ -61,6 +61,21 @@ variable "instance_number" {
   description = "The index that counts levels of this functions app"
 }
 
+variable "ai_instrumentation_key" {
+  type        = string
+  description = "The key to connect to application insights"
+}
+
+variable "ai_connection_string" {
+  type        = string
+  description = "The connection string to connect to application insights"
+}
+
+variable "ai_sampling_percentage" {
+  type        = string
+  description = "The sampling percentage for application insights"
+}
+
 # REPO DEFINED VARIABLES
 variable "cosmos_db_api_endpoint" {
   type        = string
