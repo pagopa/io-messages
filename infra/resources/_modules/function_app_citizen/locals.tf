@@ -4,6 +4,11 @@ locals {
       FUNCTIONS_WORKER_PROCESS_COUNT = 4
       NODE_ENV                       = "production"
 
+      // APP INSIGHTS
+      APPINSIGHTS_INSTRUMENTATIONKEY = var.ai_instrumentation_key
+      APPINSIGHTS_CONNECTION_STRING = var.ai_connection_string
+      APPINSIGHTS_SAMPLING_PERCENTAGE = var.ai_sampling_percentage
+
       // IO COSMOSDB
       COSMOSDB_NAME = "db"
       COSMOSDB_URI  = var.cosmos_db_api_endpoint
@@ -27,6 +32,13 @@ locals {
       PN_SERVICE_ID              = var.pn_service_id
       SERVICE_CACHE_TTL_DURATION = "28800" // 8 hours
       RC_CONFIGURATION_CACHE_TTL = "28800"
+      SERVICE_TO_RC_CONFIGURATION_MAP = jsonencode({
+        "${var.pn_service_id}"               = var.pn_remote_config_id,
+        "${var.io_sign_service_id}"          = var.io_sign_remote_config_id,
+        "${var.io_receipt_service_test_id}"  = var.io_receipt_remote_config_test_id,
+        "${var.io_receipt_service_id}"       = var.io_receipt_remote_config_id,
+        "${var.third_party_mock_service_id}" = var.third_party_mock_remote_config_id
+      })
 
       // MESSAGE VIEW FF
       USE_FALLBACK        = var.use_fallback

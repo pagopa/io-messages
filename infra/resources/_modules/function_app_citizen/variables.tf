@@ -61,6 +61,21 @@ variable "instance_number" {
   description = "The index that counts levels of this functions app"
 }
 
+variable "ai_instrumentation_key" {
+  type        = string
+  description = "The key to connect to application insights"
+}
+
+variable "ai_connection_string" {
+  type        = string
+  description = "The connection string to connect to application insights"
+}
+
+variable "ai_sampling_percentage" {
+  type        = string
+  description = "The sampling percentage for application insights"
+}
+
 # REPO DEFINED VARIABLES
 variable "cosmos_db_api_endpoint" {
   type        = string
@@ -85,12 +100,6 @@ variable "cosmos_db_remote_content_key" {
 variable "message_storage_account_blob_connection_string" {
   type        = string
   description = "Connection string to connect to message storage account"
-}
-
-variable "pn_service_id" {
-  type        = string
-  description = "SEND service id"
-  default     = "01G40DWQGKY5GRWSNM4303VNRP"
 }
 
 variable "redis_url" {
@@ -128,3 +137,62 @@ variable "ff_canary_users_regex" {
   description = "Specify a regex to match some hashes of production users fiscal codes"
 }
 
+variable "pn_service_id" {
+  type        = string
+  description = "The Service ID of PN service"
+  default     = "01G40DWQGKY5GRWSNM4303VNRP"
+}
+
+variable "io_sign_service_id" {
+  type        = string
+  description = "The Service ID of io-sign service"
+  default     = "01GQQZ9HF5GAPRVKJM1VDAVFHM"
+}
+
+variable "io_receipt_service_test_id" {
+  type        = string
+  description = "The Service ID of io-receipt service"
+  default     = "01H4ZJ62C1CPGJ0PX8Q1BP7FAB"
+}
+
+variable "io_receipt_service_id" {
+  type        = string
+  description = "The Service ID of io-receipt service"
+  default     = "01HD63674XJ1R6XCNHH24PCRR2"
+}
+
+variable "third_party_mock_service_id" {
+  type        = string
+  description = "The Service ID of the Third Party Mock service"
+  default     = "01GQQDPM127KFGG6T3660D5TXD"
+}
+
+variable "pn_remote_config_id" {
+  type        = string
+  description = "The Remote Content Config ID of PN service"
+  default     = "01HMVMHCZZ8D0VTFWMRHBM5D6F"
+}
+
+variable "io_sign_remote_config_id" {
+  type        = string
+  description = "The Remote Content Config ID of io-sign service"
+  default     = "01HMVMDTHXCESMZ72NA701EKGQ"
+}
+
+variable "io_receipt_remote_config_test_id" {
+  type        = string
+  description = "The Remote Content Config ID of io-receipt service"
+  default     = "01HMVMCDD3JFYTPKT4ZN4WQ73B"
+}
+
+variable "io_receipt_remote_config_id" {
+  type        = string
+  description = "The Remote Content Config ID of io-receipt service"
+  default     = "01HMVM9W74RWH93NT1EYNKKNNR"
+}
+
+variable "third_party_mock_remote_config_id" {
+  type        = string
+  description = "The Remote Content Config ID of the Third Party Mock service"
+  default     = "01HMVM4N4XFJ8VBR1FXYFZ9QFB"
+}
