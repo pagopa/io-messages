@@ -34,7 +34,7 @@ import {
   COSMOSDB_URI,
   COSMOSDB_KEY,
   COSMOSDB_NAME,
-  QueueStorageConnection,
+  MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
   MESSAGE_CONTAINER_NAME
 } from "../env";
 import { InternalMessageResponseWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/InternalMessageResponseWithContent";
@@ -54,7 +54,7 @@ const fetch = getNodeFetch();
 // Setup dbs
 // ----------------
 
-const blobService = createBlobService(QueueStorageConnection);
+const blobService = createBlobService(MESSAGE_CONTENT_STORAGE_CONNECTION_STRING);
 
 const cosmosClient = new CosmosClient({
   endpoint: COSMOSDB_URI,

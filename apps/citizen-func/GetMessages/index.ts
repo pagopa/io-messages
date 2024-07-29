@@ -72,7 +72,7 @@ const rcConfigurationUtility = new RCConfigurationUtility(
   config.SERVICE_TO_RC_CONFIGURATION_MAP
 );
 
-const blobService = createBlobService(config.QueueStorageConnection);
+const blobService = createBlobService(config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING);
 
 const telemetryClient = initTelemetryClient();
 const categoryFecther = getThirdPartyDataWithCategoryFetcher(
