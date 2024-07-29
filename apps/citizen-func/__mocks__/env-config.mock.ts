@@ -18,7 +18,7 @@ export const envConfig: IConfig = {
   SERVICE_TO_RC_CONFIGURATION_MAP: new Map(Object.entries({aServiceId: "01ARZ3NDEKTSV4RRFFQ69G5FAV" as Ulid, two: "01ARZ3NDEKTSV4RRFFQ69G5FAV" as Ulid})),
 
   MESSAGE_CONTAINER_NAME: "aaa" as NonEmptyString,
-  QueueStorageConnection: "aaa" as NonEmptyString,
+  MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: "aaa" as NonEmptyString,
 
   REDIS_URL: "aaa" as NonEmptyString,
   SERVICE_CACHE_TTL_DURATION: 10 as NonNegativeInteger,

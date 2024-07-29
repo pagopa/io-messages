@@ -118,7 +118,7 @@ export const IConfig = t.intersection([
 
     PN_SERVICE_ID: NonEmptyString,
 
-    QueueStorageConnection: NonEmptyString,
+    MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
 
     SERVICE_CACHE_TTL_DURATION: NonNegativeInteger,
 
