@@ -27,7 +27,6 @@ import { RetrievedMessageStatus } from "@pagopa/io-functions-commons/dist/src/mo
 import { parse } from "fp-ts/lib/Json";
 import * as redis from "redis";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
-import { TelemetryClient } from "applicationinsights";
 import { TagEnum as TagEnumPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
 import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
 import { LegalData } from "@pagopa/io-functions-commons/dist/generated/definitions/LegalData";
@@ -356,7 +355,7 @@ export type ThirdPartyDataWithCategoryFetcher = (
 
 export const getThirdPartyDataWithCategoryFetcher: (
   config: IConfig,
-  telemetryClient: TelemetryClient
+  telemetryClient: ReturnType<typeof initTelemetryClient>
 ) => ThirdPartyDataWithCategoryFetcher = config => serviceId =>
   pipe(
     serviceId,
