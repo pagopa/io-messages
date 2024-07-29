@@ -29,7 +29,7 @@ import {
 } from "../utils/cosmosdb";
 import { getConfigOrThrow } from "../utils/config";
 import { MessageStatusExtendedQueryModel } from "../model/message_status_query";
-import { REDIS_CLIENT } from "../utils/redis";
+import { CreateRedisClientSingleton } from "../utils/redis";
 import { MessageViewExtendedQueryModel } from "../model/message_view_query";
 import { initTelemetryClient } from "../utils/appinsights";
 import { getThirdPartyDataWithCategoryFetcher } from "../utils/messages";
@@ -42,6 +42,8 @@ const app = express();
 secureExpressApp(app);
 
 const config = getConfigOrThrow();
+
+const redisClientTask = CreateRedisClientSingleton(config);
 
 const messageModel = new MessageModel(
   cosmosdbInstance.container(MESSAGE_COLLECTION_NAME),
@@ -64,7 +66,7 @@ const rcConfigurationModel = new RCConfigurationModel(
 );
 
 const rcConfigurationUtility = new RCConfigurationUtility(
-  REDIS_CLIENT,
+  redisClientTask,
   rcConfigurationModel,
   config.SERVICE_CACHE_TTL_DURATION,
   config.SERVICE_TO_RC_CONFIGURATION_MAP
@@ -98,7 +100,7 @@ app.get(
   GetMessages(
     getMessagesFunctionSelector,
     serviceModel,
-    REDIS_CLIENT,
+    redisClientTask,
     config.SERVICE_CACHE_TTL_DURATION
   )
 );
