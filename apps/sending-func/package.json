@@ -18,8 +18,7 @@
     "dist:modules": "modclean -r -n default:safe && yarn install --production",
     "predeploy": "npm-run-all build dist:modules",
     "preversion": "auto-changelog  --config .auto-changelog.json --unreleased --commit-limit false --stdout --template preview.hbs",
-    "version": "npm-run-all bump:*",
-    "bump:openapi": "npm-run-all bump:openapi:*",
+    "version": "yarn bump:openapi:internal && yarn bump:openapi:external && yarn bump:changelog",
     "bump:openapi:internal": "bundle-api-spec -i openapi/index.yaml -o openapi/index.yaml -V $npm_package_version && git add openapi/index.yaml",
     "bump:openapi:external": "bundle-api-spec -i openapi/index_external.yaml -o openapi/index_external.yaml -V $npm_package_version && git add openapi/index_external.yaml",
     "bump:changelog": "auto-changelog -p --config .auto-changelog.json --unreleased && git add CHANGELOG.md"
