@@ -46,7 +46,7 @@ const messageStatusModel = new MessageStatusModel(
   cosmosdbInstance.container(MESSAGE_STATUS_COLLECTION_NAME)
 );
 
-const blobService = createBlobService(config.QueueStorageConnection);
+const blobService = createBlobService(config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING);
 
 const serviceModel = new ServiceModel(
   cosmosdbInstance.container(SERVICE_COLLECTION_NAME)

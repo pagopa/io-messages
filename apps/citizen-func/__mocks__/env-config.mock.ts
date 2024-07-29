@@ -23,7 +23,7 @@ export const envConfig: IConfig = {
   ),
 
   MESSAGE_CONTAINER_NAME: "aaa" as NonEmptyString,
-  QueueStorageConnection: "aaa" as NonEmptyString,
+  MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: "aaa" as NonEmptyString,
 
   REDIS_URL: "aaa" as NonEmptyString,
   SERVICE_CACHE_TTL_DURATION: 10 as NonNegativeInteger,

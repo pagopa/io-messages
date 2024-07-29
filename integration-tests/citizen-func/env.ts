@@ -1,5 +1,5 @@
 export const AzureWebJobsStorage = process.env.AzureWebJobsStorage;
-export const QueueStorageConnection = process.env.QueueStorageConnection || "";
+export const MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = process.env.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING || "";
 
 // Milliseconds to wait for test completion
 export const WAIT_MS = Number(process.env.WAIT_MS ?? 5000);

@@ -44,7 +44,7 @@ import {
   REMOTE_CONTENT_COSMOSDB_NAME,
   COSMOSDB_KEY,
   COSMOSDB_NAME,
-  QueueStorageConnection,
+  MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
   MESSAGE_CONTAINER_NAME,
   FF_TYPE
 } from "../env";
@@ -61,7 +61,7 @@ const fetch = getNodeFetch();
 // Setup dbs
 // ----------------
 
-const blobService = createBlobService(QueueStorageConnection);
+const blobService = createBlobService(MESSAGE_CONTENT_STORAGE_CONNECTION_STRING);
 
 const cosmosClient = new CosmosClient({
   endpoint: COSMOSDB_URI,

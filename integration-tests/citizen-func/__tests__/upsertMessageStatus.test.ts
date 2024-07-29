@@ -32,7 +32,7 @@ import {
   COSMOSDB_URI,
   COSMOSDB_KEY,
   COSMOSDB_NAME,
-  QueueStorageConnection,
+  MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
   MESSAGE_CONTAINER_NAME
 } from "../env";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
@@ -78,7 +78,7 @@ const getRandomInt = (max: number) => randomInt(0, max)().valueOf();
 // Setup dbs
 // ----------------
 
-const blobService = createBlobService(QueueStorageConnection);
+const blobService = createBlobService(MESSAGE_CONTENT_STORAGE_CONNECTION_STRING);
 
 const cosmosClient = new CosmosClient({
   endpoint: COSMOSDB_URI,
