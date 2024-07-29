@@ -1,6 +1,5 @@
 import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/FiscalCode";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
-import { EventTelemetry } from "applicationinsights/out/Declarations/Contracts";
 import { initTelemetryClient } from "./appinsights";
 import { toHash } from "./crypto";
 
@@ -22,9 +21,8 @@ export const createTracker = (
         kind,
         messageId,
         serviceId
-      },
-      tagOverrides: { samplingEnabled: "false" }
-    } as EventTelemetry);
+      }
+    });
   };
 
   return {

@@ -17,10 +17,10 @@ export const initTelemetryClient = (env = process.env) =>
   ai.defaultClient
     ? ai.defaultClient
     : pipe(
-        env.APPINSIGHTS_INSTRUMENTATIONKEY,
+        env.APPINSIGHTS_CONNECTION_STRING,
         NonEmptyString.decode,
-        E.map(k =>
-          initAppInsights(k, {
+        E.map(connString =>
+          initAppInsights(connString, {
             disableAppInsights: env.APPINSIGHTS_DISABLE === "true",
             samplingPercentage: pipe(
               env.APPINSIGHTS_SAMPLING_PERCENTAGE,
