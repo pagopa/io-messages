@@ -57,7 +57,6 @@ export const RedisParams = t.intersection([
     REDIS_URL: NonEmptyString
   }),
   t.partial({
-    REDIS_CLUSTER_ENABLED: t.boolean,
     REDIS_PASSWORD: NonEmptyString,
     REDIS_PORT: NonEmptyString,
     REDIS_TLS_ENABLED: t.boolean
@@ -140,11 +139,6 @@ export const IConfig = t.intersection([
 // No need to re-evaluate this object for each call
 const errorOrConfig: t.Validation<IConfig> = IConfig.decode({
   ...process.env,
-  REDIS_CLUSTER_ENABLED: pipe(
-    O.fromNullable(process.env.REDIS_CLUSTER_ENABLED),
-    O.map(_ => _.toLowerCase() === "true"),
-    O.toUndefined
-  ),
   REDIS_TLS_ENABLED: pipe(
     O.fromNullable(process.env.REDIS_TLS_ENABLED),
     O.map(_ => _.toLowerCase() === "true"),

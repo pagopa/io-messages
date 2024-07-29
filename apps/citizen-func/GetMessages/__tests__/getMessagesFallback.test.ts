@@ -99,7 +99,7 @@ const mockedPaymentContent = {
 } as MessageContent;
 
 const mockRCConfigurationUtility = new RCConfigurationUtility(
-  redisClientMock,
+  TE.of(redisClientMock),
   mockRCConfigurationModel,
   mockRCConfigurationTtl,
   ({ aServiceId: "01HMRBX079WA5SGYBQP1A7FSKH" } as unknown) as ReadonlyMap<

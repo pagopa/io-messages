@@ -1,4 +1,4 @@
-import { RedisClient } from "redis";
+import * as redis from "redis";
 
 export const aRedisValue = "VALUE";
-export const redisClientMock = {} as RedisClient;
+export const redisClientMock = {} as redis.RedisClientType;
