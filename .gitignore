@@ -45,7 +45,6 @@ Publish
 *.Cache
 project.lock.json
 
-/packages
 /TestResults
 
 /tools/NuGet.exe

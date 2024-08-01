@@ -1,0 +1,38 @@
+{
+  "name": "cosmosdb",
+  "packageManager": "yarn@4.2.2",
+  "license": "UNLICENSED",
+  "type": "module",
+  "exports": {
+    "./*": "./dist/*.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@pagopa/eslint-config": "^4.0.1",
+    "@types/node": "^20.12.4",
+    "eslint": "8.57.0",
+    "prettier": "^3.2.5",
+    "typescript": "5.4.3"
+  },
+  "dependencies": {
+    "@azure/cosmos": "^4.0.0",
+    "@azure/identity": "^4.1.0",
+    "zod": "^3.23.8"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./dist/index.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint --fix src",
+    "lint:check": "eslint src",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  }
+}
