@@ -5,8 +5,8 @@ locals {
       NODE_ENV                       = "production"
 
       // APP INSIGHTS
-      APPINSIGHTS_INSTRUMENTATIONKEY = var.ai_instrumentation_key
-      APPINSIGHTS_CONNECTION_STRING = var.ai_connection_string
+      APPINSIGHTS_INSTRUMENTATIONKEY  = var.ai_instrumentation_key
+      APPINSIGHTS_CONNECTION_STRING   = var.ai_connection_string
       APPINSIGHTS_SAMPLING_PERCENTAGE = var.ai_sampling_percentage
 
       // IO COSMOSDB

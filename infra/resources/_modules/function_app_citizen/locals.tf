@@ -5,8 +5,8 @@ locals {
       NODE_ENV                       = "production"
 
       // APP INSIGHTS
-      APPINSIGHTS_INSTRUMENTATIONKEY = var.ai_instrumentation_key
-      APPINSIGHTS_CONNECTION_STRING = var.ai_connection_string
+      APPINSIGHTS_INSTRUMENTATIONKEY  = var.ai_instrumentation_key
+      APPINSIGHTS_CONNECTION_STRING   = var.ai_connection_string
       APPINSIGHTS_SAMPLING_PERCENTAGE = var.ai_sampling_percentage
 
       // IO COSMOSDB
@@ -41,9 +41,9 @@ locals {
       })
 
       // MESSAGE VIEW FF
-      USE_FALLBACK        = var.use_fallback
-      FF_TYPE             = var.ff_type
-      FF_BETA_TESTER_LIST = var.ff_beta_tester_list
+      USE_FALLBACK          = var.use_fallback
+      FF_TYPE               = var.ff_type
+      FF_BETA_TESTER_LIST   = var.ff_beta_tester_list
       FF_CANARY_USERS_REGEX = var.ff_canary_users_regex
 
       // Keepalive fields are all optionals
