@@ -4,11 +4,11 @@
   "description": "Integration test for the entire monorepo",
   "license": "MIT",
   "scripts": {
-    "container-start": "echo 'container starting' && docker-compose --env-file environments/env.base up -d",
+    "container-start": "echo 'container starting' && docker compose --env-file environments/env.base up -d",
     "integrations": "yarn run container-start && yarn run integrations-citizen && yarn run integrations-sending",
     "integrations-sending": "docker exec testagent-sending-func yarn test ./sending-func/__tests__/",
     "integrations-citizen": "docker exec testagent-citizen-func yarn test ./citizen-func/__tests__/",
-    "container-stop": "echo 'container stopping' && docker-compose --env-file environments/env.base down",
+    "container-stop": "echo 'container stopping' && docker compose --env-file environments/env.base down",
     "definitions-sending-func-generate": "gen-api-models --api-spec ../apps/sending-func/openapi/index.yaml --no-strict --out-dir ./sending-func/generated/definitions",
     "definitions-generate": "yarn run definitions-sending-func-generate",
     "env-clean": "rm -rf environments/generated/**",
