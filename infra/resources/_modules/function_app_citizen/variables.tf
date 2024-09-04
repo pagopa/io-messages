@@ -196,3 +196,8 @@ variable "third_party_mock_remote_config_id" {
   description = "The Remote Content Config ID of the Third Party Mock service"
   default     = "01HMVM4N4XFJ8VBR1FXYFZ9QFB"
 }
+
+variable "nat_gateway_id" {
+  type        = string
+  description = "The ID of the NAT Gateway"
+}

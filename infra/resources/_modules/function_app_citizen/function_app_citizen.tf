@@ -28,3 +28,10 @@ module "function_app_messages_citizen" {
 
   tags = var.tags
 }
+
+# NAT Gateway
+
+resource "azurerm_subnet_nat_gateway_association" "functions_messages_citizen_subnet" {
+  subnet_id      = module.function_app_messages_citizen.subnet.id
+  nat_gateway_id = var.nat_gateway_id
+}

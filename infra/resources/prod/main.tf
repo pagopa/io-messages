@@ -133,6 +133,7 @@ module "functions_messages_citizen_1" {
     resource_group_name = data.azurerm_virtual_network.vnet_common_itn.resource_group_name
     name                = data.azurerm_virtual_network.vnet_common_itn.name
   }
+  nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
 
   ai_instrumentation_key = data.azurerm_application_insights.common.instrumentation_key
   ai_connection_string   = data.azurerm_application_insights.common.connection_string
@@ -176,6 +177,7 @@ module "functions_messages_citizen_2" {
     resource_group_name = data.azurerm_virtual_network.vnet_common_itn.resource_group_name
     name                = data.azurerm_virtual_network.vnet_common_itn.name
   }
+  nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
 
   ai_instrumentation_key = data.azurerm_application_insights.common.instrumentation_key
   ai_connection_string   = data.azurerm_application_insights.common.connection_string
