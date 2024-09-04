@@ -1,0 +1,45 @@
+@startuml fn-services
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Component diagram for io-function-services
+
+Container(apim, "IO-P-APIM-V2", "container: io-apim", "Check authentication, authz and rate limit on api call")
+Container(msg_sending, "io-fn-msgs-sending", "container: function-app", "Retrieve remote content configuration")
+ContainerDb(cosmos, "IO-P-COSMOS-API", "container: cosmos", "Stores messages and user profile content")
+ContainerDb(msg_content, "message-content", "container: storage", "immutable storage for the message content")
+ContainerDb(cosmos, "IO-P-COSMOS-API", "container: cosmos", "Stores messages and user profile content")
+
+System_Ext(notif_sender, "Notification Sender System", "The system that send push notifications to mobile devices and emails")
+System_Ext(msg_reader, "Message Reader System", "The system used to read messages")
+
+Container_Boundary(io-fn-services, "io-fn-services") {
+    ContainerDb(msg_created, "MessageCreated", "container: queue", "The queue that stores the messages that needs to be processed")
+    ContainerDb(msg_processed, "MessageProcessed", "container: queue", "The queue that stores the processed messages")
+
+    Component(process_msg, "process-message", "function", "Function that process a created message")
+    Component(create_msg, "create-message", "function", "Function that create a message")
+    Component(fail_msg, "onfailed-process-message", "function", "Function that manages the failure to process a message")
+
+    Rel(create_msg, msg_created, "write the message once it is created")
+
+    Rel(msg_created, process_msg, "Triggered when a message is created")
+
+    Rel(process_msg, fail_msg, "Triggered when it fails to process a message")
+    Rel(process_msg, msg_processed, "write the message once it is processed")
+}
+
+Rel(apim, create_msg, "API Call")
+
+Rel(create_msg, cosmos, "write message (metadata), isPending=true")
+Rel(create_msg, msg_content, "Write message content (body, third party data, payment)")
+Rel(create_msg, msg_sending, "Get remote content config (only for remote messages)")
+
+Rel(process_msg, cosmos, "read user preference")
+Rel(process_msg, cosmos, "write message status")
+Rel(process_msg, notif_sender, "request send notification (push/email)")
+
+Rel(cosmos, msg_reader, "trigger: message status changed")
+@enduml
