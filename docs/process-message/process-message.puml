@@ -1,16 +1,16 @@
 @startuml
 
-queue "created-message" as CreatedMessage
+queue "message-created" as CreatedMessage
 participant ProcessMessage
-database "internal-storage" as InternalStorage
+database "servicesfn1sdt" as InternalStorage
 collections profiles
 collections "message-status" as messageStatus
 collections messages
 collections "service-preferences" as servicePreferences
 collections activations
-database "message-storage" as messageStorage
+database "message-content" as messageStorage
 
-queue "processed-message" as ProcessedMessage
+queue "message-procesed" as ProcessedMessage
 
 CreatedMessage -> ProcessMessage : Read an item
 
