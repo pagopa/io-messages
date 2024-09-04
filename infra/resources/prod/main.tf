@@ -158,6 +158,11 @@ module "functions_messages_citizen_1" {
   tags = local.tags
 }
 
+resource "azurerm_subnet_nat_gateway_association" "functions_messages_citizen_1_subnet" {
+  subnet_id      = module.functions_messages_citizen_1.subnet.id
+  nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
+}
+
 module "functions_messages_citizen_2" {
   source = "../_modules/function_app_citizen"
 
@@ -199,4 +204,9 @@ module "functions_messages_citizen_2" {
   ff_canary_users_regex = "^([(0-9)|(a-f)|(A-F)]{62}00)$" // takes 0.4% of users
 
   tags = local.tags
+}
+
+resource "azurerm_subnet_nat_gateway_association" "functions_messages_citizen_2_subnet" {
+  subnet_id      = module.functions_messages_citizen_2.subnet.id
+  nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
 }
