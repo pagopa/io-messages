@@ -1,5 +1,11 @@
 ### Changelog
 
+## 5.5.3
+
+### Patch Changes
+
+- 5de1cfc: fixed redis client
+
 ## 5.5.2
 
 ### Patch Changes
