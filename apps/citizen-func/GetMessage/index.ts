@@ -24,18 +24,16 @@ import {
 } from "@pagopa/io-functions-commons/dist/src/models/message_status";
 import { cosmosdbInstance } from "../utils/cosmosdb";
 import { getConfigOrThrow } from "../utils/config";
-import { CreateRedisClientSingleton } from "../utils/redis";
 import { initTelemetryClient } from "../utils/appinsights";
 import { getThirdPartyDataWithCategoryFetcher } from "../utils/messages";
 import { GetMessage } from "./handler";
+import { RedisClientFactory } from "../utils/redis";
 
 // Setup Express
 const app = express();
 secureExpressApp(app);
 
 const config = getConfigOrThrow();
-
-const redisClientTask = CreateRedisClientSingleton(config);
 
 const messageModel = new MessageModel(
   cosmosdbInstance.container(MESSAGE_COLLECTION_NAME),
@@ -46,11 +44,15 @@ const messageStatusModel = new MessageStatusModel(
   cosmosdbInstance.container(MESSAGE_STATUS_COLLECTION_NAME)
 );
 
-const blobService = createBlobService(config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING);
+const blobService = createBlobService(
+  config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING
+);
 
 const serviceModel = new ServiceModel(
   cosmosdbInstance.container(SERVICE_COLLECTION_NAME)
 );
+
+const redisClientFactory = new RedisClientFactory(config);
 
 const telemetryClient = initTelemetryClient();
 
@@ -61,7 +63,7 @@ app.get(
     messageStatusModel,
     blobService,
     serviceModel,
-    redisClientTask,
+    redisClientFactory,
     config.SERVICE_CACHE_TTL_DURATION,
     config.SERVICE_TO_RC_CONFIGURATION_MAP,
     getThirdPartyDataWithCategoryFetcher(config, telemetryClient)

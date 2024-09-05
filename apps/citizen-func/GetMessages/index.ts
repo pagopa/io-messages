@@ -29,13 +29,13 @@ import {
 } from "../utils/cosmosdb";
 import { getConfigOrThrow } from "../utils/config";
 import { MessageStatusExtendedQueryModel } from "../model/message_status_query";
-import { CreateRedisClientSingleton } from "../utils/redis";
 import { MessageViewExtendedQueryModel } from "../model/message_view_query";
 import { initTelemetryClient } from "../utils/appinsights";
 import { getThirdPartyDataWithCategoryFetcher } from "../utils/messages";
 import RCConfigurationUtility from "../utils/remoteContentConfig";
 import { GetMessages } from "./handler";
 import { createGetMessagesFunctionSelection } from "./getMessagesFunctions/getMessages.selector";
+import { RedisClientFactory } from "../utils/redis";
 
 // Setup Express
 const app = express();
@@ -43,7 +43,7 @@ secureExpressApp(app);
 
 const config = getConfigOrThrow();
 
-const redisClientTask = CreateRedisClientSingleton(config);
+const redisClientFactory = new RedisClientFactory(config);
 
 const messageModel = new MessageModel(
   cosmosdbInstance.container(MESSAGE_COLLECTION_NAME),
@@ -66,13 +66,15 @@ const rcConfigurationModel = new RCConfigurationModel(
 );
 
 const rcConfigurationUtility = new RCConfigurationUtility(
-  redisClientTask,
+  redisClientFactory,
   rcConfigurationModel,
   config.SERVICE_CACHE_TTL_DURATION,
   config.SERVICE_TO_RC_CONFIGURATION_MAP
 );
 
-const blobService = createBlobService(config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING);
+const blobService = createBlobService(
+  config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING
+);
 
 const telemetryClient = initTelemetryClient();
 const categoryFecther = getThirdPartyDataWithCategoryFetcher(
@@ -100,7 +102,7 @@ app.get(
   GetMessages(
     getMessagesFunctionSelector,
     serviceModel,
-    redisClientTask,
+    redisClientFactory,
     config.SERVICE_CACHE_TTL_DURATION
   )
 );

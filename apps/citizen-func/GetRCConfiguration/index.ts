@@ -13,7 +13,7 @@ import {
 } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
 import { remoteContentCosmosdbInstance } from "../utils/cosmosdb";
 import { getConfigOrThrow } from "../utils/config";
-import { CreateRedisClientSingleton } from "../utils/redis";
+import { RedisClientFactory } from "../utils/redis";
 import RCConfigurationUtility from "../utils/remoteContentConfig";
 import { GetRCConfiguration } from "./handler";
 
@@ -23,14 +23,14 @@ secureExpressApp(app);
 
 const config = getConfigOrThrow();
 
-const redisClientTask = CreateRedisClientSingleton(config);
+const redisClientFactory = new RedisClientFactory(config);
 
 const rcConfigurationModel = new RCConfigurationModel(
   remoteContentCosmosdbInstance.container(RC_CONFIGURATION_COLLECTION_NAME)
 );
 
 const rcConfigurationUtility = new RCConfigurationUtility(
-  redisClientTask,
+  redisClientFactory,
   rcConfigurationModel,
   config.SERVICE_CACHE_TTL_DURATION,
   config.SERVICE_TO_RC_CONFIGURATION_MAP

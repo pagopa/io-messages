@@ -6,7 +6,6 @@ import { flow, pipe } from "fp-ts/lib/function";
 import { parse } from "fp-ts/lib/Json";
 
 import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
-import * as redis from "redis";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import {
   RCConfigurationModel,
@@ -14,15 +13,13 @@ import {
 } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
 import { getTask, setWithExpirationTask } from "./redis_storage";
 import { UlidMapFromString } from "./config";
+import { RedisClientFactory } from "./redis";
 
 export const RC_CONFIGURATION_REDIS_PREFIX = "RC-CONFIGURATION";
 
 export default class RCConfigurationUtility {
   constructor(
-    private readonly redisClientTask: TE.TaskEither<
-      Error,
-      redis.RedisClientType
-    >,
+    private readonly redisClientFacory: RedisClientFactory,
     private readonly rcConfigurationModel: RCConfigurationModel,
     private readonly rcConfigurationCacheTtl: NonNegativeInteger,
     private readonly serviceToRCConfigurationMap: UlidMapFromString
@@ -75,7 +72,7 @@ export default class RCConfigurationUtility {
   ): TE.TaskEither<Error, O.Option<RetrievedRCConfiguration>> =>
     pipe(
       getTask(
-        this.redisClientTask,
+        this.redisClientFacory,
         `${RC_CONFIGURATION_REDIS_PREFIX}-${configurationId}`
       ),
       TE.chain(
@@ -115,7 +112,7 @@ export default class RCConfigurationUtility {
                 ),
                 TE.chain(rCConfiguration =>
                   setWithExpirationTask(
-                    this.redisClientTask,
+                    this.redisClientFacory,
                     `${RC_CONFIGURATION_REDIS_PREFIX}-${configurationId}`,
                     JSON.stringify(rCConfiguration),
                     this.rcConfigurationCacheTtl

@@ -27,6 +27,7 @@ import { aRetrievedService } from "../../__mocks__/mocks.service_preference";
 import { aRetrievedMessageWithoutContent } from "../../__mocks__/messages";
 import RCConfigurationUtility from "../../utils/remoteContentConfig";
 import { Ulid } from "@pagopa/ts-commons/lib/strings";
+import { RedisClientFactory } from "../../utils/redis";
 
 const findLastVersionByModelIdMock = jest
   .fn()
@@ -98,8 +99,12 @@ const mockedPaymentContent = {
   }
 } as MessageContent;
 
+const redisCLientFactoryMock = {
+  getInstance: async () => redisClientMock
+} as RedisClientFactory;
+
 const mockRCConfigurationUtility = new RCConfigurationUtility(
-  TE.of(redisClientMock),
+  redisCLientFactoryMock,
   mockRCConfigurationModel,
   mockRCConfigurationTtl,
   ({ aServiceId: "01HMRBX079WA5SGYBQP1A7FSKH" } as unknown) as ReadonlyMap<
