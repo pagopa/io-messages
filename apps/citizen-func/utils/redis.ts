@@ -24,7 +24,7 @@ export const createSimpleRedisClient = async (
     password,
     // 9 minutes PING interval. this solves the `socket closed unexpectedly` event for Azure Cache for Redis
     // (https://github.com/redis/node-redis/issues/1598)
-    pingInterval: 1000 * 60 * 9,
+    pingInterval: 10000,
     socket: {
       checkServerIdentity: (_hostname, _cert) => undefined,
       keepAlive: 2000,
