@@ -161,6 +161,7 @@ export class RedisClientFactory {
       Record<string, never>
     >({
       password,
+      pingInterval: 1000 * 60 * 9,
       socket: {
         port: redisPort,
         tls: useTls
