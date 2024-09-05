@@ -165,7 +165,7 @@ export class RedisClientFactory {
         port: redisPort,
         tls: useTls
       },
-      url: `redis://${redisUrl}`
+      url: useTls ? `rediss://${redisUrl}` : `redis://${redisUrl}`
     });
     await redisClientConnection.connect();
     return redisClientConnection;
