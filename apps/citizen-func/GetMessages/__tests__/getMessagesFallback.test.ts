@@ -99,12 +99,12 @@ const mockedPaymentContent = {
   }
 } as MessageContent;
 
-const redisCLientFactoryMock = {
+const redisClientFactoryMock = {
   getInstance: async () => redisClientMock
 } as RedisClientFactory;
 
 const mockRCConfigurationUtility = new RCConfigurationUtility(
-  redisCLientFactoryMock,
+  redisClientFactoryMock,
   mockRCConfigurationModel,
   mockRCConfigurationTtl,
   ({ aServiceId: "01HMRBX079WA5SGYBQP1A7FSKH" } as unknown) as ReadonlyMap<
