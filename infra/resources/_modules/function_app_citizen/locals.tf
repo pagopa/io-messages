@@ -24,9 +24,10 @@ locals {
       MESSAGE_CONTAINER_NAME                    = "message-content"
 
       // REDIS
-      REDIS_URL      = var.redis_url
-      REDIS_PORT     = var.redis_port
-      REDIS_PASSWORD = var.redis_password
+      REDIS_URL           = var.redis_url
+      REDIS_PORT          = var.redis_port
+      REDIS_PASSWORD      = var.redis_password
+      REDIS_PING_INTERVAL = var.redis_ping_interval
 
       // INTERNAL USE PROPERTIES
       PN_SERVICE_ID              = var.pn_service_id

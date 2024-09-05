@@ -145,9 +145,10 @@ module "functions_messages_citizen_1" {
   cosmos_db_remote_content_endpoint = data.azurerm_cosmosdb_account.cosmos_remote_content.endpoint
   cosmos_db_remote_content_key      = data.azurerm_cosmosdb_account.cosmos_remote_content.primary_key
 
-  redis_url      = module.redis_messages.hostname
-  redis_port     = module.redis_messages.ssl_port
-  redis_password = module.redis_messages.primary_access_key
+  redis_url           = module.redis_messages.hostname
+  redis_port          = module.redis_messages.ssl_port
+  redis_password      = module.redis_messages.primary_access_key
+  redis_ping_interval = 10000
 
   message_storage_account_blob_connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
 
@@ -189,9 +190,10 @@ module "functions_messages_citizen_2" {
   cosmos_db_remote_content_endpoint = data.azurerm_cosmosdb_account.cosmos_remote_content.endpoint
   cosmos_db_remote_content_key      = data.azurerm_cosmosdb_account.cosmos_remote_content.primary_key
 
-  redis_url      = module.redis_messages.hostname
-  redis_port     = module.redis_messages.ssl_port
-  redis_password = module.redis_messages.primary_access_key
+  redis_url           = module.redis_messages.hostname
+  redis_port          = module.redis_messages.ssl_port
+  redis_password      = module.redis_messages.primary_access_key
+  redis_ping_interval = 10000
 
   message_storage_account_blob_connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
 
@@ -202,3 +204,4 @@ module "functions_messages_citizen_2" {
 
   tags = local.tags
 }
+

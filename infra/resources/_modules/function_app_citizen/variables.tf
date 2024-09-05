@@ -117,6 +117,11 @@ variable "redis_password" {
   description = "Redis password"
 }
 
+variable "redis_ping_interval" {
+  type        = string
+  description = "Redis ping interval"
+}
+
 variable "use_fallback" {
   type        = bool
   description = "Wheter to use fallback to composition or not"
@@ -201,3 +206,4 @@ variable "nat_gateway_id" {
   type        = string
   description = "The ID of the NAT Gateway"
 }
+
