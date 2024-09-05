@@ -59,8 +59,7 @@ export const RedisParams = t.intersection([
   t.partial({
     REDIS_PASSWORD: NonEmptyString,
     REDIS_PORT: NonEmptyString,
-    REDIS_TLS_ENABLED: t.boolean,
-    REDIS_PING_INTERVAL: t.number
+    REDIS_TLS_ENABLED: t.boolean
   })
 ]);
 export type RedisParams = t.TypeOf<typeof RedisParams>;
