@@ -24,14 +24,8 @@ activate ProcessMessage
 ProcessMessage -> InternalStorage : Ask for a CommonMessageData
 
 activate InternalStorage
-alt "Error from storage"
-  InternalStorage -[#red]> ProcessMessage : Storage error
-  ProcessMessage -[#red]>X CreatedMessage: Throw an error
-else "Data not found"
-  InternalStorage -> ProcessMessage : None
-  ProcessMessage -[#red]>X CreatedMessage: Throw an error
-else "Data does not respect the shape CommonMessageData"
-  InternalStorage -[#red]> ProcessMessage : Decode error
+alt "CommonMessageData not found or retrieval fails"
+  InternalStorage -[#red]> ProcessMessage : Error or not found
   ProcessMessage -[#red]>X CreatedMessage: Throw an error
 else "Storage returns data"
   InternalStorage -[#green]> ProcessMessage : Data
