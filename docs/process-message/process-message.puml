@@ -22,6 +22,7 @@ end
 
 activate ProcessMessage
 ProcessMessage -> InternalStorage : Ask for a CommonMessageData
+note right : CommonMessageData includes:\n- content: needed to track the type of the message when processed (payment, eucovid or third_party)\n- message: conains message metadata\n- sender metadata: needed to check if a service is SPECIAL and to get the organization fiscal code
 
 activate InternalStorage
 alt "CommonMessageData not found or retrieval fails"
