@@ -1,5 +1,11 @@
 ### Changelog
 
+## 5.5.4
+
+### Patch Changes
+
+- 36e53ed: Changed redis utils
+
 ## 5.5.3
 
 ### Patch Changes
