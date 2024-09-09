@@ -14,15 +14,9 @@ queue "message-procesed" as ProcessedMessage
 
 CreatedMessage -> ProcessMessage : Read an item
 
-ProcessMessage -> ProcessMessage : Json Parse input from the created-message queue
+ProcessMessage -> ProcessMessage : Validate input
 
-alt "Invalid JSON"
-  ProcessMessage -[#red]>X CreatedMessage: Throw an error
-end
-
-ProcessMessage -> ProcessMessage : Validate the shape of the item
-
-alt "Invalid CreatedMessageEvent"
+alt "Invalid input"
   ProcessMessage -[#red]>X CreatedMessage: Throw an error
 end
 
