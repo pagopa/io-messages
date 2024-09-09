@@ -12,7 +12,7 @@ database "message-content" as messageStorage
 
 queue "message-procesed" as ProcessedMessage
 
-CreatedMessage -> ProcessMessage : Read an item
+CreatedMessage <- ProcessMessage : Read an item
 
 ProcessMessage -> ProcessMessage : Validate input
 
