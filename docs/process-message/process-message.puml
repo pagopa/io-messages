@@ -99,6 +99,7 @@ end
 ProcessMessage -> ProcessMessage : Calculate inbox and channels \nblocked from service preferences
 
 ProcessMessage -> ProcessMessage : Check if the sender service is SPECIAL
+note right : A service is SPECIAL if needs a specific activation flow to be activated
 
 alt "service is special"
   ProcessMessage -> activations : Ask for activation to check the status
