@@ -1,7 +1,7 @@
 // tslint:disable: no-any
 import { pipe } from "fp-ts/lib/function";
 import { isNone } from "fp-ts/lib/Option";
-import { getTask, setTask, setWithExpirationTask } from "../redis_storage";
+import { getTask, setWithExpirationTask } from "../redis_storage";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as O from "fp-ts/lib/Option";
 import { RedisClientType } from "redis";
@@ -51,26 +51,6 @@ describe("setWithExpirationTask", () => {
         aRedisValue,
         aRedisDefaultExpiration
       ),
-      TE.mapLeft(error => expect(error).toBeInstanceOf(Error))
-    )();
-  });
-});
-
-describe("setTask", () => {
-  it("should return true if redis store key-value pair correctly", async () => {
-    setMock.mockReturnValueOnce(Promise.resolve("OK"));
-    expect.assertions(1);
-    await pipe(
-      setTask(redisClientFactoryMock, aRedisKey, aRedisValue),
-      TE.map(value => expect(value).toEqual(true))
-    )();
-  });
-
-  it("should return an error if redis store key-value pair fails", async () => {
-    setMock.mockReturnValueOnce(Promise.reject({}));
-    expect.assertions(1);
-    await pipe(
-      setTask(redisClientFactoryMock, aRedisKey, aRedisValue),
       TE.mapLeft(error => expect(error).toBeInstanceOf(Error))
     )();
   });
