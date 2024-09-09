@@ -25,7 +25,6 @@ import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/gen
 import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
 import { RetrievedMessageStatus } from "@pagopa/io-functions-commons/dist/src/models/message_status";
 import { parse } from "fp-ts/lib/Json";
-import * as redis from "redis";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import { TelemetryClient } from "applicationinsights";
 import { TagEnum as TagEnumPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
@@ -42,6 +41,7 @@ import { initTelemetryClient } from "./appinsights";
 import { createTracker } from "./tracking";
 import { getTask, setWithExpirationTask } from "./redis_storage";
 import { IConfig } from "./config";
+import { RedisClientFactory } from "./redis";
 
 export const trackErrorAndContinue = (
   context: Context,
@@ -151,11 +151,11 @@ export const mapMessageCategory = (
 export const getOrCacheService = (
   serviceId: ServiceId,
   serviceModel: ServiceModel,
-  redisClientTask: TE.TaskEither<Error, redis.RedisClientType>,
+  redisClientFactory: RedisClientFactory,
   serviceCacheTtl: NonNegativeInteger
 ): TE.TaskEither<Error, RetrievedService> =>
   pipe(
-    getTask(redisClientTask, serviceId),
+    getTask(redisClientFactory, serviceId),
     TE.chain(TE.fromOption(() => new Error("Cannot Get Service from Redis"))),
     TE.chainEitherK(
       flow(
@@ -181,7 +181,7 @@ export const getOrCacheService = (
         TE.chain(service =>
           pipe(
             setWithExpirationTask(
-              redisClientTask,
+              redisClientFactory,
               serviceId,
               JSON.stringify(service),
               serviceCacheTtl
@@ -215,7 +215,7 @@ export const computeFlagFromHasPrecondition = (
 export const enrichServiceData = (
   context: Context,
   serviceModel: ServiceModel,
-  redisClientTask: TE.TaskEither<Error, redis.RedisClientType>,
+  redisClientFactory: RedisClientFactory,
   serviceCacheTtl: NonNegativeInteger
   // eslint-disable-next-line max-params
 ) => <M extends EnrichedMessageWithContent>(
@@ -231,7 +231,7 @@ TE.TaskEither<Error, ReadonlyArray<EnrichedMessage>> =>
         getOrCacheService(
           serviceId,
           serviceModel,
-          redisClientTask,
+          redisClientFactory,
           serviceCacheTtl
         ),
         TE.mapLeft(e =>

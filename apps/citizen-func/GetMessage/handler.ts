@@ -48,7 +48,6 @@ import { InternalMessageResponseWithContent } from "@pagopa/io-functions-commons
 import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
 import { OptionalQueryParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/optional_query_param";
 import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
-import * as redis from "redis";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import * as TE from "fp-ts/lib/TaskEither";
 import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
@@ -59,6 +58,7 @@ import {
   ThirdPartyDataWithCategoryFetcher
 } from "../utils/messages";
 import { ThirdPartyData } from "../generated/definitions/ThirdPartyData";
+import { RedisClientFactory } from "../utils/redis";
 
 /**
  * Type of a GetMessage handler.
@@ -94,7 +94,7 @@ type IGetMessageHandler = (
 const getErrorOrPaymentData = async (
   context: Context,
   serviceModel: ServiceModel,
-  redisClientTask: TE.TaskEither<Error, redis.RedisClientType>,
+  redisClientFactory: RedisClientFactory,
   serviceCacheTtl: NonNegativeInteger,
   senderServiceId: ServiceId,
   maybePaymentData: O.Option<PaymentData>
@@ -117,7 +117,7 @@ const getErrorOrPaymentData = async (
               getOrCacheService(
                 senderServiceId,
                 serviceModel,
-                redisClientTask,
+                redisClientFactory,
                 serviceCacheTtl
               ),
               TE.mapLeft(err => {
@@ -197,7 +197,7 @@ export function GetMessageHandler(
   messageStatusModel: MessageStatusModel,
   blobService: BlobService,
   serviceModel: ServiceModel,
-  redisClientTask: TE.TaskEither<Error, redis.RedisClientType>,
+  redisClientFactory: RedisClientFactory,
   serviceCacheTtl: NonNegativeInteger,
   serviceToRCConfigurationMap: ReadonlyMap<string, string>,
   categoryFetcher: ThirdPartyDataWithCategoryFetcher
@@ -254,7 +254,7 @@ export function GetMessageHandler(
     const errorOrMaybePaymentData = await getErrorOrPaymentData(
       context,
       serviceModel,
-      redisClientTask,
+      redisClientFactory,
       serviceCacheTtl,
       retrievedMessage.senderServiceId,
       maybePaymentData
@@ -285,7 +285,7 @@ export function GetMessageHandler(
               service: getOrCacheService(
                 retrievedMessage.senderServiceId,
                 serviceModel,
-                redisClientTask,
+                redisClientFactory,
                 serviceCacheTtl
               )
             }),
@@ -365,7 +365,7 @@ export function GetMessage(
   messageStatusModel: MessageStatusModel,
   blobService: BlobService,
   serviceModel: ServiceModel,
-  redisClientTask: TE.TaskEither<Error, redis.RedisClientType>,
+  redisClientFactory: RedisClientFactory,
   serviceCacheTtl: NonNegativeInteger,
   serviceToRCConfigurationMap: ReadonlyMap<string, string>,
   categoryFetcher: ThirdPartyDataWithCategoryFetcher
@@ -375,7 +375,7 @@ export function GetMessage(
     messageStatusModel,
     blobService,
     serviceModel,
-    redisClientTask,
+    redisClientFactory,
     serviceCacheTtl,
     serviceToRCConfigurationMap,
     categoryFetcher

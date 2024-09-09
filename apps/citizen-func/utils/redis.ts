@@ -2,6 +2,7 @@ import * as redis from "redis";
 import * as TE from "fp-ts/TaskEither";
 import { constVoid, pipe } from "fp-ts/lib/function";
 import { RedisParams } from "./config";
+import { IConfig } from "./config";
 
 export const createSimpleRedisClient = async (
   redisUrl: string,
@@ -121,3 +122,53 @@ export const falsyResponseToErrorAsync = (error: Error) => (
     response,
     TE.chain(value => (value ? TE.right(value) : TE.left(error)))
   );
+
+type RedisClient = redis.RedisClientType;
+
+const DEFAULT_REDIS_PORT = "6379";
+
+export class RedisClientFactory {
+  protected readonly config: IConfig;
+  // eslint-disable-next-line functional/prefer-readonly-type
+  protected redisClient: RedisClient | undefined;
+
+  constructor(config: IConfig) {
+    this.config = config;
+  }
+
+  public readonly getInstance = async (): Promise<RedisClient> => {
+    if (!this.redisClient) {
+      this.redisClient = await this.createSimpleRedisClient(
+        this.config.REDIS_URL,
+        this.config.REDIS_PASSWORD,
+        this.config.REDIS_PORT,
+        this.config.REDIS_TLS_ENABLED
+      );
+    }
+    return this.redisClient;
+  };
+
+  protected readonly createSimpleRedisClient = async (
+    redisUrl: string,
+    password?: string,
+    port?: string,
+    useTls: boolean = true
+  ): Promise<RedisClient> => {
+    const redisPort: number = parseInt(port || DEFAULT_REDIS_PORT, 10);
+    const redisClientConnection = redis.createClient<
+      redis.RedisDefaultModules,
+      Record<string, never>,
+      Record<string, never>
+    >({
+      password,
+      pingInterval: 1000 * 60 * 9,
+      socket: {
+        port: redisPort,
+        tls: useTls
+      },
+      url: useTls ? `rediss://${redisUrl}` : `redis://${redisUrl}`
+    });
+    await redisClientConnection.connect();
+    return redisClientConnection;
+  };
+}
