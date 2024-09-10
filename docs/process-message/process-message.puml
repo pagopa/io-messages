@@ -18,6 +18,7 @@ ProcessMessage -> ProcessMessage : Validate input
 
 alt "Invalid input"
   ProcessMessage -[#red]>X CreatedMessage: Throw an error
+  note right : If the function throws an error, it will be retried up to 5 times (default configuration).\nIf the function still fails to complete successfully after all retries,\nthe message will be moved to the poison queue.
 end
 
 activate ProcessMessage
