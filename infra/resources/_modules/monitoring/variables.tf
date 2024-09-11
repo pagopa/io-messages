@@ -3,7 +3,7 @@ variable "resource_group_name" {
   description = "Resource group to deploy resources to"
 }
 
-variable "alert_iocom_error_notification_slack_email" {
+variable "io_com_slack_email" {
   type        = string
   description = "Uri of the slack channel where to send domain related alerts"
 }
