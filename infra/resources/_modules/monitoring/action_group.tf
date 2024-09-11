@@ -5,7 +5,7 @@ resource "azurerm_monitor_action_group" "io_com_error" {
 
   email_receiver {
     name                    = "slack"
-    email_address           = var.alert_iocom_error_notification_slack_email
+    email_address           = var.io_com_slack_email
     use_common_alert_schema = true
   }
 }

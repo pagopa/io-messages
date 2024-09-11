@@ -204,7 +204,7 @@ module "functions_messages_citizen_2" {
 }
 
 module "monitoring" {
-  source                                     = "../_modules/monitoring/"
-  resource_group_name                        = azurerm_resource_group.itn_messages.name
-  alert_iocom_error_notification_slack_email = data.azurerm_key_vault_secret.alert_iocom_error_notification_slack_email.value
+  source              = "../_modules/monitoring/"
+  resource_group_name = azurerm_resource_group.itn_messages.name
+  io_com_slack_email  = data.azurerm_key_vault_secret.io_com_slack_email.value
 }

@@ -64,7 +64,7 @@ data "azurerm_key_vault_secret" "appbackendli_token" {
   key_vault_id = data.azurerm_key_vault.weu_messages.id
 }
 
-data "azurerm_key_vault_secret" "alert_iocom_error_notification_slack_email" {
+data "azurerm_key_vault_secret" "io_com_slack_email" {
   name         = "alert-slack-channel-email"
   key_vault_id = data.azurerm_key_vault.weu_messages.id
 }
