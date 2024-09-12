@@ -20,7 +20,7 @@ provider "azurerm" {
 }
 
 module "federated_identities" {
-  source = "github.com/pagopa/dx//infra/modules/azure_federated_identity_with_github?ref=main"
+  source = "github.com/pagopa/dx//infra/modules/azure_federated_identity_with_github?ref=f339355788f12e5e4719159dca45d7c0b5c0c537"
 
   prefix    = local.prefix
   env_short = local.env_short
@@ -38,7 +38,7 @@ module "federated_identities" {
 }
 
 module "app_federated_identities" {
-  source = "github.com/pagopa/dx//infra/modules/azure_federated_identity_with_github?ref=main"
+  source = "github.com/pagopa/dx//infra/modules/azure_federated_identity_with_github?ref=f339355788f12e5e4719159dca45d7c0b5c0c537"
 
   prefix       = local.prefix
   env_short    = local.env_short

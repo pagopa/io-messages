@@ -1,5 +1,5 @@
 module "function_app_messages_sending" {
-  source = "github.com/pagopa/dx//infra/modules/azure_function_app?ref=main"
+  source = "github.com/pagopa/dx//infra/modules/azure_function_app?ref=f339355788f12e5e4719159dca45d7c0b5c0c537"
 
   environment = {
     prefix          = var.prefix
