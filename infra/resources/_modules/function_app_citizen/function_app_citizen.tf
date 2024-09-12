@@ -23,6 +23,13 @@ module "function_app_messages_citizen" {
     resource_group_name = var.virtual_network.resource_group_name
   }
 
+  action = [
+    {
+      action_group_id    = data.azurerm_monitor_action_group.io_com_error.id
+      webhook_properties = {}
+    }
+  ]
+
   app_settings      = local.messages_citizen.app_settings
   slot_app_settings = local.messages_citizen.app_settings
 

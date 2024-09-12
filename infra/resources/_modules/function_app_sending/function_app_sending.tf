@@ -27,6 +27,13 @@ module "function_app_messages_sending" {
     web = true
   }
 
+  action = [
+    {
+      action_group_id    = data.azurerm_monitor_action_group.io_com_error.id
+      webhook_properties = {}
+    }
+  ]
+
   app_settings      = local.messages_sending.app_settings
   slot_app_settings = local.messages_sending.app_settings
 

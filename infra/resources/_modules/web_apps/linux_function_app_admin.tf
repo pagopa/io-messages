@@ -1,5 +1,5 @@
 module "admin_func" {
-  source = "git::https://github.com/pagopa/dx.git//infra/modules/azure_function_app?ref=main"
+  source = "git::https://github.com/pagopa/dx.git//infra/modules/azure_function_app?ref=f339355788f12e5e4719159dca45d7c0b5c0c537"
 
   environment = merge(var.environment, {
     app_name        = "notif",
@@ -37,6 +37,13 @@ module "admin_func" {
   subnet_pep_id = var.subnet_pep_id
 
   tags = var.tags
+
+  action = [
+    {
+      action_group_id    = data.azurerm_monitor_action_group.io_com_error.id
+      webhook_properties = {}
+    }
+  ]
 }
 
 resource "azurerm_role_assignment" "notif_func" {
