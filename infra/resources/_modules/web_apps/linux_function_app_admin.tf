@@ -38,12 +38,7 @@ module "admin_func" {
 
   tags = var.tags
 
-  action = [
-    {
-      action_group_id    = data.azurerm_monitor_action_group.io_com_error.id
-      webhook_properties = {}
-    }
-  ]
+  action_group_id = var.io_com_error_id
 }
 
 resource "azurerm_role_assignment" "notif_func" {

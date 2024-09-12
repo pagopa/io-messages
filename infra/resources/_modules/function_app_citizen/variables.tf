@@ -201,3 +201,8 @@ variable "nat_gateway_id" {
   type        = string
   description = "The ID of the NAT Gateway"
 }
+
+variable "io_com_error_id" {
+  type        = string
+  description = "The ID of io_com_error action group"
+}

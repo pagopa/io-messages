@@ -38,4 +38,6 @@ module "web_apps" {
   common_key_vault = data.azurerm_key_vault.weu_common
 
   tenant_id = data.azurerm_client_config.current.tenant_id
+
+  io_com_error_id = module.monitoring.action_group.io_com_error_id
 }
