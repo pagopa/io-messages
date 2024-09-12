@@ -1,0 +1,175 @@
+@startuml
+
+queue "message-created" as CreatedMessage
+participant ProcessMessage
+database "servicesfn1sdt" as InternalStorage
+collections profiles
+collections "message-status" as messageStatus
+collections messages
+collections "service-preferences" as servicePreferences
+collections activations
+database "message-content" as messageStorage
+
+queue "message-procesed" as ProcessedMessage
+
+CreatedMessage <- ProcessMessage : Read an item
+
+ProcessMessage -> ProcessMessage : Validate input
+
+alt "Invalid input"
+  ProcessMessage -[#red]>X CreatedMessage: Throw an error
+  note right : If the function throws an error, it will be retried up to 5 times (default configuration).\nIf the function still fails to complete successfully after all retries,\nthe message will be moved to the poison queue.
+end
+
+activate ProcessMessage
+ProcessMessage -> InternalStorage : Ask for a CommonMessageData
+note right : CommonMessageData includes:\n- content: needed to track the type of the message when processed (payment, eucovid or third_party)\n- message: conains message metadata\n- sender metadata: needed to check if a service is SPECIAL and to get the organization fiscal code
+
+activate InternalStorage
+alt "CommonMessageData not found or retrieval fails"
+  InternalStorage -[#red]> ProcessMessage : Error or not found
+  ProcessMessage -[#red]>X CreatedMessage: Throw an error
+else "Storage returns data"
+  InternalStorage -[#green]> ProcessMessage : Data
+  deactivate InternalStorage
+end
+
+ProcessMessage -> profiles : Retrieve the latest version of recipient's profile
+activate profiles
+
+alt "Error from cosmos"
+  profiles -[#red]> ProcessMessage : 5xx from cosmos
+  ProcessMessage -[#red]>X CreatedMessage : Throw an error
+else "Empty response from cosmos"
+  profiles -> ProcessMessage : Empty response from cosmos
+  note left: User is not registered in IO
+  ProcessMessage -> messageStatus : Create a message-status REJECTED
+  activate messageStatus
+  note right:  The rejection_reason is \nUSER_NOT_FOUND
+  alt "Error from cosmos"
+    messageStatus -[#red]> ProcessMessage : 5xx from cosmos
+    ProcessMessage -[#red]>X CreatedMessage : Throw an error
+  end
+  ProcessMessage -> messageStatus : Set TTL to 3y for all versions
+  alt "Error from cosmos"
+    messageStatus -[#red]> ProcessMessage : 5xx from cosmos
+    deactivate messageStatus
+    ProcessMessage -[#red]>X CreatedMessage : Throw an error
+  end
+  ProcessMessage -> messages : Patch with TTL to 3y
+  activate messages
+  alt "Error from cosmos"
+    messages -[#red]> ProcessMessage : 5xx from cosmos
+    deactivate messages
+    ProcessMessage -[#red]>X CreatedMessage : Throw an error
+  end
+  ProcessMessage -> CreatedMessage: End
+else "Cosmos returns the profile"
+    profiles -[#green]> ProcessMessage : Profile
+    deactivate profiles
+end
+
+ProcessMessage -> ProcessMessage : Check if isInboxEnabled is true
+
+alt "isInboxEnabled is false"
+  ProcessMessage -> messageStatus : Create a message-status REJECTED
+  activate messageStatus
+  note right: The rejection reason is \nSERVICE_NOT_ALLOWED
+  alt "Error from cosmos"
+    messageStatus -[#red]> ProcessMessage : 5xx from cosmos
+    ProcessMessage -[#red]>X CreatedMessage : Throw an error
+  else "Cosmos updated the value"
+    messageStatus -[#green]> ProcessMessage : Ok response
+    deactivate messageStatus
+    ProcessMessage -> CreatedMessage : End
+  end
+end
+
+ProcessMessage -> servicePreferences : Ask for service preferences
+note right: We need service preferences\nto check if the recipient\nblocked some of the channels
+activate servicePreferences
+
+alt "Error from cosmos"
+  servicePreferences -[#red]> ProcessMessage : 5xx from cosmos
+  ProcessMessage -[#red]>X CreatedMessage : Throw an error
+else "Cosmos returns the service preferences"
+  servicePreferences -[#green]> ProcessMessage : Ok response
+  deactivate servicePreferences
+end
+
+ProcessMessage -> ProcessMessage : Calculate inbox and channels \nblocked from service preferences
+
+ProcessMessage -> ProcessMessage : Check if the sender service is SPECIAL
+note right : A service is SPECIAL if needs a specific activation flow to be activated
+
+alt "service is special"
+  ProcessMessage -> activations : Ask for activation to check the status
+  activate activations
+  alt "Error from cosmos"
+    activations -[#red]> ProcessMessage : 5xx from cosmos
+    ProcessMessage -[#red]>X CreatedMessage : Throw an error
+  else "Cosmos returns the activation"
+    activations -[#green]> ProcessMessage : Ok response
+    deactivate activations
+  end
+  ProcessMessage -> ProcessMessage : Check if the service is ACTIVE
+  note right : The service is considered ACTIVE if:\n1. The activation_status property is ACTIVE;\n2. The activation_status property is PENDING within the grace period.
+  alt "the service is active"
+    ProcessMessage -> ProcessMessage: INBOX is not considered blocked
+  else "the service is INACTIVE"
+    ProcessMessage -> ProcessMessage: INBOX value is taken from service preferences
+  end
+end
+
+ProcessMessage -> ProcessMessage : Check if INBOX is blocked
+
+alt "INBOX is blocked"
+  ProcessMessage -> messageStatus : Create a message-status REJECTED
+  activate messageStatus
+  note right:  The rejection_reason is set to \nSERVICE_NOT_ALLOWED
+  alt "Cosmos returns an error"
+    messageStatus -[#red]> ProcessMessage : 5xx from cosmos
+    ProcessMessage -[#red]>X CreatedMessage : Throw an error
+  else "Cosmos updated the value"
+    messageStatus -[#green]> ProcessMessage : Ok response
+    deactivate messageStatus
+    ProcessMessage -> CreatedMessage : "End"
+  end
+end
+
+ProcessMessage -> messageStorage: Store the content as blob
+activate messageStorage
+
+alt "Error from storage"
+  messageStorage -[#red]> ProcessMessage : Message storage returns an error
+  ProcessMessage -[#red]>X CreatedMessage : Throw an error
+else  "Blob created"
+  messageStorage -[#green]> ProcessMessage : Ok response
+  deactivate messageStorage
+end
+
+ProcessMessage -> messageStatus : Store a new message status PROCESSED
+activate messageStatus
+
+alt "Error from cosmos"
+  messageStatus -[#red]> ProcessMessage : 5xx from cosmos
+  ProcessMessage -[#red]>X CreatedMessage : Throw an error
+else "Cosmos updated the value"
+  messageStatus -[#green]> ProcessMessage : Ok response
+  deactivate messageStatus
+end
+
+ProcessMessage -> messages : Set isPending to false
+note right: This step is needed so\nthe message will be visible\nfrom the getMessages
+activate messages
+
+alt "Error from cosmos"
+  messages -[#red]> ProcessMessage : 5xx from cosmos
+  deactivate messages
+  note left : Throwing will cause a retry, which will result \nin the message content being overwritten.\nAdditionally, a new message status will be created
+  ProcessMessage -[#red]>X CreatedMessage : Throw an error
+end
+
+ProcessMessage -> ProcessedMessage : Push a processed message
+
+@enduml
