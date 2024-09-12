@@ -1,0 +1,91 @@
+@startuml create-message
+!pragma teoz true
+
+title Create Message
+
+actor sender as "Sender"
+control fn as "CreateMessage"
+database db as "messages"
+collections st as "processing-message"
+participant ai as "ai-common"
+queue q as "message-created"
+
+sender -> fn ++: //Submit Message//
+
+fn -> fn: Parse the //Request Payload//
+
+note left
+The //Request Payload// includes
+the sender metadata
+and the //Message Payload//.
+end note
+
+break Invalid //Request Payload//
+  fn --x sender: Bad Request
+end
+
+fn -> fn: Parse the //FiscalCode// \nfrom //Request Body// or //Request Path//
+
+break Invalid //FiscalCode//
+  fn --x sender: Bad request
+end
+
+opt //Remoted Content//
+  break Invalid //configuration_id//
+    fn --x sender: Forbidden
+  end
+end
+
+opt //feature_level_type// is STANDARD
+  break Includes attachments
+    fn --x sender: Forbidden
+  end
+end
+
+fn -> fn: Create //messageId//
+
+note left
+A new //messageId// gets generated
+for each request. It is used
+as unique operation identifier.
+end note
+
+fn -> fn: Check sender ACLs
+
+note left
+//Sender// should be allowed
+to send message and request
+payments to the specified
+recipient.
+end note
+
+break Sender not allowed
+  fn --x sender: Forbidden
+end
+
+fn -> db ++: Create //MessageWithoutContent//
+
+break Document not created
+  db --x fn: Error
+  fn --x sender: Internal Server Error
+end
+
+db --> fn --: Document created
+
+fn -> st ++: Write //CommonMessageData//
+
+break Blob not created
+  st --x fn: Error
+  fn --x sender: Internal Server Error
+end
+
+st --> fn --: Blob created
+
+fn -> ai: Track //api.messages.create// event
+
+note right: Sampling is disabled for this event.
+
+fn --> sender: Redirect to the newly\ncreated message
+& fn --> q --: Enqueue //CreatedMessage// event
+
+@enduml
