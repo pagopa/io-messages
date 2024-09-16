@@ -131,3 +131,8 @@ variable "redis_password" {
   type        = string
   description = "Redis password"
 }
+
+variable "action_group_id" {
+  type        = string
+  description = "The ID of the action group"
+}

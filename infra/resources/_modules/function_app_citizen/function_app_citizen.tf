@@ -27,6 +27,8 @@ module "function_app_messages_citizen" {
   slot_app_settings = local.messages_citizen.app_settings
 
   tags = var.tags
+
+  action_group_id = var.action_group_id
 }
 
 # NAT Gateway
