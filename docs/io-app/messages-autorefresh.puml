@@ -1,0 +1,43 @@
+@startuml
+participant MessagesHomeScreen
+participant PagerViewContainer
+participant loadNewlyReceivedMessagesIfNeededCallback
+participant getLoadPreviousPageMessagesActionIfAllowed
+note right of getLoadPreviousPageMessagesActionIfAllowed
+ part of homeUtils.ts
+ end note
+participant Redux
+participant allPaginatedReducer
+participant handleLoadPrediousPageMessages
+note right of handleLoadPrediousPageMessages
+ saga
+ end note
+
+MessagesHomeScreen -> PagerViewContainer : contains
+PagerViewContainer-> loadNewlyReceivedMessagesIfNeededCallback :implements
+loadNewlyReceivedMessagesIfNeededCallback-->MessagesHomeScreen
+'----- END DEFINITIONS
+
+PagerViewContainer -> loadNewlyReceivedMessagesIfNeededCallback  :| page landing \n|  switch between inbox and archived tab 
+
+loadNewlyReceivedMessagesIfNeededCallback->Redux  : store.getState()
+activate loadNewlyReceivedMessagesIfNeededCallback
+    Redux->loadNewlyReceivedMessagesIfNeededCallback: current app state
+    loadNewlyReceivedMessagesIfNeededCallback -> getLoadPreviousPageMessagesActionIfAllowed ++ : get action to dispatch
+    note left: app state is passed as an arg
+    getLoadPreviousPageMessagesActionIfAllowed->getLoadPreviousPageMessagesActionIfAllowed: 60 seconds have passed since last call \n && no async operations on messages are running?  \n if so return loadPreviousPageMessages.request 
+    getLoadPreviousPageMessagesActionIfAllowed -> loadNewlyReceivedMessagesIfNeededCallback -- : action || undefined
+    loadNewlyReceivedMessagesIfNeededCallback -> Redux : if an action is returned, track the event on mixpanel and dispatch it
+deactivate loadNewlyReceivedMessagesIfNeededCallback
+
+Redux->allPaginatedReducer ++ : passes loadPreviousPageMessages.request
+allPaginatedReducer->Redux -- : return new state
+' -------
+Redux->handleLoadPrediousPageMessages ++ : forward loadPreviousPageMessages.request
+handleLoadPrediousPageMessages->BE : call Api
+BE->handleLoadPrediousPageMessages: PaginatedPublicMessagesCollection
+handleLoadPrediousPageMessages->Redux --: dispatch loadPreviousPageMessagesAction.success
+' ---------
+Redux->allPaginatedReducer ++ : passes loadPreviousPageMessages.success
+allPaginatedReducer->Redux -- : return new state
+@enduml
