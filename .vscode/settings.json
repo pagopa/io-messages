@@ -5,5 +5,7 @@
     "editor.defaultFormatter": "hashicorp.terraform"
   },
   "plantuml.exportFormat": "png",
-  "plantuml.render": "Local"
+  "plantuml.render": "Local",
+  "plantuml.exportOutDir": ".",
+  "plantuml.exportSubFolder": false
 }
