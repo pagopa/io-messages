@@ -113,6 +113,8 @@ module "functions_messages_sending" {
   internal_user_id = data.azurerm_key_vault_secret.internal_user.value
 
   tags = local.tags
+
+  action_group_id = module.monitoring.action_group.io_com_error_id
 }
 
 module "functions_messages_citizen_1" {
@@ -157,6 +159,8 @@ module "functions_messages_citizen_1" {
   ff_canary_users_regex = "^([(0-9)|(a-f)|(A-F)]{62}00)$" // takes 0.4% of users
 
   tags = local.tags
+
+  action_group_id = module.monitoring.action_group.io_com_error_id
 }
 
 module "functions_messages_citizen_2" {
@@ -201,4 +205,12 @@ module "functions_messages_citizen_2" {
   ff_canary_users_regex = "^([(0-9)|(a-f)|(A-F)]{62}00)$" // takes 0.4% of users
 
   tags = local.tags
+
+  action_group_id = module.monitoring.action_group.io_com_error_id
+}
+
+module "monitoring" {
+  source              = "../_modules/monitoring/"
+  resource_group_name = azurerm_resource_group.itn_messages.name
+  io_com_slack_email  = data.azurerm_key_vault_secret.io_com_slack_email.value
 }
