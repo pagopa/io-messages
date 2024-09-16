@@ -4,7 +4,7 @@
 
 LAYOUT_WITH_LEGEND()
 
-title Component diagram for io-function-services
+title Component diagram for function-services
 
 Container(apim, "IO-P-APIM-V2", "container: io-apim", "Check authentication, authz and rate limit on api call")
 Container(msg_sending, "io-fn-msgs-sending", "container: function-app", "Retrieve remote content configuration")
