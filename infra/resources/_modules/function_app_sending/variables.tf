@@ -132,7 +132,7 @@ variable "redis_password" {
   description = "Redis password"
 }
 
-variable "io_com_error_id" {
+variable "action_group_id" {
   type        = string
-  description = "The ID of io_com_error action group"
+  description = "The ID of the action group"
 }

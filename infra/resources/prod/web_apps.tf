@@ -39,5 +39,5 @@ module "web_apps" {
 
   tenant_id = data.azurerm_client_config.current.tenant_id
 
-  io_com_error_id = module.monitoring.action_group.io_com_error_id
+  action_group_id = module.monitoring.action_group.io_com_error_id
 }

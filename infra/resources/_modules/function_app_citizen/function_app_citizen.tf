@@ -28,7 +28,7 @@ module "function_app_messages_citizen" {
 
   tags = var.tags
 
-  action_group_id = var.io_com_error_id
+  action_group_id = var.action_group_id
 }
 
 # NAT Gateway
