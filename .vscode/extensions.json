@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "bruno-api-client.bruno",
+    "editorconfig.editorconfig",
+    "dbaeumer.vscode-eslint",
+    "github.vscode-github-actions",
+    "github.vscode-pull-request-github",
+    "hashicorp.terraform",
+    "atlassian.atlascode",
+    "jebbs.plantuml",
+    "esbenp.prettier-vscode",
+    "vitest.explorer",
+    "redhat.vscode-yaml",
+    "arcanis.vscode-zipfs"
+  ]
+}
