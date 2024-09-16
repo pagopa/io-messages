@@ -1,6 +1,6 @@
 @startuml fn-services
 
-!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
 
 LAYOUT_WITH_LEGEND()
 
@@ -18,16 +18,18 @@ System_Ext(msg_reader, "Message Reader System", "The system used to read message
 Container_Boundary(io-fn-services, "io-fn-services") {
     ContainerDb(msg_created, "MessageCreated", "container: queue", "The queue that stores the messages that needs to be processed")
     ContainerDb(msg_processed, "MessageProcessed", "container: queue", "The queue that stores the processed messages")
+    ContainerDb(msg_created_poison, "MessageCreatedPoison", "container: queue", "The poison queue associated to the MessageCreated queue")
 
     Component(process_msg, "process-message", "function", "Function that process a created message")
     Component(create_msg, "create-message", "function", "Function that create a message")
-    Component(fail_msg, "onfailed-process-message", "function", "Function that manages the failure to process a message")
+    Component(fail_msg, "onfailed-process-message", "function", "Function that writes the message-status as FAILED and logs the event")
 
     Rel(create_msg, msg_created, "write the message once it is created")
+    Rel(create_msg, msg_created_poison, "after 5 fails")
 
     Rel(msg_created, process_msg, "Triggered when a message is created")
 
-    Rel(process_msg, fail_msg, "Triggered when it fails to process a message")
+    Rel(msg_created_poison, fail_msg, "Triggers")
     Rel(process_msg, msg_processed, "write the message once it is processed")
 }
 
