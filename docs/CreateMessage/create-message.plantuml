@@ -14,6 +14,8 @@ sender -> fn ++: //Submit Message//
 
 fn -> fn: Parse the //Request Payload//
 
+fn -> fn: Check if the Sender is allowed\nto send that specific payload
+
 note left
 The //Request Payload// includes
 the sender metadata
@@ -31,8 +33,8 @@ break Invalid //FiscalCode//
 end
 
 opt //Remoted Content//
-  break Invalid //configuration_id//
-    fn --x sender: Forbidden
+  break //RC Configuration// invalid or not found
+    fn --x sender: Error (Bad Request, Not Found, Forbidden,\nInternal Server Error)
   end
 end
 
@@ -50,7 +52,7 @@ for each request. It is used
 as unique operation identifier.
 end note
 
-fn -> fn: Check sender ACLs
+fn -> fn: Check if the sender is allowed to\ncontact the citizen
 
 note left
 //Sender// should be allowed
