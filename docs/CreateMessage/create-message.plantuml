@@ -6,6 +6,7 @@ title Create Message
 actor sender as "Sender"
 control fn as "CreateMessage"
 database db as "messages"
+participant sendingfn as "sending-func"
 collections st as "processing-message"
 participant ai as "ai-common"
 queue q as "message-created"
@@ -33,6 +34,10 @@ break Invalid //FiscalCode//
 end
 
 opt //Remoted Content//
+
+  fn -> sendingfn: Get //RC Configuration// by Id
+  sendingfn --> fn: //RC Configuration//
+
   break //RC Configuration// invalid or not found
     fn --x sender: Error (Bad Request, Not Found, Forbidden,\nInternal Server Error)
   end
