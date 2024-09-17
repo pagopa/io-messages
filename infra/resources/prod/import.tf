@@ -71,5 +71,5 @@ import {
 
 import {
   to = module.storage_api_weu.azurerm_monitor_metric_alert.iopstapi_throttling_low_availability
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IO-COMMONS | iopstapi] Low Availability"
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-linux/providers/Microsoft.Insights/metricAlerts/[IO-COMMONS | iopstapi] Low Availability"
 }
