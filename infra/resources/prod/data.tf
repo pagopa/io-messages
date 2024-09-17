@@ -22,6 +22,10 @@ data "azurerm_resource_group" "notifications_rg" {
   name = format("%s-weu-messages-notifications-rg", local.project_legacy)
 }
 
+data "azurerm_resource_group" "internal_rg" {
+  name = format("%s-rg-internal", local.project_legacy)
+}
+
 ### TODO: THIS weu_common KEY VAULT HAS TO BE DISMISSED IN FAVOUR OF weu_messages ###
 data "azurerm_key_vault" "weu_common" {
   name                = "${local.project_legacy}-kv-common"
@@ -102,4 +106,9 @@ data "azurerm_storage_account" "storage_push_notifications" {
 data "azurerm_storage_account" "iopstexportdata" {
   name                = "iopstexportdata"
   resource_group_name = data.azurerm_resource_group.weu_operations.name
+}
+
+data "azurerm_monitor_action_group" "error_action_group" {
+  resource_group_name = data.azurerm_resource_group.weu_common.name
+  name                = replace("${local.project_legacy}error", "-", "")
 }
