@@ -108,7 +108,7 @@ data "azurerm_storage_account" "iopstexportdata" {
   resource_group_name = data.azurerm_resource_group.weu_operations.name
 }
 
-data "azurerm_monitor_action_group" "error_action_group" {
-  resource_group_name = data.azurerm_resource_group.weu_common.name
-  name                = replace("${local.project_legacy}error", "-", "")
+data "azurerm_monitor_action_group" "io_com_action_group" {
+  resource_group_name = "${local.project_legacy}-msgs-rg-01"
+  name                = "${local.project_legacy}-com-error-ag-01"
 }

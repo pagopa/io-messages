@@ -8,7 +8,7 @@ module "storage_api_weu" {
 
   resource_group_name = data.azurerm_resource_group.internal_rg.name
 
-  error_action_group_id = data.azurerm_monitor_action_group.error_action_group.id
+  error_action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id
 
   tags = local.tags
 }
