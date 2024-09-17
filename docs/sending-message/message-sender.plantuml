@@ -1,8 +1,7 @@
 @startuml message-sender
-!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
 
-!include <office/Users/user.puml>
-!include <office/Users/mobile_user.puml>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
 
 LAYOUT_WITH_LEGEND()
 

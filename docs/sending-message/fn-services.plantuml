@@ -1,6 +1,8 @@
 @startuml fn-services
 
-!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+!include <C4/C4_Component>
 
 LAYOUT_WITH_LEGEND()
 
