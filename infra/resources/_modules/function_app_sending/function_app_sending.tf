@@ -31,4 +31,6 @@ module "function_app_messages_sending" {
   slot_app_settings = local.messages_sending.app_settings
 
   tags = var.tags
+
+  action_group_id = var.action_group_id
 }
