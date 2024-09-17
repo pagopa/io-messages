@@ -34,4 +34,6 @@ module "function_app_messages_sending" {
   application_insights_sampling_percentage = var.ai_sampling_percentage
 
   tags = var.tags
+
+  action_group_id = var.action_group_id
 }

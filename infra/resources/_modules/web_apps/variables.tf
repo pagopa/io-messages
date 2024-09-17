@@ -68,3 +68,8 @@ variable "common_key_vault" {
 variable "tenant_id" {
   type = string
 }
+
+variable "action_group_id" {
+  type        = string
+  description = "The ID of the action group"
+}
