@@ -83,6 +83,8 @@ resource "azurerm_monitor_metric_alert" "alert_nh_common_partition_2_anomalous_p
   name                = "[IOCOM|NH2] Push Notification Service anomalous success volume"
   resource_group_name = azurerm_notification_hub_namespace.common_partition_2.resource_group_name
 
+  enabled = false
+
   scopes        = [azurerm_notification_hub.common_partition_2.id]
   description   = "Notification Hub Partition 2 has an anomalous PNS success volume. Runbook: not needed."
   severity      = 1

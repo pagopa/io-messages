@@ -182,3 +182,18 @@ import {
   to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_partition_2_anomalous_pns_success_volume
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NH2] Push Notification Service anomalous success volume"
 }
+
+import {
+  to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_anomalous_pns_success_volume
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NHLegacy] Push Notification Service anomalous success volume"
+}
+
+import {
+  to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_partition_1_anomalous_pns_success_volume
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NH1] Push Notification Service anomalous success volume"
+}
+
+import {
+  to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_partition_1_pns_errors
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NH1] Push Notification Service errors"
+}
