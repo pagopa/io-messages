@@ -92,6 +92,8 @@ resource "azurerm_monitor_metric_alert" "alert_nh_common_anomalous_pns_success_v
   name                = "[IOCOM|NHLegacy] Push Notification Service anomalous success volume"
   resource_group_name = azurerm_notification_hub_namespace.common.resource_group_name
 
+  enabled = false
+
   scopes        = [azurerm_notification_hub.common.id]
   description   = "Notification Hub Legacy has an anomalous PNS success volume. Runbook: not needed."
   severity      = 1
