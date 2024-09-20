@@ -2,15 +2,16 @@
 participant MessagesHomeScreen
 participant PagerViewContainer
 participant MessageList
-participant Redux
+database Redux
 participant allPaginatedReducer
 participant HandleReloadAllMessages
+entity BE
 note right of HandleReloadAllMessages
  saga
 end note
 MessagesHomeScreen -> PagerViewContainer : contains
 PagerViewContainer -> MessageList : contains
-return
+MessageList --> PagerViewContainer
 PagerViewContainer-->  MessagesHomeScreen
   PagerViewContainer ->  Redux  : MessagePagePotFromCategorySelector
   activate PagerViewContainer
