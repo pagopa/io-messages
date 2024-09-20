@@ -1,0 +1,40 @@
+@startuml message-sender
+
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+LAYOUT_WITH_LEGEND()
+
+title Container Diagram Message Sender System
+
+Person(ente, Sender, "The user that request the message creation")
+Person(customer, Customer, "A user of the IO app")
+
+System_Boundary(c1, "Message Sender System") {
+    Container(apim, "IO-P-APIM-V2", "container: io-apim", "Check authentication, auth and rate limit on api call")
+    Container(fn_services, "io-fn-services", "container: function-app", "back end app with business logic to send a message")
+    Container(fn_sending, "io-fn-msgs-sending", "container: function-app", "Retrieve remote content configuration")
+    ContainerDb(cosmos, "IO-P-COSMOS-API", "container: cosmos", "User Profile Preference, Message")
+    ContainerDb(remote_cosmos, "MESSAGE-REMOTE-CONTENT", "container: cosmos", "Remote content configuration data")
+    ContainerDb(msg_storage, "message-content", "container: storage", "immutable storage for the message content")
+    ContainerDb(redis, "IO-P-MSGS-REDIS", "container: redis", "Cache about remote content configuration data")
+}
+
+System_Ext(notification_system, "Notification Sender System", "The system that sends notifications")
+System_Ext(reader_system, "Message Reader System", "The system used to read messages")
+
+Rel(ente, apim, "Make API call", "HTTPS")
+Rel(customer, reader_system, "Uses")
+Rel(cosmos, reader_system, "trigger: message status changed")
+Rel(apim, fn_services, "Make API call")
+
+Rel(fn_services, fn_sending, "Check: is a remote content?")
+Rel(fn_services, cosmos, "Read user preference and write message (metadata e status)")
+Rel(fn_services, msg_storage, "Write message content (body, third party data, payment)")
+Rel(fn_services, notification_system, "request send notification (push/email)")
+
+
+Rel(fn_sending, remote_cosmos, "read remote content info")
+Rel(fn_sending, redis, "read cached remote content info")
+
+@enduml

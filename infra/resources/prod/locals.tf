@@ -13,8 +13,10 @@ locals {
   # this project points to them (westeurope)
   project_legacy = "${local.prefix}-${local.env_short}"
 
-  location           = "italynorth"
-  secondary_location = "germanywestcentral"
+  location              = "italynorth"
+  secondary_location    = "germanywestcentral"
+  legacy_location       = "westeurope"
+  legacy_location_short = "weu"
 
   tags = {
     CostCenter     = "TS310 - PAGAMENTI & SERVIZI"
