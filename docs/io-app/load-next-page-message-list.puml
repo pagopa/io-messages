@@ -1,12 +1,13 @@
-@startuml
+@startuml name LoadNextMessagePage-ioApp
 participant MessageList
 participant homeUtils
-participant Redux
+database Redux
 participant allPaginatedReducer
 participant handleLoadNextPageMessages
 rnote over handleLoadNextPageMessages
  saga
 endrnote
+entity BE
 
 activate MessageList
 rnote over MessageList
