@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "<= 3.100.0"
+      version = "<= 3.116.0"
     }
   }
 
@@ -48,4 +48,20 @@ module "app_federated_identities" {
   tags         = local.tags
 
   continuos_integration = { enable = false }
+}
+
+resource "azurerm_key_vault_access_policy" "ci_kv_common" {
+  key_vault_id = data.azurerm_key_vault.weu_common.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = module.federated_identities.federated_ci_identity.id
+
+  secret_permissions = ["Get", "List"]
+}
+
+resource "azurerm_key_vault_access_policy" "cd_kv_common" {
+  key_vault_id = data.azurerm_key_vault.weu_common.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = module.federated_identities.federated_cd_identity.id
+
+  secret_permissions = ["Get", "List"]
 }
