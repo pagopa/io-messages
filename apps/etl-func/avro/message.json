@@ -65,8 +65,8 @@
     {
       "name": "content_payment_data_notice_number",
       "doc": "An id that identifies the the payment.",
-      "type": "string",
-      "default": "undefined"
+      "type": ["null", "string"],
+      "default": null
     },
     {
       "name": "content_payment_data_invalid_after_due_date",
@@ -77,8 +77,8 @@
     {
       "name": "content_payment_data_payee_fiscal_code",
       "doc": "The fiscal code of the payee.",
-      "type": "string",
-      "default": "undefined"
+      "type": ["null", "string"],
+      "default": null
     },
     {
       "name": "timestamp",
