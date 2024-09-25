@@ -1,0 +1,88 @@
+{
+  "name": "message",
+  "type": "record",
+  "namespace": "dto",
+  "doc": "Kafka JS schema for cosmos api container 'messages'",
+  "fields": [
+    {
+      "name": "schema_version",
+      "type": "int"
+    },
+    {
+      "name": "op",
+      "type": {
+        "type": "enum",
+        "name": "MessageCrudOperation",
+        "symbols": ["CREATE"]
+      }
+    },
+    {
+      "name": "id",
+      "type": "string"
+    },
+    {
+      "name": "sender_service_id",
+      "type": "string"
+    },
+    {
+      "name": "sender_user_id",
+      "type": "string"
+    },
+    {
+      "name": "is_pending",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "content_subject",
+      "type": "string"
+    },
+    {
+      "name": "content_type",
+      "type": [
+        "null",
+        {
+          "type": "enum",
+          "name": "MessageContentType",
+          "symbols": ["GENERIC", "PAYMENT", "EU_COVID_CERT", "LEGAL", "PN"]
+        }
+      ],
+      "default": null
+    },
+    {
+      "name": "content_payment_data_amount",
+      "type": "int",
+      "default": 0
+    },
+    {
+      "name": "content_payment_data_notice_number",
+      "type": "string",
+      "default": "undefined"
+    },
+    {
+      "name": "content_payment_data_invalid_after_due_date",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "content_payment_data_payee_fiscal_code",
+      "type": "string",
+      "default": "undefined"
+    },
+    {
+      "name": "timestamp",
+      "type": "long",
+      "logicalType": "timestamp-millis",
+      "default": 0
+    },
+    {
+      "name": "feature_level_type",
+      "type": {
+        "type": "enum",
+        "name": "MessageFeatureLevelType",
+        "symbols": ["STANDARD", "ADVANCED"]
+      },
+      "default": "STANDARD"
+    }
+  ]
+}
