@@ -25,6 +25,7 @@ const configFromEnvironment = envSchema
   )
   .pipe(configSchema);
 
+// TODO(IOCOM-1786): move this function in "io-messages-common"
 export async function loadConfigFromEnvironment(
   onSuccess: (config: Config) => Promise<void>,
 ) {
