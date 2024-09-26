@@ -1,0 +1,36 @@
+@startuml mobile-app
+
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+!include <C4/C4_Component>
+
+LAYOUT_WITH_LEGEND()
+
+title Component Mobile App
+
+Person(customer, Cittadino, "Someone in the team working on an issue or component")
+
+System_Ext(io_backend, "IO BACKEND", "Expose Rest API, user session resolver, proxy to function")
+
+Container_Boundary(mobile_app, "mobile-app") {
+    Component(msgs_home_screen, "MessagesHomeScreen", "component", "View React component")
+    Component(redux, "Redux", "component", "State Management System")
+    Component(all_paginated_reducer, "AllPaginatedReducer", "component", "Message storage")
+    Component(watch_msgs_saga, "WatchMessagesSaga", "component", "Async Orchestrator (networking)")
+
+    Rel(msgs_home_screen, redux, "dispatch load request")
+    Rel(msgs_home_screen, redux, "get data from storage to update UI")
+
+    Rel(redux, all_paginated_reducer, "dispatch action")
+    Rel(all_paginated_reducer, redux, "update store")
+
+    Rel(redux, watch_msgs_saga, "intercept action")
+    Rel(watch_msgs_saga, redux, "dispatch result action")
+
+}
+
+Rel(customer, msgs_home_screen, "API Call")
+Rel(io_backend, watch_msgs_saga, "data response")
+Rel(watch_msgs_saga, io_backend, "call api")
+
+@enduml
