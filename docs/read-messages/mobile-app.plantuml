@@ -8,7 +8,7 @@ LAYOUT_WITH_LEGEND()
 
 title Component Mobile App
 
-Person(customer, Cittadino, "Someone in the team working on an issue or component")
+Person(customer, Citizen, "Someone in the team working on an issue or component")
 
 System_Ext(io_backend, "IO BACKEND", "Expose Rest API, user session resolver, proxy to function")
 

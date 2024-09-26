@@ -7,7 +7,7 @@ LAYOUT_WITH_LEGEND()
 
 title Container Message List Reader System
 
-Person(customer, Cittadino, "Someone in the team working on an issue or component")
+Person(customer, Citizen, "Someone in the team working on an issue or component")
 
 System_Boundary(c1, "Message List Reader System") {
     Container(mobile_app, "Mobile App", "container: iOS etc.", "What it is or what it does ?")
