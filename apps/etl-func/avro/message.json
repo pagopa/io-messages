@@ -51,7 +51,14 @@
         {
           "type": "enum",
           "name": "MessageContentType",
-          "symbols": ["GENERIC", "PAYMENT", "EU_COVID_CERT", "LEGAL", "PN"]
+          "symbols": [
+            "GENERIC",
+            "PAYMENT",
+            "EU_COVID_CERT",
+            "LEGAL",
+            "PN",
+            "PAGOPA_RECEIPT"
+          ]
         }
       ],
       "default": null
