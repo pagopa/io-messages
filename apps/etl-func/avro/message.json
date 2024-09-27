@@ -96,6 +96,31 @@
         "symbols": ["STANDARD", "ADVANCED"]
       },
       "default": "STANDARD"
+    },
+    {
+      "name": "anonymous_fiscal_code",
+      "doc": "Tokenized fiscal code of the citizen.",
+      "type": "string"
+    },
+    {
+      "name": "configuration_id",
+      "doc": "The id of the remote content configuration.",
+      "type": "string"
+    },
+    {
+      "name": "has_remote_content",
+      "doc": "A boolean that indicates whether the message has remote content or not.",
+      "type": "boolean"
+    },
+    {
+      "name": "has_precondition",
+      "doc": "A boolean that indicates whether the message has remote precondition or not.",
+      "type": "boolean"
+    },
+    {
+      "name": "has_attachments",
+      "doc": "A boolean that indicates whether the message has remote attachments or not.",
+      "type": "boolean"
     }
   ]
 }
