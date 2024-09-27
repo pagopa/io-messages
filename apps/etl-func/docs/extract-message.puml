@@ -1,0 +1,71 @@
+@startuml
+
+collections messages
+participant ExtractMessage as em
+collections "message-content" as mc
+participant "ai-common" as ai
+participant sender
+
+em -> messages : Read an item
+activate em
+
+em -> em : Decode input
+
+break Invalid input
+  em -> ai : Track the error event
+  em -> messages : End
+end
+
+note left of em
+  At this point the function know:
+- messageId
+- senderServiceId
+- senderUserId
+- isPending
+- timestamp (from _ts cosmos metadata)
+- featureLevelType
+end note
+
+em -> mc : Ask for message content
+activate mc
+
+alt Error from storage
+  mc -[#red]> em : Erorr
+  em -[#red]> messages : Throw an error to trigger retry
+else Document not found
+  mc -[#red]> em : Empty response
+  em -> ai : Track the error event
+  em -> messages : End
+end
+
+mc -[#green]> em : Message content
+deactivate mc
+
+note left of em
+  At this point the function knows:
+- subject
+- hasRemoteContent optional
+- hasAttachments optional
+- hasPrecondition optional
+end note
+
+em -> em : Compute the category
+
+note right of em
+The category is calculated based on
+the content of the message.
+end note
+
+alt content contains thirdPartyData
+  em -> sender : Get remote subject
+  activate sender
+  alt sender error
+    sender -[#red]> em : Error from sender
+    em -> em : remote subject is undefined
+  end
+    sender -[#green]> em : Remote content fo the message
+    deactivate sender
+    em -> em : get the remote subject
+end
+
+@enduml
