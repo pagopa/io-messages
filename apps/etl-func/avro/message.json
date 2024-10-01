@@ -55,7 +55,7 @@
             "GENERIC",
             "PAYMENT",
             "EU_COVID_CERT",
-            "PN",
+            "SEND",
             "PAGOPA_RECEIPT"
           ]
         }
