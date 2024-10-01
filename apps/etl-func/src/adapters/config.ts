@@ -7,22 +7,12 @@ const logger = pino({
   level: "error",
 });
 
-export const configSchema = z.object({
-  appInsights: z.object({
-    connectionString: z.string().min(1),
-  }),
-});
+export const configSchema = z.object({});
 
 export type Config = z.TypeOf<typeof configSchema>;
 
 const configFromEnvironment = envSchema
-  .transform(
-    (env): Config => ({
-      appInsights: {
-        connectionString: env.APPLICATIONINSIGHTS_CONNECTION_STRING,
-      },
-    }),
-  )
+  .transform((): Config => ({}))
   .pipe(configSchema);
 
 // TODO(IOCOM-1786): move this function in "io-messages-common"
