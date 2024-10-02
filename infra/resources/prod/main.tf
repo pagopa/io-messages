@@ -24,6 +24,11 @@ resource "azurerm_resource_group" "itn_messages" {
   location = local.location
 }
 
+resource "azurerm_resource_group" "itn_com" {
+  name     = "${local.project}-${local.domain}-rg-01"
+  location = local.location
+}
+
 module "redis_messages" {
   source = "github.com/pagopa/terraform-azurerm-v3//redis_cache?ref=v8.21.0"
 
