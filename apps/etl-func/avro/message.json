@@ -96,8 +96,7 @@
       "name": "timestamp",
       "doc": "A timestamp that indicates when the message was created.",
       "type": "long",
-      "logicalType": "timestamp-millis",
-      "default": 0
+      "logicalType": "timestamp-millis"
     },
     {
       "name": "feature_level_type",
