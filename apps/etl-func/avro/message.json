@@ -39,7 +39,7 @@
       "type": "boolean"
     },
     {
-      "name": "content_subject",
+      "name": "subject",
       "doc": "The subject of the message.",
       "type": "string"
     },
@@ -63,25 +63,25 @@
       "default": null
     },
     {
-      "name": "content_payment_data_amount",
+      "name": "payment_data_amount",
       "doc": "An integer that indicates the amount of the payment.",
       "type": ["null", "int"],
       "default": null
     },
     {
-      "name": "content_payment_data_notice_number",
+      "name": "payment_data_notice_number",
       "doc": "An id that identifies the the payment.",
       "type": ["null", "string"],
       "default": null
     },
     {
-      "name": "content_payment_data_invalid_after_due_date",
+      "name": "payment_data_invalid_after_due_date",
       "doc": "A boolean that indicates if the payment is considered invalid after the due date.",
       "type": ["null", "boolean"],
       "default": null
     },
     {
-      "name": "content_payment_data_payee_fiscal_code",
+      "name": "payment_data_payee_fiscal_code",
       "doc": "The fiscal code of the payee.",
       "type": ["null", "string"],
       "default": null
