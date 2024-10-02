@@ -117,7 +117,7 @@ module "functions_messages_sending" {
   action_group_id = module.monitoring.action_group.io_com_error_id
 }
 
-module "functions_messages_citizen_1" {
+/*module "functions_messages_citizen_1" {
   source = "../_modules/function_app_citizen"
 
   prefix              = local.prefix
@@ -161,9 +161,9 @@ module "functions_messages_citizen_1" {
   tags = local.tags
 
   action_group_id = module.monitoring.action_group.io_com_error_id
-}
+}*/
 
-module "functions_messages_citizen_2" {
+/*module "functions_messages_citizen_2" {
   source = "../_modules/function_app_citizen"
 
   prefix              = local.prefix
@@ -207,7 +207,7 @@ module "functions_messages_citizen_2" {
   tags = local.tags
 
   action_group_id = module.monitoring.action_group.io_com_error_id
-}
+}*/
 
 module "monitoring" {
   source              = "../_modules/monitoring/"
