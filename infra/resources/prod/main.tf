@@ -20,6 +20,11 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "itn_messages" {
+  name     = "${local.project}-msgs-rg-01"
+  location = local.location
+}
+
+resource "azurerm_resource_group" "itn_com" {
   name     = "${local.project}-${local.domain}-rg-01"
   location = local.location
 }
@@ -78,7 +83,7 @@ module "functions_messages_sending" {
   env_short           = local.env_short
   location            = local.location
   project             = local.project
-  domain              = local.domain
+  domain              = "msgs"
   resource_group_name = azurerm_resource_group.itn_messages.name
 
   cidr_subnet_messages_sending_func    = "10.20.1.0/24"
@@ -117,7 +122,7 @@ module "functions_messages_sending" {
   action_group_id = module.monitoring.action_group.io_com_error_id
 }
 
-module "functions_messages_citizen_1" {
+/*module "functions_messages_citizen_1" {
   source = "../_modules/function_app_citizen"
 
   prefix              = local.prefix
@@ -161,9 +166,9 @@ module "functions_messages_citizen_1" {
   tags = local.tags
 
   action_group_id = module.monitoring.action_group.io_com_error_id
-}
+}*/
 
-module "functions_messages_citizen_2" {
+/*module "functions_messages_citizen_2" {
   source = "../_modules/function_app_citizen"
 
   prefix              = local.prefix
@@ -207,7 +212,7 @@ module "functions_messages_citizen_2" {
   tags = local.tags
 
   action_group_id = module.monitoring.action_group.io_com_error_id
-}
+}*/
 
 module "monitoring" {
   source              = "../_modules/monitoring/"
