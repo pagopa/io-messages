@@ -32,7 +32,7 @@ module "etl_func" {
   action_group_id = var.action_group_id
 }
 
-output "function_app_messages_sending" {
+output "etl_func" {
   value = {
     id                   = module.etl_func.function_app.function_app.id
     name                 = module.etl_func.function_app.function_app.name
