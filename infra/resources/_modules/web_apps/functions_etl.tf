@@ -1,5 +1,5 @@
 module "etl_func" {
-  source = "github.com/pagopa/dx//infra/modules/azure_function_app?ref=f339355788f12e5e4719159dca45d7c0b5c0c537"
+  source = "github.com/pagopa/dx//infra/modules/azure_function_app?ref=b7a84bd876d31797ac87daf9cefebd8f6a579c08"
 
   environment = merge(var.environment, {
     app_name        = "etl",
@@ -7,9 +7,9 @@ module "etl_func" {
   })
 
   application_insights_connection_string   = var.application_insights.connection_string
-  application_insights_sampling_percentage = 100
+  application_insights_sampling_percentage = 5
 
-  tier = "test"
+  tier = "m"
 
   resource_group_name                  = var.resource_group_name
   private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name
