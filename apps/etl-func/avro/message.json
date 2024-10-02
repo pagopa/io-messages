@@ -122,17 +122,20 @@
     {
       "name": "has_remote_content",
       "doc": "A boolean that indicates whether the message has remote content or not.",
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     {
       "name": "has_precondition",
       "doc": "A boolean that indicates whether the message has remote precondition or not.",
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     {
       "name": "has_attachments",
       "doc": "A boolean that indicates whether the message has remote attachments or not.",
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     }
   ]
 }
