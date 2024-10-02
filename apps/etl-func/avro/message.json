@@ -109,7 +109,7 @@
       "default": "STANDARD"
     },
     {
-      "name": "anonymous_fiscal_code",
+      "name": "recipient_id",
       "doc": "Tokenized fiscal code of the citizen.",
       "type": "string"
     },
