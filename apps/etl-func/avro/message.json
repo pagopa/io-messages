@@ -87,6 +87,12 @@
       "default": null
     },
     {
+      "name": "require_secure_channels",
+      "doc": "A boolean that indicates whether the message contains sensitive informations. If this value is true the push notification sent is anonymous and the email notification will not be sent.",
+      "type": "boolean",
+      "default": false
+    },
+    {
       "name": "timestamp",
       "doc": "A timestamp that indicates when the message was created.",
       "type": "long",
