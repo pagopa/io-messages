@@ -1,7 +1,7 @@
 module "web_apps" {
   source = "../_modules/web_apps"
 
-  resource_group_name                  = azurerm_resource_group.itn_messages.name
+  resource_group_name                  = azurerm_resource_group.itn_com.name
   private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
 
   environment = {
