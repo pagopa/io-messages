@@ -14,7 +14,7 @@ module "etl_func" {
   resource_group_name                  = var.resource_group_name
   private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name
 
-  health_check_path = "/health"
+  health_check_path = "/api/health"
 
   app_settings = {
     NODE_ENVIRONMENT = "production",
