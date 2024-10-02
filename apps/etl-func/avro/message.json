@@ -116,7 +116,7 @@
     },
     {
       "name": "configuration_id",
-      "doc": "The id of the remote content configuration.",
+      "doc": "An ULID that identifies the remote content configuration.",
       "type": "string"
     },
     {
