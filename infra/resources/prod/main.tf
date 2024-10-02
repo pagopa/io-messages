@@ -20,7 +20,7 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "itn_messages" {
-  name     = "${local.project}-${local.domain}-rg-01"
+  name     = "${local.project}-msgs-rg-01"
   location = local.location
 }
 
@@ -78,7 +78,7 @@ module "functions_messages_sending" {
   env_short           = local.env_short
   location            = local.location
   project             = local.project
-  domain              = local.domain
+  domain              = "msgs"
   resource_group_name = azurerm_resource_group.itn_messages.name
 
   cidr_subnet_messages_sending_func    = "10.20.1.0/24"
