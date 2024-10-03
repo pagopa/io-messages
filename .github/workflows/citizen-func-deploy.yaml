@@ -18,6 +18,7 @@ jobs:
   deploy_citizen_func_02:
     uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@e97c785579f7b027d95d449062073d46fafd2e79
     secrets: inherit
+    needs: [deploy_citizen_func_01]
     with:
       workspace_name: citizen-func
       environment: app-prod
