@@ -114,11 +114,6 @@
       "type": "string"
     },
     {
-      "name": "configuration_id",
-      "doc": "An ULID that identifies the remote content configuration.",
-      "type": "string"
-    },
-    {
       "name": "has_remote_content",
       "doc": "A boolean that indicates whether the message has remote content or not.",
       "type": "boolean",
