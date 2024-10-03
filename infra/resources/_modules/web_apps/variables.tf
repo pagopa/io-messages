@@ -41,7 +41,7 @@ variable "subnet_cidrs" {
   })
 }
 
-variable "gcm_migration_storage" {
+/*variable "gcm_migration_storage" {
   type = object({
     id             = string
     blob_endpoint  = string
@@ -50,7 +50,7 @@ variable "gcm_migration_storage" {
       name = string
     })
   })
-}
+}*/
 
 variable "application_insights" {
   type = object({
