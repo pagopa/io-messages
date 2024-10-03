@@ -11,8 +11,7 @@ jobs:
     with:
       workspace_name: etl-func
       environment: app-prod
-      resource_group_name: io-p-itn-msgs-rg-01
-      web_app_name: io-p-itn-msgs-etl-func-01
-      health_check_path: /health
+      resource_group_name: io-p-itn-com-rg-01
+      web_app_name: io-p-itn-com-etl-func-01
       use_staging_slot: true
       use_private_agent: true
