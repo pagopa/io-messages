@@ -1,5 +1,10 @@
+data "azurerm_nat_gateway" "nat_gateway" {
+  name                = "io-p-itn-ng-01"
+  resource_group_name = "io-p-itn-common-rg-01"
+}
+
 module "function_app_messages_sending" {
-  source = "github.com/pagopa/dx//infra/modules/azure_function_app?ref=f339355788f12e5e4719159dca45d7c0b5c0c537"
+  source = "github.com/pagopa/dx//infra/modules/azure_function_app?ref=15236aabcaf855b5b00709bcbb9b0ec177ba71b9"
 
   environment = {
     prefix          = var.prefix
@@ -9,6 +14,8 @@ module "function_app_messages_sending" {
     app_name        = "sending"
     instance_number = "01"
   }
+
+  tier = "xl"
 
   resource_group_name = var.resource_group_name
   health_check_path   = "/api/v1/info"
@@ -33,4 +40,9 @@ module "function_app_messages_sending" {
   tags = var.tags
 
   action_group_id = var.action_group_id
+}
+
+resource "azurerm_subnet_nat_gateway_association" "net_gateway_association_subnet" {
+  nat_gateway_id = data.azurerm_nat_gateway.nat_gateway.id
+  subnet_id      = module.function_app_messages_sending.subnet.id
 }
