@@ -1,0 +1,17 @@
+name: Deploy (etl-func)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  etl_func_deploy:
+    uses: pagopa/dx/.github/workflows/web_app_deploy.yaml@b7a84bd876d31797ac87daf9cefebd8f6a579c08
+    name: Deploy
+    secrets: inherit
+    with:
+      workspace_name: etl-func
+      environment: app-prod
+      resource_group_name: io-p-itn-com-rg-01
+      web_app_name: io-p-itn-com-etl-func-01
+      use_staging_slot: true
+      use_private_agent: true
