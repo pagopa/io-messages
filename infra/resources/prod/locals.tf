@@ -2,7 +2,7 @@ locals {
   prefix         = "io"
   env_short      = "p"
   location_short = "itn"
-  domain         = "msgs"
+  domain         = "com"
   # the project on which the resources will be created
   # it's the prefix of any resource name
   # it includes the choosen location
