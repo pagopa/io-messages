@@ -1,26 +1,28 @@
 @startuml name LoadNextMessagePage-ioApp
+
 participant MessageList
 participant homeUtils
 database Redux
 participant allPaginatedReducer
 participant handleLoadNextPageMessages
-rnote over handleLoadNextPageMessages
- saga
-endrnote
 entity BE
 
+note over handleLoadNextPageMessages
+ saga
+end note
+
 activate MessageList
-rnote over MessageList
+note over MessageList
 User scrolls to
 the bottom of
 the message list
-endrnote
+end note
 MessageList -> MessageList : FlatList invokes\nonEndReachedCallback
 activate MessageList
 
 MessageList -> homeUtils : calls\ngetLoadNextPageMessagesActionIfAllowed
 activate homeUtils
-rnote over homeUtils
+note over homeUtils
 undefined is returned if
 - system is busy archiving or
   restoring messages
@@ -31,7 +33,7 @@ undefined is returned if
 - a previous request for next
   page messages has failed
   within two seconds
-endrnote
+end note
 homeUtils -> MessageList : returns\n| undefined\n| loadNextPageMessages.request
 deactivate homeUtils
 
@@ -44,11 +46,8 @@ allPaginatedReducer -> Redux --: returns\nnew AllPaginated state
 
 Redux -> handleLoadNextPageMessages ++ : forwards\nloadNextPageMessages.request
 
-handleLoadNextPageMessages  -> BE : API call to\nmessages?maximum_id=
-rnote over BE
-async
-endrnote
-BE ->handleLoadNextPageMessages : replies with\nPaginatedPublicMessagesCollection
+handleLoadNextPageMessages --> BE : API call to\nmessages?maximum_id=
+BE --> handleLoadNextPageMessages : replies with\nPaginatedPublicMessagesCollection
 
 handleLoadNextPageMessages -> handleLoadNextPageMessages : maps\nPaginatedPublicMessagesCollection\ninto UIMessage[]
 
@@ -61,10 +60,10 @@ MessageList -> Redux: invokes\nMessageListForCategorySelector
 activate MessageList
 Redux -> MessageList : returns\nUIMessages[]
 deactivate MessageList
-rnote over MessageList
+note over MessageList
 UI renders
 updated
 message list
-endrnote
+end note
 
 @enduml
