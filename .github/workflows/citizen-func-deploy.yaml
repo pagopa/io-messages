@@ -2,6 +2,7 @@ name: Deploy (citizen-func)
 
 on:
   workflow_dispatch: {}
+  push: {}
 
 jobs:
   deploy_citizen_func_01:
