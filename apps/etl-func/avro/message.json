@@ -46,21 +46,18 @@
     {
       "name": "content_type",
       "doc": "Indicates the type of the message.",
-      "type": [
-        "null",
-        {
-          "type": "enum",
-          "name": "MessageContentType",
-          "symbols": [
-            "GENERIC",
-            "PAYMENT",
-            "EU_COVID_CERT",
-            "SEND",
-            "PAGOPA_RECEIPT"
-          ]
-        }
-      ],
-      "default": null
+      "type": {
+        "type": "enum",
+        "name": "MessageContentType",
+        "symbols": [
+          "GENERIC",
+          "PAYMENT",
+          "EU_COVID_CERT",
+          "SEND",
+          "PAGOPA_RECEIPT"
+        ]
+      },
+      "default": "GENERIC"
     },
     {
       "name": "payment_data_amount",

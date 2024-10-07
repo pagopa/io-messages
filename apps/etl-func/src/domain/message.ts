@@ -3,7 +3,7 @@ import * as z from "zod";
 export const messageAvroSchema = z.object({
   content_type: z
     .enum(["GENERIC", "PAYMENT", "EU_COVID_CERT", "SEND", "PAGOPA_RECEIPT"])
-    .nullable(),
+    .default("GENERIC"),
   feature_level_type: z.enum(["ADVANCED", "STANDARD"]).default("STANDARD"),
   has_attachments: z.boolean().default(false),
   has_precondition: z.boolean().default(false),
