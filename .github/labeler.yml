@@ -6,6 +6,10 @@ msgs-sending-func:
   - changed-files:
       - any-glob-to-any-file: ["apps/msgs-sending-func/**"]
 
+etl-func:
+  - changed-files:
+      - any-glob-to-any-file: ["apps/etl-func/**"]
+
 external-interface-changes:
   - changed-files:
       - any-glob-to-any-file: ["apps/**/openapi.yaml", "apps/**/openapi/*.yaml"]
