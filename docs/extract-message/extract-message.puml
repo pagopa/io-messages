@@ -31,8 +31,12 @@ activate mc
 alt Error from storage
   mc -[#red]> em : Erorr
   em -[#red]> messages : Throw an error to trigger retry
-else Document not found
+else if Document not found
   mc -[#red]> em : Empty response
+  em -> ai : Track the error event
+  em -> messages : End
+else Document does not match the message content shape
+  mc -[#red]> em : Decode error
   em -> ai : Track the error event
   em -> messages : End
 end
