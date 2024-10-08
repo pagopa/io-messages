@@ -3,7 +3,6 @@
 participant caller
 participant TokenizeFiscalCode as tf
 participant PDV
-collections "key-vault" as kv
 participant "ai-common" as ai
 
 caller -> tf : call
@@ -16,17 +15,7 @@ break Invalid input
   tf -> caller : Throw an error
 end
 
-tf -[#green]> kv : Ask for namespace
-
-alt Error from key vault
-  kv -[#red]> tf : Error
-  tf -> ai : Track the error event
-  tf -> caller : Throw an error
-end
-
-kv -[#green]> tf : namespace
-
-tf -> PDV : Call tokenizer api
+tf -> PDV : Call tokenizer api with namespace
 
 alt Error from PDV
   PDV -[#red]> tf : Error
