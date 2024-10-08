@@ -400,7 +400,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/identity@npm:^4.2.1":
+"@azure/identity@npm:^4.2.1, @azure/identity@npm:^4.4.1":
   version: 4.4.1
   resolution: "@azure/identity@npm:4.4.1"
   dependencies:
@@ -11370,6 +11370,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "io-messages@workspace:."
   dependencies:
+    "@azure/identity": "npm:^4.4.1"
     "@azure/storage-blob": "npm:^12.25.0"
     "@changesets/cli": "npm:^2.27.7"
     "@types/jest": "npm:^24.0.15"
