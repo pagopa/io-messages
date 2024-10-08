@@ -1,0 +1,31 @@
+@startuml message-list-reader
+
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+LAYOUT_WITH_LEGEND()
+
+title Container Message List Reader System
+
+Person(customer, Citizen, "Someone in the team working on an issue or component")
+
+System_Boundary(c1, "Message List Reader System") {
+    Container(mobile_app, "Mobile App", "container: iOS etc.", "What it is or what it does ?")
+    Container(io_backend, "IO Backend", "container: app-service", "Expose Rest API, user session resolver, proxy to function")
+    Container(fn_msgs_citizen, "Function MSGS Citizen", "container: function-app", "What it is or what id does ?")
+    ContainerDb(msg_remote_content, "MESSAGE-REMOTE-CONTENT", "container: cosmos", "Remote content configuration data")
+    ContainerDb(io_p_msgs_redis, "IO-P-MSGS-REDIS", "container: redis", "Cache about services and remote content configuration data")
+    ContainerDb(msg_content, "message-content", "container: storage", "immutable storage for the message-content")
+    ContainerDb(io_p_cosmos_api, "IO-P-COSMOS-API", "container: cosmos", "Message")
+}
+
+Rel(customer, mobile_app, "")
+Rel(mobile_app, io_backend, "")
+Rel(io_backend, fn_msgs_citizen, "")
+
+Rel(fn_msgs_citizen, msg_remote_content, "Read remote content configuration")
+Rel(fn_msgs_citizen, io_p_msgs_redis, "Finding for cached data")
+Rel(fn_msgs_citizen, msg_content, "Read message detail")
+Rel(fn_msgs_citizen, io_p_cosmos_api, "Read user message list, metadata, status, service")
+
+@enduml
