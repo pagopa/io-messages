@@ -18,7 +18,7 @@ describe("loadConfigFromEnvironment", () => {
     await expect(
       loadConfigFromEnvironment(functionEntryPoint, envZodSchema),
     ).resolves.toEqual(undefined);
-    await expect(functionEntryPoint).toHaveBeenCalledOnce();
+    expect(functionEntryPoint).toHaveBeenCalledOnce();
   });
 
   it("should not resolve if env vars are not the same required by the zod env schema", async () => {
@@ -31,7 +31,7 @@ describe("loadConfigFromEnvironment", () => {
     await expect(
       loadConfigFromEnvironment(functionEntryPoint, envZodSchema),
     ).resolves.toEqual(undefined);
-    await expect(functionEntryPoint).not.toHaveBeenCalledOnce();
+    expect(functionEntryPoint).not.toHaveBeenCalledOnce();
   });
 
   it("should not reject if the funxtionEntryPoint throw an error", async () => {
@@ -44,6 +44,6 @@ describe("loadConfigFromEnvironment", () => {
     await expect(
       loadConfigFromEnvironment(functionEntryPoint, envZodSchema),
     ).resolves.toEqual(undefined);
-    await expect(functionEntryPoint).toHaveBeenCalledOnce();
+    expect(functionEntryPoint).toHaveBeenCalledOnce();
   });
 });

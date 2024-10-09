@@ -10213,7 +10213,6 @@ __metadata:
     "@types/node": "npm:^20.12.4"
     "@vitest/coverage-v8": "npm:^1.5.0"
     eslint: "npm:8.57.0"
-    io-ts: "npm:^2.2.21"
     pino: "npm:^9.1.0"
     prettier: "npm:^3.2.5"
     tsc-alias: "npm:^1.8.10"
@@ -10239,7 +10238,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"io-ts@npm:^2.2.16, io-ts@npm:^2.2.21":
+"io-ts@npm:^2.2.16":
   version: 2.2.21
   resolution: "io-ts@npm:2.2.21"
   peerDependencies:
