@@ -6,15 +6,25 @@ resource "azurerm_eventhub" "messages-evh" {
   message_retention   = local.eventhub_message_retention
 }
 
-resource "azurerm_eventhub_authorization_rule" "authorization_rule" {
-  for_each = local.eventhub_authorization_rule_keys.key
-
-  name                = each.value.key.name
+resource "azurerm_eventhub_authorization_rule" "messages_authorization_rule" {
+  name                = local.eventhub_auth_messages_key.name
   namespace_name      = local.eventhub_namespace_name
   eventhub_name       = local.eventhub_name
   resource_group_name = local.eventhub_resource_group_name
 
-  listen = each.value.key.listen
-  send   = each.value.key.send
-  manage = each.value.key.manage
+  listen = local.eventhub_auth_messages_key.listen
+  send   = local.eventhub_auth_messages_key.send
+  manage = local.eventhub_auth_messages_key.manage
+}
+
+
+resource "azurerm_eventhub_authorization_rule" "pdnd_authorization_rule" {
+  name                = local.eventhub_auth_pdnd_key.name
+  namespace_name      = local.eventhub_namespace_name
+  eventhub_name       = local.eventhub_name
+  resource_group_name = local.eventhub_resource_group_name
+
+  listen = local.eventhub_auth_pdnd_key.listen
+  send   = local.eventhub_auth_pdnd_key.send
+  manage = local.eventhub_auth_pdnd_key.manage
 }
