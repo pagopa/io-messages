@@ -15,7 +15,7 @@ break Invalid input
   tf -> caller : Throw an error
 end
 
-tf -> PDV : Call tokenizer api with namespace
+tf -> PDV : Call tokenizer api
 
 alt Error from PDV
   PDV -[#red]> tf : Error
