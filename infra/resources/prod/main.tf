@@ -221,6 +221,11 @@ module "monitoring" {
 }
 
 module "messages_eventhub" {
-  source        = "../_modules/messages_eventhub"
-  eventhub_name = "${local.project_legacy}-${local.legacy_location_short}-${local.domain}-messages-evh-01"
+  source = "../_modules/messages_eventhub"
+
+  prefix          = local.prefix
+  env_short       = local.env_short
+  location        = local.location
+  domain          = local.domain
+  instance_number = "01"
 }
