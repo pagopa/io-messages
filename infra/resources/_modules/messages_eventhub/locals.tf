@@ -1,5 +1,4 @@
 locals {
-  eventhub_name                = "io-messages-evh"
   eventhub_namespace_name      = "io-p-evh-ns"
   eventhub_resource_group_name = "io-p-evt-rg"
   eventhub_partition_count     = 32

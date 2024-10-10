@@ -220,6 +220,7 @@ module "monitoring" {
   io_com_slack_email  = data.azurerm_key_vault_secret.io_com_slack_email.value
 }
 
-module "eventhub" {
-  source = "../_modules/messages_eventhub"
+module "messages_eventhub" {
+  source        = "../_modules/messages_eventhub"
+  eventhub_name = "${local.project_legacy}-${local.legacy_location_short}-${local.domain}-messages-evh-01"
 }
