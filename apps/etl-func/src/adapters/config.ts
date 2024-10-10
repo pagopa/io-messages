@@ -7,12 +7,24 @@ const logger = pino({
   level: "error",
 });
 
-export const configSchema = z.object({});
+export const configSchema = z.object({
+  messageContentStorage: z.object({
+    accountUri: z.string().url(),
+    containerName: z.string().min(1),
+  }),
+});
 
 export type Config = z.TypeOf<typeof configSchema>;
 
-const configFromEnvironment = envSchema
-  .transform((): Config => ({}))
+export const configFromEnvironment = envSchema
+  .transform(
+    (env): Config => ({
+      messageContentStorage: {
+        accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
+        containerName: env.MESSAGE_CONTAINER_NAME,
+      },
+    }),
+  )
   .pipe(configSchema);
 
 // TODO(IOCOM-1786): move this function in "io-messages-common"
