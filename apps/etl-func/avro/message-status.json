@@ -1,0 +1,63 @@
+{
+  "name": "messageStatus",
+  "type": "record",
+  "namespace": "dto",
+  "doc": "Kafka JS schema for cosmos api container 'message-status'",
+  "fields": [
+    {
+      "name": "schema_version",
+      "doc": "An integer that indicates the version of the schema.",
+      "type": "int"
+    },
+    {
+      "name": "op",
+      "type": {
+        "type": "enum",
+        "doc": "List of operations that can be done to a message.",
+        "name": "MessageStatusCrudOperation",
+        "symbols": ["CREATE", "UPDATE"]
+      }
+    },
+    {
+      "name": "id",
+      "doc": "An id that identifies the status of the message inside the message-status collection.",
+      "type": "string"
+    },
+    {
+      "name": "message_id",
+      "doc": "An ULID that identifies the message inside the message collection.",
+      "type": "string"
+    },
+    {
+      "name": "status_version",
+      "doc": "An integer that indicates the version of the status.",
+      "type": "int"
+    },
+    {
+      "name": "status",
+      "doc": "List of possible message statuses.",
+      "type": {
+        "type": "enum",
+        "name": "MessageStatus",
+        "symbols": ["ACCEPTED", "FAILED", "PROCESSED", "REJECTED"]
+      }
+    },
+    {
+      "name": "is_read",
+      "doc": "Boolean that indicates if the message has been read.",
+      "type": "boolean"
+    },
+    {
+      "name": "is_archived",
+      "doc": "Boolean that indicates if the message has been archived.",
+      "type": "boolean"
+    },
+    {
+      "name": "timestamp",
+      "doc": "A timestamp that indicates when the status was created.",
+      "type": "long",
+      "logicalType": "timestamp-millis",
+      "default": 0
+    }
+  ]
+}
