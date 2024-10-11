@@ -1,4 +1,20 @@
-import { MessageContent } from "../entities/message-content.js";
+import {
+  Message,
+  MessageContent,
+  MessageMetadata,
+} from "../entities/message.js";
+import * as z from "zod";
+import { ContentNotFoundError } from "./errors.js";
+
+export type GetMessageByMetadataReturnType =
+  | Message
+  | z.ZodError
+  | ContentNotFoundError;
+
+export type GetMessageContentByIdReturnType =
+  | MessageContent
+  | z.ZodError
+  | ContentNotFoundError;
 
 export interface MessageContentRepository {
   /**
@@ -11,5 +27,10 @@ export interface MessageContentRepository {
    * @throws {Error} Something happened trying to retrieve the content of the message.
    * @returns {MessageContent} the content of the message.
    */
-  getMessageContentById: (messageId: string) => Promise<MessageContent>;
+  getMessageContentById: (
+    messageId: string,
+  ) => Promise<GetMessageContentByIdReturnType>;
+  getMessageByMetadata: (
+    metadata: MessageMetadata,
+  ) => Promise<GetMessageByMetadataReturnType>;
 }

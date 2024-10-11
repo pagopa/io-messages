@@ -1,17 +1,17 @@
 import {
-  MessageContent,
+  Message,
+  MessageMetadata,
   messageContentSchema,
-} from "@/domain/entities/message-content.js";
+} from "@/domain/entities/message.js";
 import { ContentNotFoundError } from "@/domain/interfaces/errors.js";
-import { MessageContentRepository } from "@/domain/interfaces/message-content-repository.js";
-import { DefaultAzureCredential } from "@azure/identity";
 import {
-  BlobDownloadResponseParsed,
-  BlobServiceClient,
-  ContainerClient,
-} from "@azure/storage-blob";
+  GetMessageByMetadataReturnType,
+  GetMessageContentByIdReturnType,
+  MessageContentRepository,
+} from "@/domain/interfaces/message-content-repository.js";
+import { DefaultAzureCredential } from "@azure/identity";
+import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import * as assert from "assert";
-import * as z from "zod";
 
 const defaultAzureCredentials = new DefaultAzureCredential();
 
@@ -40,16 +40,16 @@ export class BlobMessageContent implements MessageContentRepository {
    *
    * @param messageId {string}
    *
-   * @throws {ContentNotFoundError} There is no blob for this message.
-   * @throws {z.ZodError} The content inside the blob does not satisfy the
+   * @returns {MessageContent} The content of the message.
+   * @returns {ContentNotFoundError} There is no blob for this message.
+   * @returns {z.ZodError} The content inside the blob does not satisfy the
    * MessageContent shape.
    * @throws {SyntaxError} The content inside the blob is not a valid JSON.
    * @throws {Error} Something happened trying to retrieve the blob.
-   * @returns {MessageContent} The content of the message.
    **/
-  public async getMessageContentById(
+  async getMessageContentById(
     messageId: string,
-  ): Promise<MessageContent> {
+  ): Promise<GetMessageContentByIdReturnType> {
     const blobName = `${messageId}.json`;
     const blobClient = this.#messageContainer.getBlobClient(blobName);
 
@@ -66,20 +66,33 @@ export class BlobMessageContent implements MessageContentRepository {
       ).toString();
 
       const jsonResponse = JSON.parse(downloaded);
-      const parsedResponse = messageContentSchema.parse(jsonResponse);
+      const parsedResponse = messageContentSchema.safeParse(jsonResponse);
 
-      return parsedResponse;
+      return parsedResponse.success
+        ? parsedResponse.data
+        : parsedResponse.error;
     } catch (error) {
-      if (
-        error instanceof ContentNotFoundError ||
-        error instanceof z.ZodError
-      ) {
-        throw error;
+      if (error instanceof ContentNotFoundError) {
+        return error;
       } else {
         throw new Error(`Error retrieving blob with name ${blobName}`, {
           cause: error,
         });
       }
+    }
+  }
+
+  async getMessageByMetadata(
+    metadata: MessageMetadata,
+  ): Promise<GetMessageByMetadataReturnType> {
+    try {
+      const content = await this.getMessageContentById(metadata.id);
+      if ("subject" in content) {
+        return new Message(metadata.id, content, metadata);
+      }
+      return content;
+    } catch (error) {
+      throw error;
     }
   }
 }

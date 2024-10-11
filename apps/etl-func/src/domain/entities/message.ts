@@ -1,5 +1,25 @@
 import * as z from "zod";
 
+export type ContentType =
+  | "GENERIC"
+  | "PAYMENT"
+  | "EU_COVID_CERT"
+  | "SEND"
+  | "PAGOPA_RECEIPT";
+
+export const messageMetadataSchema = z.object({
+  createdAt: z.string(),
+  featureLevelType: z.enum(["ADVANCED", "STANDARD"]).default("STANDARD"),
+  fiscalCode: z.string().min(1),
+  indexedId: z.string().ulid(),
+  senderServiceId: z.string().min(1),
+  senderUserId: z.string().min(1),
+  timeToLiveSeconds: z.string().min(1),
+  isPending: z.boolean().optional(),
+  id: z.string().ulid(),
+});
+export type MessageMetadata = z.TypeOf<typeof messageMetadataSchema>;
+
 export const messageContentSchema = z.object({
   subject: z.string().min(10).max(120),
   markdown: z.string().min(80).max(10000),
@@ -65,3 +85,35 @@ export const messageContentSchema = z.object({
  * that can be found inside the message-content blob
  * */
 export type MessageContent = z.TypeOf<typeof messageContentSchema>;
+
+type GetMessageByMetadataReturnType = void | Message;
+
+export interface MessageRepository {
+  getMessageByMetadata: (
+    metadata: MessageMetadata,
+  ) => Promise<GetMessageByMetadataReturnType>;
+}
+
+export class Message {
+  #id: string;
+  #content: MessageContent;
+  #metadata: MessageMetadata;
+
+  constructor(id: string, content: MessageContent, metadata: MessageMetadata) {
+    this.#id = id;
+    this.#content = content;
+    this.#metadata = metadata;
+  }
+
+  get contentType(): ContentType {
+    if (this.#content.eu_covid_cert) return "EU_COVID_CERT";
+    if (this.#content.third_party_data) {
+      // check if the sender of the message is SEND
+      return this.#metadata.senderServiceId === "01G40DWQGKY5GRWSNM4303VNRP"
+        ? "SEND"
+        : "GENERIC";
+    }
+    if (this.#content.payment_data) return "PAYMENT";
+    return "GENERIC";
+  }
+}
