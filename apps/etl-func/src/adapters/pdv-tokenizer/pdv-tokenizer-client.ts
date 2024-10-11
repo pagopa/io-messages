@@ -1,8 +1,8 @@
-import { TokenizerClient } from "@/domain/tokenizer.js";
+import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
 
-import { PiiResource } from "./pii-resource.js";
+import { piiResourceSchema } from "./pii-resource.js";
 import { problemSchema } from "./problem.js";
-import { TokenResource, tokenResourceSchema } from "./token-resource.js";
+import { tokenResourceSchema } from "./token-resource.js";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -16,9 +16,10 @@ export default class PDVTokenizerClient implements TokenizerClient {
     this.#apiKey = apiKey;
   }
 
-  async tokenize(request: PiiResource): Promise<TokenResource> {
+  async tokenize(fiscalCode: string): Promise<string> {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
+        const request = piiResourceSchema.parse({ pii: fiscalCode });
         const response = await fetch(
           `${this.#baseUrl}${this.#basePath}/tokens`,
           {
@@ -44,7 +45,7 @@ export default class PDVTokenizerClient implements TokenizerClient {
           });
         }
 
-        return tokenResourceSchema.parse(responseJson);
+        return tokenResourceSchema.parse(responseJson).token;
       } catch (error) {
         throw new Error("Error during tokenizer api call", {
           cause: error,

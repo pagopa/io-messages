@@ -1,4 +1,4 @@
-import { TokenizerClient, tokenize } from "@/domain/tokenizer.js";
+import { TokenizerClient, tokenize } from "@/domain/interfaces/tokenizer.js";
 
 export class TokenizeUseCase {
   #client: TokenizerClient;
@@ -8,7 +8,6 @@ export class TokenizeUseCase {
   }
 
   async execute(fiscalCode: string): Promise<string> {
-    const response = await tokenize(fiscalCode)(this.#client);
-    return response.token;
+    return await tokenize(fiscalCode)(this.#client);
   }
 }
