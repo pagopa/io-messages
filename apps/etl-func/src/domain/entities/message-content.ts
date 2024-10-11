@@ -1,6 +1,9 @@
 import * as z from "zod";
 
-const messageContentSchema = z.object({
+export const messageContentSchema = z.object({
+  subject: z.string().min(10).max(120),
+  markdown: z.string().min(80).max(10000),
+  require_secure_channels: z.boolean().default(false),
   payment_data: z
     .object({
       amount: z.number().int().min(0).max(9999999999),
