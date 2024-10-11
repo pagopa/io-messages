@@ -5,7 +5,11 @@ import {
 import { ContentNotFoundError } from "@/domain/interfaces/errors.js";
 import { MessageContentRepository } from "@/domain/interfaces/message-content-repository.js";
 import { DefaultAzureCredential } from "@azure/identity";
-import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
+import {
+  BlobDownloadResponseParsed,
+  BlobServiceClient,
+  ContainerClient,
+} from "@azure/storage-blob";
 import * as assert from "assert";
 import * as z from "zod";
 
@@ -31,6 +35,18 @@ export class BlobMessageContent implements MessageContentRepository {
       this.#client.getContainerClient(messageContainerName);
   }
 
+  /**
+   * Retrieve the content of the message storead as blob.
+   *
+   * @param messageId {string}
+   *
+   * @throws {ContentNotFoundError} There is no blob for this message.
+   * @throws {z.ZodError} The content inside the blob does not satisfy the
+   * MessageContent shape.
+   * @throws {SyntaxError} The content inside the blob is not a valid JSON.
+   * @throws {Error} Something happened trying to retrieve the blob.
+   * @returns {MessageContent} The content of the message.
+   **/
   public async getMessageContentById(
     messageId: string,
   ): Promise<MessageContent> {
@@ -49,8 +65,6 @@ export class BlobMessageContent implements MessageContentRepository {
         await getStreamIntoString(downloadBlockBlobResponse.readableStreamBody)
       ).toString();
 
-      //TODO: extract this into a separate method and differentiate for error
-      //cases, if the JSON.parse throws we do not want to throw
       const jsonResponse = JSON.parse(downloaded);
       const parsedResponse = messageContentSchema.parse(jsonResponse);
 
