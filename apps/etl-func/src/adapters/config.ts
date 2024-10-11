@@ -12,7 +12,6 @@ export const configSchema = z.object({
     accountUri: z.string().url(),
     containerName: z.string().min(1),
   }),
-  sendServiceId: z.string().ulid(),
 });
 
 export type Config = z.TypeOf<typeof configSchema>;
@@ -24,7 +23,6 @@ export const configFromEnvironment = envSchema
         accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
         containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
       },
-      sendServiceId: env.SEND_SERVICE_ID,
     }),
   )
   .pipe(configSchema);
