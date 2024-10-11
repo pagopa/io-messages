@@ -2,7 +2,7 @@ import * as z from "zod";
 import { MessageContent } from "@/domain/entities/message-content.js";
 import { MessageMetadata } from "@/domain/entities/message-metadata.js";
 import { MessageContentRepository } from "@/domain/interfaces/message-content-repository.js";
-import { BlobNotFoundError } from "@/domain/interfaces/errors.js";
+import { ContentNotFoundError } from "@/domain/interfaces/errors.js";
 
 enum ContentType {
   "GENERIC",
@@ -27,17 +27,15 @@ export class ExtractMessageUseCase {
     this.#sendServiceId = sendServiceId;
   }
 
-  public async execute() {
-    const blobName = `${this.#messageMetadata.id}.json`;
-
-    try {
-      await this.#messageContentRepository.getMessageContentById(blobName);
-    } catch (error) {}
-
+  public async execute(): Promise<
+    (MessageMetadata & MessageContent & { contentType: ContentType }) | void
+  > {
     const messageContent =
-      await this.#messageContentRepository.getMessageContentById(blobName);
-    console.info(messageContent);
-    if (messageContent instanceof BlobNotFoundError) {
+      await this.#messageContentRepository.getMessageContentById(
+        this.#messageMetadata.id,
+      );
+
+    if (messageContent instanceof ContentNotFoundError) {
       return;
     }
     if (messageContent instanceof z.ZodError) {
@@ -46,12 +44,14 @@ export class ExtractMessageUseCase {
       });
       return;
     }
+
     if (messageContent instanceof Error) {
       throw messageContent;
     }
 
-    const messageContentWithContentType = {
+    const messageContentWithContentTypeAndMetadata = {
       ...messageContent,
+      ...this.#messageMetadata,
       contentType: this.computeContentType(
         messageContent,
         this.#messageMetadata,
@@ -59,9 +59,7 @@ export class ExtractMessageUseCase {
       ),
     };
 
-    console.info(
-      `Ending result ${JSON.stringify(messageContentWithContentType)}`,
-    );
+    return messageContentWithContentTypeAndMetadata;
   }
 
   private computeContentType = (

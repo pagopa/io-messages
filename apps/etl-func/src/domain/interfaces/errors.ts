@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-export class BlobNotFoundError extends Error {
+export class ContentNotFoundError extends Error {
   constructor(message: string) {
     super();
     this.name = "Blob not found";
@@ -8,4 +8,4 @@ export class BlobNotFoundError extends Error {
   }
 }
 
-export type GetBlobByNameErrors = BlobNotFoundError | z.ZodError | Error;
+export type GetBlobByNameErrors = ContentNotFoundError | z.ZodError | Error;
