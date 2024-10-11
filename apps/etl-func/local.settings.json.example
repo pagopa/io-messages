@@ -3,5 +3,6 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "node"
+    "PDV_TOKENIZER_API_KEY": "apiKey",
   }
 }
