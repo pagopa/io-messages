@@ -3,6 +3,8 @@ export interface TokenizerClient {
 }
 
 export const tokenize =
-  (fiscalCode: string) =>
-  (client: TokenizerClient): Promise<string> =>
-    client.tokenize(fiscalCode);
+  (message: { fiscalCode: string }) =>
+  async (client: TokenizerClient): Promise<{ fiscalCode: string }> => {
+    const tokenizedFiscalCode = await client.tokenize(message.fiscalCode);
+    return { ...message, fiscalCode: tokenizedFiscalCode };
+  };
