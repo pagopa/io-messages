@@ -14,7 +14,7 @@ export const messageMetadataSchema = z.object({
   indexedId: z.string().ulid(),
   senderServiceId: z.string().min(1),
   senderUserId: z.string().min(1),
-  timeToLiveSeconds: z.string().min(1),
+  timeToLiveSeconds: z.number(),
   isPending: z.boolean().optional(),
   id: z.string().ulid(),
 });
