@@ -1,5 +1,5 @@
 module "messages-evh" {
-  source = "github.com/pagopa/dx//infra/modules/azure_event_hub"
+  source = "github.com/pagopa/dx//infra/modules/azure_event_hub?ref=3f205e62474782678a563f4cff92e479a34feecd"
 
   environment = {
     prefix          = var.prefix
@@ -16,6 +16,8 @@ module "messages-evh" {
     message_retention_days = local.eventhub_message_retention
     keys                   = local.eventhub_auth_messages_keys
   }]
+
+  consumers = local.consumers
 
   resource_group_name = local.resource_group_name
 
