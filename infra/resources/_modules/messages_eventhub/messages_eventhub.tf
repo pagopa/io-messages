@@ -20,7 +20,7 @@ module "messages-evh" {
 
   resource_group_name = local.resource_group_name
 
-  tags = local.tags
+  tags = var.tags
 
   subnet_pep_id = local.subnet_pep_id
 }

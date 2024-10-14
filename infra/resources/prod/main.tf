@@ -228,4 +228,6 @@ module "messages_eventhub" {
   location        = local.location
   domain          = local.domain
   instance_number = "01"
+
+  tags = local.tags
 }
