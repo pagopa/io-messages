@@ -7,12 +7,12 @@ import {
   MessageMetadata,
 } from "../entities/message.js";
 
-export type GetMessageByMetadataReturnType = Message | z.ZodError | RestError;
+export type GetMessageByMetadataReturnType = Message | RestError | z.ZodError;
 
 export type GetMessageContentByIdReturnType =
   | MessageContent
-  | z.ZodError
-  | RestError;
+  | RestError
+  | z.ZodError;
 
 export interface MessageContentRepository {
   getMessageByMetadata: (

@@ -40,8 +40,18 @@ export class BlobMessageContent implements MessageContentRepository {
       this.#client.getContainerClient(messageContainerName);
   }
 
-  private isMessageContent(input: any): input is MessageContent {
+  private getBlobClientFromMessageId(messageId: string): BlobClient {
+    return this.#messageContainer.getBlobClient(`${messageId}.json`);
+  }
+
+  private isMessageContent(input: object): input is MessageContent {
     return "subject" in input && "markdown" in input;
+  }
+
+  private stringToMessageContent(input: string): MessageContent | z.ZodError {
+    const jsonResponse = JSON.parse(input);
+    const parsed = messageContentSchema.safeParse(jsonResponse);
+    return parsed.success ? parsed.data : parsed.error;
   }
 
   async getMessageByMetadata(
@@ -55,16 +65,6 @@ export class BlobMessageContent implements MessageContentRepository {
       return content;
     }
     return content;
-  }
-
-  private getBlobClientFromMessageId(messageId: string): BlobClient {
-    return this.#messageContainer.getBlobClient(`${messageId}.json`);
-  }
-
-  private stringToMessageContent(input: string): MessageContent | z.ZodError {
-    const jsonResponse = JSON.parse(input);
-    const parsed = messageContentSchema.safeParse(jsonResponse);
-    return parsed.success ? parsed.data : parsed.error;
   }
 
   async getMessageContentById(

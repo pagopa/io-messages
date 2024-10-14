@@ -4,12 +4,12 @@ import {
 } from "@/__mocks__/message.js";
 import { Message } from "@/domain/entities/message.js";
 import { RestError } from "@azure/storage-blob";
+import { Logger } from "pino";
 import { describe, expect, test, vi } from "vitest";
 import * as z from "zod";
 
 import { BlobMessageContent } from "../blob-storage/message-content.js";
 import { MessageAdapter } from "../message.js";
-import { Logger } from "pino";
 
 const errorLogMock = vi.fn();
 

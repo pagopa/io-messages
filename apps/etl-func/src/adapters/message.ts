@@ -2,12 +2,12 @@ import {
   MessageMetadata,
   MessageRepository,
 } from "@/domain/entities/message.js";
+import { GetMessageByMetadataReturnType } from "@/domain/interfaces/message-content-repository.js";
 import { RestError } from "@azure/storage-blob";
 import { Logger } from "pino";
 import * as z from "zod";
 
 import { BlobMessageContent } from "./blob-storage/message-content.js";
-import { GetMessageByMetadataReturnType } from "@/domain/interfaces/message-content-repository.js";
 
 export class MessageAdapter implements MessageRepository {
   #content: BlobMessageContent;
