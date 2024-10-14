@@ -40,6 +40,20 @@ export class BlobMessageContent implements MessageContentRepository {
   }
 
   //TODO: check if we can split this funciton
+  async getMessageByMetadata(
+    metadata: MessageMetadata,
+  ): Promise<GetMessageByMetadataReturnType> {
+    const content = await this.getMessageContentById(metadata.id);
+    //TODO: check if we can use a guard here
+    if ("subject" in content) {
+      return new Message(metadata.id, content, metadata);
+    }
+    if (content instanceof RestError) {
+      return content;
+    }
+    return content;
+  }
+
   /**
    * Retrieve the content of the message storead as blob.
    *
@@ -80,24 +94,6 @@ export class BlobMessageContent implements MessageContentRepository {
           cause: error,
         });
       }
-    }
-  }
-
-  async getMessageByMetadata(
-    metadata: MessageMetadata,
-  ): Promise<GetMessageByMetadataReturnType> {
-    try {
-      const content = await this.getMessageContentById(metadata.id);
-      //TODO: check if we can use a guard here
-      if ("subject" in content) {
-        return new Message(metadata.id, content, metadata);
-      }
-      if (content instanceof RestError) {
-        return content;
-      }
-      return content;
-    } catch (error) {
-      throw error;
     }
   }
 }

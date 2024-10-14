@@ -8,4 +8,4 @@ export class ContentNotFoundError extends Error {
   }
 }
 
-export type GetBlobByNameErrors = ContentNotFoundError | z.ZodError | Error;
+export type GetBlobByNameErrors = ContentNotFoundError | Error | z.ZodError;

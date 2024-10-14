@@ -1,24 +1,28 @@
+import { RestError } from "@azure/storage-blob";
+import * as z from "zod";
+
 import {
   Message,
   MessageContent,
   MessageMetadata,
 } from "../entities/message.js";
-import * as z from "zod";
 import { ContentNotFoundError } from "./errors.js";
-import { RestError } from "@azure/storage-blob";
 
 export type GetMessageByMetadataReturnType =
+  | ContentNotFoundError
   | Message
-  | z.ZodError
   //TODO: remove this
-  | ContentNotFoundError;
+  | z.ZodError;
 
 export type GetMessageContentByIdReturnType =
   | MessageContent
-  | z.ZodError
-  | RestError;
+  | RestError
+  | z.ZodError;
 
 export interface MessageContentRepository {
+  getMessageByMetadata: (
+    metadata: MessageMetadata,
+  ) => Promise<GetMessageByMetadataReturnType>;
   /**
    * Retrieve the content of the message identified by the messageId parameter.
    *
@@ -32,7 +36,4 @@ export interface MessageContentRepository {
   getMessageContentById: (
     messageId: string,
   ) => Promise<GetMessageContentByIdReturnType>;
-  getMessageByMetadata: (
-    metadata: MessageMetadata,
-  ) => Promise<GetMessageByMetadataReturnType>;
 }

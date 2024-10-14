@@ -1,25 +1,24 @@
-import { BlobMessageContent } from "../message-content.js";
-import { describe, test, expect, vi } from "vitest";
-import { Readable } from "node:stream";
-import * as z from "zod";
-import { RestError } from "@azure/storage-blob";
-import { Message } from "@/domain/entities/message.js";
 import {
   aSimpleMessageContent,
   aSimpleMessageMetadata,
 } from "@/__mocks__/message.js";
+import { Message } from "@/domain/entities/message.js";
+import { RestError } from "@azure/storage-blob";
+import { Readable } from "node:stream";
+import { describe, expect, test, vi } from "vitest";
+import * as z from "zod";
 
-const mocks = vi.hoisted(() => {
-  return {
-    BlobServiceClient: vi.fn().mockReturnValue({
-      getContainerClient: () => ({
-        getBlobClient: () => ({
-          download: downloadMock,
-        }),
+import { BlobMessageContent } from "../message-content.js";
+
+const mocks = vi.hoisted(() => ({
+  BlobServiceClient: vi.fn().mockReturnValue({
+    getContainerClient: () => ({
+      getBlobClient: () => ({
+        download: downloadMock,
       }),
     }),
-  };
-});
+  }),
+}));
 
 vi.mock("@azure/storage-blob", async (importOriginal) => {
   const original = await importOriginal<typeof import("@azure/storage-blob")>();
@@ -49,13 +48,13 @@ const anExistingMessageId = "01EHA1R1TSJP8DNYYG2TTR1B28";
 
 describe("getMessageContentById", () => {
   test("Given a message id which refers to an existing message, when the storage is reachable then it should return the content of the message", async () => {
-    expect(
-      await blobMessageContent.getMessageContentById(anExistingMessageId),
-    ).toMatchObject({
-      subject: "A valid subject, this is used as title",
+    await expect(
+      blobMessageContent.getMessageContentById(anExistingMessageId),
+    ).resolves.toMatchObject({
       markdown:
         "A valid markdown, this should be more than 80 chars, otherwise an error occurs. Ensure that this line is more than 80 chars",
       require_secure_channels: false,
+      subject: "A valid subject, this is used as title",
     });
   });
 
@@ -74,9 +73,9 @@ describe("getMessageContentById", () => {
         ),
       }),
     );
-    expect(
-      await blobMessageContent.getMessageContentById(anExistingMessageId),
-    ).toBeInstanceOf(z.ZodError);
+    await expect(
+      blobMessageContent.getMessageContentById(anExistingMessageId),
+    ).resolves.toBeInstanceOf(z.ZodError);
   });
 
   test("Given a message id which refers to a non existing message, when the storage is reachable then it should return a RestError with code 404", async () => {
