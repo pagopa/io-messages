@@ -2,7 +2,7 @@ import {
   aSimpleMessageContent,
   aSimpleMessageMetadata,
 } from "@/__mocks__/message.js";
-import { Message } from "@/domain/entities/message.js";
+import { Message } from "@/domain/message.js";
 import { RestError } from "@azure/storage-blob";
 import { Readable } from "node:stream";
 import { describe, expect, test, vi } from "vitest";
@@ -33,7 +33,6 @@ const anInvalidMessageContent = {
   subject: "",
 };
 
-//TODO: move this to a specific mock file
 const downloadMock = vi.fn(() =>
   Promise.resolve({
     readableStreamBody: Readable.from(JSON.stringify(aSimpleMessageContent)),

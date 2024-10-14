@@ -2,7 +2,7 @@ import {
   aSimpleMessageContent,
   aSimpleMessageMetadata,
 } from "@/__mocks__/message.js";
-import { Message } from "@/domain/entities/message.js";
+import { Message } from "@/domain/message.js";
 import { RestError } from "@azure/storage-blob";
 import { Logger } from "pino";
 import { describe, expect, test, vi } from "vitest";

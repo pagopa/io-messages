@@ -1,14 +1,10 @@
 import {
+  GetMessageByMetadataReturnType,
   Message,
   MessageContent,
   MessageMetadata,
   messageContentSchema,
-} from "@/domain/entities/message.js";
-import {
-  GetMessageByMetadataReturnType,
-  GetMessageContentByIdReturnType,
-  MessageContentRepository,
-} from "@/domain/interfaces/message-content-repository.js";
+} from "@/domain/message.js";
 import { DefaultAzureCredential } from "@azure/identity";
 import {
   BlobClient,
@@ -33,7 +29,7 @@ async function getStreamIntoString(
   return Buffer.concat(chunks).toString("utf-8");
 }
 
-export class BlobMessageContent implements MessageContentRepository {
+export class BlobMessageContent {
   #client: BlobServiceClient;
   #messageContainer: ContainerClient;
   constructor(storageUri: string, messageContainerName: string) {
@@ -71,7 +67,7 @@ export class BlobMessageContent implements MessageContentRepository {
 
   async getMessageContentById(
     messageId: string,
-  ): Promise<GetMessageContentByIdReturnType> {
+  ): Promise<z.ZodError | RestError | MessageContent> {
     const blobClient = this.getBlobClientFromMessageId(messageId);
 
     try {

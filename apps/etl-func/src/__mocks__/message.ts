@@ -1,7 +1,7 @@
 import {
   messageContentSchema,
   messageMetadataSchema,
-} from "@/domain/entities/message.js";
+} from "@/domain/message.js";
 
 export const aSimpleMessageMetadata = messageMetadataSchema.parse({
   _attachments: "attachments/",
