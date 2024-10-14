@@ -1,11 +1,14 @@
 import {
-  Message,
   MessageMetadata,
   MessageRepository,
 } from "@/domain/entities/message.js";
 import { BlobMessageContent } from "./blob-storage/message-content.js";
 import * as z from "zod";
 import { ContentNotFoundError } from "@/domain/interfaces/errors.js";
+import { pino } from "pino";
+import { RestError } from "@azure/storage-blob";
+
+const logger = pino({ level: "error" });
 
 export class MessageAdapter implements MessageRepository {
   #content: BlobMessageContent;
@@ -18,12 +21,15 @@ export class MessageAdapter implements MessageRepository {
     try {
       const message = await this.#content.getMessageByMetadata(metadata);
       if (message instanceof z.ZodError) {
-        //TODO: add a log here
-        return;
+        logger.error(
+          `Error parsing the message content for message with id: ${metadata.id}`,
+        );
+        message.issues.map((issue) => logger.error(issue));
+        return message;
       }
-      if (message instanceof ContentNotFoundError) {
-        //TODO: add a log here
-        return;
+      if (message instanceof RestError) {
+        logger.error(`${message.name} | ${message.message}`);
+        return message;
       } else {
         return message;
       }

@@ -3,18 +3,22 @@ import {
   MessageMetadata,
   messageContentSchema,
 } from "@/domain/entities/message.js";
-import { ContentNotFoundError } from "@/domain/interfaces/errors.js";
 import {
   GetMessageByMetadataReturnType,
   GetMessageContentByIdReturnType,
   MessageContentRepository,
 } from "@/domain/interfaces/message-content-repository.js";
 import { DefaultAzureCredential } from "@azure/identity";
-import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
+import {
+  BlobServiceClient,
+  ContainerClient,
+  RestError,
+} from "@azure/storage-blob";
 import * as assert from "assert";
 
 const defaultAzureCredentials = new DefaultAzureCredential();
 
+//TODO: test this function
 // A helper function used to read a Node.js readable stream into a String
 async function getStreamIntoString(readableStream: NodeJS.ReadableStream) {
   const chunks = [];
@@ -35,6 +39,7 @@ export class BlobMessageContent implements MessageContentRepository {
       this.#client.getContainerClient(messageContainerName);
   }
 
+  //TODO: check if we can split this funciton
   /**
    * Retrieve the content of the message storead as blob.
    *
@@ -55,11 +60,7 @@ export class BlobMessageContent implements MessageContentRepository {
 
     try {
       const downloadBlockBlobResponse = await blobClient.download();
-
-      assert.ok(
-        downloadBlockBlobResponse.readableStreamBody,
-        new ContentNotFoundError(`No Blob with name ${blobName} found`),
-      );
+      assert.ok(downloadBlockBlobResponse.readableStreamBody);
 
       const downloaded = (
         await getStreamIntoString(downloadBlockBlobResponse.readableStreamBody)
@@ -72,7 +73,7 @@ export class BlobMessageContent implements MessageContentRepository {
         ? parsedResponse.data
         : parsedResponse.error;
     } catch (error) {
-      if (error instanceof ContentNotFoundError) {
+      if (error instanceof RestError) {
         return error;
       } else {
         throw new Error(`Error retrieving blob with name ${blobName}`, {
@@ -87,8 +88,12 @@ export class BlobMessageContent implements MessageContentRepository {
   ): Promise<GetMessageByMetadataReturnType> {
     try {
       const content = await this.getMessageContentById(metadata.id);
+      //TODO: check if we can use a guard here
       if ("subject" in content) {
         return new Message(metadata.id, content, metadata);
+      }
+      if (content instanceof RestError) {
+        return content;
       }
       return content;
     } catch (error) {

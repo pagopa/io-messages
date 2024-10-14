@@ -86,7 +86,11 @@ export const messageContentSchema = z.object({
  * */
 export type MessageContent = z.TypeOf<typeof messageContentSchema>;
 
-type GetMessageByMetadataReturnType = void | Message;
+type ExtractMessageData = MessageContent &
+  MessageMetadata & { contentType: ContentType };
+
+//TODO: check if we can add a stricter error type here
+type GetMessageByMetadataReturnType = Message | Error;
 
 export interface MessageRepository {
   getMessageByMetadata: (
@@ -103,6 +107,14 @@ export class Message {
     this.#id = id;
     this.#content = content;
     this.#metadata = metadata;
+  }
+
+  getDataForExtractMessage(): ExtractMessageData {
+    return {
+      ...this.#content,
+      ...this.#metadata,
+      contentType: this.contentType,
+    };
   }
 
   get contentType(): ContentType {

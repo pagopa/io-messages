@@ -5,16 +5,18 @@ import {
 } from "../entities/message.js";
 import * as z from "zod";
 import { ContentNotFoundError } from "./errors.js";
+import { RestError } from "@azure/storage-blob";
 
 export type GetMessageByMetadataReturnType =
   | Message
   | z.ZodError
+  //TODO: remove this
   | ContentNotFoundError;
 
 export type GetMessageContentByIdReturnType =
   | MessageContent
   | z.ZodError
-  | ContentNotFoundError;
+  | RestError;
 
 export interface MessageContentRepository {
   /**
