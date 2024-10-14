@@ -3,31 +3,31 @@ import {
   MessageRepository,
 } from "@/domain/entities/message.js";
 import { RestError } from "@azure/storage-blob";
-import { pino } from "pino";
+import { Logger } from "pino";
 import * as z from "zod";
 
 import { BlobMessageContent } from "./blob-storage/message-content.js";
 
-const logger = pino({ level: "error" });
-
 export class MessageAdapter implements MessageRepository {
   #content: BlobMessageContent;
+  #logger: Logger;
 
-  constructor(messageContent: BlobMessageContent) {
+  constructor(messageContent: BlobMessageContent, logger: Logger) {
     this.#content = messageContent;
+    this.#logger = logger;
   }
 
   async getMessageByMetadata(metadata: MessageMetadata) {
     const message = await this.#content.getMessageByMetadata(metadata);
     if (message instanceof z.ZodError) {
-      logger.error(
+      this.#logger.error(
         `Error parsing the message content for message with id: ${metadata.id}`,
       );
-      message.issues.map((issue) => logger.error(issue));
+      message.issues.map((issue) => this.#logger.error(issue));
       return message;
     }
     if (message instanceof RestError) {
-      logger.error(`${message.name} | ${message.message}`);
+      this.#logger.error(`${message.name} | ${message.message}`);
       return message;
     } else {
       return message;

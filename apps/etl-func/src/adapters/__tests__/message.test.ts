@@ -9,6 +9,13 @@ import * as z from "zod";
 
 import { BlobMessageContent } from "../blob-storage/message-content.js";
 import { MessageAdapter } from "../message.js";
+import { Logger } from "pino";
+
+const errorLogMock = vi.fn();
+
+const loggerMock = {
+  error: errorLogMock,
+} as unknown as Logger;
 
 const getMessageByMetadataMock = vi.fn();
 
@@ -16,7 +23,7 @@ const messageContentMock = {
   getMessageByMetadata: getMessageByMetadataMock,
 } as unknown as BlobMessageContent;
 
-const messageAdapter = new MessageAdapter(messageContentMock);
+const messageAdapter = new MessageAdapter(messageContentMock, loggerMock);
 
 describe("getMessageByMetadata", () => {
   test("Given a message metadata, when the BlobMessageContent return a Message, then it should return it", async () => {
@@ -39,6 +46,7 @@ describe("getMessageByMetadata", () => {
     );
     const r = await messageAdapter.getMessageByMetadata(aSimpleMessageMetadata);
     expect(r).toBeInstanceOf(z.ZodError);
+    expect(errorLogMock).toHaveBeenCalledTimes(1);
   });
 
   test("Given a message metadata, when the BlobMessageContent return a RestError, then it should return it", async () => {
