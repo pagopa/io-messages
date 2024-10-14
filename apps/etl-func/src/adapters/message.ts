@@ -7,6 +7,7 @@ import { Logger } from "pino";
 import * as z from "zod";
 
 import { BlobMessageContent } from "./blob-storage/message-content.js";
+import { GetMessageByMetadataReturnType } from "@/domain/interfaces/message-content-repository.js";
 
 export class MessageAdapter implements MessageRepository {
   #content: BlobMessageContent;
@@ -17,7 +18,9 @@ export class MessageAdapter implements MessageRepository {
     this.#logger = logger;
   }
 
-  async getMessageByMetadata(metadata: MessageMetadata) {
+  async getMessageByMetadata(
+    metadata: MessageMetadata,
+  ): Promise<GetMessageByMetadataReturnType> {
     const message = await this.#content.getMessageByMetadata(metadata);
     if (message instanceof z.ZodError) {
       this.#logger.error(
