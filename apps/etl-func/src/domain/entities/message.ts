@@ -1,3 +1,4 @@
+import { RestError } from "@azure/storage-blob";
 import * as z from "zod";
 
 export type ContentType =
@@ -89,8 +90,7 @@ export type MessageContent = z.TypeOf<typeof messageContentSchema>;
 type ExtractMessageData = { contentType: ContentType } & MessageContent &
   MessageMetadata;
 
-//TODO: check if we can add a stricter error type here
-type GetMessageByMetadataReturnType = Error | Message;
+export type GetMessageByMetadataReturnType = z.ZodError | RestError | Message;
 
 export interface MessageRepository {
   getMessageByMetadata: (

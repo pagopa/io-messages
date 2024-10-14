@@ -21,7 +21,9 @@ import * as z from "zod";
 
 const defaultAzureCredentials = new DefaultAzureCredential();
 
-async function getStreamIntoString(readableStream: NodeJS.ReadableStream) {
+async function getStreamIntoString(
+  readableStream: NodeJS.ReadableStream,
+): Promise<string> {
   const chunks = [];
 
   for await (const chunk of readableStream) {

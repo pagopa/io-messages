@@ -1,8 +1,8 @@
 import {
+  GetMessageByMetadataReturnType,
   MessageMetadata,
   MessageRepository,
 } from "@/domain/entities/message.js";
-import { GetMessageByMetadataReturnType } from "@/domain/interfaces/message-content-repository.js";
 import { RestError } from "@azure/storage-blob";
 import { Logger } from "pino";
 import * as z from "zod";

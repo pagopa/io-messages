@@ -2,12 +2,10 @@ import { RestError } from "@azure/storage-blob";
 import * as z from "zod";
 
 import {
-  Message,
+  GetMessageByMetadataReturnType,
   MessageContent,
   MessageMetadata,
 } from "../entities/message.js";
-
-export type GetMessageByMetadataReturnType = Message | RestError | z.ZodError;
 
 export type GetMessageContentByIdReturnType =
   | MessageContent
