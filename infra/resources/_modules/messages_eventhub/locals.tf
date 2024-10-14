@@ -16,7 +16,6 @@ locals {
       manage = false
   }]
 
-  consumers = []
 
   subnet_pep_id = "io-p-vnet-common/io-p-eventhub-snet"
 

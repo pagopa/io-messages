@@ -15,6 +15,7 @@ module "messages-evh" {
     partitions             = local.eventhub_partition_count
     message_retention_days = local.eventhub_message_retention
     keys                   = local.eventhub_auth_messages_keys
+    consumers              = []
   }]
 
   consumers = local.consumers
