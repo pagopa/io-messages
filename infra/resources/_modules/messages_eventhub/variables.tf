@@ -3,11 +3,6 @@ variable "prefix" {
   description = "prefix used to create resource naming"
 }
 
-variable "prefix" {
-  type        = string
-  description = "prefix used to create resource naming"
-}
-
 variable "location" {
   type        = string
   description = "location used to create resource naming"
