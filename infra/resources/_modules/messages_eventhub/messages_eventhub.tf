@@ -18,8 +18,6 @@ module "messages-evh" {
     consumers              = []
   }]
 
-  consumers = local.consumers
-
   resource_group_name = local.resource_group_name
 
   tags = local.tags
