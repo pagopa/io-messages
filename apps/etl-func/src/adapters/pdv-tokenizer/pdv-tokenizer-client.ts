@@ -16,10 +16,10 @@ export default class PDVTokenizerClient implements TokenizerClient {
     this.#apiKey = apiKey;
   }
 
-  async tokenize(fiscalCode: string): Promise<string> {
+  async tokenize(pii: string): Promise<string> {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        const request = piiResourceSchema.parse({ pii: fiscalCode });
+        const request = piiResourceSchema.parse({ pii });
         const response = await fetch(
           `${this.#baseUrl}${this.#basePath}/tokens`,
           {
