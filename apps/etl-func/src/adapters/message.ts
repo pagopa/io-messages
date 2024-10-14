@@ -4,7 +4,6 @@ import {
 } from "@/domain/entities/message.js";
 import { BlobMessageContent } from "./blob-storage/message-content.js";
 import * as z from "zod";
-import { ContentNotFoundError } from "@/domain/interfaces/errors.js";
 import { pino } from "pino";
 import { RestError } from "@azure/storage-blob";
 
