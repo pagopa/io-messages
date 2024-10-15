@@ -78,7 +78,7 @@ export const messageContentSchema = z.object({
       summary: z.string().min(1).optional(),
     })
     .optional(),
-  tymestamp: z.string().optional(),
+  timestamp: z.string().optional(),
 });
 
 /**
@@ -119,18 +119,18 @@ export class Message {
 
   get contentType(): ContentType {
     if (this.#content.eu_covid_cert) return "EU_COVID_CERT";
-    if (this.#content.third_party_data) {
-      // check if the sender of the message is SEND
-      return this.#metadata.senderServiceId === "01G40DWQGKY5GRWSNM4303VNRP"
-        ? "SEND"
-        : "GENERIC";
+    // check if the sender of the message is SEND
+    if (this.#metadata.senderServiceId === "01G40DWQGKY5GRWSNM4303VNRP") {
+      return "SEND";
     }
-    if (this.#content.payment_data) return "PAYMENT";
+    // check if the sender of the message is PAGOPA_RECEIPT
+    if (this.#metadata.senderServiceId === "01HD63674XJ1R6XCNHH24PCRR2") {
+      return "PAGOPA_RECEIPT";
+    }
+    if (this.#content.payment_data) {
+      return "PAYMENT";
+    }
     return "GENERIC";
-  }
-
-  get id(): string {
-    return this.#id;
   }
 }
 
