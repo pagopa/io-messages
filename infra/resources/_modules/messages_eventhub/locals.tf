@@ -18,5 +18,5 @@ locals {
 
   private_dns_zone_resource_group_name = "io-p-evt-rg"
 
-  subnet_pep_id = "io-p-itn-common-vnet-01/io-p-itn-pep-snet-01"
+  subnet_pep_id = "io-p-itn-pep-snet-01"
 }
