@@ -28,3 +28,8 @@ variable "tags" {
   description = "Resources tags"
 }
 
+variable "subnet_pep_id" {
+  type        = string
+  description = "subnet id"
+}
+

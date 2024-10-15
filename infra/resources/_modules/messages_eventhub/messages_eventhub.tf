@@ -23,5 +23,5 @@ module "messages-evh" {
 
   tags = var.tags
 
-  subnet_pep_id = local.subnet_pep_id
+  subnet_pep_id = var.subnet_pep_id
 }

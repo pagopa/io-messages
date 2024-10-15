@@ -229,5 +229,6 @@ module "messages_eventhub" {
   domain          = local.domain
   instance_number = "01"
 
-  tags = local.tags
+  subnet_pep_id = data.azurerm_subnet.pep.name
+  tags          = local.tags
 }
