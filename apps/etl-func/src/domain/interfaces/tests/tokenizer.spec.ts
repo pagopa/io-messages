@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { TokenizerClient, messageTokenized, tokenize } from "../tokenizer.js";
+import { MessageTokenized, TokenizerClient, tokenize } from "../tokenizer.js";
 
 const aFiscalCode = "AAADPZ44E08F367A";
 const aTokenizedFiscalCode = "3f5a5e37-63a0-423c-a108-94b535e03f91";
 
-const aMessageWithFiscalCodeTokenized: messageTokenized = {
+const aMessageWithFiscalCodeTokenized: MessageTokenized = {
   fiscalCode: aTokenizedFiscalCode,
 };
 
