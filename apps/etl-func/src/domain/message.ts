@@ -132,6 +132,10 @@ export class Message {
     }
     return "GENERIC";
   }
+
+  get id(): string {
+    return this.#id;
+  }
 }
 
 export const messageAvroSchema = z.object({
