@@ -67,7 +67,7 @@ export class BlobMessageContent {
 
   async getMessageContentById(
     messageId: string,
-  ): Promise<z.ZodError | RestError | MessageContent> {
+  ): Promise<MessageContent | RestError | z.ZodError> {
     const blobClient = this.getBlobClientFromMessageId(messageId);
 
     try {

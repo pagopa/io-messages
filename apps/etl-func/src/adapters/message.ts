@@ -1,13 +1,13 @@
-import { RestError } from "@azure/storage-blob";
-import { Logger } from "pino";
-import * as z from "zod";
-
-import { BlobMessageContent } from "./blob-storage/message-content.js";
 import {
   GetMessageByMetadataReturnType,
   MessageMetadata,
   MessageRepository,
 } from "@/domain/message.js";
+import { RestError } from "@azure/storage-blob";
+import { Logger } from "pino";
+import * as z from "zod";
+
+import { BlobMessageContent } from "./blob-storage/message-content.js";
 
 export class MessageAdapter implements MessageRepository {
   #content: BlobMessageContent;

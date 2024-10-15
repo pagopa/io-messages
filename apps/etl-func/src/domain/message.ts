@@ -90,7 +90,7 @@ export type MessageContent = z.TypeOf<typeof messageContentSchema>;
 type ExtractMessageData = { contentType: ContentType } & MessageContent &
   MessageMetadata;
 
-export type GetMessageByMetadataReturnType = z.ZodError | RestError | Message;
+export type GetMessageByMetadataReturnType = Message | RestError | z.ZodError;
 
 export interface MessageRepository {
   getMessageByMetadata: (
