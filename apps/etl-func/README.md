@@ -12,11 +12,11 @@ cp local.settings.json.example ./.local.settings.json
 
 ### Add your test environment variables
 
-t.b.d.
-
-```json
-#TODO: Add environment variables here
+```bash
+cp local.settings.json.example .local.settings.json
 ```
+
+Override with your test env variables.
 
 ### Start the project
 
