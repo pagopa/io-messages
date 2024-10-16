@@ -1,7 +1,8 @@
 import { app, output } from "@azure/functions";
 import { TelemetryClient } from "applicationinsights";
+import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 
-import { Config, loadConfigFromEnvironment } from "./adapters/config.js";
+import { Config, configFromEnvironment } from "./adapters/config.js";
 import migrateGcmToFcmV1 from "./adapters/functions/migrate-gcm-to-fcm.js";
 import splitInstallationChunks from "./adapters/functions/split-installation-chunks.js";
 import { createNotificationHubClientFactory } from "./adapters/notification-hubs/index.js";
@@ -46,4 +47,4 @@ async function main(config: Config) {
   });
 }
 
-await loadConfigFromEnvironment(main);
+await loadConfigFromEnvironment(main, configFromEnvironment);
