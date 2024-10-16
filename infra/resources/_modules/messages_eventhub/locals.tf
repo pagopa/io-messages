@@ -1,5 +1,5 @@
 locals {
-  eventhub_name              = "${var.prefix}-${var.env_short}-${var.location}-${var.domain}-messages-evh-01"
+  eventhub_name              = "messages-evh"
   eventhub_partition_count   = 32
   eventhub_message_retention = 7
   resource_group_name        = "io-p-itn-com-rg-01"
