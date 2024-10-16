@@ -18,7 +18,7 @@ module "messages-evh" {
     consumers              = []
   }]
 
-  private_dns_zone_resource_group_name = local.private_dns_zone_resource_group_name
+  private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name
   resource_group_name                  = var.resource_group_name
 
   tags = var.tags

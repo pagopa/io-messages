@@ -15,8 +15,4 @@ locals {
       send   = false
       manage = false
   }]
-
-  private_dns_zone_resource_group_name = "io-p-evt-rg"
-
-  subnet_pep_id = "io-p-itn-pep-snet-01"
 }

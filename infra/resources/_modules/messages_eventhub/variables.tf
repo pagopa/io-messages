@@ -38,3 +38,8 @@ variable "resource_group_name" {
   description = "Name of the resource group"
 }
 
+variable "private_dns_zone_resource_group_name" {
+  type        = string
+  description = "Name of the private dns zone resource group name"
+}
+

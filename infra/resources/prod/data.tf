@@ -26,6 +26,10 @@ data "azurerm_resource_group" "internal_rg" {
   name = format("%s-rg-internal", local.project_legacy)
 }
 
+data "azurerm_resource_group" "evt-rg" {
+  name = "${local.prefix}-${local.env_short}-evt-rg"
+}
+
 ### TODO: THIS weu_common KEY VAULT HAS TO BE DISMISSED IN FAVOUR OF weu_messages ###
 data "azurerm_key_vault" "weu_common" {
   name                = "${local.project_legacy}-kv-common"
@@ -112,3 +116,5 @@ data "azurerm_monitor_action_group" "io_com_action_group" {
   resource_group_name = "${local.project}-msgs-rg-01"
   name                = "${local.project_legacy}-com-error-ag-01"
 }
+
+
