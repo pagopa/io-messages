@@ -19,7 +19,7 @@ module "messages-evh" {
   }]
 
   private_dns_zone_resource_group_name = local.private_dns_zone_resource_group_name
-  resource_group_name                  = local.resource_group_name
+  resource_group_name                  = var.resource_group_name
 
   tags = var.tags
 

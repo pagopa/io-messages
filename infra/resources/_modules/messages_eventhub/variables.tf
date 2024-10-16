@@ -33,3 +33,8 @@ variable "subnet_pep_id" {
   description = "subnet id"
 }
 
+variable "resource_group_name" {
+  type        = string
+  description = "Name of the resource group"
+}
+
