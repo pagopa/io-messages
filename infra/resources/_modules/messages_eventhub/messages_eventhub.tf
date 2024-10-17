@@ -11,11 +11,22 @@ module "messages-evh" {
   }
 
   eventhubs = [{
-    name                   = local.eventhub_name
-    partitions             = local.eventhub_partition_count
-    message_retention_days = local.eventhub_message_retention
-    keys                   = local.eventhub_auth_messages_keys
-    consumers              = []
+    name                   = "messages-evh"
+    partitions             = 32
+    message_retention_days = 7
+    keys = [{
+      name   = "io-messages"
+      listen = false
+      send   = true
+      manage = false
+      },
+      {
+        name   = "pdnd"
+        listen = true
+        send   = false
+        manage = false
+    }]
+    consumers = []
   }]
 
   private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name
