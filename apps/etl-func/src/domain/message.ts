@@ -86,9 +86,6 @@ export const messageContentSchema = z.object({
  * */
 export type MessageContent = z.TypeOf<typeof messageContentSchema>;
 
-type ExtractMessageData = { contentType: ContentType } & MessageContent &
-  MessageMetadata;
-
 export class ContentNotFoundError extends Error {
   #kind: "CONTENT_NOT_FOUND";
   #message: string;
@@ -121,42 +118,30 @@ export interface MessageRepository {
 }
 
 export class Message {
-  #content: MessageContent;
-  #id: string;
-  #metadata: MessageMetadata;
+  content: MessageContent;
+  id: string;
+  metadata: MessageMetadata;
 
   constructor(id: string, content: MessageContent, metadata: MessageMetadata) {
-    this.#id = id;
-    this.#content = content;
-    this.#metadata = metadata;
-  }
-
-  getDataForExtractMessage(): ExtractMessageData {
-    return {
-      ...this.#content,
-      ...this.#metadata,
-      contentType: this.contentType,
-    };
+    this.id = id;
+    this.content = content;
+    this.metadata = metadata;
   }
 
   get contentType(): ContentType {
-    if (this.#content.eu_covid_cert) return "EU_COVID_CERT";
+    if (this.content.eu_covid_cert) return "EU_COVID_CERT";
     // check if the sender of the message is SEND
-    if (this.#metadata.senderServiceId === "01G40DWQGKY5GRWSNM4303VNRP") {
+    if (this.metadata.senderServiceId === "01G40DWQGKY5GRWSNM4303VNRP") {
       return "SEND";
     }
     // check if the sender of the message is PAGOPA_RECEIPT
-    if (this.#metadata.senderServiceId === "01HD63674XJ1R6XCNHH24PCRR2") {
+    if (this.metadata.senderServiceId === "01HD63674XJ1R6XCNHH24PCRR2") {
       return "PAGOPA_RECEIPT";
     }
-    if (this.#content.payment_data) {
+    if (this.content.payment_data) {
       return "PAYMENT";
     }
     return "GENERIC";
-  }
-
-  get id(): string {
-    return this.#id;
   }
 }
 
