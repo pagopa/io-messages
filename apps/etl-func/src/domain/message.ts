@@ -1,4 +1,3 @@
-import { RestError } from "@azure/storage-blob";
 import * as z from "zod";
 
 export type ContentType =
@@ -90,7 +89,30 @@ export type MessageContent = z.TypeOf<typeof messageContentSchema>;
 type ExtractMessageData = { contentType: ContentType } & MessageContent &
   MessageMetadata;
 
-export type GetMessageByMetadataReturnType = Message | RestError | z.ZodError;
+export class ContentNotFoundError extends Error {
+  #kind: "CONTENT_NOT_FOUND";
+  #message: string;
+
+  constructor(message: string) {
+    super();
+
+    this.#kind = "CONTENT_NOT_FOUND";
+    this.#message = message;
+  }
+
+  get kind(): "CONTENT_NOT_FOUND" {
+    return this.#kind;
+  }
+
+  get message(): string {
+    return this.#message;
+  }
+}
+
+export type GetMessageByMetadataReturnType =
+  | Message
+  | ContentNotFoundError
+  | z.ZodError;
 
 export interface MessageRepository {
   getMessageByMetadata: (

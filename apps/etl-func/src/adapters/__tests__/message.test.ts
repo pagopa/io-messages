@@ -2,8 +2,7 @@ import {
   aSimpleMessageContent,
   aSimpleMessageMetadata,
 } from "@/__mocks__/message.js";
-import { Message } from "@/domain/message.js";
-import { RestError } from "@azure/storage-blob";
+import { ContentNotFoundError, Message } from "@/domain/message.js";
 import { Logger } from "pino";
 import { describe, expect, test, vi } from "vitest";
 import * as z from "zod";
@@ -49,17 +48,14 @@ describe("getMessageByMetadata", () => {
     expect(errorLogMock).toHaveBeenCalledTimes(1);
   });
 
-  test("Given a message metadata, when the BlobMessageContent return a RestError, then it should return it", async () => {
+  test("Given a message metadata, when the BlobMessageContent return a ContentNotFoundError, then it should return it", async () => {
     getMessageByMetadataMock.mockReturnValueOnce(
       Promise.resolve(
-        new RestError("The specified blob does not exist.", {
-          code: "BlobNotFound",
-          statusCode: 404,
-        }),
+        new ContentNotFoundError("The specified blob does not exist"),
       ),
     );
     const r = await messageAdapter.getMessageByMetadata(aSimpleMessageMetadata);
-    expect(r).toBeInstanceOf(RestError);
+    expect(r).toBeInstanceOf(ContentNotFoundError);
   });
 
   test("Given a message metadata, when the BlobMessageContent throws an error, then it should throw it", async () => {

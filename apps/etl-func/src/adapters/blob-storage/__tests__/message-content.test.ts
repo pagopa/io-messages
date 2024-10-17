@@ -2,7 +2,7 @@ import {
   aSimpleMessageContent,
   aSimpleMessageMetadata,
 } from "@/__mocks__/message.js";
-import { Message } from "@/domain/message.js";
+import { ContentNotFoundError, Message } from "@/domain/message.js";
 import { RestError } from "@azure/storage-blob";
 import { Readable } from "node:stream";
 import { describe, expect, test, vi } from "vitest";
@@ -110,7 +110,7 @@ describe("getMessageByMetadata", () => {
     ).rejects.toThrowError();
   });
 
-  test("Given message metadata, when the related message-content does not exist, then it should return a RestError with code 404", async () => {
+  test("Given message metadata, when the related message-content does not exist, then it should return a ContentNotFound Error", async () => {
     downloadMock.mockReturnValueOnce(
       Promise.reject(
         new RestError("The specified blob does not exist.", {
@@ -123,9 +123,11 @@ describe("getMessageByMetadata", () => {
     const r = await blobMessageContent.getMessageByMetadata(
       aSimpleMessageMetadata,
     );
-    expect(r).toBeInstanceOf(RestError);
-    if (r instanceof RestError) {
-      expect(r.statusCode).toBe(404);
+    expect(r).toBeInstanceOf(ContentNotFoundError);
+    if (r instanceof ContentNotFoundError) {
+      expect(r.message).toBe(
+        `Content not found for message with id ${aSimpleMessageMetadata.id}`,
+      );
     }
   });
 });

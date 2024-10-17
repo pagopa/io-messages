@@ -1,4 +1,5 @@
 import {
+  ContentNotFoundError,
   GetMessageByMetadataReturnType,
   Message,
   MessageContent,
@@ -60,7 +61,9 @@ export class BlobMessageContent {
       return new Message(metadata.id, content, metadata);
     }
     if (content instanceof RestError) {
-      return content;
+      return new ContentNotFoundError(
+        `Content not found for message with id ${metadata.id}`,
+      );
     }
     return content;
   }

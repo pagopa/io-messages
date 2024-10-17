@@ -1,9 +1,9 @@
 import {
+  ContentNotFoundError,
   GetMessageByMetadataReturnType,
   MessageRepository,
   messageMetadataSchema,
 } from "@/domain/message.js";
-import { RestError } from "@azure/storage-blob";
 import { Logger } from "pino";
 import * as z from "zod";
 
@@ -24,7 +24,7 @@ export class MessageAdapter implements MessageRepository {
     const parsedMetadata = messageMetadataSchema.safeParse(metadataToParse);
     if (!parsedMetadata.success) {
       this.#logger.error(
-        `Error parsing the message metadata | ${parsedMetadata.error.issues}`,
+        `Error parsing the message metadata | ${JSON.stringify(parsedMetadata.error.issues)}`,
       );
       return parsedMetadata.error;
     }
@@ -39,8 +39,8 @@ export class MessageAdapter implements MessageRepository {
       message.issues.map((issue) => this.#logger.error(issue));
       return message;
     }
-    if (message instanceof RestError) {
-      this.#logger.error(`${message.name} | ${message.message}`);
+    if (message instanceof ContentNotFoundError) {
+      this.#logger.error(`${message.kind} | ${message.message}`);
       return message;
     } else {
       return message;
