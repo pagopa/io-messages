@@ -1,8 +1,7 @@
 locals {
   messages_sending = {
     app_settings = {
-      FUNCTIONS_WORKER_PROCESS_COUNT = 4
-      NODE_ENV                       = "production"
+      NODE_ENV = "production"
 
       // APP INSIGHTS
       APPINSIGHTS_INSTRUMENTATIONKEY  = var.ai_instrumentation_key
