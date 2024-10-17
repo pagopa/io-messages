@@ -1,7 +1,7 @@
 import {
   GetMessageByMetadataReturnType,
-  MessageMetadata,
   MessageRepository,
+  messageMetadataSchema,
 } from "@/domain/message.js";
 import { RestError } from "@azure/storage-blob";
 import { Logger } from "pino";
@@ -19,9 +19,19 @@ export class MessageAdapter implements MessageRepository {
   }
 
   async getMessageByMetadata(
-    metadata: MessageMetadata,
+    metadataToParse: unknown,
   ): Promise<GetMessageByMetadataReturnType> {
-    const message = await this.#content.getMessageByMetadata(metadata);
+    const parsedMetadata = messageMetadataSchema.safeParse(metadataToParse);
+    if (!parsedMetadata.success) {
+      this.#logger.error(
+        `Error parsing the message metadata | ${parsedMetadata.error.issues}`,
+      );
+      return parsedMetadata.error;
+    }
+    const metadata = parsedMetadata.data;
+    const message = await this.#content.getMessageByMetadata(
+      parsedMetadata.data,
+    );
     if (message instanceof z.ZodError) {
       this.#logger.error(
         `Error parsing the message content for message with id: ${metadata.id}`,
