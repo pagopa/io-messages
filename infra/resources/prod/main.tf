@@ -219,18 +219,3 @@ module "monitoring" {
   resource_group_name = azurerm_resource_group.itn_messages.name
   io_com_slack_email  = data.azurerm_key_vault_secret.io_com_slack_email.value
 }
-
-module "messages_eventhub" {
-  source = "../_modules/messages_eventhub"
-
-  prefix          = local.prefix
-  env_short       = local.env_short
-  location        = local.location
-  domain          = local.domain
-  instance_number = "01"
-
-  resource_group_name                  = data.azurerm_subnet.pep.resource_group_name
-  private_dns_zone_resource_group_name = data.azurerm_resource_group.evt-rg.name
-  subnet_pep_id                        = data.azurerm_subnet.pep.id
-  tags                                 = local.tags
-}

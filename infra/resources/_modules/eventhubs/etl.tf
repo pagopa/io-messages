@@ -1,4 +1,4 @@
-module "messages-evh" {
+module "etl" {
   source = "github.com/pagopa/dx//infra/modules/azure_event_hub?ref=3f205e62474782678a563f4cff92e479a34feecd"
 
   environment = {
