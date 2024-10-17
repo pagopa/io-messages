@@ -7,7 +7,7 @@ module "etl" {
     location        = var.location
     domain          = var.domain
     app_name        = "etl"
-    instance_number = var.instance_number
+    instance_number = "01"
   }
 
   eventhubs = [{

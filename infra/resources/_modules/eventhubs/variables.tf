@@ -18,11 +18,6 @@ variable "domain" {
   description = "domain used to create resource naming"
 }
 
-variable "instance_number" {
-  type        = string
-  description = "instance_number used to create resource naming"
-}
-
 variable "tags" {
   type        = map(any)
   description = "Resources tags"
