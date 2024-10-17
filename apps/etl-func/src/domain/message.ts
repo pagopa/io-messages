@@ -110,8 +110,8 @@ export class ContentNotFoundError extends Error {
 }
 
 export type GetMessageByMetadataReturnType =
-  | Message
   | ContentNotFoundError
+  | Message
   | z.ZodError;
 
 export interface MessageRepository {
