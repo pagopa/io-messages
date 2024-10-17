@@ -122,10 +122,21 @@ export class Message {
   id: string;
   metadata: MessageMetadata;
 
-  constructor(id: string, content: MessageContent, metadata: MessageMetadata) {
-    this.id = id;
+  constructor(content: MessageContent, metadata: MessageMetadata) {
+    //TODO: geneate this id as an ULID
+    this.id = "";
     this.content = content;
     this.metadata = metadata;
+  }
+
+  static from(
+    id: string,
+    content: MessageContent,
+    metadata: MessageMetadata,
+  ): Message {
+    const message = new Message(content, metadata);
+    message.id = id;
+    return message;
   }
 
   get contentType(): ContentType {

@@ -58,7 +58,7 @@ export class BlobMessageContent {
   ): Promise<GetMessageByMetadataReturnType> {
     const content = await this.getMessageContentById(metadata.id);
     if (this.isMessageContent(content)) {
-      return new Message(metadata.id, content, metadata);
+      return Message.from(metadata.id, content, metadata);
     }
     if (content instanceof RestError) {
       return new ContentNotFoundError(

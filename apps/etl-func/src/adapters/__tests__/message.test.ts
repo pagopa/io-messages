@@ -28,7 +28,7 @@ describe("getMessageByMetadata", () => {
   test("Given a message metadata, when the BlobMessageContent return a Message, then it should return it", async () => {
     getMessageByMetadataMock.mockReturnValueOnce(
       Promise.resolve(
-        new Message(
+        Message.from(
           aSimpleMessageMetadata.id,
           aSimpleMessageContent,
           aSimpleMessageMetadata,
