@@ -1,0 +1,25 @@
+@startuml TokenizeFiscalCode
+
+actor caller
+participant TokenizeFiscalCode as tf
+participant "PDV Client" as pdvc
+participant PDV
+
+caller -> tf : call with valid fiscal code
+activate tf
+
+tf -> pdvc : tokenize fiscal code
+
+loop if error 500 for retry max 3 times
+  pdvc -> PDV : call tokenizer api
+  alt Error from pdv
+    PDV -[#red]> pdvc : Error
+    pdvc -> tf : Throw an error
+  end
+  PDV -[#green]> pdvc : return token
+end
+
+pdvc -> tf : return token
+tf -> caller : return tokenized fiscal code
+
+@enduml

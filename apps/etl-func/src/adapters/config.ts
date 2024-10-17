@@ -7,12 +7,22 @@ const logger = pino({
   level: "error",
 });
 
-export const configSchema = z.object({});
+export const configSchema = z.object({
+  pdv: z.object({
+    tokenizerApiKey: z.string().min(1),
+  }),
+});
 
 export type Config = z.TypeOf<typeof configSchema>;
 
 const configFromEnvironment = envSchema
-  .transform((): Config => ({}))
+  .transform(
+    (env): Config => ({
+      pdv: {
+        tokenizerApiKey: env.PDV_TOKENIZER_API_KEY,
+      },
+    }),
+  )
   .pipe(configSchema);
 
 // TODO(IOCOM-1786): move this function in "io-messages-common"
