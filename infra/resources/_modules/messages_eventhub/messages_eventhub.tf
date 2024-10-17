@@ -6,7 +6,7 @@ module "messages-evh" {
     env_short       = var.env_short
     location        = var.location
     domain          = var.domain
-    app_name        = "elt"
+    app_name        = "etl"
     instance_number = var.instance_number
   }
 
