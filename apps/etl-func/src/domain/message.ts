@@ -114,7 +114,7 @@ export type GetMessageByMetadataReturnType =
 export interface MessageRepository {
   getMessageByMetadata: (
     metadata: MessageMetadata,
-  ) => Promise<GetMessageByMetadataReturnType>;
+  ) => Promise<Message | undefined>;
 }
 
 export class Message {

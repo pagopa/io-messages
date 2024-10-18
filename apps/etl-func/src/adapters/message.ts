@@ -1,49 +1,40 @@
 import {
-  ContentNotFoundError,
-  GetMessageByMetadataReturnType,
+  Message,
+  MessageContent,
+  MessageMetadata,
   MessageRepository,
-  messageMetadataSchema,
 } from "@/domain/message.js";
 import { Logger } from "pino";
-import * as z from "zod";
 
-import { BlobMessageContent } from "./blob-storage/message-content.js";
+import { MessageContentError } from "./blob-storage/message-content.js";
+
+export interface MessageContentProvider {
+  getByMessageId(messageId: string): Promise<MessageContent>;
+}
 
 export class MessageAdapter implements MessageRepository {
-  #content: BlobMessageContent;
+  #content: MessageContentProvider;
   #logger: Logger;
 
-  constructor(messageContent: BlobMessageContent, logger: Logger) {
+  constructor(messageContent: MessageContentProvider, logger: Logger) {
     this.#content = messageContent;
     this.#logger = logger;
   }
 
   async getMessageByMetadata(
-    metadataToParse: unknown,
-  ): Promise<GetMessageByMetadataReturnType> {
-    const parsedMetadata = messageMetadataSchema.safeParse(metadataToParse);
-    if (!parsedMetadata.success) {
-      this.#logger.error(
-        `Error parsing the message metadata | ${JSON.stringify(parsedMetadata.error.issues)}`,
-      );
-      return parsedMetadata.error;
-    }
-    const metadata = parsedMetadata.data;
-    const message = await this.#content.getMessageByMetadata(
-      parsedMetadata.data,
-    );
-    if (message instanceof z.ZodError) {
-      this.#logger.error(
-        `Error parsing the message content for message with id: ${metadata.id}`,
-      );
-      message.issues.map((issue) => this.#logger.error(issue));
-      return message;
-    }
-    if (message instanceof ContentNotFoundError) {
-      this.#logger.error(`${message.kind} | ${message.message}`);
-      return message;
-    } else {
-      return message;
+    metadata: MessageMetadata,
+  ): Promise<Message | undefined> {
+    try {
+      const messageContent = await this.#content.getByMessageId(metadata.id);
+      return Message.from(metadata.id, messageContent, metadata);
+    } catch (error) {
+      if (error instanceof MessageContentError) {
+        this.#logger.error(`Error parsing the message content for message`, {
+          messageId: metadata.id,
+        });
+        return;
+      }
+      throw error;
     }
   }
 }
