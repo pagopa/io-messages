@@ -10,6 +10,7 @@ const logger = pino({
 export const configSchema = z.object({
   pdvTokenizer: z.object({
     apiKey: z.string().min(1),
+    baseUrl: z.string().min(1),
   }),
 });
 
@@ -20,6 +21,7 @@ const configFromEnvironment = envSchema
     (env): Config => ({
       pdvTokenizer: {
         apiKey: env.PDV_TOKENIZER_API_KEY,
+        baseUrl: env.PDV_TOKENIZER_BASE_URL,
       },
     }),
   )

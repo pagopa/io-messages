@@ -4,5 +4,6 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "node"
     "PDV_TOKENIZER_API_KEY": "apiKey",
+    "PDV_TOKENIZER_BASE_URL": "https://pdv_base_url.it"
   }
 }
