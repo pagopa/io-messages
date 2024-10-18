@@ -1,0 +1,41 @@
+import { MessageContent, messageContentSchema } from "@/domain/message.js";
+import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
+import { z } from "zod";
+
+import { BlobNotFoundError, downloadBlobContent } from "./blob.js";
+
+export class MessageContentError extends Error {
+  name = "MessageContentError";
+  constructor(cause: unknown) {
+    super("MessageContent invalid or not found", { cause });
+  }
+}
+
+export class BlobMessageContent {
+  #messageContainer: ContainerClient;
+
+  constructor(blobClient: BlobServiceClient, messageContainerName: string) {
+    this.#messageContainer =
+      blobClient.getContainerClient(messageContainerName);
+  }
+
+  async getByMessageId(messageId: string): Promise<MessageContent> {
+    const blobClient = this.#messageContainer.getBlobClient(
+      `${messageId}.json`,
+    );
+    try {
+      const blobContent = await downloadBlobContent(blobClient);
+      const jsonResponse = JSON.parse(blobContent);
+      return messageContentSchema.parse(jsonResponse);
+    } catch (error) {
+      if (
+        error instanceof BlobNotFoundError ||
+        error instanceof z.ZodError ||
+        error instanceof SyntaxError
+      ) {
+        throw new MessageContentError(error);
+      }
+      throw error;
+    }
+  }
+}
