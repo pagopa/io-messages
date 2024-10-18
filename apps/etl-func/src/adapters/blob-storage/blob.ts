@@ -13,7 +13,7 @@ export async function downloadBlobContent(
     const downloadBlockBlobResponse = await blobClient.downloadToBuffer();
     return downloadBlockBlobResponse.toString();
   } catch (error) {
-    if (error instanceof RestError && error.code === "BlobNotFound") {
+    if (error instanceof RestError && error.statusCode === 404) {
       throw new BlobNotFoundError();
     }
     throw error;
