@@ -156,7 +156,7 @@ export class Message {
   }
 }
 
-export const messageAvroSchema = z.object({
+export const messageEventSchema = z.object({
   content_type: z
     .enum(["GENERIC", "PAYMENT", "EU_COVID_CERT", "SEND", "PAGOPA_RECEIPT"])
     .default("GENERIC"),
@@ -179,4 +179,4 @@ export const messageAvroSchema = z.object({
   timestamp: z.number(),
 });
 
-export type MessageAvro = z.TypeOf<typeof messageAvroSchema>;
+export type MessageEvent = z.TypeOf<typeof messageEventSchema>;
