@@ -1,7 +1,8 @@
 import { app } from "@azure/functions";
-import { BlobServiceClient } from "@azure/storage-blob";
 import { AzureCliCredential } from "@azure/identity";
+import { BlobServiceClient } from "@azure/storage-blob";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
+
 import { Config, configFromEnvironment } from "./adapters/config.js";
 
 const main = async (config: Config) => {
@@ -22,7 +23,6 @@ const main = async (config: Config) => {
     methods: ["GET"],
     route: "health",
   });
-
 };
 
 await loadConfigFromEnvironment(main, configFromEnvironment);
