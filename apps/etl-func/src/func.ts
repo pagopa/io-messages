@@ -14,7 +14,6 @@ const main = async (config: Config) => {
     authLevel: "anonymous",
     handler: async () => {
       // check for storage availability or throw
-      console.log("Checking for account info");
       await blobServiceCLient.getProperties();
       return {
         body: "it works!",

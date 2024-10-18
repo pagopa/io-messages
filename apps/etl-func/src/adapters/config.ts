@@ -1,11 +1,6 @@
-import { pino } from "pino";
-import { ZodError, z } from "zod";
+import { z } from "zod";
 
 import { envSchema } from "./env.js";
-
-const logger = pino({
-  level: "error",
-});
 
 export const configSchema = z.object({
   messageContentStorage: z.object({
