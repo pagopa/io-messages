@@ -1,18 +1,20 @@
 import { z } from "zod";
 
 export interface TokenizerClient {
-  tokenize(pii: string): Promise<string>;
+  maskSensitiveInfo(pii: string): Promise<string>;
 }
 
-const messageTokenizedSchema = z.object({
+const messageWithoutPIISchema = z.object({
   fiscalCode: z.string().uuid().min(1),
 });
 
-export type MessageTokenized = z.infer<typeof messageTokenizedSchema>;
+export type MessageWithoutPII = z.infer<typeof messageWithoutPIISchema>;
 
 export const tokenize =
   (message: { fiscalCode: string }) =>
-  async (client: TokenizerClient): Promise<MessageTokenized> => {
-    const tokenizedFiscalCode = await client.tokenize(message.fiscalCode);
+  async (client: TokenizerClient): Promise<MessageWithoutPII> => {
+    const tokenizedFiscalCode = await client.maskSensitiveInfo(
+      message.fiscalCode,
+    );
     return { ...message, fiscalCode: tokenizedFiscalCode };
   };

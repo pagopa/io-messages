@@ -8,8 +8,8 @@ const logger = pino({
 });
 
 export const configSchema = z.object({
-  pdv: z.object({
-    tokenizerApiKey: z.string().min(1),
+  pdvTokenizer: z.object({
+    apiKey: z.string().min(1),
   }),
 });
 
@@ -18,8 +18,8 @@ export type Config = z.TypeOf<typeof configSchema>;
 const configFromEnvironment = envSchema
   .transform(
     (env): Config => ({
-      pdv: {
-        tokenizerApiKey: env.PDV_TOKENIZER_API_KEY,
+      pdvTokenizer: {
+        apiKey: env.PDV_TOKENIZER_API_KEY,
       },
     }),
   )

@@ -1,4 +1,5 @@
 import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
+import * as assert from "node:assert";
 
 import { piiResourceSchema } from "./pii-resource.js";
 import { problemSchema } from "./problem.js";
@@ -8,29 +9,25 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default class PDVTokenizerClient implements TokenizerClient {
   #apiKey: string;
-  #basePath = "tokenizer/v1";
-  #baseUrl = "https://api.tokenizer.pdv.pagopa.it/";
+  #baseUrl = "https://api.tokenizer.pdv.pagopa.it/tokenizer/v1";
 
   constructor(apiKey: string) {
-    if (!apiKey) throw new Error("Api key is required");
+    assert.ok(apiKey, new Error("Api key is required"));
     this.#apiKey = apiKey;
   }
 
-  async tokenize(pii: string): Promise<string> {
+  async maskSensitiveInfo(pii: string): Promise<string> {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const request = piiResourceSchema.parse({ pii });
-        const response = await fetch(
-          `${this.#baseUrl}${this.#basePath}/tokens`,
-          {
-            body: JSON.stringify(request),
-            headers: {
-              "content-type": "application/json",
-              "x-api-key": this.#apiKey,
-            },
-            method: "PUT",
+        const response = await fetch(`${this.#baseUrl}/tokens`, {
+          body: JSON.stringify(request),
+          headers: {
+            "content-type": "application/json",
+            "x-api-key": this.#apiKey,
           },
-        );
+          method: "PUT",
+        });
 
         const responseJson = await response.json();
 
