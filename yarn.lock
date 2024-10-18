@@ -9569,6 +9569,7 @@ __metadata:
     applicationinsights: "npm:^3.3.0"
     esbuild: "npm:^0.24.0"
     eslint: "npm:8.57.0"
+    io-messages-common: "workspace:^"
     pino: "npm:^9.4.0"
     prettier: "npm:3.2.5"
     typescript: "npm:5.4.3"
