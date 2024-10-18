@@ -29,7 +29,8 @@ export class MessageAdapter implements MessageRepository {
       return Message.from(metadata.id, messageContent, metadata);
     } catch (error) {
       if (error instanceof MessageContentError) {
-        this.#logger.error(`Error parsing the message content for message`, {
+        this.#logger.error({
+          message: "Error parsing the message content.",
           messageId: metadata.id,
         });
         return;
