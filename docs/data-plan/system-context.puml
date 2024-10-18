@@ -1,0 +1,22 @@
+@startuml data-plan-system-context
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+LAYOUT_WITH_LEGEND()
+
+title System Context Diagram
+
+System_Ext(consumer, "Consumer")
+
+Boundary(io, "IO") {
+  System(io_msgs, "Messages")
+}
+
+System_Ext(pdv, "Personal Data Vault Tokenizer")
+System_Ext(tp, "Third Party (Remote Content)")
+
+Rel(consumer, io_msgs, "Use")
+Rel(io_msgs, pdv, "Use")
+Rel(io_msgs, tp, "Use")
+
+@enduml
