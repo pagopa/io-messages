@@ -6,10 +6,8 @@ import { pino } from "pino";
 
 import { aSimpleMessageEvent } from "./__mocks__/message-event.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
-import {
-  EventHubMesasgeSender,
-  eventhubProducerClient,
-} from "./adapters/eventhub/event-producer.js";
+import { EventProducer } from "./adapters/eventhub/event-producer.js";
+import { eventhubProducerClient } from "./adapters/eventhub/eventhub.js";
 import { MessageEventAdapter } from "./adapters/message-event.js";
 
 const main = async (config: Config) => {
@@ -37,7 +35,7 @@ const main = async (config: Config) => {
       const producerClient = await eventhubProducerClient(
         config.messagesEventHub,
       );
-      const messageSender = new EventHubMesasgeSender(producerClient);
+      const messageSender = new EventProducer(producerClient);
       const messageEventAdapter = new MessageEventAdapter(
         messageSender,
         pino(),

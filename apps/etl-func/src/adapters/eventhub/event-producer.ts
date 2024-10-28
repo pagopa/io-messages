@@ -1,42 +1,26 @@
 import { EventDataBatch, EventHubProducerClient } from "@azure/event-hubs";
 
-import { EventhubConfigSchema } from "./config.js";
-
-export async function eventhubProducerClient(
-  config: EventhubConfigSchema,
-): Promise<EventHubProducerClient> {
-  const producerClient = await new EventHubProducerClient(
-    config.connectionString,
-    config.eventHubName,
-  );
-
-  return producerClient;
-  //TODO capire quali errori posso gestire nella creazione di un client producer
-}
-
-export class EventHubMesasgeSender {
+export class EventProducer {
   #producerClient: EventHubProducerClient;
 
   constructor(producerClient: EventHubProducerClient) {
     this.#producerClient = producerClient;
   }
 
-  private async addEventMessageToBatch(
-    eventMessage: Buffer,
-  ): Promise<EventDataBatch> {
-    const eventDataBatch = await this.#producerClient.createBatch();
-    const wasAdded = eventDataBatch.tryAdd({ body: eventMessage });
+  private async addMessageToBatch(message: Buffer): Promise<EventDataBatch> {
+    const dataBatch = await this.#producerClient.createBatch();
+    const wasAdded = dataBatch.tryAdd({ body: message });
     if (!wasAdded) {
       throw new Error("Error");
     }
 
-    return eventDataBatch;
+    return dataBatch;
   }
 
-  async publishEvent(eventMessage: Buffer): Promise<void> {
+  async publishMessage(eventMessage: Buffer): Promise<void> {
     try {
-      const eventDataBatch = await this.addEventMessageToBatch(eventMessage);
-      this.#producerClient.sendBatch(eventDataBatch);
+      const dataBatch = await this.addMessageToBatch(eventMessage);
+      this.#producerClient.sendBatch(dataBatch);
       return;
     } catch (err) {
       //TODO capire quali errori posso gestire nell'invio di un messaggio: disconnessioni ecc'
