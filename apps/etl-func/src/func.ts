@@ -40,7 +40,7 @@ const main = async (config: Config) => {
         messageSender,
         pino(),
       );
-      messageEventAdapter.publishMessageEvent(aSimpleMessageEvent);
+      await messageEventAdapter.publishMessageEvent(aSimpleMessageEvent);
       return {
         body: "message sent",
       };
