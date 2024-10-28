@@ -15,6 +15,7 @@ export const messageAvroSchema = z.object({
   payment_data_invalid_after_due_date: z.boolean().nullable(),
   payment_data_notice_number: z.string().nullable(),
   payment_data_payee_fiscal_code: z.string().min(1).nullable(),
+  recipient_id: z.string(),
   require_secure_channels: z.boolean().default(false),
   schema_version: z.number(),
   sender_service_id: z.string(),
