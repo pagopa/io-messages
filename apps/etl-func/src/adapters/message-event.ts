@@ -2,13 +2,16 @@ import { MessageEvent } from "@/domain/message.js";
 import { MessageEventProducer } from "@/domain/message.js";
 import avro, { Schema } from "avsc";
 import * as fs from "fs";
-import * as path from "path";
+// import * as path from "path";
 import { Logger } from "pino";
-import { fileURLToPath } from "url";
+// import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const schemaPath = path.join(path.dirname(__filename), "../avro/message.avsc");
-const messageAvroSchema = JSON.parse(fs.readFileSync(schemaPath, "utf8"));
+// const __filename = fileURLToPath(import.meta.url);
+// const schemaPath = path.join(path.dirname(__filename), "../avro/message.avsc");
+// const messageAvroSchema = JSON.parse(fs.readFileSync(schemaPath, "utf8"));
+const messageAvroSchema = JSON.parse(
+  fs.readFileSync("./avro/message.avsc", "utf8"),
+);
 
 export interface MessageProducerClient {
   publishMessage: (eventMessage: Buffer) => Promise<void>;
