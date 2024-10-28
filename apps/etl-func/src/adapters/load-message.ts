@@ -1,8 +1,15 @@
 import avro, { Schema } from "avsc";
+import * as fs from "fs";
+import { dirname } from "path";
+import * as path from "path";
 import { Logger } from "pino";
+import { fileURLToPath } from "url";
 import { z } from "zod";
 
-import messageAvroSchema from "../../avro/message.avsc";
+const __filename = fileURLToPath(import.meta.url); // Ricrea __filename
+const __dirname = dirname(__filename);
+const schemaPath = path.join(__dirname, "../avro/message.avsc");
+const messageAvroSchema = JSON.parse(fs.readFileSync(schemaPath, "utf8"));
 
 export const messageEventSchema = z.object({
   content_type: z
