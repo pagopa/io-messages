@@ -21,7 +21,9 @@ export class EventHubMesasgeSender {
     this.#producerClient = producerClient;
   }
 
-  async addEventMessageToBatch(eventMessage: Buffer): Promise<EventDataBatch> {
+  private async addEventMessageToBatch(
+    eventMessage: Buffer,
+  ): Promise<EventDataBatch> {
     const eventDataBatch = await this.#producerClient.createBatch();
     const wasAdded = eventDataBatch.tryAdd({ body: eventMessage });
     if (!wasAdded) {

@@ -9,8 +9,8 @@ import { Config, configFromEnvironment } from "./adapters/config.js";
 import {
   EventHubMesasgeSender,
   eventhubProducerClient,
-} from "./adapters/eventhub/producer.js";
-import { MessageEventAdapter } from "./adapters/load-message.js";
+} from "./adapters/eventhub/event-producer.js";
+import { MessageEventAdapter } from "./adapters/message-event.js";
 
 const main = async (config: Config) => {
   const azureCredentials = new AzureCliCredential();
