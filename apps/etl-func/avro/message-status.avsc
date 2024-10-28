@@ -1,8 +1,7 @@
 {
-  "name": "messageStatus",
+  "name": "MessageStatus",
   "type": "record",
   "namespace": "dto",
-  "doc": "Kafka JS schema for cosmos api container 'message-status'",
   "fields": [
     {
       "name": "schema_version",
@@ -14,8 +13,8 @@
       "type": {
         "type": "enum",
         "doc": "List of operations that can be done to a message.",
-        "name": "MessageStatusCrudOperation",
-        "symbols": ["CREATE", "UPDATE"]
+        "name": "MessageCrudOperation",
+        "symbols": ["CREATE", "UPDATE", "DELETE"]
       }
     },
     {
@@ -26,10 +25,11 @@
     {
       "name": "message_id",
       "doc": "An ULID that identifies the message inside the message collection.",
-      "type": "string"
+      "type": "string",
+      "aliases": ["messageId"]
     },
     {
-      "name": "status_version",
+      "name": "version",
       "doc": "An integer that indicates the version of the status.",
       "type": "int"
     },
@@ -39,25 +39,33 @@
       "type": {
         "type": "enum",
         "name": "MessageStatus",
-        "symbols": ["ACCEPTED", "FAILED", "PROCESSED", "REJECTED"]
+        "symbols": ["ACCEPTED", "FAILED", "PROCESSED", "REJECTED", "THROTTLED"]
       }
     },
     {
       "name": "is_read",
       "doc": "Boolean that indicates if the message has been read.",
-      "type": "boolean"
+      "type": "boolean",
+      "aliases": ["isRead"]
     },
     {
       "name": "is_archived",
       "doc": "Boolean that indicates if the message has been archived.",
-      "type": "boolean"
+      "type": "boolean",
+      "aliases": ["isArchived"]
     },
     {
       "name": "timestamp",
       "doc": "A timestamp that indicates when the status was created.",
       "type": "long",
+      "logicalType": "timestamp-millis"
+    },
+    {
+      "name": "created_at",
+      "doc": "A timestamp that indicates when the status was created.",
+      "type": "long",
       "logicalType": "timestamp-millis",
-      "default": 0
+      "aliases": ["createdAt"]
     }
   ]
 }

@@ -27,6 +27,8 @@ const main = async (config: Config) => {
         body: "it works!",
       };
     },
+    methods: ["GET"],
+    route: "health",
   });
 
   app.http("loadeventmessagetest", {
