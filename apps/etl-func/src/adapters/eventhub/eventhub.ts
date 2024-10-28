@@ -11,5 +11,4 @@ export async function eventhubProducerClient(
   );
 
   return producerClient;
-  //TODO capire quali errori posso gestire nella creazione di un client producer
 }
