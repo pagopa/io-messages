@@ -29,7 +29,9 @@ const eventProducer = new EventProducer(eventHubProducerClient);
 
 describe("publishMessage", () => {
   beforeEach(() => {
+    tryAddMock.mockClear();
     tryAddMock.mockImplementation(() => true);
+    sendBatchMock.mockClear();
     sendBatchMock.mockImplementation(() => Promise.resolve());
   });
   test("Given a valid message event it should resolve", async () => {
@@ -56,7 +58,7 @@ describe("publishMessage", () => {
     expect(sendBatchMock).not.toHaveBeenCalledOnce();
   });
 
-  test.only("Should throw an error if sendBatchMock rejects", async () => {
+  test("Should throw an error if sendBatchMock rejects", async () => {
     sendBatchMock.mockImplementation(() => Promise.reject());
     await expect(
       eventProducer.publishMessage(
