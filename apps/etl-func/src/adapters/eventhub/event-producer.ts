@@ -23,7 +23,6 @@ export class EventProducer {
       this.#producerClient.sendBatch(dataBatch);
       return;
     } catch (err) {
-      //TODO capire quali errori posso gestire nell'invio di un messaggio: disconnessioni ecc'
       throw new Error("Error while sending the event to the eventhub");
     }
   }

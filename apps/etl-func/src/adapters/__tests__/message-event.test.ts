@@ -1,6 +1,6 @@
 import { aSimpleMessageEvent } from "@/__mocks__/message-event.js";
 import { Logger } from "pino";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import {
   MessageEventAdapter,
@@ -24,16 +24,24 @@ const messageEventAdapter = new MessageEventAdapter(
   loggerMock,
 );
 
-//publishMessage to be called
-//publishMessage to throw an error if the message event as a wrong schema
-//publishMessage to throw an error
-
 describe("publishMessageEvent", () => {
+  beforeEach(() => {
+    publishMessage.mockReset();
+  });
+
   test("Given a message event it should publish it", async () => {
     publishMessage.mockResolvedValueOnce(undefined);
     await expect(
       messageEventAdapter.publishMessageEvent(aSimpleMessageEvent),
     ).resolves.toEqual(undefined);
+    expect(publishMessage).toHaveBeenCalledOnce();
+  });
+
+  test("should throw if publishMessage throw an error", async () => {
+    publishMessage.mockRejectedValueOnce(undefined);
+    await expect(
+      messageEventAdapter.publishMessageEvent(aSimpleMessageEvent),
+    ).rejects.toEqual(undefined);
     expect(publishMessage).toHaveBeenCalledOnce();
   });
 });
