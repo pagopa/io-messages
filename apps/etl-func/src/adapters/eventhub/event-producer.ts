@@ -20,7 +20,7 @@ export class EventProducer {
   async publishMessage(eventMessage: Buffer): Promise<void> {
     try {
       const dataBatch = await this.addMessageToBatch(eventMessage);
-      this.#producerClient.sendBatch(dataBatch);
+      await this.#producerClient.sendBatch(dataBatch);
       return;
     } catch (err) {
       throw new Error("Error while sending the event to the eventhub");
