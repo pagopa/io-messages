@@ -1,32 +1,50 @@
-import { MessageEvent, MessageEventProducer } from "@/domain/message.js";
-import avro, { Schema } from "avsc";
-import * as fs from "fs";
+import type * as avro from "avsc";
+
+import { EventProducer } from "@/domain/message.js";
+import {
+  EventData,
+  EventDataBatch,
+  EventHubProducerClient,
+} from "@azure/event-hubs";
+import * as assert from "node:assert/strict";
 import { Logger } from "pino";
 
-const messageAvroSchema = JSON.parse(
-  fs.readFileSync("./avro/message.avsc", "utf8"),
-);
-
-export interface MessageProducerClient {
-  publishMessage: (eventMessage: Buffer) => Promise<void>;
-}
-
-export class MessageEventAdapter implements MessageEventProducer {
+export class EventHubEventProducer<T> implements EventProducer<T> {
   #logger: Logger;
-  #producerClient: MessageProducerClient;
+  #producerClient: EventHubProducerClient;
+  #schema: avro.Type;
 
-  constructor(producerClient: MessageProducerClient, logger: Logger) {
+  constructor(
+    producerClient: EventHubProducerClient,
+    schema: avro.Type,
+    logger: Logger,
+  ) {
     this.#producerClient = producerClient;
+    this.#schema = schema;
     this.#logger = logger;
   }
 
-  async publishMessageEvent(message: MessageEvent): Promise<void> {
+  /**
+   * Creates a batch of event data to be sent to Event Hub.
+   *
+   * @param message - The message to be added to the batch as a Buffer.
+   * @returns A promise that resolves to an EventDataBatch containing the message.
+   * @throws Will throw an error if the message is too large to fit in the batch.
+   */
+  async #createBatch(eventData: EventData): Promise<EventDataBatch> {
+    const dataBatch = await this.#producerClient.createBatch();
+    const wasAdded = dataBatch.tryAdd(eventData);
+    assert.ok(wasAdded, "The message is too large to fit in the batch");
+    return dataBatch;
+  }
+
+  async publish(message: T): Promise<void> {
     try {
-      const avroMessageEventType = avro.Type.forSchema(
-        messageAvroSchema as Schema,
-      );
-      const bufferedData = avroMessageEventType.toBuffer(message);
-      await this.#producerClient.publishMessage(bufferedData);
+      const bufferedData = this.#schema.toBuffer(message);
+      const dataBatch = await this.#createBatch({
+        body: bufferedData,
+      });
+      await this.#producerClient.sendBatch(dataBatch);
     } catch (err) {
       this.#logger.error("Error while sending the event");
       throw err;

@@ -1,4 +1,9 @@
-import { EventDataBatch, EventHubProducerClient } from "@azure/event-hubs";
+import {
+  EventData,
+  EventDataBatch,
+  EventHubProducerClient,
+} from "@azure/event-hubs";
+import * as assert from "node:assert/strict";
 
 export class EventProducer {
   #producerClient: EventHubProducerClient;
@@ -7,21 +12,26 @@ export class EventProducer {
     this.#producerClient = producerClient;
   }
 
-  private async addMessageToBatch(message: Buffer): Promise<EventDataBatch> {
+  /**
+   * Creates a batch of event data to be sent to Event Hub.
+   *
+   * @param message - The message to be added to the batch as a Buffer.
+   * @returns A promise that resolves to an EventDataBatch containing the message.
+   * @throws Will throw an error if the message is too large to fit in the batch.
+   */
+  async #createBatch(eventData: EventData): Promise<EventDataBatch> {
     const dataBatch = await this.#producerClient.createBatch();
-    const wasAdded = dataBatch.tryAdd({ body: message });
-    if (!wasAdded) {
-      throw new Error("Error");
-    }
-
+    const wasAdded = dataBatch.tryAdd(eventData);
+    assert.ok(wasAdded, "The message is too large to fit in the batch");
     return dataBatch;
   }
 
-  async publishMessage(eventMessage: Buffer): Promise<void> {
+  async publish(body: Buffer): Promise<void> {
     try {
-      const dataBatch = await this.addMessageToBatch(eventMessage);
+      const dataBatch = await this.#createBatch({
+        body,
+      });
       await this.#producerClient.sendBatch(dataBatch);
-      return;
     } catch (err) {
       throw new Error("Error while sending the event to the eventhub");
     }

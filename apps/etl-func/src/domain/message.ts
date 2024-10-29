@@ -117,8 +117,8 @@ export interface MessageRepository {
   ) => Promise<Message | undefined>;
 }
 
-export interface MessageEventProducer {
-  publishMessageEvent: (message: MessageEvent) => Promise<void>;
+export interface EventProducer<T> {
+  publish: (message: T) => Promise<void>;
 }
 
 export class Message {

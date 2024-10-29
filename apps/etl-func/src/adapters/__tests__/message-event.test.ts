@@ -32,7 +32,7 @@ describe("publishMessageEvent", () => {
   test("Given a message event it should publish it", async () => {
     publishMessage.mockResolvedValueOnce(undefined);
     await expect(
-      messageEventAdapter.publishMessageEvent(aSimpleMessageEvent),
+      messageEventAdapter.publish(aSimpleMessageEvent),
     ).resolves.toEqual(undefined);
     expect(publishMessage).toHaveBeenCalledOnce();
   });
@@ -40,7 +40,7 @@ describe("publishMessageEvent", () => {
   test("should throw if publishMessage throw an error", async () => {
     publishMessage.mockRejectedValueOnce(undefined);
     await expect(
-      messageEventAdapter.publishMessageEvent(aSimpleMessageEvent),
+      messageEventAdapter.publish(aSimpleMessageEvent),
     ).rejects.toEqual(undefined);
     expect(publishMessage).toHaveBeenCalledOnce();
   });
