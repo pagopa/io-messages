@@ -4,7 +4,6 @@
   "main": "dist/func.js",
   "type": "module",
   "scripts": {
-    "copy-avsc": "cp -R ./avro/*.avsc dist/",
     "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node20 --outdir=dist --packages=external",
     "build:watch": "yarn build --watch",
     "start": "func start",
