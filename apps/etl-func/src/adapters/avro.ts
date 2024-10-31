@@ -1,4 +1,4 @@
-import avro from "avsc";
+import avro, { Schema } from "avsc";
 
 export const messageSchema = avro.Type.forSchema({
   fields: [
@@ -130,4 +130,4 @@ export const messageSchema = avro.Type.forSchema({
   name: "Message",
   namespace: "it.ioapp.com.message",
   type: "record",
-});
+} as Schema);
