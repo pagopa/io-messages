@@ -18,7 +18,6 @@ const main = async (config: Config) => {
     azureCredentials,
   );
 
-  //there is no function to get the producerClient connection status
   const producerClient = new EventHubProducerClient(
     config.messagesEventHub.connectionString,
     config.messagesEventHub.eventHubName,
@@ -29,6 +28,9 @@ const main = async (config: Config) => {
     handler: async () => {
       // check for storage availability or throw
       await blobServiceCLient.getProperties();
+      //there's no function to get the producerClient connection status but we check the properties
+      await producerClient.getEventHubProperties();
+
       return {
         body: "it works!",
       };
