@@ -17,6 +17,13 @@ const main = async (config: Config) => {
     config.messageContentStorage.accountUri,
     azureCredentials,
   );
+
+  //there is no function to get the producerClient connection status
+  const producerClient = new EventHubProducerClient(
+    config.messagesEventHub.connectionString,
+    config.messagesEventHub.eventHubName,
+  );
+
   app.http("Health", {
     authLevel: "anonymous",
     handler: async () => {
@@ -29,11 +36,6 @@ const main = async (config: Config) => {
     methods: ["GET"],
     route: "health",
   });
-
-  const producerClient = new EventHubProducerClient(
-    config.messagesEventHub.connectionString,
-    config.messagesEventHub.eventHubName,
-  );
 
   app.http("loadeventmessagetest", {
     authLevel: "anonymous",

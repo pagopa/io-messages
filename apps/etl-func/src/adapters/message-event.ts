@@ -34,7 +34,7 @@ export class EventHubEventProducer<T> implements EventProducer<T> {
   async #createBatch(eventData: EventData): Promise<EventDataBatch> {
     const dataBatch = await this.#producerClient.createBatch();
     const wasAdded = dataBatch.tryAdd(eventData);
-    assert.ok(wasAdded, "The message is too large to fit in the batch");
+    assert.ok(wasAdded, "Error while adding event to the batch");
     return dataBatch;
   }
 
