@@ -1,15 +1,10 @@
-import { messageSchema } from "@/adapters/avro.js";
 import { EventHubProducerClient } from "@azure/event-hubs";
 import { app } from "@azure/functions";
 import { AzureCliCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
-import { pino } from "pino";
 
-import { aSimpleMessageEvent } from "./__mocks__/message-event.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
-import { EventHubEventProducer } from "./adapters/message-event.js";
-import { MessageEvent } from "./domain/message.js";
 
 const main = async (config: Config) => {
   const azureCredentials = new AzureCliCredential();
@@ -37,23 +32,6 @@ const main = async (config: Config) => {
     },
     methods: ["GET"],
     route: "health",
-  });
-
-  app.http("loadeventmessagetest", {
-    authLevel: "anonymous",
-    handler: async () => {
-      const producer = new EventHubEventProducer<MessageEvent>(
-        producerClient,
-        messageSchema,
-        pino(),
-      );
-      await producer.publish(aSimpleMessageEvent);
-      return {
-        body: "message sent",
-      };
-    },
-    methods: ["GET"],
-    route: "loadeventmessagetest",
   });
 };
 
