@@ -1,4 +1,4 @@
-@startuml
+@startuml load-message
 
 participant caller
 participant LoadMessage as lm
