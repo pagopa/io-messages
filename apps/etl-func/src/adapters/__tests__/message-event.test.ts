@@ -41,10 +41,9 @@ const messageEventAdapter = new EventHubEventProducer(
 
 describe("publishMessageEvent", () => {
   beforeEach(() => {
-    tryAddMock.mockClear();
-    tryAddMock.mockImplementation(() => true);
-    sendBatchMock.mockClear();
-    sendBatchMock.mockImplementation(() => Promise.resolve());
+    tryAddMock.mockRestore();
+    errorLogMock.mockRestore();
+    sendBatchMock.mockRestore();
   });
   test("Given a valid message event it should resolve", async () => {
     await expect(
@@ -61,6 +60,7 @@ describe("publishMessageEvent", () => {
     ).rejects.toEqual(new Error("Error while adding event to the batch"));
     expect(tryAddMock).toHaveBeenCalledOnce();
     expect(tryAddMock).toHaveReturnedWith(false);
+    expect(errorLogMock).toHaveBeenCalledOnce();
     expect(sendBatchMock).not.toHaveBeenCalledOnce();
   });
 
@@ -71,6 +71,7 @@ describe("publishMessageEvent", () => {
     ).rejects.toEqual(undefined);
     expect(tryAddMock).toHaveBeenCalledOnce();
     expect(tryAddMock).toHaveReturnedWith(true);
+    expect(errorLogMock).toHaveBeenCalledOnce();
     expect(sendBatchMock).toHaveBeenCalledOnce();
   });
 });
