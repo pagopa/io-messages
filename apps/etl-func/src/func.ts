@@ -14,8 +14,9 @@ const main = async (config: Config) => {
   );
 
   const producerClient = new EventHubProducerClient(
-    config.messagesEventHub.connectionString,
+    config.messagesEventHub.connectionUri,
     config.messagesEventHub.eventHubName,
+    azureCredentials,
   );
 
   app.http("Health", {

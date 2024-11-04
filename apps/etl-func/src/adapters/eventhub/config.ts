@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const eventhubConfigSchema = z.object({
-  connectionString: z.string(),
+  connectionUri: z.string(),
   eventHubName: z.string().min(1),
 });
 

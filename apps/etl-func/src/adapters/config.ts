@@ -21,7 +21,7 @@ export const configFromEnvironment = envSchema
         containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
       },
       messagesEventHub: {
-        connectionString: env.MESSAGE_EVENTHUB_CONNECTION_STRING,
+        connectionUri: env.MESSAGE_EVENTHUB_CONNECTION_URI,
         eventHubName: env.MESSAGE_EVENTHUB_NAME,
       },
     }),
