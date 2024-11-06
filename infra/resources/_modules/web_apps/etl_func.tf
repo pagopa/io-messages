@@ -16,9 +16,7 @@ module "etl_func" {
 
   health_check_path = "/api/health"
 
-  app_settings = {
-    NODE_ENVIRONMENT = "production",
-  }
+  app_settings = local.app_settings
 
   sticky_app_setting_names = ["NODE_ENVIRONMENT"]
 
