@@ -73,3 +73,10 @@ variable "action_group_id" {
   type        = string
   description = "The ID of the action group"
 }
+
+variable "etl_app_settings" {
+  type = object({
+    message_content_storage_uri : string,
+    message_eventhub_connection_uri : string,
+  })
+}
