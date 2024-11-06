@@ -30,3 +30,22 @@ module "storage_api_replica" {
 
   tags = var.tags
 }
+
+module "azure_storage_account" {
+  source = "github.com/pagopa/dx//infra/modules/azure_storage_account?ref=main"
+
+  environment         = var.environment
+  resource_group_name = var.resource_group_name
+  access_tier         = "Hot"
+
+  subservices_enabled = {
+    blob  = true
+    file  = false
+    queue = false
+    table = true
+  }
+
+  force_public_network_access_enabled = false
+
+  tags = var.tags
+}
