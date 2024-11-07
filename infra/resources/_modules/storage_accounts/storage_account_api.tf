@@ -53,3 +53,48 @@ resource "azurerm_storage_table" "validationtokens" {
   name                 = "ValidationTokens"
   storage_account_name = module.storage_api.name
 }
+
+
+module "CES-484-migrate-iopstapi" {
+  source = "github.com/pagopa/dx//infra/modules/azure_storage_account?ref=main"
+
+  environment                          = var.environment
+  resource_group_name                  = var.resource_group_name
+  tier                                 = "l"
+  subnet_pep_id                        = data.azurerm_subnet.subnet_pep_itn.id
+  private_dns_zone_resource_group_name = "${local.prefix}-${local.env_short}-rg-common"
+  subservices_enabled = {
+    blob  = true
+    file  = true
+    queue = true
+    table = true
+  }
+
+
+  force_public_network_access_enabled = false
+
+  blob_features = {
+    immutability_policy = {
+      enabled                       = true
+      allow_protected_append_writes = true
+      period_since_creation_in_days = 730
+    }
+    delete_retention_days = 7
+    versioning            = true
+    last_access_time      = true
+    change_feed = {
+      enabled           = true
+      retention_in_days = 30
+    }
+  }
+
+  # network_rules = {
+  #   default_action             = "Allow"
+  #   bypass                     = ["AzureServices"]
+  #   ip_rules                   = ["10.0.130.0/24", "10.0.122.0/24", "10.0.121.0/24", "10.0.123.0/24", "10.0.111.0/24", "10.0.109.0/24", "10.0.108.0/24"]
+  #   virtual_network_subnet_ids = [azurerm_subnet.example.id]
+  # }
+
+  action_group_id = data.azurerm_monitor_action_group.example.id
+  tags            = var.tags
+}
