@@ -16,7 +16,12 @@ module "etl_func" {
 
   health_check_path = "/api/health"
 
-  app_settings = local.app_settings
+  app_settings = {
+    NODE_ENVIRONMENT                = "production",
+    FUNCTIONS_WORKER_RUNTIME        = "node",
+    MESSAGE_CONTENT_STORAGE_URI     = var.etl_app_settings.message_content_storage_uri
+    MESSAGE_EVENTHUB_CONNECTION_URI = var.etl_app_settings.message_eventhub_connection_uri,
+  }
 
   sticky_app_setting_names = ["NODE_ENVIRONMENT"]
 
