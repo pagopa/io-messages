@@ -95,6 +95,6 @@ module "CES-484-migrate-iopstapi" {
   #   virtual_network_subnet_ids = [azurerm_subnet.example.id]
   # }
 
-  action_group_id = data.azurerm_monitor_action_group.example.id
+  action_group_id = var.error_action_group_id
   tags            = var.tags
 }
