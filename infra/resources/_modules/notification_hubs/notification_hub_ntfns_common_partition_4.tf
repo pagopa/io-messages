@@ -57,16 +57,16 @@ resource "azurerm_monitor_metric_alert" "alert_nh_common_partition_4_pns_errors"
   scopes        = [azurerm_notification_hub.common_partition_4.id]
   description   = "Notification Hub Partition 4 incurred in PNS errors, please check. Runbook: not needed."
   severity      = 1
-  window_size   = "PT5M"
-  frequency     = "PT1M"
+  window_size   = "PT30M"
+  frequency     = "PT5M"
   auto_mitigate = false
 
-  criteria {
+  dynamic_criteria {
     metric_namespace       = "Microsoft.NotificationHubs/namespaces/notificationHubs"
     metric_name            = "outgoing.allpns.pnserror"
+    alert_sensitivity      = "Medium"
     aggregation            = "Total"
     operator               = "GreaterThan"
-    threshold              = 10
     skip_metric_validation = false
   }
 
