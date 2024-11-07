@@ -58,7 +58,7 @@ resource "azurerm_storage_table" "validationtokens" {
 module "CES-484-migrate-iopstapi" {
   source = "github.com/pagopa/dx//infra/modules/azure_storage_account?ref=main"
 
-  environment                          = var.environment
+  environment                          = local.itn_environment
   resource_group_name                  = var.resource_group_name
   tier                                 = "l"
   subnet_pep_id                        = data.azurerm_subnet.subnet_pep_itn.id
