@@ -20,6 +20,11 @@ export const messageMetadataSchema = z.object({
 });
 export type MessageMetadata = z.TypeOf<typeof messageMetadataSchema>;
 
+export const hasPreconditionSchema = z
+  .enum(["ALWAYS", "ONCE", "NEVER"])
+  .optional();
+export type HasPrecondition = z.TypeOf<typeof hasPreconditionSchema>;
+
 export const messageContentSchema = z.object({
   eu_covid_cert: z.object({ auth_code: z.string().optional() }).optional(),
   legal_data: z
@@ -69,7 +74,7 @@ export const messageContentSchema = z.object({
         .describe("ulid")
         .optional(),
       has_attachments: z.boolean().default(false),
-      has_precondition: z.enum(["ALWAYS", "ONCE", "NEVER"]).optional(),
+      has_precondition: hasPreconditionSchema,
       has_remote_content: z.boolean().default(false),
       id: z.string().min(1),
       original_receipt_date: z.any().optional(),
