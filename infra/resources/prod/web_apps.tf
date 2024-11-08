@@ -26,9 +26,9 @@ module "web_apps" {
     notif_func = "10.20.8.0/26"
   }
 
-  etl_app_settings = {
+  app_settings = {
     message_content_storage_uri : data.azurerm_storage_account.storage_api.primary_blob_endpoint,
-    message_eventhub_connection_uri : "https://${data.azurerm_eventhub_namespace.etl_eventhub_namespace.name}.servicebus.windows.net"
+    eventhub_connection_uri : "https://${data.azurerm_eventhub_namespace.etl_eventhub_namespace.name}.servicebus.windows.net"
   }
 
   /*gcm_migration_storage = {
