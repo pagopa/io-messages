@@ -16,16 +16,6 @@ cp local.settings.json.example ./.local.settings.json
 cp local.settings.json.example .local.settings.json
 ```
 
-### Settings
-
-| Setting                           | Type     | Required | Description                                       |
-| --------------------------------- | -------- | -------- | ------------------------------------------------- |
-| `FUNCTIONS_WORKER_RUNTIME`        | `string` | `true`   | Must be "node". No need to be changed             |
-| `MESSAGE_CONTENT_STORAGE_URI`     | `string` | `true`   | URI of the azure storage resource                 |
-| `MESSAGE_CONTENT_CONTAINER_NAME`  | `string` | `true`   | Name of the storage container                     |
-| `MESSAGE_EVENTHUB_CONNECTION_URI` | `string` | `true`   | Eventhub connection string from the azure portal. |
-| `MESSAGE_EVENTHUB_NAME`           | `string` | `true`   | Name of the Eventhub azure resource               |
-
 ### Start the project
 
 Install dependencies using the node version inside the .node-version file:
