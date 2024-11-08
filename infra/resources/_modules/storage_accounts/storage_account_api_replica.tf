@@ -47,6 +47,11 @@ module "azure_storage_account" {
     table = true
   }
 
+  blob_features = {
+    delete_retention_days = 0
+    versioning            = true
+  }
+
   force_public_network_access_enabled = false
 
   tags = var.tags
