@@ -1,5 +1,4 @@
 import { aSimpleMessageEvent } from "@/__mocks__/message-event.js";
-import { Logger } from "pino";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { messageSchema } from "../avro.js";
@@ -27,22 +26,14 @@ const sendBatchMock = vi.fn(() => Promise.resolve());
 
 const eventHubProducerClient = new mocks.EventHubProducerClient();
 
-const errorLogMock = vi.fn();
-
-const loggerMock = {
-  error: errorLogMock,
-} as unknown as Logger;
-
 const messageEventAdapter = new EventHubEventProducer(
   eventHubProducerClient,
   messageSchema,
-  loggerMock,
 );
 
 describe("publishMessageEvent", () => {
   beforeEach(() => {
     tryAddMock.mockRestore();
-    errorLogMock.mockRestore();
     sendBatchMock.mockRestore();
   });
   test("Given a valid message event it should resolve", async () => {
@@ -60,7 +51,6 @@ describe("publishMessageEvent", () => {
     ).rejects.toEqual(new Error("Error while adding event to the batch"));
     expect(tryAddMock).toHaveBeenCalledOnce();
     expect(tryAddMock).toHaveReturnedWith(false);
-    expect(errorLogMock).toHaveBeenCalledOnce();
     expect(sendBatchMock).not.toHaveBeenCalledOnce();
   });
 
@@ -71,7 +61,6 @@ describe("publishMessageEvent", () => {
     ).rejects.toEqual(undefined);
     expect(tryAddMock).toHaveBeenCalledOnce();
     expect(tryAddMock).toHaveReturnedWith(true);
-    expect(errorLogMock).toHaveBeenCalledOnce();
     expect(sendBatchMock).toHaveBeenCalledOnce();
   });
 });

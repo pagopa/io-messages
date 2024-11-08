@@ -7,21 +7,14 @@ import {
   EventHubProducerClient,
 } from "@azure/event-hubs";
 import * as assert from "node:assert/strict";
-import { Logger } from "pino";
 
 export class EventHubEventProducer<T> implements EventProducer<T> {
-  #logger: Logger;
   #producerClient: EventHubProducerClient;
   #schema: avro.Type;
 
-  constructor(
-    producerClient: EventHubProducerClient,
-    schema: avro.Type,
-    logger: Logger,
-  ) {
+  constructor(producerClient: EventHubProducerClient, schema: avro.Type) {
     this.#producerClient = producerClient;
     this.#schema = schema;
-    this.#logger = logger;
   }
 
   /**
@@ -39,15 +32,10 @@ export class EventHubEventProducer<T> implements EventProducer<T> {
   }
 
   async publish(message: T): Promise<void> {
-    try {
-      const bufferedData = this.#schema.toBuffer(message);
-      const dataBatch = await this.#createBatch({
-        body: bufferedData,
-      });
-      await this.#producerClient.sendBatch(dataBatch);
-    } catch (err) {
-      this.#logger.error("Error while sending the event");
-      throw err;
-    }
+    const bufferedData = this.#schema.toBuffer(message);
+    const dataBatch = await this.#createBatch({
+      body: bufferedData,
+    });
+    await this.#producerClient.sendBatch(dataBatch);
   }
 }
