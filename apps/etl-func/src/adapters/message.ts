@@ -41,6 +41,10 @@ export class MessageAdapter implements MessageRepository {
     }
   }
 
+  /**
+   * Transform a Message into a MessageEvent
+   **/
+
   getMessageEventFromMessage({
     content,
     metadata,
