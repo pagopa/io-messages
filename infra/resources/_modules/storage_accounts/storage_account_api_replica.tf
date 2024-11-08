@@ -48,8 +48,15 @@ module "azure_storage_account" {
   }
 
   blob_features = {
+    immutability_policy = {
+      enabled = false
+    }
     delete_retention_days = 0
     versioning            = true
+    last_access_time      = true
+    change_feed = {
+      enabled = false
+    }
   }
 
   force_public_network_access_enabled = false
