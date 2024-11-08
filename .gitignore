@@ -144,4 +144,3 @@ __azurite_*
 /.idea
 
 **/modules/**/.terraform.lock.hcl
-infra/resources/prod/.terraform.lock.hcl
