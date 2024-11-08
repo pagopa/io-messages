@@ -74,6 +74,9 @@ module "CES-484-migrate-iopstapi" {
   force_public_network_access_enabled = false
 
   blob_features = {
+    immutability_policy = {
+      enabled = false
+    }
     delete_retention_days = 7
     versioning            = true
     change_feed = {
