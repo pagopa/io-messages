@@ -54,7 +54,7 @@ describe("transformMessage", () => {
   test("Given a valid message, when the isPending property is defined, then it should return the schema without calling the logger", () => {
     expect(
       messageEventSchema.safeParse(
-        messageAdapter.transformMessage(aSimpleMessage),
+        messageAdapter.getMessageEventFromMessage(aSimpleMessage),
       ).success,
     ).toBe(true);
     expect(warnLogMock).not.toHaveBeenCalled();
@@ -63,7 +63,7 @@ describe("transformMessage", () => {
   test("Given a valid message, when the isPending property is not defined, then it should return the schema calling the logger", () => {
     expect(
       messageEventSchema.safeParse(
-        messageAdapter.transformMessage({
+        messageAdapter.getMessageEventFromMessage({
           ...aSimpleMessage,
           contentType: "GENERIC",
           metadata: { ...aSimpleMessage.metadata, isPending: undefined },

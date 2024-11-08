@@ -41,21 +41,7 @@ export class MessageAdapter implements MessageRepository {
     }
   }
 
-  #computeHasPrecondition(
-    hasPrecondition: HasPrecondition | undefined,
-  ): boolean {
-    if (!hasPrecondition) return false;
-    switch (hasPrecondition) {
-      case "ALWAYS":
-        return true;
-      case "ONCE":
-        return true;
-      case "NEVER":
-        return false;
-    }
-  }
-
-  transformMessage({
+  getMessageEventFromMessage({
     content,
     metadata,
     contentType,
@@ -67,9 +53,9 @@ export class MessageAdapter implements MessageRepository {
       content_type: contentType,
       feature_level_type: metadata.featureLevelType,
       has_attachments: content.third_party_data?.has_attachments ?? false,
-      has_precondition: this.#computeHasPrecondition(
-        content.third_party_data?.has_precondition,
-      ),
+      has_precondition:
+        content.third_party_data?.has_precondition === "ALWAYS" ||
+        content.third_party_data?.has_precondition === "ONCE",
       has_remote_content: content.third_party_data?.has_remote_content ?? false,
       id: id,
       is_pending: metadata.isPending ?? false,
