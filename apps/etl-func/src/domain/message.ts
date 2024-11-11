@@ -13,7 +13,7 @@ export const messageMetadataSchema = z.object({
   fiscalCode: z.string().min(1),
   id: z.string().ulid(),
   indexedId: z.string().ulid(),
-  isPending: z.boolean().optional(),
+  isPending: z.boolean(),
   senderServiceId: z.string().min(1),
   senderUserId: z.string().min(1),
   timeToLiveSeconds: z.number(),
