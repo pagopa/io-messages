@@ -1,20 +1,24 @@
 import { z } from "zod";
 
+import { MessageMetadata, messageMetadataSchema } from "../message.js";
+
 export interface TokenizerClient {
-  maskSensitiveInfo(pii: string): Promise<string>;
+  tokenize(pii: string): Promise<string>;
 }
 
-const messageWithoutPIISchema = z.object({
-  fiscalCode: z.string().uuid().min(1),
-});
+const messageMetadataWithoutPIISchema = messageMetadataSchema
+  .omit({ fiscalCode: true })
+  .extend({
+    recipientId: z.string().min(1),
+  });
 
-export type MessageWithoutPII = z.infer<typeof messageWithoutPIISchema>;
+export type MessageMetaDataWithoutPII = z.infer<
+  typeof messageMetadataWithoutPIISchema
+>;
 
-export const tokenize =
-  (message: { fiscalCode: string }) =>
-  async (client: TokenizerClient): Promise<MessageWithoutPII> => {
-    const tokenizedFiscalCode = await client.maskSensitiveInfo(
-      message.fiscalCode,
-    );
-    return { ...message, fiscalCode: tokenizedFiscalCode };
+export const maskSensitiveInfo =
+  (message: MessageMetadata) =>
+  async (client: TokenizerClient): Promise<MessageMetaDataWithoutPII> => {
+    const recipientId = await client.tokenize(message.fiscalCode);
+    return { ...message, recipientId };
   };

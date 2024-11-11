@@ -6,6 +6,6 @@
     "MESSAGE_CONTENT_STORAGE_URI": "",
     "MESSAGE_CONTENT_CONTAINER_NAME": ""
     "PDV_TOKENIZER_API_KEY": "apiKey",
-    "PDV_TOKENIZER_BASE_URL": "https://pdv_base_url.it"
+    "PDV_TOKENIZER_BASE_URL": "https://api.uat.tokenizer.pdv.pagopa.it"
   }
 }
