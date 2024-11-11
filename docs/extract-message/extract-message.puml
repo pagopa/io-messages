@@ -1,0 +1,37 @@
+@startuml
+
+participant caller
+participant ExtractMessage as em
+collections "message-content" as mc
+participant "ai-common" as ai
+
+caller -> em : Call extractMessage with metadata
+activate caller
+activate em
+
+em -> mc : Ask for message content
+activate mc
+
+alt Error from storage
+  mc -[#red]> em : Erorr
+  em -[#red]> caller : Throw an error
+else if Document not found
+  mc -[#red]> em : Empty response
+  em -> ai : Track the error event
+  em -> caller: The flow ends here
+else Document does not match the message content shape
+  mc -[#red]> em : Decode error
+  em -> ai : Track the error event
+  em -> caller: The flow ends here
+end
+
+mc -[#green]> em : Message content
+deactivate mc
+
+em -> em : Compute the category
+
+em -> caller : Return the message
+
+deactivate em
+deactivate caller
+@enduml

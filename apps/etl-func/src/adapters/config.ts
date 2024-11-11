@@ -1,13 +1,12 @@
-import { pino } from "pino";
-import { ZodError, z } from "zod";
+import { z } from "zod";
 
 import { envSchema } from "./env.js";
 
-const logger = pino({
-  level: "error",
-});
-
 export const configSchema = z.object({
+  messageContentStorage: z.object({
+    accountUri: z.string().url(),
+    containerName: z.string().min(1),
+  }),
   pdvTokenizer: z.object({
     apiKey: z.string().min(1),
     baseUrl: z.string().min(1),
@@ -19,6 +18,10 @@ export type Config = z.TypeOf<typeof configSchema>;
 const configFromEnvironment = envSchema
   .transform(
     (env): Config => ({
+      messageContentStorage: {
+        accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
+        containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
+      },
       pdvTokenizer: {
         apiKey: env.PDV_TOKENIZER_API_KEY,
         baseUrl: env.PDV_TOKENIZER_BASE_URL,
@@ -26,33 +29,3 @@ const configFromEnvironment = envSchema
     }),
   )
   .pipe(configSchema);
-
-// TODO(IOCOM-1786): move this function in "io-messages-common"
-export async function loadConfigFromEnvironment(
-  onSuccess: (config: Config) => Promise<void>,
-) {
-  try {
-    const config = configFromEnvironment.parse(process.env);
-    await onSuccess(config);
-  } catch (err) {
-    if (err instanceof ZodError) {
-      err.issues.forEach((issue) => {
-        logger.error({ issue }, "Error parsing environment variable");
-      });
-    } else if (err instanceof Error) {
-      logger.error(
-        {
-          err,
-        },
-        err.message,
-      );
-    } else {
-      logger.error(
-        {
-          err,
-        },
-        "Unable to start the application due to an unexpected error",
-      );
-    }
-  }
-}
