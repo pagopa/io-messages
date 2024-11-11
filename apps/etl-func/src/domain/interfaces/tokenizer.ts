@@ -12,13 +12,16 @@ const messageMetadataWithoutPIISchema = messageMetadataSchema
     recipientId: z.string().min(1),
   });
 
-export type MessageMetaDataWithoutPII = z.infer<
+export type MessageMetadataWithoutPII = z.infer<
   typeof messageMetadataWithoutPIISchema
 >;
 
 export const maskSensitiveInfo =
   (message: MessageMetadata) =>
-  async (client: TokenizerClient): Promise<MessageMetaDataWithoutPII> => {
+  async (client: TokenizerClient): Promise<MessageMetadataWithoutPII> => {
     const recipientId = await client.tokenize(message.fiscalCode);
-    return { ...message, recipientId };
+    return messageMetadataWithoutPIISchema.parse({
+      ...message,
+      recipientId,
+    });
   };
