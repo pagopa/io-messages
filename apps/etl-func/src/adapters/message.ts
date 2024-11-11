@@ -1,5 +1,4 @@
 import {
-  HasPrecondition,
   Message,
   MessageContent,
   MessageEvent,
@@ -16,9 +15,9 @@ import { MessageContentError } from "./blob-storage/message-content.js";
 
 export const getMessageEventFromMessage = ({
   content,
-  metadata,
   contentType,
   id,
+  metadata,
 }: Message): MessageEvent => ({
   content_type: contentType,
   feature_level_type: metadata.featureLevelType,
