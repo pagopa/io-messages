@@ -15,7 +15,7 @@ export const configSchema = z.object({
 
 export type Config = z.TypeOf<typeof configSchema>;
 
-const configFromEnvironment = envSchema
+export const configFromEnvironment = envSchema
   .transform(
     (env): Config => ({
       messageContentStorage: {
