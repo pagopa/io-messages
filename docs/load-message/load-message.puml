@@ -1,0 +1,47 @@
+@startuml load-message
+
+participant caller
+participant LoadMessage as lm
+collections "message-evh" as evh
+participant "ai-common" as ai
+
+caller -> lm : Call loadMessage passing an eventMessage
+activate caller
+activate lm
+
+' lm -> lm : read avro schema
+' alt Error reading avro schema
+'   lm -> ai : Track the error event
+'   lm -[#red]> caller : Throw an error
+' end
+
+lm -> lm : eventMessage to buffer using avro schema
+break Error creating buffer
+  lm -> ai : Track the error event
+  lm -[#red]> caller : Throw an error
+end
+
+note left of lm
+  At this point the function:
+  - knows that eventMessage agrees
+  to avro schema type
+  - creates the buffer data to send
+  into message-evh
+end note
+
+lm -> evh : send buffered message
+break Error sending message
+  lm -> ai : Track the error event
+  lm -[#red]> caller : Throw an error
+end
+
+note left of lm
+  At this point the function:
+  - knows the eventMessage
+  has been sent to message-evh
+end note
+
+lm -> caller : Return
+deactivate lm
+deactivate caller
+@enduml
