@@ -14,8 +14,8 @@ info:
 servers:
   production:
     type: kafka
-    host: todo.
-    topic: todo.
+    host: https://io-p-itn-com-etl-evhns-01.servicebus.windows.net.
+    topic: io-p-itn-com-etl-messages-evh-01.
     format: avro
 
 ### terms
@@ -154,39 +154,29 @@ models:
 servicelevels:
   availability:
     description: Il server è disponibile h24
-    percentage: todo.
+    percentage: 99%
   retention:
-    description: I dati vengono mantenuti per <definire il teriod> nel topic.
-    period: todo.
+    description: I dati vengono mantenuti per 7 giorni nel topic.
+    period: P7D.
     unlimited: false
   latency:
-    description: I dati vengono inviati "live". <Inserire info per eventuale rallentamento>
-    threshold: todo.
-    sourceTimestampField: todo.
-    processedTimestampField: todo.
+    description: I dati vengono inviati "live".
+    threshold: <= 5s.
   freshness:
     description: I dati vengono inviati "live".
-    threshold: 25h
-    timestampField: todo.
+    threshold: 24h
   frequency:
     description: I dati vengono inviati "live", non appena avviene l'evento di creazione del messaggio.
     type: streaming
   support:
-    description: todo.
+    description: Contattare il team alla mail io-comunicazione@pagopa.it.
     time: 9:00-17:00
-    responseTime: 4h
+    responseTime: 24h
   backup:
     description: Nessun backup previsto
   growth:
-    rate: < 10 record/day
+    rate: todo.
     size: todo.
-
-### quality
-quality: #TODO
-  type: SodaCL
-  specification:
-    checks for message: |-
-      - row_count > 0
 
 shcema:
   type: avro
