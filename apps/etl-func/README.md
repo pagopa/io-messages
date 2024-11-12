@@ -16,14 +16,24 @@ cp local.settings.json.example ./.local.settings.json
 cp local.settings.json.example .local.settings.json
 ```
 
-Override with your test env variables.
-
 ### Start the project
 
-Build the code with `tsc`:
+Install dependencies using the node version inside the .node-version file:
+
+```bash
+yarn install
+```
+
+Build the code:
 
 ```bash
 yarn build
+```
+
+Azure authentication. Its needed for the usage of remote azure resources:
+
+```bash
+az login
 ```
 
 Start the function with azure function core tools.
