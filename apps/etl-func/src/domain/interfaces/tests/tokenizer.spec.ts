@@ -10,7 +10,7 @@ const tokenizerClient: TokenizerClient = {
 };
 
 describe("tokenizeMessage", () => {
-  it("should return a message with the fiscal code tokenized if the tokenizer client api is successful", async () => {
+  it("should return a tokenized fiscal code if the tokenizer client api is successful", async () => {
     const run = await maskSensitiveInfo(aFiscalCode)(tokenizerClient);
     expect(run).toEqual(aTokenizedFiscalCode);
   });
