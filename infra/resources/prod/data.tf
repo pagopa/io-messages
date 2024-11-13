@@ -102,6 +102,11 @@ data "azurerm_storage_account" "storage_api" {
   resource_group_name = format("%s-rg-internal", local.project_legacy)
 }
 
+data "azurerm_eventhub_namespace" "etl_eventhub_namespace" {
+  name                = "${local.project}-${local.domain}-etl-evhns-01"
+  resource_group_name = "${local.project}-common-rg-01"
+}
+
 data "azurerm_storage_account" "storage_push_notifications" {
   name                = replace(format("%s-weu-messages-notifst", local.project_legacy), "-", "")
   resource_group_name = data.azurerm_resource_group.notifications_rg.name
