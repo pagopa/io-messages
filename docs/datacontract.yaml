@@ -20,9 +20,13 @@ servers:
 
 ### terms
 terms:
-  usage: L'evento corrisponde alla creazione di un messaggio su IO.
-  limitations: todo.
-  noticePeriod: todo.
+  usage: >
+    L'evento corrisponde alla creazione di un messaggio su IO,
+    il campo is_pending è mutabile e determina se il messaggio è stato già processato o meno.
+  limitations: >
+    Il campo is_pending nei sistemi di IO viene aggiornato una volta che il messaggio è stato processato.
+    Non verrà effettuato alcun reinvio una volta che verrà aggiornato.
+  noticePeriod: P1M.
 
 ### models
 models:
