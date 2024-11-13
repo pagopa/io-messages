@@ -2,6 +2,10 @@
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "node"
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "MESSAGE_CONTENT_STORAGE_URI": "https://testgiovannist.blob.core.windows.net/",
+    "MESSAGE_CONTENT_CONTAINER_NAME": "messages",
+    "EVENTHUB_CONNECTION_URI": "io-d-evh-cdc.servicebus.windows.net",
+    "MESSAGE_EVENTHUB_NAME": "message-events-test"
   }
 }
