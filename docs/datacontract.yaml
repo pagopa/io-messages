@@ -178,6 +178,29 @@ servicelevels:
     rate: todo.
     size: todo.
 
+### quality
+quality: #TODO
+  type: SodaCL
+  specification:
+    checks for message: |-
+      - row_count > 0
+      - missing_count(id) = 0
+      - missing_count(sender_service_id) = 0
+      - missing_count(sender_user_id) = 0
+      - missing_count(is_pending) = 0
+      - missing_count(subject) = 0
+      - missing_count(payment_data_amount) = 0
+      - missing_count(payment_data_notice_number) = 0
+      - missing_count(payment_data_invalid_after_due_date) = 0
+      - missing_count(payment_data_payee_fiscal_code) = 0
+      - missing_count(require_secure_channels) = 0
+      - missing_count(timestamp) = 0
+      - missing_count(feature_level_type) = 0
+      - missing_count(recipient_id) = 0
+      - missing_count(has_remote_content) = 0
+      - missing_count(has_precondition) = 0
+      - missing_count(has_attachments) = 0
+
 shcema:
   type: avro
   specification:
