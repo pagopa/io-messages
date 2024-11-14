@@ -1,3 +1,4 @@
+import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
 import {
   Message,
   MessageContent,
@@ -9,7 +10,6 @@ import {
 import { Logger } from "pino";
 
 import { MessageContentError } from "./blob-storage/message-content.js";
-import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
 
 /**
  * Transform a Message into a MessageEvent
