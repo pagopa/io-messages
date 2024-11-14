@@ -9,18 +9,18 @@ import {
 import { Logger } from "pino";
 
 import { MessageContentError } from "./blob-storage/message-content.js";
+import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
 
 /**
  * Transform a Message into a MessageEvent
  **/
 
-export const getMessageEventFromMessage = ({
-  content,
-  contentType,
-  id,
-  metadata,
-}: Message): MessageEvent =>
-  messageEventSchema.parse({
+export const getMessageEventFromMessage = async (
+  { content, contentType, id, metadata }: Message,
+  tokenizerClient: TokenizerClient,
+): Promise<MessageEvent> => {
+  const recipient_id = await tokenizerClient.tokenize(metadata.fiscalCode);
+  return messageEventSchema.parse({
     content_type: contentType,
     feature_level_type: metadata.featureLevelType,
     has_attachments: content.third_party_data?.has_attachments,
@@ -37,6 +37,7 @@ export const getMessageEventFromMessage = ({
     payment_data_notice_number: content.payment_data?.notice_number ?? null,
     payment_data_payee_fiscal_code:
       content.payment_data?.payee?.fiscal_code ?? null,
+    recipient_id,
     require_secure_channels: content.require_secure_channels,
     schema_version: 1,
     sender_service_id: metadata.senderServiceId,
@@ -44,6 +45,7 @@ export const getMessageEventFromMessage = ({
     subject: content.subject,
     timestamp: new Date(metadata.createdAt).getTime(),
   });
+};
 
 export interface MessageContentProvider {
   getByMessageId(messageId: string): Promise<MessageContent>;

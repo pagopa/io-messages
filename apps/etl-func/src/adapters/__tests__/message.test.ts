@@ -13,6 +13,7 @@ import {
   MessageContentProvider,
   getMessageEventFromMessage,
 } from "../message.js";
+import PDVTokenizerClient from "../pdv-tokenizer/pdv-tokenizer-client.js";
 
 const errorLogMock = vi.fn();
 const warnLogMock = vi.fn();
@@ -29,6 +30,11 @@ const messageContentMock: MessageContentProvider = {
 };
 
 const messageAdapter = new MessageAdapter(messageContentMock, loggerMock);
+
+const tokenizeMock = vi.fn();
+const tokenizerClientMock = {
+  tokenize: tokenizeMock,
+} as unknown as PDVTokenizerClient;
 
 describe("getMessageByMetadata", () => {
   test("Given a message metadata, when the BlobMessageContent return a MessageContent, then it should return a Message", async () => {
@@ -55,11 +61,21 @@ describe("getMessageByMetadata", () => {
 });
 
 describe("getMessageEventFromMessage", () => {
-  test("Given a valid message, when the isPending property is defined, then it should return the message event", () => {
+  test("Given a valid message, when tokenize works, then it should return the message event", async () => {
+    tokenizeMock.mockReturnValueOnce("3f5a5e37-63a0-423c-a108-94b535e03f91");
     expect(
-      messageEventSchema.safeParse(getMessageEventFromMessage(aSimpleMessage))
-        .success,
+      messageEventSchema.safeParse(
+        await getMessageEventFromMessage(aSimpleMessage, tokenizerClientMock),
+      ).success,
     ).toBe(true);
-    expect(warnLogMock).not.toHaveBeenCalled();
+  });
+
+  test("Given a valid message, when the tokenize does not works, then it should throw an error", async () => {
+    tokenizeMock.mockImplementationOnce(() => {
+      throw new Error("Error calling the tokenize");
+    });
+    await expect(
+      getMessageEventFromMessage(aSimpleMessage, tokenizerClientMock),
+    ).rejects.toThrowError("Error calling the tokenize");
   });
 });
