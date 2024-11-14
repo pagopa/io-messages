@@ -17,7 +17,13 @@ module "etl_func" {
   health_check_path = "/api/health"
 
   app_settings = {
-    NODE_ENVIRONMENT = "production",
+    NODE_ENV                       = "production",
+    FUNCTIONS_WORKER_RUNTIME       = "node",
+    MESSAGE_CONTENT_STORAGE_URI    = var.app_settings.message_content_storage_uri
+    EVENTHUB_CONNECTION_URI        = var.app_settings.eventhub_connection_uri,
+    MESSAGE_CONTENT_CONTAINER_NAME = "message-content",
+    MESSAGE_EVENTHUB_NAME          = "io-p-itn-com-etl-messages-evh-01"
+    PDV_TOKENIZER_API_KEY = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=func-elt-PDV-TOKENIZER-API-KEY)"
   }
 
   sticky_app_setting_names = ["NODE_ENVIRONMENT"]
@@ -30,6 +36,12 @@ module "etl_func" {
   tags = var.tags
 
   action_group_id = var.action_group_id
+}
+
+resource "azurerm_role_assignment" "key_vault_etl_func_secrets_user" {
+  scope                = var.common_key_vault.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.etl_func.function_app.function_app.principal_id
 }
 
 output "etl_func" {
