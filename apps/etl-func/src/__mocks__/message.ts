@@ -1,4 +1,5 @@
 import {
+  Message,
   messageContentSchema,
   messageMetadataSchema,
 } from "@/domain/message.js";
@@ -38,3 +39,10 @@ export const aSimpleMessageContent = messageContentSchema.parse({
   },
   subject: "A valid subject, this is used as title",
 });
+
+export const aSimpleMessage: Message = {
+  content: aSimpleMessageContent,
+  contentType: "GENERIC",
+  id: aSimpleMessageMetadata.id,
+  metadata: aSimpleMessageMetadata,
+};
