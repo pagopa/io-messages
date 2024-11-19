@@ -9,9 +9,9 @@ const rejectedMessageStatusSchema = z.object({
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
   messageId: z.string().min(1),
-  updatedAt: z.number(),
   rejection_reason: rejectionReasonSchema,
   status: z.literal("REJECTED"),
+  updatedAt: z.number(),
 });
 
 const notRejectedMessageStatusValueEnum = z.enum([
@@ -26,8 +26,8 @@ const notRejectedMessageStatusSchema = z.object({
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
   messageId: z.string().min(1),
-  updatedAt: z.number(),
   status: notRejectedMessageStatusValueEnum,
+  updatedAt: z.number(),
 });
 
 export const messageStatusSchema = z.discriminatedUnion("status", [

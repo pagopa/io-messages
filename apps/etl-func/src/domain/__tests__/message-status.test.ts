@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+
 import { messageStatusSchema } from "../message-status.js";
 
 describe("createMessageStatusEntity", () => {
