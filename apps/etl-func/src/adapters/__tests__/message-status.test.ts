@@ -1,4 +1,5 @@
-import { describe, test, expect } from "vitest";
+import { describe, expect, test } from "vitest";
+
 import { createMessageStatusEntity } from "../message-status.js";
 
 describe("createMessageStatusEntity", () => {
@@ -6,15 +7,15 @@ describe("createMessageStatusEntity", () => {
     expect(
       createMessageStatusEntity({
         messageId: "aValidMessageId",
-        updatedAt: 12345,
         status: "PROCESSED",
+        updatedAt: 12345,
       }),
     ).toMatchObject({
-      messageId: "aValidMessageId",
-      updatedAt: 12345,
-      isRead: false,
       isArchived: false,
+      isRead: false,
+      messageId: "aValidMessageId",
       status: "PROCESSED",
+      updatedAt: 12345,
     });
   });
 
@@ -22,16 +23,16 @@ describe("createMessageStatusEntity", () => {
     expect(
       createMessageStatusEntity({
         messageId: "aValidMessageId",
-        updatedAt: 12345,
         status: "REJECTED",
+        updatedAt: 12345,
       }),
     ).toMatchObject({
-      messageId: "aValidMessageId",
-      updatedAt: 12345,
-      isRead: false,
       isArchived: false,
-      status: "REJECTED",
+      isRead: false,
+      messageId: "aValidMessageId",
       rejection_reason: "UNKNOWN",
+      status: "REJECTED",
+      updatedAt: 12345,
     });
   });
 });

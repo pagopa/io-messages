@@ -1,12 +1,11 @@
-import { throws } from "assert";
 import * as z from "zod";
 
 const commonMessageStatusSchema = z.object({
+  fiscalCode: z.string().min(1).optional(),
+  isArchived: z.boolean().default(false),
+  isRead: z.boolean().default(false),
   messageId: z.string().min(1),
   updatedAt: z.number(),
-  isRead: z.boolean().default(false),
-  isArchived: z.boolean().default(false),
-  fiscalCode: z.string().min(1).optional(),
 });
 
 const rejectionReasonSchema = z
@@ -16,8 +15,8 @@ const rejectionReasonSchema = z
 const rejectedMessageStatusSchema = z.intersection(
   commonMessageStatusSchema,
   z.object({
-    status: z.literal("REJECTED"),
     rejection_reason: rejectionReasonSchema,
+    status: z.literal("REJECTED"),
   }),
 );
 
