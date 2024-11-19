@@ -8,6 +8,11 @@ export const configSchema = z.object({
     accountUri: z.string().url(),
     containerName: z.string().min(1),
   }),
+  messageCosmosDB: z.object({
+    accountUri: z.string(),
+    containerName: z.string().min(1),
+    databaseName: z.string(),
+  }),
   messagesEventHub: eventhubConfigSchema,
   pdvTokenizer: z.object({
     apiKey: z.string().min(1),
@@ -23,6 +28,11 @@ export const configFromEnvironment = envSchema
       messageContentStorage: {
         accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
         containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
+      },
+      messageCosmosDB: {
+        accountUri: env.MESSAGE_COSMOSDB_URI,
+        containerName: env.MESSAGE_COSMOSDB_COLLECTION_NAME,
+        databaseName: env.MESSAGE_COSMOSDB_DATABASE_NAME,
       },
       messagesEventHub: {
         connectionUri: env.EVENTHUB_CONNECTION_URI,

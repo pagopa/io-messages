@@ -44,7 +44,7 @@ export default class PDVTokenizerClient implements TokenizerClient {
 
       assert.strictEqual(
         response.ok,
-        false,
+        true,
         new Error(
           `Error in tokenizer api call with status ${response.status}`,
           {
