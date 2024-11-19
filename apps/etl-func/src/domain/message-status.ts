@@ -1,24 +1,18 @@
 import * as z from "zod";
 
-const commonMessageStatusSchema = z.object({
+const rejectionReasonSchema = z
+  .enum(["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"])
+  .default("UNKNOWN");
+
+const rejectedMessageStatusSchema = z.object({
   fiscalCode: z.string().min(1).optional(),
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
   messageId: z.string().min(1),
   updatedAt: z.number(),
+  rejection_reason: rejectionReasonSchema,
+  status: z.literal("REJECTED"),
 });
-
-const rejectionReasonSchema = z
-  .enum(["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"])
-  .default("UNKNOWN");
-
-const rejectedMessageStatusSchema = z.intersection(
-  commonMessageStatusSchema,
-  z.object({
-    rejection_reason: rejectionReasonSchema,
-    status: z.literal("REJECTED"),
-  }),
-);
 
 const notRejectedMessageStatusValueEnum = z.enum([
   "ACCEPTED",
@@ -27,15 +21,17 @@ const notRejectedMessageStatusValueEnum = z.enum([
   "PROCESSED",
 ]);
 
-const notRejectedMessageStatusSchema = z.intersection(
-  commonMessageStatusSchema,
-  z.object({
-    status: notRejectedMessageStatusValueEnum,
-  }),
-);
+const notRejectedMessageStatusSchema = z.object({
+  fiscalCode: z.string().min(1).optional(),
+  isArchived: z.boolean().default(false),
+  isRead: z.boolean().default(false),
+  messageId: z.string().min(1),
+  updatedAt: z.number(),
+  status: notRejectedMessageStatusValueEnum,
+});
 
-export const messageStatusSchema = z.union([
-  rejectedMessageStatusSchema,
+export const messageStatusSchema = z.discriminatedUnion("status", [
   notRejectedMessageStatusSchema,
+  rejectedMessageStatusSchema,
 ]);
-export type Status = z.TypeOf<typeof messageStatusSchema>;
+export type MessageStatus = z.TypeOf<typeof messageStatusSchema>;
