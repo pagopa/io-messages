@@ -6,11 +6,13 @@ describe("createMessageStatusEntity", () => {
   test("Given an input, when it is a valid not rejected status, then it should return a valid Status", () => {
     expect(
       messageStatusSchema.parse({
+        fiscalCode: "AAABBB00A00A000A",
         messageId: "aValidMessageId",
         status: "PROCESSED",
         updatedAt: 12345,
       }),
     ).toMatchObject({
+      fiscalCode: "AAABBB00A00A000A",
       isArchived: false,
       isRead: false,
       messageId: "aValidMessageId",
@@ -22,11 +24,13 @@ describe("createMessageStatusEntity", () => {
   test("Given an input, when it is a valid rejected status, then it should return a valid Status", () => {
     expect(
       messageStatusSchema.parse({
+        fiscalCode: "AAABBB00A00A000A",
         messageId: "aValidMessageId",
         status: "REJECTED",
         updatedAt: 12345,
       }),
     ).toMatchObject({
+      fiscalCode: "AAABBB00A00A000A",
       isArchived: false,
       isRead: false,
       messageId: "aValidMessageId",

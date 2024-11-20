@@ -24,7 +24,7 @@ const statusEnum = z.enum([
 ]);
 
 const rejectedMessageStatusSchema = z.object({
-  fiscalCode: z.string().min(1).optional(),
+  fiscalCode: z.string().min(1),
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
   messageId: z.string().min(1),
