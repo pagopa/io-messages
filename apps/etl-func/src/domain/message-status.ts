@@ -15,29 +15,30 @@ const rejectionReasonSchema = z
   .enum(["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"])
   .default("UNKNOWN");
 
-const rejectedMessageStatusSchema = z.object({
-  fiscalCode: fiscalCodeSchema.optional(),
-  isArchived: z.boolean().default(false),
-  isRead: z.boolean().default(false),
-  messageId: z.string().min(1),
-  rejection_reason: rejectionReasonSchema,
-  status: z.literal("REJECTED"),
-  updatedAt: z.number(),
-});
-
-const notRejectedMessageStatusValueEnum = z.enum([
+const statusEnum = z.enum([
   "ACCEPTED",
   "THROTTLED",
   "FAILED",
   "PROCESSED",
+  "REJECTED",
 ]);
 
-const notRejectedMessageStatusSchema = z.object({
-  fiscalCode: fiscalCodeSchema.optional(),
+const rejectedMessageStatusSchema = z.object({
+  fiscalCode: z.string().min(1).optional(),
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
   messageId: z.string().min(1),
-  status: notRejectedMessageStatusValueEnum,
+  rejection_reason: rejectionReasonSchema,
+  status: statusEnum.extract(["REJECTED"]),
+  updatedAt: z.number(),
+});
+
+const notRejectedMessageStatusSchema = z.object({
+  fiscalCode: z.string().min(1).optional(),
+  isArchived: z.boolean().default(false),
+  isRead: z.boolean().default(false),
+  messageId: z.string().min(1),
+  status: statusEnum.exclude(["REJECTED"]),
   updatedAt: z.number(),
 });
 
