@@ -7,7 +7,7 @@ describe("createMessageStatusEntity", () => {
     expect(
       messageStatusSchema.parse({
         fiscalCode: "AAABBB00A00A000A",
-        messageId: "aValidMessageId",
+        messageId: "01JD4YVX03H45HPGAB3E0Y2658",
         status: "PROCESSED",
         updatedAt: 12345,
       }),
@@ -15,7 +15,7 @@ describe("createMessageStatusEntity", () => {
       fiscalCode: "AAABBB00A00A000A",
       isArchived: false,
       isRead: false,
-      messageId: "aValidMessageId",
+      messageId: "01JD4YVX03H45HPGAB3E0Y2658",
       status: "PROCESSED",
       updatedAt: 12345,
     });
@@ -25,7 +25,7 @@ describe("createMessageStatusEntity", () => {
     expect(
       messageStatusSchema.parse({
         fiscalCode: "AAABBB00A00A000A",
-        messageId: "aValidMessageId",
+        messageId: "01JD4YVX03H45HPGAB3E0Y2658",
         status: "REJECTED",
         updatedAt: 12345,
       }),
@@ -33,7 +33,7 @@ describe("createMessageStatusEntity", () => {
       fiscalCode: "AAABBB00A00A000A",
       isArchived: false,
       isRead: false,
-      messageId: "aValidMessageId",
+      messageId: "01JD4YVX03H45HPGAB3E0Y2658",
       rejection_reason: "UNKNOWN",
       status: "REJECTED",
       updatedAt: 12345,

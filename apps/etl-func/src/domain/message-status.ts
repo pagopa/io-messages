@@ -27,7 +27,7 @@ const rejectedMessageStatusSchema = z.object({
   fiscalCode: fiscalCodeSchema,
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
-  messageId: z.string().min(1),
+  messageId: z.string().ulid(),
   rejection_reason: rejectionReasonSchema,
   status: statusEnum.extract(["REJECTED"]),
   updatedAt: z.number(),
@@ -37,7 +37,7 @@ const notRejectedMessageStatusSchema = z.object({
   fiscalCode: fiscalCodeSchema,
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
-  messageId: z.string().min(1),
+  messageId: z.string().ulid(),
   status: statusEnum.exclude(["REJECTED"]),
   updatedAt: z.number(),
 });
