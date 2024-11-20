@@ -79,7 +79,7 @@ variable "eventhub_namespace" {
   })
 }
 
-variable "message_content_container" {
+variable "messages_content_container" {
   type = object({
     id   = string
     name = string

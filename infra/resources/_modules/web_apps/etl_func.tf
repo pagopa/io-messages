@@ -56,11 +56,11 @@ resource "azurerm_role_assignment" "eventhub_namespace_write" {
   principal_id         = module.etl_func.function_app.function_app.principal_id
 }
 
-resource "azurerm_role_assignment" "message_content_container_read" {
-  scope                = var.message_content_container.id
-  role_definition_name = "Storage Blob Data Reader"
-  principal_id         = module.etl_func.function_app.function_app.principal_id
-}
+# resource "azurerm_role_assignment" "message_content_container_read" {
+#   scope                = var.message_content_container.id
+#   role_definition_name = "Storage Blob Data Reader"
+#   principal_id         = module.etl_func.function_app.function_app.principal_id
+# }
 
 
 output "etl_func" {
