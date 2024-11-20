@@ -16,7 +16,7 @@ const rejectionReasonSchema = z
   .default("UNKNOWN");
 
 const rejectedMessageStatusSchema = z.object({
-  fiscalCode: fiscalCodeSchema,
+  fiscalCode: fiscalCodeSchema.optional(),
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
   messageId: z.string().min(1),
@@ -33,7 +33,7 @@ const notRejectedMessageStatusValueEnum = z.enum([
 ]);
 
 const notRejectedMessageStatusSchema = z.object({
-  fiscalCode: fiscalCodeSchema,
+  fiscalCode: fiscalCodeSchema.optional(),
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
   messageId: z.string().min(1),
