@@ -44,6 +44,24 @@ resource "azurerm_role_assignment" "key_vault_etl_func_secrets_user" {
   principal_id         = module.etl_func.function_app.function_app.principal_id
 }
 
+resource "azurerm_role_assignment" "cosmos_api_read" {
+  scope                = var.cosmos_api.id
+  role_definition_name = "Cosmos DB Account Reader Role"
+  principal_id         = module.etl_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_role_assignment" "eventhub_namespace_write" {
+  scope                = var.eventhub_namespace.id
+  role_definition_name = "Azure Event Hubs Data Sender"
+  principal_id         = module.etl_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_role_assignment" "message_content_container_read" {
+  scope                = var.message_content_container.id
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = module.etl_func.function_app.function_app.principal_id
+}
+
 
 output "etl_func" {
   value = {
