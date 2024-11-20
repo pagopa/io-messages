@@ -23,7 +23,7 @@ module "etl_func" {
     EVENTHUB_CONNECTION_URI        = var.app_settings.eventhub_connection_uri,
     MESSAGE_CONTENT_CONTAINER_NAME = "message-content",
     MESSAGE_EVENTHUB_NAME          = "io-p-itn-com-etl-messages-evh-01"
-    PDV_TOKENIZER_API_KEY = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=func-elt-PDV-TOKENIZER-API-KEY)"
+    PDV_TOKENIZER_API_KEY          = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=func-elt-PDV-TOKENIZER-API-KEY)"
   }
 
   sticky_app_setting_names = ["NODE_ENVIRONMENT"]
@@ -43,6 +43,7 @@ resource "azurerm_role_assignment" "key_vault_etl_func_secrets_user" {
   role_definition_name = "Key Vault Secrets User"
   principal_id         = module.etl_func.function_app.function_app.principal_id
 }
+
 
 output "etl_func" {
   value = {

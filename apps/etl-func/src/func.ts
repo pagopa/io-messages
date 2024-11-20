@@ -70,19 +70,17 @@ const main = async (config: Config) => {
       const message =
         await messageAdapter.getMessageByMetadata(messageMetadata);
 
-      if (message === undefined) {
-        logger.info(`${messageMetadata.id} returned an undefined message`);
-        return;
+      if (message !== undefined) {
+        const messageEvent = await getMessageEventFromMessage(
+          message,
+          PDVTokenizer,
+        );
+
+        await producer.publish(messageEvent);
+
+        logger.debug(`${messageMetadata.id} successfully sent to eventhub`);
       }
-
-      const messageEvent = await getMessageEventFromMessage(
-        message,
-        PDVTokenizer,
-      );
-
-      await producer.publish(messageEvent);
-
-      logger.debug(`${messageMetadata.id} successfully sent to eventhub`);
+      logger.info(`${messageMetadata.id} returned an undefined message`);
     }
     return;
   };
