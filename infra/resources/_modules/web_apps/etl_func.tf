@@ -51,7 +51,7 @@ resource "azurerm_role_assignment" "eventhub_namespace_write" {
 }
 
 resource "azurerm_role_assignment" "message_content_container_read" {
-  scope                = "${var.messages_storage_account.name}/blobServices/default/containers/${var.messages_content_container.name}"
+  scope                = "${var.messages_storage_account.id}/blobServices/default/containers/${var.messages_content_container.name}"
   role_definition_name = "Storage Blob Data Reader"
   principal_id         = module.etl_func.function_app.function_app.principal_id
 }
