@@ -5,8 +5,10 @@
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "MESSAGE_CONTENT_STORAGE_URI": "https://testgiovannist.blob.core.windows.net/",
     "MESSAGE_CONTENT_CONTAINER_NAME": "messages",
-    "EVENTHUB_CONNECTION_URI": "io-d-evh-cdc.servicebus.windows.net",
+    "MESSAGE_EVENTHUB_CONNECTION_URI": "io-d-evh-cdc.servicebus.windows.net",
     "MESSAGE_EVENTHUB_NAME": "message-events-test"
+    "MESSAGE_STATUS_EVENTHUB_CONNECTION_URI": "io-d-evh-cdc.servicebus.windows.net",
+    "MESSAGE_STATUS_EVENTHUB_NAME": "message-status-events-test"
     "PDV_TOKENIZER_API_KEY": "apiKey",
     "PDV_TOKENIZER_BASE_URL": "https://api.uat.tokenizer.pdv.pagopa.it"
   }

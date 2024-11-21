@@ -13,7 +13,13 @@ const main = async (config: Config) => {
     azureCredentials,
   );
 
-  const producerClient = new EventHubProducerClient(
+  const messageProducerClient = new EventHubProducerClient(
+    config.messagesEventHub.connectionUri,
+    config.messagesEventHub.eventHubName,
+    azureCredentials,
+  );
+
+  const messageStatusProducerClient = new EventHubProducerClient(
     config.messagesEventHub.connectionUri,
     config.messagesEventHub.eventHubName,
     azureCredentials,
@@ -25,7 +31,8 @@ const main = async (config: Config) => {
       // check for storage availability or throw
       await blobServiceCLient.getProperties();
       //there's no function to get the producerClient connection status but we check the properties
-      await producerClient.getEventHubProperties();
+      await messageProducerClient.getEventHubProperties();
+      await messageStatusProducerClient.getEventHubProperties();
 
       return {
         body: "it works!",

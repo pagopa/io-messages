@@ -9,6 +9,7 @@ export const configSchema = z.object({
     containerName: z.string().min(1),
   }),
   messagesEventHub: eventhubConfigSchema,
+  messageStatusEventHub: eventhubConfigSchema,
   pdvTokenizer: z.object({
     apiKey: z.string().min(1),
     baseUrl: z.string().url(),
@@ -25,8 +26,12 @@ export const configFromEnvironment = envSchema
         containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
       },
       messagesEventHub: {
-        connectionUri: env.EVENTHUB_CONNECTION_URI,
+        connectionUri: env.MESSAGE_EVENTHUB_CONNECTION_URI,
         eventHubName: env.MESSAGE_EVENTHUB_NAME,
+      },
+      messageStatusEventHub: {
+        connectionUri: env.MESSAGE_STATUS_EVENTHUB_CONNECTION_URI,
+        eventHubName: env.MESSAGE_STATUS_EVENTHUB_NAME,
       },
       pdvTokenizer: {
         apiKey: env.PDV_TOKENIZER_API_KEY,
