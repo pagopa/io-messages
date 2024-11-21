@@ -6,7 +6,7 @@ export const envSchema = z.object({
   MESSAGE_CONTENT_STORAGE_URI: z.string().min(1),
   MESSAGE_COSMOSDB_COLLECTION_NAME: z.string().min(1),
   MESSAGE_COSMOSDB_DATABASE_NAME: z.string(),
-  MESSAGE_COSMOSDB_URI: z.string(),
+  MESSAGE_COSMOSDB_URI: z.string().min(1),
   MESSAGE_EVENTHUB_NAME: z.string().min(1),
   PDV_TOKENIZER_API_KEY: z.string().min(1),
   PDV_TOKENIZER_BASE_URL: z.string().url(),
