@@ -62,7 +62,7 @@ export const messageStatusEventSchema = z.object({
   is_read: z.boolean(),
   message_id: z.string().ulid(),
   op: z.enum(["CREATE", "UPDATE", "DELETE"]),
-  schema_version: z.number().default(1),
+  schema_version: z.literal(1),
   status: statusEnum,
   timestamp: z.number(),
   version: z.number().gte(0),

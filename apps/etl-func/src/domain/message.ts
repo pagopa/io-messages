@@ -182,7 +182,7 @@ export const messageEventSchema = z.object({
   payment_data_payee_fiscal_code: z.string().min(1).nullable(),
   recipient_id: z.string(),
   require_secure_channels: z.boolean().default(false),
-  schema_version: z.number().default(1),
+  schema_version: z.literal(1),
   sender_service_id: z.string(),
   sender_user_id: z.string(),
   subject: z.string(),
