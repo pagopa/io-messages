@@ -45,7 +45,7 @@ module "web_apps" {
 
   eventhub_namespace         = data.azurerm_eventhub_namespace.etl_eventhub_namespace
   messages_content_container = data.azurerm_storage_container.messages_content_container
-  cosmos_api                 = data.azurerm_cosmosdb_account.cosmos_api
+  messages_storage_account   = data.azurerm_storage_account.storage_api
 
   tenant_id = data.azurerm_client_config.current.tenant_id
 

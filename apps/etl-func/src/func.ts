@@ -85,8 +85,6 @@ const main = async (config: Config) => {
     }
 
     await producer.publish(messagesToSend);
-
-    return;
   };
 
   app.cosmosDB("messagesCosmosDBTrigger", {

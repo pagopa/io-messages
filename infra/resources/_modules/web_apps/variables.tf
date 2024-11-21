@@ -65,13 +65,6 @@ variable "common_key_vault" {
   })
 }
 
-variable "cosmos_api" {
-  type = object({
-    id   = string
-    name = string
-  })
-}
-
 variable "eventhub_namespace" {
   type = object({
     id   = string
@@ -85,6 +78,14 @@ variable "messages_content_container" {
     name = string
   })
 }
+
+variable "messages_storage_account" {
+  type = object({
+    id   = string
+    name = string
+  })
+}
+
 
 variable "tenant_id" {
   type = string
