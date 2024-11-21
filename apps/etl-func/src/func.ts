@@ -1,6 +1,6 @@
 import { EventHubProducerClient } from "@azure/event-hubs";
 import { app } from "@azure/functions";
-import { AzureCliCredential } from "@azure/identity";
+import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
@@ -14,14 +14,14 @@ import {
 } from "./adapters/message.js";
 import { EventHubEventProducer } from "./adapters/message-event.js";
 import PDVTokenizerClient from "./adapters/pdv-tokenizer/pdv-tokenizer-client.js";
-import { messageMetadataSchema } from "./domain/message.js";
+import { MessageEvent, messageMetadataSchema } from "./domain/message.js";
 
 const main = async (config: Config) => {
   const logger = pino({
     level: process.env.NODE_ENV === "production" ? "error" : "debug",
   });
 
-  const azureCredentials = new AzureCliCredential();
+  const azureCredentials = new DefaultAzureCredential();
   const blobServiceCLient = new BlobServiceClient(
     config.messageContentStorage.accountUri,
     azureCredentials,
@@ -62,6 +62,7 @@ const main = async (config: Config) => {
   });
 
   const messageIngestion = async (documents: unknown[]) => {
+    const messagesToSend: MessageEvent[] = [];
     for (const messageMetadataFromCosmosDB of documents) {
       const messageMetadata = messageMetadataSchema.parse(
         messageMetadataFromCosmosDB,
@@ -75,23 +76,27 @@ const main = async (config: Config) => {
           message,
           PDVTokenizer,
         );
-
-        await producer.publish(messageEvent);
-
-        logger.debug(`${messageMetadata.id} successfully sent to eventhub`);
+        messagesToSend.push(messageEvent);
+      } else {
+        logger.info(
+          `${messageMetadata.id} returned an undefined message event`,
+        );
       }
-      logger.info(`${messageMetadata.id} returned an undefined message`);
     }
+
+    await producer.publish(messagesToSend);
+
     return;
   };
 
-  app.cosmosDB("messageEventIngestion", {
+  app.cosmosDB("messagesCosmosDBTrigger", {
     connection: "MESSAGE_COSMOSDB_URI",
     containerName: config.messageCosmosDB.containerName,
     createLeaseContainerIfNotExists: true,
     databaseName: config.messageCosmosDB.databaseName,
     handler: messageIngestion,
     leaseContainerName: `${config.messageCosmosDB.containerName}-ingestion-lease`,
+    maxItemsPerInvocation: 30,
     startFromBeginning: true,
   });
 };
