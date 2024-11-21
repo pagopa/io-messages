@@ -23,33 +23,27 @@ const statusEnum = z.enum([
   "REJECTED",
 ]);
 
-const rejectedMessageStatusSchema = z.object({
-  fiscalCode: fiscalCodeSchema,
-  id: z.string().min(1),
-  isArchived: z.boolean().default(false),
-  isRead: z.boolean().default(false),
-  messageId: z.string().ulid(),
-  rejection_reason: rejectionReasonSchema,
-  status: statusEnum.extract(["REJECTED"]),
-  updatedAt: z.number(),
-  version: z.number().gte(0),
-});
-
-const notRejectedMessageStatusSchema = z.object({
-  fiscalCode: fiscalCodeSchema,
-  id: z.string().min(1),
-  isArchived: z.boolean().default(false),
-  isRead: z.boolean().default(false),
-  messageId: z.string().ulid(),
-  status: statusEnum.exclude(["REJECTED"]),
-  updatedAt: z.number(),
-  version: z.number().gte(0),
-});
-
-export const messageStatusSchema = z.discriminatedUnion("status", [
-  notRejectedMessageStatusSchema,
-  rejectedMessageStatusSchema,
-]);
+export const messageStatusSchema = z
+  .object({
+    fiscalCode: fiscalCodeSchema,
+    id: z.string().min(1),
+    isArchived: z.boolean().default(false),
+    isRead: z.boolean().default(false),
+    messageId: z.string().ulid(),
+    updatedAt: z.number(),
+    version: z.number().gte(0),
+  })
+  .and(
+    z.discriminatedUnion("status", [
+      z.object({
+        status: statusEnum.exclude(["REJECTED"]),
+      }),
+      z.object({
+        rejection_reason: rejectionReasonSchema,
+        status: statusEnum.extract(["REJECTED"]),
+      }),
+    ]),
+  );
 export type MessageStatus = z.TypeOf<typeof messageStatusSchema>;
 
 export const messageStatusEventOperationSchema = z.enum([
