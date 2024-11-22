@@ -1,8 +1,7 @@
 {
-  "name": "message",
+  "name": "Message",
   "type": "record",
-  "namespace": "dto",
-  "doc": "Kafka JS schema for cosmos api container 'messages'",
+  "namespace": "it.ioapp.com.message",
   "fields": [
     {
       "name": "schema_version",
@@ -13,8 +12,8 @@
       "name": "op",
       "type": {
         "type": "enum",
-        "doc": "List of operations that can be done to a message. Messages are immutable so we can only perform create operations.",
-        "name": "MessageCrudOperation",
+        "doc": "List of operations that can be done to a message.",
+        "name": "CrudOperation",
         "symbols": ["CREATE"]
       }
     },
@@ -48,7 +47,7 @@
       "doc": "Indicates the type of the message.",
       "type": {
         "type": "enum",
-        "name": "MessageContentType",
+        "name": "ContentType",
         "symbols": [
           "GENERIC",
           "PAYMENT",
@@ -100,7 +99,7 @@
       "doc": "A field that indicates whether the message is PREMIUM or not.",
       "type": {
         "type": "enum",
-        "name": "MessageFeatureLevelType",
+        "name": "FeatureLevelType",
         "symbols": ["STANDARD", "ADVANCED"]
       },
       "default": "STANDARD"
