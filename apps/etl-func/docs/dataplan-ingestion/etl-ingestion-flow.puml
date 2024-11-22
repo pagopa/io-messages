@@ -1,0 +1,30 @@
+@startuml etl_func
+collections "CosmosDB" as CosmosDB
+participant "ETL Function" as etlFunc
+collections "Message Content" as MessageContent
+participant "PDV" as PDV
+collections "Event Hub" as EventHub
+
+activate etlFunc
+CosmosDB -> etlFunc: Messages metadata from CosmosDB
+
+loop Process all Mesagges Metadata
+  etlFunc -> MessageContent: Get message content
+  break Error while searching message content
+      etlFunc -> etlFunc: Throw error and exit
+  end
+  MessageContent -> etlFunc: Returns message content
+
+  etlFunc -> PDV: Request FC anonymization
+  break Error whilt calling PDV
+      etlFunc -> etlFunc: Throw error and exit
+  end
+  PDV -> etlFunc: Returns anonymized FC
+
+  etlFunc -> EventHub: Load message event
+  break Error while loading message event
+      etlFunc -> etlFunc: Throw error and exit
+  end
+end
+
+@enduml
