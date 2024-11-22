@@ -24,6 +24,10 @@ module "etl_func" {
     MESSAGE_CONTENT_CONTAINER_NAME = "message-content",
     MESSAGE_EVENTHUB_NAME          = "io-p-itn-com-etl-messages-evh-01"
     PDV_TOKENIZER_API_KEY          = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=func-elt-PDV-TOKENIZER-API-KEY)"
+    PDV_TOKENIZER_BASE_URL         = "https://api.tokenizer.pdv.pagopa.it/tokenizer/v1"
+    "COSMOSDB_URI__accountEndpoint" : var.cosmos_api.endpoint
+    "MESSAGE_COSMOSDB_DATABASE_NAME" : "db",
+    "MESSAGE_COSMOSDB_COLLECTION_NAME" : "messages-dataplan-test"
   }
 
   sticky_app_setting_names = ["NODE_ENVIRONMENT"]

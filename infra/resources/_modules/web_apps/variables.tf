@@ -86,6 +86,15 @@ variable "messages_storage_account" {
   })
 }
 
+variable "cosmos_api" {
+  type = object({
+    id       = string
+    name     = string
+    endpoint = string
+  })
+}
+
+
 
 variable "tenant_id" {
   type = string

@@ -88,7 +88,7 @@ const main = async (config: Config) => {
   };
 
   app.cosmosDB("messagesCosmosDBTrigger", {
-    connection: "MESSAGE_COSMOSDB_URI",
+    connection: "COSMOSDB_URI",
     containerName: config.messageCosmosDB.containerName,
     createLeaseContainerIfNotExists: true,
     databaseName: config.messageCosmosDB.databaseName,

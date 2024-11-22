@@ -30,9 +30,9 @@ export const configFromEnvironment = envSchema
         containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
       },
       messageCosmosDB: {
-        accountUri: env.MESSAGE_COSMOSDB_URI,
-        containerName: env.MESSAGE_COSMOSDB_COLLECTION_NAME,
-        databaseName: env.MESSAGE_COSMOSDB_DATABASE_NAME,
+        accountUri: env.COSMOSDB_URI__accountEndpoint,
+        containerName: env.MESSAGES_COSMOSDB_COLLECTION_NAME,
+        databaseName: env.COSMOSDB_DATABASE_NAME,
       },
       messagesEventHub: {
         connectionUri: env.EVENTHUB_CONNECTION_URI,
