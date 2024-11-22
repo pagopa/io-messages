@@ -31,7 +31,7 @@ const messageEventAdapter = new EventHubEventProducer<MessageEvent>(
   eventHubProducerClient,
   messageSchema,
 );
-const aSimpleMessageEventArrat: MessageEvent[] = [aSimpleMessageEvent];
+const aSimpleMessageEventArray: MessageEvent[] = [aSimpleMessageEvent];
 describe("publishMessageEvent", () => {
   beforeEach(() => {
     tryAddMock.mockRestore();
@@ -39,7 +39,7 @@ describe("publishMessageEvent", () => {
   });
   test("Given a valid message event it should resolve", async () => {
     await expect(
-      messageEventAdapter.publish(aSimpleMessageEventArrat),
+      messageEventAdapter.publish(aSimpleMessageEventArray),
     ).resolves.toEqual(undefined);
     expect(tryAddMock).toHaveBeenCalledOnce();
     expect(sendBatchMock).toHaveBeenCalledOnce();
@@ -48,7 +48,7 @@ describe("publishMessageEvent", () => {
   test("Should throw an error if tryAddMock returns false", async () => {
     tryAddMock.mockImplementation(() => false);
     await expect(
-      messageEventAdapter.publish(aSimpleMessageEventArrat),
+      messageEventAdapter.publish(aSimpleMessageEventArray),
     ).rejects.toEqual(new Error("Error while adding event to the batch"));
     expect(tryAddMock).toHaveBeenCalledOnce();
     expect(tryAddMock).toHaveReturnedWith(false);
@@ -58,7 +58,7 @@ describe("publishMessageEvent", () => {
   test("Should throw an error if sendBatchMock rejects", async () => {
     sendBatchMock.mockImplementation(() => Promise.reject());
     await expect(
-      messageEventAdapter.publish(aSimpleMessageEventArrat),
+      messageEventAdapter.publish(aSimpleMessageEventArray),
     ).rejects.toEqual(undefined);
     expect(tryAddMock).toHaveBeenCalledOnce();
     expect(tryAddMock).toHaveReturnedWith(true);
