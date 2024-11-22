@@ -21,6 +21,7 @@
     "avsc": "^5.7.7",
     "io-messages-common": "workspace:^",
     "pino": "^9.4.0",
+    "redis": "^4.7.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

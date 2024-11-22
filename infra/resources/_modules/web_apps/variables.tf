@@ -80,3 +80,11 @@ variable "app_settings" {
     eventhub_connection_uri : string,
   })
 }
+
+variable "redis_cache" {
+  type = object({
+    id         = string
+    url        = string
+    access_key = string
+  })
+}

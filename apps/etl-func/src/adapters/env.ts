@@ -7,4 +7,7 @@ export const envSchema = z.object({
   MESSAGE_EVENTHUB_NAME: z.string().min(1),
   PDV_TOKENIZER_API_KEY: z.string().min(1),
   PDV_TOKENIZER_BASE_URL: z.string().url(),
+  REDIS_ACCESS_KEY: z.string().min(1),
+  REDIS_PING_INTERVAL: z.number(),
+  REDIS_URL: z.string().url(),
 });

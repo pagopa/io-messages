@@ -9,5 +9,8 @@
     "MESSAGE_EVENTHUB_NAME": "message-events-test"
     "PDV_TOKENIZER_API_KEY": "apiKey",
     "PDV_TOKENIZER_BASE_URL": "https://api.uat.tokenizer.pdv.pagopa.it"
+    "REDIS_ACCESS_KEY": "accessKey",
+    "REDIS_PING_INTERVAL": 1000
+    "REDIS_URL": "https://a-redis-url/"
   }
 }

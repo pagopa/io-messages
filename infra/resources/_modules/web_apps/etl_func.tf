@@ -23,7 +23,10 @@ module "etl_func" {
     EVENTHUB_CONNECTION_URI        = var.app_settings.eventhub_connection_uri,
     MESSAGE_CONTENT_CONTAINER_NAME = "message-content",
     MESSAGE_EVENTHUB_NAME          = "io-p-itn-com-etl-messages-evh-01"
-    PDV_TOKENIZER_API_KEY = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=func-elt-PDV-TOKENIZER-API-KEY)"
+    PDV_TOKENIZER_API_KEY          = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=func-elt-PDV-TOKENIZER-API-KEY)"
+    REDIS_URL                      = var.redis_cache.url
+    REDIS_PASSWORD                 = var.redis_cache.access_key
+    REDIS_PING_INTERVAL            = 1000 * 60 * 9
   }
 
   sticky_app_setting_names = ["NODE_ENVIRONMENT"]
@@ -42,6 +45,14 @@ resource "azurerm_role_assignment" "key_vault_etl_func_secrets_user" {
   scope                = var.common_key_vault.id
   role_definition_name = "Key Vault Secrets User"
   principal_id         = module.etl_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_redis_cache_access_policy_assignment" "etl_func" {
+  name               = "etl_func"
+  redis_cache_id     = var.redis_cache.id
+  access_policy_name = "Data Contributor"
+  object_id          = module.etl_func.function_app.function_app.principal_id
+  object_id_alias    = "ServicePrincipal"
 }
 
 output "etl_func" {

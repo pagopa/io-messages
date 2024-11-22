@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { envSchema } from "./env.js";
 import { eventhubConfigSchema } from "./eventhub/config.js";
+import { pdvConfigSchema } from "./pdv-tokenizer/config.js";
+import { redisConfigSchema } from "./redis/config.js";
 
 export const configSchema = z.object({
   messageContentStorage: z.object({
@@ -9,10 +11,8 @@ export const configSchema = z.object({
     containerName: z.string().min(1),
   }),
   messagesEventHub: eventhubConfigSchema,
-  pdvTokenizer: z.object({
-    apiKey: z.string().min(1),
-    baseUrl: z.string().url(),
-  }),
+  messagesRedis: redisConfigSchema,
+  pdvTokenizer: pdvConfigSchema,
 });
 
 export type Config = z.TypeOf<typeof configSchema>;
@@ -27,6 +27,11 @@ export const configFromEnvironment = envSchema
       messagesEventHub: {
         connectionUri: env.EVENTHUB_CONNECTION_URI,
         eventHubName: env.MESSAGE_EVENTHUB_NAME,
+      },
+      messagesRedis: {
+        accessKey: env.REDIS_ACCESS_KEY,
+        pingInterval: env.REDIS_PING_INTERVAL,
+        url: env.REDIS_URL,
       },
       pdvTokenizer: {
         apiKey: env.PDV_TOKENIZER_API_KEY,
