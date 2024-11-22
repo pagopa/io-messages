@@ -11,7 +11,7 @@ services:
 
   redis:
     container_name: redis
-    image: redis:4.0.14-alpine3.11
+    image: redis:4.0.14-alpine3.11@sha256:aaf7c123077a5e45ab2328b5ef7e201b5720616efac498d55e65a7afbb96ae20
     ports:
       - 6379:6379
     environment:
@@ -87,7 +87,7 @@ services:
 
   testagent-sending-func:
     container_name: testagent-sending-func
-    image: node:20.11.1-alpine
+    image: node:20.11.1-alpine@sha256:bf77dc26e48ea95fca9d1aceb5acfa69d2e546b765ec2abfb502975f1a2d4def
     working_dir: /usr/src/app
     command: tail -f /dev/null # to keep it up&running
     env_file:
@@ -107,7 +107,7 @@ services:
 
   testagent-citizen-func:
     container_name: testagent-citizen-func
-    image: node:20.11.1-alpine
+    image: node:20.11.1-alpine@sha256:bf77dc26e48ea95fca9d1aceb5acfa69d2e546b765ec2abfb502975f1a2d4def
     working_dir: /usr/src/app
     command: tail -f /dev/null # to keep it up&running
     env_file:
