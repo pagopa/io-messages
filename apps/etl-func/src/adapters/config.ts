@@ -9,7 +9,7 @@ export const configSchema = z.object({
     containerName: z.string().min(1),
   }),
   messageCosmosDB: z.object({
-    accountUri: z.string(),
+    accountUri: z.string().url(),
     containerName: z.string().min(1),
     databaseName: z.string(),
   }),
