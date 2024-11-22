@@ -4,14 +4,14 @@ import { envSchema } from "./env.js";
 import { eventhubConfigSchema } from "./eventhub/config.js";
 
 export const configSchema = z.object({
+  cosmos: z.object({
+    accountUri: z.string().url(),
+    databaseName: z.string().min(1),
+    messagesContainerName: z.string().min(1),
+  }),
   messageContentStorage: z.object({
     accountUri: z.string().url(),
     containerName: z.string().min(1),
-  }),
-  messageCosmosDB: z.object({
-    accountUri: z.string().url(),
-    containerName: z.string().min(1),
-    databaseName: z.string(),
   }),
   messagesEventHub: eventhubConfigSchema,
   pdvTokenizer: z.object({
@@ -25,14 +25,14 @@ export type Config = z.TypeOf<typeof configSchema>;
 export const configFromEnvironment = envSchema
   .transform(
     (env): Config => ({
+      cosmos: {
+        accountUri: env.COSMOS__accountEndpoint,
+        databaseName: env.COSMOS_DBNAME,
+        messagesContainerName: env.COSMOS_MESSAGES_CONTAINER_NAME,
+      },
       messageContentStorage: {
         accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
         containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
-      },
-      messageCosmosDB: {
-        accountUri: env.COSMOSDB_URI__accountEndpoint,
-        containerName: env.MESSAGES_COSMOSDB_COLLECTION_NAME,
-        databaseName: env.COSMOSDB_DATABASE_NAME,
       },
       messagesEventHub: {
         connectionUri: env.EVENTHUB_CONNECTION_URI,

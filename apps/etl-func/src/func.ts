@@ -88,12 +88,11 @@ const main = async (config: Config) => {
   };
 
   app.cosmosDB("messagesCosmosDBTrigger", {
-    connection: "COSMOSDB_URI",
-    containerName: config.messageCosmosDB.containerName,
-    createLeaseContainerIfNotExists: true,
-    databaseName: config.messageCosmosDB.databaseName,
+    connection: "COSMOS",
+    containerName: config.cosmos.messagesContainerName,
+    databaseName: config.cosmos.databaseName,
     handler: messageIngestion,
-    leaseContainerName: `${config.messageCosmosDB.containerName}-ingestion-lease`,
+    leaseContainerName: `${config.cosmos.messagesContainerName}-ingestion-lease`,
     maxItemsPerInvocation: 30,
     startFromBeginning: true,
   });
