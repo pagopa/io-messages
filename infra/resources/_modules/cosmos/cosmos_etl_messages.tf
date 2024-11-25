@@ -7,7 +7,8 @@ module "comsosdb_sql_container_messages_ingestion_test" {
   account_name  = var.cosmosdb_account.name
   database_name = "db"
 
-  default_ttl = "-1"
+  partition_key_path = "/id"
+  default_ttl        = "-1"
 }
 
 module "comsosdb_sql_container_messages_ingestion_test_lease" {
@@ -19,5 +20,6 @@ module "comsosdb_sql_container_messages_ingestion_test_lease" {
   account_name  = var.cosmosdb_account.name
   database_name = "db"
 
-  default_ttl = "-1"
+  partition_key_path = "/id"
+  default_ttl        = "-1"
 }
