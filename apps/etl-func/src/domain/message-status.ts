@@ -24,10 +24,12 @@ const statusEnum = z.enum([
   "REJECTED",
 ]);
 
+const messageStatusIdSchema = z.string().min(1);
+
 export const messageStatusSchema = z
   .object({
     fiscalCode: fiscalCodeSchema,
-    id: z.string().min(1),
+    id: messageStatusIdSchema,
     isArchived: z.boolean().default(false),
     isRead: z.boolean().default(false),
     messageId: z.string().ulid(),
@@ -49,7 +51,7 @@ export type MessageStatus = z.TypeOf<typeof messageStatusSchema>;
 
 export const messageStatusEventSchema = z.object({
   created_at: z.number(),
-  id: z.string().min(1),
+  id: messageStatusIdSchema,
   is_archived: z.boolean(),
   is_read: z.boolean(),
   message_id: z.string().ulid(),
