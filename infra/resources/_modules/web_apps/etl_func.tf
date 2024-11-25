@@ -25,9 +25,9 @@ module "etl_func" {
     MESSAGE_EVENTHUB_NAME          = "io-p-itn-com-etl-messages-evh-01"
     PDV_TOKENIZER_API_KEY          = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=func-elt-PDV-TOKENIZER-API-KEY)"
     PDV_TOKENIZER_BASE_URL         = "https://api.tokenizer.pdv.pagopa.it/tokenizer/v1"
-    "COSMOS__accountEndpoint" : var.cosmos_api.endpoint
-    "COSMOS_DBNAME" : "db",
-    "COSMOS_MESSAGES_CONTAINER_NAME" : "messages-dataplan-test"
+    COSMOS__accountEndpoint        = var.cosmosdb_account_api.endpoint
+    COSMOS_DBNAME                  = "db",
+    COSMOS_MESSAGES_CONTAINER_NAME = "messages-dataplan-test"
   }
 
   sticky_app_setting_names = ["NODE_ENVIRONMENT"]
@@ -60,6 +60,13 @@ resource "azurerm_role_assignment" "message_content_container_read" {
   principal_id         = module.etl_func.function_app.function_app.principal_id
 }
 
+resource "azurerm_cosmosdb_sql_role_assignment" "etl_func" {
+  resource_group_name = var.cosmosdb_account_api.resource_group_name
+  account_name        = var.cosmosdb_account_api.name
+  role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = module.etl_func.function_app.function_app.principal_id
+  scope               = var.cosmosdb_account_api.id
+}
 
 output "etl_func" {
   value = {

@@ -86,11 +86,12 @@ variable "messages_storage_account" {
   })
 }
 
-variable "cosmos_api" {
+variable "cosmosdb_account_api" {
   type = object({
-    id       = string
-    name     = string
-    endpoint = string
+    id                  = string
+    name                = string
+    endpoint            = string
+    resource_group_name = string
   })
 }
 
