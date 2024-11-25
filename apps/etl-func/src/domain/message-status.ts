@@ -1,3 +1,4 @@
+import { timestampSchema } from "io-messages-common/types/date";
 import * as z from "zod";
 
 //TODO: move this into a common package
@@ -55,7 +56,7 @@ export const messageStatusEventSchema = z.object({
   op: z.enum(["CREATE", "UPDATE", "DELETE"]),
   schema_version: z.literal(1),
   status: statusEnum,
-  timestamp: z.number(),
+  timestamp: timestampSchema,
   version: z.number().gte(0),
 });
 export type MessageStatusEvent = z.TypeOf<typeof messageStatusEventSchema>;
