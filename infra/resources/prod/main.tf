@@ -219,3 +219,8 @@ module "monitoring" {
   resource_group_name = azurerm_resource_group.itn_messages.name
   io_com_slack_email  = data.azurerm_key_vault_secret.io_com_slack_email.value
 }
+
+module "cosmos" {
+  source           = "../_modules/cosmos"
+  cosmosdb_account = data.azurerm_cosmosdb_account.cosmos_api
+}
