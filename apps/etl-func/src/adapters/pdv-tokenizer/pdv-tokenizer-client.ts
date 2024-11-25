@@ -1,5 +1,4 @@
 import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
-import * as assert from "assert";
 import { z } from "zod";
 
 const invalidParamSchema = z.object({
@@ -7,7 +6,7 @@ const invalidParamSchema = z.object({
   reason: z.string(),
 });
 
-const problemSchema = z.object({
+export const problemSchema = z.object({
   detail: z.string().optional(),
   instance: z.string().optional(),
   invalidParams: z.array(invalidParamSchema).optional(),
@@ -19,6 +18,16 @@ const problemSchema = z.object({
 const tokenResourceSchema = z.object({
   token: z.string().uuid(),
 });
+
+export type ProblemSchema = z.TypeOf<typeof problemSchema>;
+export type TokenResourse = z.TypeOf<typeof tokenResourceSchema>;
+
+class PDVApiError extends Error {
+  name = "PDVApiError";
+  constructor(message: string, cause: unknown) {
+    super(message, { cause });
+  }
+}
 
 export default class PDVTokenizerClient implements TokenizerClient {
   #apiKey: string;
@@ -42,18 +51,17 @@ export default class PDVTokenizerClient implements TokenizerClient {
 
       const responseJson = await response.json();
 
-      assert.strictEqual(
-        response.ok,
-        false,
-        new Error(
+      if (!response.ok) {
+        throw new PDVApiError(
           `Error in tokenizer api call with status ${response.status}`,
           {
             cause: problemSchema.parse(responseJson),
           },
-        ),
-      );
+        );
+      }
       return tokenResourceSchema.parse(responseJson).token;
     } catch (e) {
+      if (e instanceof PDVApiError) throw e;
       throw new Error("Error during tokenizer api call", {
         cause: e,
       });
