@@ -1,3 +1,4 @@
+import { timestampSchema } from "io-messages-common/types/date";
 import * as z from "zod";
 
 export type ContentType =
@@ -82,7 +83,7 @@ export const messageContentSchema = z.object({
       summary: z.string().min(1).optional(),
     })
     .optional(),
-  timestamp: z.string().optional(),
+  timestamp: timestampSchema.optional(),
 });
 
 /**
@@ -182,11 +183,11 @@ export const messageEventSchema = z.object({
   payment_data_payee_fiscal_code: z.string().min(1).nullable(),
   recipient_id: z.string(),
   require_secure_channels: z.boolean().default(false),
-  schema_version: z.number().default(1),
+  schema_version: z.literal(1),
   sender_service_id: z.string(),
   sender_user_id: z.string(),
   subject: z.string(),
-  timestamp: z.number(),
+  timestamp: timestampSchema,
 });
 
 export type MessageEvent = z.TypeOf<typeof messageEventSchema>;

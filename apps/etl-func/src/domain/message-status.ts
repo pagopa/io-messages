@@ -1,3 +1,4 @@
+import { timestampSchema } from "io-messages-common/types/date";
 import * as z from "zod";
 
 //TODO: move this into a common package
@@ -23,27 +24,41 @@ const statusEnum = z.enum([
   "REJECTED",
 ]);
 
-const rejectedMessageStatusSchema = z.object({
-  fiscalCode: fiscalCodeSchema,
-  isArchived: z.boolean().default(false),
-  isRead: z.boolean().default(false),
-  messageId: z.string().ulid(),
-  rejection_reason: rejectionReasonSchema,
-  status: statusEnum.extract(["REJECTED"]),
-  updatedAt: z.number(),
-});
+const messageStatusIdSchema = z.string().min(1);
 
-const notRejectedMessageStatusSchema = z.object({
-  fiscalCode: fiscalCodeSchema,
-  isArchived: z.boolean().default(false),
-  isRead: z.boolean().default(false),
-  messageId: z.string().ulid(),
-  status: statusEnum.exclude(["REJECTED"]),
-  updatedAt: z.number(),
-});
-
-export const messageStatusSchema = z.discriminatedUnion("status", [
-  notRejectedMessageStatusSchema,
-  rejectedMessageStatusSchema,
-]);
+export const messageStatusSchema = z
+  .object({
+    fiscalCode: fiscalCodeSchema,
+    id: messageStatusIdSchema,
+    isArchived: z.boolean().default(false),
+    isRead: z.boolean().default(false),
+    messageId: z.string().ulid(),
+    updatedAt: z.number(),
+    version: z.number().gte(0),
+  })
+  .and(
+    z.discriminatedUnion("status", [
+      z.object({
+        status: statusEnum.exclude(["REJECTED"]),
+      }),
+      z.object({
+        rejection_reason: rejectionReasonSchema,
+        status: statusEnum.extract(["REJECTED"]),
+      }),
+    ]),
+  );
 export type MessageStatus = z.TypeOf<typeof messageStatusSchema>;
+
+export const messageStatusEventSchema = z.object({
+  created_at: z.number(),
+  id: messageStatusIdSchema,
+  is_archived: z.boolean(),
+  is_read: z.boolean(),
+  message_id: z.string().ulid(),
+  op: z.enum(["CREATE", "UPDATE", "DELETE"]),
+  schema_version: z.literal(1),
+  status: statusEnum,
+  timestamp: timestampSchema,
+  version: z.number().gte(0).int(),
+});
+export type MessageStatusEvent = z.TypeOf<typeof messageStatusEventSchema>;
