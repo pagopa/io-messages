@@ -24,9 +24,6 @@ export type TokenResourse = z.TypeOf<typeof tokenResourceSchema>;
 
 class PDVApiError extends Error {
   name = "PDVApiError";
-  constructor(message: string, cause: unknown) {
-    super(message, { cause });
-  }
 }
 
 export default class PDVTokenizerClient implements TokenizerClient {
