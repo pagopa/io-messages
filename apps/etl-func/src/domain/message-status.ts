@@ -57,6 +57,6 @@ export const messageStatusEventSchema = z.object({
   schema_version: z.literal(1),
   status: statusEnum,
   timestamp: timestampSchema,
-  version: z.number().gte(0),
+  version: z.number().gte(0).int(),
 });
 export type MessageStatusEvent = z.TypeOf<typeof messageStatusEventSchema>;
