@@ -46,15 +46,6 @@ export const messageStatusSchema = z
   );
 export type MessageStatus = z.TypeOf<typeof messageStatusSchema>;
 
-export const messageStatusEventOperationSchema = z.enum([
-  "CREATE",
-  "UPDATE",
-  "DELETE",
-]);
-export type MessageStatusEventOperation = z.TypeOf<
-  typeof messageStatusEventOperationSchema
->;
-
 export const messageStatusEventSchema = z.object({
   created_at: z.number(),
   id: z.string().min(1),
