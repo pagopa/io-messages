@@ -8,13 +8,10 @@ import { pino } from "pino";
 import { messageSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
-import {
-  MessageAdapter,
-  getMessageEventFromMessage,
-} from "./adapters/message.js";
+import messagesIngestion from "./adapters/functions/messages-ingestion.js";
+import { MessageAdapter } from "./adapters/message.js";
 import { EventHubEventProducer } from "./adapters/message-event.js";
 import PDVTokenizerClient from "./adapters/pdv-tokenizer/pdv-tokenizer-client.js";
-import { MessageEvent, messageMetadataSchema } from "./domain/message.js";
 
 const main = async (config: Config) => {
   const logger = pino({
@@ -61,37 +58,12 @@ const main = async (config: Config) => {
     route: "health",
   });
 
-  const messageIngestion = async (documents: unknown[]) => {
-    const messagesToSend: MessageEvent[] = [];
-    for (const messageMetadataFromCosmosDB of documents) {
-      const messageMetadata = messageMetadataSchema.parse(
-        messageMetadataFromCosmosDB,
-      );
-
-      const message =
-        await messageAdapter.getMessageByMetadata(messageMetadata);
-
-      if (message !== undefined) {
-        const messageEvent = await getMessageEventFromMessage(
-          message,
-          PDVTokenizer,
-        );
-        messagesToSend.push(messageEvent);
-      } else {
-        logger.info(
-          `${messageMetadata.id} returned an undefined message event`,
-        );
-      }
-    }
-
-    await producer.publish(messagesToSend);
-  };
-
   app.cosmosDB("messagesCosmosDBTrigger", {
     connection: "COSMOS",
     containerName: config.cosmos.messagesContainerName,
+    createLeaseCollectionIfNotExists: false,
     databaseName: config.cosmos.databaseName,
-    handler: messageIngestion,
+    handler: messagesIngestion(messageAdapter, PDVTokenizer, producer),
     leaseContainerName: `${config.cosmos.messagesContainerName}-ingestion-lease`,
     maxItemsPerInvocation: 30,
     startFromBeginning: true,
