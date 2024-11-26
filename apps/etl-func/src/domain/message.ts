@@ -13,12 +13,17 @@ export const messageMetadataSchema = z.object({
   fiscalCode: z.string().min(1),
   id: z.string().ulid(),
   indexedId: z.string().ulid(),
-  isPending: z.boolean().optional(),
+  isPending: z.boolean(),
   senderServiceId: z.string().min(1),
   senderUserId: z.string().min(1),
   timeToLiveSeconds: z.number(),
 });
 export type MessageMetadata = z.TypeOf<typeof messageMetadataSchema>;
+
+export const hasPreconditionSchema = z
+  .enum(["ALWAYS", "ONCE", "NEVER"])
+  .optional();
+export type HasPrecondition = z.TypeOf<typeof hasPreconditionSchema>;
 
 export const messageContentSchema = z.object({
   eu_covid_cert: z.object({ auth_code: z.string().optional() }).optional(),
@@ -69,7 +74,7 @@ export const messageContentSchema = z.object({
         .describe("ulid")
         .optional(),
       has_attachments: z.boolean().default(false),
-      has_precondition: z.enum(["ALWAYS", "ONCE", "NEVER"]).optional(),
+      has_precondition: hasPreconditionSchema,
       has_remote_content: z.boolean().default(false),
       id: z.string().min(1),
       original_receipt_date: z.any().optional(),
@@ -177,7 +182,7 @@ export const messageEventSchema = z.object({
   payment_data_payee_fiscal_code: z.string().min(1).nullable(),
   recipient_id: z.string(),
   require_secure_channels: z.boolean().default(false),
-  schema_version: z.number(),
+  schema_version: z.number().default(1),
   sender_service_id: z.string(),
   sender_user_id: z.string(),
   subject: z.string(),
