@@ -37,11 +37,13 @@ models:
       schema_version:
         type: int
         required: true
+        pii: false
         description: An integer that indicates the version of the schema.
       op:
         title: MessageCrudOperation
         type: string
         required: true
+        pii: false
         enum:
           - CREATE
         config:
@@ -49,29 +51,35 @@ models:
       id:
         type: string
         required: true
+        pii: true
         description: An ULID that identifies the message inside the message collection.
       sender_service_id:
         type: string
         required: true
+        pii: false
         description: The id of the service that sent the message.
       sender_user_id:
         type: string
         required: true
+        pii: false
         description: The id of the user that sent the message.
       is_pending:
         type: boolean
         required: true
+        pii: false
         description:
           A boolean that indicates if the message has been processed, is_pending
           equals false indicates that the message has not been processed yet.
       subject:
         type: string
         required: true
+        pii: true
         description: The subject of the message.
       content_type:
         title: MessageContentType
         type: string
         required: true
+        pii: true
         description: Indicates the type of the message.
         enum:
           - GENERIC
@@ -85,24 +93,29 @@ models:
       payment_data_amount:
         type: int
         required: false
+        pii: true
         description: An integer that indicates the amount of the payment.
       payment_data_notice_number:
         type: string
         required: false
+        pii: true
         description: An id that identifies the the payment.
       payment_data_invalid_after_due_date:
         type: boolean
         required: false
+        pii: false
         description:
           A boolean that indicates if the payment is considered invalid
           after the due date.
       payment_data_payee_fiscal_code:
         type: string
         required: false
+        pii: false
         description: The fiscal code of the payee.
       require_secure_channels:
         type: boolean
         required: true
+        pii: false
         description:
           A boolean that indicates whether the message contains sensitive
           informations. If this value is true the push notification sent is anonymous
@@ -113,12 +126,14 @@ models:
         type: long
         required: true
         description: A timestamp that indicates when the message was created.
+        pii: false
         config:
           avroLogicalType: timestamp-millis
       feature_level_type:
         title: MessageFeatureLevelType
         type: string
         required: true
+        pii: false
         description: A field that indicates whether the message is PREMIUM or not.
         enum:
           - STANDARD
@@ -129,10 +144,12 @@ models:
       recipient_id:
         type: string
         required: true
+        pii: true
         description: Tokenized fiscal code of the citizen.
       has_remote_content:
         type: boolean
         required: true
+        pii: false
         description:
           A boolean that indicates whether the message has remote content
           or not.
@@ -141,6 +158,7 @@ models:
       has_precondition:
         type: boolean
         required: true
+        pii: false
         description:
           A boolean that indicates whether the message has remote precondition
           or not.
@@ -149,6 +167,7 @@ models:
       has_attachments:
         type: boolean
         required: true
+        pii: false
         description:
           A boolean that indicates whether the message has remote attachments
           or not.
