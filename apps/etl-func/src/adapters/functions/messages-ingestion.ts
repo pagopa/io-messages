@@ -2,6 +2,7 @@ import { CosmosDBHandler } from "@azure/functions";
 import { pino } from "pino";
 
 import {
+  Message,
   MessageEvent,
   MessageMetadata,
   messageMetadataSchema,
@@ -21,28 +22,30 @@ const messagesIngestion =
     producer: EventHubEventProducer<MessageEvent>,
   ): CosmosDBHandler =>
   async (documents: unknown[]) => {
-    try {
-      const documentsMetadata: MessageMetadata[] = documents
-        .map((document) => {
-          const messageMetadata = messageMetadataSchema.safeParse(document);
-          if (messageMetadata.success) {
-            return messageMetadata.data;
-          }
-          return undefined;
-        })
-        .filter((item) => item !== undefined);
+    //Avoiding all documents different from MessageMetadata schema
+    const documentsMetadata: MessageMetadata[] = documents.filter(
+      (item): item is MessageMetadata =>
+        messageMetadataSchema.safeParse(item).success,
+    );
 
-      const messagesContetPromiseArray = documentsMetadata.map(
-        (messageMetadata) =>
-          messageAdapter.getMessageByMetadata(messageMetadata),
-      );
+    try {
+      //Retrieving the message contents for each message metadata
       const messagesContet = (
-        await Promise.all(messagesContetPromiseArray)
-      ).filter((item) => item !== undefined);
-      const messagesEventPromiseArray = messagesContet.map((messageEvent) =>
-        getMessageEventFromMessage(messageEvent, PDVTokenizer),
+        await Promise.all(
+          documentsMetadata.map((messageMetadata) =>
+            messageAdapter.getMessageByMetadata(messageMetadata),
+          ),
+        )
+      ).filter(
+        (item: Message | undefined): item is Message => item !== undefined,
       );
-      const messagesEvent = await Promise.all(messagesEventPromiseArray);
+
+      //Transforming messages on message events
+      const messagesEvent = await Promise.all(
+        messagesContet.map((messageEvent) =>
+          getMessageEventFromMessage(messageEvent, PDVTokenizer),
+        ),
+      );
 
       await producer.publish(messagesEvent);
     } catch (err) {
