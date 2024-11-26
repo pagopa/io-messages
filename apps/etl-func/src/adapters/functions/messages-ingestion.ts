@@ -46,8 +46,8 @@ const messagesIngestion =
           getMessageEventFromMessage(messageEvent, PDVTokenizer),
         ),
       );
-
-      await producer.publish(messagesEvent);
+      if (messagesEvent.length) await producer.publish(messagesEvent);
+      return;
     } catch (err) {
       logger.info(`Error during the ingestion process`);
       throw err;
