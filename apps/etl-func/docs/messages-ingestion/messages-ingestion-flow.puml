@@ -1,4 +1,4 @@
-@startuml etl_func
+@startuml messages-ingestion-flow
 collections "CosmosDB" as CosmosDB
 participant "ETL Function" as etlFunc
 collections "Message Content" as MessageContent
@@ -10,21 +10,32 @@ CosmosDB -> etlFunc: Messages metadata from CosmosDB
 
 loop Process all Mesagges Metadata
   etlFunc -> MessageContent: Get message content
-  break Error while searching message content
+  break Error searching message content
       etlFunc -> etlFunc: Throw error and exit
   end
   MessageContent -> etlFunc: Returns message content
-
+  note left of etlFunc
+    At this point the function knows
+    all the content of each message metadata
+  end note
   etlFunc -> PDV: Request FC anonymization
-  break Error whilt calling PDV
+  break Anonymization error
       etlFunc -> etlFunc: Throw error and exit
   end
   PDV -> etlFunc: Returns anonymized FC
-
-  etlFunc -> EventHub: Load message event
-  break Error while loading message event
-      etlFunc -> etlFunc: Throw error and exit
-  end
+  note left of etlFunc
+    At this point all the FC inside the messages
+    content are anonymized
+  end note
 end
+
+etlFunc -> EventHub: Load messages event batch
+break Error loading message event
+    etlFunc -> etlFunc: Throw error and exit
+end
+note left of etlFunc
+    At this point all messages are loaded
+    into the eventhub
+end note
 
 @enduml
