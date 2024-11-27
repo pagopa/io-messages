@@ -26,7 +26,7 @@ export const configFromEnvironment = envSchema
         containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
       },
       messageStatusEventHub: {
-        connectionUri: env.MESSAGE_STATUS_EVENTHUB_CONNECTION_URI,
+        connectionUri: env.MESSAGE_EVENTHUB_CONNECTION_URI,
         eventHubName: env.MESSAGE_STATUS_EVENTHUB_NAME,
       },
       messagesEventHub: {
