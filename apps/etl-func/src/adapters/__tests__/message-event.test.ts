@@ -31,7 +31,7 @@ const messageEventAdapter = new EventHubEventProducer<MessageEvent>(
   eventHubProducerClient,
   messageSchema,
 );
-const aSimpleMessageEventArray: MessageEvent[] = [aSimpleMessageEvent];
+const aSimpleMessageEventArray = [aSimpleMessageEvent];
 describe("publishMessageEvent", () => {
   beforeEach(() => {
     tryAddMock.mockRestore();

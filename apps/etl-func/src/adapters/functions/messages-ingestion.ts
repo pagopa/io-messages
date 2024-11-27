@@ -36,9 +36,7 @@ const messagesIngestion =
             messageAdapter.getMessageByMetadata(messageMetadata),
           ),
         )
-      ).filter(
-        (item: Message | undefined): item is Message => item !== undefined,
-      );
+      ).filter((item): item is Message => item !== undefined);
 
       //Transforming messages on message events
       const messagesEvent = await Promise.all(

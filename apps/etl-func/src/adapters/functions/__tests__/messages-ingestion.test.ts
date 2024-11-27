@@ -8,19 +8,12 @@ import { MessageAdapter, MessageContentProvider } from "@/adapters/message.js";
 import { EventHubEventProducer } from "@/adapters/message-event.js";
 import PDVTokenizerClient from "@/adapters/pdv-tokenizer/pdv-tokenizer-client.js";
 import { InvocationContext } from "@azure/functions";
-import { Logger } from "pino";
-import { describe, expect, test, vi } from "vitest";
+import { pino } from "pino";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import messagesIngestion from "../messages-ingestion.js";
 
-const errorLogMock = vi.fn();
-const warnLogMock = vi.fn();
-
-const loggerMock = {
-  error: errorLogMock,
-  warn: warnLogMock,
-} as unknown as Logger;
-
+const logger = pino();
 const mocks = vi.hoisted(() => ({
   EventHubProducerClient: vi.fn().mockImplementation(() => ({
     createBatch: () => ({
@@ -44,7 +37,7 @@ vi.mock("@azure/event-hubs", async (importOriginal) => {
 const messageContentMock: MessageContentProvider = {
   getByMessageId: vi.fn(),
 };
-const messageAdapter = new MessageAdapter(messageContentMock, loggerMock);
+const messageAdapter = new MessageAdapter(messageContentMock, logger);
 const getMessageByMetadataSpy = vi
   .spyOn(messageAdapter, "getMessageByMetadata")
   .mockResolvedValue(aSimpleMessage);
@@ -65,11 +58,24 @@ const context = new InvocationContext();
 const handler = messagesIngestion(messageAdapter, PDVTokenizer, producer);
 
 describe("messagesIngestion handler", () => {
-  test("shoud resolve if nothing trows", async () => {
+  afterEach(() => {
+    getMessageByMetadataSpy.mockClear();
+    tokenizeSpy.mockClear();
+    publishSpy.mockClear();
+  });
+  test("shoud resolve if nothing throws", async () => {
     const documentsMock = [aSimpleMessageMetadata];
     await expect(handler(documentsMock, context)).resolves.toEqual(undefined);
     expect(getMessageByMetadataSpy).toHaveBeenCalledOnce();
     expect(tokenizeSpy).toHaveBeenCalledOnce();
+    expect(publishSpy).toHaveBeenCalledOnce();
+  });
+
+  test("shoud call multiple times the business logic function if documents are more than one", async () => {
+    const documentsMock = [aSimpleMessageMetadata, aSimpleMessageMetadata];
+    await expect(handler(documentsMock, context)).resolves.toEqual(undefined);
+    expect(getMessageByMetadataSpy).toHaveBeenCalledTimes(2);
+    expect(tokenizeSpy).toHaveBeenCalledTimes(2);
     expect(publishSpy).toHaveBeenCalledOnce();
   });
 
@@ -89,7 +95,7 @@ describe("messagesIngestion handler", () => {
     expect(publishSpy).not.toHaveBeenCalledOnce();
   });
 
-  test("should throw an error if tokenize throws an error", async () => {
+  test.only("should throw an error if tokenize throws an error", async () => {
     const documentsMock = [aSimpleMessageMetadata];
     tokenizeSpy.mockRejectedValue(false);
     await expect(handler(documentsMock, context)).rejects.toEqual(false);
