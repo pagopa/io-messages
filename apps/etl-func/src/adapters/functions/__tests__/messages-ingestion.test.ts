@@ -95,7 +95,7 @@ describe("messagesIngestion handler", () => {
     expect(publishSpy).not.toHaveBeenCalledOnce();
   });
 
-  test.only("should throw an error if tokenize throws an error", async () => {
+  test("should throw an error if tokenize throws an error", async () => {
     const documentsMock = [aSimpleMessageMetadata];
     tokenizeSpy.mockRejectedValue(false);
     await expect(handler(documentsMock, context)).rejects.toEqual(false);
