@@ -8,6 +8,7 @@ export const configSchema = z.object({
     accountUri: z.string().url(),
     containerName: z.string().min(1),
   }),
+  messageStatusEventHub: eventhubConfigSchema,
   messagesEventHub: eventhubConfigSchema,
   pdvTokenizer: z.object({
     apiKey: z.string().min(1),
@@ -24,8 +25,12 @@ export const configFromEnvironment = envSchema
         accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
         containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
       },
+      messageStatusEventHub: {
+        connectionUri: env.MESSAGE_EVENTHUB_CONNECTION_URI,
+        eventHubName: env.MESSAGE_STATUS_EVENTHUB_NAME,
+      },
       messagesEventHub: {
-        connectionUri: env.EVENTHUB_CONNECTION_URI,
+        connectionUri: env.MESSAGE_EVENTHUB_CONNECTION_URI,
         eventHubName: env.MESSAGE_EVENTHUB_NAME,
       },
       pdvTokenizer: {

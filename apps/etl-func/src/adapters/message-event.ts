@@ -20,9 +20,10 @@ export class EventHubEventProducer<T> implements EventProducer<T> {
   /**
    * Creates a batch of event data to be sent to Event Hub.
    *
-   * @param message - The message to be added to the batch as a Buffer.
-   * @returns A promise that resolves to an EventDataBatch containing the message.
-   * @throws Will throw an error if the message is too large to fit in the batch.
+   * @param eventData - The data to be added to the batch as a Buffer.
+   * @returns A promise that resolves to an EventDataBatch containing the event
+   * data.
+   * @throws Will throw an error if the data is too large to fit in the batch.
    */
   async #createBatch(eventData: EventData): Promise<EventDataBatch> {
     const dataBatch = await this.#producerClient.createBatch();
@@ -31,8 +32,8 @@ export class EventHubEventProducer<T> implements EventProducer<T> {
     return dataBatch;
   }
 
-  async publish(message: T): Promise<void> {
-    const bufferedData = this.#schema.toBuffer(message);
+  async publish(data: T): Promise<void> {
+    const bufferedData = this.#schema.toBuffer(data);
     const dataBatch = await this.#createBatch({
       body: bufferedData,
     });
