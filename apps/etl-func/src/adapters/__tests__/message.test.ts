@@ -4,11 +4,7 @@ import {
   aSimpleMessageContent,
   aSimpleMessageMetadata,
 } from "@/__mocks__/message.js";
-import {
-  RecipientRepository,
-  TokenizerClient,
-} from "@/domain/interfaces/tokenizer.js";
-import { MaskFiscalCodeUseCase } from "@/domain/mask-fiscal-code.js";
+import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
 import { Message, messageEventSchema } from "@/domain/message.js";
 import { Logger } from "pino";
 import { Mocked, describe, expect, test, vi } from "vitest";
@@ -36,24 +32,11 @@ const messageContentMock: MessageContentProvider = {
 
 const messageAdapter = new MessageAdapter(messageContentMock, loggerMock);
 
-const recipientStore = new Map<string, unknown>();
-
 const tokenizerClient: Mocked<TokenizerClient> = {
   tokenize: vi
     .fn()
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     .mockImplementation(async (_fiscalCode) => aMaskedFiscalCode),
-};
-
-const recipientRepository: Mocked<RecipientRepository> = {
-  get: vi
-    .fn()
-    .mockImplementation(async (fiscalCode) =>
-      recipientStore.get(`user:${fiscalCode.toLowerCase()}:recipient.id`),
-    ),
-  upsert: vi.fn().mockImplementation(async (fiscalCode) => {
-    recipientStore.set(`user:${fiscalCode.toLowerCase()}:recipient.id`, event);
-  }),
 };
 
 describe("getMessageByMetadata", () => {
@@ -82,13 +65,9 @@ describe("getMessageByMetadata", () => {
 
 describe("getMessageEventFromMessage", () => {
   test("Given a valid message, when tokenize works, then it should return the message event", async () => {
-    const maskFiscalCodeUseCase = new MaskFiscalCodeUseCase({
-      recipientRepository,
-      tokenizerClient,
-    });
     expect(
       messageEventSchema.safeParse(
-        await getMessageEventFromMessage(aSimpleMessage, maskFiscalCodeUseCase),
+        await getMessageEventFromMessage(aSimpleMessage, tokenizerClient),
       ).success,
     ).toBe(true);
   });
@@ -97,12 +76,8 @@ describe("getMessageEventFromMessage", () => {
     tokenizerClient.tokenize.mockImplementationOnce(() => {
       throw new Error("Error calling the tokenize");
     });
-    const maskFiscalCodeUseCase = new MaskFiscalCodeUseCase({
-      recipientRepository,
-      tokenizerClient,
-    });
     await expect(
-      getMessageEventFromMessage(aSimpleMessage, maskFiscalCodeUseCase),
+      getMessageEventFromMessage(aSimpleMessage, tokenizerClient),
     ).rejects.toThrowError("Error calling the tokenize");
   });
 });

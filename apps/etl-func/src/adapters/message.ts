@@ -1,4 +1,4 @@
-import { MaskFiscalCodeUseCase } from "@/domain/mask-fiscal-code.js";
+import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
 import {
   Message,
   MessageContent,
@@ -17,9 +17,9 @@ import { MessageContentError } from "./blob-storage/message-content.js";
 
 export const getMessageEventFromMessage = async (
   { content, contentType, id, metadata }: Message,
-  maskFiscalCodeUseCase: MaskFiscalCodeUseCase,
+  tokenizerClient: TokenizerClient,
 ): Promise<MessageEvent> => {
-  const recipient_id = await maskFiscalCodeUseCase.execute(metadata.fiscalCode);
+  const recipient_id = await tokenizerClient.tokenize(metadata.fiscalCode);
   return messageEventSchema.parse({
     content_type: contentType,
     feature_level_type: metadata.featureLevelType,

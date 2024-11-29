@@ -6,12 +6,6 @@ import {
   RedisScripts,
 } from "redis";
 
-export class RecipientIdNotFoundError extends Error {
-  constructor() {
-    super("No cached recipientId found");
-  }
-}
-
 export default class RedisRecipientRepository implements RecipientRepository {
   #client: RedisClientType<RedisDefaultModules, RedisFunctions, RedisScripts>;
 
@@ -26,8 +20,7 @@ export default class RedisRecipientRepository implements RecipientRepository {
   }
 
   async get(id: string) {
-    const recipientId = await this.#client.get(this.#key(id));
-    return recipientId;
+    return (await this.#client.get(this.#key(id))) || undefined;
   }
 
   async upsert(fiscalCode: string, recipientId: string) {
