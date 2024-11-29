@@ -1,4 +1,5 @@
 import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
+import { FiscalCode } from "@/domain/message-status.js";
 import { z } from "zod";
 
 const invalidParamSchema = z.object({
@@ -35,10 +36,10 @@ export default class PDVTokenizerClient implements TokenizerClient {
     this.#baseUrl = baseUrl;
   }
 
-  async tokenize(pii: string): Promise<string> {
+  async tokenize(fiscalCode: FiscalCode): Promise<string> {
     try {
       const response = await fetch(`${this.#baseUrl}/tokens`, {
-        body: JSON.stringify({ pii }),
+        body: JSON.stringify({ fiscalCode }),
         headers: {
           "content-type": "application/json",
           "x-api-key": this.#apiKey,

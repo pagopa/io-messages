@@ -3,8 +3,9 @@ import {
   messageContentSchema,
   messageMetadataSchema,
 } from "@/domain/message.js";
+import { FiscalCode } from "@/domain/message-status.js";
 
-export const aFiscalCode = "RMLGNN97R06F158N";
+export const aFiscalCode = "RMLGNN97R06F158N" as FiscalCode;
 export const aMaskedFiscalCode = "3f5a5e37-63a0-423c-a108-94b535e03f91";
 
 export const aSimpleMessageMetadata = messageMetadataSchema.parse({

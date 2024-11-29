@@ -6,6 +6,7 @@ import PDVTokenizerClient, { problemSchema } from "../pdv-tokenizer-client.js";
 const apiKey = "anApiKey";
 const baseUrl = "https://mockurl.com";
 const client = new PDVTokenizerClient(apiKey, baseUrl);
+const fiscalCode = aFiscalCode;
 
 describe("PDVTokenizerClient", () => {
   it("should return a token on successful tokenization", async () => {
@@ -19,14 +20,13 @@ describe("PDVTokenizerClient", () => {
       status: 200,
     } as Response);
 
-    const pii = aFiscalCode;
-    const token = await client.tokenize(pii);
+    const token = await client.tokenize(fiscalCode);
 
     expect(token).toBe(aMaskedFiscalCode);
     expect(fetchSpy).toHaveBeenCalledWith(
       `${baseUrl}/tokens`,
       expect.objectContaining({
-        body: JSON.stringify({ pii }),
+        body: JSON.stringify({ fiscalCode }),
         headers: expect.objectContaining({
           "content-type": "application/json",
           "x-api-key": apiKey,
@@ -50,9 +50,8 @@ describe("PDVTokenizerClient", () => {
       status: 400,
     } as Response);
 
-    const pii = aFiscalCode;
     try {
-      await client.tokenize(pii);
+      await client.tokenize(fiscalCode);
       throw new Error("Expected error to be thrown");
     } catch (error) {
       const typedError = error as Error;
@@ -65,7 +64,7 @@ describe("PDVTokenizerClient", () => {
     expect(fetchSpy).toHaveBeenCalledWith(
       `${baseUrl}/tokens`,
       expect.objectContaining({
-        body: JSON.stringify({ pii }),
+        body: JSON.stringify({ fiscalCode }),
         headers: expect.objectContaining({
           "content-type": "application/json",
           "x-api-key": apiKey,
@@ -83,9 +82,8 @@ describe("PDVTokenizerClient", () => {
       .spyOn(globalThis, "fetch")
       .mockRejectedValueOnce(returnedError);
 
-    const pii = aFiscalCode;
     try {
-      await client.tokenize(pii);
+      await client.tokenize(fiscalCode);
       throw new Error("Expected error to be thrown");
     } catch (error) {
       const typedError = error as Error;
@@ -96,7 +94,7 @@ describe("PDVTokenizerClient", () => {
     expect(fetchSpy).toHaveBeenCalledWith(
       `${baseUrl}/tokens`,
       expect.objectContaining({
-        body: JSON.stringify({ pii }),
+        body: JSON.stringify({ fiscalCode }),
         headers: expect.objectContaining({
           "content-type": "application/json",
           "x-api-key": apiKey,
