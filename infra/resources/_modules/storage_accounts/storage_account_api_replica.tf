@@ -30,3 +30,36 @@ module "storage_api_replica" {
 
   tags = var.tags
 }
+
+module "storage_api_replica_itn" {
+  source = "github.com/pagopa/dx//infra/modules/azure_storage_account?ref=main"
+
+  environment                          = local.itn_environment
+  resource_group_name                  = var.resource_group_name
+  tier                                 = "l"
+  subnet_pep_id                        = module.common_values.pep_subnets.itn.id
+  private_dns_zone_resource_group_name = module.common_values.resource_groups.weu.common
+
+  subservices_enabled = {
+    blob  = true
+    file  = false
+    queue = false
+    table = true
+  }
+
+  blob_features = {
+    immutability_policy = {
+      enabled = false
+    }
+    delete_retention_days = 0
+    versioning            = true
+    last_access_time      = true
+    change_feed = {
+      enabled = false
+    }
+  }
+
+  force_public_network_access_enabled = false
+
+  tags = var.tags
+}
