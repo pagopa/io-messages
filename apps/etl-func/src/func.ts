@@ -66,6 +66,16 @@ const main = async (config: Config) => {
     handler: messagesIngestion(messageAdapter, PDVTokenizer, producer),
     leaseContainerName: `${config.cosmos.messagesContainerName}-ingestion-lease`,
     maxItemsPerInvocation: 30,
+    retry: {
+      maxRetryCount: 5,
+      maximumInterval: {
+        minutes: 1,
+      },
+      minimumInterval: {
+        seconds: 5,
+      },
+      strategy: "exponentialBackoff",
+    },
     startFromBeginning: true,
   });
 };
