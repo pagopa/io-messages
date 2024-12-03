@@ -61,10 +61,10 @@ const main = async (config: Config) => {
   app.cosmosDB("messagesCosmosDBTrigger", {
     connection: "COSMOS",
     containerName: config.cosmos.messagesContainerName,
-    createLeaseCollectionIfNotExists: false,
+    createLeaseContainerIfNotExists: false,
     databaseName: config.cosmos.databaseName,
     handler: messagesIngestion(messageAdapter, PDVTokenizer, producer),
-    leaseContainerName: `${config.cosmos.messagesContainerName}-ingestion-lease`,
+    leaseContainerName: `messages-dataplan-ingestion-lease`,
     maxItemsPerInvocation: 30,
     retry: {
       maxRetryCount: 5,
@@ -76,7 +76,8 @@ const main = async (config: Config) => {
       },
       strategy: "exponentialBackoff",
     },
-    startFromBeginning: true,
+    //we need to start the ingestion from this date
+    startFromTime: "2023/01/01T00:00:00Z",
   });
 };
 
