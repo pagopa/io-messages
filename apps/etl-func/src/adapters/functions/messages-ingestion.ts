@@ -30,7 +30,7 @@ const messagesIngestion =
 
     try {
       //Retrieving the message contents for each message metadata
-      const messagesContet = (
+      const messagesContent = (
         await Promise.all(
           documentsMetadata.map((messageMetadata) =>
             messageAdapter.getMessageByMetadata(messageMetadata),
@@ -40,7 +40,7 @@ const messagesIngestion =
 
       //Transforming messages on message events
       const messagesEvent = await Promise.all(
-        messagesContet.map((messageEvent) =>
+        messagesContent.map((messageEvent) =>
           getMessageEventFromMessage(messageEvent, PDVTokenizer),
         ),
       );
