@@ -96,29 +96,29 @@ module "storage_api_itn" {
   tags            = var.tags
 }
 
-resource "azurerm_storage_container" "message_content" {
+resource "azurerm_storage_container" "message_content_itn" {
   name                  = "message-content"
   storage_account_name  = module.storage_api_itn.name
   container_access_type = "private"
 }
 
-resource "azurerm_storage_container" "cached" {
+resource "azurerm_storage_container" "cached_itn" {
   name                  = "cached"
   storage_account_name  = module.storage_api_itn.name
   container_access_type = "private"
 }
 
-resource "azurerm_storage_table" "subscriptionsfeedbyday" {
+resource "azurerm_storage_table" "subscriptionsfeedbyday_itn" {
   name                 = "SubscriptionsFeedByDay"
   storage_account_name = module.storage_api_itn.name
 }
 
-resource "azurerm_storage_table" "faileduserdataprocessing" {
+resource "azurerm_storage_table" "faileduserdataprocessing_itn" {
   name                 = "FailedUserDataProcessing"
   storage_account_name = module.storage_api_itn.name
 }
 
-resource "azurerm_storage_table" "validationtokens" {
+resource "azurerm_storage_table" "validationtokens_itn" {
   name                 = "ValidationTokens"
   storage_account_name = module.storage_api_itn.name
 }
