@@ -41,6 +41,9 @@ locals {
       ],
       io-p-itn-common-rg-01 = [
         "Role Based Access Control Administrator"
+      ],
+      io-p-rg-common = [
+        "Role Based Access Control Administrator"
       ]
     }
   }
