@@ -27,7 +27,7 @@ module "etl_func" {
     PDV_TOKENIZER_BASE_URL         = "https://api.tokenizer.pdv.pagopa.it/tokenizer/v1"
     COSMOS__accountEndpoint        = var.cosmosdb_account_api.endpoint
     COSMOS_DBNAME                  = "db",
-    COSMOS_MESSAGES_CONTAINER_NAME = "messages-dataplan-test"
+    COSMOS_MESSAGES_CONTAINER_NAME = "messages-dataplan-ingestion-test"
   }
 
   sticky_app_setting_names = ["NODE_ENVIRONMENT"]
