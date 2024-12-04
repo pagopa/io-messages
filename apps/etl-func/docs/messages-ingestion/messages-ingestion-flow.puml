@@ -10,9 +10,6 @@ CosmosDB -> etlFunc: Messages metadata from CosmosDB
 
 loop Process all Mesagges Metadata
   etlFunc -> MessageContent: Get message content
-  ' break Error searching message content
-  '     etlFunc -> etlFunc: Throw error and exit
-  ' end
   MessageContent -> etlFunc: Returns message content
   note left of etlFunc
     At this point the function knows
@@ -20,9 +17,6 @@ loop Process all Mesagges Metadata
   end note
   etlFunc -> etlFunc: Transform message to messageEvent
   etlFunc -> PDV: Request FC anonymization
-  ' break Anonymization error
-  '     etlFunc -> etlFunc: Throw error and exit
-  ' end
   PDV -> etlFunc: Returns anonymized FC
   note left of etlFunc
     At this point all the FC inside the messages
