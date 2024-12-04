@@ -8,6 +8,6 @@ export const envSchema = z.object({
   PDV_TOKENIZER_API_KEY: z.string().min(1),
   PDV_TOKENIZER_BASE_URL: z.string().url(),
   REDIS_ACCESS_KEY: z.string().min(1),
-  REDIS_PING_INTERVAL: z.number(),
+  REDIS_PING_INTERVAL: z.coerce.number(),
   REDIS_URL: z.string().url(),
 });
