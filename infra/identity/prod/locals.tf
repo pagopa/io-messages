@@ -35,6 +35,12 @@ locals {
       ],
       io-p-rg-operations = [
         "Role Based Access Control Administrator"
+      ],
+      io-p-rg-internal = [
+        "Role Based Access Control Administrator"
+      ],
+      io-p-itn-common-rg-01 = [
+        "Role Based Access Control Administrator"
       ]
     }
   }
