@@ -64,7 +64,7 @@ const main = async (config: Config) => {
     createLeaseContainerIfNotExists: false,
     databaseName: config.cosmos.databaseName,
     handler: messagesIngestion(messageAdapter, PDVTokenizer, producer),
-    leaseContainerName: `messages-dataplan-ingestion-lease`,
+    leaseContainerName: `messages-dataplan-ingestion-test-lease`,
     maxItemsPerInvocation: 30,
     retry: {
       maxRetryCount: 5,
