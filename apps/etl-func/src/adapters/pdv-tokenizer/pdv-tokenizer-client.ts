@@ -1,5 +1,4 @@
 import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
-import * as assert from "assert";
 import { z } from "zod";
 
 const invalidParamSchema = z.object({
@@ -42,19 +41,14 @@ export default class PDVTokenizerClient implements TokenizerClient {
 
       const responseJson = await response.json();
 
-      assert.strictEqual(
-        response.ok,
-        false,
-        new Error(
+      if (!response.ok)
+        throw new Error(
           `Error in tokenizer api call with status ${response.status}`,
-          {
-            cause: problemSchema.parse(responseJson),
-          },
-        ),
-      );
+          { cause: problemSchema.parse(responseJson) },
+        );
       return tokenResourceSchema.parse(responseJson).token;
     } catch (e) {
-      throw new Error("Error during tokenizer api call", {
+      throw new Error("Error during tokenization", {
         cause: e,
       });
     }
