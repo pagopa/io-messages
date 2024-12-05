@@ -47,9 +47,9 @@ const main = async (config: Config) => {
     handler: async () => {
       try {
         // check for storage availability or throw
-        await blobServiceCLient.getProperties();
-        //there's no function to get the producerClient connection status but we check the properties
-        await producerClient.getEventHubProperties();
+        await blobServiceCLient
+          .getContainerClient(config.messageContentStorage.containerName)
+          .getProperties();
       } catch (error) {
         logger.error(error);
         throw error;
