@@ -58,7 +58,7 @@ const main = async (config: Config) => {
     route: "health",
   });
 
-  app.cosmosDB("messagesCosmosDBTrigger", {
+  app.cosmosDB("IngestMessages", {
     connection: "COSMOS",
     containerName: config.cosmos.messagesContainerName,
     createLeaseContainerIfNotExists: false,
