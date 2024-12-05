@@ -30,7 +30,7 @@ module "etl_func" {
     COSMOS_MESSAGES_CONTAINER_NAME = "messages-dataplan-ingestion-test"
   }
 
-  sticky_app_setting_names = ["NODE_ENVIRONMENT"]
+  sticky_app_setting_names = ["NODE_ENV"]
 
   virtual_network = var.virtual_network
 
