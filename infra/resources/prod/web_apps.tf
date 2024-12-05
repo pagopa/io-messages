@@ -28,7 +28,7 @@ module "web_apps" {
 
   app_settings = {
     message_content_storage_uri : data.azurerm_storage_account.storage_api.primary_blob_endpoint,
-    eventhub_connection_uri : "https://${data.azurerm_eventhub_namespace.etl_eventhub_namespace.name}.servicebus.windows.net"
+    eventhub_connection_uri : "${data.azurerm_eventhub_namespace.etl_eventhub_namespace.name}.servicebus.windows.net"
   }
 
   /*gcm_migration_storage = {
