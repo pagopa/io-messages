@@ -24,9 +24,13 @@ module "etl_func" {
     MESSAGE_CONTENT_CONTAINER_NAME = "message-content",
     MESSAGE_EVENTHUB_NAME          = "io-p-itn-com-etl-messages-evh-01"
     PDV_TOKENIZER_API_KEY          = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=func-elt-PDV-TOKENIZER-API-KEY)"
+    PDV_TOKENIZER_BASE_URL         = "https://api.tokenizer.pdv.pagopa.it/tokenizer/v1"
     REDIS_URL                      = var.redis_cache.url
     REDIS_ACCESS_KEY               = var.redis_cache.access_key
     REDIS_PING_INTERVAL            = 1000 * 60 * 9
+    COSMOS__accountEndpoint        = var.cosmosdb_account_api.endpoint
+    COSMOS_DBNAME                  = "db",
+    COSMOS_MESSAGES_CONTAINER_NAME = "messages-dataplan-ingestion-test"
   }
 
   sticky_app_setting_names = ["NODE_ENVIRONMENT"]
@@ -53,6 +57,26 @@ resource "azurerm_redis_cache_access_policy_assignment" "etl_func" {
   access_policy_name = "Data Contributor"
   object_id          = module.etl_func.function_app.function_app.principal_id
   object_id_alias    = "ServicePrincipal"
+}
+
+resource "azurerm_role_assignment" "eventhub_namespace_write" {
+  scope                = var.eventhub_namespace.id
+  role_definition_name = "Azure Event Hubs Data Sender"
+  principal_id         = module.etl_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_role_assignment" "message_content_container_read" {
+  scope                = "${var.messages_storage_account.id}/blobServices/default/containers/${var.messages_content_container.name}"
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = module.etl_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "etl_func" {
+  resource_group_name = var.cosmosdb_account_api.resource_group_name
+  account_name        = var.cosmosdb_account_api.name
+  role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = module.etl_func.function_app.function_app.principal_id
+  scope               = var.cosmosdb_account_api.id
 }
 
 output "etl_func" {

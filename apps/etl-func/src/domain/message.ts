@@ -123,7 +123,7 @@ export interface MessageRepository {
 }
 
 export interface EventProducer<T> {
-  publish: (message: T) => Promise<void>;
+  publish: (message: T[]) => Promise<void>;
 }
 
 export class Message {
