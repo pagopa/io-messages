@@ -48,7 +48,7 @@ export default class PDVTokenizerClient implements TokenizerClient {
         );
       return tokenResourceSchema.parse(responseJson).token;
     } catch (e) {
-      throw new Error("Error during tokenization", {
+      throw new Error(`Error during tokenization | ${e}`, {
         cause: e,
       });
     }
