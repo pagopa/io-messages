@@ -29,9 +29,5 @@
     "ts-jest": "^29.1.4",
     "turbo": "^1.13.2",
     "typescript": "5.4.3"
-  },
-  "dependencies": {
-    "@azure/identity": "^4.4.1",
-    "@azure/storage-blob": "^12.25.0"
   }
 }
