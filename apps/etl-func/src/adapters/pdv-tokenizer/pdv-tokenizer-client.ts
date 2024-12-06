@@ -35,7 +35,7 @@ export default class PDVTokenizerClient implements TokenizerClient {
       const responseJson = await response.json();
 
       if (!response.ok) {
-        throw new Error(
+        throw new PDVApiError(
           `Error in tokenizer api call with status ${response.status} and body ${responseJson}`,
         );
       }
