@@ -1,7 +1,7 @@
 import { aFiscalCode, aMaskedFiscalCode } from "@/__mocks__/message.js";
 import { describe, expect, it, vi } from "vitest";
 
-import PDVTokenizerClient, { problemSchema } from "../pdv-tokenizer-client.js";
+import PDVTokenizerClient from "../pdv-tokenizer-client.js";
 
 const apiKey = "anApiKey";
 const baseUrl = "https://mockurl.com";
@@ -37,12 +37,12 @@ describe("PDVTokenizerClient", () => {
   });
 
   it("should throw an error with the response in the cause when the API responds with an error", async () => {
-    const mockErrorResponse = problemSchema.parse({
+    const mockErrorResponse = {
       detail: "Invalid parameter",
       status: 400,
       title: "Bad Request",
       type: "client_error",
-    });
+    };
 
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
       json: async () => mockErrorResponse,
