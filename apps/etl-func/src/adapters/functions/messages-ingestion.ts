@@ -1,3 +1,4 @@
+import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
 import { CosmosDBHandler } from "@azure/functions";
 import { pino } from "pino";
 
@@ -9,7 +10,6 @@ import {
 } from "../../domain/message.js";
 import { MessageAdapter, getMessageEventFromMessage } from "../message.js";
 import { EventHubEventProducer } from "../message-event.js";
-import PDVTokenizerClient from "../pdv-tokenizer/pdv-tokenizer-client.js";
 
 const logger = pino({
   level: process.env.NODE_ENV === "production" ? "error" : "debug",
@@ -18,7 +18,7 @@ const logger = pino({
 const messagesIngestion =
   (
     messageAdapter: MessageAdapter,
-    PDVTokenizer: PDVTokenizerClient,
+    tokenizer: TokenizerClient,
     producer: EventHubEventProducer<MessageEvent>,
   ): CosmosDBHandler =>
   async (documents: unknown[]) => {
@@ -41,7 +41,7 @@ const messagesIngestion =
       //Transforming messages on message events
       const messagesEvent = await Promise.all(
         messagesContent.map((messageEvent) =>
-          getMessageEventFromMessage(messageEvent, PDVTokenizer),
+          getMessageEventFromMessage(messageEvent, tokenizer),
         ),
       );
       if (messagesEvent.length) await producer.publish(messagesEvent);

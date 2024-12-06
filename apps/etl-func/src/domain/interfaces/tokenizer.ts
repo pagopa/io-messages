@@ -1,8 +1,9 @@
+import { FiscalCode } from "../message-status.js";
+
 export interface TokenizerClient {
   tokenize(pii: string): Promise<string>;
 }
-
-export const maskSensitiveInfo =
-  (fiscalCode: string) =>
-  async (client: TokenizerClient): Promise<string> =>
-    await client.tokenize(fiscalCode);
+export interface RecipientRepository {
+  get(fiscalCode: FiscalCode): Promise<string | undefined>;
+  upsert(fiscalCode: FiscalCode, recipientId: string): Promise<void>;
+}
