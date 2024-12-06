@@ -42,7 +42,7 @@ const main = async (config: Config) => {
 
   const recipientRepository = new RedisRecipientRepository(redis);
 
-  const pDVTokenizer = new CachedPDVTokenizerClient(
+  const tokenizerClient = new CachedPDVTokenizerClient(
     config.pdvTokenizer.apiKey,
     config.pdvTokenizer.baseUrl,
     recipientRepository,
@@ -81,7 +81,7 @@ const main = async (config: Config) => {
     containerName: config.cosmos.messagesContainerName,
     createLeaseContainerIfNotExists: false,
     databaseName: config.cosmos.databaseName,
-    handler: messagesIngestion(messageAdapter, pDVTokenizer, producer),
+    handler: messagesIngestion(messageAdapter, tokenizerClient, producer),
     leaseContainerName: `messages-dataplan-ingestion-test-lease`,
     maxItemsPerInvocation: 30,
     retry: {
