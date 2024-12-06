@@ -22,10 +22,13 @@ const messagesIngestion =
     producer: EventHubEventProducer<MessageEvent>,
   ): CosmosDBHandler =>
   async (documents: unknown[]) => {
-    //Avoiding all documents different from MessageMetadata schema
+    //Avoiding all documents different from MessageMetadata schema and with
+    //isPending equals to true
     const documentsMetadata: MessageMetadata[] = documents.filter(
-      (item): item is MessageMetadata =>
-        messageMetadataSchema.safeParse(item).success,
+      (item): item is MessageMetadata => {
+        const parsedItem = messageMetadataSchema.safeParse(item);
+        return parsedItem.success && !parsedItem.data.isPending;
+      },
     );
 
     try {
