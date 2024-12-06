@@ -4,6 +4,7 @@ import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
+import { createClient } from "redis";
 
 import { messageSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
@@ -11,7 +12,8 @@ import { Config, configFromEnvironment } from "./adapters/config.js";
 import messagesIngestion from "./adapters/functions/messages-ingestion.js";
 import { MessageAdapter } from "./adapters/message.js";
 import { EventHubEventProducer } from "./adapters/message-event.js";
-import PDVTokenizerClient from "./adapters/pdv-tokenizer/pdv-tokenizer-client.js";
+import { CachedPDVTokenizerClient } from "./adapters/pdv-tokenizer/cached-tokenizer-client.js";
+import RedisRecipientRepository from "./adapters/redis/recipient.js";
 
 const main = async (config: Config) => {
   const logger = pino({
@@ -30,9 +32,20 @@ const main = async (config: Config) => {
     azureCredentials,
   );
 
-  const PDVTokenizer = new PDVTokenizerClient(
+  const redis = createClient(config.messagesRedis);
+
+  redis.on("error", (err) => {
+    logger.error({ err }, "redis error");
+  });
+
+  await redis.connect();
+
+  const recipientRepository = new RedisRecipientRepository(redis);
+
+  const pDVTokenizer = new CachedPDVTokenizerClient(
     config.pdvTokenizer.apiKey,
     config.pdvTokenizer.baseUrl,
+    recipientRepository,
   );
 
   const blobMessageContentProvider = new BlobMessageContent(
@@ -68,7 +81,7 @@ const main = async (config: Config) => {
     containerName: config.cosmos.messagesContainerName,
     createLeaseContainerIfNotExists: false,
     databaseName: config.cosmos.databaseName,
-    handler: messagesIngestion(messageAdapter, PDVTokenizer, producer),
+    handler: messagesIngestion(messageAdapter, pDVTokenizer, producer),
     leaseContainerName: `messages-dataplan-ingestion-test-lease`,
     maxItemsPerInvocation: 30,
     retry: {
