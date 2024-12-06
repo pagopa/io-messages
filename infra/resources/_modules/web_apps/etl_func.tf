@@ -62,7 +62,7 @@ resource "azurerm_key_vault_access_policy" "etl_func_kv_access_policy" {
   tenant_id    = var.tenant_id
   object_id    = module.etl_func.function_app.function_app.principal_id
 
-  secret_permissions      = ["Get"]
+  secret_permissions      = ["Get", "List"]
   storage_permissions     = []
   certificate_permissions = []
 }
