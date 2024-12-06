@@ -2,25 +2,10 @@ import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
 import { FiscalCode } from "@/domain/message-status.js";
 import { z } from "zod";
 
-const invalidParamSchema = z.object({
-  name: z.string(),
-  reason: z.string(),
-});
-
-export const problemSchema = z.object({
-  detail: z.string().optional(),
-  instance: z.string().optional(),
-  invalidParams: z.array(invalidParamSchema).optional(),
-  status: z.number().int(),
-  title: z.string(),
-  type: z.string().optional(),
-});
-
 const tokenResourceSchema = z.object({
   token: z.string().uuid(),
 });
 
-export type ProblemSchema = z.TypeOf<typeof problemSchema>;
 export type TokenResourse = z.TypeOf<typeof tokenResourceSchema>;
 
 class PDVApiError extends Error {
@@ -50,19 +35,14 @@ export default class PDVTokenizerClient implements TokenizerClient {
       const responseJson = await response.json();
 
       if (!response.ok) {
-        throw new PDVApiError(
-          `Error in tokenizer api call with status ${response.status}`,
-          {
-            cause: problemSchema.parse(responseJson),
-          },
+        throw new Error(
+          `Error in tokenizer api call with status ${response.status} and body ${responseJson}`,
         );
       }
       return tokenResourceSchema.parse(responseJson).token;
     } catch (e) {
       if (e instanceof PDVApiError) throw e;
-      throw new Error("Error during tokenizer api call", {
-        cause: e,
-      });
+      throw new Error(`Error during tokenizer api call | ${e}`);
     }
   }
 }
