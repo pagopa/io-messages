@@ -104,10 +104,10 @@ describe("messagesIngestion handler", () => {
     expect(publishSpy).not.toHaveBeenCalledOnce();
   });
 
-  test("should resolve calling tokenize and getMessageByMetadata onfly for documents with isPending = false", async () => {
+  test("should resolve calling tokenize and getMessageByMetadata only for documents with isPending = true", async () => {
     const documentsMock = [
       aSimpleMessageMetadata,
-      { ...aSimpleMessageMetadata, isPending: true },
+      { ...aSimpleMessageMetadata, isPending: false },
     ];
     await expect(handler(documentsMock, context)).resolves.toEqual(undefined);
     expect(getMessageByMetadataSpy).toHaveBeenCalledOnce();
