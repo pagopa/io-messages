@@ -6,9 +6,12 @@
     "MESSAGE_CONTENT_STORAGE_URI": "https://testgiovannist.blob.core.windows.net/",
     "MESSAGE_CONTENT_CONTAINER_NAME": "messages",
     "EVENTHUB_CONNECTION_URI": "io-d-evh-cdc.servicebus.windows.net",
-    "MESSAGE_EVENTHUB_NAME": "message-events-test"
+    "MESSAGE_EVENTHUB_NAME": "message-events-test",
     "PDV_TOKENIZER_API_KEY": "apiKey",
     "PDV_TOKENIZER_BASE_URL": "https://api.uat.tokenizer.pdv.pagopa.it/tokenizer/v1",
+    "REDIS_ACCESS_KEY": "accessKey",
+    "REDIS_PING_INTERVAL": 1000,
+    "REDIS_URL": "https://a-redis-url/"
     "COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
     "COSMOS_DBNAME": "io-messages",
     "COSMOS_MESSAGES_CONTAINER_NAME": "messages"
