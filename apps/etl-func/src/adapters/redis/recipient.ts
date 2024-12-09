@@ -1,4 +1,3 @@
-import { RecipientRepository } from "@/domain/interfaces/tokenizer.js";
 import { FiscalCode } from "@/domain/message-status.js";
 import {
   RedisClientType,
@@ -7,7 +6,7 @@ import {
   RedisScripts,
 } from "redis";
 
-export default class RedisRecipientRepository implements RecipientRepository {
+export default class RedisRecipientRepository {
   #client: RedisClientType<RedisDefaultModules, RedisFunctions, RedisScripts>;
 
   constructor(

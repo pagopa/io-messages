@@ -1,15 +1,15 @@
-import { RecipientRepository } from "@/domain/interfaces/tokenizer.js";
 import { FiscalCode } from "@/domain/message-status.js";
 
+import RedisRecipientRepository from "../redis/recipient.js";
 import PDVTokenizerClient from "./pdv-tokenizer-client.js";
 
 export class CachedPDVTokenizerClient extends PDVTokenizerClient {
-  #recipientRepo: RecipientRepository;
+  #recipientRepo: RedisRecipientRepository;
 
   constructor(
     apiKey: string,
     baseUrl: string,
-    recipientRepo: RecipientRepository,
+    recipientRepo: RedisRecipientRepository,
   ) {
     super(apiKey, baseUrl);
     this.#recipientRepo = recipientRepo;
