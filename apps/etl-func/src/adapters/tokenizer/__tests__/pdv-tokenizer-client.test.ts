@@ -20,7 +20,7 @@ describe("PDVTokenizerClient", () => {
       status: 200,
     } as Response);
 
-    const token = await client.tokenize(fiscalCode);
+    const token = await client.maskSensitiveInfo(fiscalCode);
 
     expect(token).toBe(aMaskedFiscalCode);
     expect(fetchSpy).toHaveBeenCalledWith(
@@ -51,7 +51,7 @@ describe("PDVTokenizerClient", () => {
     } as Response);
 
     try {
-      await client.tokenize(fiscalCode);
+      await client.maskSensitiveInfo(fiscalCode);
       throw new Error("Expected error to be thrown");
     } catch (error) {
       const typedError = error as Error;
@@ -83,7 +83,7 @@ describe("PDVTokenizerClient", () => {
       .mockRejectedValueOnce(returnedError);
 
     try {
-      await client.tokenize(fiscalCode);
+      await client.maskSensitiveInfo(fiscalCode);
       throw new Error("Expected error to be thrown");
     } catch (error) {
       const typedError = error as Error;

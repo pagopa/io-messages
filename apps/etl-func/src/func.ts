@@ -12,8 +12,8 @@ import { Config, configFromEnvironment } from "./adapters/config.js";
 import messagesIngestion from "./adapters/functions/messages-ingestion.js";
 import { MessageAdapter } from "./adapters/message.js";
 import { EventHubEventProducer } from "./adapters/message-event.js";
-import { CachedPDVTokenizerClient } from "./adapters/pdv-tokenizer/cached-tokenizer-client.js";
 import RedisRecipientRepository from "./adapters/redis/recipient.js";
+import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
 
 const main = async (config: Config) => {
   const logger = pino({

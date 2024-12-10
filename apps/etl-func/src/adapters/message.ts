@@ -19,7 +19,9 @@ export const getMessageEventFromMessage = async (
   { content, contentType, id, metadata }: Message,
   tokenizerClient: TokenizerClient,
 ): Promise<MessageEvent> => {
-  const recipient_id = await tokenizerClient.tokenize(metadata.fiscalCode);
+  const recipient_id = await tokenizerClient.maskSensitiveInfo(
+    metadata.fiscalCode,
+  );
   return messageEventSchema.parse({
     content_type: contentType,
     feature_level_type: metadata.featureLevelType,

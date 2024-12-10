@@ -2,8 +2,8 @@ import { z } from "zod";
 
 import { envSchema } from "./env.js";
 import { eventhubConfigSchema } from "./eventhub/config.js";
-import { pdvConfigSchema } from "./pdv-tokenizer/config.js";
 import { redisConfigSchema } from "./redis/config.js";
+import { pdvConfigSchema } from "./tokenizer/config.js";
 
 export const configSchema = z.object({
   cosmos: z.object({

@@ -21,7 +21,7 @@ export default class PDVTokenizerClient implements TokenizerClient {
     this.#baseUrl = baseUrl;
   }
 
-  async tokenize(fiscalCode: FiscalCode): Promise<string> {
+  async maskSensitiveInfo(fiscalCode: FiscalCode): Promise<string> {
     try {
       const response = await fetch(`${this.#baseUrl}/tokens`, {
         body: JSON.stringify({ fiscalCode }),

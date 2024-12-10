@@ -1,3 +1,3 @@
 export interface TokenizerClient {
-  tokenize(pii: string): Promise<string>;
+  maskSensitiveInfo(pii: string): Promise<string>;
 }

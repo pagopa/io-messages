@@ -33,7 +33,7 @@ const messageContentMock: MessageContentProvider = {
 const messageAdapter = new MessageAdapter(messageContentMock, loggerMock);
 
 const tokenizerClient: Mocked<TokenizerClient> = {
-  tokenize: vi
+  maskSensitiveInfo: vi
     .fn()
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     .mockImplementation(async (_fiscalCode) => aMaskedFiscalCode),
@@ -73,7 +73,7 @@ describe("getMessageEventFromMessage", () => {
   });
 
   test("Given a valid message, when the tokenize does not works, then it should throw an error", async () => {
-    tokenizerClient.tokenize.mockImplementationOnce(() => {
+    tokenizerClient.maskSensitiveInfo.mockImplementationOnce(() => {
       throw new Error("Error calling the tokenize");
     });
     await expect(

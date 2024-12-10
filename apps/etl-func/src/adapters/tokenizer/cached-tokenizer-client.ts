@@ -15,10 +15,10 @@ export class CachedPDVTokenizerClient extends PDVTokenizerClient {
     this.#recipientRepo = recipientRepo;
   }
 
-  async tokenize(fiscalCode: FiscalCode): Promise<string> {
+  async maskSensitiveInfo(fiscalCode: FiscalCode): Promise<string> {
     const recipientId = await this.#recipientRepo.get(fiscalCode);
     if (!recipientId) {
-      const token = await super.tokenize(fiscalCode);
+      const token = await super.maskSensitiveInfo(fiscalCode);
       this.#recipientRepo.upsert(fiscalCode, token);
       return token;
     }
