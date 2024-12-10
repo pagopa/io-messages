@@ -56,9 +56,8 @@ describe("PDVTokenizerClient", () => {
     } catch (error) {
       const typedError = error as Error;
       expect(typedError.message).toBe(
-        "Error in tokenizer api call with status 400",
+        `Error in tokenizer api call with status 400 and body ${JSON.stringify(mockErrorResponse)}`,
       );
-      expect(typedError.cause).toEqual(mockErrorResponse);
     }
 
     expect(fetchSpy).toHaveBeenCalledWith(
@@ -87,8 +86,9 @@ describe("PDVTokenizerClient", () => {
       throw new Error("Expected error to be thrown");
     } catch (error) {
       const typedError = error as Error;
-      expect(typedError.message).toBe("Error during tokenizer api call");
-      expect(typedError.cause).toBe(returnedError);
+      expect(typedError.message).toBe(
+        "Error during tokenizer api call | Error: Network error",
+      );
     }
 
     expect(fetchSpy).toHaveBeenCalledWith(
