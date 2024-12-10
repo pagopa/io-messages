@@ -14,7 +14,7 @@ export const aSimpleMessageMetadata = messageMetadataSchema.parse({
   fiscalCode: "RMLGNN97R06F158N",
   id: "01EHA1R1TSJP8DNYYG2TTR1B28",
   indexedId: "01EHA1R1TTJG01AHEDQEFNHFS9",
-  isPending: true,
+  isPending: false,
   senderServiceId: "synthesizing",
   senderUserId: "interface",
   timeToLiveSeconds: 6125,
