@@ -1,18 +1,16 @@
 import {
-  TokenizerClient,
-  maskSensitiveInfo,
-} from "@/domain/interfaces/tokenizer.js";
-import {
   Message,
-  MessageContent,
-  MessageEvent,
   MessageMetadata,
   MessageRepository,
-  messageEventSchema,
 } from "@/domain/message.js";
+import { MessageEvent, messageEventSchema } from "@/domain/message-event.js";
+import { TokenizerClient, maskSensitiveInfo } from "@/domain/tokenizer.js";
 import { Logger } from "pino";
 
-import { MessageContentError } from "./blob-storage/message-content.js";
+import {
+  MessageContentError,
+  MessageContentProvider,
+} from "./blob-storage/message-content.js";
 
 /**
  * Transform a Message into a MessageEvent
@@ -52,10 +50,6 @@ export const getMessageEventFromMessage = async (
   });
 };
 
-export interface MessageContentProvider {
-  getByMessageId(messageId: string): Promise<MessageContent>;
-}
-
 export class MessageAdapter implements MessageRepository {
   #content: MessageContentProvider;
   #logger: Logger;
@@ -69,7 +63,9 @@ export class MessageAdapter implements MessageRepository {
     metadata: MessageMetadata,
   ): Promise<Message | undefined> {
     try {
-      const messageContent = await this.#content.getByMessageId(metadata.id);
+      const messageContent = await this.#content.getByMessageContentById(
+        metadata.id,
+      );
       return Message.from(metadata.id, messageContent, metadata);
     } catch (error) {
       if (error instanceof MessageContentError) {
