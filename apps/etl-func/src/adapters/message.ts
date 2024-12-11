@@ -1,7 +1,4 @@
-import {
-  TokenizerClient,
-  maskSensitiveInfo,
-} from "@/domain/interfaces/tokenizer.js";
+import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
 import {
   Message,
   MessageContent,
@@ -22,8 +19,8 @@ export const getMessageEventFromMessage = async (
   { content, contentType, id, metadata }: Message,
   tokenizerClient: TokenizerClient,
 ): Promise<MessageEvent> => {
-  const recipient_id = await maskSensitiveInfo(metadata.fiscalCode)(
-    tokenizerClient,
+  const recipient_id = await tokenizerClient.maskSensitiveInfo(
+    metadata.fiscalCode,
   );
   return messageEventSchema.parse({
     content_type: contentType,
