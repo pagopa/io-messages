@@ -80,7 +80,7 @@ const main = async (config: Config) => {
     databaseName: config.cosmos.databaseName,
     handler: messagesIngestionHandler(ingestMessageUseCase),
     leaseContainerName: `messages-dataplan-ingestion-test-lease`,
-    maxItemsPerInvocation: 30,
+    maxItemsPerInvocation: 50,
     retry: {
       maxRetryCount: 5,
       maximumInterval: {
