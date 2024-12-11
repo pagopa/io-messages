@@ -40,7 +40,7 @@ const main = async (config: Config) => {
     blobServiceCLient,
     config.messageContentStorage.containerName,
   );
-  const eventProducer = new EventHubEventProducer(
+  const messageEventProducer = new EventHubEventProducer(
     producerClient,
     messageSchema,
   );
@@ -49,7 +49,7 @@ const main = async (config: Config) => {
   const ingestMessageUseCase = new IngestMessageUseCase(
     messageAdapter,
     PDVTokenizer,
-    eventProducer,
+    messageEventProducer,
   );
 
   app.http("Health", {

@@ -11,7 +11,7 @@ import { TokenizerClient } from "../tokenizer.js";
 export class IngestMessageUseCase {
   #eventProducer: EventProducer<MessageEvent>;
   #messageAdapter: MessageAdapter;
-  #tokenzer: TokenizerClient;
+  #tokenizer: TokenizerClient;
 
   constructor(
     messageAdapter: MessageAdapter,
@@ -19,7 +19,7 @@ export class IngestMessageUseCase {
     eventProducer: EventProducer<MessageEvent>,
   ) {
     this.#messageAdapter = messageAdapter;
-    this.#tokenzer = tokenizer;
+    this.#tokenizer = tokenizer;
     this.#eventProducer = eventProducer;
   }
 
@@ -36,7 +36,7 @@ export class IngestMessageUseCase {
     //Transforming messages on message events
     const messagesEvent = await Promise.all(
       messages.map((message) =>
-        transformMessageToMessageEvent(message, this.#tokenzer),
+        transformMessageToMessageEvent(message, this.#tokenizer),
       ),
     );
     if (messagesEvent.length) await this.#eventProducer.publish(messagesEvent);
