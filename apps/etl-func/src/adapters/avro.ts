@@ -32,11 +32,6 @@ export const messageSchema = avro.Type.forSchema({
       type: "string",
     },
     {
-      doc: "A boolean that indicates if the message has been processed, is_pending equals false indicates that the message has not been processed yet.",
-      name: "is_pending",
-      type: "boolean",
-    },
-    {
       doc: "The subject of the message.",
       name: "subject",
       type: "string",

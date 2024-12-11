@@ -97,10 +97,21 @@ describe("messagesIngestion handler", () => {
 
   test("should throw an error if tokenize throws an error", async () => {
     const documentsMock = [aSimpleMessageMetadata];
-    tokenizeSpy.mockRejectedValue(false);
+    tokenizeSpy.mockRejectedValueOnce(false);
     await expect(handler(documentsMock, context)).rejects.toEqual(false);
     expect(getMessageByMetadataSpy).toHaveBeenCalledOnce();
     expect(tokenizeSpy).toHaveBeenCalledOnce();
     expect(publishSpy).not.toHaveBeenCalledOnce();
+  });
+
+  test("should resolve calling tokenize and getMessageByMetadata onfly for documents with isPending = false", async () => {
+    const documentsMock = [
+      aSimpleMessageMetadata,
+      { ...aSimpleMessageMetadata, isPending: true },
+    ];
+    await expect(handler(documentsMock, context)).resolves.toEqual(undefined);
+    expect(getMessageByMetadataSpy).toHaveBeenCalledOnce();
+    expect(tokenizeSpy).toHaveBeenCalledOnce();
+    expect(publishSpy).toHaveBeenCalledOnce();
   });
 });
