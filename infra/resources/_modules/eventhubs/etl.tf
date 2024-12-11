@@ -32,7 +32,8 @@ module "etl" {
   private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name
   resource_group_name                  = var.resource_group_name
 
-  tags = var.tags
+  allowed_sources = local.evhns.allowed_sources
+  tags            = var.tags
 
   subnet_pep_id = var.subnet_pep_id
 }
