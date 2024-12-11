@@ -1,6 +1,6 @@
 import {
   MessageAdapter,
-  getMessageEventFromMessage,
+  transformMessageToMessageEvent,
 } from "@/adapters/message.js";
 
 import { EventProducer } from "../event.js";
@@ -25,7 +25,7 @@ export class IngestMessageUseCase {
 
   async execute(messagesMetaData: MessageMetadata[]) {
     //Retrieving the message contents for each message metadata
-    const messagesContent = (
+    const messages = (
       await Promise.all(
         messagesMetaData.map((messageMetadata) =>
           this.#messageAdapter.getMessageByMetadata(messageMetadata),
@@ -35,8 +35,8 @@ export class IngestMessageUseCase {
 
     //Transforming messages on message events
     const messagesEvent = await Promise.all(
-      messagesContent.map((messageEvent) =>
-        getMessageEventFromMessage(messageEvent, this.#tokenzer),
+      messages.map((message) =>
+        transformMessageToMessageEvent(message, this.#tokenzer),
       ),
     );
     if (messagesEvent.length) await this.#eventProducer.publish(messagesEvent);

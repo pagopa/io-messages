@@ -1,12 +1,5 @@
 import * as z from "zod";
 
-export type ContentType =
-  | "EU_COVID_CERT"
-  | "GENERIC"
-  | "PAGOPA_RECEIPT"
-  | "PAYMENT"
-  | "SEND";
-
 export const messageMetadataSchema = z.object({
   createdAt: z.string(),
   featureLevelType: z.enum(["ADVANCED", "STANDARD"]).default("STANDARD"),
@@ -91,72 +84,16 @@ export const messageContentSchema = z.object({
  * */
 export type MessageContent = z.TypeOf<typeof messageContentSchema>;
 
-export class ContentNotFoundError extends Error {
-  #kind: "CONTENT_NOT_FOUND";
-  #message: string;
-
-  constructor(message: string) {
-    super();
-
-    this.#kind = "CONTENT_NOT_FOUND";
-    this.#message = message;
-  }
-
-  get kind(): "CONTENT_NOT_FOUND" {
-    return this.#kind;
-  }
-
-  get message(): string {
-    return this.#message;
-  }
-}
-
-export type GetMessageByMetadataReturnType =
-  | ContentNotFoundError
-  | Message
-  | z.ZodError;
-
 export interface MessageRepository {
   getMessageByMetadata: (
     metadata: MessageMetadata,
   ) => Promise<Message | undefined>;
 }
 
-export class Message {
-  content: MessageContent;
-  id: string;
-  metadata: MessageMetadata;
+export const messageSchema = z.object({
+  content: messageContentSchema,
+  id: z.string().min(1),
+  metadata: messageMetadataSchema,
+});
 
-  constructor(content: MessageContent, metadata: MessageMetadata) {
-    //TODO: geneate this id as an ULID
-    this.id = "";
-    this.content = content;
-    this.metadata = metadata;
-  }
-
-  static from(
-    id: string,
-    content: MessageContent,
-    metadata: MessageMetadata,
-  ): Message {
-    const message = new Message(content, metadata);
-    message.id = id;
-    return message;
-  }
-
-  get contentType(): ContentType {
-    if (this.content.eu_covid_cert) return "EU_COVID_CERT";
-    // check if the sender of the message is SEND
-    if (this.metadata.senderServiceId === "01G40DWQGKY5GRWSNM4303VNRP") {
-      return "SEND";
-    }
-    // check if the sender of the message is PAGOPA_RECEIPT
-    if (this.metadata.senderServiceId === "01HD63674XJ1R6XCNHH24PCRR2") {
-      return "PAGOPA_RECEIPT";
-    }
-    if (this.content.payment_data) {
-      return "PAYMENT";
-    }
-    return "GENERIC";
-  }
-}
+export type Message = z.TypeOf<typeof messageSchema>;

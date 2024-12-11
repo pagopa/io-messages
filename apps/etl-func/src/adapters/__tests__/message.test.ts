@@ -3,7 +3,6 @@ import {
   aSimpleMessageContent,
   aSimpleMessageMetadata,
 } from "@/__mocks__/message.js";
-import { Message } from "@/domain/message.js";
 import { messageEventSchema } from "@/domain/message-event.js";
 import { Logger } from "pino";
 import { describe, expect, test, vi } from "vitest";
@@ -12,7 +11,7 @@ import {
   MessageContentError,
   MessageContentProvider,
 } from "../blob-storage/message-content.js";
-import { MessageAdapter, getMessageEventFromMessage } from "../message.js";
+import { MessageAdapter, transformMessageToMessageEvent } from "../message.js";
 import PDVTokenizerClient from "../pdv-tokenizer/pdv-tokenizer-client.js";
 
 const errorLogMock = vi.fn();
@@ -39,8 +38,10 @@ const tokenizerClientMock = {
 describe("getMessageByMetadata", () => {
   test("Given a message metadata, when the BlobMessageContent return a MessageContent, then it should return a Message", async () => {
     getByMessageContentById.mockResolvedValueOnce(aSimpleMessageContent);
-    const r = await messageAdapter.getMessageByMetadata(aSimpleMessageMetadata);
-    expect(r).toBeInstanceOf(Message);
+    const message = await messageAdapter.getMessageByMetadata(
+      aSimpleMessageMetadata,
+    );
+    expect(message).toEqual(aSimpleMessage);
   });
 
   test("Given a message metadata, when the BlobMessageContent return a MessageContentError, then it should return undefined", async () => {
@@ -65,7 +66,10 @@ describe("getMessageEventFromMessage", () => {
     tokenizeMock.mockReturnValueOnce("3f5a5e37-63a0-423c-a108-94b535e03f91");
     expect(
       messageEventSchema.safeParse(
-        await getMessageEventFromMessage(aSimpleMessage, tokenizerClientMock),
+        await transformMessageToMessageEvent(
+          aSimpleMessage,
+          tokenizerClientMock,
+        ),
       ).success,
     ).toBe(true);
   });
@@ -75,7 +79,7 @@ describe("getMessageEventFromMessage", () => {
       throw new Error("Error calling the tokenize");
     });
     await expect(
-      getMessageEventFromMessage(aSimpleMessage, tokenizerClientMock),
+      transformMessageToMessageEvent(aSimpleMessage, tokenizerClientMock),
     ).rejects.toThrowError("Error calling the tokenize");
   });
 });
