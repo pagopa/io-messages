@@ -1,11 +1,11 @@
-import {
-  MessageAdapter,
-  transformMessageToMessageEvent,
-} from "@/adapters/message.js";
+import { MessageAdapter } from "@/adapters/message.js";
 
 import { EventProducer } from "../event.js";
 import { Message, MessageMetadata } from "../message.js";
-import { MessageEvent } from "../message-event.js";
+import {
+  MessageEvent,
+  transformMessageToMessageEvent,
+} from "../message-event.js";
 import { TokenizerClient } from "../tokenizer.js";
 
 export class IngestMessageUseCase {

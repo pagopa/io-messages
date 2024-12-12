@@ -3,7 +3,10 @@ import {
   aSimpleMessageContent,
   aSimpleMessageMetadata,
 } from "@/__mocks__/message.js";
-import { messageEventSchema } from "@/domain/message-event.js";
+import {
+  messageEventSchema,
+  transformMessageToMessageEvent,
+} from "@/domain/message-event.js";
 import { Logger } from "pino";
 import { describe, expect, test, vi } from "vitest";
 
@@ -11,7 +14,7 @@ import {
   MessageContentError,
   MessageContentProvider,
 } from "../blob-storage/message-content.js";
-import { MessageAdapter, transformMessageToMessageEvent } from "../message.js";
+import { MessageAdapter } from "../message.js";
 import PDVTokenizerClient from "../pdv-tokenizer/pdv-tokenizer-client.js";
 
 const errorLogMock = vi.fn();
