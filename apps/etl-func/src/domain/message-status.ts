@@ -1,4 +1,3 @@
-import { timestampSchema } from "io-messages-common/types/date";
 import * as z from "zod";
 
 //TODO: move this into a common package
@@ -16,7 +15,7 @@ const rejectionReasonSchema = z
   .enum(["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"])
   .default("UNKNOWN");
 
-const statusEnum = z.enum([
+export const statusEnum = z.enum([
   "ACCEPTED",
   "THROTTLED",
   "FAILED",
@@ -24,7 +23,7 @@ const statusEnum = z.enum([
   "REJECTED",
 ]);
 
-const messageStatusIdSchema = z.string().min(1);
+export const messageStatusIdSchema = z.string().min(1);
 
 export const messageStatusSchema = z
   .object({
@@ -48,17 +47,3 @@ export const messageStatusSchema = z
     ]),
   );
 export type MessageStatus = z.TypeOf<typeof messageStatusSchema>;
-
-export const messageStatusEventSchema = z.object({
-  created_at: z.number(),
-  id: messageStatusIdSchema,
-  is_archived: z.boolean(),
-  is_read: z.boolean(),
-  message_id: z.string().ulid(),
-  op: z.enum(["CREATE", "UPDATE", "DELETE"]),
-  schema_version: z.literal(1),
-  status: statusEnum,
-  timestamp: timestampSchema,
-  version: z.number().gte(0).int(),
-});
-export type MessageStatusEvent = z.TypeOf<typeof messageStatusEventSchema>;
