@@ -1,7 +1,7 @@
+import { aValidMessageStatus } from "@/__mocks__/message-status.js";
 import { describe, expect, test } from "vitest";
 
 import { getMessageStatusEventFromMessage } from "../message-status.js";
-import { aValidMessageStatus } from "@/__mocks__/message-status.js";
 
 describe("getMessageStatusEventFromMessage", () => {
   test("Given a valid MessageStatus it should not throw", () => {
