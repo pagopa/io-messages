@@ -1,3 +1,4 @@
+import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import * as z from "zod";
 
 export const featureLevelSchema = z
@@ -7,7 +8,7 @@ export const featureLevelSchema = z
 export const messageMetadataSchema = z.object({
   createdAt: z.string(),
   featureLevelType: featureLevelSchema,
-  fiscalCode: z.string().min(1),
+  fiscalCode: fiscalCodeSchema,
   id: z.string().ulid(),
   indexedId: z.string().ulid(),
   isPending: z.boolean(),
@@ -50,14 +51,7 @@ export const messageContentSchema = z.object({
     .object({
       iup: z.string().optional(),
       nre: z.string(),
-      prescriber_fiscal_code: z
-        .string()
-        .regex(
-          new RegExp(
-            "^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$",
-          ),
-        )
-        .optional(),
+      prescriber_fiscal_code: fiscalCodeSchema.optional(),
     })
     .optional(),
   require_secure_channels: z.boolean().default(false),
@@ -65,11 +59,7 @@ export const messageContentSchema = z.object({
   subject: z.string().min(10).max(120),
   third_party_data: z
     .object({
-      configuration_id: z
-        .string()
-        .regex(new RegExp("^[0-9A-HJKMNP-TV-Z]{26}$"))
-        .describe("ulid")
-        .optional(),
+      configuration_id: z.string().ulid().optional(),
       has_attachments: z.boolean().default(false),
       has_precondition: hasPreconditionSchema,
       has_remote_content: z.boolean().default(false),
