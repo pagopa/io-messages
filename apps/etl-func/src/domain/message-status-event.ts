@@ -1,14 +1,14 @@
-import {
-  MessageStatus,
-  MessageStatusEvent,
-  messageStatusEventSchema,
-} from "@/domain/message-status.js";
-
 /**
  * Transform a MessageStatus into a MessageStatusEvent
  **/
 
-export const getMessageStatusEventFromMessage = (
+import {
+  MessageStatus,
+  MessageStatusEvent,
+  messageStatusEventSchema,
+} from "./message-status.js";
+
+export const getMessageStatusEventFromMessageStatus = (
   messageStatus: MessageStatus,
 ): MessageStatusEvent =>
   messageStatusEventSchema.parse({
