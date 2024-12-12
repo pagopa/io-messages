@@ -1,23 +1,7 @@
-import {
-  fiscalCodeSchema,
-  messageStatusSchema,
-} from "@/domain/message-status.js";
 import { describe, expect, test } from "vitest";
 
 import { getMessageStatusEventFromMessage } from "../message-status.js";
-
-const aFiscalCode = fiscalCodeSchema.parse("AAADPZ44E08F367A");
-
-const aValidMessageStatus = messageStatusSchema.parse({
-  fiscalCode: aFiscalCode,
-  id: "01JD4YVX03H45HPGAB3E0Y2658-0000000000000000",
-  isArchived: false,
-  isRead: false,
-  messageId: "01JD4YVX03H45HPGAB3E0Y2658",
-  status: "ACCEPTED",
-  updatedAt: 123,
-  version: 0,
-});
+import { aValidMessageStatus } from "@/__mocks__/message-status.js";
 
 describe("getMessageStatusEventFromMessage", () => {
   test("Given a valid MessageStatus it should not throw", () => {
