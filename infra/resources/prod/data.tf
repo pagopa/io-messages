@@ -102,6 +102,11 @@ data "azurerm_storage_account" "storage_api" {
   resource_group_name = format("%s-rg-internal", local.project_legacy)
 }
 
+data "azurerm_storage_container" "messages_content_container" {
+  name                 = "message-content"
+  storage_account_name = data.azurerm_storage_account.storage_api.name
+}
+
 data "azurerm_eventhub_namespace" "etl_eventhub_namespace" {
   name                = "${local.project}-${local.domain}-etl-evhns-01"
   resource_group_name = "${local.project}-common-rg-01"

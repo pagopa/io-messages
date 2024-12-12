@@ -4,6 +4,11 @@ import { envSchema } from "./env.js";
 import { eventhubConfigSchema } from "./eventhub/config.js";
 
 export const configSchema = z.object({
+  cosmos: z.object({
+    accountUri: z.string().url(),
+    databaseName: z.string().min(1),
+    messagesContainerName: z.string().min(1),
+  }),
   messageContentStorage: z.object({
     accountUri: z.string().url(),
     containerName: z.string().min(1),
@@ -20,6 +25,11 @@ export type Config = z.TypeOf<typeof configSchema>;
 export const configFromEnvironment = envSchema
   .transform(
     (env): Config => ({
+      cosmos: {
+        accountUri: env.COSMOS__accountEndpoint,
+        databaseName: env.COSMOS_DBNAME,
+        messagesContainerName: env.COSMOS_MESSAGES_CONTAINER_NAME,
+      },
       messageContentStorage: {
         accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
         containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
