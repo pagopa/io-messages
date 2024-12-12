@@ -1,4 +1,4 @@
-import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
+import { TokenizerClient } from "@/domain/tokenizer.js";
 import { z } from "zod";
 
 const tokenResourceSchema = z.object({
