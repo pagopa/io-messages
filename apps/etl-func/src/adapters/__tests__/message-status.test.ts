@@ -26,7 +26,7 @@ describe("getMessageStatusEventFromMessage", () => {
     ).not.toThrow();
   });
 
-  test("Given a valid MessageStatus, then the version is 1 it should return a valid MessageStatusEvent with op CREATE", () => {
+  test("Given a valid MessageStatus, when the version is 0 it should return a valid MessageStatusEvent with op CREATE", () => {
     expect(getMessageStatusEventFromMessage(aValidMessageStatus)).toMatchObject(
       {
         created_at: aValidMessageStatus.updatedAt,
@@ -43,7 +43,7 @@ describe("getMessageStatusEventFromMessage", () => {
     );
   });
 
-  test("Given a valid MessageStatus, then the version is 1  it should return a valid MessageStatusEvent with op UPDATE", () => {
+  test("Given a valid MessageStatus, when the version is 1  it should return a valid MessageStatusEvent with op UPDATE", () => {
     expect(
       getMessageStatusEventFromMessage({ ...aValidMessageStatus, version: 1 }),
     ).toMatchObject({
