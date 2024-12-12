@@ -1,13 +1,12 @@
 import { z } from "zod";
 
-import { Message } from "./message.js";
+import { Message, featureLevelSchema } from "./message.js";
 
-type ContentType =
-  | "EU_COVID_CERT"
-  | "GENERIC"
-  | "PAGOPA_RECEIPT"
-  | "PAYMENT"
-  | "SEND";
+const contentTypeSchema = z
+  .enum(["GENERIC", "PAYMENT", "EU_COVID_CERT", "SEND", "PAGOPA_RECEIPT"])
+  .default("GENERIC");
+
+export type ContentType = z.TypeOf<typeof contentTypeSchema>;
 
 export const extractContentType = (message: Message): ContentType => {
   if (message.content.eu_covid_cert) return "EU_COVID_CERT";
@@ -26,10 +25,8 @@ export const extractContentType = (message: Message): ContentType => {
 };
 
 export const messageEventSchema = z.object({
-  content_type: z
-    .enum(["GENERIC", "PAYMENT", "EU_COVID_CERT", "SEND", "PAGOPA_RECEIPT"])
-    .default("GENERIC"),
-  feature_level_type: z.enum(["ADVANCED", "STANDARD"]).default("STANDARD"),
+  content_type: contentTypeSchema,
+  feature_level_type: featureLevelSchema,
   has_attachments: z.boolean().default(false),
   has_precondition: z.boolean().default(false),
   has_remote_content: z.boolean().default(false),

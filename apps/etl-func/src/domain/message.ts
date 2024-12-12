@@ -1,8 +1,12 @@
 import * as z from "zod";
 
+export const featureLevelSchema = z
+  .enum(["ADVANCED", "STANDARD"])
+  .default("STANDARD");
+
 export const messageMetadataSchema = z.object({
   createdAt: z.string(),
-  featureLevelType: z.enum(["ADVANCED", "STANDARD"]).default("STANDARD"),
+  featureLevelType: featureLevelSchema,
   fiscalCode: z.string().min(1),
   id: z.string().ulid(),
   indexedId: z.string().ulid(),
