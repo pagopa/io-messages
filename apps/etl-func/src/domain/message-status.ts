@@ -1,15 +1,5 @@
+import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import * as z from "zod";
-
-//TODO: move this into a common package
-export const fiscalCodeSchema = z
-  .string()
-  .regex(
-    /^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$/,
-    "Must be a valid Italian fiscal code",
-  )
-  .brand("FiscalCode");
-
-export type FiscalCode = z.infer<typeof fiscalCodeSchema>;
 
 const rejectionReasonSchema = z
   .enum(["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"])
