@@ -10,6 +10,7 @@ locals {
       EVENTHUB_CONNECTION_URI        = var.app_settings.eventhub_connection_uri,
       MESSAGE_CONTENT_CONTAINER_NAME = "message-content",
       MESSAGE_EVENTHUB_NAME          = "io-p-itn-com-etl-messages-evh-01"
+      MESSAGE_STATUS_EVENTHUB_NAME   = "io-p-itn-com-etl-message-status-evh-01"
       PDV_TOKENIZER_API_KEY          = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=func-elt-PDV-TOKENIZER-API-KEY)"
       PDV_TOKENIZER_BASE_URL         = "https://api.tokenizer.pdv.pagopa.it/tokenizer/v1"
       COSMOS__accountEndpoint        = var.cosmosdb_account_api.endpoint
