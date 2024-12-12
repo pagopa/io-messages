@@ -4,9 +4,11 @@ import {
   aSimpleMessageMetadata,
 } from "@/__mocks__/message.js";
 import { messageSchema } from "@/adapters/avro.js";
-import { MessageAdapter, MessageContentProvider } from "@/adapters/message.js";
-import { EventHubEventProducer } from "@/adapters/message-event.js";
+import { MessageContentProvider } from "@/adapters/blob-storage/message-content.js";
+import { EventHubEventProducer } from "@/adapters/eventhub/event.js";
+import { MessageAdapter } from "@/adapters/message.js";
 import PDVTokenizerClient from "@/adapters/tokenizer/pdv-tokenizer-client.js";
+import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
 import { InvocationContext } from "@azure/functions";
 import { pino } from "pino";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -35,7 +37,7 @@ vi.mock("@azure/event-hubs", async (importOriginal) => {
 });
 
 const messageContentMock: MessageContentProvider = {
-  getByMessageId: vi.fn(),
+  getByMessageContentById: vi.fn(),
 };
 const messageAdapter = new MessageAdapter(messageContentMock, logger);
 const getMessageByMetadataSpy = vi
@@ -54,8 +56,14 @@ const producer = new EventHubEventProducer(
 );
 const publishSpy = vi.spyOn(producer, "publish").mockResolvedValue();
 
+const ingestMessageUseCase = new IngestMessageUseCase(
+  messageAdapter,
+  PDVTokenizer,
+  producer,
+);
+
 const context = new InvocationContext();
-const handler = messagesIngestion(messageAdapter, PDVTokenizer, producer);
+const handler = messagesIngestion(ingestMessageUseCase);
 
 describe("messagesIngestion handler", () => {
   afterEach(() => {

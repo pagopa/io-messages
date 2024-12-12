@@ -9,11 +9,12 @@ import { createClient } from "redis";
 import { messageSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
-import messagesIngestion from "./adapters/functions/messages-ingestion.js";
+import { EventHubEventProducer } from "./adapters/eventhub/event.js";
+import messagesIngestionHandler from "./adapters/functions/messages-ingestion.js";
 import { MessageAdapter } from "./adapters/message.js";
-import { EventHubEventProducer } from "./adapters/message-event.js";
 import RedisRecipientRepository from "./adapters/redis/recipient.js";
 import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
+import { IngestMessageUseCase } from "./domain/use-cases/ingest-message.js";
 
 const main = async (config: Config) => {
   const logger = pino({
@@ -52,8 +53,17 @@ const main = async (config: Config) => {
     blobServiceCLient,
     config.messageContentStorage.containerName,
   );
-  const producer = new EventHubEventProducer(producerClient, messageSchema);
+  const messageEventProducer = new EventHubEventProducer(
+    producerClient,
+    messageSchema,
+  );
   const messageAdapter = new MessageAdapter(blobMessageContentProvider, logger);
+
+  const ingestMessageUseCase = new IngestMessageUseCase(
+    messageAdapter,
+    tokenizerClient,
+    messageEventProducer,
+  );
 
   app.http("Health", {
     authLevel: "anonymous",
@@ -81,7 +91,7 @@ const main = async (config: Config) => {
     containerName: config.cosmos.messagesContainerName,
     createLeaseContainerIfNotExists: false,
     databaseName: config.cosmos.databaseName,
-    handler: messagesIngestion(messageAdapter, tokenizerClient, producer),
+    handler: messagesIngestionHandler(ingestMessageUseCase),
     leaseContainerName: `messages-dataplan-ingestion-test-lease`,
     maxItemsPerInvocation: 50,
     retry: {

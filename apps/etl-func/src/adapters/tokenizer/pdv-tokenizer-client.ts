@@ -1,5 +1,5 @@
-import { TokenizerClient } from "@/domain/interfaces/tokenizer.js";
-import { FiscalCode } from "@/domain/message-status.js";
+import { TokenizerClient } from "@/domain/tokenizer.js";
+import { FiscalCode } from "io-messages-common/domain/fiscal-code";
 import { z } from "zod";
 
 const tokenResourceSchema = z.object({

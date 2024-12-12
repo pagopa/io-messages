@@ -1,4 +1,4 @@
-import { FiscalCode } from "@/domain/message-status.js";
+import { FiscalCode } from "io-messages-common/domain/fiscal-code";
 import {
   RedisClientType,
   RedisDefaultModules,

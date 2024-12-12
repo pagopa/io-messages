@@ -3,7 +3,7 @@ import {
   messageContentSchema,
   messageMetadataSchema,
 } from "@/domain/message.js";
-import { FiscalCode } from "@/domain/message-status.js";
+import { FiscalCode } from "io-messages-common/domain/fiscal-code";
 
 export const aFiscalCode = "RMLGNN97R06F158N" as FiscalCode;
 export const aMaskedFiscalCode = "3f5a5e37-63a0-423c-a108-94b535e03f91";
@@ -46,7 +46,6 @@ export const aSimpleMessageContent = messageContentSchema.parse({
 
 export const aSimpleMessage: Message = {
   content: aSimpleMessageContent,
-  contentType: "GENERIC",
   id: aSimpleMessageMetadata.id,
   metadata: aSimpleMessageMetadata,
 };
