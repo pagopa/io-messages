@@ -42,7 +42,6 @@ export const aSimpleMessageContent = messageContentSchema.parse({
 
 export const aSimpleMessage: Message = {
   content: aSimpleMessageContent,
-  contentType: "GENERIC",
   id: aSimpleMessageMetadata.id,
   metadata: aSimpleMessageMetadata,
 };

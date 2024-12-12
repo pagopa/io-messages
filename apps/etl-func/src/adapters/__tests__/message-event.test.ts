@@ -1,9 +1,9 @@
 import { aSimpleMessageEvent } from "@/__mocks__/message-event.js";
-import { MessageEvent } from "@/domain/message.js";
+import { MessageEvent } from "@/domain/message-event.js";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { messageSchema } from "../avro.js";
-import { EventHubEventProducer } from "../message-event.js";
+import { EventHubEventProducer } from "../eventhub/event.js";
 
 const mocks = vi.hoisted(() => ({
   EventHubProducerClient: vi.fn().mockImplementation(() => ({

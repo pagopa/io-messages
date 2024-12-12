@@ -1,4 +1,4 @@
-import { messageEventSchema } from "@/domain/message.js";
+import { messageEventSchema } from "@/domain/message-event.js";
 
 export const aSimpleMessageEvent = messageEventSchema.parse({
   content_type: "PAYMENT",
