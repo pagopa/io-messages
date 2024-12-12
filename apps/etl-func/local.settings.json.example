@@ -9,6 +9,9 @@
     "MESSAGE_EVENTHUB_NAME": "message-events-test"
     "MESSAGE_STATUS_EVENTHUB_NAME": "message-status-events-test"
     "PDV_TOKENIZER_API_KEY": "apiKey",
-    "PDV_TOKENIZER_BASE_URL": "https://api.uat.tokenizer.pdv.pagopa.it"
+    "PDV_TOKENIZER_BASE_URL": "https://api.uat.tokenizer.pdv.pagopa.it/tokenizer/v1",
+    "COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
+    "COSMOS_DBNAME": "io-messages",
+    "COSMOS_MESSAGES_CONTAINER_NAME": "messages"
   }
 }

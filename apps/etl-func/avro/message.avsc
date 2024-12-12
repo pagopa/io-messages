@@ -33,11 +33,6 @@
       "type": "string"
     },
     {
-      "name": "is_pending",
-      "doc": "A boolean that indicates if the message has been processed, is_pending equals false indicates that the message has not been processed yet.",
-      "type": "boolean"
-    },
-    {
       "name": "subject",
       "doc": "The subject of the message.",
       "type": "string"

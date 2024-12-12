@@ -123,7 +123,7 @@ export interface MessageRepository {
 }
 
 export interface EventProducer<T> {
-  publish: (message: T) => Promise<void>;
+  publish: (message: T[]) => Promise<void>;
 }
 
 export class Message {
@@ -174,7 +174,6 @@ export const messageEventSchema = z.object({
   has_precondition: z.boolean().default(false),
   has_remote_content: z.boolean().default(false),
   id: z.string().ulid(),
-  is_pending: z.boolean(),
   op: z.enum(["CREATE"]),
   payment_data_amount: z.number().nullable(),
   payment_data_invalid_after_due_date: z.boolean().nullable(),

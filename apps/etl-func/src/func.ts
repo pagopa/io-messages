@@ -1,13 +1,24 @@
 import { EventHubProducerClient } from "@azure/event-hubs";
 import { app } from "@azure/functions";
-import { AzureCliCredential } from "@azure/identity";
+import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
+import { pino } from "pino";
 
+import { messageSchema } from "./adapters/avro.js";
+import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
+import messagesIngestion from "./adapters/functions/messages-ingestion.js";
+import { MessageAdapter } from "./adapters/message.js";
+import { EventHubEventProducer } from "./adapters/message-event.js";
+import PDVTokenizerClient from "./adapters/pdv-tokenizer/pdv-tokenizer-client.js";
 
 const main = async (config: Config) => {
-  const azureCredentials = new AzureCliCredential();
+  const logger = pino({
+    level: process.env.NODE_ENV === "production" ? "error" : "debug",
+  });
+
+  const azureCredentials = new DefaultAzureCredential();
   const blobServiceCLient = new BlobServiceClient(
     config.messageContentStorage.accountUri,
     azureCredentials,
@@ -19,20 +30,33 @@ const main = async (config: Config) => {
     azureCredentials,
   );
 
-  const messageStatusProducerClient = new EventHubProducerClient(
-    config.messagesEventHub.connectionUri,
-    config.messagesEventHub.eventHubName,
-    azureCredentials,
+  const PDVTokenizer = new PDVTokenizerClient(
+    config.pdvTokenizer.apiKey,
+    config.pdvTokenizer.baseUrl,
   );
+
+  const blobMessageContentProvider = new BlobMessageContent(
+    blobServiceCLient,
+    config.messageContentStorage.containerName,
+  );
+  const messageProducer = new EventHubEventProducer(
+    messageProducerClient,
+    messageSchema,
+  );
+  const messageAdapter = new MessageAdapter(blobMessageContentProvider, logger);
 
   app.http("Health", {
     authLevel: "anonymous",
     handler: async () => {
-      // check for storage availability or throw
-      await blobServiceCLient.getProperties();
-      //there's no function to get the producerClient connection status but we check the properties
-      await messageProducerClient.getEventHubProperties();
-      await messageStatusProducerClient.getEventHubProperties();
+      try {
+        // check for storage availability or throw
+        await blobServiceCLient
+          .getContainerClient(config.messageContentStorage.containerName)
+          .getProperties();
+      } catch (error) {
+        logger.error(error);
+        throw error;
+      }
 
       return {
         body: "it works!",
@@ -40,6 +64,28 @@ const main = async (config: Config) => {
     },
     methods: ["GET"],
     route: "health",
+  });
+
+  app.cosmosDB("IngestMessages", {
+    connection: "COSMOS",
+    containerName: config.cosmos.messagesContainerName,
+    createLeaseContainerIfNotExists: false,
+    databaseName: config.cosmos.databaseName,
+    handler: messagesIngestion(messageAdapter, PDVTokenizer, messageProducer),
+    leaseContainerName: `messages-dataplan-ingestion-test-lease`,
+    maxItemsPerInvocation: 50,
+    retry: {
+      maxRetryCount: 5,
+      maximumInterval: {
+        minutes: 1,
+      },
+      minimumInterval: {
+        seconds: 5,
+      },
+      strategy: "exponentialBackoff",
+    },
+    //we need to start the ingestion from this date
+    startFromTime: "2023/01/01T00:00:00Z",
   });
 };
 

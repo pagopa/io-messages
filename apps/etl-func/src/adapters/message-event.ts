@@ -1,11 +1,7 @@
 import type * as avro from "avsc";
 
 import { EventProducer } from "@/domain/message.js";
-import {
-  EventData,
-  EventDataBatch,
-  EventHubProducerClient,
-} from "@azure/event-hubs";
+import { EventHubProducerClient } from "@azure/event-hubs";
 import * as assert from "node:assert/strict";
 
 export class EventHubEventProducer<T> implements EventProducer<T> {
@@ -17,26 +13,14 @@ export class EventHubEventProducer<T> implements EventProducer<T> {
     this.#schema = schema;
   }
 
-  /**
-   * Creates a batch of event data to be sent to Event Hub.
-   *
-   * @param eventData - The data to be added to the batch as a Buffer.
-   * @returns A promise that resolves to an EventDataBatch containing the event
-   * data.
-   * @throws Will throw an error if the data is too large to fit in the batch.
-   */
-  async #createBatch(eventData: EventData): Promise<EventDataBatch> {
+  async publish(messages: T[]): Promise<void> {
     const dataBatch = await this.#producerClient.createBatch();
-    const wasAdded = dataBatch.tryAdd(eventData);
-    assert.ok(wasAdded, "Error while adding event to the batch");
-    return dataBatch;
-  }
-
-  async publish(data: T): Promise<void> {
-    const bufferedData = this.#schema.toBuffer(data);
-    const dataBatch = await this.#createBatch({
-      body: bufferedData,
-    });
+    for (const message of messages) {
+      const wasAdded = dataBatch.tryAdd({
+        body: this.#schema.toBuffer(message),
+      });
+      assert.ok(wasAdded, "Error while adding event to the batch");
+    }
     await this.#producerClient.sendBatch(dataBatch);
   }
 }

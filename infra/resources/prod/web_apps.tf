@@ -28,7 +28,7 @@ module "web_apps" {
 
   app_settings = {
     message_content_storage_uri : data.azurerm_storage_account.storage_api.primary_blob_endpoint,
-    eventhub_connection_uri : "https://${data.azurerm_eventhub_namespace.etl_eventhub_namespace.name}.servicebus.windows.net"
+    eventhub_connection_uri : "${data.azurerm_eventhub_namespace.etl_eventhub_namespace.name}.servicebus.windows.net"
   }
 
   /*gcm_migration_storage = {
@@ -41,6 +41,12 @@ module "web_apps" {
   application_insights = data.azurerm_application_insights.common
 
   common_key_vault = data.azurerm_key_vault.weu_common
+
+
+  eventhub_namespace         = data.azurerm_eventhub_namespace.etl_eventhub_namespace
+  messages_content_container = data.azurerm_storage_container.messages_content_container
+  messages_storage_account   = data.azurerm_storage_account.storage_api
+  cosmosdb_account_api       = data.azurerm_cosmosdb_account.cosmos_api
 
   tenant_id = data.azurerm_client_config.current.tenant_id
 
