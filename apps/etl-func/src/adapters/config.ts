@@ -39,7 +39,7 @@ export const configFromEnvironment = envSchema
         eventHubName: env.MESSAGE_EVENTHUB_NAME,
       },
       messagesRedis: {
-        accessKey: env.REDIS_ACCESS_KEY,
+        password: env.REDIS_PASSWORD,
         pingInterval: env.REDIS_PING_INTERVAL,
         url: env.REDIS_URL,
       },

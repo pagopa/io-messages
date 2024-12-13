@@ -12,7 +12,7 @@ locals {
       MESSAGE_EVENTHUB_NAME          = "io-p-itn-com-etl-messages-evh-01"
       PDV_TOKENIZER_API_KEY          = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=func-elt-PDV-TOKENIZER-API-KEY)"
       PDV_TOKENIZER_BASE_URL         = "https://api.tokenizer.pdv.pagopa.it/tokenizer/v1"
-      REDIS_ACCESS_KEY               = var.redis_cache.access_key
+      REDIS_PASSWORD                 = var.redis_cache.access_key
       REDIS_PING_INTERVAL            = 1000 * 60 * 9
       REDIS_URL                      = var.redis_cache.url
       COSMOS__accountEndpoint        = var.cosmosdb_account_api.endpoint

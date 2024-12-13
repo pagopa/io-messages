@@ -1,10 +1,15 @@
 import { FiscalCode } from "io-messages-common/domain/fiscal-code";
+import { pino } from "pino";
 import {
   RedisClientType,
   RedisDefaultModules,
   RedisFunctions,
   RedisScripts,
 } from "redis";
+
+const logger = pino({
+  level: process.env.NODE_ENV === "production" ? "error" : "debug",
+});
 
 export default class RedisRecipientRepository {
   #client: RedisClientType<RedisDefaultModules, RedisFunctions, RedisScripts>;
@@ -20,10 +25,19 @@ export default class RedisRecipientRepository {
   }
 
   async get(fiscalCode: FiscalCode) {
-    return (await this.#client.get(this.#key(fiscalCode))) || undefined;
+    try {
+      return (await this.#client.get(this.#key(fiscalCode))) || undefined;
+    } catch (error) {
+      logger.error("Failed to retrieve recipientId from redis");
+      return undefined;
+    }
   }
 
   async upsert(fiscalCode: FiscalCode, recipientId: string) {
-    await this.#client.set(this.#key(fiscalCode), recipientId);
+    try {
+      await this.#client.set(this.#key(fiscalCode), recipientId);
+    } catch (error) {
+      logger.error("Failed writing recipientId to redis");
+    }
   }
 }
