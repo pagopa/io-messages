@@ -1,7 +1,5 @@
-import { MessageAdapter } from "@/adapters/message.js";
-
 import { EventProducer } from "../event.js";
-import { Message, MessageMetadata } from "../message.js";
+import { Message, MessageMetadata, MessageRepository } from "../message.js";
 import {
   MessageEvent,
   transformMessageToMessageEvent,
@@ -10,15 +8,15 @@ import { TokenizerClient } from "../tokenizer.js";
 
 export class IngestMessageUseCase {
   #eventProducer: EventProducer<MessageEvent>;
-  #messageAdapter: MessageAdapter;
+  #messageRepo: MessageRepository;
   #tokenizer: TokenizerClient;
 
   constructor(
-    messageAdapter: MessageAdapter,
+    messageAdapter: MessageRepository,
     tokenizer: TokenizerClient,
     eventProducer: EventProducer<MessageEvent>,
   ) {
-    this.#messageAdapter = messageAdapter;
+    this.#messageRepo = messageAdapter;
     this.#tokenizer = tokenizer;
     this.#eventProducer = eventProducer;
   }
@@ -28,7 +26,7 @@ export class IngestMessageUseCase {
     const messages = (
       await Promise.all(
         messagesMetaData.map((messageMetadata) =>
-          this.#messageAdapter.getMessageByMetadata(messageMetadata),
+          this.#messageRepo.getMessageByMetadata(messageMetadata),
         ),
       )
     ).filter((item): item is Message => item !== undefined);
