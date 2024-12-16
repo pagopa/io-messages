@@ -25,7 +25,7 @@ export type MessageStatusEvent = z.TypeOf<typeof messageStatusEventSchema>;
  * Transform a MessageStatus into a MessageStatusEvent
  **/
 
-export const getMessageStatusEventFromMessageStatus = (
+export const getMessageStatusEvent = (
   messageStatus: MessageStatus,
 ): MessageStatusEvent =>
   messageStatusEventSchema.parse({

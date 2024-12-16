@@ -1,18 +1,14 @@
 import { aValidMessageStatus } from "@/__mocks__/message-status.js";
-import { getMessageStatusEventFromMessageStatus } from "@/domain/message-status-event.js";
+import { getMessageStatusEvent } from "@/domain/message-status-event.js";
 import { describe, expect, test } from "vitest";
 
 describe("getMessageStatusEventFromMessage", () => {
   test("Given a valid MessageStatus it should not throw", () => {
-    expect(() =>
-      getMessageStatusEventFromMessageStatus(aValidMessageStatus),
-    ).not.toThrow();
+    expect(() => getMessageStatusEvent(aValidMessageStatus)).not.toThrow();
   });
 
   test("Given a valid MessageStatus, when the version is 0 it should return a valid MessageStatusEvent with op CREATE", () => {
-    expect(
-      getMessageStatusEventFromMessageStatus(aValidMessageStatus),
-    ).toMatchObject({
+    expect(getMessageStatusEvent(aValidMessageStatus)).toMatchObject({
       created_at: aValidMessageStatus.updatedAt,
       id: aValidMessageStatus.id,
       is_archived: aValidMessageStatus.isArchived,
@@ -28,7 +24,7 @@ describe("getMessageStatusEventFromMessage", () => {
 
   test("Given a valid MessageStatus, when the version is 1  it should return a valid MessageStatusEvent with op UPDATE", () => {
     expect(
-      getMessageStatusEventFromMessageStatus({
+      getMessageStatusEvent({
         ...aValidMessageStatus,
         version: 1,
       }),
