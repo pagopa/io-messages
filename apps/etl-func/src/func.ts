@@ -27,7 +27,7 @@ const main = async (config: Config) => {
     azureCredentials,
   );
 
-  const producerClient = new EventHubProducerClient(
+  const messageProducerClient = new EventHubProducerClient(
     config.messagesEventHub.connectionUri,
     config.messagesEventHub.eventHubName,
     azureCredentials,
@@ -54,7 +54,7 @@ const main = async (config: Config) => {
     config.messageContentStorage.containerName,
   );
   const messageEventProducer = new EventHubEventProducer(
-    producerClient,
+    messageProducerClient,
     messageSchema,
   );
   const messageAdapter = new MessageAdapter(blobMessageContentProvider, logger);
