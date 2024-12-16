@@ -67,6 +67,14 @@ resource "azurerm_key_vault_access_policy" "etl_func_kv_access_policy" {
   certificate_permissions = []
 }
 
+resource "azurerm_redis_cache_access_policy_assignment" "etl_func_redis_access_policy" {
+  name               = "etl_func"
+  redis_cache_id     = var.redis_cache.id
+  access_policy_name = "Data Contributor"
+  object_id          = module.etl_func.function_app.function_app.principal_id
+  object_id_alias    = "ServicePrincipal"
+}
+
 output "etl_func" {
   value = {
     id                   = module.etl_func.function_app.function_app.id

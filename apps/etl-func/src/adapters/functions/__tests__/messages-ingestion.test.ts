@@ -7,7 +7,7 @@ import { messageSchema } from "@/adapters/avro.js";
 import { MessageContentProvider } from "@/adapters/blob-storage/message-content.js";
 import { EventHubEventProducer } from "@/adapters/eventhub/event.js";
 import { MessageAdapter } from "@/adapters/message.js";
-import PDVTokenizerClient from "@/adapters/pdv-tokenizer/pdv-tokenizer-client.js";
+import PDVTokenizerClient from "@/adapters/tokenizer/pdv-tokenizer-client.js";
 import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
 import { InvocationContext } from "@azure/functions";
 import { pino } from "pino";
@@ -46,7 +46,7 @@ const getMessageByMetadataSpy = vi
 
 const PDVTokenizer = new PDVTokenizerClient("testApiKey", "testBaseUri");
 const tokenizeSpy = vi
-  .spyOn(PDVTokenizer, "tokenize")
+  .spyOn(PDVTokenizer, "maskSensitiveInfo")
   .mockResolvedValue("9314a1ea-ac0b-11ef-9cd2-0242ac120002");
 
 const eventHubProducerClient = new mocks.EventHubProducerClient();

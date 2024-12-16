@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { Message, featureLevelSchema } from "./message.js";
-import { TokenizerClient, maskSensitiveInfo } from "./tokenizer.js";
+import { TokenizerClient } from "./tokenizer.js";
 
 const contentTypeSchema = z
   .enum(["GENERIC", "PAYMENT", "EU_COVID_CERT", "SEND", "PAGOPA_RECEIPT"])
@@ -55,8 +55,8 @@ export const transformMessageToMessageEvent = async (
   message: Message,
   tokenizerClient: TokenizerClient,
 ): Promise<MessageEvent> => {
-  const recipient_id = await maskSensitiveInfo(message.metadata.fiscalCode)(
-    tokenizerClient,
+  const recipient_id = await tokenizerClient.maskSensitiveInfo(
+    message.metadata.fiscalCode,
   );
   return messageEventSchema.parse({
     content_type: extractContentType(message),
