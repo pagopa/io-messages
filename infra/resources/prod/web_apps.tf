@@ -31,6 +31,12 @@ module "web_apps" {
     eventhub_connection_uri : "${data.azurerm_eventhub_namespace.etl_eventhub_namespace.name}.servicebus.windows.net"
   }
 
+  redis_cache = {
+    id          = module.redis_messages.id
+    url         = "rediss://${module.redis_messages.hostname}:${module.redis_messages.ssl_port}"
+    access_key  = module.redis_messages.primary_access_key
+  }
+
   /*gcm_migration_storage = {
     id             = data.azurerm_storage_account.iopstexportdata.id,
     blob_endpoint  = data.azurerm_storage_account.iopstexportdata.primary_blob_endpoint
