@@ -1,0 +1,368 @@
+dataContractSpecification: 0.9.3
+id: urn:datacontract:io:message
+info:
+  title: IO - Message Creation Data Contract
+  version: 0.0.1
+  description: Creazione di un messaggio su IO.
+  owner: Team io-comunicazione
+  contact:
+    name: Team io-comunicazione
+    slack-schannel: https://pagopaspa.slack.com/archives/C050U4BCJGP
+    email: io-comunicazione@pagopa.it
+
+### servers
+servers:
+  production:
+    type: kafka
+    host: https://io-p-itn-com-etl-evhns-01.servicebus.windows.net.
+    topic: io-p-itn-com-etl-messages-evh-01.
+    format: avro
+
+### terms
+terms:
+  usage: >
+    L'evento corrisponde alla creazione di un messaggio su IO,
+    il campo is_pending è mutabile e determina se il messaggio è stato già processato o meno.
+  limitations: >
+    Il campo is_pending nei sistemi di IO viene aggiornato una volta che il messaggio è stato processato.
+    Non verrà effettuato alcun reinvio una volta che verrà aggiornato.
+  noticePeriod: P1M.
+
+### models
+models:
+  message:
+    description: Kafka JS schema for cosmos api container 'messages'
+    namespace: dto
+    fields:
+      schema_version:
+        type: int
+        required: true
+        pii: false
+        description: An integer that indicates the version of the schema.
+      op:
+        title: MessageCrudOperation
+        type: string
+        required: true
+        pii: false
+        enum:
+          - CREATE
+        config:
+          avroType: enum
+      id:
+        type: string
+        required: true
+        pii: true
+        description: An ULID that identifies the message inside the message collection.
+      sender_service_id:
+        type: string
+        required: true
+        pii: false
+        description: The id of the service that sent the message.
+      sender_user_id:
+        type: string
+        required: true
+        pii: false
+        description: The id of the user that sent the message.
+      is_pending:
+        type: boolean
+        required: true
+        pii: false
+        description:
+          A boolean that indicates if the message has been processed, is_pending
+          equals false indicates that the message has not been processed yet.
+      subject:
+        type: string
+        required: true
+        pii: true
+        description: The subject of the message.
+      content_type:
+        title: MessageContentType
+        type: string
+        required: true
+        pii: true
+        description: Indicates the type of the message.
+        enum:
+          - GENERIC
+          - PAYMENT
+          - EU_COVID_CERT
+          - SEND
+          - PAGOPA_RECEIPT
+        config:
+          avroDefault: GENERIC
+          avroType: enum
+      payment_data_amount:
+        type: int
+        required: false
+        pii: true
+        description: An integer that indicates the amount of the payment.
+      payment_data_notice_number:
+        type: string
+        required: false
+        pii: true
+        description: An id that identifies the the payment.
+      payment_data_invalid_after_due_date:
+        type: boolean
+        required: false
+        pii: false
+        description:
+          A boolean that indicates if the payment is considered invalid
+          after the due date.
+      payment_data_payee_fiscal_code:
+        type: string
+        required: false
+        pii: false
+        description: The fiscal code of the payee.
+      require_secure_channels:
+        type: boolean
+        required: true
+        pii: false
+        description:
+          A boolean that indicates whether the message contains sensitive
+          informations. If this value is true the push notification sent is anonymous
+          and the email notification will not be sent.
+        config:
+          avroDefault: false
+      timestamp:
+        type: long
+        required: true
+        description: A timestamp that indicates when the message was created.
+        pii: false
+        config:
+          avroLogicalType: timestamp-millis
+      feature_level_type:
+        title: MessageFeatureLevelType
+        type: string
+        required: true
+        pii: false
+        description: A field that indicates whether the message is PREMIUM or not.
+        enum:
+          - STANDARD
+          - ADVANCED
+        config:
+          avroDefault: STANDARD
+          avroType: enum
+      recipient_id:
+        type: string
+        required: true
+        pii: true
+        description: Tokenized fiscal code of the citizen.
+      has_remote_content:
+        type: boolean
+        required: true
+        pii: false
+        description:
+          A boolean that indicates whether the message has remote content
+          or not.
+        config:
+          avroDefault: false
+      has_precondition:
+        type: boolean
+        required: true
+        pii: false
+        description:
+          A boolean that indicates whether the message has remote precondition
+          or not.
+        config:
+          avroDefault: false
+      has_attachments:
+        type: boolean
+        required: true
+        pii: false
+        description:
+          A boolean that indicates whether the message has remote attachments
+          or not.
+        config:
+          avroDefault: false
+
+servicelevels:
+  availability:
+    description: Il server è disponibile h24
+    percentage: 99%
+  retention:
+    description: I dati vengono mantenuti per 7 giorni nel topic.
+    period: P7D.
+    unlimited: false
+  latency:
+    description: I dati vengono inviati "live".
+    threshold: <= 5s.
+  freshness:
+    description: I dati vengono inviati "live".
+    threshold: 24h
+  frequency:
+    description: I dati vengono inviati "live", non appena avviene l'evento di creazione del messaggio.
+    type: streaming
+  support:
+    description: Contattare il team alla mail io-comunicazione@pagopa.it.
+    time: 9:00-17:00
+    responseTime: 24h
+  backup:
+    description: Nessun backup previsto
+  growth:
+    rate: todo.
+    size: todo.
+
+### quality
+quality: #TODO
+  type: SodaCL
+  specification:
+    checks for message: |-
+      - row_count > 0
+      - missing_count(id) = 0
+      - missing_count(sender_service_id) = 0
+      - missing_count(sender_user_id) = 0
+      - missing_count(is_pending) = 0
+      - missing_count(subject) = 0
+      - missing_count(payment_data_amount) = 0
+      - missing_count(payment_data_notice_number) = 0
+      - missing_count(payment_data_invalid_after_due_date) = 0
+      - missing_count(payment_data_payee_fiscal_code) = 0
+      - missing_count(require_secure_channels) = 0
+      - missing_count(timestamp) = 0
+      - missing_count(feature_level_type) = 0
+      - missing_count(recipient_id) = 0
+      - missing_count(has_remote_content) = 0
+      - missing_count(has_precondition) = 0
+      - missing_count(has_attachments) = 0
+
+shcema:
+  type: avro
+  specification:
+    models:
+      - message:
+          {
+            "name": "message",
+            "type": "record",
+            "namespace": "dto",
+            "doc": "Kafka JS schema for cosmos api container 'messages'",
+            "fields":
+              [
+                {
+                  "name": "schema_version",
+                  "doc": "An integer that indicates the version of the schema.",
+                  "type": "int",
+                },
+                {
+                  "name": "op",
+                  "type":
+                    {
+                      "type": "enum",
+                      "doc": "List of operations that can be done to a message. Messages are immutable so we can only perform create operations.",
+                      "name": "MessageCrudOperation",
+                      "symbols": ["CREATE"],
+                    },
+                },
+                {
+                  "name": "id",
+                  "doc": "An ULID that identifies the message inside the message collection.",
+                  "type": "string",
+                },
+                {
+                  "name": "sender_service_id",
+                  "doc": "The id of the service that sent the message.",
+                  "type": "string",
+                },
+                {
+                  "name": "sender_user_id",
+                  "doc": "The id of the user that sent the message.",
+                  "type": "string",
+                },
+                {
+                  "name": "is_pending",
+                  "doc": "A boolean that indicates if the message has been processed, is_pending equals false indicates that the message has not been processed yet.",
+                  "type": "boolean",
+                },
+                {
+                  "name": "subject",
+                  "doc": "The subject of the message.",
+                  "type": "string",
+                },
+                {
+                  "name": "content_type",
+                  "doc": "Indicates the type of the message.",
+                  "type":
+                    {
+                      "type": "enum",
+                      "name": "MessageContentType",
+                      "symbols":
+                        [
+                          "GENERIC",
+                          "PAYMENT",
+                          "EU_COVID_CERT",
+                          "SEND",
+                          "PAGOPA_RECEIPT",
+                        ],
+                    },
+                  "default": "GENERIC",
+                },
+                {
+                  "name": "payment_data_amount",
+                  "doc": "An integer that indicates the amount of the payment.",
+                  "type": ["null", "int"],
+                  "default": null,
+                },
+                {
+                  "name": "payment_data_notice_number",
+                  "doc": "An id that identifies the the payment.",
+                  "type": ["null", "string"],
+                  "default": null,
+                },
+                {
+                  "name": "payment_data_invalid_after_due_date",
+                  "doc": "A boolean that indicates if the payment is considered invalid after the due date.",
+                  "type": ["null", "boolean"],
+                  "default": null,
+                },
+                {
+                  "name": "payment_data_payee_fiscal_code",
+                  "doc": "The fiscal code of the payee.",
+                  "type": ["null", "string"],
+                  "default": null,
+                },
+                {
+                  "name": "require_secure_channels",
+                  "doc": "A boolean that indicates whether the message contains sensitive informations. If this value is true the push notification sent is anonymous and the email notification will not be sent.",
+                  "type": "boolean",
+                  "default": false,
+                },
+                {
+                  "name": "timestamp",
+                  "doc": "A timestamp that indicates when the message was created.",
+                  "type": "long",
+                  "logicalType": "timestamp-millis",
+                },
+                {
+                  "name": "feature_level_type",
+                  "doc": "A field that indicates whether the message is PREMIUM or not.",
+                  "type":
+                    {
+                      "type": "enum",
+                      "name": "MessageFeatureLevelType",
+                      "symbols": ["STANDARD", "ADVANCED"],
+                    },
+                  "default": "STANDARD",
+                },
+                {
+                  "name": "recipient_id",
+                  "doc": "Tokenized fiscal code of the citizen.",
+                  "type": "string",
+                },
+                {
+                  "name": "has_remote_content",
+                  "doc": "A boolean that indicates whether the message has remote content or not.",
+                  "type": "boolean",
+                  "default": false,
+                },
+                {
+                  "name": "has_precondition",
+                  "doc": "A boolean that indicates whether the message has remote precondition or not.",
+                  "type": "boolean",
+                  "default": false,
+                },
+                {
+                  "name": "has_attachments",
+                  "doc": "A boolean that indicates whether the message has remote attachments or not.",
+                  "type": "boolean",
+                  "default": false,
+                },
+              ],
+          }
