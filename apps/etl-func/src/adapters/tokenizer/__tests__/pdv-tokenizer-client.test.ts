@@ -26,7 +26,7 @@ describe("PDVTokenizerClient", () => {
     expect(fetchSpy).toHaveBeenCalledWith(
       `${baseUrl}/tokens`,
       expect.objectContaining({
-        body: JSON.stringify({ fiscalCode }),
+        body: JSON.stringify({ pii: fiscalCode }),
         headers: expect.objectContaining({
           "content-type": "application/json",
           "x-api-key": apiKey,
@@ -63,7 +63,7 @@ describe("PDVTokenizerClient", () => {
     expect(fetchSpy).toHaveBeenCalledWith(
       `${baseUrl}/tokens`,
       expect.objectContaining({
-        body: JSON.stringify({ fiscalCode }),
+        body: JSON.stringify({ pii: fiscalCode }),
         headers: expect.objectContaining({
           "content-type": "application/json",
           "x-api-key": apiKey,
@@ -94,7 +94,7 @@ describe("PDVTokenizerClient", () => {
     expect(fetchSpy).toHaveBeenCalledWith(
       `${baseUrl}/tokens`,
       expect.objectContaining({
-        body: JSON.stringify({ fiscalCode }),
+        body: JSON.stringify({ pii: fiscalCode }),
         headers: expect.objectContaining({
           "content-type": "application/json",
           "x-api-key": apiKey,
