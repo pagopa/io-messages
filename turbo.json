@@ -19,7 +19,7 @@
       "outputMode": "errors-only"
     },
     "test": {
-      "dependsOn": ["^test"],
+      "dependsOn": ["^test", "^build"],
       "inputs": ["src/**/*.spec.ts"],
       "outputMode": "errors-only"
     },
