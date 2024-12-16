@@ -26,7 +26,7 @@ const messagesIngestionHandler =
     try {
       await ingestUseCase.execute(messagesMetadata);
     } catch (err) {
-      logger.info(`Error during the ingestion process`);
+      logger.error(`Error during the ingestion process`);
       throw err;
     }
   };

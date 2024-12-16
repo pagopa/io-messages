@@ -3,6 +3,10 @@ import {
   messageContentSchema,
   messageMetadataSchema,
 } from "@/domain/message.js";
+import { FiscalCode } from "io-messages-common/domain/fiscal-code";
+
+export const aFiscalCode = "RMLGNN97R06F158N" as FiscalCode;
+export const aMaskedFiscalCode = "3f5a5e37-63a0-423c-a108-94b535e03f91";
 
 export const aSimpleMessageMetadata = messageMetadataSchema.parse({
   _attachments: "attachments/",
@@ -11,7 +15,7 @@ export const aSimpleMessageMetadata = messageMetadataSchema.parse({
   _self: "dbs/Xl0hAA==/colls/Xl0hAOfz93o=/docs/Xl0hAOfz93oCAAAAAAAAAA==/",
   _ts: 1720098859,
   createdAt: "2020-05-11T22:59:50.221Z",
-  fiscalCode: "RMLGNN97R06F158N",
+  fiscalCode: aFiscalCode,
   id: "01EHA1R1TSJP8DNYYG2TTR1B28",
   indexedId: "01EHA1R1TTJG01AHEDQEFNHFS9",
   isPending: false,
@@ -26,7 +30,7 @@ export const aSimpleMessageContent = messageContentSchema.parse({
   message: {
     createdAt: "Timestamp",
     featureLevelType: "STANDARD",
-    fiscalCode: "RMLGNN97R06F158N",
+    fiscalCode: aFiscalCode,
     indexedId: "01EHA1R1TSJP8DNYYG2TTR1B28",
     senderServiceId: "synthesizing",
     senderUserId: "NonEmptyString",
