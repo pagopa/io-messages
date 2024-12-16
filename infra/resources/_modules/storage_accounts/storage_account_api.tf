@@ -53,3 +53,72 @@ resource "azurerm_storage_table" "validationtokens" {
   name                 = "ValidationTokens"
   storage_account_name = module.storage_api.name
 }
+
+
+module "storage_api_itn" {
+  source = "github.com/pagopa/dx//infra/modules/azure_storage_account?ref=main"
+
+  environment                          = local.itn_environment
+  resource_group_name                  = var.resource_group_name
+  tier                                 = "l"
+  subnet_pep_id                        = module.common_values.pep_subnets.itn.id
+  private_dns_zone_resource_group_name = module.common_values.resource_groups.weu.common
+  subservices_enabled = {
+    blob  = true
+    file  = true
+    queue = true
+    table = true
+  }
+
+
+  force_public_network_access_enabled = false
+
+  blob_features = {
+    immutability_policy = {
+      enabled = false
+    }
+    delete_retention_days = 7
+    versioning            = true
+    change_feed = {
+      enabled           = true
+      retention_in_days = 10
+    }
+  }
+
+  # network_rules = {
+  #   default_action             = "Allow"
+  #   bypass                     = ["AzureServices"]
+  #   ip_rules                   = ["10.0.130.0/24", "10.0.122.0/24", "10.0.121.0/24", "10.0.123.0/24", "10.0.111.0/24", "10.0.109.0/24", "10.0.108.0/24"]
+  #   virtual_network_subnet_ids = [azurerm_subnet.example.id]
+  # }
+
+  action_group_id = var.error_action_group_id
+  tags            = var.tags
+}
+
+resource "azurerm_storage_container" "message_content_itn" {
+  name                  = "message-content"
+  storage_account_name  = module.storage_api_itn.name
+  container_access_type = "private"
+}
+
+resource "azurerm_storage_container" "cached_itn" {
+  name                  = "cached"
+  storage_account_name  = module.storage_api_itn.name
+  container_access_type = "private"
+}
+
+resource "azurerm_storage_table" "subscriptionsfeedbyday_itn" {
+  name                 = "SubscriptionsFeedByDay"
+  storage_account_name = module.storage_api_itn.name
+}
+
+resource "azurerm_storage_table" "faileduserdataprocessing_itn" {
+  name                 = "FailedUserDataProcessing"
+  storage_account_name = module.storage_api_itn.name
+}
+
+resource "azurerm_storage_table" "validationtokens_itn" {
+  name                 = "ValidationTokens"
+  storage_account_name = module.storage_api_itn.name
+}
