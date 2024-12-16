@@ -1,4 +1,5 @@
 import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
+import { timestampSchema } from "io-messages-common/types/date";
 import * as z from "zod";
 
 export const featureLevelSchema = z
@@ -69,7 +70,7 @@ export const messageContentSchema = z.object({
       summary: z.string().min(1).optional(),
     })
     .optional(),
-  timestamp: z.string().optional(),
+  timestamp: timestampSchema.optional(),
 });
 
 /**
