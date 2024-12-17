@@ -15,6 +15,7 @@
     "REDIS_URL": "https://a-redis-url/"
     "COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
     "COSMOS_DBNAME": "io-messages",
-    "COSMOS_MESSAGES_CONTAINER_NAME": "messages"
+    "COSMOS_MESSAGES_CONTAINER_NAME": "messages",
+    "COSMOS_MESSAGE_STATUS_CONTAINER_NAME": "message-status"
   }
 }

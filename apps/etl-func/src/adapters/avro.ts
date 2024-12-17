@@ -126,3 +126,69 @@ export const messageSchema = avro.Type.forSchema({
   namespace: "it.ioapp.com.message",
   type: "record",
 } as Schema);
+
+export const messageStatusAvroSchema = avro.Type.forSchema({
+  fields: [
+    {
+      doc: "An integer that indicates the version of the schema.",
+      name: "schema_version",
+      type: "int",
+    },
+    {
+      name: "op",
+      type: {
+        doc: "List of operations that can be done to a message.",
+        name: "MessageCrudOperation",
+        symbols: ["CREATE", "UPDATE", "DELETE"],
+        type: "enum",
+      },
+    },
+    {
+      doc: "An id that identifies the status of the message inside the message-status collection.",
+      name: "id",
+      type: "string",
+    },
+    {
+      doc: "An ULID that identifies the message inside the message collection.",
+      name: "message_id",
+      type: "string",
+    },
+    {
+      doc: "An integer that indicates the version of the status.",
+      name: "version",
+      type: "int",
+    },
+    {
+      doc: "List of possible message statuses.",
+      name: "status",
+      type: {
+        name: "MessageStatus",
+        symbols: ["ACCEPTED", "FAILED", "PROCESSED", "REJECTED", "THROTTLED"],
+        type: "enum",
+      },
+    },
+    {
+      doc: "Boolean that indicates if the message has been read.",
+      name: "is_read",
+      type: "boolean",
+    },
+    {
+      doc: "Boolean that indicates if the message has been archived.",
+      name: "is_archived",
+      type: "boolean",
+    },
+    {
+      doc: "A timestamp that indicates when the status was created.",
+      name: "timestamp",
+      type: "long",
+    },
+    {
+      doc: "A timestamp that indicates when the status was created.",
+      name: "created_at",
+      type: "long",
+    },
+  ],
+  name: "MessageStatus",
+  namespace: "dto",
+  type: "record",
+});
