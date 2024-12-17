@@ -1,5 +1,6 @@
-import { EventProducer } from "../event.js";
 import { MessageStatus } from "@/domain/message-status.js";
+
+import { EventProducer } from "../event.js";
 import {
   MessageStatusEvent,
   getMessageStatusEvent,
