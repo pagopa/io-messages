@@ -1,0 +1,28 @@
+@startuml message-status-ingestion
+
+collections "message-status-collection" as msc
+participant MessageStatusIngestion as msi
+collections "message-status-evh" as evh
+participant "ai-common" as ai
+
+
+msc <- msi : Read batch of 50 documents using change feed trigger
+activate msi
+
+loop for every document
+  msi -> msi : Parse the input into a valid MessageStatus
+end
+
+loop for every MessageStatus
+  msi -> msi : transform the MessageStatus into a MessageStatusEvent
+end
+
+msi -> evh : Load the MessageStatusEvent batch into the message-status-evh
+
+alt Error
+  evh -[#red]> msi : Error
+  msi --> ai : Log an error
+  msi -[#red]x msc : Throw an error to trigger a retry
+deactivate msi
+
+@enduml
