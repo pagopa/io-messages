@@ -188,7 +188,7 @@ export const messageStatusAvroSchema = avro.Type.forSchema({
       type: "long",
     },
   ],
-  name: "MessageStatus",
+  name: "message_status",
   namespace: "dto",
   type: "record",
 });
