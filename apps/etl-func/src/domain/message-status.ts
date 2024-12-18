@@ -17,12 +17,12 @@ export const messageStatusIdSchema = z.string().min(1);
 
 export const messageStatusSchema = z
   .object({
-    fiscalCode: fiscalCodeSchema,
+    fiscalCode: fiscalCodeSchema.optional(),
     id: messageStatusIdSchema,
     isArchived: z.boolean().default(false),
     isRead: z.boolean().default(false),
     messageId: z.string().ulid(),
-    updatedAt: z.number(),
+    updatedAt: z.coerce.date(),
     version: z.number().gte(0),
   })
   .and(

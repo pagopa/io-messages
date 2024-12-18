@@ -6,7 +6,7 @@ import { getMessageStatusEvent } from "../message-status-event.js";
 describe("getMessageStatusEvent", () => {
   test("Given a valid MessageStatus it should return a valid MessageStatusEvent", () => {
     expect(getMessageStatusEvent(aValidMessageStatus)).toMatchObject({
-      created_at: aValidMessageStatus.updatedAt,
+      created_at: new Date(aValidMessageStatus.updatedAt).getTime(),
       id: aValidMessageStatus.id,
       is_archived: aValidMessageStatus.isArchived,
       is_read: aValidMessageStatus.isRead,
@@ -14,7 +14,7 @@ describe("getMessageStatusEvent", () => {
       op: "CREATE",
       schema_version: 1,
       status: aValidMessageStatus.status,
-      timestamp: aValidMessageStatus.updatedAt,
+      timestamp: new Date(aValidMessageStatus.updatedAt).getTime(),
       version: aValidMessageStatus.version,
     });
   });

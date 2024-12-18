@@ -25,7 +25,7 @@ describe("messageStatusIngestionHandler", () => {
     );
     expect(publishMock).toHaveBeenCalledWith([
       {
-        created_at: aValidMessageStatus.updatedAt,
+        created_at: new Date(aValidMessageStatus.updatedAt).getTime(),
         id: aValidMessageStatus.id,
         is_archived: aValidMessageStatus.isArchived,
         is_read: aValidMessageStatus.isRead,
@@ -33,7 +33,7 @@ describe("messageStatusIngestionHandler", () => {
         op: "CREATE",
         schema_version: 1,
         status: aValidMessageStatus.status,
-        timestamp: aValidMessageStatus.updatedAt,
+        timestamp: new Date(aValidMessageStatus.updatedAt).getTime(),
         version: aValidMessageStatus.version,
       },
     ]);

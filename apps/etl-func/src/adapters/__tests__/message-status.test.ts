@@ -9,7 +9,7 @@ describe("getMessageStatusEventFromMessage", () => {
 
   test("Given a valid MessageStatus, when the version is 0 it should return a valid MessageStatusEvent with op CREATE", () => {
     expect(getMessageStatusEvent(aValidMessageStatus)).toMatchObject({
-      created_at: aValidMessageStatus.updatedAt,
+      created_at: new Date(aValidMessageStatus.updatedAt).getTime(),
       id: aValidMessageStatus.id,
       is_archived: aValidMessageStatus.isArchived,
       is_read: aValidMessageStatus.isRead,
@@ -17,7 +17,7 @@ describe("getMessageStatusEventFromMessage", () => {
       op: "CREATE",
       schema_version: 1,
       status: aValidMessageStatus.status,
-      timestamp: aValidMessageStatus.updatedAt,
+      timestamp: new Date(aValidMessageStatus.updatedAt).getTime(),
       version: aValidMessageStatus.version,
     });
   });
@@ -29,7 +29,7 @@ describe("getMessageStatusEventFromMessage", () => {
         version: 1,
       }),
     ).toMatchObject({
-      created_at: aValidMessageStatus.updatedAt,
+      created_at: new Date(aValidMessageStatus.updatedAt).getTime(),
       id: aValidMessageStatus.id,
       is_archived: aValidMessageStatus.isArchived,
       is_read: aValidMessageStatus.isRead,
@@ -37,7 +37,7 @@ describe("getMessageStatusEventFromMessage", () => {
       op: "UPDATE",
       schema_version: 1,
       status: aValidMessageStatus.status,
-      timestamp: aValidMessageStatus.updatedAt,
+      timestamp: new Date(aValidMessageStatus.updatedAt).getTime(),
       version: 1,
     });
   });

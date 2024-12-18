@@ -9,6 +9,6 @@ export const aValidMessageStatus = messageStatusSchema.parse({
   isRead: false,
   messageId: "01JD4YVX03H45HPGAB3E0Y2658",
   status: "ACCEPTED",
-  updatedAt: 123,
+  updatedAt: "2019-11-25T15:03:12.684Z",
   version: 0,
 });
