@@ -3,7 +3,7 @@ import { IngestMessageStatusUseCase } from "@/domain/use-cases/ingest-message-st
 import { CosmosDBHandler } from "@azure/functions";
 
 const parseMessageStatus = (input: unknown): MessageStatus | undefined => {
-  const { success, data } = messageStatusSchema.safeParse(input);
+  const { data, success } = messageStatusSchema.safeParse(input);
   return success ? data : undefined;
 };
 
