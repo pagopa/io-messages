@@ -23,7 +23,7 @@ loop Process all Mesagges Metadata
     redis -> etlFunc: Returns undefined
     etlFunc -> PDV: Request FC anonymization
     PDV -> etlFunc: Returns anonymized FC
-    etlFunc -> redis: Save FC and anonymized FC into cache
+    etlFunc --> redis: Save FC and anonymized FC into cache
   else Anonymized FC is cached
     etlFunc -> redis: Request cached anonymized FC
     redis -> etlFunc: Returns anonymized FC
