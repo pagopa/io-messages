@@ -32,9 +32,9 @@ module "web_apps" {
   }
 
   redis_cache = {
-    id          = module.redis_messages.id
-    url         = "rediss://${module.redis_messages.hostname}:${module.redis_messages.ssl_port}"
-    access_key  = module.redis_messages.primary_access_key
+    id         = module.redis_messages.id
+    url        = "rediss://${module.redis_messages.hostname}:${module.redis_messages.ssl_port}"
+    access_key = module.redis_messages.primary_access_key
   }
 
   /*gcm_migration_storage = {
