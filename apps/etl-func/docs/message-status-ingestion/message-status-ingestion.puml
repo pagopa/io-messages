@@ -4,7 +4,7 @@ collections "message-status-collection" as msc
 participant MessageStatusIngestion as msi
 collections "message-status-evh" as evh
 
-msc -> msi : Read batch of 50 documents using change feed trigger
+msc -> msi : Get batch of 50 documents using change feed trigger
 activate msi
 
 loop for every document
