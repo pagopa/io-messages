@@ -22,7 +22,7 @@ const messagesIngestionHandler =
   (ingestUseCase: IngestMessageUseCase): CosmosDBHandler =>
   async (documents: unknown[]) => {
     //Avoiding all documents different from MessageMetadata schema and with
-    //isPending equals to trueù
+    //isPending equals to true
 
     const parsedMessagesMetadata = documents.map(processMessageMetadata);
     const messagesMetadata: MessageMetadata[] = parsedMessagesMetadata.filter(

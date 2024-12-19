@@ -27,7 +27,7 @@ docker run --name etl_func_redis -p 6379:6379 -d redis:6.2.16 redis-server --app
 Make sure:
 
 1. the port 6379 is not used by another service
-2. the ${PASSWORD} passed to the docker run is the same of your local.settings.json is REDIS_PASSWORD env variable
+2. the ${PASSWORD} passed to the docker run is the same of your local.settings.json REDIS_PASSWORD env variable
 
 or simply change the values accordingly to your needs.
 
