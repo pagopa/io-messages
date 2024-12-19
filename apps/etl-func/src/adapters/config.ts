@@ -9,6 +9,7 @@ export const configSchema = z.object({
   cosmos: z.object({
     accountUri: z.string().url(),
     databaseName: z.string().min(1),
+    messageStatusContainerName: z.string().min(1),
     messagesContainerName: z.string().min(1),
   }),
   messageContentStorage: z.object({
@@ -29,6 +30,7 @@ export const configFromEnvironment = envSchema
       cosmos: {
         accountUri: env.COSMOS__accountEndpoint,
         databaseName: env.COSMOS_DBNAME,
+        messageStatusContainerName: env.COSMOS_MESSAGE_STATUS_CONTAINER_NAME,
         messagesContainerName: env.COSMOS_MESSAGES_CONTAINER_NAME,
       },
       messageContentStorage: {

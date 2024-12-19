@@ -29,7 +29,7 @@ export const getMessageStatusEvent = (
   messageStatus: MessageStatus,
 ): MessageStatusEvent =>
   messageStatusEventSchema.parse({
-    created_at: messageStatus.updatedAt,
+    created_at: new Date(messageStatus.updatedAt).getTime(),
     id: messageStatus.id,
     is_archived: messageStatus.isArchived,
     is_read: messageStatus.isRead,
@@ -37,6 +37,6 @@ export const getMessageStatusEvent = (
     op: messageStatus.version === 0 ? "CREATE" : "UPDATE",
     schema_version: 1,
     status: messageStatus.status,
-    timestamp: messageStatus.updatedAt,
+    timestamp: new Date(messageStatus.updatedAt).getTime(),
     version: messageStatus.version,
   });
