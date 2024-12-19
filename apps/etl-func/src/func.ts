@@ -130,7 +130,7 @@ const main = async (config: Config) => {
   //   createLeaseContainerIfNotExists: false,
   //   databaseName: config.cosmos.databaseName,
   //   handler: messageStatusIngestionHandler(ingestMessageStatusUseCase),
-  //   leaseContainerName: `message-status-dataplan-ingestion-test-lease`,
+  //   leaseContainerName: `message-status-ingestion-lease`,
   //   maxItemsPerInvocation: 50,
   //   retry: {
   //     maxRetryCount: 5,
