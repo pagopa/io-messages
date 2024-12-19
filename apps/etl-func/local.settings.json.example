@@ -12,7 +12,7 @@
     "PDV_TOKENIZER_BASE_URL": "https://api.uat.tokenizer.pdv.pagopa.it/tokenizer/v1",
     "REDIS_ACCESS_KEY": "accessKey",
     "REDIS_PING_INTERVAL": 1000,
-    "REDIS_URL": "https://a-redis-url/"
+    "REDIS_URL": "redis://localhost:6379"
     "COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
     "COSMOS_DBNAME": "io-messages",
     "COSMOS_MESSAGES_CONTAINER_NAME": "messages"
