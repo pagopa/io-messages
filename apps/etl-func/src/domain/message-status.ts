@@ -13,7 +13,12 @@ export const statusEnum = z.enum([
   "REJECTED",
 ]);
 
-export const messageStatusIdSchema = z.string().min(1);
+export const messageStatusIdSchema = z
+  .string()
+  .regex(
+    /^[0-9A-HJKMNP-TV-Z]{26}-\d{16}$/,
+    "Invalid format. Expected <ULID-Number>",
+  );
 
 export const messageStatusSchema = z
   .object({
