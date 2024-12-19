@@ -65,6 +65,20 @@ const main = async (config: Config) => {
     messageEventProducer,
   );
 
+  // const messageStatusProducerClient = new EventHubProducerClient(
+  //   config.messageStatusEventHub.connectionUri,
+  //   config.messageStatusEventHub.eventHubName,
+  //   azureCredentials,
+  // );
+
+  // const messageStatusEventProducer = new EventHubEventProducer(
+  //   messageStatusProducerClient,
+  //   messageStatusAvroSchema,
+  // );
+  // const ingestMessageStatusUseCase = new IngestMessageStatusUseCase(
+  //   messageStatusEventProducer,
+  // );
+
   app.http("Health", {
     authLevel: "anonymous",
     handler: async () => {
@@ -107,6 +121,30 @@ const main = async (config: Config) => {
     //we need to start the ingestion from this date
     startFromTime: "2023/01/01T00:00:00Z",
   });
+
+  // NOTE: we don't want to start the ingestion yet
+  //
+  // app.cosmosDB("IngestMessageStatus", {
+  //   connection: "COSMOS",
+  //   containerName: config.cosmos.messageStatusContainerName,
+  //   createLeaseContainerIfNotExists: false,
+  //   databaseName: config.cosmos.databaseName,
+  //   handler: messageStatusIngestionHandler(ingestMessageStatusUseCase),
+  //   leaseContainerName: `message-status-ingestion-lease`,
+  //   maxItemsPerInvocation: 50,
+  //   retry: {
+  //     maxRetryCount: 5,
+  //     maximumInterval: {
+  //       minutes: 1,
+  //     },
+  //     minimumInterval: {
+  //       seconds: 5,
+  //     },
+  //     strategy: "exponentialBackoff",
+  //   },
+  //   //TODO: insert the correct date
+  //   // startFromTime: "2023/01/01T00:00:00Z",
+  // });
 };
 
 await loadConfigFromEnvironment(main, configFromEnvironment);

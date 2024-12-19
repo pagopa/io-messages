@@ -10,7 +10,7 @@ describe("messageStatusSchema", () => {
         id: "01JD4YVX03H45HPGAB3E0Y2658-0000000000000000",
         messageId: "01JD4YVX03H45HPGAB3E0Y2658",
         status: "PROCESSED",
-        updatedAt: 12345,
+        updatedAt: "2019-11-25T15:03:12.684Z",
         version: 0,
       }),
     ).toMatchObject({
@@ -19,7 +19,7 @@ describe("messageStatusSchema", () => {
       isRead: false,
       messageId: "01JD4YVX03H45HPGAB3E0Y2658",
       status: "PROCESSED",
-      updatedAt: 12345,
+      updatedAt: new Date("2019-11-25T15:03:12.684Z"),
     });
   });
 
@@ -30,7 +30,7 @@ describe("messageStatusSchema", () => {
         id: "01JD4YVX03H45HPGAB3E0Y2658-0000000000000000",
         messageId: "01JD4YVX03H45HPGAB3E0Y2658",
         status: "REJECTED",
-        updatedAt: 12345,
+        updatedAt: "2019-11-25T15:03:12.684Z",
         version: 0,
       }),
     ).toMatchObject({
@@ -41,7 +41,7 @@ describe("messageStatusSchema", () => {
       messageId: "01JD4YVX03H45HPGAB3E0Y2658",
       rejection_reason: "UNKNOWN",
       status: "REJECTED",
-      updatedAt: 12345,
+      updatedAt: new Date("2019-11-25T15:03:12.684Z"),
       version: 0,
     });
   });
