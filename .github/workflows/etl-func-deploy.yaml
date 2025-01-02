@@ -5,7 +5,7 @@ on:
 
 jobs:
   etl_func_deploy:
-    uses: pagopa/dx/.github/workflows/web_app_deploy.yaml@b7a84bd876d31797ac87daf9cefebd8f6a579c08
+    uses: pagopa/dx/.github/workflows/web_app_deploy.yaml@53825edbcf12f0556a2391d716875dd928a97c69
     name: Deploy
     secrets: inherit
     with:
