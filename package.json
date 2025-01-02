@@ -6,14 +6,12 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "integration-tests",
     "packages/*"
   ],
   "scripts": {
     "build": "turbo run build",
     "code-review": "turbo run typecheck format:check lint:check build test:coverage",
     "format": "turbo run format",
-    "integration-container-start": "turbo run container-start",
     "lint": "turbo run lint",
     "version": "changeset version && yarn install --mode update-lockfile",
     "release": "changeset tag"
