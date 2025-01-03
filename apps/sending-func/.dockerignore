@@ -12,6 +12,5 @@ __*/**/*
 .gitignore
 .dockerignore
 README.md
-Dangerfile.js
 CODEOWNERS
 Dockerfile
