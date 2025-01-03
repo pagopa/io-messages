@@ -4594,30 +4594,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.12.2":
-  version: 20.14.9
-  resolution: "@types/node@npm:20.14.9"
-  dependencies:
-    undici-types: "npm:~5.26.4"
-  checksum: 10c0/911ffa444dc032897f4a23ed580c67903bd38ea1c5ec99b1d00fa10b83537a3adddef8e1f29710cbdd8e556a61407ed008e06537d834e48caf449ce59f87d387
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^20.12.4":
-  version: 20.16.11
-  resolution: "@types/node@npm:20.16.11"
+"@types/node@npm:^20.17.11":
+  version: 20.17.11
+  resolution: "@types/node@npm:20.17.11"
   dependencies:
     undici-types: "npm:~6.19.2"
-  checksum: 10c0/bba43f447c3c80548513954dae174e18132e9149d572c09df4a282772960d33e229d05680fb5364997c03489c22fe377d1dbcd018a3d4ff1cfbcfcdaa594a9c3
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^20.12.7":
-  version: 20.16.6
-  resolution: "@types/node@npm:20.16.6"
-  dependencies:
-    undici-types: "npm:~6.19.2"
-  checksum: 10c0/a3bd104b4061451625ed3b320c88e01e1261d41dbcaa7248d376f60a1a831e1cbc4362eef5be3445ccc1ea2d0a9178fc1ddd5e55a4f5df571dce78e5d91375a8
+  checksum: 10c0/16cb9c63d5b8903a6ee05b2948af3379e34b438682cb219f7877521fb24cf3ec5dbd7016dc95a156ae60821a936dea0018f460a7016cc3228b7f572d862bad68
   languageName: node
   linkType: hard
 
@@ -7020,7 +7002,7 @@ __metadata:
     "@types/html-to-text": "npm:^1.4.31"
     "@types/jest": "npm:^29.5.12"
     "@types/lolex": "npm:^3.1.1"
-    "@types/node": "npm:^20.12.7"
+    "@types/node": "npm:^20.17.11"
     "@types/redis": "npm:^2.8.28"
     abort-controller: "npm:^3.0.0"
     applicationinsights: "npm:^1.8.10"
@@ -9634,7 +9616,7 @@ __metadata:
     "@azure/identity": "npm:^4.5.0"
     "@azure/storage-blob": "npm:^12.26.0"
     "@pagopa/eslint-config": "npm:^4.0.1"
-    "@types/node": "npm:^20.12.7"
+    "@types/node": "npm:^20.17.11"
     "@vitest/coverage-v8": "npm:^1.5.0"
     applicationinsights: "npm:^3.3.0"
     avsc: "npm:^5.7.7"
@@ -11456,7 +11438,7 @@ __metadata:
   resolution: "io-messages-common@workspace:packages/io-messages-common"
   dependencies:
     "@pagopa/eslint-config": "npm:^4.0.1"
-    "@types/node": "npm:^20.12.4"
+    "@types/node": "npm:^20.17.11"
     "@vitest/coverage-v8": "npm:^1.5.0"
     eslint: "npm:8.57.0"
     pino: "npm:^9.1.0"
@@ -15266,7 +15248,7 @@ __metadata:
     "@azure/functions": "npm:^4.3.0"
     "@azure/notification-hubs": "npm:^1.2.3"
     "@pagopa/eslint-config": "npm:^4.0.1"
-    "@types/node": "npm:^20.12.2"
+    "@types/node": "npm:^20.17.11"
     "@vitest/coverage-v8": "npm:^1.5.0"
     applicationinsights: "npm:2.9.5"
     esbuild: "npm:^0.23.0"
@@ -18152,7 +18134,7 @@ __metadata:
     "@types/html-to-text": "npm:^1.4.31"
     "@types/jest": "npm:^24.0.15"
     "@types/lolex": "npm:^3.1.1"
-    "@types/node": "npm:^20.12.7"
+    "@types/node": "npm:^20.17.11"
     "@types/nodemailer": "npm:^4.6.8"
     abort-controller: "npm:^3.0.0"
     applicationinsights: "npm:^1.8.10"

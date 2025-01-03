@@ -20,7 +20,7 @@
     "@types/html-to-text": "^1.4.31",
     "@types/jest": "^29.5.12",
     "@types/lolex": "^3.1.1",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.17.11",
     "@types/redis": "^2.8.28",
     "auto-changelog": "^2.2.1",
     "dotenv": "^8.2.0",
