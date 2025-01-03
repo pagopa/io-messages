@@ -18,6 +18,7 @@
     "test:coverage": "vitest run --coverage --passWithNoTests"
   },
   "dependencies": {
+    "@azure/core-rest-pipeline": "^1.18.1",
     "@azure/functions": "^4.3.0",
     "@azure/notification-hubs": "^1.2.3",
     "applicationinsights": "2.9.5",

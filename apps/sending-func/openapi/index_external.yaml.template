@@ -422,9 +422,9 @@ definitions:
         required:
           - user_id
   ProblemJson:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/ProblemJson"
+    $ref: "./commons-definitions.yaml#/ProblemJson"
   FiscalCode:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/FiscalCode"
+    $ref: "./commons-definitions.yaml#/FiscalCode"
 securityDefinitions:
   SubscriptionKey:
     type: apiKey
