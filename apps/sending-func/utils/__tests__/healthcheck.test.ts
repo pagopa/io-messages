@@ -4,58 +4,59 @@ import { envConfig } from "../../__mocks__/env-config.mock";
 
 import * as config from "../config";
 
+import { it, describe, expect, vi, beforeAll, test } from "vitest";
+
 import {
   checkApplicationHealth,
   checkAzureStorageHealth,
   checkAzureCosmosDbHealth,
-  checkUrlHealth
+  checkUrlHealth,
 } from "../healthcheck";
 
-import { pipe } from "fp-ts/lib/function";
-
-import * as TE from "fp-ts/lib/TaskEither";
 import { isRight, isLeft, right } from "fp-ts/lib/Either";
 
-const azure_storage = require("azure-storage");
-
-const blobServiceOk: BlobService = ({
-  getServiceProperties: jest
+const blobServiceOk: BlobService = {
+  getServiceProperties: vi
     .fn()
     .mockImplementation((callback: ErrorOrResult<any>) =>
       callback(
-        (null as unknown) as Error,
+        null as unknown as Error,
         "ok",
-        (null as unknown) as ServiceResponse
-      )
-    )
-} as unknown) as BlobService;
+        null as unknown as ServiceResponse,
+      ),
+    ),
+} as unknown as BlobService;
+
+const storageMocks = vi.hoisted(() => ({
+  createBlobService: vi.fn((_) => blobServiceOk),
+  createFileService: vi.fn((_) => blobServiceOk),
+  createTableService: vi.fn((_) => blobServiceOk),
+  createQueueService: vi.fn((_) => blobServiceOk),
+}));
+
+vi.mock("azure-storage", async (importOriginal) => {
+  const actual: any = await importOriginal();
+  return {
+    ...actual,
+    createBlobService: storageMocks.createBlobService,
+    createFileService: storageMocks.createFileService,
+    createTableService: storageMocks.createTableService,
+    createQueueService: storageMocks.createQueueService,
+  };
+});
 
 const getBlobServiceKO = (name: string) =>
-  (({
-    getServiceProperties: jest
+  ({
+    getServiceProperties: vi
       .fn()
       .mockImplementation((callback: ErrorOrResult<any>) =>
         callback(
           Error(`error - ${name}`),
           null,
-          (null as unknown) as ServiceResponse
-        )
-      )
-  } as unknown) as BlobService);
-
-const azureStorageMocks = {
-  createBlobService: jest.fn(_ => blobServiceOk),
-  createFileService: jest.fn(_ => blobServiceOk),
-  createQueueService: jest.fn(_ => blobServiceOk),
-  createTableService: jest.fn(_ => blobServiceOk)
-};
-
-function mockAzureStorageFunctions() {
-  azure_storage["createBlobService"] = azureStorageMocks["createBlobService"];
-  azure_storage["createFileService"] = azureStorageMocks["createFileService"];
-  azure_storage["createQueueService"] = azureStorageMocks["createQueueService"];
-  azure_storage["createTableService"] = azureStorageMocks["createTableService"];
-}
+          null as unknown as ServiceResponse,
+        ),
+      ),
+  }) as unknown as BlobService;
 
 // Cosmos DB mock
 
@@ -64,12 +65,12 @@ const mockGetDatabaseAccountKO = async () => {
   throw Error("Error calling Cosmos Db");
 };
 
-const mockGetDatabaseAccount = jest
+const mockGetDatabaseAccount = vi
   .fn()
   .mockImplementation(mockGetDatabaseAccountOk);
 
 const cosmosdbClient = {
-  getDatabaseAccount: mockGetDatabaseAccount
+  getDatabaseAccount: mockGetDatabaseAccount,
 } as any;
 
 // -------------
@@ -78,8 +79,8 @@ const cosmosdbClient = {
 
 describe("healthcheck - storage account", () => {
   beforeAll(() => {
-    jest.clearAllMocks();
-    mockAzureStorageFunctions();
+    vi.clearAllMocks();
+    //mockAzureStorageFunctions();
   });
 
   it("should not throw exception", async () => {
@@ -88,24 +89,25 @@ describe("healthcheck - storage account", () => {
   });
 
   const testcases: {
-    name: keyof typeof azureStorageMocks;
+    name: keyof typeof storageMocks;
   }[] = [
     {
-      name: "createBlobService"
+      name: "createBlobService",
     },
     {
-      name: "createFileService"
+      name: "createFileService",
     },
     {
-      name: "createQueueService"
+      name: "createQueueService",
     },
     {
-      name: "createTableService"
-    }
+      name: "createTableService",
+    },
   ];
   test.each(testcases)("should throw exception %s", async ({ name }) => {
     const blobServiceKO = getBlobServiceKO(name);
-    azureStorageMocks[name].mockReturnValueOnce(blobServiceKO);
+    storageMocks[name].mockReturnValueOnce(blobServiceKO);
+
     const res = await checkAzureStorageHealth("")();
     expect(isLeft(res)).toBe(true);
     if (isLeft(res)) {
@@ -118,7 +120,7 @@ describe("healthcheck - storage account", () => {
 
 describe("healthcheck - cosmos db", () => {
   beforeAll(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return no error", async () => {
@@ -135,7 +137,7 @@ describe("healthcheck - cosmos db", () => {
 
 describe("healthcheck - url health", () => {
   beforeAll(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return an error if Url check fails", async () => {
@@ -146,19 +148,19 @@ describe("healthcheck - url health", () => {
 
 describe("checkApplicationHealth - multiple errors - ", () => {
   beforeAll(() => {
-    jest.clearAllMocks();
-    jest
-      .spyOn(config, "getConfig")
-      .mockReturnValue(right(envConfig as config.IConfig));
+    vi.clearAllMocks();
+    vi.spyOn(config, "getConfig").mockReturnValue(
+      right(envConfig as config.IConfig),
+    );
 
-    mockAzureStorageFunctions();
+    //mockAzureStorageFunctions();
   });
 
   it("should return multiple errors from different checks", async () => {
     const blobServiceKO = getBlobServiceKO("createBlobService");
     const queueServiceKO = getBlobServiceKO("createQueueService");
-    azureStorageMocks["createBlobService"].mockReturnValueOnce(blobServiceKO);
-    azureStorageMocks["createQueueService"].mockReturnValueOnce(queueServiceKO);
+    storageMocks.createBlobService.mockReturnValueOnce(blobServiceKO);
+    storageMocks.createQueueService.mockReturnValueOnce(queueServiceKO);
 
     const res = await checkApplicationHealth(cosmosdbClient)();
     expect(isLeft(res)).toBe(true);

@@ -4,6 +4,8 @@ import { IConfig } from "../config";
 
 import { envConfig } from "../../__mocks__/env-config.mock";
 
+import { it, describe, expect } from "vitest";
+
 describe("IConfig - USE_FALLBACK", () => {
   it("should decode USE_FALLBACK with defalt, when is not defined", () => {
     const p = IConfig.encode(envConfig);
