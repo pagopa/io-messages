@@ -65,6 +65,38 @@ variable "common_key_vault" {
   })
 }
 
+variable "eventhub_namespace" {
+  type = object({
+    id   = string
+    name = string
+  })
+}
+
+variable "messages_content_container" {
+  type = object({
+    id   = string
+    name = string
+  })
+}
+
+variable "messages_storage_account" {
+  type = object({
+    id   = string
+    name = string
+  })
+}
+
+variable "cosmosdb_account_api" {
+  type = object({
+    id                  = string
+    name                = string
+    endpoint            = string
+    resource_group_name = string
+  })
+}
+
+
+
 variable "tenant_id" {
   type = string
 }
@@ -78,5 +110,13 @@ variable "app_settings" {
   type = object({
     message_content_storage_uri : string,
     eventhub_connection_uri : string,
+  })
+}
+
+variable "redis_cache" {
+  type = object({
+    id         = string
+    url        = string
+    access_key = string
   })
 }

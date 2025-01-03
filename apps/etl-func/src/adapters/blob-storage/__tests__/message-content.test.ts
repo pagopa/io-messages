@@ -44,7 +44,7 @@ const blobMessageContent = new BlobMessageContent(
 describe("getByMessageId", () => {
   test("Given a message id which refers to an existing message, when the storage is reachable then it should return the content of the message", async () => {
     await expect(
-      blobMessageContent.getByMessageId(aSimpleMessageMetadata.id),
+      blobMessageContent.getByMessageContentById(aSimpleMessageMetadata.id),
     ).resolves.toMatchObject({
       markdown:
         "A valid markdown, this should be more than 80 chars, otherwise an error occurs. Ensure that this line is more than 80 chars",
@@ -57,7 +57,7 @@ describe("getByMessageId", () => {
     downloadMock.mockRejectedValueOnce(new Error("Unexpected"));
 
     await expect(() =>
-      blobMessageContent.getByMessageId(aSimpleMessageMetadata.id),
+      blobMessageContent.getByMessageContentById(aSimpleMessageMetadata.id),
     ).rejects.toThrowError();
   });
 
@@ -66,7 +66,7 @@ describe("getByMessageId", () => {
       Buffer.from(JSON.stringify(anInvalidMessageContent)),
     );
     await expect(() =>
-      blobMessageContent.getByMessageId(aSimpleMessageMetadata.id),
+      blobMessageContent.getByMessageContentById(aSimpleMessageMetadata.id),
     ).rejects.toThrowError(MessageContentError);
   });
 
@@ -80,7 +80,7 @@ describe("getByMessageId", () => {
       ),
     );
     await expect(() =>
-      blobMessageContent.getByMessageId(aSimpleMessageMetadata.id),
+      blobMessageContent.getByMessageContentById(aSimpleMessageMetadata.id),
     ).rejects.toThrowError(MessageContentError);
   });
 });
