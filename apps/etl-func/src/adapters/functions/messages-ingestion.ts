@@ -14,8 +14,10 @@ const logger = pino({
 const processMessageMetadata = (
   input: unknown,
 ): MessageMetadata | undefined => {
-  const { data, success } = messageMetadataSchema.safeParse(input);
-  return success && !data?.isPending ? data : undefined;
+  const result = messageMetadataSchema.safeParse(input);
+  //we are considering, and returning, only processed messages. A processed message has isPending === false
+  if (result.success && !result.data.isPending) return result.data;
+  else return undefined;
 };
 
 const messagesIngestionHandler =
