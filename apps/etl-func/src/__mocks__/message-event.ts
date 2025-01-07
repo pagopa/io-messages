@@ -1,4 +1,4 @@
-import { messageEventSchema } from "@/domain/message.js";
+import { messageEventSchema } from "@/domain/message-event.js";
 
 export const aSimpleMessageEvent = messageEventSchema.parse({
   content_type: "PAYMENT",
@@ -7,7 +7,6 @@ export const aSimpleMessageEvent = messageEventSchema.parse({
   has_precondition: false,
   has_remote_content: false,
   id: "01JB1YMTJ63TG2JHGAY9CMWY4A",
-  is_pending: false,
   op: "CREATE",
   payment_data_amount: 1,
   payment_data_invalid_after_due_date: false,

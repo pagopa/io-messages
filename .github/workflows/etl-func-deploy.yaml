@@ -13,5 +13,5 @@ jobs:
       environment: app-prod
       resource_group_name: io-p-itn-com-rg-01
       web_app_name: io-p-itn-com-etl-func-01
-      use_staging_slot: true
+      use_staging_slot: false
       use_private_agent: true

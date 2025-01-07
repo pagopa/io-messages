@@ -1,8 +1,9 @@
 import { aSimpleMessageEvent } from "@/__mocks__/message-event.js";
+import { MessageEvent } from "@/domain/message-event.js";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { messageSchema } from "../avro.js";
-import { EventHubEventProducer } from "../message-event.js";
+import { EventHubEventProducer } from "../eventhub/event.js";
 
 const mocks = vi.hoisted(() => ({
   EventHubProducerClient: vi.fn().mockImplementation(() => ({
@@ -26,11 +27,11 @@ const sendBatchMock = vi.fn(() => Promise.resolve());
 
 const eventHubProducerClient = new mocks.EventHubProducerClient();
 
-const messageEventAdapter = new EventHubEventProducer(
+const messageEventAdapter = new EventHubEventProducer<MessageEvent>(
   eventHubProducerClient,
   messageSchema,
 );
-
+const aSimpleMessageEventArray = [aSimpleMessageEvent];
 describe("publishMessageEvent", () => {
   beforeEach(() => {
     tryAddMock.mockRestore();
@@ -38,7 +39,7 @@ describe("publishMessageEvent", () => {
   });
   test("Given a valid message event it should resolve", async () => {
     await expect(
-      messageEventAdapter.publish(aSimpleMessageEvent),
+      messageEventAdapter.publish(aSimpleMessageEventArray),
     ).resolves.toEqual(undefined);
     expect(tryAddMock).toHaveBeenCalledOnce();
     expect(sendBatchMock).toHaveBeenCalledOnce();
@@ -47,7 +48,7 @@ describe("publishMessageEvent", () => {
   test("Should throw an error if tryAddMock returns false", async () => {
     tryAddMock.mockImplementation(() => false);
     await expect(
-      messageEventAdapter.publish(aSimpleMessageEvent),
+      messageEventAdapter.publish(aSimpleMessageEventArray),
     ).rejects.toEqual(new Error("Error while adding event to the batch"));
     expect(tryAddMock).toHaveBeenCalledOnce();
     expect(tryAddMock).toHaveReturnedWith(false);
@@ -57,7 +58,7 @@ describe("publishMessageEvent", () => {
   test("Should throw an error if sendBatchMock rejects", async () => {
     sendBatchMock.mockImplementation(() => Promise.reject());
     await expect(
-      messageEventAdapter.publish(aSimpleMessageEvent),
+      messageEventAdapter.publish(aSimpleMessageEventArray),
     ).rejects.toEqual(undefined);
     expect(tryAddMock).toHaveBeenCalledOnce();
     expect(tryAddMock).toHaveReturnedWith(true);
