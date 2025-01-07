@@ -8,16 +8,18 @@ import { aFiscalCode } from "../../__mocks__/mocks";
 import { UpsertMessageStatusHandler } from "../handler";
 import {
   MessageStatusModel,
-  RetrievedMessageStatus
+  RetrievedMessageStatus,
 } from "@pagopa/io-functions-commons/dist/src/models/message_status";
 import { MessageStatusChange } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageStatusChange";
 
 import {
   aRetrievedMessageStatus,
-  aMessageId
+  aMessageId,
 } from "../../__mocks__/mocks.message-status";
 import { CosmosErrors } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
 import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
+
+import { vi, afterEach, describe, it, expect } from "vitest";
 
 // --------------------------
 // Variables
@@ -25,56 +27,58 @@ import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
 
 const aReadingStatusChange = {
   change_type: "reading",
-  is_read: true
+  is_read: true,
 } as MessageStatusChange;
 
 const anArchivingStatusChange = {
   change_type: "archiving",
-  is_archived: true
+  is_archived: true,
 } as MessageStatusChange;
 
 const aBulkStatusChange = {
   change_type: "bulk",
   is_read: true,
-  is_archived: true
+  is_archived: true,
 } as MessageStatusChange;
 
 // --------------------------
 // Mocks
 // --------------------------
 
-const mockFindLastVersionByModelId = jest.fn(key =>
+const mockFindLastVersionByModelId = vi.fn((key) =>
   TE.of<CosmosErrors, O.Option<RetrievedMessageStatus>>(
-    O.some(aRetrievedMessageStatus)
-  )
+    O.some(aRetrievedMessageStatus),
+  ),
 );
-const mockUpsert = jest.fn(status =>
+const mockUpsert = vi.fn((status) =>
   TE.of<CosmosErrors, O.Option<RetrievedMessageStatus>>({
     ...aRetrievedMessageStatus,
     ...status,
     kind: "IRetrievedMessageStatus",
-    version: aRetrievedMessageStatus.version + 1
-  })
+    version: aRetrievedMessageStatus.version + 1,
+  }),
 );
 
-const mockMessageStatusModel = ({
+const mockMessageStatusModel = {
   findLastVersionByModelId: mockFindLastVersionByModelId,
-  upsert: mockUpsert
-} as any) as MessageStatusModel;
+  upsert: mockUpsert,
+} as any as MessageStatusModel;
 
 describe("UpsertMessageStatus", () => {
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it("should respond with a new version of message-status when change_type is `reading`", async () => {
     const upsertMessageStatusHandler = UpsertMessageStatusHandler(
-      mockMessageStatusModel
+      mockMessageStatusModel,
     );
 
     const result = await upsertMessageStatusHandler(
       contextMock as any,
       aFiscalCode,
       aMessageId,
-      aReadingStatusChange
+      aReadingStatusChange,
     );
 
     expect(result.kind).toBe("IResponseSuccessJson");
@@ -83,27 +87,27 @@ describe("UpsertMessageStatus", () => {
         expect.objectContaining({
           isRead: true,
           isArchived: false,
-          fiscalCode: aFiscalCode
-        })
+          fiscalCode: aFiscalCode,
+        }),
       );
       expect(result.value).toMatchObject({
         version: aRetrievedMessageStatus.version + 1,
         is_read: true,
-        is_archived: false
+        is_archived: false,
       });
     }
   });
 
   it("should respond with a new version of message-status when change_type is `archiving`", async () => {
     const upsertMessageStatusHandler = UpsertMessageStatusHandler(
-      mockMessageStatusModel
+      mockMessageStatusModel,
     );
 
     const result = await upsertMessageStatusHandler(
       contextMock as any,
       aFiscalCode,
       aMessageId,
-      anArchivingStatusChange
+      anArchivingStatusChange,
     );
 
     expect(result.kind).toBe("IResponseSuccessJson");
@@ -112,27 +116,27 @@ describe("UpsertMessageStatus", () => {
         expect.objectContaining({
           isRead: false,
           isArchived: true,
-          fiscalCode: aFiscalCode
-        })
+          fiscalCode: aFiscalCode,
+        }),
       );
       expect(result.value).toMatchObject({
         version: aRetrievedMessageStatus.version + 1,
         is_read: false,
-        is_archived: true
+        is_archived: true,
       });
     }
   });
 
   it("should respond with a new version of message-status when change_type is `bulk`", async () => {
     const upsertMessageStatusHandler = UpsertMessageStatusHandler(
-      mockMessageStatusModel
+      mockMessageStatusModel,
     );
 
     const result = await upsertMessageStatusHandler(
       contextMock as any,
       aFiscalCode,
       aMessageId,
-      aBulkStatusChange
+      aBulkStatusChange,
     );
 
     expect(result.kind).toBe("IResponseSuccessJson");
@@ -141,33 +145,35 @@ describe("UpsertMessageStatus", () => {
         expect.objectContaining({
           isRead: true,
           isArchived: true,
-          fiscalCode: aFiscalCode
-        })
+          fiscalCode: aFiscalCode,
+        }),
       );
       expect(result.value).toMatchObject({
         version: aRetrievedMessageStatus.version + 1,
         is_read: true,
-        is_archived: true
+        is_archived: true,
       });
     }
   });
 });
 
 describe("UpsertMessageStatus - Errors", () => {
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it("should respond with IResponseErrorNotFound if no message status was found for messageId", async () => {
     mockFindLastVersionByModelId.mockImplementationOnce(() => TE.of(O.none));
 
     const upsertMessageStatusHandler = UpsertMessageStatusHandler(
-      mockMessageStatusModel
+      mockMessageStatusModel,
     );
 
     const result = await upsertMessageStatusHandler(
       contextMock as any,
       aFiscalCode,
       aMessageId,
-      aReadingStatusChange
+      aReadingStatusChange,
     );
 
     expect(mockUpsert).not.toHaveBeenCalled();
@@ -177,14 +183,14 @@ describe("UpsertMessageStatus - Errors", () => {
 
   it("should respond with IResponseErrorForbiddenNotAuthorized if fiscalCode is different from statusModel one", async () => {
     const upsertMessageStatusHandler = UpsertMessageStatusHandler(
-      mockMessageStatusModel
+      mockMessageStatusModel,
     );
 
     const result = await upsertMessageStatusHandler(
       contextMock as any,
       "anotherFiscalCode" as FiscalCode,
       aMessageId,
-      aReadingStatusChange
+      aReadingStatusChange,
     );
 
     expect(mockUpsert).not.toHaveBeenCalled();

@@ -15,8 +15,8 @@
     "lint": "eslint --fix src",
     "lint:check": "eslint src",
     "typecheck": "tsc",
-    "test": "vitest run --passWithNoTests",
-    "test:coverage": "vitest run --coverage --passWithNoTests"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@azure/event-hubs": "^5.12.2",
@@ -39,5 +39,6 @@
     "prettier": "3.2.5",
     "typescript": "5.4.3",
     "vitest": "^1.5.0"
-  }
+  },
+  "license": "UNLICENSED"
 }

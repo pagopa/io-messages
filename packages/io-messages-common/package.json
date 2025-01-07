@@ -33,6 +33,7 @@
     "lint": "eslint --fix src",
     "lint:check": "eslint src",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:coverage": "vitest run --coverage"
   }
 }
