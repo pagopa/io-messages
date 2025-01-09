@@ -1,4 +1,4 @@
-name: PR - Labeler
+name: Labeler
 
 on:
   workflow_dispatch:

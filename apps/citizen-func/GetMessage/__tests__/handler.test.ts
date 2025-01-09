@@ -5,12 +5,12 @@ import * as O from "fp-ts/lib/Option";
 import {
   FiscalCode,
   NonEmptyString,
-  OrganizationFiscalCode
+  OrganizationFiscalCode,
 } from "@pagopa/ts-commons/lib/strings";
 
 import {
   NewMessageWithoutContent,
-  RetrievedMessageWithoutContent
+  RetrievedMessageWithoutContent,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
 
 import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
@@ -20,13 +20,13 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { context as contextMock } from "../../__mocks__/context";
 import {
   aCosmosResourceMetadata,
-  aPnThirdPartyData
+  aPnThirdPartyData,
 } from "../../__mocks__/mocks";
 import { GetMessageHandler } from "../handler";
 import { Service } from "@pagopa/io-functions-commons/dist/src/models/service";
 import {
   aRetrievedService,
-  aServiceId
+  aServiceId,
 } from "../../__mocks__/mocks.service_preference";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
 import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
@@ -44,6 +44,8 @@ import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/genera
 import { TagEnum as TagEnumPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
 import { envConfig } from "../../__mocks__/env-config.mock";
 
+import { vi, afterEach, expect, it, describe } from "vitest";
+
 const aFiscalCode = "FRLFRC74E04B157I" as FiscalCode;
 const aDate = new Date();
 
@@ -57,13 +59,13 @@ const aNewMessageWithoutContent: NewMessageWithoutContent = {
   kind: "INewMessageWithoutContent",
   senderServiceId: aServiceId,
   senderUserId: "u123" as NonEmptyString,
-  timeToLiveSeconds: 3600 as TimeToLiveSeconds
+  timeToLiveSeconds: 3600 as TimeToLiveSeconds,
 };
 
 const aRetrievedMessageWithoutContent: RetrievedMessageWithoutContent = {
   ...aNewMessageWithoutContent,
   ...aCosmosResourceMetadata,
-  kind: "IRetrievedMessageWithoutContent"
+  kind: "IRetrievedMessageWithoutContent",
 };
 
 const aPublicExtendedMessage: CreatedMessageWithoutContent = {
@@ -71,25 +73,25 @@ const aPublicExtendedMessage: CreatedMessageWithoutContent = {
   fiscal_code: aNewMessageWithoutContent.fiscalCode,
   id: "A_MESSAGE_ID",
   sender_service_id: aNewMessageWithoutContent.senderServiceId,
-  time_to_live: 3600 as TimeToLiveSeconds
+  time_to_live: 3600 as TimeToLiveSeconds,
 };
 
 const aMessageContent: MessageContent = {
   markdown: "a".repeat(81) as MessageBodyMarkdown,
-  subject: "sub".repeat(10) as MessageSubject
+  subject: "sub".repeat(10) as MessageSubject,
 };
 
 const aPublicExtendedMessageResponse = {
-  message: { ...aPublicExtendedMessage, content: aMessageContent }
+  message: { ...aPublicExtendedMessage, content: aMessageContent },
 };
 
 const aSenderService: Service = {
   ...aRetrievedService,
-  organizationFiscalCode: "12345678901" as OrganizationFiscalCode
+  organizationFiscalCode: "12345678901" as OrganizationFiscalCode,
 };
 const aPaymentDataWithoutPayee: PaymentData = {
   amount: 1000 as PaymentAmount,
-  notice_number: "177777777777777777" as PaymentNoticeNumber
+  notice_number: "177777777777777777" as PaymentNoticeNumber,
 };
 
 const anEnrichedMessageResponse: EnrichedMessage = {
@@ -99,48 +101,49 @@ const anEnrichedMessageResponse: EnrichedMessage = {
   organization_fiscal_code: aSenderService.organizationFiscalCode,
   message_title: aMessageContent.subject,
   is_archived: aMessageStatus.isArchived,
-  is_read: aMessageStatus.isRead
+  is_read: aMessageStatus.isRead,
 };
 
 const mockServiceModel = {};
 
-const findMessageForRecipientMock = jest
+const findMessageForRecipientMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aRetrievedMessageWithoutContent)));
 
-const getContentFromBlobMock = jest
+const getContentFromBlobMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aMessageContent)));
 const mockMessageModel = {
   findMessageForRecipient: findMessageForRecipientMock,
-  getContentFromBlob: getContentFromBlobMock
+  getContentFromBlob: getContentFromBlobMock,
 };
 
-const findLastVersionByModelIdMessageStatusMock = jest
+const findLastVersionByModelIdMessageStatusMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aMessageStatus)));
 const mockMessageStatusModel = {
-  findLastVersionByModelId: findLastVersionByModelIdMessageStatusMock
+  findLastVersionByModelId: findLastVersionByModelIdMessageStatusMock,
 };
 
 const aServiceCacheTTL = 3600 as NonNegativeInteger;
 
-const getOrCacheServiceMock = jest
+const getOrCacheServiceMock = vi
   .fn()
   .mockImplementation(() => TE.of(aSenderService));
 
-jest
-  .spyOn(msgUtil, "getOrCacheService")
-  .mockImplementation(getOrCacheServiceMock);
+vi.spyOn(msgUtil, "getOrCacheService").mockImplementation(
+  getOrCacheServiceMock,
+);
 
-const dummyThirdPartyDataWithCategoryFetcher: msgUtil.ThirdPartyDataWithCategoryFetcher = jest
-  .fn()
-  .mockImplementation(() => ({
-    category: TagEnumBase.GENERIC
+const dummyThirdPartyDataWithCategoryFetcher: msgUtil.ThirdPartyDataWithCategoryFetcher =
+  vi.fn().mockImplementation(() => ({
+    category: TagEnumBase.GENERIC,
   }));
 
 describe("GetMessageHandler", () => {
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
   it("should fail if any error occurs trying to retrieve the message content", async () => {
     getContentFromBlobMock.mockImplementationOnce(() => TE.left(new Error()));
 
@@ -152,21 +155,21 @@ describe("GetMessageHandler", () => {
       {} as any,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
       contextMock as any,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
-      O.none
+      O.none,
     );
 
     expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
-      aRetrievedMessageWithoutContent.id
+      aRetrievedMessageWithoutContent.id,
     );
 
     expect(result.kind).toBe("IResponseErrorInternal");
@@ -175,8 +178,8 @@ describe("GetMessageHandler", () => {
   it("should fail if any error occurs trying to retrieve message status while requesting an enriched message", async () => {
     findLastVersionByModelIdMessageStatusMock.mockImplementationOnce(() =>
       TE.left(
-        toCosmosErrorResponse(new Error("Cannot retrieve message status"))
-      )
+        toCosmosErrorResponse(new Error("Cannot retrieve message status")),
+      ),
     );
 
     const getMessageHandler = GetMessageHandler(
@@ -187,21 +190,21 @@ describe("GetMessageHandler", () => {
       {} as any,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
       contextMock as any,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
-      O.some(true)
+      O.some(true),
     );
 
     expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
-      aRetrievedMessageWithoutContent.id
+      aRetrievedMessageWithoutContent.id,
     );
 
     expect(result.kind).toBe("IResponseErrorInternal");
@@ -209,7 +212,7 @@ describe("GetMessageHandler", () => {
 
   it("should respond with an internal error if message sender cannot be retrieved for enriched message", async () => {
     getOrCacheServiceMock.mockImplementationOnce(() =>
-      TE.left(new Error("Cannot query services"))
+      TE.left(new Error("Cannot query services")),
     );
 
     const getMessageHandler = GetMessageHandler(
@@ -220,14 +223,14 @@ describe("GetMessageHandler", () => {
       {} as any,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
       contextMock as any,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
-      O.some(true)
+      O.some(true),
     );
 
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
@@ -242,9 +245,9 @@ describe("GetMessageHandler", () => {
       TE.of(
         O.some({
           ...aMessageContent,
-          payment_data: aPaymentDataWithoutPayee
-        })
-      )
+          payment_data: aPaymentDataWithoutPayee,
+        }),
+      ),
     );
     const getMessageHandler = GetMessageHandler(
       mockMessageModel as any,
@@ -254,21 +257,21 @@ describe("GetMessageHandler", () => {
       {} as any,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
       contextMock as any,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
-      O.some(true)
+      O.some(true),
     );
 
     expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
-      aRetrievedMessageWithoutContent.id
+      aRetrievedMessageWithoutContent.id,
     );
 
     expect(result.kind).toBe("IResponseSuccessJson");
@@ -279,35 +282,35 @@ describe("GetMessageHandler", () => {
           ...aPublicExtendedMessageResponse.message,
           category: {
             tag: "PAYMENT",
-            rptId: `${aSenderService.organizationFiscalCode}${aPaymentDataWithoutPayee.notice_number}`
+            rptId: `${aSenderService.organizationFiscalCode}${aPaymentDataWithoutPayee.notice_number}`,
           },
           content: {
             ...aMessageContent,
             payment_data: {
               ...aPaymentDataWithoutPayee,
               payee: {
-                fiscal_code: aSenderService.organizationFiscalCode
-              }
-            }
+                fiscal_code: aSenderService.organizationFiscalCode,
+              },
+            },
           },
-          ...anEnrichedMessageResponse
-        }
+          ...anEnrichedMessageResponse,
+        },
       });
     }
   });
 
   it("should respond with an enriched message when a PN third-party-data is provided ", async () => {
-    const thirdPartyFetcherForAServiceId = serviceId => ({
-      category: serviceId == aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC
+    const thirdPartyFetcherForAServiceId = (serviceId) => ({
+      category: serviceId == aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
     });
 
     getContentFromBlobMock.mockImplementationOnce(() =>
       TE.of(
         O.some({
           ...aMessageContent,
-          third_party_data: aPnThirdPartyData
-        })
-      )
+          third_party_data: aPnThirdPartyData,
+        }),
+      ),
     );
     const getMessageHandler = GetMessageHandler(
       mockMessageModel as any,
@@ -317,21 +320,21 @@ describe("GetMessageHandler", () => {
       {} as any,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
-      thirdPartyFetcherForAServiceId
+      thirdPartyFetcherForAServiceId,
     );
 
     const result = await getMessageHandler(
       contextMock as any,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
-      O.some(true)
+      O.some(true),
     );
 
     expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
-      aRetrievedMessageWithoutContent.id
+      aRetrievedMessageWithoutContent.id,
     );
 
     expect(result.kind).toBe("IResponseSuccessJson");
@@ -342,17 +345,17 @@ describe("GetMessageHandler", () => {
           ...aPublicExtendedMessageResponse.message,
           category: {
             tag: TagEnumPN.PN,
-            ...aPnThirdPartyData
+            ...aPnThirdPartyData,
           },
           content: {
             ...aMessageContent,
             third_party_data: {
               ...aPnThirdPartyData,
-              configuration_id: "01ARZ3NDEKTSV4RRFFQ69G5FAV"
-            }
+              configuration_id: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+            },
           },
-          ...anEnrichedMessageResponse
-        }
+          ...anEnrichedMessageResponse,
+        },
       });
     }
   });
@@ -366,21 +369,21 @@ describe("GetMessageHandler", () => {
       {} as any,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
       contextMock as any,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
-      O.none
+      O.none,
     );
 
     expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
-      aRetrievedMessageWithoutContent.id
+      aRetrievedMessageWithoutContent.id,
     );
 
     expect(result.kind).toBe("IResponseSuccessJson");
@@ -394,24 +397,24 @@ describe("GetMessageHandler", () => {
       ...aRetrievedMessageWithoutContent,
       content: {
         eu_covid_cert: {
-          auth_code: "ACode"
+          auth_code: "ACode",
         },
         markdown: "m".repeat(80),
-        subject: "e".repeat(80)
+        subject: "e".repeat(80),
       },
-      kind: "IRetrievedMessageWithContent"
+      kind: "IRetrievedMessageWithContent",
     };
 
     const expected = {
       ...aPublicExtendedMessage,
-      content: aRetrievedMessageWithEuCovidCert.content
+      content: aRetrievedMessageWithEuCovidCert.content,
     };
 
     findMessageForRecipientMock.mockImplementationOnce(() =>
-      TE.of(O.some(aRetrievedMessageWithEuCovidCert))
+      TE.of(O.some(aRetrievedMessageWithEuCovidCert)),
     );
     getContentFromBlobMock.mockImplementationOnce(() =>
-      TE.of(O.some(aRetrievedMessageWithEuCovidCert.content))
+      TE.of(O.some(aRetrievedMessageWithEuCovidCert.content)),
     );
 
     const getMessageHandler = GetMessageHandler(
@@ -422,29 +425,29 @@ describe("GetMessageHandler", () => {
       {} as any,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
       contextMock as any,
       aFiscalCode,
       aRetrievedMessageWithEuCovidCert.id,
-      O.none
+      O.none,
     );
 
     expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithEuCovidCert.fiscalCode,
-      aRetrievedMessageWithEuCovidCert.id
+      aRetrievedMessageWithEuCovidCert.id,
     );
 
     expect(result.kind).toBe("IResponseSuccessJson");
     if (result.kind === "IResponseSuccessJson") {
       expect(result.value.message).toEqual(
         expect.objectContaining({
-          ...expected
-        })
+          ...expected,
+        }),
       );
     }
   });
@@ -460,14 +463,14 @@ describe("GetMessageHandler", () => {
       {} as any,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
       contextMock as any,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
-      O.none
+      O.none,
     );
 
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
@@ -480,9 +483,9 @@ describe("GetMessageHandler", () => {
       TE.of(
         O.some({
           ...aMessageContent,
-          payment_data: aPaymentDataWithoutPayee
-        })
-      )
+          payment_data: aPaymentDataWithoutPayee,
+        }),
+      ),
     );
 
     const getMessageHandler = GetMessageHandler(
@@ -493,14 +496,14 @@ describe("GetMessageHandler", () => {
       {} as any,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
       contextMock as any,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
-      O.none
+      O.none,
     );
 
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
@@ -514,10 +517,10 @@ describe("GetMessageHandler", () => {
         payment_data: {
           ...aPaymentDataWithoutPayee,
           payee: {
-            fiscal_code: aSenderService.organizationFiscalCode
-          }
-        }
-      }
+            fiscal_code: aSenderService.organizationFiscalCode,
+          },
+        },
+      },
     };
 
     expect(result.kind).toBe("IResponseSuccessJson");
@@ -531,13 +534,13 @@ describe("GetMessageHandler", () => {
       TE.of(
         O.some({
           ...aMessageContent,
-          payment_data: aPaymentDataWithoutPayee
-        })
-      )
+          payment_data: aPaymentDataWithoutPayee,
+        }),
+      ),
     );
 
     getOrCacheServiceMock.mockImplementationOnce(() =>
-      TE.left(new Error("Cannot query services"))
+      TE.left(new Error("Cannot query services")),
     );
 
     const getMessageHandler = GetMessageHandler(
@@ -548,14 +551,14 @@ describe("GetMessageHandler", () => {
       {} as any,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
       contextMock as any,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
-      O.none
+      O.none,
     );
 
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
@@ -570,12 +573,12 @@ describe("GetMessageHandler", () => {
       TE.of(
         O.some({
           ...aMessageContent,
-          payment_data: aPaymentDataWithoutPayee
-        })
-      )
+          payment_data: aPaymentDataWithoutPayee,
+        }),
+      ),
     );
     getOrCacheServiceMock.mockImplementationOnce(() =>
-      TE.left(new Error("Cannot find service"))
+      TE.left(new Error("Cannot find service")),
     );
 
     const getMessageHandler = GetMessageHandler(
@@ -586,14 +589,14 @@ describe("GetMessageHandler", () => {
       {} as any,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
       contextMock as any,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
-      O.none
+      O.none,
     );
 
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);

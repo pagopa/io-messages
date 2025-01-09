@@ -3,39 +3,41 @@ import * as TE from "fp-ts/lib/TaskEither";
 import * as O from "fp-ts/lib/Option";
 import * as redis_storage from "../../utils/redis_storage";
 
+import { vi, describe, test, expect } from "vitest";
+
 import { envConfig } from "../../__mocks__/env-config.mock";
 
 import {
   handleEmptyConfiguration,
   handleGetRCConfiguration,
   handleUpsert,
-  isUserAllowedToUpdateConfiguration
+  isUserAllowedToUpdateConfiguration,
 } from "../handler";
 import {
   aRemoteContentConfiguration,
   findByConfigurationIdMock,
   rccModelMock,
-  upsertConfigurationMock
+  upsertConfigurationMock,
 } from "../../__mocks__/remote-content";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { redisClientMock } from "../../__mocks__/redis.mock";
 import { RC_CONFIGURATION_REDIS_PREFIX } from "../../GetRCConfiguration/handler";
 import { TelemetryClient } from "applicationinsights";
 
-const setWithExpirationTaskMock = jest.fn();
-jest
-  .spyOn(redis_storage, "setWithExpirationTask")
-  .mockImplementation(setWithExpirationTaskMock);
+const setWithExpirationTaskMock = vi.fn();
+vi.spyOn(redis_storage, "setWithExpirationTask").mockImplementation(
+  setWithExpirationTaskMock,
+);
 
-const trackEventMock = jest.fn();
-const telemetryClientMock = ({
-  trackEvent: trackEventMock
-} as unknown) as TelemetryClient;
+const trackEventMock = vi.fn();
+const telemetryClientMock = {
+  trackEvent: trackEventMock,
+} as unknown as TelemetryClient;
 
 describe("isUserAllowedToUpdateConfiguration", () => {
   test("should return a left if the userId is not equal to the userId of the configuration", async () => {
     const r = await isUserAllowedToUpdateConfiguration(
-      "aDifferentUserId" as NonEmptyString
+      "aDifferentUserId" as NonEmptyString,
     )(aRemoteContentConfiguration)();
     expect(E.isLeft(r)).toBe(true);
     if (E.isLeft(r))
@@ -44,7 +46,7 @@ describe("isUserAllowedToUpdateConfiguration", () => {
 
   test("should return a right if the userId is equal to the userId of the configuration", async () => {
     const r = await isUserAllowedToUpdateConfiguration(
-      aRemoteContentConfiguration.userId
+      aRemoteContentConfiguration.userId,
     )(aRemoteContentConfiguration)();
     expect(E.isRight(r)).toBe(true);
     if (E.isRight(r)) expect(r.right).toBe(aRemoteContentConfiguration);
@@ -60,7 +62,7 @@ describe("handleEmptyConfiguration", () => {
 
   test("should return a right if the configuration was found", async () => {
     const r = await handleEmptyConfiguration(
-      O.some(aRemoteContentConfiguration)
+      O.some(aRemoteContentConfiguration),
     )();
     expect(E.isRight(r)).toBe(true);
     if (E.isRight(r)) expect(r.right).toBe(aRemoteContentConfiguration);
@@ -73,12 +75,12 @@ describe("handleGetRCConfiguration", () => {
     const rccModel = rccModelMock;
     const r = await handleGetRCConfiguration(
       rccModel,
-      aRemoteContentConfiguration.configurationId
+      aRemoteContentConfiguration.configurationId,
     )();
     expect(E.isLeft(r)).toBe(true);
     if (E.isLeft(r)) {
       expect(r.left.detail).toContain(
-        "Something went wrong trying to retrieve the configuration: "
+        "Something went wrong trying to retrieve the configuration: ",
       );
       expect(r.left.kind).toBe("IResponseErrorInternal");
     }
@@ -86,11 +88,11 @@ describe("handleGetRCConfiguration", () => {
 
   test("should return a right if the find return a right", async () => {
     findByConfigurationIdMock.mockReturnValueOnce(
-      TE.right(O.some(aRemoteContentConfiguration))
+      TE.right(O.some(aRemoteContentConfiguration)),
     );
     const r = await handleGetRCConfiguration(
       rccModelMock,
-      aRemoteContentConfiguration.configurationId
+      aRemoteContentConfiguration.configurationId,
     )();
     expect(E.isRight(r)).toBe(true);
     if (E.isRight(r))
@@ -106,19 +108,19 @@ describe("handleUpsert", () => {
       rccModel: rccModelMock,
       config: envConfig,
       redisClientFactory: redisClientMock,
-      telemetryClient: telemetryClientMock
+      telemetryClient: telemetryClientMock,
     })(aRemoteContentConfiguration)();
     expect(E.isLeft(r)).toBe(true);
     expect(setWithExpirationTaskMock).not.toHaveBeenCalled();
     if (E.isLeft(r))
       expect(r.left.detail).toContain(
-        `Something went wrong trying to upsert the configuration: `
+        `Something went wrong trying to upsert the configuration: `,
       );
   });
 
   test("should return a right calling the setTask if the upsert method goes well", async () => {
     upsertConfigurationMock.mockReturnValueOnce(
-      TE.right(aRemoteContentConfiguration)
+      TE.right(aRemoteContentConfiguration),
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
 
@@ -126,38 +128,38 @@ describe("handleUpsert", () => {
       rccModel: rccModelMock,
       config: envConfig,
       redisClientFactory: redisClientMock,
-      telemetryClient: telemetryClientMock
+      telemetryClient: telemetryClientMock,
     })(aRemoteContentConfiguration)();
     expect(E.isRight(r)).toBe(true);
     expect(setWithExpirationTaskMock).toHaveBeenCalledWith(
       redisClientMock,
       `${RC_CONFIGURATION_REDIS_PREFIX}-${aRemoteContentConfiguration.configurationId}`,
       JSON.stringify(aRemoteContentConfiguration),
-      envConfig.RC_CONFIGURATION_CACHE_TTL
+      envConfig.RC_CONFIGURATION_CACHE_TTL,
     );
     if (E.isRight(r)) expect(r.right.kind).toBe("IResponseSuccessNoContent");
   });
 
   test("should return a right calling the setTask if the upsert method goes well but the setTask return an error", async () => {
     upsertConfigurationMock.mockReturnValueOnce(
-      TE.right(aRemoteContentConfiguration)
+      TE.right(aRemoteContentConfiguration),
     );
     setWithExpirationTaskMock.mockReturnValueOnce(
-      TE.left(new Error("Something went wrong"))
+      TE.left(new Error("Something went wrong")),
     );
 
     const r = await handleUpsert({
       rccModel: rccModelMock,
       config: envConfig,
       redisClientFactory: redisClientMock,
-      telemetryClient: telemetryClientMock
+      telemetryClient: telemetryClientMock,
     })(aRemoteContentConfiguration)();
     expect(E.isRight(r)).toBe(true);
     expect(setWithExpirationTaskMock).toHaveBeenCalledWith(
       redisClientMock,
       `${RC_CONFIGURATION_REDIS_PREFIX}-${aRemoteContentConfiguration.configurationId}`,
       JSON.stringify(aRemoteContentConfiguration),
-      envConfig.RC_CONFIGURATION_CACHE_TTL
+      envConfig.RC_CONFIGURATION_CACHE_TTL,
     );
     if (E.isRight(r)) expect(r.right.kind).toBe("IResponseSuccessNoContent");
   });

@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@pagopa/eslint-config": "^4.0.1",
-    "@types/node": "^20.12.4",
+    "@types/node": "^20.17.11",
     "@vitest/coverage-v8": "^1.5.0",
     "eslint": "8.57.0",
     "prettier": "^3.2.5",
@@ -33,6 +33,7 @@
     "lint": "eslint --fix src",
     "lint:check": "eslint src",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:coverage": "vitest run --coverage"
   }
 }

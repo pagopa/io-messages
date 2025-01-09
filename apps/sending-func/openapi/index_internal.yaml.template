@@ -197,27 +197,27 @@ paths:
 
 definitions:
   RCConfigurationId:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/Ulid"
+    $ref: "./commons-definitions.yaml#/Ulid"
   RCConfigurationPublic:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/RCConfigurationPublic"
+    $ref: "./commons-definitions.yaml#/RCConfigurationPublic"
   NewRCConfigurationBase:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/NewRCConfigurationBase"
+    $ref: "./commons-definitions.yaml#/NewRCConfigurationBase"
   NewRCConfigurationPublic:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/NewRCConfigurationPublic"
+    $ref: "./commons-definitions.yaml#/NewRCConfigurationPublic"
   RCConfigurationBase:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/RCConfigurationBase"
+    $ref: "./commons-definitions.yaml#/RCConfigurationBase"
   RCConfigurationEnvironment:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/RCConfigurationEnvironment"
+    $ref: "./commons-definitions.yaml#/RCConfigurationEnvironment"
   RCConfigurationProdEnvironment:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/RCConfigurationProdEnvironment"
+    $ref: "./commons-definitions.yaml#/RCConfigurationProdEnvironment"
   RCAuthenticationConfig:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/RCAuthenticationConfig"
+    $ref: "./commons-definitions.yaml#/RCAuthenticationConfig"
   RCClientCert:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/RCClientCert"
+    $ref: "./commons-definitions.yaml#/RCClientCert"
   RCConfigurationTestEnvironment:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/RCConfigurationTestEnvironment"
+    $ref: "./commons-definitions.yaml#/RCConfigurationTestEnvironment"
   HasPrecondition:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/HasPrecondition"
+    $ref: "./commons-definitions.yaml#/HasPrecondition"
   RCConfigurationListResponse:
     type: object
     properties:
@@ -257,9 +257,9 @@ definitions:
       - fiscal_code
       - message_id
   ProblemJson:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/ProblemJson"
+    $ref: "./commons-definitions.yaml#/ProblemJson"
   FiscalCode:
-    $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/FiscalCode"
+    $ref: "./commons-definitions.yaml#/FiscalCode"
 securityDefinitions:
   SubscriptionKey:
     type: apiKey

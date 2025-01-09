@@ -1,11 +1,11 @@
 name: Deploy (notif-func)
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   notif_func_deploy:
-    uses: pagopa/dx/.github/workflows/web_app_deploy.yaml@add-web-app-deploy-workflow
+    uses: pagopa/dx/.github/workflows/web_app_deploy.yaml@53825edbcf12f0556a2391d716875dd928a97c69
     name: Deploy
     secrets: inherit
     with:
@@ -13,6 +13,5 @@ jobs:
       environment: app-prod
       resource_group_name: io-p-itn-msgs-rg-01
       web_app_name: io-p-itn-msgs-notif-func-02
-      health_check_path: /api/health
       use_staging_slot: false
       use_private_agent: true

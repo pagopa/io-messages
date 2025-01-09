@@ -1,4 +1,4 @@
-name: (Release) GitHub Runner WestEurope
+name: Apply (github-runner)
 
 on:
   workflow_dispatch:

@@ -1,4 +1,4 @@
-name: PR Infrastructure Plan
+name: Plan (resources)
 
 on:
   workflow_dispatch:
