@@ -2,50 +2,27 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build",
-        "^typecheck"
-      ],
-      "inputs": [
-        "src/**/*.ts"
-      ],
-      "outputs": [
-        "dist/**"
-      ],
+      "dependsOn": ["^build", "^typecheck"],
+      "inputs": ["src/**/*.ts"],
+      "outputs": ["dist/**"],
       "outputLogs": "errors-only"
     },
-    "container-start": {
-      "outputLogs": "full"
-    },
     "lint": {
-      "inputs": [
-        "src/**/*.ts"
-      ],
+      "inputs": ["src/**/*.ts"],
       "outputLogs": "errors-only"
     },
     "lint:check": {
-      "inputs": [
-        "src/**/*.ts"
-      ],
+      "inputs": ["src/**/*.ts"],
       "outputLogs": "errors-only"
     },
     "test": {
-      "dependsOn": [
-        "^test",
-        "build"
-      ],
-      "inputs": [
-        "src/**/*.spec.ts"
-      ],
+      "dependsOn": ["^test", "build"],
+      "inputs": ["src/**/*.spec.ts"],
       "outputLogs": "errors-only"
     },
     "test:coverage": {
-      "dependsOn": [
-        "^test"
-      ],
-      "inputs": [
-        "src/**/*.spec.ts"
-      ],
+      "dependsOn": ["^test"],
+      "inputs": ["src/**/*.spec.ts"],
       "outputLogs": "full"
     },
     "format": {
@@ -55,25 +32,32 @@
       "outputLogs": "errors-only"
     },
     "typecheck": {
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "src/**/*.ts"
-      ],
+      "dependsOn": ["^build"],
+      "inputs": ["src/**/*.ts"],
       "outputLogs": "errors-only"
     },
+
+    "openapi:bundle": {
+      "inputs": ["openapi/index.yaml.template"],
+      "outputs": ["openapi/index.yaml", "openapi/common-definitions.yaml"]
+    },
+
+    "generate:definitions": {
+      "dependsOn": ["openapi:bundle"],
+      "inputs": ["openapi/index.yaml"],
+      "outputs": ["generated/definitions"]
+    },
+
+    "generate:backend-notification-hub": {},
+
     "//#test:coverage": {
       "dependsOn": [
-        "^build"
+        "citizen-func#generate:definitions",
+        "sending-func#generate:definitions",
+        "sending-func#generate:backend-notification-hub"
       ],
-      "inputs": [
-        "apps/**/src/**/*.ts",
-        "packages/**/src/**/*.ts"
-      ],
-      "outputs": [
-        "coverage"
-      ],
+      "inputs": ["apps/**/src/**/*.ts", "packages/**/src/**/*.ts"],
+      "outputs": ["coverage"],
       "outputLogs": "errors-only"
     }
   }

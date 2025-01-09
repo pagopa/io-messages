@@ -10,16 +10,19 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "code-review": "turbo run typecheck format:check lint:check test:coverage",
+    "code-review": "turbo run typecheck format:check lint:check //#test:coverage",
     "format": "turbo run format",
     "lint": "turbo run lint",
+    "test:coverage": "vitest run --coverage",
     "version": "changeset version && yarn install --mode update-lockfile",
     "release": "changeset tag"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.7",
+    "@changesets/cli": "^2.27.11",
+    "@vitest/coverage-v8": "^2.1.8",
     "prettier": "3.2.5",
     "turbo": "^2.3.3",
-    "typescript": "5.4.3"
+    "typescript": "5.4.3",
+    "vitest": "^2.1.8"
   }
 }
