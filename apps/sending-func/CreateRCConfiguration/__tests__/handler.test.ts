@@ -10,7 +10,7 @@ import {
   createNewConfigurationMock,
   rccModelMock,
   someUserGroups,
-  someUserGroupsWithTheAllowedOne
+  someUserGroupsWithTheAllowedOne,
 } from "../../__mocks__/remote-content";
 import { ulidGeneratorAsUlid } from "@pagopa/io-functions-commons/dist/src/utils/strings";
 import { createRCConfigurationHandler } from "../handler";
@@ -18,14 +18,16 @@ import { RCConfiguration } from "@pagopa/io-functions-commons/dist/src/models/rc
 import { Ulid } from "@pagopa/ts-commons/lib/strings";
 import { makeNewRCConfigurationWithConfigurationId } from "../../utils/mappers";
 
+import { describe, test, expect, beforeEach, vi } from "vitest";
+
 describe("makeNewRCConfigurationWithConfigurationId", () => {
   test("should return a valid RCConfiguration", () => {
     const r = RCConfiguration.decode(
       makeNewRCConfigurationWithConfigurationId(
         ulidGeneratorAsUlid,
         aUserId,
-        aPublicRemoteContentConfiguration
-      )
+        aPublicRemoteContentConfiguration,
+      ),
     );
     expect(E.isRight(r)).toBeTruthy();
     if (E.isRight(r))
@@ -35,47 +37,47 @@ describe("makeNewRCConfigurationWithConfigurationId", () => {
 
 describe("createRCConfigurationHandler", () => {
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test("should return 500 if the model return an error", async () => {
     createNewConfigurationMock.mockReturnValueOnce(TE.left({}));
     const r = await createRCConfigurationHandler({
       rccModel: rccModelMock,
-      generateConfigurationId: ulidGeneratorAsUlid
+      generateConfigurationId: ulidGeneratorAsUlid,
     })({
       newRCConfiguration: {
-        ...aPublicRemoteContentConfiguration
+        ...aPublicRemoteContentConfiguration,
       },
       subscriptionId: aManageSubscriptionId,
       userGroups: someUserGroupsWithTheAllowedOne,
-      userId: aUserId
+      userId: aUserId,
     });
 
     expect(r.kind).toBe("IResponseErrorInternal");
     expect(r.detail).toBe(
-      "Internal server error: Something went wrong trying to create the configuration: {}"
+      "Internal server error: Something went wrong trying to create the configuration: {}",
     );
   });
 
   test("should return 201 with the ulid if the create goes fine", async () => {
     createNewConfigurationMock.mockReturnValueOnce(
-      TE.right(aRemoteContentConfiguration)
+      TE.right(aRemoteContentConfiguration),
     );
     const r = await createRCConfigurationHandler({
       rccModel: rccModelMock,
-      generateConfigurationId: ulidGeneratorAsUlid
+      generateConfigurationId: ulidGeneratorAsUlid,
     })({
       newRCConfiguration: aPublicRemoteContentConfiguration,
       subscriptionId: aManageSubscriptionId,
       userGroups: someUserGroupsWithTheAllowedOne,
-      userId: aUserId
+      userId: aUserId,
     });
 
     expect(r.kind).toBe("IResponseSuccessRedirectToResource");
     if (r.kind === "IResponseSuccessRedirectToResource")
       expect(r.payload).toMatchObject({
-        ...aPublicRemoteContentConfiguration
+        ...aPublicRemoteContentConfiguration,
       });
   });
 
@@ -83,12 +85,12 @@ describe("createRCConfigurationHandler", () => {
     createNewConfigurationMock.mockReturnValueOnce(TE.left({}));
     const r = await createRCConfigurationHandler({
       rccModel: rccModelMock,
-      generateConfigurationId: ulidGeneratorAsUlid
+      generateConfigurationId: ulidGeneratorAsUlid,
     })({
       newRCConfiguration: aPublicRemoteContentConfiguration,
       subscriptionId: aManageSubscriptionId,
       userGroups: someUserGroups,
-      userId: aUserId
+      userId: aUserId,
     });
 
     expect(r.kind).toBe("IResponseErrorForbiddenNotAuthorized");
@@ -99,12 +101,12 @@ describe("createRCConfigurationHandler", () => {
     createNewConfigurationMock.mockReturnValueOnce(TE.left({}));
     const r = await createRCConfigurationHandler({
       rccModel: rccModelMock,
-      generateConfigurationId: ulidGeneratorAsUlid
+      generateConfigurationId: ulidGeneratorAsUlid,
     })({
       newRCConfiguration: aPublicRemoteContentConfiguration,
       subscriptionId: aSubscriptionId,
       userGroups: someUserGroupsWithTheAllowedOne,
-      userId: aUserId
+      userId: aUserId,
     });
 
     expect(r.kind).toBe("IResponseErrorForbiddenNotAuthorized");

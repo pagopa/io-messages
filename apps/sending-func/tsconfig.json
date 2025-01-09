@@ -7,7 +7,7 @@
     "sourceMap": true,
     "strict": false,
     "resolveJsonModule": true
-  }, 
+  },
   "exclude": [
     "node_modules",
     "dist",
@@ -15,6 +15,5 @@
     "docker",
     "**/__tests__",
     "**/__integrations__",
-    "Dangerfile.ts"
   ]
 }

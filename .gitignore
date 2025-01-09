@@ -84,6 +84,7 @@ generated
 
 *.js
 !jest.config.js
+!copy-commons-definitions.js
 !.release-it.js
 
 # ESLint files

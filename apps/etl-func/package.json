@@ -15,8 +15,8 @@
     "lint": "eslint --fix src",
     "lint:check": "eslint src",
     "typecheck": "tsc",
-    "test": "vitest run --passWithNoTests",
-    "test:coverage": "vitest run --coverage --passWithNoTests"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@azure/event-hubs": "^5.12.2",
@@ -32,12 +32,13 @@
   },
   "devDependencies": {
     "@pagopa/eslint-config": "^4.0.1",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.17.11",
     "@vitest/coverage-v8": "^1.5.0",
     "esbuild": "^0.24.0",
     "eslint": "8.57.0",
     "prettier": "3.2.5",
     "typescript": "5.4.3",
     "vitest": "^1.5.0"
-  }
+  },
+  "license": "UNLICENSED"
 }

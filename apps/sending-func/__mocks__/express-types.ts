@@ -1,20 +1,22 @@
+import { vi } from "vitest";
+
 export function mockReq({ params = {}, body = {}, query = {} }: any = {}): any {
   const request = {
-    accepts: jest.fn(),
-    acceptsCharset: jest.fn(),
-    acceptsCharsets: jest.fn(),
-    acceptsEncoding: jest.fn(),
-    acceptsEncodings: jest.fn(),
-    acceptsLanguage: jest.fn(),
-    acceptsLanguages: jest.fn(),
+    accepts: vi.fn(),
+    acceptsCharset: vi.fn(),
+    acceptsCharsets: vi.fn(),
+    acceptsEncoding: vi.fn(),
+    acceptsEncodings: vi.fn(),
+    acceptsLanguage: vi.fn(),
+    acceptsLanguages: vi.fn(),
     body,
-    header: jest.fn(),
-    is: jest.fn(),
-    param: jest.fn(),
+    header: vi.fn(),
+    is: vi.fn(),
+    param: vi.fn(),
     params,
     query,
-    range: jest.fn(),
-    reset: resetRequestMock
+    range: vi.fn(),
+    reset: resetRequestMock,
   };
 
   request.header.mockImplementation(() => request);
@@ -26,7 +28,7 @@ export function mockReq({ params = {}, body = {}, query = {} }: any = {}): any {
   request.acceptsLanguages.mockImplementation(() => request);
   request.acceptsLanguage.mockImplementation(() => request);
   request.range.mockImplementation(() => request);
-  request.param.mockImplementation(name => {
+  request.param.mockImplementation((name) => {
     return { ...params, ...body, ...query }[name];
   });
   request.is.mockImplementation(() => request);
@@ -58,28 +60,28 @@ function resetRequestMock(this: any): any {
 
 export function mockRes() {
   const response = {
-    append: jest.fn(),
-    attachment: jest.fn(),
-    clearCookie: jest.fn(),
-    cookie: jest.fn(),
-    download: jest.fn(),
-    end: jest.fn(),
-    format: jest.fn(),
-    get: jest.fn(),
-    json: jest.fn(),
-    jsonp: jest.fn(),
-    links: jest.fn(),
-    location: jest.fn(),
-    redirect: jest.fn(),
-    render: jest.fn(),
+    append: vi.fn(),
+    attachment: vi.fn(),
+    clearCookie: vi.fn(),
+    cookie: vi.fn(),
+    download: vi.fn(),
+    end: vi.fn(),
+    format: vi.fn(),
+    get: vi.fn(),
+    json: vi.fn(),
+    jsonp: vi.fn(),
+    links: vi.fn(),
+    location: vi.fn(),
+    redirect: vi.fn(),
+    render: vi.fn(),
     reset: resetResponseMock,
-    send: jest.fn(),
-    sendFile: jest.fn(),
-    sendStatus: jest.fn(),
-    set: jest.fn(),
-    status: jest.fn(),
-    type: jest.fn(),
-    vary: jest.fn()
+    send: vi.fn(),
+    sendFile: vi.fn(),
+    sendStatus: vi.fn(),
+    set: vi.fn(),
+    status: vi.fn(),
+    type: vi.fn(),
+    vary: vi.fn(),
   };
 
   response.append.mockImplementation(() => response);

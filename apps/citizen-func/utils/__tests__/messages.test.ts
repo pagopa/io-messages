@@ -5,13 +5,13 @@ import {
   Service,
   ServiceModel,
   toAuthorizedCIDRs,
-  toAuthorizedRecipients
+  toAuthorizedRecipients,
 } from "@pagopa/io-functions-commons/dist/src/models/service";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import {
   FiscalCode,
   NonEmptyString,
-  OrganizationFiscalCode
+  OrganizationFiscalCode,
 } from "@pagopa/ts-commons/lib/strings";
 import { aCosmosResourceMetadata } from "../../__mocks__/mocks";
 import * as O from "fp-ts/lib/Option";
@@ -24,11 +24,11 @@ import {
   enrichServiceData,
   getThirdPartyDataWithCategoryFetcher,
   mapMessageCategory,
-  ThirdPartyDataWithCategoryFetcher
+  ThirdPartyDataWithCategoryFetcher,
 } from "../messages";
 import {
   NewMessageWithoutContent,
-  RetrievedMessageWithoutContent
+  RetrievedMessageWithoutContent,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
 import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
@@ -46,10 +46,11 @@ import { TagEnum as TagEnumPn } from "@pagopa/io-functions-commons/dist/generate
 import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
 import { HasPreconditionEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/HasPrecondition";
 
-const dummyThirdPartyDataWithCategoryFetcher: ThirdPartyDataWithCategoryFetcher = jest
-  .fn()
-  .mockImplementation(_serviceId => ({
-    category: TagEnumBase.GENERIC
+import { it, describe, vi, expect, beforeEach, test } from "vitest";
+
+const dummyThirdPartyDataWithCategoryFetcher: ThirdPartyDataWithCategoryFetcher =
+  vi.fn().mockImplementation((_serviceId) => ({
+    category: TagEnumBase.GENERIC,
   }));
 
 const anOrganizationFiscalCode = "01234567890" as OrganizationFiscalCode;
@@ -64,12 +65,12 @@ const aService: Service = {
   organizationName: "MyOrgName" as NonEmptyString,
   requireSecureChannels: false,
   serviceId: "MySubscriptionId" as NonEmptyString,
-  serviceName: "MyServiceName" as NonEmptyString
+  serviceName: "MyServiceName" as NonEmptyString,
 };
 
 const aNewService: NewService = {
   ...aService,
-  kind: "INewService"
+  kind: "INewService",
 };
 
 const aRetrievedService: RetrievedService = {
@@ -77,7 +78,7 @@ const aRetrievedService: RetrievedService = {
   ...aCosmosResourceMetadata,
   id: "123" as NonEmptyString,
   kind: "IRetrievedService",
-  version: 1 as NonNegativeInteger
+  version: 1 as NonNegativeInteger,
 };
 
 const aFiscalCode = "FRLFRC74E04B157I" as FiscalCode;
@@ -93,18 +94,18 @@ const aNewMessageWithoutContent: NewMessageWithoutContent = {
   kind: "INewMessageWithoutContent",
   senderServiceId: aRetrievedService.serviceId,
   senderUserId: "u123" as NonEmptyString,
-  timeToLiveSeconds: 3600 as TimeToLiveSeconds
+  timeToLiveSeconds: 3600 as TimeToLiveSeconds,
 };
 
 const aRetrievedMessageWithoutContent: RetrievedMessageWithoutContent = {
   ...aNewMessageWithoutContent,
   ...aCosmosResourceMetadata,
-  kind: "IRetrievedMessageWithoutContent"
+  kind: "IRetrievedMessageWithoutContent",
 };
 
 const mockedGenericContent = {
   subject: "a subject",
-  markdown: "a markdown"
+  markdown: "a markdown",
 } as MessageContent;
 
 const mockedPaymentContent = {
@@ -112,68 +113,65 @@ const mockedPaymentContent = {
   markdown: "a markdown".repeat(80),
   payment_data: {
     amount: 1,
-    notice_number: "012345678901234567"
-  }
+    notice_number: "012345678901234567",
+  },
 } as MessageContent;
 
-const findLastVersionByModelIdMock = jest
+const findLastVersionByModelIdMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aRetrievedService)));
-const serviceModelMock = ({
-  findLastVersionByModelId: findLastVersionByModelIdMock
-} as unknown) as ServiceModel;
+const serviceModelMock = {
+  findLastVersionByModelId: findLastVersionByModelIdMock,
+} as unknown as ServiceModel;
 
-const functionsContextMock = ({
+const functionsContextMock = {
   log: {
-    error: jest.fn(e => console.log(e))
-  }
-} as unknown) as Context;
+    error: vi.fn((e) => console.log(e)),
+  },
+} as unknown as Context;
 
 const messages: CreatedMessageWithoutContentWithStatus[] = [
   {
     ...retrievedMessageToPublic(aRetrievedMessageWithoutContent),
     is_archived: false,
-    is_read: false
-  }
+    is_read: false,
+  },
 ];
 
-const messagesWithGenericContent: readonly EnrichedMessageWithContent[] = messages.map(
-  m => ({
+const messagesWithGenericContent: readonly EnrichedMessageWithContent[] =
+  messages.map((m) => ({
     ...m,
     id: m.id as NonEmptyString,
     message_title: mockedGenericContent.subject,
     category: mapMessageCategory(
       m,
       mockedGenericContent,
-      dummyThirdPartyDataWithCategoryFetcher
-    )
-  })
-);
+      dummyThirdPartyDataWithCategoryFetcher,
+    ),
+  }));
 
 const messagesWithPaymentContent: EnrichedMessageWithContent[] = messages.map(
-  m => ({
+  (m) => ({
     ...m,
     id: m.id as NonEmptyString,
     message_title: mockedPaymentContent.subject,
     category: mapMessageCategory(
       m,
       mockedPaymentContent,
-      dummyThirdPartyDataWithCategoryFetcher
-    )
-  })
+      dummyThirdPartyDataWithCategoryFetcher,
+    ),
+  }),
 );
 
-const setWithExpirationTaskMock = jest
-  .fn()
-  .mockImplementation(() => TE.of(true));
-jest
-  .spyOn(redis, "setWithExpirationTask")
-  .mockImplementation(setWithExpirationTaskMock);
+const setWithExpirationTaskMock = vi.fn().mockImplementation(() => TE.of(true));
+vi.spyOn(redis, "setWithExpirationTask").mockImplementation(
+  setWithExpirationTaskMock,
+);
 
-const getTaskMock = jest
+const getTaskMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(JSON.stringify(aRetrievedService))));
-jest.spyOn(redis, "getTask").mockImplementation(getTaskMock);
+vi.spyOn(redis, "getTask").mockImplementation(getTaskMock);
 
 const aRedisClient = {} as any;
 const aServiceCacheTtl = 10 as NonNegativeInteger;
@@ -184,7 +182,7 @@ const aServiceCacheTtl = 10 as NonNegativeInteger;
 
 describe("enrichServiceData", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return right when service is retrieved from Redis cache", async () => {
@@ -192,16 +190,16 @@ describe("enrichServiceData", () => {
       functionsContextMock,
       serviceModelMock,
       aRedisClient,
-      aServiceCacheTtl
+      aServiceCacheTtl,
     );
     const enrichedMessages = await enrichMessages(messagesWithGenericContent)();
 
     expect(E.isRight(enrichedMessages)).toBe(true);
     if (E.isRight(enrichedMessages)) {
-      enrichedMessages.right.map(enrichedMessage => {
+      enrichedMessages.right.map((enrichedMessage) => {
         expect(EnrichedMessageWithContent.is(enrichedMessage)).toBe(true);
         expect(enrichedMessage.category).toEqual({
-          tag: TagEnumBase.GENERIC
+          tag: TagEnumBase.GENERIC,
         });
       });
     }
@@ -217,16 +215,16 @@ describe("enrichServiceData", () => {
       functionsContextMock,
       serviceModelMock,
       aRedisClient,
-      aServiceCacheTtl
+      aServiceCacheTtl,
     );
     const enrichedMessages = await enrichMessages(messagesWithGenericContent)();
 
     expect(E.isRight(enrichedMessages)).toBe(true);
     if (E.isRight(enrichedMessages)) {
-      enrichedMessages.right.map(enrichedMessage => {
+      enrichedMessages.right.map((enrichedMessage) => {
         expect(EnrichedMessageWithContent.is(enrichedMessage)).toBe(true);
         expect(enrichedMessage.category).toEqual({
-          tag: TagEnumBase.GENERIC
+          tag: TagEnumBase.GENERIC,
         });
       });
     }
@@ -237,32 +235,32 @@ describe("enrichServiceData", () => {
       aRedisClient,
       aNewMessageWithoutContent.senderServiceId,
       JSON.stringify(aRetrievedService),
-      aServiceCacheTtl
+      aServiceCacheTtl,
     );
     expect(functionsContextMock.log.error).not.toHaveBeenCalled();
   });
 
   it("should return right when service is retrieved from Cosmos due to cache unavailability", async () => {
     getTaskMock.mockImplementationOnce(() =>
-      TE.left(new Error("Redis unreachable"))
+      TE.left(new Error("Redis unreachable")),
     );
     setWithExpirationTaskMock.mockImplementationOnce(() =>
-      TE.left(new Error("Redis unreachable"))
+      TE.left(new Error("Redis unreachable")),
     );
     const enrichMessages = enrichServiceData(
       functionsContextMock,
       serviceModelMock,
       aRedisClient,
-      aServiceCacheTtl
+      aServiceCacheTtl,
     );
     const enrichedMessages = await enrichMessages(messagesWithGenericContent)();
 
     expect(E.isRight(enrichedMessages)).toBe(true);
     if (E.isRight(enrichedMessages)) {
-      enrichedMessages.right.map(enrichedMessage => {
+      enrichedMessages.right.map((enrichedMessage) => {
         expect(EnrichedMessageWithContent.is(enrichedMessage)).toBe(true);
         expect(enrichedMessage.category).toEqual({
-          tag: TagEnumBase.GENERIC
+          tag: TagEnumBase.GENERIC,
         });
       });
     }
@@ -274,7 +272,7 @@ describe("enrichServiceData", () => {
       aRedisClient,
       aNewMessageWithoutContent.senderServiceId,
       JSON.stringify(aRetrievedService),
-      aServiceCacheTtl
+      aServiceCacheTtl,
     );
     expect(functionsContextMock.log.error).not.toHaveBeenCalled();
   });
@@ -284,17 +282,17 @@ describe("enrichServiceData", () => {
       functionsContextMock,
       serviceModelMock,
       aRedisClient,
-      aServiceCacheTtl
+      aServiceCacheTtl,
     );
     const enrichedMessages = await enrichMessages(messagesWithPaymentContent)();
 
     expect(E.isRight(enrichedMessages)).toBe(true);
     if (E.isRight(enrichedMessages)) {
-      enrichedMessages.right.map(enrichedMessage => {
+      enrichedMessages.right.map((enrichedMessage) => {
         expect(EnrichedMessage.is(enrichedMessage)).toBe(true);
         expect(enrichedMessage.category).toEqual({
           tag: TagEnumPayment.PAYMENT,
-          rptId: `${aRetrievedService.organizationFiscalCode}${mockedPaymentContent.payment_data?.notice_number}`
+          rptId: `${aRetrievedService.organizationFiscalCode}${mockedPaymentContent.payment_data?.notice_number}`,
         });
       });
     }
@@ -309,21 +307,21 @@ describe("enrichServiceData", () => {
       functionsContextMock,
       serviceModelMock,
       aRedisClient,
-      aServiceCacheTtl
+      aServiceCacheTtl,
     );
     const enrichedMessages = await enrichMessages(
-      messagesWithGenericContent.flatMap(m => [
+      messagesWithGenericContent.flatMap((m) => [
         m,
-        { ...m, sender_service_id: m.sender_service_id }
-      ])
+        { ...m, sender_service_id: m.sender_service_id },
+      ]),
     )();
 
     expect(E.isRight(enrichedMessages)).toBe(true);
     if (E.isRight(enrichedMessages)) {
-      enrichedMessages.right.map(enrichedMessage => {
+      enrichedMessages.right.map((enrichedMessage) => {
         expect(EnrichedMessageWithContent.is(enrichedMessage)).toBe(true);
         expect(enrichedMessage.category).toEqual({
-          tag: TagEnumBase.GENERIC
+          tag: TagEnumBase.GENERIC,
         });
       });
     }
@@ -336,14 +334,14 @@ describe("enrichServiceData", () => {
   it("should return left when service model return a cosmos error", async () => {
     getTaskMock.mockImplementationOnce(() => TE.left("Cache unreachable"));
     findLastVersionByModelIdMock.mockImplementationOnce(() =>
-      TE.left(toCosmosErrorResponse("Any error message"))
+      TE.left(toCosmosErrorResponse("Any error message")),
     );
 
     const enrichMessages = enrichServiceData(
       functionsContextMock,
       serviceModelMock,
       aRedisClient,
-      aServiceCacheTtl
+      aServiceCacheTtl,
     );
     const enrichedMessages = await enrichMessages(messagesWithGenericContent)();
 
@@ -351,7 +349,7 @@ describe("enrichServiceData", () => {
 
     expect(functionsContextMock.log.error).toHaveBeenCalledTimes(1);
     expect(functionsContextMock.log.error).toHaveBeenCalledWith(
-      `Cannot enrich service data | Error: COSMOS_ERROR_RESPONSE, ServiceId=${aRetrievedMessageWithoutContent.senderServiceId}`
+      `Cannot enrich service data | Error: COSMOS_ERROR_RESPONSE, ServiceId=${aRetrievedMessageWithoutContent.senderServiceId}`,
     );
   });
 
@@ -363,7 +361,7 @@ describe("enrichServiceData", () => {
       functionsContextMock,
       serviceModelMock,
       aRedisClient,
-      aServiceCacheTtl
+      aServiceCacheTtl,
     );
     const enrichedMessages = await enrichMessages(messagesWithGenericContent)();
 
@@ -371,15 +369,15 @@ describe("enrichServiceData", () => {
 
     expect(functionsContextMock.log.error).toHaveBeenCalledTimes(1);
     expect(functionsContextMock.log.error).toHaveBeenCalledWith(
-      `Cannot enrich service data | Error: EMPTY_SERVICE, ServiceId=${aRetrievedMessageWithoutContent.senderServiceId}`
+      `Cannot enrich service data | Error: EMPTY_SERVICE, ServiceId=${aRetrievedMessageWithoutContent.senderServiceId}`,
     );
   });
 });
 
-const mockTelemetryClient = ({
-  trackEvent: jest.fn(),
-  trackException: jest.fn()
-} as unknown) as TelemetryClient;
+const mockTelemetryClient = {
+  trackEvent: vi.fn(),
+  trackException: vi.fn(),
+} as unknown as TelemetryClient;
 const aPnServiceId = "a-pn-service-id" as NonEmptyString;
 const dummyConfig = { PN_SERVICE_ID: aPnServiceId } as IConfig;
 
@@ -387,7 +385,7 @@ describe("getThirdPartyDataWithCategoryFetcher", () => {
   it("GIVEN a pn service id WHEN get category fetcher is called THEN return PN category", () => {
     const result = getThirdPartyDataWithCategoryFetcher(
       dummyConfig,
-      mockTelemetryClient
+      mockTelemetryClient,
     )(aPnServiceId);
     expect(result.category).toEqual(TagEnumPn.PN);
   });
@@ -395,7 +393,7 @@ describe("getThirdPartyDataWithCategoryFetcher", () => {
   it("GIVEN a generic service id WHEN get category fetcher is called THEN return GENERIC category", () => {
     const result = getThirdPartyDataWithCategoryFetcher(
       dummyConfig,
-      mockTelemetryClient
+      mockTelemetryClient,
     )(aService.serviceId);
     expect(result.category).toEqual(TagEnumBase.GENERIC);
   });
@@ -404,7 +402,7 @@ describe("getThirdPartyDataWithCategoryFetcher", () => {
 export const aMessageBodyMarkdown = "test".repeat(80);
 export const aMessageContent = {
   markdown: aMessageBodyMarkdown,
-  subject: "test".repeat(10)
+  subject: "test".repeat(10),
 };
 
 const aPublicExtendedMessage: CreatedMessageWithoutContent = {
@@ -412,7 +410,7 @@ const aPublicExtendedMessage: CreatedMessageWithoutContent = {
   fiscal_code: aNewMessageWithoutContent.fiscalCode,
   id: "A_MESSAGE_ID",
   sender_service_id: aNewMessageWithoutContent.senderServiceId,
-  time_to_live: 3600 as TimeToLiveSeconds
+  time_to_live: 3600 as TimeToLiveSeconds,
 };
 
 describe("mapMessageCategory", () => {
@@ -420,7 +418,7 @@ describe("mapMessageCategory", () => {
     const r = mapMessageCategory(
       aPublicExtendedMessage,
       aMessageContent as MessageContent,
-      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient)
+      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient),
     );
     expect(r.tag).toBe("GENERIC");
   });
@@ -430,9 +428,9 @@ describe("mapMessageCategory", () => {
       aPublicExtendedMessage,
       {
         ...aMessageContent,
-        eu_covid_cert: { auth_code: "aCode" }
+        eu_covid_cert: { auth_code: "aCode" },
       } as MessageContent,
-      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient)
+      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient),
     );
     expect(r.tag).toBe("EU_COVID_CERT");
   });
@@ -442,9 +440,9 @@ describe("mapMessageCategory", () => {
       aPublicExtendedMessage,
       {
         ...aMessageContent,
-        third_party_data: { id: "aValidId" }
+        third_party_data: { id: "aValidId" },
       } as MessageContent,
-      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient)
+      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient),
     );
     expect(r.tag).toBe("GENERIC");
   });
@@ -454,9 +452,9 @@ describe("mapMessageCategory", () => {
       { ...aPublicExtendedMessage, sender_service_id: aPnServiceId },
       {
         ...aMessageContent,
-        third_party_data: { id: "aMessageId" }
+        third_party_data: { id: "aMessageId" },
       } as MessageContent,
-      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient)
+      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient),
     );
     expect(r.tag).toBe("PN");
   });
@@ -472,9 +470,9 @@ describe("mapMessageCategory", () => {
       {
         ...aMessageContent,
         third_party_data: { id: "aMessageId" },
-        eu_covid_cert: { auth_code: "aCode" }
+        eu_covid_cert: { auth_code: "aCode" },
       } as MessageContent,
-      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient)
+      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient),
     );
     expect(r.tag).toBe("EU_COVID_CERT");
   });
@@ -483,37 +481,37 @@ describe("mapMessageCategory", () => {
 describe("computeFlagFromHasPrecondition ", () => {
   it("should return false if the has_precondition is NEVER an the message has not been read", () => {
     expect(
-      computeFlagFromHasPrecondition(HasPreconditionEnum.NEVER, false)
+      computeFlagFromHasPrecondition(HasPreconditionEnum.NEVER, false),
     ).toBeFalsy();
   });
 
   it("should return false if the has_precondition is NEVER an the message has been read", () => {
     expect(
-      computeFlagFromHasPrecondition(HasPreconditionEnum.NEVER, true)
+      computeFlagFromHasPrecondition(HasPreconditionEnum.NEVER, true),
     ).toBeFalsy();
   });
 
   it("should return false if the has_precondition is ONCE but it has been read", () => {
     expect(
-      computeFlagFromHasPrecondition(HasPreconditionEnum.ONCE, true)
+      computeFlagFromHasPrecondition(HasPreconditionEnum.ONCE, true),
     ).toBeFalsy();
   });
 
   it("should return true if the has_precondition is ONCE and it has not been read", () => {
     expect(
-      computeFlagFromHasPrecondition(HasPreconditionEnum.ONCE, false)
+      computeFlagFromHasPrecondition(HasPreconditionEnum.ONCE, false),
     ).toBeTruthy();
   });
 
   it("should return true if the has_precondition is ALWAYS and it has not been read", () => {
     expect(
-      computeFlagFromHasPrecondition(HasPreconditionEnum.ALWAYS, false)
+      computeFlagFromHasPrecondition(HasPreconditionEnum.ALWAYS, false),
     ).toBeTruthy();
   });
 
   it("should return true if the has_precondition is ALWAYS and it has been read", () => {
     expect(
-      computeFlagFromHasPrecondition(HasPreconditionEnum.ALWAYS, true)
+      computeFlagFromHasPrecondition(HasPreconditionEnum.ALWAYS, true),
     ).toBeTruthy();
   });
 });

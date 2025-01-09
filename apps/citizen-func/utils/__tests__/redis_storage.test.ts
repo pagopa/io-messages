@@ -7,23 +7,25 @@ import * as O from "fp-ts/lib/Option";
 import { RedisClientType } from "redis";
 import { RedisClientFactory } from "../redis";
 
+import { vi, describe, it, expect, assert } from "vitest";
+
 const aRedisKey = "KEY";
 const aRedisValue = "VALUE";
 const aRedisDefaultExpiration = 10;
 
-const setMock = jest
+const setMock = vi
   .fn()
   .mockImplementation((_, __, ___, ____, cb) => cb(undefined, "OK"));
-const setExMock = jest.fn();
-const getMock = jest.fn();
-const redisClientMock = ({
+const setExMock = vi.fn();
+const getMock = vi.fn();
+const redisClientMock = {
   get: getMock,
   set: setMock,
-  setEx: setExMock
-} as unknown) as RedisClientType;
+  setEx: setExMock,
+} as unknown as RedisClientType;
 
 const redisClientFactoryMock = {
-  getInstance: async () => redisClientMock
+  getInstance: async () => redisClientMock,
 } as RedisClientFactory;
 
 describe("setWithExpirationTask", () => {
@@ -35,13 +37,13 @@ describe("setWithExpirationTask", () => {
         redisClientFactoryMock,
         aRedisKey,
         aRedisValue,
-        aRedisDefaultExpiration
+        aRedisDefaultExpiration,
       ),
-      TE.map(value => expect(value).toEqual(true))
+      TE.map((value) => expect(value).toEqual(true)),
     )();
   });
 
-  it("should return an error if redis store key-value pair fails", async () => {
+  it("should return an error if redis store key-value pair assert.fails", async () => {
     setExMock.mockReturnValueOnce(Promise.reject({}));
     expect.assertions(1);
     await pipe(
@@ -49,9 +51,9 @@ describe("setWithExpirationTask", () => {
         redisClientFactoryMock,
         aRedisKey,
         aRedisValue,
-        aRedisDefaultExpiration
+        aRedisDefaultExpiration,
       ),
-      TE.mapLeft(error => expect(error).toBeInstanceOf(Error))
+      TE.mapLeft((error) => expect(error).toBeInstanceOf(Error)),
     )();
   });
 });
@@ -64,10 +66,10 @@ describe("getTask", () => {
       getTask(redisClientFactoryMock, aRedisKey),
       TE.map(
         O.fold(
-          () => fail(),
-          value => expect(value).toEqual(aRedisValue)
-        )
-      )
+          () => assert.fail(),
+          (value) => expect(value).toEqual(aRedisValue),
+        ),
+      ),
     )();
   });
 
@@ -76,16 +78,16 @@ describe("getTask", () => {
     expect.assertions(1);
     await pipe(
       getTask(redisClientFactoryMock, aRedisKey),
-      TE.map(maybeResult => expect(isNone(maybeResult)).toBeTruthy())
+      TE.map((maybeResult) => expect(isNone(maybeResult)).toBeTruthy()),
     )();
   });
 
-  it("should return an error if redis get value fails", async () => {
+  it("should return an error if redis get value assert.fails", async () => {
     getMock.mockReturnValueOnce(Promise.reject({}));
     expect.assertions(1);
     await pipe(
       getTask(redisClientFactoryMock, aRedisKey),
-      TE.mapLeft(error => expect(error).toBeInstanceOf(Error))
+      TE.mapLeft((error) => expect(error).toBeInstanceOf(Error)),
     )();
   });
 });

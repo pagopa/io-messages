@@ -6,14 +6,14 @@ import { getConfigOrThrow } from "../utils/config";
 
 const config = getConfigOrThrow();
 
-// Setup DocumentDB
+// Setup CosmosDB
 export const cosmosDbUri = config.COSMOSDB_URI;
 export const cosmosDbName = config.COSMOSDB_NAME;
 export const cosmosDbKey = config.COSMOSDB_KEY;
 
 export const cosmosdbClient = new CosmosClient({
   endpoint: cosmosDbUri,
-  key: cosmosDbKey
+  key: cosmosDbKey,
 });
 
 export const cosmosdbInstance = cosmosdbClient.database(cosmosDbName);
@@ -25,9 +25,8 @@ export const remoteContentCosmosDbKey = config.REMOTE_CONTENT_COSMOSDB_KEY;
 
 export const remoteContentCosmosDbClient = new CosmosClient({
   endpoint: remoteContentCosmosDbUri,
-  key: remoteContentCosmosDbKey
+  key: remoteContentCosmosDbKey,
 });
 
-export const remoteContentCosmosDbInstance = remoteContentCosmosDbClient.database(
-  remoteContentCosmosDbName
-);
+export const remoteContentCosmosDbInstance =
+  remoteContentCosmosDbClient.database(remoteContentCosmosDbName);

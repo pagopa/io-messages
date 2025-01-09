@@ -6,7 +6,7 @@ import { enrichContentData } from "../getMessagesFunctions/getMessages.fallback"
 import { redisClientMock } from "../../__mocks__/redis";
 import {
   mockRCConfigurationModel,
-  mockRCConfigurationTtl
+  mockRCConfigurationTtl,
 } from "../../__mocks__/remote-content";
 import { Context } from "@azure/functions";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
@@ -14,7 +14,7 @@ import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/messa
 import { BlobService } from "azure-storage";
 import {
   CreatedMessageWithoutContentWithStatus,
-  ThirdPartyDataWithCategoryFetcher
+  ThirdPartyDataWithCategoryFetcher,
 } from "../../utils/messages";
 import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
 import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
@@ -29,65 +29,66 @@ import RCConfigurationUtility from "../../utils/remoteContentConfig";
 import { Ulid } from "@pagopa/ts-commons/lib/strings";
 import { RedisClientFactory } from "../../utils/redis";
 
-const findLastVersionByModelIdMock = jest
+import { vi, describe, expect, it, beforeEach } from "vitest";
+
+const findLastVersionByModelIdMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aRetrievedService)));
 
-const blobServiceMock = ({
-  getBlobToText: jest.fn()
-} as unknown) as BlobService;
+const blobServiceMock = {
+  getBlobToText: vi.fn(),
+} as unknown as BlobService;
 
 const messages = [E.right(aRetrievedMessageWithoutContent)];
 
-const functionsContextMock = ({
+const functionsContextMock = {
   log: {
-    error: jest.fn(e => console.log(e))
-  }
-} as unknown) as Context;
+    error: vi.fn((e) => console.log(e)),
+  },
+} as unknown as Context;
 
 const getMockIterator = (values: any) => ({
-  next: jest
+  next: vi
     .fn()
     .mockImplementationOnce(async () => ({
-      value: values
+      value: values,
     }))
-    .mockImplementationOnce(async () => ({ done: true }))
+    .mockImplementationOnce(async () => ({ done: true })),
 });
 
 const messageIterator = getMockIterator(messages);
 
-const getContentFromBlobMock = jest
+const getContentFromBlobMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aMessageContent)));
 
 const getMessageModelMock = (messageIterator: any) =>
-  (({
+  ({
     getContentFromBlob: getContentFromBlobMock,
-    findMessages: jest.fn(() => TE.of(messageIterator))
-  } as unknown) as MessageModel);
+    findMessages: vi.fn(() => TE.of(messageIterator)),
+  }) as unknown as MessageModel;
 
 const messageModelMock = getMessageModelMock(messageIterator);
 
-const dummyThirdPartyDataWithCategoryFetcher: ThirdPartyDataWithCategoryFetcher = jest
-  .fn()
-  .mockImplementation(_serviceId => ({
-    category: TagEnumBase.GENERIC
+const dummyThirdPartyDataWithCategoryFetcher: ThirdPartyDataWithCategoryFetcher =
+  vi.fn().mockImplementation((_serviceId) => ({
+    category: TagEnumBase.GENERIC,
   }));
 
 const messageList: CreatedMessageWithoutContentWithStatus[] = [
   {
     ...retrievedMessageToPublic(aRetrievedMessageWithoutContent),
     is_archived: false,
-    is_read: false
-  }
+    is_read: false,
+  },
 ];
 
 const mockedGreenPassContent = {
   subject: "a subject".repeat(10),
   markdown: "a markdown".repeat(80),
   eu_covid_cert: {
-    auth_code: "an_auth_code"
-  }
+    auth_code: "an_auth_code",
+  },
 } as MessageContent;
 
 const mockedPaymentContent = {
@@ -95,27 +96,27 @@ const mockedPaymentContent = {
   markdown: "a markdown".repeat(80),
   payment_data: {
     amount: 1,
-    notice_number: "012345678901234567"
-  }
+    notice_number: "012345678901234567",
+  },
 } as MessageContent;
 
 const redisClientFactoryMock = {
-  getInstance: async () => redisClientMock
+  getInstance: async () => redisClientMock,
 } as RedisClientFactory;
 
 const mockRCConfigurationUtility = new RCConfigurationUtility(
   redisClientFactoryMock,
   mockRCConfigurationModel,
   mockRCConfigurationTtl,
-  ({ aServiceId: "01HMRBX079WA5SGYBQP1A7FSKH" } as unknown) as ReadonlyMap<
+  { aServiceId: "01HMRBX079WA5SGYBQP1A7FSKH" } as unknown as ReadonlyMap<
     string,
     Ulid
-  >
+  >,
 );
 
 describe("enrichContentData", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return right when message blob is retrieved", async () => {
@@ -124,27 +125,17 @@ describe("enrichContentData", () => {
       messageModelMock,
       blobServiceMock,
       mockRCConfigurationUtility,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
-    const enrichedMessagesPromises = enrichMessages(messageList);
+    const enrichedMessages = await Promise.all(enrichMessages(messageList));
 
-    const enrichedMessages = await pipe(
-      TE.tryCatch(
-        async () => Promise.all(enrichedMessagesPromises),
-        () => {}
-      ),
-      TE.getOrElse(() => {
-        throw Error();
-      })
-    )();
-
-    enrichedMessages.map(enrichedMessage => {
+    enrichedMessages.map((enrichedMessage) => {
       expect(E.isRight(enrichedMessage)).toBe(true);
       if (E.isRight(enrichedMessage)) {
         expect(EnrichedMessageWithContent.is(enrichedMessage.right)).toBe(true);
         expect(enrichedMessage.right.category).toEqual({
-          tag: TagEnumBase.GENERIC
+          tag: TagEnumBase.GENERIC,
         });
         expect(enrichedMessage.right.has_remote_content).toBeFalsy();
         expect(enrichedMessage.right.has_precondition).toBeFalsy();
@@ -156,34 +147,24 @@ describe("enrichContentData", () => {
 
   it("should return right with right message EU_COVID_CERT category when message content is retrieved", async () => {
     getContentFromBlobMock.mockImplementationOnce(() =>
-      TE.of(O.some(mockedGreenPassContent))
+      TE.of(O.some(mockedGreenPassContent)),
     );
     const enrichMessages = enrichContentData(
       functionsContextMock,
       messageModelMock,
       blobServiceMock,
       mockRCConfigurationUtility,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
-    const enrichedMessagesPromises = enrichMessages(messageList);
+    const enrichedMessages = await Promise.all(enrichMessages(messageList));
 
-    const enrichedMessages = await pipe(
-      TE.tryCatch(
-        async () => Promise.all(enrichedMessagesPromises),
-        () => {}
-      ),
-      TE.getOrElse(() => {
-        throw Error();
-      })
-    )();
-
-    enrichedMessages.map(enrichedMessage => {
+    enrichedMessages.map((enrichedMessage) => {
       expect(E.isRight(enrichedMessage)).toBe(true);
       if (E.isRight(enrichedMessage)) {
         expect(EnrichedMessageWithContent.is(enrichedMessage.right)).toBe(true);
         expect(enrichedMessage.right.category).toEqual({
-          tag: TagEnumBase.EU_COVID_CERT
+          tag: TagEnumBase.EU_COVID_CERT,
         });
         expect(enrichedMessage.right.has_remote_content).toBeFalsy();
         expect(enrichedMessage.right.has_precondition).toBeFalsy();
@@ -194,14 +175,14 @@ describe("enrichContentData", () => {
 
   it("should return right with right PAYMENT category when message content is retrieved", async () => {
     getContentFromBlobMock.mockImplementationOnce(() =>
-      TE.of(O.some(mockedPaymentContent))
+      TE.of(O.some(mockedPaymentContent)),
     );
     const enrichMessages = enrichContentData(
       functionsContextMock,
       messageModelMock,
       blobServiceMock,
       mockRCConfigurationUtility,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const enrichedMessagesPromises = enrichMessages(messageList);
@@ -209,20 +190,20 @@ describe("enrichContentData", () => {
     const enrichedMessages = await pipe(
       TE.tryCatch(
         async () => Promise.all(enrichedMessagesPromises),
-        () => {}
+        () => {},
       ),
       TE.getOrElse(() => {
         throw Error();
-      })
+      }),
     )();
 
-    enrichedMessages.map(enrichedMessage => {
+    enrichedMessages.map((enrichedMessage) => {
       expect(E.isRight(enrichedMessage)).toBe(true);
       if (E.isRight(enrichedMessage)) {
         expect(EnrichedMessageWithContent.is(enrichedMessage.right)).toBe(true);
         expect(enrichedMessage.right.category).toEqual({
           tag: TagEnumPayment.PAYMENT,
-          noticeNumber: mockedPaymentContent.payment_data?.notice_number
+          noticeNumber: mockedPaymentContent.payment_data?.notice_number,
         });
         expect(enrichedMessage.right.has_remote_content).toBeFalsy();
         expect(enrichedMessage.right.has_precondition).toBeFalsy();
@@ -238,43 +219,43 @@ describe("enrichContentData", () => {
           ...aMessageContent,
           third_party_data: {
             has_remote_content: true,
-            has_precondition: HasPreconditionEnum.ALWAYS
-          }
-        })
-      )
+            has_precondition: HasPreconditionEnum.ALWAYS,
+          },
+        }),
+      ),
     );
     const enrichMessages = enrichContentData(
       functionsContextMock,
       messageModelMock,
       blobServiceMock,
       mockRCConfigurationUtility,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const enrichedMessagesPromises = enrichMessages([
       {
         ...retrievedMessageToPublic(aRetrievedMessageWithoutContent),
         is_archived: false,
-        is_read: false
-      }
+        is_read: false,
+      },
     ]);
 
     const enrichedMessages = await pipe(
       TE.tryCatch(
         async () => Promise.all(enrichedMessagesPromises),
-        () => {}
+        () => {},
       ),
       TE.getOrElse(() => {
         throw Error();
-      })
+      }),
     )();
 
-    enrichedMessages.map(enrichedMessage => {
+    enrichedMessages.map((enrichedMessage) => {
       expect(E.isRight(enrichedMessage)).toBe(true);
       if (E.isRight(enrichedMessage)) {
         expect(EnrichedMessageWithContent.is(enrichedMessage.right)).toBe(true);
         expect(enrichedMessage.right.category).toEqual({
-          tag: TagEnumBase.GENERIC
+          tag: TagEnumBase.GENERIC,
         });
         expect(enrichedMessage.right.has_remote_content).toBeTruthy();
         expect(enrichedMessage.right.has_precondition).toBeTruthy();
@@ -285,11 +266,11 @@ describe("enrichContentData", () => {
 
   it("should return left when message model return an error", async () => {
     findLastVersionByModelIdMock.mockImplementationOnce(() =>
-      TE.right(O.some(aRetrievedService))
+      TE.right(O.some(aRetrievedService)),
     );
 
     getContentFromBlobMock.mockImplementationOnce(() =>
-      TE.left(new Error("GENERIC_ERROR"))
+      TE.left(new Error("GENERIC_ERROR")),
     );
 
     const enrichMessages = enrichContentData(
@@ -297,7 +278,7 @@ describe("enrichContentData", () => {
       messageModelMock,
       blobServiceMock,
       mockRCConfigurationUtility,
-      dummyThirdPartyDataWithCategoryFetcher
+      dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const enrichedMessagesPromises = enrichMessages(messageList);
@@ -305,20 +286,20 @@ describe("enrichContentData", () => {
     const enrichedMessages = await pipe(
       TE.tryCatch(
         async () => Promise.all(enrichedMessagesPromises),
-        () => {}
+        () => {},
       ),
       TE.getOrElse(() => {
         throw Error();
-      })
+      }),
     )();
 
-    enrichedMessages.map(enrichedMessage => {
+    enrichedMessages.map((enrichedMessage) => {
       expect(E.isLeft(enrichedMessage)).toBe(true);
     });
 
     expect(functionsContextMock.log.error).toHaveBeenCalledTimes(1);
     expect(functionsContextMock.log.error).toHaveBeenCalledWith(
-      `Cannot enrich message "${aRetrievedMessageWithoutContent.id}" | Error: GENERIC_ERROR`
+      `Cannot enrich message "${aRetrievedMessageWithoutContent.id}" | Error: GENERIC_ERROR`,
     );
   });
 });
