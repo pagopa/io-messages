@@ -1,4 +1,4 @@
-name: Release Infrastructure
+name: Apply (resources)
 
 on:
   workflow_dispatch:

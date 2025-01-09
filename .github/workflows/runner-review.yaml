@@ -1,4 +1,4 @@
-name: (PR) GitHub Runner WestEurope
+name: Plan (github-runner)
 
 on:
   workflow_dispatch:
@@ -7,7 +7,6 @@ on:
       - main
     types:
       - opened
-      - edited
       - synchronize
       - reopened
       - ready_for_review

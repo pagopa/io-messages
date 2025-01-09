@@ -1,13 +1,7 @@
-name: Deploy Function App (sending-func)
+name: Deploy (sending-func)
 
 on:
   workflow_dispatch: {}
-  push:
-    branches:
-      - master
-    paths:
-      - "apps/sending-func/CHANGELOG.md"
-      - ".github/workflows/msgs-sending-func-deploy.yaml"
 
 jobs:
   deploy:
