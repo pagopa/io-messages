@@ -48,6 +48,8 @@ import { HasPreconditionEnum } from "@pagopa/io-functions-commons/dist/generated
 
 import { it, describe, vi, expect, beforeEach, test } from "vitest";
 
+vi.stubEnv("APPINSIGHTS_INSTRUMENTATIONKEY", "foo");
+
 const dummyThirdPartyDataWithCategoryFetcher: ThirdPartyDataWithCategoryFetcher =
   vi.fn().mockImplementation((_serviceId) => ({
     category: TagEnumBase.GENERIC,
