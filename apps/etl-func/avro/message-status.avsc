@@ -1,5 +1,5 @@
 {
-  "name": "MessageStatus",
+  "name": "message_status",
   "type": "record",
   "namespace": "dto",
   "fields": [

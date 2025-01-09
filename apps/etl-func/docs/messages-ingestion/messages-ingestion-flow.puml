@@ -1,0 +1,48 @@
+@startuml messages-ingestion-flow
+collections "CosmosDB" as CosmosDB
+participant "ETL Function" as etlFunc
+collections "Message Content" as MessageContent
+participant "PDV" as PDV
+collections "Redis Cache" as redis
+collections "Event Hub" as EventHub
+
+activate etlFunc
+CosmosDB -> etlFunc: Messages metadata from CosmosDB
+
+loop Process all Mesagges Metadata
+  etlFunc -> MessageContent: Get message content
+  MessageContent -> etlFunc: Returns message content
+  note left of etlFunc
+    At this point the function knows
+    all the content of each message metadata
+  end note
+  etlFunc -> etlFunc: Transform message to messageEvent
+
+  alt Anonymized FC not cached
+    etlFunc -> redis: Request cached anonymized FC
+    redis -> etlFunc: Returns undefined
+    etlFunc -> PDV: Request FC anonymization
+    PDV -> etlFunc: Returns anonymized FC
+    etlFunc --> redis: Save FC and anonymized FC into cache
+  else Anonymized FC is cached
+    etlFunc -> redis: Request cached anonymized FC
+    redis -> etlFunc: Returns anonymized FC
+  end
+
+  note left of etlFunc
+    At this point all the FC inside the messages
+    content are anonymized
+  end note
+
+end
+
+etlFunc -> EventHub: Load messages event batch
+break Error loading message event
+    etlFunc -> etlFunc: Throw error and exit
+end
+note left of etlFunc
+    At this point all messages are loaded
+    into the eventhub
+end note
+
+@enduml

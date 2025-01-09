@@ -27,12 +27,32 @@ module "etl" {
         manage = false
     }]
     consumers = []
-  }]
+    },
+    {
+      name                   = "message-status-evh"
+      partitions             = 32
+      message_retention_days = 7
+      keys = [{
+        name   = "io-messages"
+        listen = false
+        send   = true
+        manage = false
+        },
+        {
+          name   = "pdnd"
+          listen = true
+          send   = false
+          manage = false
+      }]
+      consumers = []
+    }
+  ]
 
   private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name
   resource_group_name                  = var.resource_group_name
 
-  tags = var.tags
+  allowed_sources = local.evhns.allowed_sources
+  tags            = var.tags
 
   subnet_pep_id = var.subnet_pep_id
 }

@@ -6,8 +6,16 @@
     "MESSAGE_CONTENT_STORAGE_URI": "https://testgiovannist.blob.core.windows.net/",
     "MESSAGE_CONTENT_CONTAINER_NAME": "messages",
     "EVENTHUB_CONNECTION_URI": "io-d-evh-cdc.servicebus.windows.net",
-    "MESSAGE_EVENTHUB_NAME": "message-events-test"
+    "MESSAGE_EVENTHUB_NAME": "message-events-test",
+    "MESSAGE_STATUS_EVENTHUB_NAME": "message-status-events-test",
     "PDV_TOKENIZER_API_KEY": "apiKey",
-    "PDV_TOKENIZER_BASE_URL": "https://api.uat.tokenizer.pdv.pagopa.it"
+    "PDV_TOKENIZER_BASE_URL": "https://api.uat.tokenizer.pdv.pagopa.it/tokenizer/v1",
+    "REDIS_PASSWORD": "accessKey",
+    "REDIS_PING_INTERVAL": 1000,
+    "REDIS_URL": "redis://localhost:6379",
+    "COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
+    "COSMOS_DBNAME": "io-messages",
+    "COSMOS_MESSAGES_CONTAINER_NAME": "messages",
+    "COSMOS_MESSAGE_STATUS_CONTAINER_NAME": "message-status"
   }
 }

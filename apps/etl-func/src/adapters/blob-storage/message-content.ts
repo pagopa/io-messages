@@ -11,7 +11,11 @@ export class MessageContentError extends Error {
   }
 }
 
-export class BlobMessageContent {
+export interface MessageContentProvider {
+  getByMessageContentById(messageId: string): Promise<MessageContent>;
+}
+
+export class BlobMessageContent implements MessageContentProvider {
   #messageContainer: ContainerClient;
 
   constructor(blobClient: BlobServiceClient, messageContainerName: string) {
@@ -19,7 +23,7 @@ export class BlobMessageContent {
       blobClient.getContainerClient(messageContainerName);
   }
 
-  async getByMessageId(messageId: string): Promise<MessageContent> {
+  async getByMessageContentById(messageId: string): Promise<MessageContent> {
     const blobClient = this.#messageContainer.getBlobClient(
       `${messageId}.json`,
     );

@@ -32,7 +32,6 @@ coverage
 vite.config.*.timestamp-*
 
 # old repo build
-bin
 obj
 csx
 .vs
@@ -81,10 +80,6 @@ yarn-error.log
 
 generated
 *.zip
-
-*.js
-!jest.config.js
-!.release-it.js
 
 # ESLint files
 !.eslintrc.js

@@ -1,21 +1,11 @@
+import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import * as z from "zod";
-
-//TODO: move this into a common package
-export const fiscalCodeSchema = z
-  .string()
-  .regex(
-    /^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$/,
-    "Must be a valid Italian fiscal code",
-  )
-  .brand("FiscalCode");
-
-export type FiscalCode = z.infer<typeof fiscalCodeSchema>;
 
 const rejectionReasonSchema = z
   .enum(["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"])
   .default("UNKNOWN");
 
-const statusEnum = z.enum([
+export const statusEnum = z.enum([
   "ACCEPTED",
   "THROTTLED",
   "FAILED",
@@ -23,27 +13,32 @@ const statusEnum = z.enum([
   "REJECTED",
 ]);
 
-const rejectedMessageStatusSchema = z.object({
-  fiscalCode: fiscalCodeSchema,
-  isArchived: z.boolean().default(false),
-  isRead: z.boolean().default(false),
-  messageId: z.string().ulid(),
-  rejection_reason: rejectionReasonSchema,
-  status: statusEnum.extract(["REJECTED"]),
-  updatedAt: z.number(),
-});
+export const messageStatusIdSchema = z
+  .string()
+  .regex(
+    /^[0-9A-HJKMNP-TV-Z]{26}-\d{16}$/,
+    "Invalid format. Expected <ULID-Number>",
+  );
 
-const notRejectedMessageStatusSchema = z.object({
-  fiscalCode: fiscalCodeSchema,
-  isArchived: z.boolean().default(false),
-  isRead: z.boolean().default(false),
-  messageId: z.string().ulid(),
-  status: statusEnum.exclude(["REJECTED"]),
-  updatedAt: z.number(),
-});
-
-export const messageStatusSchema = z.discriminatedUnion("status", [
-  notRejectedMessageStatusSchema,
-  rejectedMessageStatusSchema,
-]);
+export const messageStatusSchema = z
+  .object({
+    fiscalCode: fiscalCodeSchema.optional(),
+    id: messageStatusIdSchema,
+    isArchived: z.boolean().default(false),
+    isRead: z.boolean().default(false),
+    messageId: z.string().ulid(),
+    updatedAt: z.coerce.date(),
+    version: z.number().gte(0),
+  })
+  .and(
+    z.discriminatedUnion("status", [
+      z.object({
+        status: statusEnum.exclude(["REJECTED"]),
+      }),
+      z.object({
+        rejection_reason: rejectionReasonSchema,
+        status: statusEnum.extract(["REJECTED"]),
+      }),
+    ]),
+  );
 export type MessageStatus = z.TypeOf<typeof messageStatusSchema>;

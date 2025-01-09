@@ -16,17 +16,10 @@ module "etl_func" {
 
   health_check_path = "/api/health"
 
-  app_settings = {
-    NODE_ENV                       = "production",
-    FUNCTIONS_WORKER_RUNTIME       = "node",
-    MESSAGE_CONTENT_STORAGE_URI    = var.app_settings.message_content_storage_uri
-    EVENTHUB_CONNECTION_URI        = var.app_settings.eventhub_connection_uri,
-    MESSAGE_CONTENT_CONTAINER_NAME = "message-content",
-    MESSAGE_EVENTHUB_NAME          = "io-p-itn-com-etl-messages-evh-01"
-    PDV_TOKENIZER_API_KEY = "@Microsoft.KeyVault(VaultName=${var.common_key_vault.name};SecretName=func-elt-PDV-TOKENIZER-API-KEY)"
-  }
+  app_settings      = local.etl_func.app_settings
+  slot_app_settings = local.etl_func.app_settings
 
-  sticky_app_setting_names = ["NODE_ENVIRONMENT"]
+  sticky_app_setting_names = ["NODE_ENV"]
 
   virtual_network = var.virtual_network
 
@@ -38,10 +31,48 @@ module "etl_func" {
   action_group_id = var.action_group_id
 }
 
+resource "azurerm_role_assignment" "eventhub_namespace_write" {
+  scope                = var.eventhub_namespace.id
+  role_definition_name = "Azure Event Hubs Data Sender"
+  principal_id         = module.etl_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_role_assignment" "message_content_container_read" {
+  scope                = "${var.messages_storage_account.id}/blobServices/default/containers/${var.messages_content_container.name}"
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = module.etl_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "etl_func" {
+  resource_group_name = var.cosmosdb_account_api.resource_group_name
+  account_name        = var.cosmosdb_account_api.name
+  role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = module.etl_func.function_app.function_app.principal_id
+  scope               = var.cosmosdb_account_api.id
+}
+
 resource "azurerm_role_assignment" "key_vault_etl_func_secrets_user" {
   scope                = var.common_key_vault.id
   role_definition_name = "Key Vault Secrets User"
   principal_id         = module.etl_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_key_vault_access_policy" "etl_func_kv_access_policy" {
+  key_vault_id = var.common_key_vault.id
+  tenant_id    = var.tenant_id
+  object_id    = module.etl_func.function_app.function_app.principal_id
+
+  secret_permissions      = ["Get", "List"]
+  storage_permissions     = []
+  certificate_permissions = []
+}
+
+resource "azurerm_redis_cache_access_policy_assignment" "etl_func_redis_access_policy" {
+  name               = "etl_func"
+  redis_cache_id     = var.redis_cache.id
+  access_policy_name = "Data Contributor"
+  object_id          = module.etl_func.function_app.function_app.principal_id
+  object_id_alias    = "ServicePrincipal"
 }
 
 output "etl_func" {

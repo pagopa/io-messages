@@ -1,8 +1,10 @@
+import { vi } from "vitest";
+
 export const context = {
   log: {
-    error: jest.fn(),
-    info: jest.fn(),
-    verbose: jest.fn(),
-    warn: jest.fn()
-  }
+    error: vi.fn(),
+    info: vi.fn(),
+    verbose: vi.fn(),
+    warn: vi.fn(),
+  },
 };

@@ -3,6 +3,10 @@
   "private": true,
   "main": "dist/func.js",
   "type": "module",
+  "files": [
+    "host.json"
+  ],
+  "version": "0.1.0",
   "scripts": {
     "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node20 --outdir=dist --packages=external",
     "build:watch": "yarn build --watch",
@@ -11,26 +15,30 @@
     "lint": "eslint --fix src",
     "lint:check": "eslint src",
     "typecheck": "tsc",
-    "test": "vitest run --passWithNoTests",
-    "test:coverage": "vitest run --coverage --passWithNoTests"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@azure/event-hubs": "^5.12.2",
     "@azure/functions": "^4.4.0",
+    "@azure/identity": "^4.5.0",
+    "@azure/storage-blob": "^12.26.0",
     "applicationinsights": "^3.3.0",
     "avsc": "^5.7.7",
     "io-messages-common": "workspace:^",
     "pino": "^9.4.0",
+    "redis": "^4.7.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@pagopa/eslint-config": "^4.0.1",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.17.11",
     "@vitest/coverage-v8": "^1.5.0",
     "esbuild": "^0.24.0",
     "eslint": "8.57.0",
     "prettier": "3.2.5",
     "typescript": "5.4.3",
     "vitest": "^1.5.0"
-  }
+  },
+  "license": "UNLICENSED"
 }

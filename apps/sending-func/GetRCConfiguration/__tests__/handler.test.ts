@@ -12,34 +12,36 @@ import {
   findByConfigurationIdMock,
   rccModelMock,
   someUserGroups,
-  someUserGroupsWithTheAllowedOne
+  someUserGroupsWithTheAllowedOne,
 } from "../../__mocks__/remote-content";
 
 import {
   getRCConfigurationHandler,
   handleEmptyErrorResponse,
-  RC_CONFIGURATION_REDIS_PREFIX
+  RC_CONFIGURATION_REDIS_PREFIX,
 } from "../handler";
 import { IConfig } from "../../utils/config";
 import { redisClientMock } from "../../__mocks__/redis.mock";
 
+import { vi, beforeEach, afterEach, describe, test, expect } from "vitest";
+
 const aUserId = "aUserId" as NonEmptyString;
 const aConfig = { INTERNAL_USER_ID: "internalUserId" } as IConfig;
 
-const getTaskMock = jest.fn();
-jest.spyOn(redis_storage, "getTask").mockImplementation(getTaskMock);
+const getTaskMock = vi.fn();
+vi.spyOn(redis_storage, "getTask").mockImplementation(getTaskMock);
 
-const setWithExpirationTaskMock = jest.fn();
-jest
-  .spyOn(redis_storage, "setWithExpirationTask")
-  .mockImplementation(setWithExpirationTaskMock);
+const setWithExpirationTaskMock = vi.fn();
+vi.spyOn(redis_storage, "setWithExpirationTask").mockImplementation(
+  setWithExpirationTaskMock,
+);
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 afterEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 describe("handleEmptyErrorResponse ", () => {
@@ -49,7 +51,7 @@ describe("handleEmptyErrorResponse ", () => {
     expect(E.isLeft(r)).toBe(true);
     if (E.isLeft(r))
       expect(r.left.detail).toBe(
-        "Configuration not found: Cannot find any configuration with configurationId: aValidUlid"
+        "Configuration not found: Cannot find any configuration with configurationId: aValidUlid",
       );
   });
 });
@@ -58,18 +60,18 @@ describe("getRCConfigurationHandler", () => {
   test("should return an IResponseSuccessJson calling the model if redis does not return a valid configuration and the userId match", async () => {
     getTaskMock.mockReturnValueOnce(TE.right(O.none));
     findByConfigurationIdMock.mockReturnValueOnce(
-      TE.right(O.some(aRemoteContentConfiguration))
+      TE.right(O.some(aRemoteContentConfiguration)),
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
     const r = await getRCConfigurationHandler({
       rccModel: rccModelMock,
       config: aConfig,
-      redisClient: redisClientMock
+      redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
       subscriptionId: aManageSubscriptionId,
       userGroups: someUserGroupsWithTheAllowedOne,
-      userId: aRemoteContentConfiguration.userId
+      userId: aRemoteContentConfiguration.userId,
     });
     expect(r.kind).toBe("IResponseSuccessJson");
     expect(getTaskMock).toHaveBeenCalled();
@@ -78,23 +80,23 @@ describe("getRCConfigurationHandler", () => {
       redisClientMock,
       `${RC_CONFIGURATION_REDIS_PREFIX}-${aRemoteContentConfiguration.configurationId}`,
       JSON.stringify(aRemoteContentConfiguration),
-      aConfig.RC_CONFIGURATION_CACHE_TTL
+      aConfig.RC_CONFIGURATION_CACHE_TTL,
     );
   });
 
   test("should return an IResponseSuccessJson without calling the model if redis return a valid configuration and the userId match", async () => {
     getTaskMock.mockReturnValueOnce(
-      TE.right(O.some(JSON.stringify(aRetrievedRCConfiguration)))
+      TE.right(O.some(JSON.stringify(aRetrievedRCConfiguration))),
     );
     const r = await getRCConfigurationHandler({
       rccModel: rccModelMock,
       config: aConfig,
-      redisClient: redisClientMock
+      redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
       subscriptionId: aManageSubscriptionId,
       userGroups: someUserGroupsWithTheAllowedOne,
-      userId: aRemoteContentConfiguration.userId
+      userId: aRemoteContentConfiguration.userId,
     });
     expect(r.kind).toBe("IResponseSuccessJson");
     expect(getTaskMock).toHaveBeenCalled();
@@ -105,18 +107,18 @@ describe("getRCConfigurationHandler", () => {
   test("should return an IResponseSuccessJson if the model return a valid configuration and the user-id is internal", async () => {
     getTaskMock.mockReturnValueOnce(TE.right(O.none));
     findByConfigurationIdMock.mockReturnValueOnce(
-      TE.right(O.some(aRemoteContentConfiguration))
+      TE.right(O.some(aRemoteContentConfiguration)),
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
     const r = await getRCConfigurationHandler({
       rccModel: rccModelMock,
       config: aConfig,
-      redisClient: redisClientMock
+      redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
       subscriptionId: aManageSubscriptionId,
       userGroups: someUserGroupsWithTheAllowedOne,
-      userId: aConfig.INTERNAL_USER_ID
+      userId: aConfig.INTERNAL_USER_ID,
     });
     expect(r.kind).toBe("IResponseSuccessJson");
     expect(getTaskMock).toHaveBeenCalled();
@@ -125,25 +127,25 @@ describe("getRCConfigurationHandler", () => {
       redisClientMock,
       `${RC_CONFIGURATION_REDIS_PREFIX}-${aRemoteContentConfiguration.configurationId}`,
       JSON.stringify(aRemoteContentConfiguration),
-      aConfig.RC_CONFIGURATION_CACHE_TTL
+      aConfig.RC_CONFIGURATION_CACHE_TTL,
     );
   });
 
   test("should return an IResponseErrorForbiddenNotAuthorized if the model return a valid configuration but the userId is not internal or does not match", async () => {
     getTaskMock.mockReturnValueOnce(TE.right(O.none));
     findByConfigurationIdMock.mockReturnValueOnce(
-      TE.right(O.some(aRemoteContentConfiguration))
+      TE.right(O.some(aRemoteContentConfiguration)),
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
     const r = await getRCConfigurationHandler({
       rccModel: rccModelMock,
       config: aConfig,
-      redisClient: redisClientMock
+      redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
       subscriptionId: aManageSubscriptionId,
       userGroups: someUserGroupsWithTheAllowedOne,
-      userId: "invalid" as NonEmptyString
+      userId: "invalid" as NonEmptyString,
     });
     expect(r.kind).toBe("IResponseErrorForbiddenNotAuthorized");
     expect(getTaskMock).toHaveBeenCalled();
@@ -152,7 +154,7 @@ describe("getRCConfigurationHandler", () => {
       redisClientMock,
       `${RC_CONFIGURATION_REDIS_PREFIX}-${aRemoteContentConfiguration.configurationId}`,
       JSON.stringify(aRemoteContentConfiguration),
-      aConfig.RC_CONFIGURATION_CACHE_TTL
+      aConfig.RC_CONFIGURATION_CACHE_TTL,
     );
   });
 
@@ -162,16 +164,16 @@ describe("getRCConfigurationHandler", () => {
     const r = await getRCConfigurationHandler({
       rccModel: rccModelMock,
       config: aConfig,
-      redisClient: redisClientMock
+      redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
       subscriptionId: aManageSubscriptionId,
       userGroups: someUserGroupsWithTheAllowedOne,
-      userId: aUserId
+      userId: aUserId,
     });
     expect(r.kind).toBe("IResponseErrorNotFound");
     expect(r.detail).toBe(
-      "Configuration not found: Cannot find any configuration with configurationId: 01HNG1XBMT8V6HWGF5T053K9RJ"
+      "Configuration not found: Cannot find any configuration with configurationId: 01HNG1XBMT8V6HWGF5T053K9RJ",
     );
     expect(getTaskMock).toHaveBeenCalled();
     expect(findByConfigurationIdMock).toHaveBeenCalled();
@@ -184,16 +186,16 @@ describe("getRCConfigurationHandler", () => {
     const r = await getRCConfigurationHandler({
       rccModel: rccModelMock,
       config: aConfig,
-      redisClient: redisClientMock
+      redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
       subscriptionId: aManageSubscriptionId,
       userGroups: someUserGroupsWithTheAllowedOne,
-      userId: aUserId
+      userId: aUserId,
     });
     expect(r.kind).toBe("IResponseErrorInternal");
     expect(r.detail).toContain(
-      "Internal server error: Something went wrong trying to retrieve the configuration"
+      "Internal server error: Something went wrong trying to retrieve the configuration",
     );
     expect(getTaskMock).toHaveBeenCalled();
     expect(findByConfigurationIdMock).toHaveBeenCalled();
@@ -204,12 +206,12 @@ describe("getRCConfigurationHandler", () => {
     const r = await getRCConfigurationHandler({
       rccModel: rccModelMock,
       config: aConfig,
-      redisClient: redisClientMock
+      redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
       subscriptionId: aSubscriptionId,
       userGroups: someUserGroupsWithTheAllowedOne,
-      userId: aUserId
+      userId: aUserId,
     });
     expect(r.kind).toBe("IResponseErrorForbiddenNotAuthorized");
     expect(getTaskMock).not.toHaveBeenCalled();
@@ -221,12 +223,12 @@ describe("getRCConfigurationHandler", () => {
     const r = await getRCConfigurationHandler({
       rccModel: rccModelMock,
       config: aConfig,
-      redisClient: redisClientMock
+      redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
       subscriptionId: aManageSubscriptionId,
       userGroups: someUserGroups,
-      userId: aUserId
+      userId: aUserId,
     });
     expect(r.kind).toBe("IResponseErrorForbiddenNotAuthorized");
     expect(getTaskMock).not.toHaveBeenCalled();
@@ -237,18 +239,18 @@ describe("getRCConfigurationHandler", () => {
   test("should return an IResponseSuccessJson if subscription is not manage but the user-id is internal", async () => {
     getTaskMock.mockReturnValueOnce(TE.right(O.none));
     findByConfigurationIdMock.mockReturnValue(
-      TE.right(O.some(aRemoteContentConfiguration))
+      TE.right(O.some(aRemoteContentConfiguration)),
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
     const r = await getRCConfigurationHandler({
       rccModel: rccModelMock,
       config: aConfig,
-      redisClient: redisClientMock
+      redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
       subscriptionId: aSubscriptionId,
       userGroups: someUserGroupsWithTheAllowedOne,
-      userId: aConfig.INTERNAL_USER_ID
+      userId: aConfig.INTERNAL_USER_ID,
     });
     expect(r.kind).toBe("IResponseSuccessJson");
     expect(getTaskMock).toHaveBeenCalled();
@@ -257,25 +259,25 @@ describe("getRCConfigurationHandler", () => {
       redisClientMock,
       `${RC_CONFIGURATION_REDIS_PREFIX}-${aRemoteContentConfiguration.configurationId}`,
       JSON.stringify(aRemoteContentConfiguration),
-      aConfig.RC_CONFIGURATION_CACHE_TTL
+      aConfig.RC_CONFIGURATION_CACHE_TTL,
     );
   });
 
   test("should return an IResponseSuccessJson if group is not allowed but the user-id is internal", async () => {
     getTaskMock.mockReturnValueOnce(TE.right(O.none));
     findByConfigurationIdMock.mockReturnValue(
-      TE.right(O.some(aRemoteContentConfiguration))
+      TE.right(O.some(aRemoteContentConfiguration)),
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
     const r = await getRCConfigurationHandler({
       rccModel: rccModelMock,
       config: aConfig,
-      redisClient: redisClientMock
+      redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
       subscriptionId: aManageSubscriptionId,
       userGroups: someUserGroups,
-      userId: aConfig.INTERNAL_USER_ID
+      userId: aConfig.INTERNAL_USER_ID,
     });
     expect(r.kind).toBe("IResponseSuccessJson");
     expect(getTaskMock).toHaveBeenCalled();
@@ -284,7 +286,7 @@ describe("getRCConfigurationHandler", () => {
       redisClientMock,
       `${RC_CONFIGURATION_REDIS_PREFIX}-${aRemoteContentConfiguration.configurationId}`,
       JSON.stringify(aRemoteContentConfiguration),
-      aConfig.RC_CONFIGURATION_CACHE_TTL
+      aConfig.RC_CONFIGURATION_CACHE_TTL,
     );
   });
 });

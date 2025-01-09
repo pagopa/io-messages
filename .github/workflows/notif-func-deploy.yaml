@@ -5,7 +5,7 @@ on:
 
 jobs:
   notif_func_deploy:
-    uses: pagopa/dx/.github/workflows/web_app_deploy.yaml@add-web-app-deploy-workflow
+    uses: pagopa/dx/.github/workflows/web_app_deploy.yaml@53825edbcf12f0556a2391d716875dd928a97c69
     name: Deploy
     secrets: inherit
     with:
