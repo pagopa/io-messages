@@ -18,6 +18,11 @@ data "azurerm_key_vault" "messages" {
   resource_group_name = "io-p-messages-sec-rg"
 }
 
+data "azurerm_key_vault_secret" "codecov_token" {
+  name         = "codecov-token"
+  key_vault_id = data.azurerm_key_vault.messages.id
+}
+
 data "github_organization_teams" "all" {
   root_teams_only = true
   summary_only    = true
