@@ -11,16 +11,24 @@ const logger = pino({
   level: process.env.NODE_ENV === "production" ? "error" : "debug",
 });
 
+const processMessageMetadata = (
+  input: unknown,
+): MessageMetadata | undefined => {
+  const result = messageMetadataSchema.safeParse(input);
+  //we are considering, and returning, only processed messages. A processed message has isPending === false
+  if (result.success && !result.data.isPending) return result.data;
+  else return undefined;
+};
+
 const messagesIngestionHandler =
   (ingestUseCase: IngestMessageUseCase): CosmosDBHandler =>
   async (documents: unknown[]) => {
     //Avoiding all documents different from MessageMetadata schema and with
     //isPending equals to true
-    const messagesMetadata: MessageMetadata[] = documents.filter(
-      (item): item is MessageMetadata => {
-        const parsedItem = messageMetadataSchema.safeParse(item);
-        return parsedItem.success && !parsedItem.data.isPending;
-      },
+
+    const parsedMessagesMetadata = documents.map(processMessageMetadata);
+    const messagesMetadata: MessageMetadata[] = parsedMessagesMetadata.filter(
+      (item): item is MessageMetadata => item !== undefined,
     );
 
     try {
