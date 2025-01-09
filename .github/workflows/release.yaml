@@ -15,6 +15,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Corepack is an official tool by Node.js that manages package managers versions
+      - name: Setup yarn
+        run: corepack enable
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
