@@ -7,9 +7,6 @@
       "outputs": ["dist/**"],
       "outputLogs": "errors-only"
     },
-    "container-start": {
-      "outputLogs": "full"
-    },
     "lint": {
       "inputs": ["src/**/*.ts"],
       "outputLogs": "errors-only"
@@ -39,8 +36,26 @@
       "inputs": ["src/**/*.ts"],
       "outputLogs": "errors-only"
     },
+
+    "openapi:bundle": {
+      "inputs": ["openapi/index.yaml.template"],
+      "outputs": ["openapi/index.yaml", "openapi/common-definitions.yaml"]
+    },
+
+    "generate:definitions": {
+      "dependsOn": ["openapi:bundle"],
+      "inputs": ["openapi/index.yaml"],
+      "outputs": ["generated/definitions"]
+    },
+
+    "generate:backend-notification-hub": {},
+
     "//#test:coverage": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "citizen-func#generate:definitions",
+        "sending-func#generate:definitions",
+        "sending-func#generate:backend-notification-hub"
+      ],
       "inputs": ["apps/**/src/**/*.ts", "packages/**/src/**/*.ts"],
       "outputs": ["coverage"],
       "outputLogs": "errors-only"
