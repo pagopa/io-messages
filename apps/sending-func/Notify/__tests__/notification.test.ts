@@ -9,22 +9,26 @@ import { QueueClient } from "@azure/storage-queue";
 import { toHash } from "../../utils/crypto";
 import { NotificationMessageKindEnum } from "../../generated/notifications/NotificationMessageKind";
 
+import { vi, it, describe, expect, beforeEach } from "vitest";
+
 // -----------------------------
 // Mocks
 // -----------------------------
 
-const mockSendMessage = jest.fn().mockImplementation(_ => Promise.resolve());
+const mockSendMessage = vi.fn().mockImplementation((_) => Promise.resolve());
 
-const queueClient = ({
-  sendMessage: mockSendMessage
-} as unknown) as QueueClient;
+const queueClient = {
+  sendMessage: mockSendMessage,
+} as unknown as QueueClient;
 
 // -----------------------------
 // Tests
 // -----------------------------
 
 describe("Notify", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it("should submit a notification to the Queue Storage", async () => {
     const notify = sendNotification(queueClient);
@@ -33,7 +37,7 @@ describe("Notify", () => {
       aFiscalCode,
       aRetrievedMessage.id,
       "a Title",
-      "a Body"
+      "a Body",
     )();
 
     expect(res).toEqual(E.right(void 0));
@@ -44,15 +48,15 @@ describe("Notify", () => {
         payload: {
           message: "a Body",
           message_id: aRetrievedMessage.id,
-          title: "a Title"
-        }
-      })
+          title: "a Title",
+        },
+      }),
     );
   });
 
   it("should fail if the Queue Storage fails on notify", async () => {
-    mockSendMessage.mockImplementation(_ =>
-      Promise.reject(new Error("Generic Error"))
+    mockSendMessage.mockImplementation((_) =>
+      Promise.reject(new Error("Generic Error")),
     );
 
     const notify = sendNotification(queueClient);
@@ -61,13 +65,15 @@ describe("Notify", () => {
       aFiscalCode,
       aRetrievedMessage.id,
       "a Title",
-      "a Body"
+      "a Body",
     )();
 
     expect(res).toEqual(
       E.left(
-        Error(`Error while sending notify message to the queue [Generic Error]`)
-      )
+        Error(
+          `Error while sending notify message to the queue [Generic Error]`,
+        ),
+      ),
     );
   });
 });

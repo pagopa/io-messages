@@ -4,49 +4,55 @@ import { GetRCConfigurationHandler } from "../handler";
 import RCConfigurationUtility from "../../utils/remoteContentConfig";
 import {
   aRCConfigurationWithBothEnv,
-  aRetrievedRCConfigurationWithBothEnv
+  aRetrievedRCConfigurationWithBothEnv,
 } from "../../__mocks__/remote-content";
 import * as TE from "fp-ts/TaskEither";
 import * as O from "fp-ts/Option";
 
-const getOrCacheMaybeRCConfigurationByIdMock = jest
-  .fn()
-  .mockReturnValue(
-    TE.right(O.some(aRetrievedRCConfigurationWithBothEnv))
-  );
+import { vi, describe, it, afterEach, expect } from "vitest";
 
-const mockRCConfigurationUtility = ({
-  getOrCacheRCConfigurationWithFallback: jest.fn(), // not used for this handler
-  getOrCacheMaybeRCConfigurationById: getOrCacheMaybeRCConfigurationByIdMock
-} as unknown) as RCConfigurationUtility;
+const getOrCacheMaybeRCConfigurationByIdMock = vi
+  .fn()
+  .mockReturnValue(TE.right(O.some(aRetrievedRCConfigurationWithBothEnv)));
+
+const mockRCConfigurationUtility = {
+  getOrCacheRCConfigurationWithFallback: vi.fn(), // not used for this handler
+  getOrCacheMaybeRCConfigurationById: getOrCacheMaybeRCConfigurationByIdMock,
+} as unknown as RCConfigurationUtility;
 
 describe("GetRCConfigurationHandler", () => {
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
   it("should fail if any error occurs trying to retrieve the remote content configuration", async () => {
-    getOrCacheMaybeRCConfigurationByIdMock.mockReturnValueOnce(TE.left(new Error("Any error")))
+    getOrCacheMaybeRCConfigurationByIdMock.mockReturnValueOnce(
+      TE.left(new Error("Any error")),
+    );
 
     const getRCConfigurationHandler = GetRCConfigurationHandler(
-      mockRCConfigurationUtility
+      mockRCConfigurationUtility,
     );
 
     const result = await getRCConfigurationHandler(
       contextMock as any,
-      aRetrievedRCConfigurationWithBothEnv.configurationId
+      aRetrievedRCConfigurationWithBothEnv.configurationId,
     );
 
     expect(result.kind).toBe("IResponseErrorInternal");
   });
 
   it("should fail with Not Found if no configuration is found with the requested id", async () => {
-    getOrCacheMaybeRCConfigurationByIdMock.mockReturnValueOnce(TE.right(O.none))
+    getOrCacheMaybeRCConfigurationByIdMock.mockReturnValueOnce(
+      TE.right(O.none),
+    );
 
     const getRCConfigurationHandler = GetRCConfigurationHandler(
-      mockRCConfigurationUtility
+      mockRCConfigurationUtility,
     );
 
     const result = await getRCConfigurationHandler(
       contextMock as any,
-      aRetrievedRCConfigurationWithBothEnv.configurationId
+      aRetrievedRCConfigurationWithBothEnv.configurationId,
     );
 
     expect(result.kind).toBe("IResponseErrorNotFound");
@@ -54,12 +60,12 @@ describe("GetRCConfigurationHandler", () => {
 
   it("should respond with the requested remote content configuration", async () => {
     const getRCConfigurationHandler = GetRCConfigurationHandler(
-      mockRCConfigurationUtility
+      mockRCConfigurationUtility,
     );
 
     const result = await getRCConfigurationHandler(
       contextMock as any,
-      aRetrievedRCConfigurationWithBothEnv.configurationId
+      aRetrievedRCConfigurationWithBothEnv.configurationId,
     );
 
     expect(result.kind).toBe("IResponseSuccessJson");

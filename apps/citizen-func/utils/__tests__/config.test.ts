@@ -5,6 +5,8 @@ import { IConfig } from "../config";
 import { envConfig } from "../../__mocks__/env-config.mock";
 import { Ulid } from "@pagopa/ts-commons/lib/strings";
 
+import { describe, it, expect } from "vitest";
+
 describe("IConfig - USE_FALLBACK", () => {
   it("should decode USE_FALLBACK with defalt, when is not defined", () => {
     const p = IConfig.encode(envConfig);
@@ -34,8 +36,17 @@ describe("IConfig - USE_FALLBACK", () => {
   it("should decode SERVICE_TO_RC_CONFIGURATION_MAP with a valid map, when set to a valid json map string", () => {
     const p = IConfig.encode(envConfig);
     const { SERVICE_TO_RC_CONFIGURATION_MAP, ...env } = p;
-    const env2 = { ...env, SERVICE_TO_RC_CONFIGURATION_MAP: '{"one": "01ARZ3NDEKTSV4RRFFQ69G5FAV", "two": "01ARZ3NDEKTSV4RRFFQ69G5FAV"}' };
-    const map = new Map(Object.entries({one: "01ARZ3NDEKTSV4RRFFQ69G5FAV" as Ulid, two: "01ARZ3NDEKTSV4RRFFQ69G5FAV" as Ulid}));
+    const env2 = {
+      ...env,
+      SERVICE_TO_RC_CONFIGURATION_MAP:
+        '{"one": "01ARZ3NDEKTSV4RRFFQ69G5FAV", "two": "01ARZ3NDEKTSV4RRFFQ69G5FAV"}',
+    };
+    const map = new Map(
+      Object.entries({
+        one: "01ARZ3NDEKTSV4RRFFQ69G5FAV" as Ulid,
+        two: "01ARZ3NDEKTSV4RRFFQ69G5FAV" as Ulid,
+      }),
+    );
 
     const res = IConfig.decode(env2);
 
@@ -48,7 +59,11 @@ describe("IConfig - USE_FALLBACK", () => {
   it("should fail decode SERVICE_TO_RC_CONFIGURATION_MAP when set to a invvalid json map string", () => {
     const p = IConfig.encode(envConfig);
     const { SERVICE_TO_RC_CONFIGURATION_MAP, ...env } = p;
-    const env2 = { ...env, SERVICE_TO_RC_CONFIGURATION_MAP: '{"one": ["01ARZ3NDEKTSV4RRFFQ69G5FAV", "test"], "two": "01ARZ3NDEKTSV4RRFFQ69G5FAV"}' };
+    const env2 = {
+      ...env,
+      SERVICE_TO_RC_CONFIGURATION_MAP:
+        '{"one": ["01ARZ3NDEKTSV4RRFFQ69G5FAV", "test"], "two": "01ARZ3NDEKTSV4RRFFQ69G5FAV"}',
+    };
     const res = IConfig.decode(env2);
 
     expect(E.isLeft(res)).toBe(true);

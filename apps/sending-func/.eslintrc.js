@@ -2,7 +2,7 @@ module.exports = {
   env: {
     browser: true,
     es6: true,
-    node: true
+    node: true,
   },
   ignorePatterns: [
     "node_modules",
@@ -10,15 +10,14 @@ module.exports = {
     "**/__tests__/*",
     "**/__mocks__/*",
     "**/__integrations__/*",
-    "Dangerfile.*",
     "*.d.ts",
-    "docker"
+    "docker",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: "tsconfig.json",
-    sourceType: "module"
+    sourceType: "module",
   },
   extends: ["@pagopa/eslint-config/strong"],
-  rules: {}
+  rules: {},
 };
