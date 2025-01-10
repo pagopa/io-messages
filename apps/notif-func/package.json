@@ -13,9 +13,10 @@
     "format": "prettier --write .",
     "lint": "eslint --fix src",
     "lint:check": "eslint src",
-    "typecheck": "tsc",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@azure/core-rest-pipeline": "^1.18.1",
