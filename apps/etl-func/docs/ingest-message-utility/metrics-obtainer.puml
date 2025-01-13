@@ -1,0 +1,38 @@
+@startuml message-status-ingestion
+
+actor "Dev" as dev
+collections "ingest-message-utility" as imu
+collections "ingest-events-ts" as ime
+
+dev -> imu: Call the utility with cli
+activate imu
+
+imu -> imu: parse the input
+
+alt error
+  imu -[#red]x dev : Return an error message
+end
+
+imu -> ime : Query to the table storage
+activate ime
+
+alt error
+  ime -[#red]> imu : Return an error
+  imu -[#red]x dev : Return an error message
+end
+
+ime -> imu : Return the result
+deactivate ime
+
+imu -> imu: Parse the output
+
+alt error
+  imu -[#red]x dev : Return an error message
+end
+
+imu -> imu: Sum all the events
+
+imu -> dev : Return the output
+activate imu
+
+@enduml
