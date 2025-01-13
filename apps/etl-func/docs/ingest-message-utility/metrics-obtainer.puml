@@ -33,6 +33,6 @@ end
 imu -> imu: Sum all the events
 
 imu -> dev : Return the output
-activate imu
+deactivate imu
 
 @enduml
