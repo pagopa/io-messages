@@ -16,6 +16,5 @@ System_Ext(pdv, "Personal Data Vault Tokenizer")
 
 Rel(consumer, io_msgs, "Use")
 Rel(io_msgs, pdv, "Use")
-Rel(io_msgs, tp, "Use")
 
 @enduml
