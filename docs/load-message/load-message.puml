@@ -4,16 +4,11 @@ participant caller
 participant LoadMessage as lm
 collections "message-evh" as evh
 participant "ai-common" as ai
+collections "ingest-events-ts" as ime
 
 caller -> lm : Call loadMessage passing an eventMessage
 activate caller
 activate lm
-
-' lm -> lm : read avro schema
-' alt Error reading avro schema
-'   lm -> ai : Track the error event
-'   lm -[#red]> caller : Throw an error
-' end
 
 lm -> lm : eventMessage to buffer using avro schema
 break Error creating buffer
@@ -40,6 +35,8 @@ note left of lm
   - knows the eventMessage
   has been sent to message-evh
 end note
+
+lm --> ime : insert a new IngestMessageBatch event into the table storage
 
 lm -> caller : Return
 deactivate lm
