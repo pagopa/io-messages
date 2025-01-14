@@ -23,7 +23,7 @@ loop Process Mesagges Metadata
         Each item of the batch is sent individually to the queue
     end note
   else The function process the batch without throwing an error
-    etlFunc -> EventHub: Batch sent to the eventhub
+    etlFunc -> EventHub: Send messages to the eventhub
   end
 end
 
