@@ -20,6 +20,10 @@ export const configSchema = z.object({
   messagesEventHub: eventhubConfigSchema,
   messagesRedis: redisConfigSchema,
   pdvTokenizer: pdvConfigSchema,
+  errorQueueStorage: z.object({
+    queueName: z.string().min(1),
+    connectionString: z.string(),
+  }),
 });
 
 export type Config = z.TypeOf<typeof configSchema>;
@@ -53,6 +57,10 @@ export const configFromEnvironment = envSchema
       pdvTokenizer: {
         apiKey: env.PDV_TOKENIZER_API_KEY,
         baseUrl: env.PDV_TOKENIZER_BASE_URL,
+      },
+      errorQueueStorage: {
+        queueName: env.QUEUE_STORAGE_MESSAGES_ERROR_NAME,
+        connectionString: env.QUEUE_STORAGE_MESSAGES_ERROR_CONNECTION_STRING,
       },
     }),
   )

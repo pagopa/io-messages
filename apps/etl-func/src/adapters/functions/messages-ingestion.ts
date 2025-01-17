@@ -1,11 +1,12 @@
 import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
-import { CosmosDBHandler } from "@azure/functions";
+import { CosmosDBHandler, InvocationContext } from "@azure/functions";
 import { pino } from "pino";
 
 import {
   MessageMetadata,
   messageMetadataSchema,
 } from "../../domain/message.js";
+import { EventErrorRepository } from "@/domain/event.js";
 
 const logger = pino({
   level: process.env.NODE_ENV === "production" ? "error" : "debug",
@@ -21,11 +22,13 @@ const processMessageMetadata = (
 };
 
 const messagesIngestionHandler =
-  (ingestUseCase: IngestMessageUseCase): CosmosDBHandler =>
-  async (documents: unknown[]) => {
-    //Avoiding all documents different from MessageMetadata schema and with
+  (
+    ingestUseCase: IngestMessageUseCase,
+    eventErrorRepository: EventErrorRepository<unknown>,
+  ): CosmosDBHandler =>
+  async (documents: unknown[], context: InvocationContext) => {
+    //Avoid all documents different from MessageMetadata schema and with
     //isPending equals to true
-
     const parsedMessagesMetadata = documents.map(processMessageMetadata);
     const messagesMetadata: MessageMetadata[] = parsedMessagesMetadata.filter(
       (item): item is MessageMetadata => item !== undefined,
@@ -34,7 +37,16 @@ const messagesIngestionHandler =
     try {
       await ingestUseCase.execute(messagesMetadata);
     } catch (err) {
-      logger.error(`Error during the ingestion process`);
+      logger.error(
+        `Error during the ingestion process ${context.retryContext?.retryCount}`,
+      );
+      if (
+        context.retryContext?.retryCount === context.retryContext?.maxRetryCount
+      ) {
+        documents.forEach(
+          async (document) => await eventErrorRepository.push(document),
+        );
+      }
       throw err;
     }
   };

@@ -5,6 +5,7 @@ import { BlobServiceClient } from "@azure/storage-blob";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
 import { createClient } from "redis";
+import { QueueClient } from "@azure/storage-queue";
 
 import { messageSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
@@ -16,6 +17,7 @@ import { MessageAdapter } from "./adapters/message.js";
 import RedisRecipientRepository from "./adapters/redis/recipient.js";
 import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
 import { IngestMessageUseCase } from "./domain/use-cases/ingest-message.js";
+import { EventErrorQueueStorage } from "./adapters/queue-storage/event-error-queue-storage.js";
 
 const main = async (config: Config) => {
   const logger = pino({
@@ -66,6 +68,13 @@ const main = async (config: Config) => {
     messageEventProducer,
   );
 
+  const queueClient = new QueueClient(
+    config.errorQueueStorage.connectionString,
+    config.errorQueueStorage.queueName,
+  );
+
+  const eventErrorRepository = new EventErrorQueueStorage(queueClient);
+
   // const messageStatusProducerClient = new EventHubProducerClient(
   //   config.messageStatusEventHub.connectionUri,
   //   config.messageStatusEventHub.eventHubName,
@@ -106,7 +115,10 @@ const main = async (config: Config) => {
     containerName: config.cosmos.messagesContainerName,
     createLeaseContainerIfNotExists: false,
     databaseName: config.cosmos.databaseName,
-    handler: messagesIngestionHandler(ingestMessageUseCase),
+    handler: messagesIngestionHandler(
+      ingestMessageUseCase,
+      eventErrorRepository,
+    ),
     leaseContainerName: `messages-dataplan-ingestion-test-lease`,
     maxItemsPerInvocation: 50,
     retry: {
@@ -124,9 +136,9 @@ const main = async (config: Config) => {
   });
 
   app.storageQueue("storageQueueTrigger", {
-    connection: "QUEUE_STORAGE_CONNECTION_STRING",
+    connection: "QUEUE_STORAGE_MESSAGES_ERROR_CONNECTION_STRING",
     handler: messagesIngestionErrorQueueHandler(ingestMessageUseCase),
-    queueName: "messages-dataplan-ingestion-errors",
+    queueName: config.errorQueueStorage.queueName,
   });
 
   // NOTE: we don't want to start the ingestion yet
