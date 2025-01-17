@@ -12,9 +12,9 @@ export const envSchema = z.object({
   MESSAGE_STATUS_EVENTHUB_NAME: z.string().min(1),
   PDV_TOKENIZER_API_KEY: z.string().min(1),
   PDV_TOKENIZER_BASE_URL: z.string().url(),
+  QUEUE_STORAGE_MESSAGES_ERROR_CONNECTION_STRING: z.string(),
+  QUEUE_STORAGE_MESSAGES_ERROR_NAME: z.string().min(1),
   REDIS_PASSWORD: z.string().min(1),
   REDIS_PING_INTERVAL: z.coerce.number(),
   REDIS_URL: z.string().url(),
-  QUEUE_STORAGE_MESSAGES_ERROR_NAME: z.string().min(1),
-  QUEUE_STORAGE_MESSAGES_ERROR_CONNECTION_STRING: z.string(),
 });

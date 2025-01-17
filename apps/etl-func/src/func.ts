@@ -2,10 +2,10 @@ import { EventHubProducerClient } from "@azure/event-hubs";
 import { app } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
+import { QueueClient } from "@azure/storage-queue";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
 import { createClient } from "redis";
-import { QueueClient } from "@azure/storage-queue";
 
 import { messageSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
@@ -14,10 +14,10 @@ import { EventHubEventProducer } from "./adapters/eventhub/event.js";
 import messagesIngestionErrorQueueHandler from "./adapters/functions/message-ingestion-error-queue.js";
 import messagesIngestionHandler from "./adapters/functions/messages-ingestion.js";
 import { MessageAdapter } from "./adapters/message.js";
+import { EventErrorQueueStorage } from "./adapters/queue-storage/event-error-queue-storage.js";
 import RedisRecipientRepository from "./adapters/redis/recipient.js";
 import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
 import { IngestMessageUseCase } from "./domain/use-cases/ingest-message.js";
-import { EventErrorQueueStorage } from "./adapters/queue-storage/event-error-queue-storage.js";
 
 const main = async (config: Config) => {
   const logger = pino({

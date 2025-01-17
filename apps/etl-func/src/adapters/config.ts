@@ -12,6 +12,10 @@ export const configSchema = z.object({
     messageStatusContainerName: z.string().min(1),
     messagesContainerName: z.string().min(1),
   }),
+  errorQueueStorage: z.object({
+    connectionString: z.string(),
+    queueName: z.string().min(1),
+  }),
   messageContentStorage: z.object({
     accountUri: z.string().url(),
     containerName: z.string().min(1),
@@ -20,10 +24,6 @@ export const configSchema = z.object({
   messagesEventHub: eventhubConfigSchema,
   messagesRedis: redisConfigSchema,
   pdvTokenizer: pdvConfigSchema,
-  errorQueueStorage: z.object({
-    queueName: z.string().min(1),
-    connectionString: z.string(),
-  }),
 });
 
 export type Config = z.TypeOf<typeof configSchema>;
@@ -36,6 +36,10 @@ export const configFromEnvironment = envSchema
         databaseName: env.COSMOS_DBNAME,
         messageStatusContainerName: env.COSMOS_MESSAGE_STATUS_CONTAINER_NAME,
         messagesContainerName: env.COSMOS_MESSAGES_CONTAINER_NAME,
+      },
+      errorQueueStorage: {
+        connectionString: env.QUEUE_STORAGE_MESSAGES_ERROR_CONNECTION_STRING,
+        queueName: env.QUEUE_STORAGE_MESSAGES_ERROR_NAME,
       },
       messageContentStorage: {
         accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
@@ -57,10 +61,6 @@ export const configFromEnvironment = envSchema
       pdvTokenizer: {
         apiKey: env.PDV_TOKENIZER_API_KEY,
         baseUrl: env.PDV_TOKENIZER_BASE_URL,
-      },
-      errorQueueStorage: {
-        queueName: env.QUEUE_STORAGE_MESSAGES_ERROR_NAME,
-        connectionString: env.QUEUE_STORAGE_MESSAGES_ERROR_CONNECTION_STRING,
       },
     }),
   )
