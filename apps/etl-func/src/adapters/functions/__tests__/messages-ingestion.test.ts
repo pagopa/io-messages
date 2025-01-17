@@ -17,14 +17,14 @@ import messagesIngestion from "../messages-ingestion.js";
 
 const logger = pino();
 const mocks = vi.hoisted(() => ({
+  EventErrorRepository: vi.fn().mockImplementation(() => ({
+    push: vi.fn(),
+  })),
   EventHubProducerClient: vi.fn().mockImplementation(() => ({
     createBatch: () => ({
       tryAdd: tryAddMock,
     }),
     sendBatch: sendBatchMock,
-  })),
-  EventErrorRepository: vi.fn().mockImplementation(() => ({
-    push: vi.fn(),
   })),
 }));
 
