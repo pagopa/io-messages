@@ -10,6 +10,7 @@ import { messageSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
 import { EventHubEventProducer } from "./adapters/eventhub/event.js";
+import messagesIngestionErrorQueueHandler from "./adapters/functions/message-ingestion-error-queue.js";
 import messagesIngestionHandler from "./adapters/functions/messages-ingestion.js";
 import { MessageAdapter } from "./adapters/message.js";
 import RedisRecipientRepository from "./adapters/redis/recipient.js";
@@ -120,6 +121,12 @@ const main = async (config: Config) => {
     },
     //we need to start the ingestion from this date
     startFromTime: "2023/01/01T00:00:00Z",
+  });
+
+  app.storageQueue("storageQueueTrigger", {
+    connection: "QUEUE_STORAGE_CONNECTION_STRING",
+    handler: messagesIngestionErrorQueueHandler(ingestMessageUseCase),
+    queueName: "messages-dataplan-ingestion-errors",
   });
 
   // NOTE: we don't want to start the ingestion yet
