@@ -23,6 +23,9 @@ const mocks = vi.hoisted(() => ({
     }),
     sendBatch: sendBatchMock,
   })),
+  EventErrorRepository: vi.fn().mockImplementation(() => ({
+    push: vi.fn(),
+  })),
 }));
 
 const tryAddMock = vi.fn(() => true);
@@ -54,6 +57,9 @@ const producer = new EventHubEventProducer(
   eventHubProducerClient,
   messageSchema,
 );
+
+const eventErrorRepository = new mocks.EventErrorRepository();
+
 const publishSpy = vi.spyOn(producer, "publish").mockResolvedValue();
 
 const ingestMessageUseCase = new IngestMessageUseCase(
@@ -63,7 +69,7 @@ const ingestMessageUseCase = new IngestMessageUseCase(
 );
 
 const context = new InvocationContext();
-const handler = messagesIngestion(ingestMessageUseCase);
+const handler = messagesIngestion(ingestMessageUseCase, eventErrorRepository);
 
 describe("messagesIngestion handler", () => {
   afterEach(() => {
