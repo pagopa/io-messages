@@ -21,7 +21,7 @@
       "outputLogs": "errors-only"
     },
     "test:coverage": {
-      "dependsOn": ["^test"],
+      "dependsOn": ["^test", "build"],
       "inputs": ["src/**/*.spec.ts"],
       "outputLogs": "full"
     },
