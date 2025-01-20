@@ -43,6 +43,13 @@ resource "azurerm_role_assignment" "message_content_container_read" {
   principal_id         = module.etl_func.function_app.function_app.principal_id
 }
 
+resource "azurerm_role_assignment" "messages_error_queue" {
+  for_each             = toset(["Storage Queue Data Message Processor", "Storage Queue Data Reader"])
+  scope                = var.messages_error_queue_storage_account.id
+  role_definition_name = each.key
+  principal_id         = module.etl_func.function_app.function_app.principal_id
+}
+
 resource "azurerm_cosmosdb_sql_role_assignment" "etl_func" {
   resource_group_name = var.cosmosdb_account_api.resource_group_name
   account_name        = var.cosmosdb_account_api.name

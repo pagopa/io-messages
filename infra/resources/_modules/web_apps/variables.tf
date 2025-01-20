@@ -86,6 +86,13 @@ variable "messages_storage_account" {
   })
 }
 
+variable "messages_error_queue_storage_account" {
+  type = object({
+    id   = string
+    name = string
+  })
+}
+
 variable "cosmosdb_account_api" {
   type = object({
     id                  = string
