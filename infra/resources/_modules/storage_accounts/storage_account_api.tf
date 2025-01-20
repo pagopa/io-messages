@@ -53,3 +53,14 @@ resource "azurerm_storage_table" "validationtokens" {
   name                 = "ValidationTokens"
   storage_account_name = module.storage_api.name
 }
+
+resource "azurerm_storage_queue" "messages-dataplan-ingestion-errors" {
+  name                 = "messages-dataplan-ingestion-errors"
+  storage_account_name = module.storage_api.name
+}
+
+resource "azurerm_storage_queue" "messages-dataplan-ingestion-errors-poison" {
+  name                 = "messages-dataplan-ingestion-errors-poison"
+  storage_account_name = module.storage_api.name
+}
+
