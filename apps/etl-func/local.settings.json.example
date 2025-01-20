@@ -18,6 +18,6 @@
     "COSMOS_MESSAGES_CONTAINER_NAME": "messages",
     "COSMOS_MESSAGE_STATUS_CONTAINER_NAME": "message-status"
     "QUEUE_STORAGE_MESSAGES_ERROR_NAME": "messages-dataplan-ingestion-errors",
-    "QUEUE_STORAGE_MESSAGES_ERROR_CONNECTION_STRING": "accountStorageConnectionString"
+    "ACCOUNT_STORAGE__queueServiceUri": "https://testgiovannist.queue.core.windows.net/"
   }
 }

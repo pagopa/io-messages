@@ -69,8 +69,8 @@ const main = async (config: Config) => {
   );
 
   const queueClient = new QueueClient(
-    config.errorQueueStorage.connectionString,
-    config.errorQueueStorage.queueName,
+    `${config.errorQueueStorage.connectionString}${config.errorQueueStorage.queueName}`,
+    azureCredentials,
   );
 
   const eventErrorRepository = new EventErrorQueueStorage(queueClient);
@@ -136,7 +136,7 @@ const main = async (config: Config) => {
   });
 
   app.storageQueue("storageQueueTrigger", {
-    connection: "QUEUE_STORAGE_MESSAGES_ERROR_CONNECTION_STRING",
+    connection: "ACCOUNT_STORAGE",
     handler: messagesIngestionErrorQueueHandler(ingestMessageUseCase),
     queueName: config.errorQueueStorage.queueName,
   });

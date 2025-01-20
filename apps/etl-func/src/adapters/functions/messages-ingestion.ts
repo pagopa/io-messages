@@ -29,6 +29,7 @@ const messagesIngestionHandler =
   async (documents: unknown[], context: InvocationContext) => {
     //Avoid all documents different from MessageMetadata schema and with
     //isPending equals to true
+
     const parsedMessagesMetadata = documents.map(processMessageMetadata);
     const messagesMetadata: MessageMetadata[] = parsedMessagesMetadata.filter(
       (item): item is MessageMetadata => item !== undefined,

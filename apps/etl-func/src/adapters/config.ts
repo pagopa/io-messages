@@ -13,7 +13,7 @@ export const configSchema = z.object({
     messagesContainerName: z.string().min(1),
   }),
   errorQueueStorage: z.object({
-    connectionString: z.string(),
+    connectionString: z.string().url(),
     queueName: z.string().min(1),
   }),
   messageContentStorage: z.object({
@@ -38,7 +38,7 @@ export const configFromEnvironment = envSchema
         messagesContainerName: env.COSMOS_MESSAGES_CONTAINER_NAME,
       },
       errorQueueStorage: {
-        connectionString: env.QUEUE_STORAGE_MESSAGES_ERROR_CONNECTION_STRING,
+        connectionString: env.ACCOUNT_STORAGE__queueServiceUri,
         queueName: env.QUEUE_STORAGE_MESSAGES_ERROR_NAME,
       },
       messageContentStorage: {
