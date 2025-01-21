@@ -38,9 +38,6 @@ const messagesIngestionHandler =
     try {
       await ingestUseCase.execute(messagesMetadata);
     } catch (err) {
-      logger.error(
-        `Error during the ingestion process ${context.retryContext?.retryCount}`,
-      );
       if (
         context.retryContext?.retryCount === context.retryContext?.maxRetryCount
       ) {
