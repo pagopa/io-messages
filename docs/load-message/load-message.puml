@@ -4,7 +4,7 @@ participant caller
 participant LoadMessage as lm
 collections "message-evh" as evh
 participant "ai-common" as ai
-collections "ingest-events-ts" as ime
+collections "message-ingest-events" as mie
 
 caller -> lm : Call loadMessage passing an eventMessage
 activate caller
@@ -36,7 +36,7 @@ note left of lm
   has been sent to message-evh
 end note
 
-lm --> ime : insert a new IngestMessageBatch event into the table storage
+lm --> mie : Upsert the record into the cosmos collection
 
 lm -> caller : Return
 deactivate lm
