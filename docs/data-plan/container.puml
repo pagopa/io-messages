@@ -11,7 +11,7 @@ Boundary(io, "IO (Messages)") {
   Container(msgst, "message-content", "Azure Blob Storage", "Store message content (subject)")
   Container(etlfn, "etl-func", "Azure Function App", "Compose, validate, transform and publish messages")
   Container(msgevh, "messages-evh", "Event Hub", "Kafka topic for messages")
-  Container(msgsentevents, "ingest-events-ts", "Table Storage", "Table Storage for collecting ingest events")
+  Container(msgsentevents, "message-ingest-events", "Azure CosmosDB", "Store message ingest events")
   Container(failtable, "etl-failures", "Azure Table Storage")
 }
 
