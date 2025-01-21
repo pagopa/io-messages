@@ -1,16 +1,11 @@
 import { EventErrorRepository } from "@/domain/event.js";
 import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
 import { CosmosDBHandler, InvocationContext } from "@azure/functions";
-import { pino } from "pino";
 
 import {
   MessageMetadata,
   messageMetadataSchema,
 } from "../../domain/message.js";
-
-const logger = pino({
-  level: process.env.NODE_ENV === "production" ? "error" : "debug",
-});
 
 const processMessageMetadata = (
   input: unknown,
