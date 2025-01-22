@@ -24,6 +24,7 @@ loop Process Mesagges Metadata
     end note
   else The function process the batch without throwing an error
     etlFunc -> EventHub: Send messages to the eventhub
+    deactivate etlFunc
   end
 end
 

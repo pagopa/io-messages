@@ -23,16 +23,11 @@ const processMessageMetadata = (
 const messagesIngestionErrorQueueHandler =
   (ingestUseCase: IngestMessageUseCase): StorageQueueHandler =>
   async (queueItem: unknown) => {
-    //converting single object to an array to use the same ingestion logic
-    //it will always be an 1 item array
-    const queueItemArray = [...[], queueItem];
-    const parsedMessagesMetadata = queueItemArray.map(processMessageMetadata);
-    const messagesMetadata: MessageMetadata[] = parsedMessagesMetadata.filter(
-      (item): item is MessageMetadata => item !== undefined,
-    );
+    const parsedMetadata = processMessageMetadata(queueItem);
+    if (parsedMetadata === undefined) return;
 
     try {
-      await ingestUseCase.execute(messagesMetadata);
+      await ingestUseCase.execute([parsedMetadata]);
     } catch (err) {
       logger.error(`Error during the ingestion process`);
       throw err;

@@ -69,7 +69,7 @@ const main = async (config: Config) => {
   );
 
   const queueClient = new QueueClient(
-    `${config.errorQueueStorage.connectionString}${config.errorQueueStorage.queueName}`,
+    `${config.errorQueueStorage.connectionUri}${config.errorQueueStorage.queueName}`,
     azureCredentials,
   );
 

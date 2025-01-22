@@ -36,8 +36,8 @@ const messagesIngestionHandler =
       if (
         context.retryContext?.retryCount === context.retryContext?.maxRetryCount
       ) {
-        documents.forEach(
-          async (document) => await eventErrorRepository.push(document),
+        await Promise.all(
+          documents.map((document) => eventErrorRepository.push(document)),
         );
       }
       throw err;
