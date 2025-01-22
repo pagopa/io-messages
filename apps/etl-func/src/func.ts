@@ -97,6 +97,7 @@ const main = async (config: Config) => {
         await blobServiceCLient
           .getContainerClient(config.messageContentStorage.containerName)
           .getProperties();
+        await queueClient.getProperties();
       } catch (error) {
         logger.error(error);
         throw error;
@@ -135,7 +136,7 @@ const main = async (config: Config) => {
     startFromTime: "2023/01/01T00:00:00Z",
   });
 
-  app.storageQueue("storageQueueTrigger", {
+  app.storageQueue("IngestMessagesErrorQueue", {
     connection: "ACCOUNT_STORAGE",
     handler: messagesIngestionErrorQueueHandler(ingestMessageUseCase),
     queueName: config.errorQueueStorage.queueName,
