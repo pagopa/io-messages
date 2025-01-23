@@ -20,8 +20,12 @@ export class CosmosWeeklyEventCollector<T> implements EventCollector<T> {
     this.#container = container;
   }
 
-  private getCurrentPartitionKey(): string {
-    return new Date().getFullYear().toString();
+  private createSummary(events: T[]): EventsSummary {
+    return {
+      count: events.length,
+      id: this.getCurrentModelId(),
+      year: this.getCurrentPartitionKey(),
+    };
   }
 
   private getCurrentModelId(): string {
@@ -34,6 +38,10 @@ export class CosmosWeeklyEventCollector<T> implements EventCollector<T> {
       (daysSinceStartOfYear + startOfYear.getDay() + 1) / 7,
     );
     return `${today.getFullYear()}-W${weekNumber.toString().padStart(2, "0")}`;
+  }
+
+  private getCurrentPartitionKey(): string {
+    return new Date().getFullYear().toString();
   }
 
   private async getSummary(
@@ -51,14 +59,6 @@ export class CosmosWeeklyEventCollector<T> implements EventCollector<T> {
     summary: EventsSummary,
   ): Promise<ItemResponse<EventsSummary>> {
     return this.#container.items.create(summary);
-  }
-
-  private createSummary(events: T[]): EventsSummary {
-    return {
-      year: this.getCurrentPartitionKey(),
-      id: this.getCurrentModelId(),
-      count: events.length,
-    };
   }
 
   /**

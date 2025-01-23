@@ -1,3 +1,4 @@
+import { CosmosClient } from "@azure/cosmos";
 import { EventHubProducerClient } from "@azure/event-hubs";
 import { app } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
@@ -9,14 +10,13 @@ import { createClient } from "redis";
 import { messageSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
+import { CosmosWeeklyEventCollector } from "./adapters/cosmos/event-collector.js";
 import { EventHubEventProducer } from "./adapters/eventhub/event.js";
 import messagesIngestionHandler from "./adapters/functions/messages-ingestion.js";
 import { MessageAdapter } from "./adapters/message.js";
 import RedisRecipientRepository from "./adapters/redis/recipient.js";
 import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
 import { IngestMessageUseCase } from "./domain/use-cases/ingest-message.js";
-import { CosmosWeeklyEventCollector } from "./adapters/cosmos/event-collector.js";
-import { CosmosClient } from "@azure/cosmos";
 
 const main = async (config: Config) => {
   const logger = pino({
@@ -62,8 +62,8 @@ const main = async (config: Config) => {
   const messageAdapter = new MessageAdapter(blobMessageContentProvider, logger);
 
   const ingestionSummaryContainer = new CosmosClient({
-    endpoint: config.iocomCosmos.accountUri,
     aadCredentials: azureCredentials,
+    endpoint: config.iocomCosmos.accountUri,
   })
     .database(config.iocomCosmos.eventsCollectorDatabaseName)
     .container(config.iocomCosmos.messageIngestionSummaryContainerName);

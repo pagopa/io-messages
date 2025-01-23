@@ -1,3 +1,5 @@
+import { pino } from "pino";
+
 import { EventCollector, EventProducer } from "../event.js";
 import { Message, MessageMetadata, MessageRepository } from "../message.js";
 import {
@@ -5,7 +7,6 @@ import {
   transformMessageToMessageEvent,
 } from "../message-event.js";
 import { TokenizerClient } from "../tokenizer.js";
-import { pino } from "pino";
 
 const logger = pino({
   level: process.env.NODE_ENV === "production" ? "error" : "debug",

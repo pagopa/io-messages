@@ -5,23 +5,23 @@ import {
 } from "@/__mocks__/message.js";
 import { messageSchema } from "@/adapters/avro.js";
 import { MessageContentProvider } from "@/adapters/blob-storage/message-content.js";
+import { CosmosWeeklyEventCollector } from "@/adapters/cosmos/event-collector.js";
 import { EventHubEventProducer } from "@/adapters/eventhub/event.js";
 import { MessageAdapter } from "@/adapters/message.js";
 import PDVTokenizerClient from "@/adapters/tokenizer/pdv-tokenizer-client.js";
 import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
+import { Container } from "@azure/cosmos";
 import { InvocationContext } from "@azure/functions";
 import { pino } from "pino";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import messagesIngestion from "../messages-ingestion.js";
-import { Container } from "@azure/cosmos";
-import { CosmosWeeklyEventCollector } from "@/adapters/cosmos/event-collector.js";
 
 const patchMock = vi.fn();
 const readMock = vi.fn().mockReturnValue(
   Promise.resolve({
-    resource: { year: "2025", id: "2025-W01", count: 10 },
     item: { patch: patchMock },
+    resource: { count: 10, id: "2025-W01", year: "2025" },
   }),
 );
 const createMock = vi.fn();

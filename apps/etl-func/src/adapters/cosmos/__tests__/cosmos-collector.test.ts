@@ -1,5 +1,6 @@
 import { Container } from "@azure/cosmos";
-import { describe, test, vi, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+
 import { CosmosWeeklyEventCollector } from "../event-collector.js";
 
 const patchMock = vi.fn();
@@ -34,7 +35,7 @@ describe("CosmosWeeklyEventCollector.collect", () => {
 
   test("when the cosmos read return a resource undefined it should call the create", async () => {
     readMock.mockImplementationOnce(() =>
-      Promise.resolve({ resource: undefined, patch: patchMock }),
+      Promise.resolve({ patch: patchMock, resource: undefined }),
     );
 
     await cosmosCollectorMock.collect(eventsMock);
@@ -47,8 +48,8 @@ describe("CosmosWeeklyEventCollector.collect", () => {
   test("when the cosmos read return the summary it should call the patch", async () => {
     readMock.mockReturnValueOnce(
       Promise.resolve({
-        resource: { year: "2025", id: "2025-W01", count: 10 },
         item: { patch: patchMock },
+        resource: { count: 10, id: "2025-W01", year: "2025" },
       }),
     );
 
@@ -61,7 +62,7 @@ describe("CosmosWeeklyEventCollector.collect", () => {
 
   test("when the cosmos create fails it should throw an error", async () => {
     readMock.mockImplementationOnce(() =>
-      Promise.resolve({ resource: undefined, patch: patchMock }),
+      Promise.resolve({ patch: patchMock, resource: undefined }),
     );
     createMock.mockReturnValueOnce(
       Promise.reject(new Error("Error from cosmos create")),
@@ -77,7 +78,7 @@ describe("CosmosWeeklyEventCollector.collect", () => {
 
   test("when the cosmos create goes well it should not throw an error", async () => {
     readMock.mockImplementationOnce(() =>
-      Promise.resolve({ resource: undefined, patch: patchMock }),
+      Promise.resolve({ patch: patchMock, resource: undefined }),
     );
 
     await expect(cosmosCollectorMock.collect(eventsMock)).resolves.toEqual(
@@ -91,8 +92,8 @@ describe("CosmosWeeklyEventCollector.collect", () => {
   test("when the cosmos patch fails it should throw an error", async () => {
     readMock.mockReturnValueOnce(
       Promise.resolve({
-        resource: { year: "2025", id: "2025-W01", count: 10 },
         item: { patch: patchMock },
+        resource: { count: 10, id: "2025-W01", year: "2025" },
       }),
     );
     patchMock.mockReturnValueOnce(
@@ -110,8 +111,8 @@ describe("CosmosWeeklyEventCollector.collect", () => {
   test("when the cosmos patch goes well it should not throw an error", async () => {
     readMock.mockReturnValueOnce(
       Promise.resolve({
-        resource: { year: "2025", id: "2025-W01", count: 10 },
         item: { patch: patchMock },
+        resource: { count: 10, id: "2025-W01", year: "2025" },
       }),
     );
 
