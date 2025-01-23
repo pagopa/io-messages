@@ -1,23 +1,31 @@
-import { EventProducer } from "../event.js";
+import { EventCollector, EventProducer } from "../event.js";
 import { Message, MessageMetadata, MessageRepository } from "../message.js";
 import {
   MessageEvent,
   transformMessageToMessageEvent,
 } from "../message-event.js";
 import { TokenizerClient } from "../tokenizer.js";
+import { pino } from "pino";
+
+const logger = pino({
+  level: process.env.NODE_ENV === "production" ? "error" : "debug",
+});
 
 export class IngestMessageUseCase {
   #eventProducer: EventProducer<MessageEvent>;
+  #eventSummaryCollector: EventCollector<MessageEvent>;
   #messageRepo: MessageRepository;
   #tokenizer: TokenizerClient;
 
   constructor(
     messageAdapter: MessageRepository,
     tokenizer: TokenizerClient,
+    eventSummaryCollector: EventCollector<MessageEvent>,
     eventProducer: EventProducer<MessageEvent>,
   ) {
     this.#messageRepo = messageAdapter;
     this.#tokenizer = tokenizer;
+    this.#eventSummaryCollector = eventSummaryCollector;
     this.#eventProducer = eventProducer;
   }
 
@@ -38,5 +46,14 @@ export class IngestMessageUseCase {
       ),
     );
     if (messagesEvent.length) await this.#eventProducer.publish(messagesEvent);
+
+    try {
+      this.#eventSummaryCollector.collect(messagesEvent);
+    } catch (error) {
+      logger.error(
+        `Something went wrong trying to collect message ingestion event summary`,
+        error,
+      );
+    }
   }
 }

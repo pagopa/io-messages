@@ -16,6 +16,9 @@
     "COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
     "COSMOS_DBNAME": "io-messages",
     "COSMOS_MESSAGES_CONTAINER_NAME": "messages",
+    "IOCOM_COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
+    "IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME": "io-messages",
+    "IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME": "message-ingestion-summary",
     "COSMOS_MESSAGE_STATUS_CONTAINER_NAME": "message-status"
   }
 }

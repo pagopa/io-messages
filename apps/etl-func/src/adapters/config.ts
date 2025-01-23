@@ -12,6 +12,11 @@ export const configSchema = z.object({
     messageStatusContainerName: z.string().min(1),
     messagesContainerName: z.string().min(1),
   }),
+  iocomCosmos: z.object({
+    accountUri: z.string().url(),
+    eventsCollectorDatabaseName: z.string().min(1),
+    messageIngestionSummaryContainerName: z.string().min(1),
+  }),
   messageContentStorage: z.object({
     accountUri: z.string().url(),
     containerName: z.string().min(1),
@@ -32,6 +37,12 @@ export const configFromEnvironment = envSchema
         databaseName: env.COSMOS_DBNAME,
         messageStatusContainerName: env.COSMOS_MESSAGE_STATUS_CONTAINER_NAME,
         messagesContainerName: env.COSMOS_MESSAGES_CONTAINER_NAME,
+      },
+      iocomCosmos: {
+        accountUri: env.IOCOM_COSMOS__accountEndpoint,
+        eventsCollectorDatabaseName: env.IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME,
+        messageIngestionSummaryContainerName:
+          env.IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME,
       },
       messageContentStorage: {
         accountUri: env.MESSAGE_CONTENT_STORAGE_URI,

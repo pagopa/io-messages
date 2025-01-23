@@ -15,6 +15,8 @@ import { MessageAdapter } from "./adapters/message.js";
 import RedisRecipientRepository from "./adapters/redis/recipient.js";
 import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
 import { IngestMessageUseCase } from "./domain/use-cases/ingest-message.js";
+import { CosmosWeeklyEventCollector } from "./adapters/cosmos/event-collector.js";
+import { CosmosClient } from "@azure/cosmos";
 
 const main = async (config: Config) => {
   const logger = pino({
@@ -59,9 +61,17 @@ const main = async (config: Config) => {
   );
   const messageAdapter = new MessageAdapter(blobMessageContentProvider, logger);
 
+  const ingestionSummaryContainer = new CosmosClient({
+    endpoint: config.iocomCosmos.accountUri,
+    aadCredentials: azureCredentials,
+  })
+    .database(config.iocomCosmos.eventsCollectorDatabaseName)
+    .container(config.iocomCosmos.messageIngestionSummaryContainerName);
+
   const ingestMessageUseCase = new IngestMessageUseCase(
     messageAdapter,
     tokenizerClient,
+    new CosmosWeeklyEventCollector(ingestionSummaryContainer),
     messageEventProducer,
   );
 
