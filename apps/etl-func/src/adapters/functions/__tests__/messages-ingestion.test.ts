@@ -14,6 +14,28 @@ import { pino } from "pino";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import messagesIngestion from "../messages-ingestion.js";
+import { Container } from "@azure/cosmos";
+import { CosmosWeeklyEventCollector } from "@/adapters/cosmos/event-collector.js";
+
+const patchMock = vi.fn();
+const readMock = vi.fn().mockReturnValue(
+  Promise.resolve({
+    resource: { year: "2025", id: "2025-W01", count: 10 },
+    item: { patch: patchMock },
+  }),
+);
+const createMock = vi.fn();
+
+const containerMock = {
+  item: () => ({
+    read: readMock,
+  }),
+  items: {
+    create: createMock,
+  },
+} as unknown as Container;
+
+const cosmosCollectorMock = new CosmosWeeklyEventCollector(containerMock);
 
 const logger = pino();
 const mocks = vi.hoisted(() => ({
@@ -59,6 +81,7 @@ const publishSpy = vi.spyOn(producer, "publish").mockResolvedValue();
 const ingestMessageUseCase = new IngestMessageUseCase(
   messageAdapter,
   PDVTokenizer,
+  cosmosCollectorMock,
   producer,
 );
 
