@@ -53,6 +53,7 @@ module "web_apps" {
   messages_content_container = data.azurerm_storage_container.messages_content_container
   messages_storage_account   = data.azurerm_storage_account.storage_api
   cosmosdb_account_api       = data.azurerm_cosmosdb_account.cosmos_api
+  cosmosdb_account_rc        = data.azurerm_cosmosdb_account.cosmos_rc
 
   tenant_id = data.azurerm_client_config.current.tenant_id
 
