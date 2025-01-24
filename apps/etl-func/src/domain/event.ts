@@ -9,7 +9,7 @@ export interface EventCollector<T> {
 }
 
 export const eventsSummarySchema = z.object({
-  count: z.number().min(0),
+  count: z.number().min(1),
   id: z.string().regex(new RegExp("^\\d{4}-W\\d{2}$")),
   year: z.string().regex(new RegExp("^(\\d{4})$")),
 });
