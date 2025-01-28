@@ -20,16 +20,17 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@azure/data-tables": "^13.3.0",
     "@azure/event-hubs": "^5.12.2",
     "@azure/functions": "^4.4.0",
     "@azure/identity": "^4.5.0",
     "@azure/storage-blob": "^12.26.0",
-    "@azure/storage-queue": "^12.4.0",
     "applicationinsights": "^3.3.0",
     "avsc": "^5.7.7",
     "io-messages-common": "workspace:^",
     "pino": "^9.6.0",
     "redis": "^4.7.0",
+    "uuid": "^11.0.5",
     "zod": "^3.24.1"
   },
   "devDependencies": {

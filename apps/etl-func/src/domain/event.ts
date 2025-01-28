@@ -3,5 +3,5 @@ export interface EventProducer<T> {
 }
 
 export interface EventErrorRepository<T> {
-  push: (event: T) => Promise<void>;
+  push: (event: T, reason?: string) => Promise<void>;
 }

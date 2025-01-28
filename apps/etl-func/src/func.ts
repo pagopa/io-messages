@@ -1,8 +1,8 @@
+import { AzureNamedKeyCredential, TableClient } from "@azure/data-tables";
 import { EventHubProducerClient } from "@azure/event-hubs";
 import { app } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
-import { QueueClient } from "@azure/storage-queue";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
 import { createClient } from "redis";
@@ -11,11 +11,10 @@ import { messageSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
 import { EventHubEventProducer } from "./adapters/eventhub/event.js";
-import messagesIngestionErrorQueueHandler from "./adapters/functions/message-ingestion-error-queue.js";
 import messagesIngestionHandler from "./adapters/functions/messages-ingestion.js";
 import { MessageAdapter } from "./adapters/message.js";
-import { EventErrorQueueStorage } from "./adapters/queue-storage/event-error-queue-storage.js";
 import RedisRecipientRepository from "./adapters/redis/recipient.js";
+import { EventErrorTableStorage } from "./adapters/table-storage/event-error-table-storage.js";
 import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
 import { IngestMessageUseCase } from "./domain/use-cases/ingest-message.js";
 
@@ -68,12 +67,13 @@ const main = async (config: Config) => {
     messageEventProducer,
   );
 
-  const queueClient = new QueueClient(
-    `${config.errorQueueStorage.connectionUri}${config.errorQueueStorage.queueName}`,
+  const tableClient = new TableClient(
+    `${config.errorTableStorage.connectionUri}${config.errorTableStorage.tableName}`,
+    config.errorTableStorage.tableName,
     azureCredentials,
   );
 
-  const eventErrorRepository = new EventErrorQueueStorage(queueClient);
+  const eventErrorRepository = new EventErrorTableStorage(tableClient);
 
   // const messageStatusProducerClient = new EventHubProducerClient(
   //   config.messageStatusEventHub.connectionUri,
@@ -97,7 +97,6 @@ const main = async (config: Config) => {
         await blobServiceCLient
           .getContainerClient(config.messageContentStorage.containerName)
           .getProperties();
-        await queueClient.getProperties();
       } catch (error) {
         logger.error(error);
         throw error;
@@ -134,12 +133,6 @@ const main = async (config: Config) => {
     },
     //we need to start the ingestion from this date
     startFromTime: "2023/01/01T00:00:00Z",
-  });
-
-  app.storageQueue("IngestMessagesErrorQueue", {
-    connection: "ACCOUNT_STORAGE",
-    handler: messagesIngestionErrorQueueHandler(ingestMessageUseCase),
-    queueName: config.errorQueueStorage.queueName,
   });
 
   // NOTE: we don't want to start the ingestion yet

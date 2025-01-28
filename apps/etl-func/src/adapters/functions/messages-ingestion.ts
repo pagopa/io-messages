@@ -31,6 +31,7 @@ const messagesIngestionHandler =
     );
 
     try {
+      throw new Error("new error");
       await ingestUseCase.execute(messagesMetadata);
     } catch (err) {
       if (
