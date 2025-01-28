@@ -16,7 +16,7 @@ loop Process Mesagges Metadata
   alt The function throw an error
     note left of etlFunc
      The error can be throw while processing
-     while processing a batch or a single message metadata
+     a batch or a single message metadata
     end note
     etlFunc -> ErrorQueueStorage: send message metadata
     note left of etlFunc
