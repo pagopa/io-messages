@@ -16,5 +16,5 @@ export const envSchema = z.object({
   REDIS_PASSWORD: z.string().min(1),
   REDIS_PING_INTERVAL: z.coerce.number(),
   REDIS_URL: z.string().url(),
-  TABLE_STORAGE_MESSAGES_ERROR_NAME: z.string().min(1),
+  MESSAGE_ERROR_TABLE_STORAGE_NAME: z.string().min(1),
 });

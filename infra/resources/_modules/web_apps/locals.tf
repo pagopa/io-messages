@@ -19,7 +19,9 @@ locals {
       COSMOS__accountEndpoint              = var.cosmosdb_account_api.endpoint
       COSMOS_DBNAME                        = "db",
       COSMOS_MESSAGES_CONTAINER_NAME       = "messages-dataplan-ingestion-test"
-      COSMOS_MESSAGE_STATUS_CONTAINER_NAME = "message-status"
+      COSMOS_MESSAGE_STATUS_CONTAINER_NAME = "message-status",
+      MESSAGE_ERROR_TABLE_STORAGE_NAME     = "MessagesDataplanIngestionErrors",
+      ACCOUNT_STORAGE__tableServiceUri     = var.app_settings.message_error_table_starage_uri
     }
   }
 }

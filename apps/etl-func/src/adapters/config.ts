@@ -39,7 +39,7 @@ export const configFromEnvironment = envSchema
       },
       errorTableStorage: {
         connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
-        tableName: env.TABLE_STORAGE_MESSAGES_ERROR_NAME,
+        tableName: env.MESSAGE_ERROR_TABLE_STORAGE_NAME,
       },
       messageContentStorage: {
         accountUri: env.MESSAGE_CONTENT_STORAGE_URI,

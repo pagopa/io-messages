@@ -17,7 +17,7 @@
     "COSMOS_DBNAME": "io-messages",
     "COSMOS_MESSAGES_CONTAINER_NAME": "messages",
     "COSMOS_MESSAGE_STATUS_CONTAINER_NAME": "message-status"
-    "TABLE_STORAGE_MESSAGES_ERROR_NAME": "messages-dataplan-ingestion-errors",
+    "MESSAGE_ERROR_TABLE_STORAGE_NAME": "messages-dataplan-ingestion-errors",
     "ACCOUNT_STORAGE__tableServiceUri": "https://testgiovannist.table.core.windows.net/"
   }
 }
