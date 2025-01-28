@@ -1,4 +1,4 @@
-import { AzureNamedKeyCredential, TableClient } from "@azure/data-tables";
+import { TableClient } from "@azure/data-tables";
 import { EventHubProducerClient } from "@azure/event-hubs";
 import { app } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";

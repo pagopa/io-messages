@@ -35,14 +35,19 @@ const messagesIngestionHandler =
         context.retryContext?.retryCount === context.retryContext?.maxRetryCount
       ) {
         await Promise.all(
-          documents.map((document) => eventErrorRepository.push(document, "Error during ingestion")),
+          documents.map((document) =>
+            eventErrorRepository.push(document, "Error during ingestion"),
+          ),
         );
       }
       throw err;
     }
     if (success && invalidDocuments.length > 0) {
       invalidDocuments.forEach((invalidDocument) =>
-        eventErrorRepository.push(invalidDocument, "Error parsing document as a MessageMetadata"),
+        eventErrorRepository.push(
+          invalidDocument,
+          "Error parsing document as a MessageMetadata",
+        ),
       );
     }
   };
