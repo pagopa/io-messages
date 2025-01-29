@@ -22,52 +22,50 @@ module "io_com_cosmos_account" {
   resource_group_name = var.resource_group
 }
 
-module "cosmosdb_sql_database_data_lake" {
-  source              = "github.com/pagopa/terraform-azurerm-v3//cosmosdb_sql_database?ref=v8.77.0"
+resource "azurerm_cosmosdb_sql_database" "data_lake" {
   name                = "data-lake"
   resource_group_name = var.resource_group
   account_name        = module.io_com_cosmos_account.name
 }
 
-module "cosmosdb_sql_database_remote_content" {
-  source              = "github.com/pagopa/terraform-azurerm-v3//cosmosdb_sql_database?ref=v8.77.0"
+resource "azurerm_cosmosdb_sql_database" "remote_content" {
   name                = "remote-content"
   resource_group_name = var.resource_group
   account_name        = module.io_com_cosmos_account.name
 }
 
-module "cosmosdb_sql_container_messages_summary" {
-  source              = "git::https://github.com/pagopa/terraform-azurerm-v3.git//cosmosdb_sql_container?ref=v8.77.0"
+resource "azurerm_cosmosdb_sql_container" "messages_summary" {
   name                = "messages-summary"
-  account_name        = module.io_com_cosmos_account.name
-  database_name       = module.cosmosdb_sql_database_data_lake.name
-  partition_key_path  = "/year"
   resource_group_name = var.resource_group
+
+  account_name        = module.io_com_cosmos_account.name
+  database_name       = azurerm_cosmosdb_sql_database.data_lake.name
+  partition_key_paths = ["/year"]
 }
 
-module "cosmosdb_sql_container_message_configuration" {
-  source              = "git::https://github.com/pagopa/terraform-azurerm-v3.git//cosmosdb_sql_container?ref=v8.77.0"
+resource "azurerm_cosmosdb_sql_container" "message_configuration" {
   name                = "message-configuration"
-  account_name        = module.io_com_cosmos_account.name
-  database_name       = module.cosmosdb_sql_database_remote_content.name
-  partition_key_path  = "/configurationId"
   resource_group_name = var.resource_group
+
+  account_name        = module.io_com_cosmos_account.name
+  database_name       = azurerm_cosmosdb_sql_database.remote_content.name
+  partition_key_paths = ["/configurationId"]
 }
 
-module "cosmosdb_sql_container_user_configuration" {
-  source              = "git::https://github.com/pagopa/terraform-azurerm-v3.git//cosmosdb_sql_container?ref=v8.77.0"
+resource "azurerm_cosmosdb_sql_container" "user_configuration" {
   name                = "user-configuration"
-  account_name        = module.io_com_cosmos_account.name
-  database_name       = module.cosmosdb_sql_database_remote_content.name
-  partition_key_path  = "/userId"
   resource_group_name = var.resource_group
+
+  account_name        = module.io_com_cosmos_account.name
+  database_name       = azurerm_cosmosdb_sql_database.remote_content.name
+  partition_key_paths = ["/userId"]
 }
 
-module "cosmosdb_sql_container_remote_content_lease" {
-  source              = "git::https://github.com/pagopa/terraform-azurerm-v3.git//cosmosdb_sql_container?ref=v8.77.0"
+resource "azurerm_cosmosdb_sql_container" "remote_content_lease" {
   name                = "remote-content-lease"
-  account_name        = module.io_com_cosmos_account.name
-  database_name       = module.cosmosdb_sql_database_remote_content.name
-  partition_key_path  = "/id"
   resource_group_name = var.resource_group
+
+  account_name        = module.io_com_cosmos_account.name
+  database_name       = azurerm_cosmosdb_sql_database.remote_content.name
+  partition_key_paths = ["/id"]
 }
