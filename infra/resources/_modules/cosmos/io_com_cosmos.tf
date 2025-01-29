@@ -41,6 +41,7 @@ module "cosmosdb_sql_container_messages_summary" {
   name                = "messages-summary"
   account_name        = module.io_com_cosmos_account.name
   database_name       = module.cosmosdb_sql_database_data_lake.name
+  partition_key_path  = "/year"
   resource_group_name = var.resource_group
 }
 
@@ -49,6 +50,7 @@ module "cosmosdb_sql_container_message_configuration" {
   name                = "message-configuration"
   account_name        = module.io_com_cosmos_account.name
   database_name       = module.cosmosdb_sql_database_remote_content.name
+  partition_key_path  = "/configurationId"
   resource_group_name = var.resource_group
 }
 
@@ -57,6 +59,7 @@ module "cosmosdb_sql_container_user_configuration" {
   name                = "user-configuration"
   account_name        = module.io_com_cosmos_account.name
   database_name       = module.cosmosdb_sql_database_remote_content.name
+  partition_key_path  = "/userId"
   resource_group_name = var.resource_group
 }
 
@@ -65,5 +68,6 @@ module "cosmosdb_sql_container_remote_content_lease" {
   name                = "remote-content-lease"
   account_name        = module.io_com_cosmos_account.name
   database_name       = module.cosmosdb_sql_database_remote_content.name
+  partition_key_path  = "/id"
   resource_group_name = var.resource_group
 }
