@@ -67,13 +67,15 @@ const main = async (config: Config) => {
     messageEventProducer,
   );
 
-  const tableClient = new TableClient(
-    `${config.errorTableStorage.connectionUri}${config.errorTableStorage.tableName}`,
-    config.errorTableStorage.tableName,
+  const messageIngestionErrorTableClient = new TableClient(
+    `${config.messageIngestionErrorTable.connectionUri}${config.messageIngestionErrorTable.tableName}`,
+    config.messageIngestionErrorTable.tableName,
     azureCredentials,
   );
 
-  const eventErrorRepository = new EventErrorTableStorage(tableClient);
+  const messageIngestionErrorRepository = new EventErrorTableStorage(
+    messageIngestionErrorTableClient,
+  );
 
   // const messageStatusProducerClient = new EventHubProducerClient(
   //   config.messageStatusEventHub.connectionUri,
@@ -117,7 +119,7 @@ const main = async (config: Config) => {
     databaseName: config.cosmos.databaseName,
     handler: messagesIngestionHandler(
       ingestMessageUseCase,
-      eventErrorRepository,
+      messageIngestionErrorRepository,
     ),
     leaseContainerName: `messages-dataplan-ingestion-test-lease`,
     maxItemsPerInvocation: 50,

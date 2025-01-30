@@ -12,13 +12,13 @@ export const configSchema = z.object({
     messageStatusContainerName: z.string().min(1),
     messagesContainerName: z.string().min(1),
   }),
-  errorTableStorage: z.object({
-    connectionUri: z.string().url(),
-    tableName: z.string().min(1),
-  }),
   messageContentStorage: z.object({
     accountUri: z.string().url(),
     containerName: z.string().min(1),
+  }),
+  messageIngestionErrorTable: z.object({
+    connectionUri: z.string().url(),
+    tableName: z.string().min(1),
   }),
   messageStatusEventHub: eventhubConfigSchema,
   messagesEventHub: eventhubConfigSchema,
@@ -37,13 +37,13 @@ export const configFromEnvironment = envSchema
         messageStatusContainerName: env.COSMOS_MESSAGE_STATUS_CONTAINER_NAME,
         messagesContainerName: env.COSMOS_MESSAGES_CONTAINER_NAME,
       },
-      errorTableStorage: {
-        connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
-        tableName: env.MESSAGE_ERROR_TABLE_STORAGE_NAME,
-      },
       messageContentStorage: {
         accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
         containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
+      },
+      messageIngestionErrorTable: {
+        connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
+        tableName: env.MESSAGE_ERROR_TABLE_STORAGE_NAME,
       },
       messageStatusEventHub: {
         connectionUri: env.EVENTHUB_CONNECTION_URI,
