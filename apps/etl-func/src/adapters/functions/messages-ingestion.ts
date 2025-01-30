@@ -7,6 +7,7 @@ import {
   MessageMetadata,
   messageMetadataSchema,
 } from "../../domain/message.js";
+import { MessageErrorTypesEnum } from "../table-storage/event-error-table-storage.js";
 
 const messagesIngestionHandler =
   (
@@ -42,7 +43,10 @@ const messagesIngestionHandler =
       ) {
         await Promise.all(
           documents.map((document) =>
-            eventErrorRepository.push(document, "Error during ingestion"),
+            eventErrorRepository.push(
+              document,
+              MessageErrorTypesEnum.enum.INGESTION_PROCESS_ERROR,
+            ),
           ),
         );
       }
@@ -52,7 +56,7 @@ const messagesIngestionHandler =
       malformedDocuments.forEach((malformedDocument) =>
         eventErrorRepository.push(
           malformedDocument,
-          "Error parsing document as a MessageMetadata",
+          MessageErrorTypesEnum.enum.MALFORMED_MESSAGE,
         ),
       );
     }
