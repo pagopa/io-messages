@@ -32,10 +32,8 @@ const messagesIngestionHandler =
       (input): input is ZodError => input instanceof ZodError,
     );
 
-    let success = false;
     try {
       await ingestUseCase.execute(nonPendingMessageMetadata);
-      success = true;
     } catch (err) {
       if (
         context.retryContext?.retryCount === context.retryContext?.maxRetryCount
@@ -51,11 +49,13 @@ const messagesIngestionHandler =
       }
       throw err;
     }
-    if (success && malformedDocuments.length > 0) {
-      malformedDocuments.forEach((malformedDocument) =>
-        eventErrorRepository.push(
-          malformedDocument,
-          EventErrorTypesEnum.enum.MALFORMED_EVENT,
+    if (malformedDocuments.length > 0) {
+      await Promise.all(
+        malformedDocuments.map((malformedDocument) =>
+          eventErrorRepository.push(
+            malformedDocument,
+            EventErrorTypesEnum.enum.MALFORMED_EVENT,
+          ),
         ),
       );
     }
