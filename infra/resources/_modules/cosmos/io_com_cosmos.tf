@@ -14,6 +14,14 @@ module "io_com_cosmos_account" {
 
   environment = var.environment
 
+  secondary_geo_locations = [
+    {
+      location          = "spaincentral"
+      failover_priority = 1
+      zone_redundant    = false
+    }
+  ]
+
   tags = var.tags
 
   consistency_policy = {
