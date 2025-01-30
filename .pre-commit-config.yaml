@@ -4,8 +4,7 @@ repos:
     hooks:
       - id: lock_modules
         exclude: ^.*/(_modules|modules|\.terraform)(/.*)?$
-        # Configure the paths to your Terraform configurations
-        files: infra/(_modules|prod|src)
+        files: infra/(resources/_modules|resources/prod)
 
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.86.0
