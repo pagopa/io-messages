@@ -29,5 +29,10 @@ variable "environment" {
     location        = string
     app_name        = string
     instance_number = string
+    secondary_geo_locations = list(object({
+      location          = string
+      failover_priority = number
+      zone_redundant    = bool
+    }))
   })
 }

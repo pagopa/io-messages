@@ -228,9 +228,16 @@ module "cosmos" {
   action_group_id  = module.monitoring.action_group.io_com_error_id
   subnet_pep_id    = data.azurerm_subnet.pep.id
   environment = {
-    prefix          = local.prefix
-    env_short       = local.env_short
-    location        = local.location
+    prefix    = local.prefix
+    env_short = local.env_short
+    location  = local.location
+    secondary_geo_locations = [
+      {
+        location          = "spaincentral"
+        failover_priority = 1
+        zone_redundant    = false
+      }
+    ]
     app_name        = "com"
     instance_number = "01"
   }
