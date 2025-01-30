@@ -11,13 +11,6 @@ const messageErrorTableEntitySchema = z.object({
   timestamp: z.string().min(1),
 });
 
-export const MessageErrorTypesEnum = z.enum([
-  "MALFORMED_MESSAGE",
-  "INGESTION_PROCESS_ERROR",
-]);
-
-export type MessageErrorTypes = z.infer<typeof MessageErrorTypesEnum>;
-
 type messageErrorTableEntityType = z.TypeOf<
   typeof messageErrorTableEntitySchema
 >;

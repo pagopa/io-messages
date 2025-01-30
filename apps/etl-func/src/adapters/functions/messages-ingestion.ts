@@ -1,4 +1,4 @@
-import { EventErrorRepository } from "@/domain/event.js";
+import { EventErrorRepository, EventErrorTypesEnum } from "@/domain/event.js";
 import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
 import { CosmosDBHandler, InvocationContext } from "@azure/functions";
 import { ZodError } from "zod";
@@ -7,7 +7,6 @@ import {
   MessageMetadata,
   messageMetadataSchema,
 } from "../../domain/message.js";
-import { MessageErrorTypesEnum } from "../table-storage/event-error-table-storage.js";
 
 const messagesIngestionHandler =
   (
@@ -45,7 +44,7 @@ const messagesIngestionHandler =
           documents.map((document) =>
             eventErrorRepository.push(
               document,
-              MessageErrorTypesEnum.enum.INGESTION_PROCESS_ERROR,
+              EventErrorTypesEnum.enum.INGESTION_PROCESS_ERROR,
             ),
           ),
         );
@@ -56,7 +55,7 @@ const messagesIngestionHandler =
       malformedDocuments.forEach((malformedDocument) =>
         eventErrorRepository.push(
           malformedDocument,
-          MessageErrorTypesEnum.enum.MALFORMED_MESSAGE,
+          EventErrorTypesEnum.enum.MALFORMED_EVENT,
         ),
       );
     }
