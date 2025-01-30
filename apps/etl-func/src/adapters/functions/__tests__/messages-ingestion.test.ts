@@ -7,6 +7,7 @@ import { messageSchema } from "@/adapters/avro.js";
 import { MessageContentProvider } from "@/adapters/blob-storage/message-content.js";
 import { EventHubEventProducer } from "@/adapters/eventhub/event.js";
 import { MessageAdapter } from "@/adapters/message.js";
+import { EventErrorTableStorage } from "@/adapters/table-storage/event-error-table-storage.js";
 import PDVTokenizerClient from "@/adapters/tokenizer/pdv-tokenizer-client.js";
 import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
 import { InvocationContext } from "@azure/functions";
@@ -17,25 +18,34 @@ import messagesIngestion from "../messages-ingestion.js";
 
 const logger = pino();
 const mocks = vi.hoisted(() => ({
-  EventErrorRepository: vi.fn().mockImplementation(() => ({
-    push: vi.fn(),
-  })),
   EventHubProducerClient: vi.fn().mockImplementation(() => ({
     createBatch: () => ({
       tryAdd: tryAddMock,
     }),
     sendBatch: sendBatchMock,
   })),
+  TableClient: vi.fn().mockImplementation(() => ({
+    createEntity: createEntity,
+  })),
 }));
 
 const tryAddMock = vi.fn(() => true);
 const sendBatchMock = vi.fn(() => Promise.resolve());
+const createEntity = vi.fn(() => Promise.resolve());
 
 vi.mock("@azure/event-hubs", async (importOriginal) => {
-  const original = await importOriginal<typeof import("@azure/storage-blob")>();
+  const original = await importOriginal<typeof import("@azure/event-hubs")>();
   return {
     ...original,
     EventHubProducerClient: mocks.EventHubProducerClient,
+  };
+});
+
+vi.mock("@azure/data-tables", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@azure/data-tables")>();
+  return {
+    ...original,
+    TableClient: mocks.TableClient,
   };
 });
 
@@ -57,10 +67,15 @@ const producer = new EventHubEventProducer(
   eventHubProducerClient,
   messageSchema,
 );
-
-const eventErrorRepository = new mocks.EventErrorRepository();
-
 const publishSpy = vi.spyOn(producer, "publish").mockResolvedValue();
+
+const messageIngestionErrorTableClientMock = new mocks.TableClient();
+const messageIngestionErrorRepositoryMock = new EventErrorTableStorage(
+  messageIngestionErrorTableClientMock,
+);
+const eventErrorRepoPushSpy = vi
+  .spyOn(messageIngestionErrorRepositoryMock, "push")
+  .mockResolvedValue();
 
 const ingestMessageUseCase = new IngestMessageUseCase(
   messageAdapter,
@@ -69,13 +84,17 @@ const ingestMessageUseCase = new IngestMessageUseCase(
 );
 
 const context = new InvocationContext();
-const handler = messagesIngestion(ingestMessageUseCase, eventErrorRepository);
+const handler = messagesIngestion(
+  ingestMessageUseCase,
+  messageIngestionErrorRepositoryMock,
+);
 
 describe("messagesIngestion handler", () => {
   afterEach(() => {
     getMessageByMetadataSpy.mockClear();
     tokenizeSpy.mockClear();
     publishSpy.mockClear();
+    eventErrorRepoPushSpy.mockClear();
   });
   test("shoud resolve if nothing throws", async () => {
     const documentsMock = [aSimpleMessageMetadata];
@@ -83,6 +102,7 @@ describe("messagesIngestion handler", () => {
     expect(getMessageByMetadataSpy).toHaveBeenCalledOnce();
     expect(tokenizeSpy).toHaveBeenCalledOnce();
     expect(publishSpy).toHaveBeenCalledOnce();
+    expect(eventErrorRepoPushSpy).not.toHaveBeenCalled();
   });
 
   test("shoud call multiple times the business logic function if documents are more than one", async () => {
@@ -91,6 +111,7 @@ describe("messagesIngestion handler", () => {
     expect(getMessageByMetadataSpy).toHaveBeenCalledTimes(2);
     expect(tokenizeSpy).toHaveBeenCalledTimes(2);
     expect(publishSpy).toHaveBeenCalledOnce();
+    expect(eventErrorRepoPushSpy).not.toHaveBeenCalled();
   });
 
   test("shoud resolve if the documents array has malformed objects", async () => {
@@ -99,6 +120,7 @@ describe("messagesIngestion handler", () => {
     expect(getMessageByMetadataSpy).toHaveBeenCalledOnce();
     expect(tokenizeSpy).toHaveBeenCalledOnce();
     expect(publishSpy).toHaveBeenCalledOnce();
+    expect(eventErrorRepoPushSpy).toHaveBeenCalledOnce();
   });
 
   test("should not call any function if the documents array is empty", async () => {
@@ -107,6 +129,7 @@ describe("messagesIngestion handler", () => {
     expect(getMessageByMetadataSpy).not.toHaveBeenCalledOnce();
     expect(tokenizeSpy).not.toHaveBeenCalledOnce();
     expect(publishSpy).not.toHaveBeenCalledOnce();
+    expect(eventErrorRepoPushSpy).not.toHaveBeenCalled();
   });
 
   test("should throw an error if tokenize throws an error", async () => {
@@ -116,6 +139,7 @@ describe("messagesIngestion handler", () => {
     expect(getMessageByMetadataSpy).toHaveBeenCalledOnce();
     expect(tokenizeSpy).toHaveBeenCalledOnce();
     expect(publishSpy).not.toHaveBeenCalledOnce();
+    expect(eventErrorRepoPushSpy).toHaveBeenCalledOnce();
   });
 
   test("should resolve calling tokenize and getMessageByMetadata onfly for documents with isPending = false", async () => {
@@ -127,5 +151,6 @@ describe("messagesIngestion handler", () => {
     expect(getMessageByMetadataSpy).toHaveBeenCalledOnce();
     expect(tokenizeSpy).toHaveBeenCalledOnce();
     expect(publishSpy).toHaveBeenCalledOnce();
+    expect(eventErrorRepoPushSpy).not.toHaveBeenCalled();
   });
 });
