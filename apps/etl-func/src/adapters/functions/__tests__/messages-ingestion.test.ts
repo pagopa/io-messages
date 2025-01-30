@@ -95,6 +95,7 @@ describe("messagesIngestion handler", () => {
     tokenizeSpy.mockClear();
     publishSpy.mockClear();
     eventErrorRepoPushSpy.mockClear();
+    context.retryContext = { retryCount: 1, maxRetryCount: 1 };
   });
   test("shoud resolve if nothing throws", async () => {
     const documentsMock = [aSimpleMessageMetadata];
@@ -140,6 +141,17 @@ describe("messagesIngestion handler", () => {
     expect(tokenizeSpy).toHaveBeenCalledOnce();
     expect(publishSpy).not.toHaveBeenCalledOnce();
     expect(eventErrorRepoPushSpy).toHaveBeenCalledOnce();
+  });
+
+  test("should not call eventErrorRepository if retry context are less than maxRetry context", async () => {
+    const documentsMock = [aSimpleMessageMetadata];
+    tokenizeSpy.mockRejectedValueOnce(false);
+    context.retryContext = { retryCount: 1, maxRetryCount: 5 };
+    await expect(handler(documentsMock, context)).rejects.toEqual(false);
+    expect(getMessageByMetadataSpy).toHaveBeenCalledOnce();
+    expect(tokenizeSpy).toHaveBeenCalledOnce();
+    expect(publishSpy).not.toHaveBeenCalledOnce();
+    expect(eventErrorRepoPushSpy).not.toHaveBeenCalledOnce();
   });
 
   test("should resolve calling tokenize and getMessageByMetadata onfly for documents with isPending = false", async () => {
