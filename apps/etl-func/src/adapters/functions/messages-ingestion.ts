@@ -1,6 +1,7 @@
 import { EventErrorRepository } from "@/domain/event.js";
 import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
 import { CosmosDBHandler, InvocationContext } from "@azure/functions";
+import { ZodError } from "zod";
 
 import {
   MessageMetadata,
@@ -13,22 +14,27 @@ const messagesIngestionHandler =
     eventErrorRepository: EventErrorRepository<unknown>,
   ): CosmosDBHandler =>
   async (documents: unknown[], context: InvocationContext) => {
-    const parsedMessagesMetadata: MessageMetadata[] = [];
-    const invalidDocuments: unknown[] = [];
-
-    documents.forEach((document) => {
-      const result = messageMetadataSchema.safeParse(document);
-      if (!result.success) {
-        invalidDocuments.push(document);
-        return;
-      }
-      if (!result.data.isPending) {
-        parsedMessagesMetadata.push(result.data);
-      }
+    const parsedMessagesMetadataOrZodError = documents.map((input) => {
+      const parsedInput = messageMetadataSchema.safeParse(input);
+      if (parsedInput.success) return parsedInput.data;
+      else return parsedInput.error;
     });
+
+    // filter the array in order to get only valid MessageMetadata with
+    // isPending = false
+    const nonPendingMessageMetadata = parsedMessagesMetadataOrZodError.filter(
+      (document): document is MessageMetadata =>
+        !(document instanceof ZodError) && !document.isPending,
+    );
+
+    // get all malformed documents so we can send them to the error repository
+    const malformedDocuments = parsedMessagesMetadataOrZodError.filter(
+      (input): input is ZodError => input instanceof ZodError,
+    );
+
     let success = false;
     try {
-      await ingestUseCase.execute(parsedMessagesMetadata);
+      await ingestUseCase.execute(nonPendingMessageMetadata);
       success = true;
     } catch (err) {
       if (
@@ -42,10 +48,10 @@ const messagesIngestionHandler =
       }
       throw err;
     }
-    if (success && invalidDocuments.length > 0) {
-      invalidDocuments.forEach((invalidDocument) =>
+    if (success && malformedDocuments.length > 0) {
+      malformedDocuments.forEach((malformedDocument) =>
         eventErrorRepository.push(
-          invalidDocument,
+          malformedDocument,
           "Error parsing document as a MessageMetadata",
         ),
       );
