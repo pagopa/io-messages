@@ -32,13 +32,13 @@ module "io_com_cosmos_account" {
 }
 
 resource "azurerm_cosmosdb_sql_database" "data_lake" {
-  name                = "data-lake"
+  name                = "data-lake-cosmos-01"
   resource_group_name = var.resource_group
   account_name        = module.io_com_cosmos_account.name
 }
 
 resource "azurerm_cosmosdb_sql_database" "remote_content" {
-  name                = "remote-content"
+  name                = "remote-content-cosmos-01"
   resource_group_name = var.resource_group
   account_name        = module.io_com_cosmos_account.name
 }
