@@ -1,5 +1,3 @@
-import { pino } from "pino";
-
 import { EventCollector, EventProducer } from "../event.js";
 import { Message, MessageMetadata, MessageRepository } from "../message.js";
 import {
@@ -7,10 +5,6 @@ import {
   transformMessageToMessageEvent,
 } from "../message-event.js";
 import { TokenizerClient } from "../tokenizer.js";
-
-const logger = pino({
-  level: process.env.NODE_ENV === "production" ? "error" : "debug",
-});
 
 export class IngestMessageUseCase {
   #eventProducer: EventProducer<MessageEvent>;
@@ -51,10 +45,7 @@ export class IngestMessageUseCase {
     try {
       this.#eventSummaryCollector.collect(messagesEvent);
     } catch (error) {
-      logger.error(
-        `Something went wrong trying to collect message ingestion event summary`,
-        error,
-      );
+      return;
     }
   }
 }

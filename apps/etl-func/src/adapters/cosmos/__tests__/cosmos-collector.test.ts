@@ -1,11 +1,14 @@
 import { Container } from "@azure/cosmos";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import { pino } from "pino";
 
 import { CosmosWeeklyEventCollector } from "../event-collector.js";
 
 const patchMock = vi.fn();
 const readMock = vi.fn();
 const createMock = vi.fn();
+
+const logger = pino();
 
 const containerMock = {
   item: () => ({
@@ -16,7 +19,10 @@ const containerMock = {
   },
 } as unknown as Container;
 
-const cosmosCollectorMock = new CosmosWeeklyEventCollector(containerMock);
+const cosmosCollectorMock = new CosmosWeeklyEventCollector(
+  containerMock,
+  logger,
+);
 
 const eventsMock = [{ foo: "bar" }];
 
@@ -29,7 +35,9 @@ describe("CosmosWeeklyEventCollector.collect", () => {
     );
 
     await expect(cosmosCollectorMock.collect(eventsMock)).rejects.toEqual(
-      new Error("Error from cosmos read"),
+      new Error(
+        "Error trying to collect messages-summary | Error: Error from cosmos read",
+      ),
     );
   });
 
@@ -69,7 +77,9 @@ describe("CosmosWeeklyEventCollector.collect", () => {
     );
 
     await expect(cosmosCollectorMock.collect(eventsMock)).rejects.toEqual(
-      new Error("Error from cosmos create"),
+      new Error(
+        "Error trying to collect messages-summary | Error: Error from cosmos create",
+      ),
     );
     expect(readMock).toHaveBeenCalledTimes(1);
     expect(createMock).toHaveBeenCalledTimes(1);
@@ -101,7 +111,9 @@ describe("CosmosWeeklyEventCollector.collect", () => {
     );
 
     await expect(cosmosCollectorMock.collect(eventsMock)).rejects.toEqual(
-      new Error("Error from cosmos patch"),
+      new Error(
+        "Error trying to collect messages-summary | Error: Error from cosmos patch",
+      ),
     );
     expect(readMock).toHaveBeenCalledTimes(1);
     expect(createMock).not.toHaveBeenCalled();

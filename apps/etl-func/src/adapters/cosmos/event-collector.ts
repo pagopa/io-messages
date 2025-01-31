@@ -4,6 +4,8 @@ import {
   eventsSummarySchema,
 } from "@/domain/event.js";
 import { Container, ItemResponse } from "@azure/cosmos";
+import { throws } from "assert";
+import { Logger } from "pino";
 
 /**
  * Adapter for a cosmos weekly event collector.
@@ -12,12 +14,14 @@ import { Container, ItemResponse } from "@azure/cosmos";
  * */
 export class CosmosWeeklyEventCollector<T> implements EventCollector<T> {
   #container: Container;
+  #logger: Logger;
 
   /**
    * @param container The name of the container where to store weekly events.
    * */
-  constructor(container: Container) {
+  constructor(container: Container, logger: Logger) {
     this.#container = container;
+    this.#logger = logger;
   }
 
   private createSummary(events: T[]): EventsSummary {
@@ -68,28 +72,33 @@ export class CosmosWeeklyEventCollector<T> implements EventCollector<T> {
    * updating the counter.
    * */
   async collect(events: T[]): Promise<void> {
-    const summaryToUpdate = await this.getSummary(
-      this.getCurrentModelId(),
-      this.getCurrentPartitionKey(),
-    );
-
-    // if there is no summary then we want to create it
-    if (summaryToUpdate === undefined)
-      await this.insertSummary(this.createSummary(events));
-    // if the summary already exists then we want to patch
-    else {
-      const parsedItemResponse = eventsSummarySchema.parse(
-        summaryToUpdate.resource,
+    try {
+      const summaryToUpdate = await this.getSummary(
+        this.getCurrentModelId(),
+        this.getCurrentPartitionKey(),
       );
-      await summaryToUpdate.item.patch({
-        operations: [
-          {
-            op: "replace",
-            path: "/count",
-            value: (parsedItemResponse.count += events.length),
-          },
-        ],
-      });
+
+      // if there is no summary then we want to create it
+      if (summaryToUpdate === undefined)
+        await this.insertSummary(this.createSummary(events));
+      // if the summary already exists then we want to patch
+      else {
+        const parsedItemResponse = eventsSummarySchema.parse(
+          summaryToUpdate.resource,
+        );
+        await summaryToUpdate.item.patch({
+          operations: [
+            {
+              op: "replace",
+              path: "/count",
+              value: (parsedItemResponse.count += events.length),
+            },
+          ],
+        });
+      }
+    } catch (error) {
+      this.#logger.error(error);
+      throw new Error(`Error trying to collect messages-summary | ${error}`);
     }
   }
 }
