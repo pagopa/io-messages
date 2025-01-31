@@ -16,12 +16,12 @@
       "outputLogs": "errors-only"
     },
     "test": {
-      "dependsOn": ["^test", "^build"],
+      "dependsOn": ["^test"],
       "inputs": ["src/**/*.spec.ts"],
       "outputLogs": "errors-only"
     },
     "test:coverage": {
-      "dependsOn": ["^test", "^build"],
+      "dependsOn": ["^test"],
       "inputs": ["src/**/*.spec.ts"],
       "outputLogs": "full"
     },
