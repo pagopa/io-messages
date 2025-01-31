@@ -41,7 +41,6 @@ const messagesIngestionHandler =
         context.retryContext?.retryCount === context.retryContext?.maxRetryCount
       ) {
         telemetryService.trackEvent(TelemetryEventName.EXECUTION_ERROR, {
-          error: err,
           invocationId: context.invocationId,
         });
         await Promise.all(
