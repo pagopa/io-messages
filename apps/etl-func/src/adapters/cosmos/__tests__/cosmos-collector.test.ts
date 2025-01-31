@@ -1,6 +1,6 @@
 import { Container } from "@azure/cosmos";
-import { beforeEach, describe, expect, test, vi } from "vitest";
 import { pino } from "pino";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { CosmosWeeklyEventCollector } from "../event-collector.js";
 

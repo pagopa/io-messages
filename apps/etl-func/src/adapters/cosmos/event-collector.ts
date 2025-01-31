@@ -4,7 +4,6 @@ import {
   eventsSummarySchema,
 } from "@/domain/event.js";
 import { Container, ItemResponse } from "@azure/cosmos";
-import { throws } from "assert";
 import { Logger } from "pino";
 
 /**
