@@ -17,6 +17,14 @@ import {
   MessageContentProvider,
 } from "../blob-storage/message-content.js";
 import { MessageAdapter } from "../message.js";
+import { EventErrorTableStorage } from "../table-storage/event-error-table-storage.js";
+
+const mocks = vi.hoisted(() => ({
+  TableClient: vi.fn().mockImplementation(() => ({
+    createEntity: createEntity,
+  })),
+}));
+const createEntity = vi.fn(() => Promise.resolve());
 
 const errorLogMock = vi.fn();
 const warnLogMock = vi.fn();
@@ -32,7 +40,20 @@ const messageContentMock: MessageContentProvider = {
   getByMessageContentById,
 };
 
-const messageAdapter = new MessageAdapter(messageContentMock, loggerMock);
+const messageIngestionErrorTableClientMock = new mocks.TableClient();
+const messageIngestionErrorRepositoryMock = new EventErrorTableStorage(
+  messageIngestionErrorTableClientMock,
+);
+
+const eventErrorRepoPushSpy = vi
+  .spyOn(messageIngestionErrorRepositoryMock, "push")
+  .mockResolvedValue();
+
+const messageAdapter = new MessageAdapter(
+  messageContentMock,
+  messageIngestionErrorRepositoryMock,
+  loggerMock,
+);
 
 const tokenizerClient: Mocked<TokenizerClient> = {
   maskSensitiveInfo: vi
@@ -64,6 +85,7 @@ describe("getMessageByMetadata", () => {
     await expect(() =>
       messageAdapter.getMessageByMetadata(aSimpleMessageMetadata),
     ).rejects.toThrowError();
+    expect(eventErrorRepoPushSpy).toHaveBeenCalledOnce();
   });
 });
 

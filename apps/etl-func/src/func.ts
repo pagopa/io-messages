@@ -59,22 +59,6 @@ const main = async (config: Config) => {
     recipientRepository,
   );
 
-  const blobMessageContentProvider = new BlobMessageContent(
-    blobServiceCLient,
-    config.messageContentStorage.containerName,
-  );
-  const messageEventProducer = new EventHubEventProducer(
-    messageProducerClient,
-    messageSchema,
-  );
-  const messageAdapter = new MessageAdapter(blobMessageContentProvider, logger);
-
-  const ingestMessageUseCase = new IngestMessageUseCase(
-    messageAdapter,
-    tokenizerClient,
-    messageEventProducer,
-  );
-
   const messageIngestionErrorTableClient = new TableClient(
     `${config.messageIngestionErrorTable.connectionUri}${config.messageIngestionErrorTable.tableName}`,
     config.messageIngestionErrorTable.tableName,
@@ -83,6 +67,27 @@ const main = async (config: Config) => {
 
   const messageIngestionErrorRepository = new EventErrorTableStorage(
     messageIngestionErrorTableClient,
+  );
+
+  const blobMessageContentProvider = new BlobMessageContent(
+    blobServiceCLient,
+    config.messageContentStorage.containerName,
+  );
+
+  const messageEventProducer = new EventHubEventProducer(
+    messageProducerClient,
+    messageSchema,
+  );
+  const messageAdapter = new MessageAdapter(
+    blobMessageContentProvider,
+    messageIngestionErrorRepository,
+    logger,
+  );
+
+  const ingestMessageUseCase = new IngestMessageUseCase(
+    messageAdapter,
+    tokenizerClient,
+    messageEventProducer,
   );
 
   // const messageStatusProducerClient = new EventHubProducerClient(
