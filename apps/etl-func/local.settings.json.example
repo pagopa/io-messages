@@ -18,6 +18,8 @@
     "COSMOS_MESSAGES_CONTAINER_NAME": "messages",
     "COSMOS_MESSAGE_STATUS_CONTAINER_NAME": "message-status"
     "MESSAGE_ERROR_TABLE_STORAGE_NAME": "MessagesDataplanIngestionErrors",
-    "ACCOUNT_STORAGE__tableServiceUri": "https://testgiovannist.table.core.windows.net/"
+    "ACCOUNT_STORAGE__tableServiceUri": "https://testgiovannist.table.core.windows.net/",
+    APPINSIGHTS_CONNECTION_STRING: "aConnectionString",
+    APPINSIGHTS_SAMPLING_PERCENTAGE: 100
   }
 }
