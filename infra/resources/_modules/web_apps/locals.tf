@@ -20,9 +20,9 @@ locals {
       COSMOS_DBNAME                                  = "db",
       COSMOS_MESSAGES_CONTAINER_NAME                 = "messages-dataplan-ingestion-test"
       COSMOS_MESSAGE_STATUS_CONTAINER_NAME           = "message-status"
-      IOCOM_COSMOS__accountEndpoint                  = var.cosmosdb_account_rc.endpoint
-      IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME           = "io-messages"
-      IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME = "message-ingestion-summary"
+      IOCOM_COSMOS__accountEndpoint                  = var.io_com_cosmos.endpoint
+      IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME           = "data-lake-cosmos-01"
+      IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME = "messages-summary"
     }
   }
 }

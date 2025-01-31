@@ -95,7 +95,7 @@ variable "cosmosdb_account_api" {
   })
 }
 
-variable "cosmosdb_account_rc" {
+variable "io_com_cosmos" {
   type = object({
     id                  = string
     name                = string
