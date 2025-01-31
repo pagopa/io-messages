@@ -11,4 +11,5 @@ export interface EventErrorRepository<T> {
 export const EventErrorTypesEnum = z.enum([
   "MALFORMED_EVENT",
   "INGESTION_PROCESS_ERROR",
+  "EVENT_WITH_MISSING_CONTENT",
 ]);

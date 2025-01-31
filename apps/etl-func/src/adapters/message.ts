@@ -1,3 +1,4 @@
+import { EventErrorRepository, EventErrorTypesEnum } from "@/domain/event.js";
 import {
   Message,
   MessageMetadata,
@@ -13,10 +14,16 @@ import {
 
 export class MessageAdapter implements MessageRepository {
   #content: MessageContentProvider;
+  #eventErrorRepository: EventErrorRepository<MessageMetadata>;
   #logger: Logger;
 
-  constructor(messageContent: MessageContentProvider, logger: Logger) {
+  constructor(
+    messageContent: MessageContentProvider,
+    eventErrorRepository: EventErrorRepository<MessageMetadata>,
+    logger: Logger,
+  ) {
     this.#content = messageContent;
+    this.#eventErrorRepository = eventErrorRepository;
     this.#logger = logger;
   }
 
@@ -34,6 +41,10 @@ export class MessageAdapter implements MessageRepository {
       });
     } catch (error) {
       if (error instanceof MessageContentError) {
+        await this.#eventErrorRepository.push(
+          metadata,
+          EventErrorTypesEnum.enum.EVENT_WITH_MISSING_CONTENT,
+        );
         this.#logger.error({
           message: "Error parsing the message content.",
           messageId: metadata.id,
