@@ -1,4 +1,5 @@
 import { EventErrorRepository, EventErrorTypesEnum } from "@/domain/event.js";
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
 import { CosmosDBHandler, InvocationContext } from "@azure/functions";
 import { ZodError } from "zod";
@@ -12,6 +13,7 @@ const messagesIngestionHandler =
   (
     ingestUseCase: IngestMessageUseCase,
     eventErrorRepository: EventErrorRepository<unknown>,
+    telemetryService: TelemetryService,
   ): CosmosDBHandler =>
   async (documents: unknown[], context: InvocationContext) => {
     const parsedMessagesMetadataOrZodError = documents.map((input) => {
@@ -38,6 +40,10 @@ const messagesIngestionHandler =
       if (
         context.retryContext?.retryCount === context.retryContext?.maxRetryCount
       ) {
+        telemetryService.trackEvent(TelemetryEventName.EXECUTION_ERROR, {
+          error: err,
+          invocationId: context.invocationId,
+        });
         await Promise.all(
           documents.map((document) =>
             eventErrorRepository.push(
@@ -58,6 +64,9 @@ const messagesIngestionHandler =
           ),
         ),
       );
+      telemetryService.trackEvent(TelemetryEventName.MALFORMED_DOCUMENTS, {
+        invocationId: context.invocationId,
+      });
     }
   };
 

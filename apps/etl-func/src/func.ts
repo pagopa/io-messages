@@ -7,6 +7,10 @@ import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
 import { createClient } from "redis";
 
+import {
+  ApplicationInsights,
+  initTelemetryClient,
+} from "./adapters/appinsights/appinsights.js";
 import { messageSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
@@ -24,6 +28,10 @@ const main = async (config: Config) => {
   });
 
   const azureCredentials = new DefaultAzureCredential();
+
+  const telemetryClient = initTelemetryClient(config.appInsights);
+  const telemetryService = new ApplicationInsights(telemetryClient);
+
   const blobServiceCLient = new BlobServiceClient(
     config.messageContentStorage.accountUri,
     azureCredentials,
@@ -120,6 +128,7 @@ const main = async (config: Config) => {
     handler: messagesIngestionHandler(
       ingestMessageUseCase,
       messageIngestionErrorRepository,
+      telemetryService,
     ),
     leaseContainerName: `messages-dataplan-ingestion-test-lease`,
     maxItemsPerInvocation: 50,

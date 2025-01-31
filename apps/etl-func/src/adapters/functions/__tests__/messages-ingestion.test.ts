@@ -3,6 +3,7 @@ import {
   aSimpleMessageContent,
   aSimpleMessageMetadata,
 } from "@/__mocks__/message.js";
+import { ApplicationInsights } from "@/adapters/appinsights/appinsights.js";
 import { messageSchema } from "@/adapters/avro.js";
 import { MessageContentProvider } from "@/adapters/blob-storage/message-content.js";
 import { EventHubEventProducer } from "@/adapters/eventhub/event.js";
@@ -26,6 +27,9 @@ const mocks = vi.hoisted(() => ({
   })),
   TableClient: vi.fn().mockImplementation(() => ({
     createEntity: createEntity,
+  })),
+  TelemetryClient: vi.fn().mockImplementation(() => ({
+    trackEvent: vi.fn(),
   })),
 }));
 
@@ -69,6 +73,9 @@ const producer = new EventHubEventProducer(
 );
 const publishSpy = vi.spyOn(producer, "publish").mockResolvedValue();
 
+const telemetryClient = new mocks.TelemetryClient();
+const telemetryServiceMock = new ApplicationInsights(telemetryClient);
+
 const messageIngestionErrorTableClientMock = new mocks.TableClient();
 const messageIngestionErrorRepositoryMock = new EventErrorTableStorage(
   messageIngestionErrorTableClientMock,
@@ -87,6 +94,7 @@ const context = new InvocationContext();
 const handler = messagesIngestion(
   ingestMessageUseCase,
   messageIngestionErrorRepositoryMock,
+  telemetryServiceMock,
 );
 
 describe("messagesIngestion handler", () => {
@@ -95,7 +103,7 @@ describe("messagesIngestion handler", () => {
     tokenizeSpy.mockClear();
     publishSpy.mockClear();
     eventErrorRepoPushSpy.mockClear();
-    context.retryContext = { retryCount: 1, maxRetryCount: 1 };
+    context.retryContext = { maxRetryCount: 1, retryCount: 1 };
   });
   test("shoud resolve if nothing throws", async () => {
     const documentsMock = [aSimpleMessageMetadata];
@@ -146,7 +154,7 @@ describe("messagesIngestion handler", () => {
   test("should not call eventErrorRepository if retry context are less than maxRetry context", async () => {
     const documentsMock = [aSimpleMessageMetadata];
     tokenizeSpy.mockRejectedValueOnce(false);
-    context.retryContext = { retryCount: 1, maxRetryCount: 5 };
+    context.retryContext = { maxRetryCount: 5, retryCount: 1 };
     await expect(handler(documentsMock, context)).rejects.toEqual(false);
     expect(getMessageByMetadataSpy).toHaveBeenCalledOnce();
     expect(tokenizeSpy).toHaveBeenCalledOnce();
