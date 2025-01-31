@@ -35,9 +35,13 @@ const containerMock = {
   },
 } as unknown as Container;
 
-const cosmosCollectorMock = new CosmosWeeklyEventCollector(containerMock);
-
 const logger = pino();
+
+const cosmosCollectorMock = new CosmosWeeklyEventCollector(
+  containerMock,
+  logger,
+);
+
 const mocks = vi.hoisted(() => ({
   EventHubProducerClient: vi.fn().mockImplementation(() => ({
     createBatch: () => ({

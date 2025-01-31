@@ -71,7 +71,7 @@ const main = async (config: Config) => {
   const ingestMessageUseCase = new IngestMessageUseCase(
     messageAdapter,
     tokenizerClient,
-    new CosmosWeeklyEventCollector(ingestionSummaryContainer),
+    new CosmosWeeklyEventCollector(ingestionSummaryContainer, logger),
     messageEventProducer,
   );
 
