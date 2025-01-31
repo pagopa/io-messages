@@ -53,6 +53,9 @@ vi.mock("@azure/data-tables", async (importOriginal) => {
   };
 });
 
+const telemetryClient = new mocks.TelemetryClient();
+const telemetryServiceMock = new ApplicationInsights(telemetryClient);
+
 const messageContentMock: MessageContentProvider = {
   getByMessageContentById: vi.fn(),
 };
@@ -65,6 +68,7 @@ const messageIngestionErrorRepositoryMock = new EventErrorTableStorage(
 const messageAdapter = new MessageAdapter(
   messageContentMock,
   messageIngestionErrorRepositoryMock,
+  telemetryServiceMock,
   logger,
 );
 const getMessageByMetadataSpy = vi
@@ -82,9 +86,6 @@ const producer = new EventHubEventProducer(
   messageSchema,
 );
 const publishSpy = vi.spyOn(producer, "publish").mockResolvedValue();
-
-const telemetryClient = new mocks.TelemetryClient();
-const telemetryServiceMock = new ApplicationInsights(telemetryClient);
 
 const eventErrorRepoPushSpy = vi
   .spyOn(messageIngestionErrorRepositoryMock, "push")

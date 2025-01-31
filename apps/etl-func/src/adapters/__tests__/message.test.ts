@@ -12,6 +12,7 @@ import { TokenizerClient } from "@/domain/tokenizer.js";
 import { Logger } from "pino";
 import { Mocked, describe, expect, test, vi } from "vitest";
 
+import { ApplicationInsights } from "../appinsights/appinsights.js";
 import {
   MessageContentError,
   MessageContentProvider,
@@ -23,6 +24,9 @@ const mocks = vi.hoisted(() => ({
   TableClient: vi.fn().mockImplementation(() => ({
     createEntity: createEntity,
   })),
+  TelemetryClient: vi.fn().mockImplementation(() => ({
+    trackEvent: vi.fn(),
+  })),
 }));
 const createEntity = vi.fn(() => Promise.resolve());
 
@@ -33,6 +37,9 @@ const loggerMock = {
   error: errorLogMock,
   warn: warnLogMock,
 } as unknown as Logger;
+
+const telemetryClient = new mocks.TelemetryClient();
+const telemetryServiceMock = new ApplicationInsights(telemetryClient);
 
 const getByMessageContentById = vi.fn();
 
@@ -52,6 +59,7 @@ const eventErrorRepoPushSpy = vi
 const messageAdapter = new MessageAdapter(
   messageContentMock,
   messageIngestionErrorRepositoryMock,
+  telemetryServiceMock,
   loggerMock,
 );
 

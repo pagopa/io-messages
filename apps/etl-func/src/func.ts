@@ -81,6 +81,7 @@ const main = async (config: Config) => {
   const messageAdapter = new MessageAdapter(
     blobMessageContentProvider,
     messageIngestionErrorRepository,
+    telemetryService,
     logger,
   );
 
