@@ -10,7 +10,7 @@ import {
 } from "@/domain/message-event.js";
 import { TokenizerClient } from "@/domain/tokenizer.js";
 import { Logger } from "pino";
-import { Mocked, describe, expect, test, vi, afterEach } from "vitest";
+import { Mocked, afterEach, describe, expect, test, vi } from "vitest";
 
 import { ApplicationInsights } from "../appinsights/appinsights.js";
 import {
@@ -105,8 +105,8 @@ describe("getMessageByMetadata", () => {
     const r = await messageAdapter.getMessageByMetadata(aSimpleMessageMetadata);
     expect(r).toBe(undefined);
     expect(errorLogMock).toHaveBeenCalledTimes(1);
-    expect(eventErrorRepoPushSpy).toHaveBeenCalled();
-    expect(telemetryTrackEventMock).toHaveBeenCalled();
+    expect(eventErrorRepoPushSpy).toHaveBeenCalledWith();
+    expect(telemetryTrackEventMock).toHaveBeenCalledWith();
   });
 
   test("Given a message metadata, when the BlobMessageContent throws an error a retriable error, then it should throw it", async () => {
