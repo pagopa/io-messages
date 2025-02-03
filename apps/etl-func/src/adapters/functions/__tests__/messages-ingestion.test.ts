@@ -55,6 +55,9 @@ vi.mock("@azure/data-tables", async (importOriginal) => {
 
 const telemetryClient = new mocks.TelemetryClient();
 const telemetryServiceMock = new ApplicationInsights(telemetryClient);
+const telemetryTrackEventMock = vi
+  .spyOn(telemetryServiceMock, "trackEvent")
+  .mockResolvedValue();
 
 const messageContentMock: MessageContentProvider = {
   getByMessageContentById: vi.fn(),
@@ -110,8 +113,10 @@ describe("messagesIngestion handler", () => {
     tokenizeSpy.mockClear();
     publishSpy.mockClear();
     eventErrorRepoPushSpy.mockClear();
+    telemetryTrackEventMock.mockClear();
     context.retryContext = { maxRetryCount: 1, retryCount: 1 };
   });
+
   test("shoud resolve if nothing throws", async () => {
     const documentsMock = [aSimpleMessageMetadata];
     await expect(handler(documentsMock, context)).resolves.toEqual(undefined);
@@ -119,6 +124,7 @@ describe("messagesIngestion handler", () => {
     expect(tokenizeSpy).toHaveBeenCalledOnce();
     expect(publishSpy).toHaveBeenCalledOnce();
     expect(eventErrorRepoPushSpy).not.toHaveBeenCalled();
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
   test("shoud call multiple times the business logic function if documents are more than one", async () => {
@@ -128,6 +134,7 @@ describe("messagesIngestion handler", () => {
     expect(tokenizeSpy).toHaveBeenCalledTimes(2);
     expect(publishSpy).toHaveBeenCalledOnce();
     expect(eventErrorRepoPushSpy).not.toHaveBeenCalled();
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
   test("shoud resolve if the documents array has malformed objects", async () => {
@@ -137,6 +144,7 @@ describe("messagesIngestion handler", () => {
     expect(tokenizeSpy).toHaveBeenCalledOnce();
     expect(publishSpy).toHaveBeenCalledOnce();
     expect(eventErrorRepoPushSpy).toHaveBeenCalledOnce();
+    expect(telemetryTrackEventMock).toHaveBeenCalledOnce();
   });
 
   test("should not call any function if the documents array is empty", async () => {
@@ -146,6 +154,7 @@ describe("messagesIngestion handler", () => {
     expect(tokenizeSpy).not.toHaveBeenCalledOnce();
     expect(publishSpy).not.toHaveBeenCalledOnce();
     expect(eventErrorRepoPushSpy).not.toHaveBeenCalled();
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
   test("should throw an error if tokenize throws an error", async () => {
@@ -156,6 +165,7 @@ describe("messagesIngestion handler", () => {
     expect(tokenizeSpy).toHaveBeenCalledOnce();
     expect(publishSpy).not.toHaveBeenCalledOnce();
     expect(eventErrorRepoPushSpy).toHaveBeenCalledOnce();
+    expect(telemetryTrackEventMock).toHaveBeenCalledOnce();
   });
 
   test("should not call eventErrorRepository if retry context are less than maxRetry context", async () => {
@@ -167,6 +177,7 @@ describe("messagesIngestion handler", () => {
     expect(tokenizeSpy).toHaveBeenCalledOnce();
     expect(publishSpy).not.toHaveBeenCalledOnce();
     expect(eventErrorRepoPushSpy).not.toHaveBeenCalledOnce();
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
   test("should resolve calling tokenize and getMessageByMetadata onfly for documents with isPending = false", async () => {
@@ -179,5 +190,6 @@ describe("messagesIngestion handler", () => {
     expect(tokenizeSpy).toHaveBeenCalledOnce();
     expect(publishSpy).toHaveBeenCalledOnce();
     expect(eventErrorRepoPushSpy).not.toHaveBeenCalled();
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 });
