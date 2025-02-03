@@ -105,8 +105,8 @@ describe("getMessageByMetadata", () => {
     const r = await messageAdapter.getMessageByMetadata(aSimpleMessageMetadata);
     expect(r).toBe(undefined);
     expect(errorLogMock).toHaveBeenCalledTimes(1);
-    expect(eventErrorRepoPushSpy).toHaveBeenCalledWith();
-    expect(telemetryTrackEventMock).toHaveBeenCalledWith();
+    expect(eventErrorRepoPushSpy).toHaveBeenCalledOnce();
+    expect(telemetryTrackEventMock).toHaveBeenCalledOnce();
   });
 
   test("Given a message metadata, when the BlobMessageContent throws an error a retriable error, then it should throw it", async () => {
