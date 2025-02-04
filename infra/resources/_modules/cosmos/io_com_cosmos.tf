@@ -65,7 +65,7 @@ resource "azurerm_cosmosdb_sql_container" "message_configuration" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "user_configuration" {
-  name                = "user-configuration"
+  name                = "user-configurations"
   resource_group_name = var.resource_group
 
   account_name        = module.io_com_cosmos_account.name
@@ -77,7 +77,7 @@ resource "azurerm_cosmosdb_sql_container" "user_configuration" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "remote_content_lease" {
-  name                = "remote-content-lease"
+  name                = "remote-content-leases"
   resource_group_name = var.resource_group
 
   account_name        = module.io_com_cosmos_account.name
