@@ -31,7 +31,3 @@ variable "environment" {
     instance_number = string
   })
 }
-
-variable "max_throughput" {
-  type = number
-}

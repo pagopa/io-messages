@@ -227,7 +227,6 @@ module "cosmos" {
   resource_group   = "io-p-itn-com-rg-01"
   action_group_id  = module.monitoring.action_group.io_com_error_id
   subnet_pep_id    = data.azurerm_subnet.pep.id
-  max_throughput   = 2000
   environment = {
     prefix          = local.prefix
     env_short       = local.env_short
