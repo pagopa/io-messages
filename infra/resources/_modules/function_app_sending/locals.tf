@@ -14,9 +14,9 @@ locals {
       COSMOSDB_KEY  = var.cosmos_db_api_key
 
       // REMOTE CONTENT COSMOSDB
-      REMOTE_CONTENT_COSMOSDB_NAME = "remote-content"
-      REMOTE_CONTENT_COSMOSDB_URI  = var.cosmos_db_remote_content_endpoint
-      REMOTE_CONTENT_COSMOSDB_KEY  = var.cosmos_db_remote_content_key
+      REMOTE_CONTENT_COSMOSDB_NAME = "remote-content-cosmos-01"
+      REMOTE_CONTENT_COSMOSDB_URI  = var.io_com_cosmos_endpoint
+      REMOTE_CONTENT_COSMOSDB_KEY  = var.io_com_cosmos_key
 
       // BLOB STORAGE
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_storage_account_blob_connection_string

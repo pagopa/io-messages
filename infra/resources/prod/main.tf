@@ -101,8 +101,8 @@ module "functions_messages_sending" {
   cosmos_db_api_endpoint = data.azurerm_cosmosdb_account.cosmos_api.endpoint
   cosmos_db_api_key      = data.azurerm_cosmosdb_account.cosmos_api.primary_key
 
-  cosmos_db_remote_content_endpoint = data.azurerm_cosmosdb_account.cosmos_remote_content.endpoint
-  cosmos_db_remote_content_key      = data.azurerm_cosmosdb_account.cosmos_remote_content.primary_key
+  io_com_cosmos_endpoint = data.azurerm_cosmosdb_account.io_com_cosmos.endpoint
+  io_com_cosmos_key      = data.azurerm_cosmosdb_account.io_com_cosmos.primary_key
 
   cosmos_database_names = []
 
