@@ -14,3 +14,13 @@ export const eventsSummarySchema = z.object({
   year: z.string().regex(new RegExp("^(\\d{4})$")),
 });
 export type EventsSummary = z.TypeOf<typeof eventsSummarySchema>;
+
+export interface EventErrorRepository<T> {
+  push: (event: T, reason?: string) => Promise<void>;
+}
+
+export const EventErrorTypesEnum = z.enum([
+  "MALFORMED_EVENT",
+  "INGESTION_PROCESS_ERROR",
+  "EVENT_WITH_MISSING_CONTENT",
+]);

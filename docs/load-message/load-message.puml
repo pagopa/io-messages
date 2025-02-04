@@ -3,6 +3,7 @@
 participant caller
 participant LoadMessage as lm
 collections "message-evh" as evh
+collections "messages-error-repository" as msgErrorRepo
 participant "ai-common" as ai
 collections "message-ingest-events" as mie
 
@@ -12,6 +13,7 @@ activate lm
 
 lm -> lm : eventMessage to buffer using avro schema
 break Error creating buffer
+  lm -> msgErrorRepo: Store messages that are causing an error
   lm -> ai : Track the error event
   lm -[#red]> caller : Throw an error
 end
@@ -26,6 +28,7 @@ end note
 
 lm -> evh : send buffered message
 break Error sending message
+  lm -> msgErrorRepo: Store messages that are causing an error
   lm -> ai : Track the error event
   lm -[#red]> caller : Throw an error
 end

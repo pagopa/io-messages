@@ -1,9 +1,11 @@
+import { EventErrorRepository, EventErrorTypesEnum } from "@/domain/event.js";
 import {
   Message,
   MessageMetadata,
   MessageRepository,
   messageSchema,
 } from "@/domain/message.js";
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { Logger } from "pino";
 
 import {
@@ -13,10 +15,19 @@ import {
 
 export class MessageAdapter implements MessageRepository {
   #content: MessageContentProvider;
+  #eventErrorRepository: EventErrorRepository<MessageMetadata>;
   #logger: Logger;
+  #telemetryService: TelemetryService;
 
-  constructor(messageContent: MessageContentProvider, logger: Logger) {
+  constructor(
+    messageContent: MessageContentProvider,
+    eventErrorRepository: EventErrorRepository<MessageMetadata>,
+    telemetryService: TelemetryService,
+    logger: Logger,
+  ) {
     this.#content = messageContent;
+    this.#eventErrorRepository = eventErrorRepository;
+    this.#telemetryService = telemetryService;
     this.#logger = logger;
   }
 
@@ -34,6 +45,16 @@ export class MessageAdapter implements MessageRepository {
       });
     } catch (error) {
       if (error instanceof MessageContentError) {
+        await this.#eventErrorRepository.push(
+          metadata,
+          EventErrorTypesEnum.enum.EVENT_WITH_MISSING_CONTENT,
+        );
+        this.#telemetryService.trackEvent(
+          TelemetryEventName.CONTENT_NOT_FOUND,
+          {
+            messageId: metadata.id,
+          },
+        );
         this.#logger.error({
           message: "Error parsing the message content.",
           messageId: metadata.id,
