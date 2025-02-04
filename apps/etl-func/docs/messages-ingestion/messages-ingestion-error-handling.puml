@@ -1,0 +1,29 @@
+@startuml messages-ingestion-error-handling
+collections "CosmosDB" as CosmosDB
+collections "Error Table Storage" as ErrorTableStorage
+participant "ETL Function" as etlFunc
+collections "Event Hub" as EventHub
+
+activate etlFunc
+CosmosDB -> etlFunc: Batch of messages metadata
+
+
+loop Process messagges metadata
+  alt Failing messages parsing
+    note left of etlFunc
+      One or more messages are malformed
+    end note
+    etlFunc -> ErrorTableStorage: send messages metadata
+  else Function fails and reach max retries limit
+    etlFunc -> ErrorTableStorage: send messages metadata
+    note left of etlFunc
+        Each item of the batch is sent
+        individually to the table
+    end note
+  else The function process the batch without throwing an error
+    etlFunc -> EventHub: Send messages to the eventhub
+    deactivate etlFunc
+  end
+end
+
+@enduml

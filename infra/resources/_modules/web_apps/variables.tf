@@ -86,6 +86,13 @@ variable "messages_storage_account" {
   })
 }
 
+variable "messages_error_table_storage_account" {
+  type = object({
+    id   = string
+    name = string
+  })
+}
+
 variable "cosmosdb_account_api" {
   type = object({
     id                  = string
@@ -109,6 +116,7 @@ variable "action_group_id" {
 variable "app_settings" {
   type = object({
     message_content_storage_uri : string,
+    message_error_table_starage_uri : string,
     eventhub_connection_uri : string,
   })
 }

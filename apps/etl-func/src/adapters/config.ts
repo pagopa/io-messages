@@ -1,11 +1,13 @@
 import { z } from "zod";
 
+import { applicationInsightsSchema } from "./appinsights/config.js";
 import { envSchema } from "./env.js";
 import { eventhubConfigSchema } from "./eventhub/config.js";
 import { redisConfigSchema } from "./redis/config.js";
 import { pdvConfigSchema } from "./tokenizer/config.js";
 
 export const configSchema = z.object({
+  appInsights: applicationInsightsSchema,
   cosmos: z.object({
     accountUri: z.string().url(),
     databaseName: z.string().min(1),
@@ -15,6 +17,10 @@ export const configSchema = z.object({
   messageContentStorage: z.object({
     accountUri: z.string().url(),
     containerName: z.string().min(1),
+  }),
+  messageIngestionErrorTable: z.object({
+    connectionUri: z.string().url(),
+    tableName: z.string().min(1),
   }),
   messageStatusEventHub: eventhubConfigSchema,
   messagesEventHub: eventhubConfigSchema,
@@ -27,6 +33,10 @@ export type Config = z.TypeOf<typeof configSchema>;
 export const configFromEnvironment = envSchema
   .transform(
     (env): Config => ({
+      appInsights: {
+        connectionString: env.APPINSIGHTS_CONNECTION_STRING,
+        samplingPercentage: env.APPINSIGHTS_SAMPLING_PERCENTAGE,
+      },
       cosmos: {
         accountUri: env.COSMOS__accountEndpoint,
         databaseName: env.COSMOS_DBNAME,
@@ -36,6 +46,10 @@ export const configFromEnvironment = envSchema
       messageContentStorage: {
         accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
         containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
+      },
+      messageIngestionErrorTable: {
+        connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
+        tableName: env.MESSAGE_ERROR_TABLE_STORAGE_NAME,
       },
       messageStatusEventHub: {
         connectionUri: env.EVENTHUB_CONNECTION_URI,
