@@ -21,7 +21,7 @@
       "outputLogs": "errors-only"
     },
     "test:coverage": {
-      "dependsOn": ["^test"],
+      "dependsOn": ["^test", "build"],
       "inputs": ["src/**/*.spec.ts"],
       "outputLogs": "full"
     },
@@ -48,7 +48,9 @@
       "outputs": ["generated/definitions"]
     },
 
-    "generate:backend-notification-hub": {},
+    "generate:backend-notification-hub": {
+      "outputs": ["generated/notifications"]
+    },
 
     "//#test:coverage": {
       "dependsOn": [
