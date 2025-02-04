@@ -5,6 +5,8 @@ locals {
   etl_func = {
     app_settings = {
       NODE_ENV                             = "production",
+      APPINSIGHTS_CONNECTION_STRING        = var.application_insights.connection_string
+      APPINSIGHTS_SAMPLING_PERCENTAGE      = 100
       FUNCTIONS_WORKER_RUNTIME             = "node",
       MESSAGE_CONTENT_STORAGE_URI          = var.app_settings.message_content_storage_uri
       EVENTHUB_CONNECTION_URI              = var.app_settings.eventhub_connection_uri,
@@ -19,7 +21,9 @@ locals {
       COSMOS__accountEndpoint              = var.cosmosdb_account_api.endpoint
       COSMOS_DBNAME                        = "db",
       COSMOS_MESSAGES_CONTAINER_NAME       = "messages-dataplan-ingestion-test"
-      COSMOS_MESSAGE_STATUS_CONTAINER_NAME = "message-status"
+      COSMOS_MESSAGE_STATUS_CONTAINER_NAME = "message-status",
+      MESSAGE_ERROR_TABLE_STORAGE_NAME     = "MessagesDataplanIngestionErrors",
+      ACCOUNT_STORAGE__tableServiceUri     = var.app_settings.message_error_table_starage_uri
     }
   }
 }

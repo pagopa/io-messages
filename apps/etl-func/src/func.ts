@@ -1,3 +1,4 @@
+import { TableClient } from "@azure/data-tables";
 import { EventHubProducerClient } from "@azure/event-hubs";
 import { app } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
@@ -6,6 +7,10 @@ import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
 import { createClient } from "redis";
 
+import {
+  ApplicationInsights,
+  initTelemetryClient,
+} from "./adapters/appinsights/appinsights.js";
 import { messageSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
@@ -13,6 +18,7 @@ import { EventHubEventProducer } from "./adapters/eventhub/event.js";
 import messagesIngestionHandler from "./adapters/functions/messages-ingestion.js";
 import { MessageAdapter } from "./adapters/message.js";
 import RedisRecipientRepository from "./adapters/redis/recipient.js";
+import { EventErrorTableStorage } from "./adapters/table-storage/event-error-table-storage.js";
 import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
 import { IngestMessageUseCase } from "./domain/use-cases/ingest-message.js";
 
@@ -22,6 +28,10 @@ const main = async (config: Config) => {
   });
 
   const azureCredentials = new DefaultAzureCredential();
+
+  const telemetryClient = initTelemetryClient(config.appInsights);
+  const telemetryService = new ApplicationInsights(telemetryClient);
+
   const blobServiceCLient = new BlobServiceClient(
     config.messageContentStorage.accountUri,
     azureCredentials,
@@ -49,15 +59,31 @@ const main = async (config: Config) => {
     recipientRepository,
   );
 
+  const messageIngestionErrorTableClient = new TableClient(
+    `${config.messageIngestionErrorTable.connectionUri}${config.messageIngestionErrorTable.tableName}`,
+    config.messageIngestionErrorTable.tableName,
+    azureCredentials,
+  );
+
+  const messageIngestionErrorRepository = new EventErrorTableStorage(
+    messageIngestionErrorTableClient,
+  );
+
   const blobMessageContentProvider = new BlobMessageContent(
     blobServiceCLient,
     config.messageContentStorage.containerName,
   );
+
   const messageEventProducer = new EventHubEventProducer(
     messageProducerClient,
     messageSchema,
   );
-  const messageAdapter = new MessageAdapter(blobMessageContentProvider, logger);
+  const messageAdapter = new MessageAdapter(
+    blobMessageContentProvider,
+    messageIngestionErrorRepository,
+    telemetryService,
+    logger,
+  );
 
   const ingestMessageUseCase = new IngestMessageUseCase(
     messageAdapter,
@@ -105,7 +131,11 @@ const main = async (config: Config) => {
     containerName: config.cosmos.messagesContainerName,
     createLeaseContainerIfNotExists: false,
     databaseName: config.cosmos.databaseName,
-    handler: messagesIngestionHandler(ingestMessageUseCase),
+    handler: messagesIngestionHandler(
+      ingestMessageUseCase,
+      messageIngestionErrorRepository,
+      telemetryService,
+    ),
     leaseContainerName: `messages-dataplan-ingestion-test-lease`,
     maxItemsPerInvocation: 50,
     retry: {
