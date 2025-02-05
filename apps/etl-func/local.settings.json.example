@@ -19,10 +19,10 @@
     "IOCOM_COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
     "IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME": "io-messages",
     "IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME": "message-ingestion-summary",
-    "COSMOS_MESSAGE_STATUS_CONTAINER_NAME": "message-status"
+    "COSMOS_MESSAGE_STATUS_CONTAINER_NAME": "message-status",
     "MESSAGE_ERROR_TABLE_STORAGE_NAME": "MessagesDataplanIngestionErrors",
     "ACCOUNT_STORAGE__tableServiceUri": "https://testgiovannist.table.core.windows.net/",
-    APPINSIGHTS_CONNECTION_STRING: "aConnectionString",
-    APPINSIGHTS_SAMPLING_PERCENTAGE: 100
+    "APPINSIGHTS_CONNECTION_STRING": "aConnectionString",
+    "APPINSIGHTS_SAMPLING_PERCENTAGE": 100
   }
 }
