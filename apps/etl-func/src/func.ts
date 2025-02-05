@@ -126,7 +126,7 @@ const main = async (config: Config) => {
           .getContainerClient(config.messageContentStorage.containerName)
           .getProperties();
         // check for cosmos availability
-        await ioComCosmosClient.databases.readAll().fetchAll();
+        await ioComCosmosClient.getDatabaseAccount();
       } catch (error) {
         logger.error(error);
         throw error;
