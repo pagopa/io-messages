@@ -12,20 +12,15 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "<= 3.116.0"
     }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~>3"
+    }
   }
 }
 
 provider "azurerm" {
   features {}
-}
-
-data "azurerm_resource_group" "itn_messages" {
-  name = "${local.project}-msgs-rg-01"
-}
-
-resource "azurerm_resource_group" "itn_com" {
-  name     = "${local.project}-${local.domain}-rg-01"
-  location = local.location
 }
 
 module "redis_messages" {
