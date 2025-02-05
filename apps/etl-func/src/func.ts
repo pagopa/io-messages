@@ -87,10 +87,12 @@ const main = async (config: Config) => {
     logger,
   );
 
-  const ingestionSummaryContainer = new CosmosClient({
+  const ioComCosmosClient = new CosmosClient({
     aadCredentials: azureCredentials,
     endpoint: config.iocomCosmos.accountUri,
-  })
+  });
+
+  const ingestionSummaryContainer = ioComCosmosClient
     .database(config.iocomCosmos.eventsCollectorDatabaseName)
     .container(config.iocomCosmos.messageIngestionSummaryContainerName);
 
@@ -123,6 +125,8 @@ const main = async (config: Config) => {
         await blobServiceCLient
           .getContainerClient(config.messageContentStorage.containerName)
           .getProperties();
+        // check for cosmos availability
+        await ioComCosmosClient.databases.readAll().fetchAll();
       } catch (error) {
         logger.error(error);
         throw error;
