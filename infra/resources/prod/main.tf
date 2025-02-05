@@ -5,12 +5,13 @@ terraform {
     storage_account_name = "iopitntfst001"
     container_name       = "terraform-state"
     key                  = "io-messages.resources.tfstate"
+    use_azuread_auth     = true
   }
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "<= 3.116.0"
+      version = "~>4"
     }
     azuread = {
       source  = "hashicorp/azuread"
@@ -21,10 +22,11 @@ terraform {
 
 provider "azurerm" {
   features {}
+  storage_use_azuread = true
 }
 
 module "redis_messages" {
-  source = "github.com/pagopa/terraform-azurerm-v3//redis_cache?ref=v8.21.0"
+  source = "github.com/pagopa/terraform-azurerm-v4//redis_cache?ref=v1.2.1"
 
   name                = "${local.project}-msgs-redis-01"
   resource_group_name = data.azurerm_resource_group.itn_messages.name
