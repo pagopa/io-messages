@@ -19,9 +19,8 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_resource_group" "itn_messages" {
-  name     = "${local.project}-msgs-rg-01"
-  location = local.location
+data "azurerm_resource_group" "itn_messages" {
+  name = "${local.project}-msgs-rg-01"
 }
 
 resource "azurerm_resource_group" "itn_com" {
@@ -33,8 +32,8 @@ module "redis_messages" {
   source = "github.com/pagopa/terraform-azurerm-v3//redis_cache?ref=v8.21.0"
 
   name                = "${local.project}-msgs-redis-01"
-  resource_group_name = azurerm_resource_group.itn_messages.name
-  location            = azurerm_resource_group.itn_messages.location
+  resource_group_name = data.azurerm_resource_group.itn_messages.name
+  location            = data.azurerm_resource_group.itn_messages.location
 
   capacity              = 1
   family                = "P"
@@ -84,7 +83,7 @@ module "functions_messages_sending" {
   location            = local.location
   project             = local.project
   domain              = "msgs"
-  resource_group_name = azurerm_resource_group.itn_messages.name
+  resource_group_name = data.azurerm_resource_group.itn_messages.name
 
   cidr_subnet_messages_sending_func    = "10.20.1.0/24"
   private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
@@ -216,7 +215,7 @@ module "functions_messages_sending" {
 
 module "monitoring" {
   source              = "../_modules/monitoring/"
-  resource_group_name = azurerm_resource_group.itn_messages.name
+  resource_group_name = data.azurerm_resource_group.itn_messages.name
   io_com_slack_email  = data.azurerm_key_vault_secret.io_com_slack_email.value
 }
 
