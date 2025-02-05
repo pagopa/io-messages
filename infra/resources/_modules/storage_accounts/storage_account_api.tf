@@ -59,3 +59,8 @@ resource "azurerm_storage_table" "messages-dataplan-ingestion-errors" {
   storage_account_name = module.storage_api.name
 }
 
+resource "azurerm_storage_table" "message-statuses-dataplan-ingestion-errors" {
+  name                 = "MessageStatusesDataplanIngestionErrors"
+  storage_account_name = module.storage_api.name
+}
+
