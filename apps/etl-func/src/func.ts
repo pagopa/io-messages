@@ -142,9 +142,9 @@ const main = async (config: Config) => {
 
   app.cosmosDB("IngestMessages", {
     connection: "COSMOS",
-    containerName: config.cosmos.messagesContainerName,
+    containerName: config.common_cosmos.messagesContainerName,
     createLeaseContainerIfNotExists: false,
-    databaseName: config.cosmos.databaseName,
+    databaseName: config.common_cosmos.databaseName,
     handler: messagesIngestionHandler(
       ingestMessageUseCase,
       messageIngestionErrorRepository,

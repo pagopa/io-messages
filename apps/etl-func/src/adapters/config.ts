@@ -8,7 +8,7 @@ import { pdvConfigSchema } from "./tokenizer/config.js";
 
 export const configSchema = z.object({
   appInsights: applicationInsightsSchema,
-  cosmos: z.object({
+  common_cosmos: z.object({
     accountUri: z.string().url(),
     databaseName: z.string().min(1),
     messageStatusContainerName: z.string().min(1),
@@ -42,11 +42,12 @@ export const configFromEnvironment = envSchema
         connectionString: env.APPINSIGHTS_CONNECTION_STRING,
         samplingPercentage: env.APPINSIGHTS_SAMPLING_PERCENTAGE,
       },
-      cosmos: {
-        accountUri: env.COSMOS__accountEndpoint,
-        databaseName: env.COSMOS_DBNAME,
-        messageStatusContainerName: env.COSMOS_MESSAGE_STATUS_CONTAINER_NAME,
-        messagesContainerName: env.COSMOS_MESSAGES_CONTAINER_NAME,
+      common_cosmos: {
+        accountUri: env.COMMON_COSMOS__accountEndpoint,
+        databaseName: env.COMMON_COSMOS_DBNAME,
+        messageStatusContainerName:
+          env.COMMON_COSMOS_MESSAGE_STATUS_CONTAINER_NAME,
+        messagesContainerName: env.COMMON_COSMOS_MESSAGES_CONTAINER_NAME,
       },
       iocomCosmos: {
         accountUri: env.IOCOM_COSMOS__accountEndpoint,
