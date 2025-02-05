@@ -97,11 +97,6 @@ data "azurerm_cosmosdb_account" "cosmos_api" {
   resource_group_name = format("%s-rg-internal", local.project_legacy)
 }
 
-data "azurerm_cosmosdb_account" "io_com_cosmos" {
-  name                = "io-p-itn-com-cosno-01"
-  resource_group_name = "io-p-itn-com-rg-01"
-}
-
 data "azurerm_storage_account" "storage_api" {
   name                = replace("${local.project_legacy}stapi", "-", "")
   resource_group_name = format("%s-rg-internal", local.project_legacy)
