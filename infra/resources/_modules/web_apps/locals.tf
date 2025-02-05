@@ -18,10 +18,10 @@ locals {
       REDIS_PASSWORD                                 = var.redis_cache.access_key
       REDIS_PING_INTERVAL                            = 1000 * 60 * 9
       REDIS_URL                                      = var.redis_cache.url
-      COSMOS__accountEndpoint                        = var.cosmosdb_account_api.endpoint
-      COSMOS_DBNAME                                  = "db",
-      COSMOS_MESSAGES_CONTAINER_NAME                 = "messages-dataplan-ingestion-test"
-      COSMOS_MESSAGE_STATUS_CONTAINER_NAME           = "message-status"
+      COMMON_COSMOS__accountEndpoint                 = var.cosmosdb_account_api.endpoint
+      COMMON_COSMOS_DBNAME                           = "db",
+      COMMON_COSMOS_MESSAGES_CONTAINER_NAME          = "messages-dataplan-ingestion-test"
+      COMMON_COSMOS_MESSAGE_STATUS_CONTAINER_NAME    = "message-status"
       MESSAGE_ERROR_TABLE_STORAGE_NAME               = "MessagesDataplanIngestionErrors",
       IOCOM_COSMOS__accountEndpoint                  = var.io_com_cosmos.endpoint
       IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME           = "data-lake-cosmos-01"
