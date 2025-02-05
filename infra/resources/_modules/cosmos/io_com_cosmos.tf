@@ -59,22 +59,31 @@ resource "azurerm_cosmosdb_sql_container" "message_configuration" {
   account_name        = module.io_com_cosmos_account.name
   database_name       = azurerm_cosmosdb_sql_database.remote_content.name
   partition_key_paths = ["/configurationId"]
+  autoscale_settings {
+    max_throughput = 2000
+  }
 }
 
 resource "azurerm_cosmosdb_sql_container" "user_configuration" {
-  name                = "user-configuration"
+  name                = "user-configurations"
   resource_group_name = var.resource_group
 
   account_name        = module.io_com_cosmos_account.name
   database_name       = azurerm_cosmosdb_sql_database.remote_content.name
   partition_key_paths = ["/userId"]
+  autoscale_settings {
+    max_throughput = 2000
+  }
 }
 
 resource "azurerm_cosmosdb_sql_container" "remote_content_lease" {
-  name                = "remote-content-lease"
+  name                = "remote-content-leases"
   resource_group_name = var.resource_group
 
   account_name        = module.io_com_cosmos_account.name
   database_name       = azurerm_cosmosdb_sql_database.remote_content.name
   partition_key_paths = ["/id"]
+  autoscale_settings {
+    max_throughput = 2000
+  }
 }

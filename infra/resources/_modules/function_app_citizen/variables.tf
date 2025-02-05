@@ -87,12 +87,12 @@ variable "cosmos_db_api_key" {
   description = "Cosmos DB api key"
 }
 
-variable "cosmos_db_remote_content_endpoint" {
+variable "io_com_cosmos_endpoint" {
   type        = string
   description = "Cosmos DB endpoint to use as application environment variable"
 }
 
-variable "cosmos_db_remote_content_key" {
+variable "io_com_cosmos_key" {
   type        = string
   description = "Cosmos DB api key"
 }
@@ -206,3 +206,4 @@ variable "action_group_id" {
   type        = string
   description = "The ID of the action group"
 }
+
