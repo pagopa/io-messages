@@ -6,12 +6,20 @@ data "azurerm_resource_group" "weu_common" {
   name = "${local.project_legacy}-rg-common"
 }
 
-data "azurerm_resource_group" "weu_operations" {
-  name = "${local.project_legacy}-rg-operations"
+data "azurerm_resource_group" "itn_messages" {
+  name = "${local.project}-msgs-rg-01"
+}
+
+data "azurerm_resource_group" "itn_common_01" {
+  name = "${local.project}-common-rg-01"
 }
 
 data "azurerm_resource_group" "weu_sec" {
   name = "${local.project_legacy}-sec-rg"
+}
+
+data "azurerm_resource_group" "operations_weu" {
+  name = "${local.project_legacy}-rg-operations"
 }
 
 data "azurerm_resource_group" "weu_messages_sec" {
@@ -43,7 +51,7 @@ data "azurerm_key_vault" "weu_messages" {
 
 data "azurerm_virtual_network" "vnet_common_itn" {
   name                = "${local.project}-common-vnet-01"
-  resource_group_name = "${local.project}-common-rg-01"
+  resource_group_name = data.azurerm_resource_group.itn_common_01.name
 }
 
 data "azurerm_subnet" "pep" {
@@ -54,7 +62,7 @@ data "azurerm_subnet" "pep" {
 
 data "azurerm_nat_gateway" "itn_ng" {
   name                = "${local.project}-ng-01"
-  resource_group_name = "${local.project}-common-rg-01"
+  resource_group_name = data.azurerm_resource_group.itn_common_01.name
 }
 
 data "azurerm_private_dns_zone" "privatelink_redis_cache" {
@@ -109,7 +117,7 @@ data "azurerm_storage_container" "messages_content_container" {
 
 data "azurerm_eventhub_namespace" "etl_eventhub_namespace" {
   name                = "${local.project}-${local.domain}-etl-evhns-01"
-  resource_group_name = "${local.project}-common-rg-01"
+  resource_group_name = data.azurerm_resource_group.itn_common_01.name
 }
 
 data "azurerm_storage_account" "storage_push_notifications" {
@@ -119,7 +127,7 @@ data "azurerm_storage_account" "storage_push_notifications" {
 
 data "azurerm_storage_account" "iopstexportdata" {
   name                = "iopstexportdata"
-  resource_group_name = data.azurerm_resource_group.weu_operations.name
+  resource_group_name = data.azurerm_resource_group.operations_weu.name
 }
 
 data "azurerm_monitor_action_group" "io_com_action_group" {
@@ -127,4 +135,20 @@ data "azurerm_monitor_action_group" "io_com_action_group" {
   name                = "${local.project_legacy}-com-error-ag-01"
 }
 
+data "azurerm_user_assigned_identity" "infra_ci_01" {
+  name                = "${local.project}-msgs-infra-github-ci-id-01"
+  resource_group_name = data.azurerm_resource_group.itn_messages.name
+}
 
+data "azurerm_user_assigned_identity" "infra_cd_01" {
+  name                = "${local.project}-msgs-infra-github-cd-id-01"
+  resource_group_name = data.azurerm_resource_group.itn_messages.name
+}
+
+data "azuread_group" "adgroup_com_admins" {
+  display_name = "${local.project_legacy}-adgroup-com-admins"
+}
+
+data "azuread_group" "adgroup_com_devs" {
+  display_name = "${local.project_legacy}-adgroup-com-developers"
+}

@@ -4,7 +4,8 @@ data "azurerm_nat_gateway" "nat_gateway" {
 }
 
 module "function_app_messages_sending" {
-  source = "github.com/pagopa/dx//infra/modules/azure_function_app?ref=e97c785579f7b027d95d449062073d46fafd2e79"
+  source  = "pagopa/dx-azure-function-app/azurerm"
+  version = "~>0"
 
   environment = {
     prefix          = var.prefix
