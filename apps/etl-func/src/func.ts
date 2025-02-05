@@ -141,7 +141,7 @@ const main = async (config: Config) => {
   });
 
   app.cosmosDB("IngestMessages", {
-    connection: "COSMOS",
+    connection: "COMMON_COSMOS",
     containerName: config.common_cosmos.messagesContainerName,
     createLeaseContainerIfNotExists: false,
     databaseName: config.common_cosmos.databaseName,
