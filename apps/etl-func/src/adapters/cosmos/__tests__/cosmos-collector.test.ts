@@ -8,7 +8,7 @@ const patchMock = vi.fn();
 const readMock = vi.fn();
 const createMock = vi.fn();
 
-const logger = pino();
+const logger = pino({ level: "silent" });
 
 const containerMock = {
   item: () => ({
