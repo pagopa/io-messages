@@ -18,8 +18,7 @@ const messageStatusIngestionHandler =
       else return parsedInput.error;
     });
 
-    // filter the array in order to get only valid MessageMetadata with
-    // isPending = false
+    // filter the array in order to get only valid MessageStatus
     const parsedMessageStatuses = parsedMessageStatusesOrZodError.filter(
       (document): document is MessageStatus => !(document instanceof ZodError),
     );
