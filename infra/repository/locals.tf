@@ -1,35 +1,65 @@
 locals {
-  repository = "io-messages"
+  prefix          = "io"
+  env_short       = "p"
+  location        = "italynorth"
+  domain          = "msgs"
+  instance_number = "01"
 
-  project = "io-p"
-
-  identity_resource_group_name = "${local.project}-identity-rg"
-
-  repo_secrets = {
-    "ARM_TENANT_ID"       = data.azurerm_client_config.current.tenant_id,
-    "ARM_SUBSCRIPTION_ID" = data.azurerm_subscription.current.subscription_id,
-    "CODECOV_TOKEN"       = data.azurerm_key_vault_secret.codecov_token.value
+  adgroups = {
+    admins_name = "io-p-adgroup-com-admins"
+    devs_name   = "io-p-adgroup-com-developers"
   }
 
-  ci = {
-    secrets = {
-      "ARM_CLIENT_ID" = data.azurerm_user_assigned_identity.identity_prod_ci.client_id
+  runner = {
+    cae_name                = "${local.prefix}-${local.env_short}-itn-github-runner-cae-01"
+    cae_resource_group_name = "${local.prefix}-${local.env_short}-itn-github-runner-rg-01"
+    secret = {
+      kv_name                = "${local.prefix}-${local.env_short}-kv-common"
+      kv_resource_group_name = "${local.prefix}-${local.env_short}-rg-common"
     }
   }
 
-  cd = {
-    secrets = {
-      "ARM_CLIENT_ID" = data.azurerm_user_assigned_identity.identity_prod_cd.client_id
-    }
-
-    reviewers_teams = ["io-communication-backend", "engineering-team-cloud-eng"]
+  apim = {
+    name                = "${local.prefix}-${local.env_short}-apim-v2-api"
+    resource_group_name = "${local.prefix}-${local.env_short}-rg-internal"
   }
 
-  app_cd = {
-    secrets = {
-      "ARM_CLIENT_ID" = data.azurerm_user_assigned_identity.identity_app_prod_cd.client_id
-    }
+  vnet = {
+    name                = "${local.prefix}-${local.env_short}-itn-common-vnet-01"
+    resource_group_name = "${local.prefix}-${local.env_short}-itn-common-rg-01"
+  }
 
-    reviewers_teams = ["io-communication-backend", "engineering-team-cloud-eng"]
+  dns = {
+    resource_group_name = "${local.prefix}-${local.env_short}-rg-external"
+  }
+
+  tf_storage_account = {
+    name                = "iopitntfst001"
+    resource_group_name = "terraform-state-rg"
+  }
+
+  repository = {
+    name                     = "io-messages"
+    description              = "This is a monorepo that contains all the backend microservices and functionalities related to messaging in IO."
+    topics                   = ["backend", "io", "messages", "comunicazione", "iocom"]
+    reviewers_teams          = ["io-communication-backend", "engineering-team-cloud-eng"]
+    default_branch_name      = "main"
+    infra_cd_policy_branches = ["main"]
+    opex_cd_policy_branches  = ["main"]
+    app_cd_policy_branches   = ["main"]
+  }
+
+  key_vault = {
+    name                = "io-p-kv-common"
+    resource_group_name = "io-p-rg-common"
+  }
+
+  tags = {
+    CreatedBy      = "Terraform"
+    Environment    = "Prod"
+    BusinessUnit   = "App IO"
+    ManagementTeam = "IO Comunicazione"
+    Source         = "https://github.com/pagopa/io-messages/blob/main/infra/repository"
+    CostCenter     = "TS000 - Tecnologia e Servizi"
   }
 }

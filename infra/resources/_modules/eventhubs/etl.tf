@@ -1,5 +1,6 @@
 module "etl" {
-  source = "github.com/pagopa/dx//infra/modules/azure_event_hub?ref=3f205e62474782678a563f4cff92e479a34feecd"
+  source  = "pagopa/dx-azure-event-hub/azurerm"
+  version = "~>0"
 
   environment = {
     prefix          = var.prefix

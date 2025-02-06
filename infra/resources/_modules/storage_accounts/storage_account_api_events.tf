@@ -1,5 +1,5 @@
 module "storage_api_events" {
-  source = "github.com/pagopa/terraform-azurerm-v3//storage_account?ref=v8.27.0"
+  source = "github.com/pagopa/terraform-azurerm-v4//storage_account?ref=v1.2.1"
 
   name                            = replace(try(local.nonstandard[var.location_short].api_events, "${var.project}apieventsst01"), "-", "")
   account_kind                    = "StorageV2"

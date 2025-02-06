@@ -1,5 +1,6 @@
 module "etl_func" {
-  source = "github.com/pagopa/dx//infra/modules/azure_function_app?ref=b7a84bd876d31797ac87daf9cefebd8f6a579c08"
+  source  = "pagopa/dx-azure-function-app/azurerm"
+  version = "~>0"
 
   environment = merge(var.environment, {
     app_name        = "etl",
