@@ -97,7 +97,6 @@ export class CosmosWeeklyEventCollector<T> implements EventCollector<T> {
       }
     } catch (error) {
       this.#logger.error(error);
-      throw new Error(`Error trying to collect messages-summary | ${error}`);
     }
   }
 }

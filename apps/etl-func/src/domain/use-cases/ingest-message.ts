@@ -42,10 +42,6 @@ export class IngestMessageUseCase {
     );
     if (messagesEvent.length) await this.#eventProducer.publish(messagesEvent);
 
-    try {
-      this.#eventSummaryCollector.collect(messagesEvent);
-    } catch (error) {
-      return;
-    }
+    this.#eventSummaryCollector.collect(messagesEvent);
   }
 }
