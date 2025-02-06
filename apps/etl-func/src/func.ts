@@ -96,10 +96,15 @@ const main = async (config: Config) => {
     .database(config.iocomCosmos.eventsCollectorDatabaseName)
     .container(config.iocomCosmos.messageIngestionSummaryContainerName);
 
+  const messagesWeeklyCollector = new CosmosWeeklyEventCollector(
+    ingestionSummaryContainer,
+    logger,
+  );
+
   const ingestMessageUseCase = new IngestMessageUseCase(
     messageAdapter,
     tokenizerClient,
-    new CosmosWeeklyEventCollector(ingestionSummaryContainer, logger),
+    messagesWeeklyCollector,
     messageEventProducer,
   );
 
