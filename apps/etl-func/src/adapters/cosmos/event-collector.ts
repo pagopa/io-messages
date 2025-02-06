@@ -8,8 +8,8 @@ import { Logger } from "pino";
 
 /**
  * Adapter for a cosmos weekly event collector.
- * The goal is to store into a cosmos container the number of events sent into a
- * container with year as partition key and week number as model id.
+ * The goal is to store the number of events sent to the event hub
+ *  into a container with year as partition key and week number as model id.
  * */
 export class CosmosWeeklyEventCollector<T> implements EventCollector<T> {
   #container: Container;
