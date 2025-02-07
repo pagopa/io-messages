@@ -98,7 +98,7 @@ const main = async (config: Config) => {
 
   const messagesWeeklyCollector = new CosmosWeeklyEventCollector(
     ingestionSummaryContainer,
-    logger,
+    telemetryService,
   );
 
   const ingestMessageUseCase = new IngestMessageUseCase(

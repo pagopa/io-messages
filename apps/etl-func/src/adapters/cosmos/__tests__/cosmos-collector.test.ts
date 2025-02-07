@@ -1,5 +1,5 @@
+import { ApplicationInsights } from "@/adapters/appinsights/appinsights.js";
 import { Container } from "@azure/cosmos";
-import { pino } from "pino";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { CosmosWeeklyEventCollector } from "../event-collector.js";
@@ -8,8 +8,19 @@ const patchMock = vi.fn();
 const readMock = vi.fn();
 const createMock = vi.fn();
 
-const logger = pino({ level: "silent" });
-vi.spyOn(logger, "error").mockReturnValue();
+const mocks = vi.hoisted(() => ({
+  TelemetryClient: vi.fn().mockImplementation(() => ({
+    trackEvent: vi.fn(),
+  })),
+}));
+
+const telemetryServiceMock = new ApplicationInsights(
+  new mocks.TelemetryClient(),
+);
+
+const telemetryTrackEventMock = vi
+  .spyOn(telemetryServiceMock, "trackEvent")
+  .mockResolvedValue();
 
 const containerMock = {
   item: () => ({
@@ -22,7 +33,7 @@ const containerMock = {
 
 const cosmosCollectorMock = new CosmosWeeklyEventCollector(
   containerMock,
-  logger,
+  telemetryServiceMock,
 );
 
 const eventsMock = [{ foo: "bar" }];
@@ -35,7 +46,7 @@ describe("CosmosWeeklyEventCollector.collect", () => {
 
     await cosmosCollectorMock.collect(eventsMock);
 
-    expect(logger.error).toHaveBeenCalledTimes(1);
+    expect(telemetryTrackEventMock).toHaveBeenCalledTimes(1);
   });
 
   test("when the cosmos read return a resource undefined it should call the create", async () => {
@@ -46,7 +57,7 @@ describe("CosmosWeeklyEventCollector.collect", () => {
     expect(readMock).toHaveBeenCalledTimes(1);
     expect(createMock).toHaveBeenCalledTimes(1);
     expect(patchMock).not.toHaveBeenCalled();
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
   test("when the cosmos read return the summary it should call the patch", async () => {
@@ -60,7 +71,7 @@ describe("CosmosWeeklyEventCollector.collect", () => {
     expect(readMock).toHaveBeenCalledTimes(1);
     expect(createMock).not.toHaveBeenCalled();
     expect(patchMock).toHaveBeenCalledTimes(1);
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
   test("when the cosmos create fails it should log an error", async () => {
@@ -72,7 +83,7 @@ describe("CosmosWeeklyEventCollector.collect", () => {
     expect(readMock).toHaveBeenCalledTimes(1);
     expect(createMock).toHaveBeenCalledTimes(1);
     expect(patchMock).not.toHaveBeenCalled();
-    expect(logger.error).toHaveBeenCalledTimes(1);
+    expect(telemetryTrackEventMock).toHaveBeenCalledTimes(1);
   });
 
   test("when the cosmos create goes well it should not log an error", async () => {
@@ -83,7 +94,7 @@ describe("CosmosWeeklyEventCollector.collect", () => {
     expect(readMock).toHaveBeenCalledTimes(1);
     expect(createMock).toHaveBeenCalledTimes(1);
     expect(patchMock).not.toHaveBeenCalled();
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
   test("when the cosmos patch fails it should log an error", async () => {
@@ -98,7 +109,7 @@ describe("CosmosWeeklyEventCollector.collect", () => {
     expect(readMock).toHaveBeenCalledTimes(1);
     expect(createMock).not.toHaveBeenCalled();
     expect(patchMock).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledTimes(1);
+    expect(telemetryTrackEventMock).toHaveBeenCalledTimes(1);
   });
 
   test("when the cosmos patch goes well it should not log an error", async () => {
@@ -112,6 +123,6 @@ describe("CosmosWeeklyEventCollector.collect", () => {
     expect(readMock).toHaveBeenCalledTimes(1);
     expect(createMock).not.toHaveBeenCalled();
     expect(patchMock).toHaveBeenCalledTimes(1);
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 });

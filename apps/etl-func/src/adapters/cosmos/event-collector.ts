@@ -3,8 +3,8 @@ import {
   EventsSummary,
   eventsSummarySchema,
 } from "@/domain/event.js";
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { Container, ItemResponse } from "@azure/cosmos";
-import { Logger } from "pino";
 
 /**
  * Adapter for a cosmos weekly event collector.
@@ -13,14 +13,14 @@ import { Logger } from "pino";
  * */
 export class CosmosWeeklyEventCollector<T> implements EventCollector<T> {
   #container: Container;
-  #logger: Logger;
+  #telemetry: TelemetryService;
 
   /**
    * @param container The name of the container where to store weekly events.
    * */
-  constructor(container: Container, logger: Logger) {
+  constructor(container: Container, telemetry: TelemetryService) {
     this.#container = container;
-    this.#logger = logger;
+    this.#telemetry = telemetry;
   }
 
   private createSummary(events: T[]): EventsSummary {
@@ -96,7 +96,9 @@ export class CosmosWeeklyEventCollector<T> implements EventCollector<T> {
         });
       }
     } catch (error) {
-      this.#logger.error(error);
+      this.#telemetry.trackEvent(TelemetryEventName.COLLECT_COUNT_ERROR, {
+        detail: `${error}`,
+      });
     }
   }
 }

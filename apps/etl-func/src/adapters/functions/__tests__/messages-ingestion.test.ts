@@ -39,11 +39,6 @@ const containerMock = {
 
 const logger = pino();
 
-const cosmosCollectorMock = new CosmosWeeklyEventCollector(
-  containerMock,
-  logger,
-);
-
 const mocks = vi.hoisted(() => ({
   EventHubProducerClient: vi.fn().mockImplementation(() => ({
     createBatch: () => ({
@@ -119,6 +114,11 @@ const publishSpy = vi.spyOn(producer, "publish").mockResolvedValue();
 const eventErrorRepoPushSpy = vi
   .spyOn(messageIngestionErrorRepositoryMock, "push")
   .mockResolvedValue();
+
+const cosmosCollectorMock = new CosmosWeeklyEventCollector(
+  containerMock,
+  telemetryServiceMock,
+);
 
 const ingestMessageUseCase = new IngestMessageUseCase(
   messageAdapter,
