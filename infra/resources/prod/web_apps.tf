@@ -47,6 +47,8 @@ module "web_apps" {
 
   application_insights = data.azurerm_application_insights.common
 
+  application_insights_sampling_percentage = 5
+
   common_key_vault = data.azurerm_key_vault.weu_common
 
 

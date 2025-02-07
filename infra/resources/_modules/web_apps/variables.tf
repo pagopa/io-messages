@@ -58,6 +58,11 @@ variable "application_insights" {
   })
 }
 
+variable "application_insights_sampling_percentage" {
+  type        = number
+  description = "The sampling percentage of logs of application insight"
+}
+
 variable "common_key_vault" {
   type = object({
     id   = string
@@ -101,8 +106,6 @@ variable "cosmosdb_account_api" {
     resource_group_name = string
   })
 }
-
-
 
 variable "tenant_id" {
   type = string
