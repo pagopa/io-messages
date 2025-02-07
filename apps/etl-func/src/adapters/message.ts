@@ -50,7 +50,7 @@ export class MessageAdapter implements MessageRepository {
           EventErrorTypesEnum.enum.EVENT_WITH_MISSING_CONTENT,
         );
         this.#telemetryService.trackEvent(
-          TelemetryEventName.CONTENT_NOT_FOUND,
+          TelemetryEventName.MESSAGE_CONTENT_NOT_FOUND,
           {
             messageId: metadata.id,
           },

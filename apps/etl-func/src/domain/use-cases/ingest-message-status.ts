@@ -14,11 +14,13 @@ export class IngestMessageStatusUseCase {
   }
 
   async execute(messageStatusBatch: MessageStatus[]) {
-    // Transform MessageStatus into MessageStatusEvent
-    const messageStatusEventBatch = messageStatusBatch.map(
-      getMessageStatusEvent,
-    );
-    // Load valid MessageStatusEvent batch
-    await this.#eventProducer.publish(messageStatusEventBatch);
+    if (messageStatusBatch.length > 0) {
+      // Transform MessageStatus into MessageStatusEvent
+      const messageStatusEventBatch = messageStatusBatch.map(
+        getMessageStatusEvent,
+      );
+      // Load valid MessageStatusEvent batch
+      await this.#eventProducer.publish(messageStatusEventBatch);
+    }
   }
 }
