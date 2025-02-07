@@ -4,6 +4,7 @@ import { applicationInsightsSchema } from "./appinsights/config.js";
 import { envSchema } from "./env.js";
 import { eventhubConfigSchema } from "./eventhub/config.js";
 import { redisConfigSchema } from "./redis/config.js";
+import { tableStorageConfigSchema } from "./table-storage/config.js";
 import { pdvConfigSchema } from "./tokenizer/config.js";
 
 export const configSchema = z.object({
@@ -23,10 +24,8 @@ export const configSchema = z.object({
     accountUri: z.string().url(),
     containerName: z.string().min(1),
   }),
-  messageIngestionErrorTable: z.object({
-    connectionUri: z.string().url(),
-    tableName: z.string().min(1),
-  }),
+  messageIngestionErrorTable: tableStorageConfigSchema,
+  messageStatusErrorTable: tableStorageConfigSchema,
   messageStatusEventHub: eventhubConfigSchema,
   messagesEventHub: eventhubConfigSchema,
   messagesRedis: redisConfigSchema,
@@ -62,6 +61,10 @@ export const configFromEnvironment = envSchema
       messageIngestionErrorTable: {
         connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
         tableName: env.MESSAGE_ERROR_TABLE_STORAGE_NAME,
+      },
+      messageStatusErrorTable: {
+        connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
+        tableName: env.MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME,
       },
       messageStatusEventHub: {
         connectionUri: env.EVENTHUB_CONNECTION_URI,

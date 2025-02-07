@@ -118,6 +118,17 @@ const main = async (config: Config) => {
   //   messageStatusProducerClient,
   //   messageStatusAvroSchema,
   // );
+
+  // const messageStatusErrorTableClient = new TableClient(
+  //   `${config.messageStatusErrorTable.connectionUri}${config.messageStatusErrorTable.tableName}`,
+  //   config.messageStatusErrorTable.tableName,
+  //   azureCredentials,
+  // );
+
+  // const messageStatusErrorRepository = new EventErrorTableStorage(
+  //   messageStatusErrorTableClient,
+  // );
+
   // const ingestMessageStatusUseCase = new IngestMessageStatusUseCase(
   //   messageStatusEventProducer,
   // );
@@ -178,7 +189,11 @@ const main = async (config: Config) => {
   //   containerName: config.cosmos.messageStatusContainerName,
   //   createLeaseContainerIfNotExists: false,
   //   databaseName: config.cosmos.databaseName,
-  //   handler: messageStatusIngestionHandler(ingestMessageStatusUseCase),
+  //   handler: messageStatusIngestionHandler(
+  //     ingestMessageStatusUseCase,
+  //     messageStatusErrorRepository,
+  //     telemetryService
+  //   ),
   //   leaseContainerName: `message-status-ingestion-lease`,
   //   maxItemsPerInvocation: 50,
   //   retry: {

@@ -16,6 +16,7 @@ export const envSchema = z.object({
   MESSAGE_CONTENT_STORAGE_URI: z.string().url(),
   MESSAGE_ERROR_TABLE_STORAGE_NAME: z.string().min(1),
   MESSAGE_EVENTHUB_NAME: z.string().min(1),
+  MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME: z.string().min(1),
   MESSAGE_STATUS_EVENTHUB_NAME: z.string().min(1),
   PDV_TOKENIZER_API_KEY: z.string().min(1),
   PDV_TOKENIZER_BASE_URL: z.string().url(),

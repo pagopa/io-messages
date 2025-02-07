@@ -1,4 +1,3 @@
-
 locals {
   location_short = var.environment.location == "italynorth" ? "itn" : var.environment.location == "westeurope" ? "weu" : var.environment.location == "germanywestcentral" ? "gwc" : "neu"
   project        = "${var.environment.prefix}-${var.environment.env_short}-${local.location_short}"
@@ -27,6 +26,7 @@ locals {
       IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME           = "data-lake-cosmos-01"
       IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME = "messages-summary"
       ACCOUNT_STORAGE__tableServiceUri               = var.app_settings.message_error_table_starage_uri
+      MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME        = "MessageStatusesDataplanIngestionErrors",
     }
   }
 }

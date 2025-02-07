@@ -40,9 +40,12 @@ const messagesIngestionHandler =
       if (
         context.retryContext?.retryCount === context.retryContext?.maxRetryCount
       ) {
-        telemetryService.trackEvent(TelemetryEventName.EXECUTION_ERROR, {
-          invocationId: context.invocationId,
-        });
+        telemetryService.trackEvent(
+          TelemetryEventName.MESSAGE_EXECUTION_ERROR,
+          {
+            invocationId: context.invocationId,
+          },
+        );
         await Promise.all(
           documents.map((document) =>
             eventErrorRepository.push(
@@ -63,7 +66,7 @@ const messagesIngestionHandler =
           ),
         ),
       );
-      telemetryService.trackEvent(TelemetryEventName.MALFORMED_DOCUMENTS, {
+      telemetryService.trackEvent(TelemetryEventName.MALFORMED_MESSAGES, {
         invocationId: context.invocationId,
       });
     }
