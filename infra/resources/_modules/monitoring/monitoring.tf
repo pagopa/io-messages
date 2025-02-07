@@ -1,0 +1,82 @@
+data "azurerm_application_insights" "common" {
+  name                = "io-p-ai-common"
+  resource_group_name = "io-p-rg-common"
+}
+
+resource "azurerm_monitor_action_group" "io_com_error" {
+  name                = "io-p-com-error-ag-01"
+  resource_group_name = var.resource_group_name
+  short_name          = "iocom-error"
+
+  email_receiver {
+    name                    = "slack"
+    email_address           = var.io_com_slack_email
+    use_common_alert_schema = true
+  }
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert" "message-ingestion-alert" {
+  name                = format("[%s] Message Ingestion Error", var.project)
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  data_source_id          = data.azurerm_application_insights.common.id
+  description             = "[IO-COM] Alerts for all the errors during the message ingestion to data lake"
+  enabled                 = true
+  auto_mitigation_enabled = false
+
+  query = <<-QUERY
+customEvents
+| where name contains "io.com.message.ingestion_error"
+| summarize AggregatedValue = count() by bin(timestamp, 30m)
+| where AggregatedValue > 1
+  QUERY
+
+  severity    = 1
+  frequency   = 30
+  time_window = 30
+
+  trigger {
+    operator  = "GreaterThanOrEqual"
+    threshold = 1
+  }
+
+  action {
+    action_group = [
+      azurerm_monitor_action_group.io_com_error.id
+    ]
+  }
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert" "message-status-ingestion-alert" {
+  name                = format("[%s] Message Status Ingestion Error", var.project)
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  data_source_id          = data.azurerm_application_insights.application_insights.id
+  description             = "[IO-COM] Alerts for all the errors during the message status ingestion to data lake"
+  enabled                 = true
+  auto_mitigation_enabled = false
+
+  query = <<-QUERY
+customEvents
+| where name contains "io.com.message_status.ingestion_error"
+| summarize AggregatedValue = count() by bin(timestamp, 30m)
+| where AggregatedValue > 1
+  QUERY
+
+  severity    = 1
+  frequency   = 30
+  time_window = 30
+
+  trigger {
+    operator  = "GreaterThanOrEqual"
+    threshold = 1
+  }
+
+  action {
+    action_group = [
+      azurerm_monitor_action_group.io_com_error.id
+    ]
+  }
+}
