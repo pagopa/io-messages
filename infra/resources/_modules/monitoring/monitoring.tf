@@ -53,7 +53,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "message-status-ingestion
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  data_source_id          = data.azurerm_application_insights.application_insights.id
+  data_source_id          = data.azurerm_application_insights.common.id
   description             = "[IO-COM] Alerts for all the errors during the message status ingestion to data lake"
   enabled                 = true
   auto_mitigation_enabled = false
