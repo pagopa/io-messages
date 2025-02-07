@@ -8,29 +8,24 @@ title Container Diagram
 
 Boundary(io, "IO (Messages)") {
   Container(apidb, "cosmos-api", "Azure CosmosDB", "Store messages metadata")
-  Container(msgst, "message-content", "Azure Blob Storage", "Store message content (subject, RC metadata)")
+  Container(msgst, "message-content", "Azure Blob Storage", "Store message content (subject)")
   Container(etlfn, "etl-func", "Azure Function App", "Compose, validate, transform and publish messages")
-  Container(rcdb, "messages-remote-content", "Azure Cosmos DB", "Store RC configurations")
   Container(msgevh, "messages-evh", "Event Hub", "Kafka topic for messages")
+  Container(msgsentevents, "message-ingest-events", "Azure CosmosDB", "Store message ingest events")
   Container(failtable, "etl-failures", "Azure Table Storage")
 }
 
 Rel_D(apidb, etlfn, "Changefeed trigger")
 Rel_R(etlfn, msgevh, "Publish")
+Rel_R(etlfn, msgsentevents, "Publish")
 
 Rel_U(etlfn, msgst, "Read metadata")
-Rel_U(etlfn, rcdb, "Read metadata")
 Rel_L(etlfn, failtable, "Record failures")
 
 System_Boundary(pdv, "Personal Data Vault") {
   Container_Ext(tok, "Tokenizer", "REST API", "Tokenize PII to enable correlations between bounded contexts")
 }
 
-System_Boundary(tpsys, "Third Party") {
-  Container_Ext(rcapi, "Remote Content API", "REST API", "Implement API to retrieve third party contents")
-}
-
 Rel_D(etlfn, tok, "Tokenize PII")
-Rel_D(etlfn, rcapi, "Read metadata")
 
 @enduml

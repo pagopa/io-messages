@@ -1,3 +1,4 @@
+import { CosmosClient } from "@azure/cosmos";
 import { TableClient } from "@azure/data-tables";
 import { EventHubProducerClient } from "@azure/event-hubs";
 import { app } from "@azure/functions";
@@ -14,6 +15,7 @@ import {
 import { messageSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
+import { CosmosWeeklyEventCollector } from "./adapters/cosmos/event-collector.js";
 import { EventHubEventProducer } from "./adapters/eventhub/event.js";
 import messagesIngestionHandler from "./adapters/functions/messages-ingestion.js";
 import { MessageAdapter } from "./adapters/message.js";
@@ -85,9 +87,24 @@ const main = async (config: Config) => {
     logger,
   );
 
+  const ioComCosmosClient = new CosmosClient({
+    aadCredentials: azureCredentials,
+    endpoint: config.iocomCosmos.accountUri,
+  });
+
+  const ingestionSummaryContainer = ioComCosmosClient
+    .database(config.iocomCosmos.eventsCollectorDatabaseName)
+    .container(config.iocomCosmos.messageIngestionSummaryContainerName);
+
+  const messagesWeeklyCollector = new CosmosWeeklyEventCollector(
+    ingestionSummaryContainer,
+    telemetryService,
+  );
+
   const ingestMessageUseCase = new IngestMessageUseCase(
     messageAdapter,
     tokenizerClient,
+    messagesWeeklyCollector,
     messageEventProducer,
   );
 
@@ -124,6 +141,8 @@ const main = async (config: Config) => {
         await blobServiceCLient
           .getContainerClient(config.messageContentStorage.containerName)
           .getProperties();
+        // check for cosmos availability
+        await ioComCosmosClient.getDatabaseAccount();
       } catch (error) {
         logger.error(error);
         throw error;
@@ -138,10 +157,10 @@ const main = async (config: Config) => {
   });
 
   app.cosmosDB("IngestMessages", {
-    connection: "COSMOS",
-    containerName: config.cosmos.messagesContainerName,
+    connection: "COMMON_COSMOS",
+    containerName: config.common_cosmos.messagesContainerName,
     createLeaseContainerIfNotExists: false,
-    databaseName: config.cosmos.databaseName,
+    databaseName: config.common_cosmos.databaseName,
     handler: messagesIngestionHandler(
       ingestMessageUseCase,
       messageIngestionErrorRepository,

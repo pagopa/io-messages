@@ -5,16 +5,11 @@ participant LoadMessage as lm
 collections "message-evh" as evh
 collections "messages-error-repository" as msgErrorRepo
 participant "ai-common" as ai
+collections "message-ingest-events" as mie
 
 caller -> lm : Call loadMessage passing an eventMessage
 activate caller
 activate lm
-
-' lm -> lm : read avro schema
-' alt Error reading avro schema
-'   lm -> ai : Track the error event
-'   lm -[#red]> caller : Throw an error
-' end
 
 lm -> lm : eventMessage to buffer using avro schema
 break Error creating buffer
@@ -43,6 +38,8 @@ note left of lm
   - knows the eventMessage
   has been sent to message-evh
 end note
+
+lm --> mie : Upsert the record into the cosmos collection
 
 lm -> caller : Return
 deactivate lm

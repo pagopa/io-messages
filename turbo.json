@@ -16,7 +16,7 @@
       "outputLogs": "errors-only"
     },
     "test": {
-      "dependsOn": ["^test", "build"],
+      "dependsOn": ["^test"],
       "inputs": ["src/**/*.spec.ts"],
       "outputLogs": "errors-only"
     },

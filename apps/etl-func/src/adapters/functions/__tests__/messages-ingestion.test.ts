@@ -6,18 +6,39 @@ import {
 import { ApplicationInsights } from "@/adapters/appinsights/appinsights.js";
 import { messageSchema } from "@/adapters/avro.js";
 import { MessageContentProvider } from "@/adapters/blob-storage/message-content.js";
+import { CosmosWeeklyEventCollector } from "@/adapters/cosmos/event-collector.js";
 import { EventHubEventProducer } from "@/adapters/eventhub/event.js";
 import { MessageAdapter } from "@/adapters/message.js";
 import { EventErrorTableStorage } from "@/adapters/table-storage/event-error-table-storage.js";
 import PDVTokenizerClient from "@/adapters/tokenizer/pdv-tokenizer-client.js";
 import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
+import { Container } from "@azure/cosmos";
 import { InvocationContext } from "@azure/functions";
 import { pino } from "pino";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import messagesIngestion from "../messages-ingestion.js";
 
+const patchMock = vi.fn();
+const readMock = vi.fn().mockReturnValue(
+  Promise.resolve({
+    item: { patch: patchMock },
+    resource: { count: 10, id: "2025-W01", year: "2025" },
+  }),
+);
+const createMock = vi.fn();
+
+const containerMock = {
+  item: () => ({
+    read: readMock,
+  }),
+  items: {
+    create: createMock,
+  },
+} as unknown as Container;
+
 const logger = pino();
+
 const mocks = vi.hoisted(() => ({
   EventHubProducerClient: vi.fn().mockImplementation(() => ({
     createBatch: () => ({
@@ -94,9 +115,15 @@ const eventErrorRepoPushSpy = vi
   .spyOn(messageIngestionErrorRepositoryMock, "push")
   .mockResolvedValue();
 
+const cosmosCollectorMock = new CosmosWeeklyEventCollector(
+  containerMock,
+  telemetryServiceMock,
+);
+
 const ingestMessageUseCase = new IngestMessageUseCase(
   messageAdapter,
   PDVTokenizer,
+  cosmosCollectorMock,
   producer,
 );
 

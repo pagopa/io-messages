@@ -102,6 +102,15 @@ variable "cosmosdb_account_api" {
   })
 }
 
+variable "io_com_cosmos" {
+  type = object({
+    id                  = string
+    name                = string
+    endpoint            = string
+    resource_group_name = string
+  })
+}
+
 variable "tenant_id" {
   type = string
 }

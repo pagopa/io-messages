@@ -1,4 +1,4 @@
-import { EventProducer } from "../event.js";
+import { EventCollector, EventProducer } from "../event.js";
 import { Message, MessageMetadata, MessageRepository } from "../message.js";
 import {
   MessageEvent,
@@ -8,16 +8,19 @@ import { TokenizerClient } from "../tokenizer.js";
 
 export class IngestMessageUseCase {
   #eventProducer: EventProducer<MessageEvent>;
+  #eventSummaryCollector: EventCollector<MessageEvent>;
   #messageRepo: MessageRepository;
   #tokenizer: TokenizerClient;
 
   constructor(
     messageAdapter: MessageRepository,
     tokenizer: TokenizerClient,
+    eventSummaryCollector: EventCollector<MessageEvent>,
     eventProducer: EventProducer<MessageEvent>,
   ) {
     this.#messageRepo = messageAdapter;
     this.#tokenizer = tokenizer;
+    this.#eventSummaryCollector = eventSummaryCollector;
     this.#eventProducer = eventProducer;
   }
 
@@ -38,5 +41,7 @@ export class IngestMessageUseCase {
       ),
     );
     if (messagesEvent.length) await this.#eventProducer.publish(messagesEvent);
+
+    this.#eventSummaryCollector.collect(messagesEvent);
   }
 }
