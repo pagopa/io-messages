@@ -13,13 +13,17 @@
     "REDIS_PASSWORD": "accessKey",
     "REDIS_PING_INTERVAL": 1000,
     "REDIS_URL": "redis://localhost:6379",
-    "COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
-    "COSMOS_DBNAME": "io-messages",
-    "COSMOS_MESSAGES_CONTAINER_NAME": "messages",
-    "COSMOS_MESSAGE_STATUS_CONTAINER_NAME": "message-status"
+    "COMMON_COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
+    "COMMON_COSMOS_DBNAME": "io-messages",
+    "COMMON_COSMOS_MESSAGES_CONTAINER_NAME": "messages",
+    "IOCOM_COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
+    "IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME": "io-messages",
+    "IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME": "message-ingestion-summary",
+    "COMMON_COSMOS_MESSAGE_STATUS_CONTAINER_NAME": "message-status",
     "MESSAGE_ERROR_TABLE_STORAGE_NAME": "MessagesDataplanIngestionErrors",
     "ACCOUNT_STORAGE__tableServiceUri": "https://testgiovannist.table.core.windows.net/",
-    APPINSIGHTS_CONNECTION_STRING: "aConnectionString",
-    APPINSIGHTS_SAMPLING_PERCENTAGE: 100
+    "APPINSIGHTS_CONNECTION_STRING": "aConnectionString",
+    "APPINSIGHTS_SAMPLING_PERCENTAGE": 100,
+    "MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME": "MessageStatusDataplanIngestionErrors",
   }
 }

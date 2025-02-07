@@ -95,14 +95,14 @@ data "azurerm_key_vault_secret" "fn_messages_APP_MESSAGES_BETA_FISCAL_CODES" {
   key_vault_id = data.azurerm_key_vault.weu_messages.id
 }
 
+data "azurerm_cosmosdb_account" "io_com_cosmos" {
+  name                = format("io-p-itn-com-cosno-01")
+  resource_group_name = "io-p-itn-com-rg-01"
+}
+
 data "azurerm_cosmosdb_account" "cosmos_api" {
   name                = format("%s-cosmos-api", local.project_legacy)
   resource_group_name = format("%s-rg-internal", local.project_legacy)
-}
-
-data "azurerm_cosmosdb_account" "io_com_cosmos" {
-  name                = "io-p-itn-com-cosno-01"
-  resource_group_name = "io-p-itn-com-rg-01"
 }
 
 data "azurerm_storage_account" "storage_api" {

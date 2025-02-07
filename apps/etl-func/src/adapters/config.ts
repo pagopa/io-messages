@@ -4,24 +4,28 @@ import { applicationInsightsSchema } from "./appinsights/config.js";
 import { envSchema } from "./env.js";
 import { eventhubConfigSchema } from "./eventhub/config.js";
 import { redisConfigSchema } from "./redis/config.js";
+import { tableStorageConfigSchema } from "./table-storage/config.js";
 import { pdvConfigSchema } from "./tokenizer/config.js";
 
 export const configSchema = z.object({
   appInsights: applicationInsightsSchema,
-  cosmos: z.object({
+  common_cosmos: z.object({
     accountUri: z.string().url(),
     databaseName: z.string().min(1),
     messageStatusContainerName: z.string().min(1),
     messagesContainerName: z.string().min(1),
   }),
+  iocomCosmos: z.object({
+    accountUri: z.string().url(),
+    eventsCollectorDatabaseName: z.string().min(1),
+    messageIngestionSummaryContainerName: z.string().min(1),
+  }),
   messageContentStorage: z.object({
     accountUri: z.string().url(),
     containerName: z.string().min(1),
   }),
-  messageIngestionErrorTable: z.object({
-    connectionUri: z.string().url(),
-    tableName: z.string().min(1),
-  }),
+  messageIngestionErrorTable: tableStorageConfigSchema,
+  messageStatusErrorTable: tableStorageConfigSchema,
   messageStatusEventHub: eventhubConfigSchema,
   messagesEventHub: eventhubConfigSchema,
   messagesRedis: redisConfigSchema,
@@ -37,11 +41,18 @@ export const configFromEnvironment = envSchema
         connectionString: env.APPINSIGHTS_CONNECTION_STRING,
         samplingPercentage: env.APPINSIGHTS_SAMPLING_PERCENTAGE,
       },
-      cosmos: {
-        accountUri: env.COSMOS__accountEndpoint,
-        databaseName: env.COSMOS_DBNAME,
-        messageStatusContainerName: env.COSMOS_MESSAGE_STATUS_CONTAINER_NAME,
-        messagesContainerName: env.COSMOS_MESSAGES_CONTAINER_NAME,
+      common_cosmos: {
+        accountUri: env.COMMON_COSMOS__accountEndpoint,
+        databaseName: env.COMMON_COSMOS_DBNAME,
+        messageStatusContainerName:
+          env.COMMON_COSMOS_MESSAGE_STATUS_CONTAINER_NAME,
+        messagesContainerName: env.COMMON_COSMOS_MESSAGES_CONTAINER_NAME,
+      },
+      iocomCosmos: {
+        accountUri: env.IOCOM_COSMOS__accountEndpoint,
+        eventsCollectorDatabaseName: env.IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME,
+        messageIngestionSummaryContainerName:
+          env.IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME,
       },
       messageContentStorage: {
         accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
@@ -50,6 +61,10 @@ export const configFromEnvironment = envSchema
       messageIngestionErrorTable: {
         connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
         tableName: env.MESSAGE_ERROR_TABLE_STORAGE_NAME,
+      },
+      messageStatusErrorTable: {
+        connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
+        tableName: env.MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME,
       },
       messageStatusEventHub: {
         connectionUri: env.EVENTHUB_CONNECTION_URI,

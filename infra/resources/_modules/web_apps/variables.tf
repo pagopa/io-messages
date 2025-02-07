@@ -107,6 +107,15 @@ variable "cosmosdb_account_api" {
   })
 }
 
+variable "io_com_cosmos" {
+  type = object({
+    id                  = string
+    name                = string
+    endpoint            = string
+    resource_group_name = string
+  })
+}
+
 variable "tenant_id" {
   type = string
 }
@@ -119,7 +128,7 @@ variable "action_group_id" {
 variable "app_settings" {
   type = object({
     message_content_storage_uri : string,
-    message_error_table_starage_uri : string,
+    message_error_table_storage_uri : string,
     eventhub_connection_uri : string,
   })
 }
