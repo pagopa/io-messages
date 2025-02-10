@@ -23,32 +23,32 @@ module "web_apps" {
   subnet_pep_id = data.azurerm_subnet.pep.id
 
   subnet_cidrs = {
-    notif_func = "10.20.8.0/26"
+    notif_func   = "10.20.8.0/26"
+    citizen_func = "10.20.8.64/26"
   }
 
+  nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
+
   app_settings = {
-    message_content_storage_uri : data.azurerm_storage_account.storage_api.primary_blob_endpoint,
     message_error_table_storage_uri : data.azurerm_storage_account.storage_api.primary_table_endpoint,
     eventhub_connection_uri : "${data.azurerm_eventhub_namespace.etl_eventhub_namespace.name}.servicebus.windows.net"
   }
 
-  redis_cache = {
-    id         = module.redis_messages.id
-    url        = "rediss://${module.redis_messages.hostname}:${module.redis_messages.ssl_port}"
-    access_key = module.redis_messages.primary_access_key
+  message_content_storage = {
+    endpoint          = data.azurerm_storage_account.storage_api.primary_blob_endpoint
+    connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
   }
 
-  /*gcm_migration_storage = {
-    id             = data.azurerm_storage_account.iopstexportdata.id,
-    blob_endpoint  = data.azurerm_storage_account.iopstexportdata.primary_blob_endpoint
-    queue_endpoint = data.azurerm_storage_account.iopstexportdata.primary_queue_endpoint
-    queue          = azurerm_storage_queue.gcm_migrations
-  }*/
+  redis_cache = {
+    id         = module.redis_messages.id
+    hostname   = module.redis_messages.hostname
+    port       = module.redis_messages.ssl_port
+    access_key = module.redis_messages.primary_access_key
+  }
 
   application_insights = data.azurerm_application_insights.common
 
   common_key_vault = data.azurerm_key_vault.weu_common
-
 
   eventhub_namespace                   = data.azurerm_eventhub_namespace.etl_eventhub_namespace
   messages_content_container           = data.azurerm_storage_container.messages_content_container

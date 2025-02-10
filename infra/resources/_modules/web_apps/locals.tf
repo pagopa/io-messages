@@ -7,7 +7,7 @@ locals {
       APPINSIGHTS_CONNECTION_STRING                  = var.application_insights.connection_string
       APPINSIGHTS_SAMPLING_PERCENTAGE                = 100
       FUNCTIONS_WORKER_RUNTIME                       = "node",
-      MESSAGE_CONTENT_STORAGE_URI                    = var.app_settings.message_content_storage_uri
+      MESSAGE_CONTENT_STORAGE_URI                    = var.message_content_storage.endpoint
       EVENTHUB_CONNECTION_URI                        = var.app_settings.eventhub_connection_uri,
       MESSAGE_CONTENT_CONTAINER_NAME                 = "message-content",
       MESSAGE_EVENTHUB_NAME                          = "io-p-itn-com-etl-messages-evh-01"
@@ -16,7 +16,7 @@ locals {
       PDV_TOKENIZER_BASE_URL                         = "https://api.tokenizer.pdv.pagopa.it/tokenizer/v1"
       REDIS_PASSWORD                                 = var.redis_cache.access_key
       REDIS_PING_INTERVAL                            = 1000 * 60 * 9
-      REDIS_URL                                      = var.redis_cache.url
+      REDIS_URL                                      = "rediss://${var.redis_cache.hostname}:${var.redis_cache.port}",
       COMMON_COSMOS__accountEndpoint                 = var.cosmosdb_account_api.endpoint
       COMMON_COSMOS_DBNAME                           = "db",
       COMMON_COSMOS_MESSAGES_CONTAINER_NAME          = "messages-dataplan-ingestion-test"
