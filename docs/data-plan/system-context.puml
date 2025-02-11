@@ -13,10 +13,8 @@ Boundary(io, "IO") {
 }
 
 System_Ext(pdv, "Personal Data Vault Tokenizer")
-System_Ext(tp, "Third Party (Remote Content)")
 
 Rel(consumer, io_msgs, "Use")
 Rel(io_msgs, pdv, "Use")
-Rel(io_msgs, tp, "Use")
 
 @enduml
