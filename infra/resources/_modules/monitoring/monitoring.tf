@@ -80,3 +80,36 @@ customEvents
     ]
   }
 }
+
+resource "azurerm_monitor_scheduled_query_rules_alert" "message-ingestion-count-collect-alert" {
+  name                = format("[%s] Message Count Collection Error", var.project)
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  data_source_id          = data.azurerm_application_insights.common.id
+  description             = "[IO-COM] Alerts for the errors during the count collection of message ingested"
+  enabled                 = true
+  auto_mitigation_enabled = false
+
+  query = <<-QUERY
+customEvents
+| where name contains "io.com.message_status.ingestion_error"
+| summarize AggregatedValue = count() by bin(timestamp, 30m)
+| where AggregatedValue > 1
+  QUERY
+
+  severity    = 1
+  frequency   = 30
+  time_window = 30
+
+  trigger {
+    operator  = "GreaterThanOrEqual"
+    threshold = 1
+  }
+
+  action {
+    action_group = [
+      azurerm_monitor_action_group.io_com_error.id
+    ]
+  }
+}
