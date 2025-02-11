@@ -37,24 +37,15 @@ variable "subnet_pep_id" {
 
 variable "subnet_cidrs" {
   type = object({
-    notif_func = string
+    notif_func   = string
+    citizen_func = string
   })
 }
 
-/*variable "gcm_migration_storage" {
-  type = object({
-    id             = string
-    blob_endpoint  = string
-    queue_endpoint = string
-    queue = object({
-      name = string
-    })
-  })
-}*/
-
 variable "application_insights" {
   type = object({
-    connection_string = string
+    connection_string   = string
+    instrumentation_key = string
   })
 }
 
@@ -103,6 +94,7 @@ variable "cosmosdb_account_api" {
     id                  = string
     name                = string
     endpoint            = string
+    primary_key         = string
     resource_group_name = string
   })
 }
@@ -113,6 +105,7 @@ variable "io_com_cosmos" {
     name                = string
     endpoint            = string
     resource_group_name = string
+    primary_key         = string
   })
 }
 
@@ -127,16 +120,28 @@ variable "action_group_id" {
 
 variable "app_settings" {
   type = object({
-    message_content_storage_uri : string,
-    message_error_table_storage_uri : string,
-    eventhub_connection_uri : string,
+    message_error_table_storage_uri = string,
+    eventhub_connection_uri         = string,
+  })
+}
+
+variable "message_content_storage" {
+  type = object({
+    endpoint          = string
+    connection_string = string
   })
 }
 
 variable "redis_cache" {
   type = object({
     id         = string
-    url        = string
+    hostname   = string
+    port       = string
     access_key = string
   })
+}
+
+variable "nat_gateway_id" {
+  type        = string
+  description = "The ID of the NAT Gateway"
 }

@@ -4,7 +4,7 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  deploy_citizen_func_01:
+  citizen_func_deploy:
     uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@e97c785579f7b027d95d449062073d46fafd2e79
     secrets: inherit
     with:
@@ -12,17 +12,5 @@ jobs:
       environment: app-prod
       resource_group_name: io-p-weu-com-rg-01
       function_app_name: io-p-weu-com-citizen-func-01
-      health_check_path: "/api/v1/info"
-      use_staging_slot: true
-
-  deploy_citizen_func_02:
-    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@e97c785579f7b027d95d449062073d46fafd2e79
-    secrets: inherit
-    needs: [deploy_citizen_func_01]
-    with:
-      workspace_name: citizen-func
-      environment: app-prod
-      resource_group_name: io-p-weu-com-rg-01
-      function_app_name: io-p-weu-com-citizen-func-02
       health_check_path: "/api/v1/info"
       use_staging_slot: true
