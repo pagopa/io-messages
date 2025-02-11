@@ -30,8 +30,8 @@ module "web_apps" {
   nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
 
   app_settings = {
-    message_error_table_storage_uri : data.azurerm_storage_account.storage_api.primary_table_endpoint,
-    eventhub_connection_uri : "${data.azurerm_eventhub_namespace.etl_eventhub_namespace.name}.servicebus.windows.net"
+    message_error_table_storage_uri = data.azurerm_storage_account.storage_api.primary_table_endpoint,
+    eventhub_connection_uri         = "${data.azurerm_eventhub_namespace.etl_eventhub_namespace.name}.servicebus.windows.net"
   }
 
   message_content_storage = {

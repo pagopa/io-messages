@@ -68,7 +68,7 @@ import RCConfigurationUtility from "../../utils/remoteContentConfig";
 
 import { vi, beforeEach, expect, it, describe } from "vitest";
 
-vi.stubEnv("APPINSIGHTS_INSTRUMENTATIONKEY", "foo");
+vi.stubEnv("APPLICATIONINSIGHTS_CONNECTION_STRING", "foo");
 
 const aFiscalCode = "FRLFRC74E04B157I" as FiscalCode;
 const aMessageId = "A_MESSAGE_ID" as NonEmptyString;
