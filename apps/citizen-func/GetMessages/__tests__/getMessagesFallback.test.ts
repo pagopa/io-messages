@@ -31,7 +31,7 @@ import { RedisClientFactory } from "../../utils/redis";
 
 import { vi, describe, expect, it, beforeEach } from "vitest";
 
-vi.stubEnv("APPINSIGHTS_INSTRUMENTATIONKEY", "foo");
+vi.stubEnv("APPLICATIONINSIGHTS_CONNECTION_STRING", "foo");
 
 const findLastVersionByModelIdMock = vi
   .fn()
