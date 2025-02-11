@@ -3,11 +3,6 @@ locals {
     app_settings = {
       NODE_ENV = "production"
 
-      // APP INSIGHTS
-      APPINSIGHTS_INSTRUMENTATIONKEY  = var.application_insights.instrumentation_key
-      APPINSIGHTS_CONNECTION_STRING   = var.application_insights.connection_string
-      APPINSIGHTS_SAMPLING_PERCENTAGE = 5
-
       // IO COSMOSDB
       COSMOSDB_NAME = "db"
       COSMOSDB_URI  = var.cosmosdb_account_api.endpoint
@@ -85,6 +80,9 @@ module "citizen_func" {
   slot_app_settings = local.citizen_func.app_settings
 
   tags = var.tags
+
+  application_insights_connection_string   = var.application_insights.connection_string
+  application_insights_sampling_percentage = 5
 
   action_group_id = var.action_group_id
 }

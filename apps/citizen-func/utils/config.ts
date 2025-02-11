@@ -15,7 +15,7 @@ import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
 import {
   IntegerFromString,
-  NonNegativeInteger
+  NonNegativeInteger,
 } from "@pagopa/ts-commons/lib/numbers";
 import { withDefault } from "@pagopa/ts-commons/lib/types";
 import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
@@ -26,17 +26,17 @@ import { CommaSeparatedListOf } from "./types";
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const AnyBut = <A extends string | number | boolean | symbol, Out = A>(
   but: A,
-  base: t.Type<A, Out> = t.any
+  base: t.Type<A, Out> = t.any,
 ) =>
   t.brand(
     base,
     (
-      s
+      s,
     ): s is t.Branded<
       t.TypeOf<typeof base>,
       { readonly AnyBut: unique symbol }
     > => s !== but,
-    "AnyBut"
+    "AnyBut",
   );
 
 // configuration for REQ_SERVICE_ID in dev
@@ -44,23 +44,23 @@ export type ReqServiceIdConfig = t.TypeOf<typeof ReqServiceIdConfig>;
 export const ReqServiceIdConfig = t.union([
   t.interface({
     NODE_ENV: t.literal("production"),
-    REQ_SERVICE_ID: t.undefined
+    REQ_SERVICE_ID: t.undefined,
   }),
   t.interface({
     NODE_ENV: AnyBut("production", t.string),
-    REQ_SERVICE_ID: NonEmptyString
-  })
+    REQ_SERVICE_ID: NonEmptyString,
+  }),
 ]);
 
 export const RedisParams = t.intersection([
   t.interface({
-    REDIS_URL: NonEmptyString
+    REDIS_URL: NonEmptyString,
   }),
   t.partial({
     REDIS_PASSWORD: NonEmptyString,
     REDIS_PORT: NonEmptyString,
-    REDIS_TLS_ENABLED: t.boolean
-  })
+    REDIS_TLS_ENABLED: t.boolean,
+  }),
 ]);
 export type RedisParams = t.TypeOf<typeof RedisParams>;
 
@@ -68,7 +68,7 @@ export const FeatureFlagType = t.union([
   t.literal("none"),
   t.literal("beta"),
   t.literal("canary"),
-  t.literal("prod")
+  t.literal("prod"),
 ]);
 export type FeatureFlagType = t.TypeOf<typeof FeatureFlagType>;
 
@@ -92,7 +92,7 @@ export const UlidMapFromString = new t.Type<ReadonlyMap<string, Ulid>, string>(
       return t.failure(s, c);
     }
   },
-  a => JSON.stringify(Object.fromEntries(a.entries()))
+  (a) => JSON.stringify(Object.fromEntries(a.entries())),
 );
 
 export type UlidMapFromString = t.TypeOf<typeof UlidMapFromString>;
@@ -101,7 +101,7 @@ export type UlidMapFromString = t.TypeOf<typeof UlidMapFromString>;
 export type IConfig = t.TypeOf<typeof IConfig>;
 export const IConfig = t.intersection([
   t.interface({
-    APPINSIGHTS_INSTRUMENTATIONKEY: NonEmptyString,
+    APPINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
     /* eslint-disable sort-keys */
     COSMOSDB_KEY: NonEmptyString,
@@ -125,15 +125,15 @@ export const IConfig = t.intersection([
     FF_TYPE: withDefault(t.string, "none").pipe(FeatureFlagType),
     USE_FALLBACK: withDefault(t.string, "false").pipe(BooleanFromString),
     FF_BETA_TESTER_LIST: withDefault(t.string, "").pipe(
-      CommaSeparatedListOf(NonEmptyString)
+      CommaSeparatedListOf(NonEmptyString),
     ),
     FF_CANARY_USERS_REGEX: withDefault(t.string, "XYZ").pipe(NonEmptyString),
 
-    isProduction: t.boolean
+    isProduction: t.boolean,
     /* eslint-enable sort-keys */
   }),
   ReqServiceIdConfig,
-  RedisParams
+  RedisParams,
 ]);
 
 // No need to re-evaluate this object for each call
@@ -141,15 +141,15 @@ const errorOrConfig: t.Validation<IConfig> = IConfig.decode({
   ...process.env,
   REDIS_TLS_ENABLED: pipe(
     O.fromNullable(process.env.REDIS_TLS_ENABLED),
-    O.map(_ => _.toLowerCase() === "true"),
-    O.toUndefined
+    O.map((_) => _.toLowerCase() === "true"),
+    O.toUndefined,
   ),
   SERVICE_CACHE_TTL_DURATION: pipe(
     process.env.SERVICE_CACHE_TTL_DURATION,
     IntegerFromString.decode,
-    E.getOrElse(() => 3600 * 8)
+    E.getOrElse(() => 3600 * 8),
   ),
-  isProduction: process.env.NODE_ENV === "production"
+  isProduction: process.env.NODE_ENV === "production",
 });
 
 /**
@@ -174,8 +174,8 @@ export function getConfig(): t.Validation<IConfig> {
 export function getConfigOrThrow(): IConfig {
   return pipe(
     errorOrConfig,
-    E.getOrElse(errors => {
+    E.getOrElse((errors) => {
       throw new Error(`Invalid configuration: ${readableReport(errors)}`);
-    })
+    }),
   );
 }
