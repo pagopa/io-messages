@@ -70,11 +70,11 @@ export const configFromEnvironment = envSchema
         tableName: env.MESSAGE_ERROR_TABLE_STORAGE_NAME,
       },
       messageIngestionTrigger: {
-        leaseContainerName: env.MESSAGES_INGESTION_TRIGGER_LEASE_CONTAINER,
-        maxInvocationItems: env.MESSAGES_INGESTION_TRIGGER_MAX_INVOCATION_ITEMS,
-        maxRetryCount: env.MESSAGES_INGESTION_TRIGGER_MAX_RETRY_COUNT,
-        maximumInterval: env.MESSAGES_INGESTION_TRIGGER_MAXIMUM_INTERVAL,
-        minimumInterval: env.MESSAGES_INGESTION_TRIGGER_MINIMUM_INTERVAL,
+        leaseContainerName: env.MESSAGES_INGESTION_LEASE_CONTAINER,
+        maxInvocationItems: env.MESSAGES_INGESTION_RETRY_MAX_INVOCATION_ITEMS,
+        maxRetryCount: env.MESSAGES_INGESTION_RETRY_MAX_RETRIES_COUNT,
+        maximumInterval: env.MESSAGES_INGESTION_RETRY_MAX_MINUTES_INTERVAL,
+        minimumInterval: env.MESSAGES_INGESTION_RETRY_MIN_MINUTES_INTERVAL,
       },
       messageStatusErrorTable: {
         connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
