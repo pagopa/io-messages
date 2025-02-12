@@ -51,20 +51,18 @@ resource "azurerm_role_assignment" "messages_error_table" {
   principal_id         = module.etl_func.function_app.function_app.principal_id
 }
 
+resource "azurerm_role_assignment" "io_com_cosmos_etl_func" {
+  scope                = var.io_com_cosmos.id
+  role_definition_name = "Cosmos DB SQL Contributor"
+  principal_id         = module.etl_func.function_app.function_app.principal_id
+}
+
 resource "azurerm_cosmosdb_sql_role_assignment" "etl_func" {
   resource_group_name = var.cosmosdb_account_api.resource_group_name
   account_name        = var.cosmosdb_account_api.name
   role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = module.etl_func.function_app.function_app.principal_id
   scope               = var.cosmosdb_account_api.id
-}
-
-resource "azurerm_cosmosdb_sql_role_assignment" "io_com_cosmos_etl_func" {
-  resource_group_name = var.io_com_cosmos.resource_group_name
-  account_name        = var.io_com_cosmos.name
-  role_definition_id  = "${var.io_com_cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
-  principal_id        = module.etl_func.function_app.function_app.principal_id
-  scope               = var.io_com_cosmos.id
 }
 
 resource "azurerm_role_assignment" "key_vault_etl_func_secrets_user" {
