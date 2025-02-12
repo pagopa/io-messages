@@ -1,5 +1,6 @@
 export interface TelemetryService {
-  trackEvent: (name: string, properties: object) => void;
+  trackEvent(name: string, properties: object): void;
+  trackEventWithSampling(name: string, properties: object): void;
 }
 
 export enum TelemetryEventName {

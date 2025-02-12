@@ -8,7 +8,7 @@ module "etl_func" {
   })
 
   application_insights_connection_string   = var.application_insights.connection_string
-  application_insights_sampling_percentage = 5
+  application_insights_sampling_percentage = var.application_insights_sampling_percentage
 
   tier = "m"
 
@@ -24,7 +24,7 @@ module "etl_func" {
 
   virtual_network = var.virtual_network
 
-  subnet_cidr   = var.subnet_cidrs.notif_func
+  subnet_cidr   = var.subnet_cidrs.etl_func
   subnet_pep_id = var.subnet_pep_id
 
   tags = var.tags

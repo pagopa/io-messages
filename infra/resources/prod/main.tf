@@ -211,6 +211,8 @@ module "functions_messages_sending" {
 
 module "monitoring" {
   source              = "../_modules/monitoring/"
+  location            = local.location
+  project             = local.project
   resource_group_name = data.azurerm_resource_group.itn_messages.name
   io_com_slack_email  = data.azurerm_key_vault_secret.io_com_slack_email.value
 }
