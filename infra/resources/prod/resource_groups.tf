@@ -96,3 +96,10 @@ resource "azurerm_role_assignment" "devs_group_rg" {
   principal_id         = data.azuread_group.adgroup_com_devs.object_id
   description          = "Allow AD Dev group to apply changes at monorepository resource group scope"
 }
+
+resource "azurerm_role_assignment" "app_cd_rg_contributor" {
+  scope                = azurerm_resource_group.itn_com.id
+  role_definition_name = "Contributor"
+  principal_id         = data.azurerm_user_assigned_identity.app_cd_01.principal_id
+  description          = "Allow App CD identity to apply changes to AppServices at monorepository resource group scope"
+}
