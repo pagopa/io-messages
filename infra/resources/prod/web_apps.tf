@@ -25,6 +25,7 @@ module "web_apps" {
   subnet_cidrs = {
     notif_func   = "10.20.8.0/26"
     citizen_func = "10.20.8.64/26"
+    etl_func     = "10.20.8.128/26"
   }
 
   nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
