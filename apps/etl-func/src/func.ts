@@ -167,7 +167,7 @@ const main = async (config: Config) => {
       telemetryService,
     ),
     leaseContainerName: config.messageIngestionTrigger.leaseContainerName,
-    leaseContainerPrefix: config.messageIngestionTrigger.leasePrefix,
+    leaseContainerPrefix: config.messageIngestionTrigger.leaseContainerPrefix,
     maxItemsPerInvocation: config.messageIngestionTrigger.maxInvocationItems,
     retry: {
       maxRetryCount: config.messageIngestionTrigger.maxRetryCount,
