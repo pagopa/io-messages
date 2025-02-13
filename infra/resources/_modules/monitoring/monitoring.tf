@@ -27,7 +27,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "message-ingestion-alert"
 
   query = <<-QUERY
 customEvents
-| where name contains "io.com.message.ingestion_error"
+| where name startswith "io.com.message.ingestion"
 | summarize AggregatedValue = count() by bin(timestamp, 30m)
 | where AggregatedValue > 1
   QUERY
@@ -60,7 +60,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "message-status-ingestion
 
   query = <<-QUERY
 customEvents
-| where name contains "io.com.message_status.ingestion_error"
+| where name startswith "io.com.message_status.ingestion"
 | summarize AggregatedValue = count() by bin(timestamp, 30m)
 | where AggregatedValue > 1
   QUERY
@@ -93,7 +93,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "message-ingestion-count-
 
   query = <<-QUERY
 customEvents
-| where name contains "io.com.message_status.ingestion_error"
+| where name == "io.com.message.collect.count_error"
 | summarize AggregatedValue = count() by bin(timestamp, 30m)
 | where AggregatedValue > 1
   QUERY
