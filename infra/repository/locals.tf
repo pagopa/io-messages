@@ -33,6 +33,10 @@ locals {
     resource_group_name = "${local.prefix}-${local.env_short}-rg-external"
   }
 
+  natgateway = {
+    resource_group_name = "${local.prefix}-${local.env_short}-itn-common-rg-01"
+  }
+
   tf_storage_account = {
     name                = "iopitntfst001"
     resource_group_name = "terraform-state-rg"

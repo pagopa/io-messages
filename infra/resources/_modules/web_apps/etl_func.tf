@@ -59,6 +59,12 @@ resource "azurerm_cosmosdb_sql_role_assignment" "etl_func" {
   scope               = var.cosmosdb_account_api.id
 }
 
+resource "azurerm_role_assignment" "io_com_cosmos_etl_func" {
+  scope                = var.io_com_cosmos.id
+  role_definition_name = "SQL DB Contributor"
+  principal_id         = module.etl_func.function_app.function_app.principal_id
+}
+
 resource "azurerm_cosmosdb_sql_role_assignment" "io_com_cosmos_etl_func" {
   resource_group_name = var.io_com_cosmos.resource_group_name
   account_name        = var.io_com_cosmos.name
