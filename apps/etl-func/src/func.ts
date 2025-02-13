@@ -166,15 +166,16 @@ const main = async (config: Config) => {
       messageIngestionErrorRepository,
       telemetryService,
     ),
-    leaseContainerName: `messages-dataplan-ingestion-test-lease`,
-    maxItemsPerInvocation: 50,
+    leaseContainerName: config.messageIngestionTrigger.leaseContainerName,
+    leaseContainerPrefix: config.messageIngestionTrigger.leaseContainerPrefix,
+    maxItemsPerInvocation: config.messageIngestionTrigger.maxInvocationItems,
     retry: {
-      maxRetryCount: 5,
+      maxRetryCount: config.messageIngestionTrigger.maxRetryCount,
       maximumInterval: {
-        minutes: 1,
+        minutes: config.messageIngestionTrigger.maximumInterval,
       },
       minimumInterval: {
-        seconds: 5,
+        minutes: config.messageIngestionTrigger.minimumInterval,
       },
       strategy: "exponentialBackoff",
     },

@@ -14,7 +14,7 @@ module "etl" {
   eventhubs = [{
     name                   = "messages-evh"
     partitions             = 32
-    message_retention_days = 7
+    message_retention_days = 1
     keys = [{
       name   = "io-messages"
       listen = false
