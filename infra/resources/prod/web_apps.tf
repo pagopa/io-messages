@@ -24,6 +24,7 @@ module "web_apps" {
 
   subnet_cidrs = {
     notif_func   = "10.20.8.0/26"
+    etl_func     = "10.20.8.0/26"
     citizen_func = "10.20.8.64/26"
   }
 
@@ -47,6 +48,8 @@ module "web_apps" {
   }
 
   application_insights = data.azurerm_application_insights.common
+
+  application_insights_sampling_percentage = 5
 
   common_key_vault = data.azurerm_key_vault.weu_common
 
