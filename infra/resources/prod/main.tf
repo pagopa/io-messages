@@ -235,7 +235,7 @@ module "cosmos" {
 
 module "io_com_storage_account" {
   source              = "../_modules/com_storage_account/"
-  resource_group_name = data.azurerm_resource_group.itn_messages.name
+  resource_group_name = data.azurerm_resource_group.itn_common_01.name
   environment = {
     prefix          = local.prefix
     env_short       = local.env_short
