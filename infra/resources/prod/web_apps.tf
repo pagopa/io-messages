@@ -58,7 +58,7 @@ module "web_apps" {
   messages_storage_account             = data.azurerm_storage_account.storage_api
   cosmosdb_account_api                 = data.azurerm_cosmosdb_account.cosmos_api
   io_com_cosmos                        = data.azurerm_cosmosdb_account.io_com_cosmos
-  messages_error_table_storage_account = module.io_com_storage_account.messages_error_table_storage_account
+  messages_error_table_storage_account = module.io_com_storage_account.messages_error_table_storage_account_uri
 
   tenant_id = data.azurerm_client_config.current.tenant_id
 

@@ -36,5 +36,5 @@ No requirements.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_messages_error_table_storage_account"></a> [messages\_error\_table\_storage\_account](#output\_messages\_error\_table\_storage\_account) | n/a |
+| <a name="output_messages_error_table_storage_account_uri"></a> [messages\_error\_table\_storage\_account\_uri](#output\_messages\_error\_table\_storage\_account\_uri) | n/a |
 <!-- END_TF_DOCS -->
