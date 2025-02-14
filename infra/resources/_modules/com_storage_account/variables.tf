@@ -11,7 +11,6 @@ variable "environment" {
     prefix          = string
     env_short       = string
     location        = string
-    domain          = string
     instance_number = string
   })
 }

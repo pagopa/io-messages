@@ -5,7 +5,7 @@ module "dx-azure-storage-account" {
   subnet_pep_id       = var.subnet_pep_id
   tags                = var.tags
   tier                = "s"
-  environment         = merge(var.environment, { app_name = "messages" })
+  environment         = merge(var.environment, { app_name = "com" })
   resource_group_name = var.resource_group_name
 
   subservices_enabled = {

@@ -239,7 +239,6 @@ module "io_com_storage_account" {
   environment = {
     prefix          = local.prefix
     env_short       = local.env_short
-    domain          = local.domain
     location        = local.location
     instance_number = "01"
   }
