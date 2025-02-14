@@ -15,7 +15,7 @@ No requirements.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_dx-azure-storage-account"></a> [dx-azure-storage-account](#module\_dx-azure-storage-account) | pagopa/dx-azure-storage-account/azurerm | 0.0.9 |
+| <a name="module_com_st"></a> [com\_st](#module\_com\_st) | pagopa/dx-azure-storage-account/azurerm | 0.0.9 |
 
 ## Resources
 
@@ -27,7 +27,7 @@ No requirements.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_environment"></a> [environment](#input\_environment) | n/a | <pre>object({<br/>    prefix          = string<br/>    env_short       = string<br/>    location        = string<br/>    domain          = string<br/>    instance_number = string<br/>  })</pre> | n/a | yes |
+| <a name="input_environment"></a> [environment](#input\_environment) | n/a | <pre>object({<br/>    prefix    = string<br/>    env_short = string<br/>    location  = string<br/>  })</pre> | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | n/a | `string` | n/a | yes |
 | <a name="input_subnet_pep_id"></a> [subnet\_pep\_id](#input\_subnet\_pep\_id) | n/a | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(string)` | n/a | yes |
