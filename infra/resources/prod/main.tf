@@ -237,10 +237,9 @@ module "io_com_storage_account" {
   source              = "../_modules/com_storage_account/"
   resource_group_name = data.azurerm_resource_group.itn_common_01.name
   environment = {
-    prefix          = local.prefix
-    env_short       = local.env_short
-    location        = local.location
-    instance_number = "01"
+    prefix    = local.prefix
+    env_short = local.env_short
+    location  = local.location
   }
   subnet_pep_id = data.azurerm_subnet.pep.id
   tags          = local.tags
