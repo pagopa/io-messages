@@ -145,6 +145,11 @@ data "azurerm_user_assigned_identity" "infra_cd_01" {
   resource_group_name = data.azurerm_resource_group.itn_messages.name
 }
 
+data "azurerm_user_assigned_identity" "app_cd_01" {
+  name                = "${local.project}-msgs-app-github-cd-id-01"
+  resource_group_name = data.azurerm_resource_group.itn_messages.name
+}
+
 data "azuread_group" "adgroup_com_admins" {
   display_name = "${local.project_legacy}-adgroup-com-admins"
 }
