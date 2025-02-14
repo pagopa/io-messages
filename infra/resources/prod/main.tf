@@ -232,3 +232,17 @@ module "cosmos" {
     instance_number = "01"
   }
 }
+
+module "io_com_storage_account" {
+  source              = "../_modules/com_storage_account/"
+  resource_group_name = data.azurerm_resource_group.itn_messages.name
+  environment = {
+    prefix          = local.prefix
+    env_short       = local.env_short
+    domain          = local.domain
+    location        = local.location
+    instance_number = "01"
+  }
+  subnet_pep_id = data.azurerm_subnet.pep.id
+  tags          = local.tags
+}
