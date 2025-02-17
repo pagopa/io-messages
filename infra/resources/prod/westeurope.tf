@@ -13,6 +13,14 @@ module "storage_api_weu" {
   location       = local.legacy_location
   location_short = local.legacy_location_short
 
+  environment = {
+    env_short = local.env_short
+    location  = local.location
+    prefix    = local.prefix
+  }
+
+  subnet_pep_id = data.azurerm_subnet.pep.id
+
   resource_group_name = data.azurerm_resource_group.internal_rg.name
 
   error_action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id

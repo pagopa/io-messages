@@ -9,6 +9,6 @@
   "web_apps.etl_func.naming_convention": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4",
   "web_apps.citizen_func": "35993f0f57f017a544522dac18c8b585d9642d93edf9a45d7651a8388ed8980b",
   "web_apps.citizen_func.naming_convention": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4",
-  "io_com_storage_account.com_st": "c073e41130034acebff0c22a7cffc22a1533ef46b64752789d472116abc21eee",
-  "io_com_storage_account.com_st.naming_convention": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4"
+  "storage_api_weu.com_st": "c073e41130034acebff0c22a7cffc22a1533ef46b64752789d472116abc21eee",
+  "storage_api_weu.com_st.naming_convention": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4"
 }
