@@ -115,11 +115,6 @@ data "azurerm_storage_container" "messages_content_container" {
   storage_account_name = data.azurerm_storage_account.storage_api.name
 }
 
-data "azurerm_eventhub_namespace" "etl_eventhub_namespace" {
-  name                = "${local.project}-${local.domain}-etl-evhns-01"
-  resource_group_name = data.azurerm_resource_group.itn_common_01.name
-}
-
 data "azurerm_storage_account" "storage_push_notifications" {
   name                = replace(format("%s-weu-messages-notifst", local.project_legacy), "-", "")
   resource_group_name = data.azurerm_resource_group.notifications_rg.name
