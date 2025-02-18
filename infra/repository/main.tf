@@ -63,6 +63,10 @@ data "azurerm_resource_group" "external" {
   name = local.dns.resource_group_name
 }
 
+data "azurerm_resource_group" "common_itn_01" {
+  name = local.natgateway.resource_group_name
+}
+
 data "azurerm_resource_group" "dashboards" {
   name = "dashboards"
 }
@@ -120,10 +124,11 @@ module "repo" {
     }
   }
 
-  apim_id                    = data.azurerm_api_management.apim.id
-  pep_vnet_id                = data.azurerm_virtual_network.common.id
-  dns_zone_resource_group_id = data.azurerm_resource_group.external.id
-  opex_resource_group_id     = data.azurerm_resource_group.dashboards.id
+  apim_id                       = data.azurerm_api_management.apim.id
+  pep_vnet_id                   = data.azurerm_virtual_network.common.id
+  dns_zone_resource_group_id    = data.azurerm_resource_group.external.id
+  nat_gateway_resource_group_id = data.azurerm_resource_group.common_itn_01.id
+  opex_resource_group_id        = data.azurerm_resource_group.dashboards.id
   keyvault_common_ids = [
     data.azurerm_key_vault.common.id
   ]

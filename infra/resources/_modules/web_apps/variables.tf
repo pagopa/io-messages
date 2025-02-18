@@ -39,6 +39,7 @@ variable "subnet_cidrs" {
   type = object({
     notif_func   = string
     citizen_func = string
+    etl_func     = string
   })
 }
 
@@ -47,6 +48,11 @@ variable "application_insights" {
     connection_string   = string
     instrumentation_key = string
   })
+}
+
+variable "application_insights_sampling_percentage" {
+  type        = number
+  description = "The sampling percentage of logs of application insight"
 }
 
 variable "common_key_vault" {

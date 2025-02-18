@@ -6,7 +6,7 @@ module "storage_api_replica" {
   account_tier                     = "Standard"
   access_tier                      = "Hot"
   account_replication_type         = "GZRS"
-  resource_group_name              = var.resource_group_name
+  resource_group_name              = var.legacy_resource_group_name
   location                         = var.location
   advanced_threat_protection       = true
   use_legacy_defender_version      = false

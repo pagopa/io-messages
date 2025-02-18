@@ -24,14 +24,15 @@ module "web_apps" {
 
   subnet_cidrs = {
     notif_func   = "10.20.8.0/26"
+    etl_func     = "10.20.8.0/26"
     citizen_func = "10.20.8.64/26"
   }
 
   nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
 
   app_settings = {
-    message_error_table_storage_uri = data.azurerm_storage_account.storage_api.primary_table_endpoint,
-    eventhub_connection_uri         = "${data.azurerm_eventhub_namespace.etl_eventhub_namespace.name}.servicebus.windows.net"
+    message_error_table_storage_uri : data.azurerm_storage_account.storage_api.primary_table_endpoint,
+    eventhub_connection_uri : "${module.eventhubs.namespace.name}.servicebus.windows.net"
   }
 
   message_content_storage = {
@@ -48,14 +49,16 @@ module "web_apps" {
 
   application_insights = data.azurerm_application_insights.common
 
+  application_insights_sampling_percentage = 5
+
   common_key_vault = data.azurerm_key_vault.weu_common
 
-  eventhub_namespace                   = data.azurerm_eventhub_namespace.etl_eventhub_namespace
+  eventhub_namespace                   = module.eventhubs.namespace
   messages_content_container           = data.azurerm_storage_container.messages_content_container
   messages_storage_account             = data.azurerm_storage_account.storage_api
   cosmosdb_account_api                 = data.azurerm_cosmosdb_account.cosmos_api
   io_com_cosmos                        = data.azurerm_cosmosdb_account.io_com_cosmos
-  messages_error_table_storage_account = data.azurerm_storage_account.storage_api
+  messages_error_table_storage_account = module.storage_api_weu.messages_error_table_storage_account_uri
 
   tenant_id = data.azurerm_client_config.current.tenant_id
 

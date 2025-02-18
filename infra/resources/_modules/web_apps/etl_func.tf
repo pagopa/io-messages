@@ -8,7 +8,7 @@ module "etl_func" {
   })
 
   application_insights_connection_string   = var.application_insights.connection_string
-  application_insights_sampling_percentage = 5
+  application_insights_sampling_percentage = var.application_insights_sampling_percentage
 
   tier = "m"
 
@@ -24,7 +24,7 @@ module "etl_func" {
 
   virtual_network = var.virtual_network
 
-  subnet_cidr   = var.subnet_cidrs.notif_func
+  subnet_cidr   = var.subnet_cidrs.etl_func
   subnet_pep_id = var.subnet_pep_id
 
   tags = var.tags
@@ -57,6 +57,20 @@ resource "azurerm_cosmosdb_sql_role_assignment" "etl_func" {
   role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = module.etl_func.function_app.function_app.principal_id
   scope               = var.cosmosdb_account_api.id
+}
+
+resource "azurerm_role_assignment" "io_com_cosmos_etl_func" {
+  scope                = var.io_com_cosmos.id
+  role_definition_name = "SQL DB Contributor"
+  principal_id         = module.etl_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "io_com_cosmos_etl_func" {
+  resource_group_name = var.io_com_cosmos.resource_group_name
+  account_name        = var.io_com_cosmos.name
+  role_definition_id  = "${var.io_com_cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = module.etl_func.function_app.function_app.principal_id
+  scope               = var.io_com_cosmos.id
 }
 
 resource "azurerm_role_assignment" "key_vault_etl_func_secrets_user" {
