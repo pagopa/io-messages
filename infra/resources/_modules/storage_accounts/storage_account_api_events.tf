@@ -6,7 +6,7 @@ module "storage_api_events" {
   account_tier                    = "Standard"
   access_tier                     = "Hot"
   account_replication_type        = "GZRS"
-  resource_group_name             = var.resource_group_name
+  resource_group_name             = var.legacy_resource_group_name
   location                        = var.location
   allow_nested_items_to_be_public = false
   public_network_access_enabled   = true
