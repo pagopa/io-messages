@@ -1,9 +1,9 @@
 locals {
   location_short = var.environment.location == "italynorth" ? "itn" : var.environment.location == "westeurope" ? "weu" : var.environment.location == "germanywestcentral" ? "gwc" : "neu"
-  project        = "${var.environment.prefix}-${var.environment.env_short}-${local.location_short}"
   etl_func = {
     app_settings = {
       NODE_ENV                                       = "production",
+      "AzureWebJobs.IngestMessages.Disabled"         = true,
       APPINSIGHTS_CONNECTION_STRING                  = var.application_insights.connection_string
       APPINSIGHTS_SAMPLING_PERCENTAGE                = var.application_insights_sampling_percentage
       FUNCTIONS_WORKER_RUNTIME                       = "node",
