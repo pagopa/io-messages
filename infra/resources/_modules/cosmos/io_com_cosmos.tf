@@ -51,9 +51,7 @@ resource "azurerm_cosmosdb_sql_container" "messages_summary" {
   database_name       = azurerm_cosmosdb_sql_database.data_lake.name
   partition_key_paths = ["/year"]
 
-  autoscale_settings {
-    max_throughput = 2000
-  }
+  throughput = 800
 }
 
 resource "azurerm_cosmosdb_sql_container" "message_configuration" {
