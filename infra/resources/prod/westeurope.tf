@@ -21,7 +21,7 @@ module "storage_api_weu" {
 
   subnet_pep_id = data.azurerm_subnet.pep.id
 
-  resource_group_name = data.azurerm_resource_group.itn_common_01.name
+  resource_group_name = azurerm_resource_group.itn_com.name
 
   error_action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id
 
