@@ -28,6 +28,11 @@ variable "resource_group_name" {
   description = "Resource group name for VNet"
 }
 
+variable "legacy_resource_group_name" {
+  type        = string
+  description = "Resource group name for VNet"
+}
+
 variable "error_action_group_id" {
   type = string
 }
@@ -43,4 +48,3 @@ variable "environment" {
 variable "subnet_pep_id" {
   type = string
 }
-
