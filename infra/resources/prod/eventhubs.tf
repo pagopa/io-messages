@@ -6,7 +6,7 @@ module "eventhubs" {
   location  = local.location
   domain    = local.domain
 
-  resource_group_name                  = data.azurerm_subnet.pep.resource_group_name
+  resource_group_name                  = azurerm_resource_group.itn_com.name
   private_dns_zone_resource_group_name = data.azurerm_resource_group.evt-rg.name
   subnet_pep_id                        = data.azurerm_subnet.pep.id
   tags                                 = local.tags
