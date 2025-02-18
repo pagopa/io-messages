@@ -5,7 +5,7 @@ import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 export const envConfig: IConfig = {
   isProduction: false,
 
-  APPINSIGHTS_INSTRUMENTATIONKEY: "an-appinsights-key" as NonEmptyString,
+  APPINSIGHTS_CONNECTION_STRING: "an-appinsights-key" as NonEmptyString,
 
   COSMOSDB_KEY: "aKey" as NonEmptyString,
   COSMOSDB_NAME: "aName" as NonEmptyString,
@@ -15,7 +15,12 @@ export const envConfig: IConfig = {
   REMOTE_CONTENT_COSMOSDB_NAME: "aName" as NonEmptyString,
   REMOTE_CONTENT_COSMOSDB_URI: "aUri" as NonEmptyString,
 
-  SERVICE_TO_RC_CONFIGURATION_MAP: new Map(Object.entries({aServiceId: "01ARZ3NDEKTSV4RRFFQ69G5FAV" as Ulid, two: "01ARZ3NDEKTSV4RRFFQ69G5FAV" as Ulid})),
+  SERVICE_TO_RC_CONFIGURATION_MAP: new Map(
+    Object.entries({
+      aServiceId: "01ARZ3NDEKTSV4RRFFQ69G5FAV" as Ulid,
+      two: "01ARZ3NDEKTSV4RRFFQ69G5FAV" as Ulid,
+    }),
+  ),
 
   MESSAGE_CONTAINER_NAME: "aaa" as NonEmptyString,
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: "aaa" as NonEmptyString,
@@ -31,5 +36,5 @@ export const envConfig: IConfig = {
   NODE_ENV: "production",
   REQ_SERVICE_ID: undefined,
 
-  PN_SERVICE_ID: "a-pn-service-id" as NonEmptyString
+  PN_SERVICE_ID: "a-pn-service-id" as NonEmptyString,
 };
