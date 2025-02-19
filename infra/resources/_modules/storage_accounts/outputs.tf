@@ -1,3 +1,3 @@
-output "messages_error_table_storage_account_id" {
-  value = azurerm_storage_table.messages_ingestion_error.id
+output "com_st_id" {
+  value = module.com_st.id
 }

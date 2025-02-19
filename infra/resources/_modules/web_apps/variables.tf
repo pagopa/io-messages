@@ -83,7 +83,7 @@ variable "messages_storage_account" {
   })
 }
 
-variable "messages_error_table_storage_account_id" {
+variable "com_st_id" {
   type = string
 }
 
