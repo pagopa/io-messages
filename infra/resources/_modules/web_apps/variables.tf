@@ -83,11 +83,8 @@ variable "messages_storage_account" {
   })
 }
 
-variable "messages_error_table_storage_account" {
-  type = object({
-    id   = string
-    name = string
-  })
+variable "com_st_id" {
+  type = string
 }
 
 variable "cosmosdb_account_api" {

@@ -44,10 +44,9 @@ resource "azurerm_role_assignment" "message_content_container_read" {
   principal_id         = module.etl_func.function_app.function_app.principal_id
 }
 
-resource "azurerm_role_assignment" "messages_error_table" {
-  for_each             = toset(["Storage Table Data Contributor"])
-  scope                = var.messages_error_table_storage_account.id
-  role_definition_name = each.key
+resource "azurerm_role_assignment" "com_st" {
+  scope                = var.com_st_id
+  role_definition_name = "Storage Table Data Contributor"
   principal_id         = module.etl_func.function_app.function_app.principal_id
 }
 
