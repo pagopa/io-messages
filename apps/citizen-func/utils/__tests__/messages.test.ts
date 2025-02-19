@@ -48,7 +48,7 @@ import { HasPreconditionEnum } from "@pagopa/io-functions-commons/dist/generated
 
 import { it, describe, vi, expect, beforeEach, test } from "vitest";
 
-vi.stubEnv("APPINSIGHTS_INSTRUMENTATIONKEY", "foo");
+vi.stubEnv("APPLICATIONINSIGHTS_CONNECTION_STRING", "foo");
 
 const dummyThirdPartyDataWithCategoryFetcher: ThirdPartyDataWithCategoryFetcher =
   vi.fn().mockImplementation((_serviceId) => ({

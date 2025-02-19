@@ -5,7 +5,7 @@ on:
 
 jobs:
   citizen_func_deploy:
-    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@e97c785579f7b027d95d449062073d46fafd2e79
+    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@969cd49ccacd62a17aea178c7ba68ef73b0e0b34
     secrets: inherit
     with:
       workspace_name: citizen-func
