@@ -74,10 +74,10 @@ variable "ai_sampling_percentage" {
 # REPO DEFINED VARIABLES
 variable "cosmosdb_api" {
   type = object({
-    id          = string
-    name        = string
-    endpoint    = string
-    primary_key = string
+    id                  = string
+    name                = string
+    endpoint            = string
+    resource_group_name = string
   })
 }
 
