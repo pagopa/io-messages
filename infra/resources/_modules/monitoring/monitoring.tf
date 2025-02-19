@@ -16,7 +16,7 @@ resource "azurerm_monitor_action_group" "io_com_error" {
 }
 
 resource "azurerm_monitor_scheduled_query_rules_alert" "message-ingestion-alert" {
-  name                = format("[%s] Message Ingestion Error", var.project)
+  name                = format("[%s-%s] Message Ingestion Error", var.project, var.domain)
   resource_group_name = var.resource_group_name
   location            = var.location
 
@@ -29,11 +29,11 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "message-ingestion-alert"
 customEvents
 | where name startswith "io.com.message.ingestion"
 | summarize AggregatedValue = count() by bin(timestamp, 30m)
-| where AggregatedValue > 1
+| where AggregatedValue >= 1
   QUERY
 
   severity    = 1
-  frequency   = 30
+  frequency   = 10
   time_window = 30
 
   trigger {
@@ -49,7 +49,7 @@ customEvents
 }
 
 resource "azurerm_monitor_scheduled_query_rules_alert" "message-status-ingestion-alert" {
-  name                = format("[%s] Message Status Ingestion Error", var.project)
+  name                = format("[%s-%s] Message Status Ingestion Error", var.project, var.domain)
   resource_group_name = var.resource_group_name
   location            = var.location
 
@@ -62,11 +62,11 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "message-status-ingestion
 customEvents
 | where name startswith "io.com.message_status.ingestion"
 | summarize AggregatedValue = count() by bin(timestamp, 30m)
-| where AggregatedValue > 1
+| where AggregatedValue >= 1
   QUERY
 
   severity    = 1
-  frequency   = 30
+  frequency   = 10
   time_window = 30
 
   trigger {
@@ -82,7 +82,7 @@ customEvents
 }
 
 resource "azurerm_monitor_scheduled_query_rules_alert" "message-ingestion-count-collect-alert" {
-  name                = format("[%s] Message Count Collection Error", var.project)
+  name                = format("[%s-%s] Message Ingestion Count Collection Error", var.project, var.domain)
   resource_group_name = var.resource_group_name
   location            = var.location
 
@@ -95,11 +95,11 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "message-ingestion-count-
 customEvents
 | where name == "io.com.message.collect.count_error"
 | summarize AggregatedValue = count() by bin(timestamp, 30m)
-| where AggregatedValue > 1
+| where AggregatedValue >= 1
   QUERY
 
   severity    = 1
-  frequency   = 30
+  frequency   = 10
   time_window = 30
 
   trigger {
