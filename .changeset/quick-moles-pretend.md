@@ -2,4 +2,4 @@
 "sending-func": patch
 ---
 
-Use role assignment to connect sending-func to CosmosDB
+Set keyless CosmosDB connection in sending-func
