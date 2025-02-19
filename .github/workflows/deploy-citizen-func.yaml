@@ -10,7 +10,7 @@ jobs:
     with:
       workspace_name: citizen-func
       environment: app-prod
-      resource_group_name: io-p-weu-com-rg-01
-      function_app_name: io-p-weu-com-citizen-func-01
+      resource_group_name: io-p-itn-com-rg-01
+      function_app_name: io-p-itn-com-citizen-func-01
       health_check_path: "/api/v1/info"
       use_staging_slot: true
