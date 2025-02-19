@@ -101,7 +101,7 @@ export type UlidMapFromString = t.TypeOf<typeof UlidMapFromString>;
 export type IConfig = t.TypeOf<typeof IConfig>;
 export const IConfig = t.intersection([
   t.interface({
-    APPINSIGHTS_CONNECTION_STRING: NonEmptyString,
+    APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
     /* eslint-disable sort-keys */
     COSMOSDB_KEY: NonEmptyString,
