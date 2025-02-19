@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
+    "@azure/identity": "^4.5.0",
     "@azure/storage-queue": "^12.4.0",
     "@pagopa/express-azure-functions": "^2.1.1",
     "@pagopa/io-backend-session-sdk": "^9.7.0",

@@ -47,3 +47,31 @@ resource "azurerm_subnet_nat_gateway_association" "net_gateway_association_subne
   nat_gateway_id = data.azurerm_nat_gateway.nat_gateway.id
   subnet_id      = module.function_app_messages_sending.subnet.id
 }
+
+resource "azurerm_role_assignment" "sending_cosmosdb_api" {
+  scope                = var.cosmosdb_api.id
+  role_definition_name = "SQL DB Contributor"
+  principal_id         = module.function_app_messages_sending.function_app.function_app.principal_id
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "cosmosdb_api" {
+  resource_group_name = var.cosmosdb_api.resource_group_name
+  account_name        = var.cosmosdb_api.name
+  scope               = var.cosmosdb_api.id
+  role_definition_id  = "${var.cosmosdb_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = module.function_app_messages_sending.function_app.function_app.principal_id
+}
+
+resource "azurerm_role_assignment" "sending_cosmosdb_com" {
+  scope                = var.cosmosdb_com.id
+  role_definition_name = "SQL DB Contributor"
+  principal_id         = module.function_app_messages_sending.function_app.function_app.principal_id
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "cosmosdb_com" {
+  resource_group_name = var.cosmosdb_com.resource_group_name
+  account_name        = var.cosmosdb_com.name
+  scope               = var.cosmosdb_com.id
+  role_definition_id  = "${var.cosmosdb_com.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = module.function_app_messages_sending.function_app.function_app.principal_id
+}

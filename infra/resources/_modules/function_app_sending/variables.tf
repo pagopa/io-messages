@@ -72,29 +72,22 @@ variable "ai_sampling_percentage" {
 }
 
 # REPO DEFINED VARIABLES
-variable "cosmos_db_api_endpoint" {
-  type        = string
-  description = "Cosmos DB endpoint to use as application environment variable"
+variable "cosmosdb_api" {
+  type = object({
+    id          = string
+    name        = string
+    endpoint    = string
+    primary_key = string
+  })
 }
 
-variable "cosmos_db_api_key" {
-  type        = string
-  description = "Cosmos DB api key"
-}
-
-variable "io_com_cosmos_endpoint" {
-  type        = string
-  description = "Cosmos DB endpoint to use as application environment variable"
-}
-
-variable "io_com_cosmos_key" {
-  type        = string
-  description = "Cosmos DB api key"
-}
-
-variable "cosmos_database_names" {
-  type        = list(string)
-  description = "List of Cosmos DB database names"
+variable "cosmosdb_com" {
+  type = object({
+    id                  = string
+    name                = string
+    endpoint            = string
+    resource_group_name = string
+  })
 }
 
 variable "appbackendli_token" {
