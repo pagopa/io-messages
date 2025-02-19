@@ -45,7 +45,7 @@ resource "azurerm_role_assignment" "message_content_container_read" {
 }
 
 resource "azurerm_role_assignment" "messages_error_table" {
-  scope                = var.messages_error_table_storage_account.id
+  scope                = var.messages_error_table_storage_account_id
   role_definition_name = "Storage Table Data Contributor"
   principal_id         = module.etl_func.function_app.function_app.principal_id
 }
