@@ -5,7 +5,7 @@ import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 export const envConfig: IConfig = {
   isProduction: false,
 
-  APPINSIGHTS_CONNECTION_STRING: "an-appinsights-key" as NonEmptyString,
+  APPLICATIONINSIGHTS_CONNECTION_STRING: "an-appinsights-key" as NonEmptyString,
 
   COSMOSDB_KEY: "aKey" as NonEmptyString,
   COSMOSDB_NAME: "aName" as NonEmptyString,
