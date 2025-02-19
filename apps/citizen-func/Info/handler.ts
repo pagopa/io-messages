@@ -11,9 +11,8 @@ import { pipe } from "fp-ts/lib/function";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as packageJson from "../package.json";
 
-import { cosmosdbClient, remoteContentCosmosdbClient } from "../utils/cosmosdb";
-
 import { checkApplicationHealth, HealthCheck } from "../utils/healthcheck";
+import { CosmosClient } from "@azure/cosmos";
 
 interface IInfo {
   readonly name: string;
@@ -43,9 +42,12 @@ export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
 }
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export function Info(): express.RequestHandler {
+export function Info(
+  cosmosClient: CosmosClient,
+  remoteContentCosmosClient: CosmosClient,
+): express.RequestHandler {
   const handler = InfoHandler(
-    checkApplicationHealth(cosmosdbClient, remoteContentCosmosdbClient),
+    checkApplicationHealth(cosmosClient, remoteContentCosmosClient),
   );
 
   return wrapRequestHandler(handler);
