@@ -104,11 +104,9 @@ export const IConfig = t.intersection([
     APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
     /* eslint-disable sort-keys */
-    COSMOSDB_KEY: NonEmptyString,
     COSMOSDB_NAME: NonEmptyString,
     COSMOSDB_URI: NonEmptyString,
 
-    REMOTE_CONTENT_COSMOSDB_KEY: NonEmptyString,
     REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
     REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
 
