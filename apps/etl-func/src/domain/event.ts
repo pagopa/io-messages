@@ -5,7 +5,7 @@ export interface EventProducer<T> {
 }
 
 export interface EventCollector<T> {
-  collect: (events: T[]) => Promise<void>;
+  collect: (events: [T, ...T[]]) => Promise<void>;
 }
 
 export const eventsSummarySchema = z.object({
