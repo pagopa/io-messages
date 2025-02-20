@@ -2,8 +2,6 @@ import { BlobService, ErrorOrResult, ServiceResponse } from "azure-storage";
 
 import { envConfig } from "../../__mocks__/env-config.mock";
 
-import * as config from "../config";
-
 import {
   checkApplicationHealth,
   checkAzureStorageHealth,
@@ -17,6 +15,11 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { right } from "fp-ts/lib/Either";
 
 import { vi, expect, describe, beforeAll, it, test } from "vitest";
+import { CosmosClient } from "@azure/cosmos";
+
+import * as config from "../config";
+
+vi.spyOn(config, "getConfig").mockReturnValue(right(envConfig));
 
 const blobServiceOk: BlobService = {
   getServiceProperties: vi
@@ -81,6 +84,10 @@ vi.mock("@azure/cosmos", async (importOriginal) => {
       getDatabaseAccount: mockGetDatabaseAccount,
     }),
   };
+});
+
+const cosmosClient = new CosmosClient({
+  endpoint: "test-endoint",
 });
 
 // -------------
@@ -157,7 +164,7 @@ describe("healthcheck - cosmos db", () => {
       expect.assertions(1);
 
       pipe(
-        checkAzureCosmosDbHealth("", ""),
+        checkAzureCosmosDbHealth(cosmosClient),
         TE.map((_) => {
           expect(true).toBeTruthy();
           done();
@@ -176,7 +183,7 @@ describe("healthcheck - cosmos db", () => {
       mockGetDatabaseAccount.mockImplementationOnce(mockGetDatabaseAccountKO);
 
       pipe(
-        checkAzureCosmosDbHealth("", ""),
+        checkAzureCosmosDbHealth(cosmosClient),
         TE.map((_) => {
           expect(false).toBeTruthy();
           done();
@@ -220,9 +227,6 @@ describe("healthcheck - url health", () => {
 describe("checkApplicationHealth - multiple errors - ", () => {
   beforeAll(() => {
     vi.clearAllMocks();
-    vi.spyOn(config, "getConfig").mockReturnValue(
-      right(envConfig as config.IConfig),
-    );
   });
 
   it("should return multiple errors from different checks", () =>
@@ -235,7 +239,7 @@ describe("checkApplicationHealth - multiple errors - ", () => {
       expect.assertions(3);
 
       pipe(
-        checkApplicationHealth(),
+        checkApplicationHealth(cosmosClient, cosmosClient),
         TE.mapLeft((err) => {
           expect(err.length).toBe(2);
           expect(err[0]).toBe(`AzureStorage|error - createBlobService`);
