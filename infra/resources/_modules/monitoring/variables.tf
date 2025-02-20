@@ -17,3 +17,8 @@ variable "location" {
   type        = string
   description = "location used to create resource naming"
 }
+
+variable "domain" {
+  type        = string
+  description = "location used to create resource naming"
+}

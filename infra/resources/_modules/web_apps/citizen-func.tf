@@ -91,29 +91,45 @@ resource "azurerm_subnet_nat_gateway_association" "functions_messages_citizen_su
 }
 
 resource "azurerm_role_assignment" "citizen_func_cosmosdb_account_api" {
+  for_each = toset([
+    module.citizen_func.function_app.function_app.principal_id,
+    module.citizen_func.function_app.function_app.slot.principal_id
+  ])
   scope                = var.io_com_cosmos.id
   role_definition_name = "SQL DB Contributor"
-  principal_id         = module.citizen_func.function_app.function_app.principal_id
+  principal_id         = each.value
 }
 
 resource "azurerm_cosmosdb_sql_role_assignment" "citizen_func_api" {
+  for_each = toset([
+    module.citizen_func.function_app.function_app.principal_id,
+    module.citizen_func.function_app.function_app.slot.principal_id
+  ])
   resource_group_name = var.cosmosdb_account_api.resource_group_name
   account_name        = var.cosmosdb_account_api.name
   role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
-  principal_id        = module.citizen_func.function_app.function_app.principal_id
+  principal_id        = each.value
   scope               = var.cosmosdb_account_api.id
 }
 
 resource "azurerm_role_assignment" "citizen_func_io_com_cosmos" {
+  for_each = toset([
+    module.citizen_func.function_app.function_app.principal_id,
+    module.citizen_func.function_app.function_app.slot.principal_id
+  ])
   scope                = var.io_com_cosmos.id
   role_definition_name = "SQL DB Contributor"
-  principal_id         = module.citizen_func.function_app.function_app.principal_id
+  principal_id         = each.value
 }
 
 resource "azurerm_cosmosdb_sql_role_assignment" "citizen_func_com" {
+  for_each = toset([
+    module.citizen_func.function_app.function_app.principal_id,
+    module.citizen_func.function_app.function_app.slot.principal_id
+  ])
   resource_group_name = var.io_com_cosmos.resource_group_name
   account_name        = var.io_com_cosmos.name
   role_definition_id  = "${var.io_com_cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = module.citizen_func.function_app.function_app.principal_id
-  scope               = var.io_com_cosmos.id
+  scope               = each.value
 }

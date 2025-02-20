@@ -33,7 +33,7 @@ module "redis_messages" {
 
   capacity              = 2
   family                = "C"
-  sku_name              = "Premium"
+  sku_name              = "Standard"
   redis_version         = "6"
   enable_authentication = true
   zones                 = [1, 2]
@@ -121,7 +121,8 @@ module "monitoring" {
   source              = "../_modules/monitoring/"
   location            = local.location
   project             = local.project
-  resource_group_name = data.azurerm_resource_group.itn_messages.name
+  domain              = local.domain
+  resource_group_name = azurerm_resource_group.itn_com.name
   io_com_slack_email  = data.azurerm_key_vault_secret.io_com_slack_email.value
 }
 
