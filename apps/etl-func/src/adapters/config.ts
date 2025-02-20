@@ -46,8 +46,7 @@ export const configFromEnvironment = envSchema
   .transform(
     (env): Config => ({
       appInsights: {
-        connectionString: env.APPINSIGHTS_CONNECTION_STRING,
-        samplingPercentage: env.APPINSIGHTS_SAMPLING_PERCENTAGE,
+        connectionString: env.APPLICATIONINSIGHTS_CONNECTION_STRING,
       },
       common_cosmos: {
         accountUri: env.COMMON_COSMOS__accountEndpoint,

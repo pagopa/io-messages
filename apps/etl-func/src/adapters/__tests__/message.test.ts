@@ -12,7 +12,7 @@ import { TokenizerClient } from "@/domain/tokenizer.js";
 import { Logger } from "pino";
 import { Mocked, afterEach, describe, expect, test, vi } from "vitest";
 
-import { ApplicationInsights } from "../appinsights/appinsights.js";
+import { TelemetryEventService } from "../appinsights/appinsights.js";
 import {
   MessageContentError,
   MessageContentProvider,
@@ -48,7 +48,7 @@ vi.mock("@azure/data-tables", async (importOriginal) => {
 });
 
 const telemetryClient = new mocks.TelemetryClient();
-const telemetryServiceMock = new ApplicationInsights(telemetryClient);
+const telemetryServiceMock = new TelemetryEventService(telemetryClient);
 const telemetryTrackEventMock = vi
   .spyOn(telemetryServiceMock, "trackEvent")
   .mockResolvedValue();

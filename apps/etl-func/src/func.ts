@@ -9,8 +9,8 @@ import { pino } from "pino";
 import { createClient } from "redis";
 
 import {
-  ApplicationInsights,
-  initTelemetryClient,
+  TelemetryEventService,
+  initNoSamplingClient,
 } from "./adapters/appinsights/appinsights.js";
 import { messageSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
@@ -31,8 +31,8 @@ const main = async (config: Config) => {
 
   const azureCredentials = new DefaultAzureCredential();
 
-  const telemetryClient = initTelemetryClient(config.appInsights);
-  const telemetryService = new ApplicationInsights(telemetryClient);
+  const telemetryClient = initNoSamplingClient(config.appInsights);
+  const telemetryService = new TelemetryEventService(telemetryClient);
 
   const blobServiceCLient = new BlobServiceClient(
     config.messageContentStorage.accountUri,
