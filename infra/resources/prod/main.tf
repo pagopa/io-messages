@@ -33,7 +33,7 @@ module "redis_messages" {
 
   capacity              = 2
   family                = "C"
-  sku_name              = "Premium"
+  sku_name              = "Standard"
   redis_version         = "6"
   enable_authentication = true
   zones                 = [1, 2]
