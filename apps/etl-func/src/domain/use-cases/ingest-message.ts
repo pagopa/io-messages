@@ -24,13 +24,6 @@ export class IngestMessageUseCase {
     this.#eventProducer = eventProducer;
   }
 
-  /**
-   * Utility guard to check that the array in input is not empty
-   **/
-  private isNonEmpty<T>(array: T[]): array is [T, ...T[]] {
-    return array.length >= 1;
-  }
-
   async execute(messagesMetaData: MessageMetadata[]) {
     //Retrieving the message contents for each message metadata
     const messages = (
@@ -48,7 +41,7 @@ export class IngestMessageUseCase {
       ),
     );
 
-    if (this.isNonEmpty(messagesEvent)) {
+    if (messagesEvent.length > 0) {
       await this.#eventProducer.publish(messagesEvent);
       this.#eventSummaryCollector.collect(messagesEvent);
     }

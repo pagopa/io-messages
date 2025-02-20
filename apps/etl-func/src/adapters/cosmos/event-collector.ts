@@ -47,13 +47,21 @@ export class CosmosSummaryCollector<T extends { id: string }>
   }
 
   /**
+   * Utility guard to check that the array in input is not empty
+   **/
+  private isNonEmpty<T>(array: T[]): array is [T, ...T[]] {
+    return array.length >= 1;
+  }
+
+  /**
    * Utility method to collect an ingestion event.
    * This will create a new event summary into the container.
    * If an error occur during the operation then an event is tracked.
    *
    * @param events A non empty array of events
    **/
-  async collect(events: [T, ...T[]]): Promise<void> {
+  async collect(events: T[]): Promise<void> {
+    if (!this.isNonEmpty(events)) return;
     try {
       await this.insertSummary(this.createSummary(events));
     } catch (error) {
