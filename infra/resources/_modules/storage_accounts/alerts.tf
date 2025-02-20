@@ -1,6 +1,6 @@
 resource "azurerm_monitor_metric_alert" "iopstapi_throttling_low_availability" {
   name                = "[IO-COMMONS | ${module.storage_api.name}] Low Availability"
-  resource_group_name = var.legacy_resource_group_name
+  resource_group_name = var.resource_group_name
   scopes              = [module.storage_api.id]
 
   description   = "The average availability is less than 99.8%. Runbook: not needed."
