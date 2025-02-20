@@ -28,20 +28,9 @@ export class CosmosSummaryCollector<T extends { id: string }>
   private createSummary(events: [T, ...T[]]): EventsSummary {
     return {
       count: events.length,
-      id: this.getBatchId(events),
+      id: events[0].id,
       year: this.getCurrentPartitionKey(),
     };
-  }
-
-  /**
-   * Returns the id of the first event in the batch.
-   *
-   * @param events Accept a non empty array
-   *
-   * @returns The id of the first event
-   * */
-  private getBatchId(events: [T, ...T[]]): string {
-    return events[0].id;
   }
 
   private getCurrentPartitionKey(): string {
