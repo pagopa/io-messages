@@ -31,8 +31,8 @@ module "redis_messages" {
   resource_group_name = data.azurerm_resource_group.itn_messages.name
   location            = data.azurerm_resource_group.itn_messages.location
 
-  capacity              = 1
-  family                = "P"
+  capacity              = 2
+  family                = "C"
   sku_name              = "Premium"
   redis_version         = "6"
   enable_authentication = true
