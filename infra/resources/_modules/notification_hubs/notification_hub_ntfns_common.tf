@@ -32,7 +32,7 @@ resource "azurerm_notification_hub" "common" {
 resource "azurerm_role_assignment" "com_devs_notification_hub_common" {
   scope                = azurerm_notification_hub_namespace.common.id
   role_definition_name = "Contributor"
-  principal_id         = data.azuread_group.adgroup_com_devs.object_id
+  principal_id         = var.adgroup_com_devs_id
 }
 
 resource "azurerm_notification_hub" "common01" {

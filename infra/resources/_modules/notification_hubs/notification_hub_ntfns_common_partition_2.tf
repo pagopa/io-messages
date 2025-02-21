@@ -32,7 +32,7 @@ resource "azurerm_notification_hub" "common_partition_2" {
 resource "azurerm_role_assignment" "com_devs_notification_hub_partition_2" {
   scope                = azurerm_notification_hub_namespace.common_partition_2.id
   role_definition_name = "Contributor"
-  principal_id         = data.azuread_group.adgroup_com_devs.object_id
+  principal_id         = var.adgroup_com_devs_id
 }
 
 resource "azurerm_notification_hub_authorization_rule" "common_partition_2_default_listen" {
