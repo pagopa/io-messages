@@ -1,0 +1,11 @@
+meta {
+  name: GetRCConfiguration
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{citizen_func_url}}/api/v1/remote-contents/configurations/{{message-id}}
+  body: none
+  auth: none
+}

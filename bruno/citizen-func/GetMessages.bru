@@ -1,0 +1,11 @@
+meta {
+  name: GetMessages
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{citizen_func_url}}/api/v1/messages/{{fiscal-code}}
+  body: none
+  auth: none
+}
