@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.10.13
+
+### Patch Changes
+
+- 1d6e880: Set keyless CosmosDB connection in sending-func
+
 ## 1.10.12
 
 ### Patch Changes
