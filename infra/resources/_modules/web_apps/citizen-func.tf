@@ -95,7 +95,7 @@ resource "azurerm_role_assignment" "citizen_func_cosmosdb_account_api" {
     module.citizen_func.function_app.function_app.principal_id,
     module.citizen_func.function_app.function_app.slot.principal_id
   ])
-  scope                = var.io_com_cosmos.id
+  scope                = var.cosmosdb_account_api.id
   role_definition_name = "SQL DB Contributor"
   principal_id         = each.value
 }
