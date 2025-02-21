@@ -6,7 +6,7 @@ import {
 import { ApplicationInsights } from "@/adapters/appinsights/appinsights.js";
 import { messageSchema } from "@/adapters/avro.js";
 import { MessageContentProvider } from "@/adapters/blob-storage/message-content.js";
-import { CosmosSummaryCollector } from "@/adapters/cosmos/event-collector.js";
+import { CosmosIngestionCollector } from "@/adapters/cosmos/event-collector.js";
 import { EventHubEventProducer } from "@/adapters/eventhub/event.js";
 import { MessageAdapter } from "@/adapters/message.js";
 import { EventErrorTableStorage } from "@/adapters/table-storage/event-error-table-storage.js";
@@ -105,7 +105,7 @@ const eventErrorRepoPushSpy = vi
   .spyOn(messageIngestionErrorRepositoryMock, "push")
   .mockResolvedValue();
 
-const cosmosCollectorMock = new CosmosSummaryCollector(
+const cosmosCollectorMock = new CosmosIngestionCollector(
   containerMock,
   telemetryServiceMock,
 );
