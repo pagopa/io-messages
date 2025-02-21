@@ -39,15 +39,23 @@ resource "azurerm_role_assignment" "eventhub_namespace_write" {
 }
 
 resource "azurerm_role_assignment" "message_content_container_read" {
+  for_each = toset([
+    module.etl_func.function_app.function_app.principal_id,
+    module.etl_func.function_app.function_app.slot.principal_id
+  ])
   scope                = "${var.messages_storage_account.id}/blobServices/default/containers/${var.messages_content_container.name}"
   role_definition_name = "Storage Blob Data Reader"
-  principal_id         = module.etl_func.function_app.function_app.principal_id
+  principal_id         = each.value
 }
 
 resource "azurerm_role_assignment" "com_st" {
+  for_each = toset([
+    module.etl_func.function_app.function_app.principal_id,
+    module.etl_func.function_app.function_app.slot.principal_id
+  ])
   scope                = var.com_st_id
   role_definition_name = "Storage Table Data Contributor"
-  principal_id         = module.etl_func.function_app.function_app.principal_id
+  principal_id         = each.value
 }
 
 resource "azurerm_cosmosdb_sql_role_assignment" "etl_func" {
@@ -59,16 +67,24 @@ resource "azurerm_cosmosdb_sql_role_assignment" "etl_func" {
 }
 
 resource "azurerm_role_assignment" "io_com_cosmos_etl_func" {
+  for_each = toset([
+    module.etl_func.function_app.function_app.principal_id,
+    module.etl_func.function_app.function_app.slot.principal_id
+  ])
   scope                = var.io_com_cosmos.id
   role_definition_name = "SQL DB Contributor"
-  principal_id         = module.etl_func.function_app.function_app.principal_id
+  principal_id         = each.value
 }
 
 resource "azurerm_cosmosdb_sql_role_assignment" "io_com_cosmos_etl_func" {
+  for_each = toset([
+    module.etl_func.function_app.function_app.principal_id,
+    module.etl_func.function_app.function_app.slot.principal_id
+  ])
   resource_group_name = var.io_com_cosmos.resource_group_name
   account_name        = var.io_com_cosmos.name
   role_definition_id  = "${var.io_com_cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
-  principal_id        = module.etl_func.function_app.function_app.principal_id
+  principal_id        = each.value
   scope               = var.io_com_cosmos.id
 }
 
