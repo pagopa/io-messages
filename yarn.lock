@@ -6367,6 +6367,7 @@ __metadata:
     prettier: "npm:3.2.5"
     redis: "npm:^4.7.0"
     typescript: "npm:5.4.3"
+    ulid: "npm:^2.3.0"
     uuid: "npm:^11.0.5"
     vitest: "npm:^2.1.8"
     zod: "npm:^3.24.1"
