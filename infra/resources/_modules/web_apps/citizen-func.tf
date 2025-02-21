@@ -107,9 +107,9 @@ resource "azurerm_cosmosdb_sql_role_assignment" "citizen_func_api" {
   ])
   resource_group_name = var.cosmosdb_account_api.resource_group_name
   account_name        = var.cosmosdb_account_api.name
+  scope               = var.cosmosdb_account_api.id
   role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = each.value
-  scope               = var.cosmosdb_account_api.id
 }
 
 resource "azurerm_role_assignment" "citizen_func_io_com_cosmos" {
@@ -129,7 +129,7 @@ resource "azurerm_cosmosdb_sql_role_assignment" "citizen_func_com" {
   ])
   resource_group_name = var.io_com_cosmos.resource_group_name
   account_name        = var.io_com_cosmos.name
+  scope               = var.io_com_cosmos.id
   role_definition_id  = "${var.io_com_cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
-  principal_id        = module.citizen_func.function_app.function_app.principal_id
-  scope               = each.value
+  principal_id        = each.value
 }

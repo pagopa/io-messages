@@ -38,6 +38,8 @@ module "notification_hubs_weu" {
   location                   = azurerm_resource_group.notifications.location
   location_short             = "weu"
 
+  resource_group_name_itn = azurerm_resource_group.itn_com.name
+
   key_vault_common_id = data.azurerm_key_vault.weu_common.id
 
   action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id
