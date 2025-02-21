@@ -4,8 +4,6 @@ locals {
     app_settings = {
       NODE_ENV                                       = "production",
       "AzureWebJobs.IngestMessages.Disabled"         = true,
-      APPINSIGHTS_CONNECTION_STRING                  = var.application_insights.connection_string
-      APPINSIGHTS_SAMPLING_PERCENTAGE                = var.application_insights_sampling_percentage
       FUNCTIONS_WORKER_RUNTIME                       = "node",
       MESSAGE_CONTENT_STORAGE_URI                    = var.message_content_storage.endpoint
       EVENTHUB_CONNECTION_URI                        = var.app_settings.eventhub_connection_uri,
