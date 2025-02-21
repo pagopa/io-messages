@@ -18,3 +18,7 @@ data "azurerm_key_vault_secret" "ntfns_common_ntf_common_api_key_sandbox" {
   key_vault_id = var.key_vault_common_id
 }
 
+data "azuread_group" "adgroup_com_devs" {
+  display_name = "${var.project}-adgroup-com-developers"
+}
+

@@ -29,6 +29,12 @@ resource "azurerm_notification_hub" "common_partition_1" {
   tags = var.tags
 }
 
+resource "azurerm_role_assignment" "com_devs_notification_hub_partition_1" {
+  scope                = azurerm_notification_hub_namespace.common_partition_1.id
+  role_definition_name = "Contributor"
+  principal_id         = data.azuread_group.adgroup_com_devs.object_id
+}
+
 resource "azurerm_notification_hub_authorization_rule" "common_partition_1_default_listen" {
   name                  = "DefaultListenSharedAccessSignature"
   notification_hub_name = azurerm_notification_hub.common_partition_1.name
