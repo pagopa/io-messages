@@ -2,8 +2,7 @@ import { z } from "zod";
 
 export const envSchema = z.object({
   ACCOUNT_STORAGE__tableServiceUri: z.string().url(),
-  APPINSIGHTS_CONNECTION_STRING: z.string().min(1),
-  APPINSIGHTS_SAMPLING_PERCENTAGE: z.coerce.number(),
+  APPLICATIONINSIGHTS_CONNECTION_STRING: z.string().min(1),
   COMMON_COSMOS__accountEndpoint: z.string().url(),
   COMMON_COSMOS_DBNAME: z.string().min(1),
   COMMON_COSMOS_MESSAGE_STATUS_CONTAINER_NAME: z.string().min(1),

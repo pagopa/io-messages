@@ -126,7 +126,7 @@ data "azurerm_storage_account" "iopstexportdata" {
 }
 
 data "azurerm_monitor_action_group" "io_com_action_group" {
-  resource_group_name = "${local.project}-msgs-rg-01"
+  resource_group_name = "${local.project}-com-rg-01"
   name                = "${local.project_legacy}-com-error-ag-01"
 }
 

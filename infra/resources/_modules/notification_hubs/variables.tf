@@ -10,6 +10,11 @@ variable "resource_group_name" {
   type = string
 }
 
+variable "resource_group_name_itn" {
+  type        = string
+  description = "The resource group name for the ITN resources (needed for migration)"
+}
+
 variable "location" {
   type = string
 }

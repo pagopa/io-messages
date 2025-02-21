@@ -7,11 +7,9 @@ export const envConfig: IConfig = {
 
   APPLICATIONINSIGHTS_CONNECTION_STRING: "an-appinsights-key" as NonEmptyString,
 
-  COSMOSDB_KEY: "aKey" as NonEmptyString,
   COSMOSDB_NAME: "aName" as NonEmptyString,
   COSMOSDB_URI: "aUri" as NonEmptyString,
 
-  REMOTE_CONTENT_COSMOSDB_KEY: "aKey" as NonEmptyString,
   REMOTE_CONTENT_COSMOSDB_NAME: "aName" as NonEmptyString,
   REMOTE_CONTENT_COSMOSDB_URI: "aUri" as NonEmptyString,
 

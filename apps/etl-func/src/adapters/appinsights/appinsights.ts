@@ -4,22 +4,14 @@ import appInsight from "applicationinsights";
 
 import { ApplicationInsightsConfig } from "./config.js";
 
-export class ApplicationInsights implements TelemetryService {
+export class TelemetryEventService implements TelemetryService {
   #telemetryClient: TelemetryClient;
 
-  constructor(telemetryClient: TelemetryClient) {
-    this.#telemetryClient = telemetryClient;
+  constructor(client: TelemetryClient) {
+    this.#telemetryClient = client;
   }
 
   trackEvent(name: string, properties: object) {
-    this.#telemetryClient.trackEvent({
-      name,
-      properties,
-      tagOverrides: { samplingEnabled: "false" },
-    });
-  }
-
-  trackEventWithSampling(name: string, properties: object) {
     this.#telemetryClient.trackEvent({
       name,
       properties,
@@ -27,11 +19,13 @@ export class ApplicationInsights implements TelemetryService {
   }
 }
 
-export function initTelemetryClient(
+export function initNoSamplingClient(
   config: ApplicationInsightsConfig,
 ): TelemetryClient {
   appInsight.setup(config.connectionString).start();
-  const telemetryClient = appInsight.defaultClient;
-  telemetryClient.config.samplingPercentage = config.samplingPercentage;
+  const telemetryClient = new appInsight.TelemetryClient(
+    config.connectionString,
+  );
+  telemetryClient.config.samplingPercentage = 100;
   return telemetryClient;
 }

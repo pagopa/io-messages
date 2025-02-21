@@ -1,5 +1,11 @@
 ### Changelog
 
+## 5.5.5
+
+### Patch Changes
+
+- 77d334a: Set keyless CosmosDB connection in citizen-func
+
 ## 5.5.4
 
 ### Patch Changes

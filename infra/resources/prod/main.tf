@@ -31,9 +31,9 @@ module "redis_messages" {
   resource_group_name = data.azurerm_resource_group.itn_messages.name
   location            = data.azurerm_resource_group.itn_messages.location
 
-  capacity              = 1
-  family                = "P"
-  sku_name              = "Premium"
+  capacity              = 2
+  family                = "C"
+  sku_name              = "Standard"
   redis_version         = "6"
   enable_authentication = true
   zones                 = [1, 2]
@@ -112,103 +112,12 @@ module "functions_messages_sending" {
   action_group_id = module.monitoring.action_group.io_com_error_id
 }
 
-/*module "functions_messages_citizen_1" {
-  source = "../_modules/function_app_citizen"
-
-  prefix              = local.prefix
-  env_short           = local.env_short
-  location            = local.location
-  project             = local.project
-  domain              = local.domain
-  resource_group_name = azurerm_resource_group.itn_messages.name
-
-  instance_number                      = "01"
-  cidr_subnet_messages_citizen_func    = "10.20.10.0/26"
-  private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
-  private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
-  virtual_network = {
-    resource_group_name = data.azurerm_virtual_network.vnet_common_itn.resource_group_name
-    name                = data.azurerm_virtual_network.vnet_common_itn.name
-  }
-  nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
-
-  ai_instrumentation_key = data.azurerm_application_insights.common.instrumentation_key
-  ai_connection_string   = data.azurerm_application_insights.common.connection_string
-  ai_sampling_percentage = 5
-
-  cosmos_db_api_endpoint = data.azurerm_cosmosdb_account.cosmos_api.endpoint
-  cosmos_db_api_key      = data.azurerm_cosmosdb_account.cosmos_api.primary_key
-
-  cosmos_db_remote_content_endpoint = data.azurerm_cosmosdb_account.cosmos_remote_content.endpoint
-  cosmos_db_remote_content_key      = data.azurerm_cosmosdb_account.cosmos_remote_content.primary_key
-
-  redis_url      = module.redis_messages.hostname
-  redis_port     = module.redis_messages.ssl_port
-  redis_password = module.redis_messages.primary_access_key
-
-  message_storage_account_blob_connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
-
-  use_fallback          = false
-  ff_type               = "none"
-  ff_beta_tester_list   = data.azurerm_key_vault_secret.fn_messages_APP_MESSAGES_BETA_FISCAL_CODES.value
-  ff_canary_users_regex = "^([(0-9)|(a-f)|(A-F)]{62}00)$" // takes 0.4% of users
-
-  tags = local.tags
-
-  action_group_id = module.monitoring.action_group.io_com_error_id
-}*/
-
-/*module "functions_messages_citizen_2" {
-  source = "../_modules/function_app_citizen"
-
-  prefix              = local.prefix
-  env_short           = local.env_short
-  location            = local.location
-  project             = local.project
-  domain              = local.domain
-  resource_group_name = azurerm_resource_group.itn_messages.name
-
-  instance_number                      = "02"
-  cidr_subnet_messages_citizen_func    = "10.20.10.128/26"
-  private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
-  private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
-  virtual_network = {
-    resource_group_name = data.azurerm_virtual_network.vnet_common_itn.resource_group_name
-    name                = data.azurerm_virtual_network.vnet_common_itn.name
-  }
-  nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
-
-  ai_instrumentation_key = data.azurerm_application_insights.common.instrumentation_key
-  ai_connection_string   = data.azurerm_application_insights.common.connection_string
-  ai_sampling_percentage = 5
-
-  cosmos_db_api_endpoint = data.azurerm_cosmosdb_account.cosmos_api.endpoint
-  cosmos_db_api_key      = data.azurerm_cosmosdb_account.cosmos_api.primary_key
-
-  cosmos_db_remote_content_endpoint = data.azurerm_cosmosdb_account.cosmos_remote_content.endpoint
-  cosmos_db_remote_content_key      = data.azurerm_cosmosdb_account.cosmos_remote_content.primary_key
-
-  redis_url      = module.redis_messages.hostname
-  redis_port     = module.redis_messages.ssl_port
-  redis_password = module.redis_messages.primary_access_key
-
-  message_storage_account_blob_connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
-
-  use_fallback          = false
-  ff_type               = "none"
-  ff_beta_tester_list   = data.azurerm_key_vault_secret.fn_messages_APP_MESSAGES_BETA_FISCAL_CODES.value
-  ff_canary_users_regex = "^([(0-9)|(a-f)|(A-F)]{62}00)$" // takes 0.4% of users
-
-  tags = local.tags
-
-  action_group_id = module.monitoring.action_group.io_com_error_id
-}*/
-
 module "monitoring" {
   source              = "../_modules/monitoring/"
   location            = local.location
   project             = local.project
-  resource_group_name = data.azurerm_resource_group.itn_messages.name
+  domain              = local.domain
+  resource_group_name = azurerm_resource_group.itn_com.name
   io_com_slack_email  = data.azurerm_key_vault_secret.io_com_slack_email.value
 }
 

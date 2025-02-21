@@ -1,5 +1,5 @@
 import { aValidMessageStatus } from "@/__mocks__/message-status.js";
-import { ApplicationInsights } from "@/adapters/appinsights/appinsights.js";
+import { TelemetryEventService } from "@/adapters/appinsights/appinsights.js";
 import { EventErrorTableStorage } from "@/adapters/table-storage/event-error-table-storage.js";
 import { IngestMessageStatusUseCase } from "@/domain/use-cases/ingest-message-status.js";
 import { InvocationContext } from "@azure/functions";
@@ -25,7 +25,7 @@ const messageStatusErrorRepositoryMock = new EventErrorTableStorage(
 );
 
 const telemetryClient = new mocks.TelemetryClient();
-const telemetryServiceMock = new ApplicationInsights(telemetryClient);
+const telemetryServiceMock = new TelemetryEventService(telemetryClient);
 const telemetryTrackEventMock = vi
   .spyOn(telemetryServiceMock, "trackEvent")
   .mockResolvedValue();
