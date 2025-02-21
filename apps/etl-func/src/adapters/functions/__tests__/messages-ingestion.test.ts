@@ -3,7 +3,7 @@ import {
   aSimpleMessageContent,
   aSimpleMessageMetadata,
 } from "@/__mocks__/message.js";
-import { ApplicationInsights } from "@/adapters/appinsights/appinsights.js";
+import { TelemetryEventService } from "@/adapters/appinsights/appinsights.js";
 import { messageSchema } from "@/adapters/avro.js";
 import { MessageContentProvider } from "@/adapters/blob-storage/message-content.js";
 import { CosmosIngestionCollector } from "@/adapters/cosmos/event-collector.js";
@@ -65,7 +65,7 @@ vi.mock("@azure/data-tables", async (importOriginal) => {
 });
 
 const telemetryClient = new mocks.TelemetryClient();
-const telemetryServiceMock = new ApplicationInsights(telemetryClient);
+const telemetryServiceMock = new TelemetryEventService(telemetryClient);
 const telemetryTrackEventMock = vi
   .spyOn(telemetryServiceMock, "trackEvent")
   .mockResolvedValue();

@@ -1,4 +1,4 @@
-import { ApplicationInsights } from "@/adapters/appinsights/appinsights.js";
+import { TelemetryEventService } from "@/adapters/appinsights/appinsights.js";
 import { Container } from "@azure/cosmos";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => ({
   })),
 }));
 
-const telemetryServiceMock = new ApplicationInsights(
+const telemetryServiceMock = new TelemetryEventService(
   new mocks.TelemetryClient(),
 );
 
