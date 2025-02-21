@@ -1,7 +1,7 @@
 import { EventCollector, EventsSummary } from "@/domain/event.js";
 import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { Container, ItemResponse } from "@azure/cosmos";
-import { v4 } from "uuid";
+import { ulid } from "ulid";
 
 /**
  * Adapter for a cosmos event collector.
@@ -41,7 +41,7 @@ export class CosmosIngestionCollector implements EventCollector {
     try {
       await this.insertSummary({
         count,
-        id: v4(),
+        id: ulid(),
         year: new Date().getFullYear().toString(),
       });
     } catch (error) {
