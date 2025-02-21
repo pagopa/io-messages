@@ -49,29 +49,45 @@ resource "azurerm_subnet_nat_gateway_association" "net_gateway_association_subne
 }
 
 resource "azurerm_role_assignment" "sending_cosmosdb_api" {
+  for_each = toset([
+    module.function_app_messages_sending.function_app.function_app.principal_id,
+    module.function_app_messages_sending.function_app.function_app.slot.principal_id
+  ])
   scope                = var.cosmosdb_api.id
   role_definition_name = "SQL DB Contributor"
-  principal_id         = module.function_app_messages_sending.function_app.function_app.principal_id
+  principal_id         = each.value
 }
 
 resource "azurerm_cosmosdb_sql_role_assignment" "cosmosdb_api" {
+  for_each = toset([
+    module.function_app_messages_sending.function_app.function_app.principal_id,
+    module.function_app_messages_sending.function_app.function_app.slot.principal_id
+  ])
   resource_group_name = var.cosmosdb_api.resource_group_name
   account_name        = var.cosmosdb_api.name
   scope               = var.cosmosdb_api.id
   role_definition_id  = "${var.cosmosdb_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
-  principal_id        = module.function_app_messages_sending.function_app.function_app.principal_id
+  principal_id        = each.value
 }
 
 resource "azurerm_role_assignment" "sending_cosmosdb_com" {
+  for_each = toset([
+    module.function_app_messages_sending.function_app.function_app.principal_id,
+    module.function_app_messages_sending.function_app.function_app.slot.principal_id
+  ])
   scope                = var.cosmosdb_com.id
   role_definition_name = "SQL DB Contributor"
-  principal_id         = module.function_app_messages_sending.function_app.function_app.principal_id
+  principal_id         = each.value
 }
 
 resource "azurerm_cosmosdb_sql_role_assignment" "cosmosdb_com" {
+  for_each = toset([
+    module.function_app_messages_sending.function_app.function_app.principal_id,
+    module.function_app_messages_sending.function_app.function_app.slot.principal_id
+  ])
   resource_group_name = var.cosmosdb_com.resource_group_name
   account_name        = var.cosmosdb_com.name
   scope               = var.cosmosdb_com.id
   role_definition_id  = "${var.cosmosdb_com.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
-  principal_id        = module.function_app_messages_sending.function_app.function_app.principal_id
+  principal_id        = each.value
 }
