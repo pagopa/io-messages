@@ -93,13 +93,8 @@ module "functions_messages_sending" {
   ai_connection_string   = data.azurerm_application_insights.common.connection_string
   ai_sampling_percentage = 5
 
-  cosmos_db_api_endpoint = data.azurerm_cosmosdb_account.cosmos_api.endpoint
-  cosmos_db_api_key      = data.azurerm_cosmosdb_account.cosmos_api.primary_key
-
-  io_com_cosmos_endpoint = data.azurerm_cosmosdb_account.io_com_cosmos.endpoint
-  io_com_cosmos_key      = data.azurerm_cosmosdb_account.io_com_cosmos.primary_key
-
-  cosmos_database_names = []
+  cosmosdb_api = data.azurerm_cosmosdb_account.cosmos_api
+  cosmosdb_com = data.azurerm_cosmosdb_account.io_com_cosmos
 
   redis_url      = module.redis_messages.hostname
   redis_port     = module.redis_messages.ssl_port

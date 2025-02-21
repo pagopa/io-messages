@@ -11956,6 +11956,7 @@ __metadata:
   dependencies:
     "@azure/cosmos": "npm:^4.0.0"
     "@azure/functions": "npm:^3.2.0"
+    "@azure/identity": "npm:^4.5.0"
     "@azure/storage-queue": "npm:^12.4.0"
     "@pagopa/eslint-config": "npm:^3.0.0"
     "@pagopa/express-azure-functions": "npm:^2.1.1"
