@@ -54,7 +54,7 @@ const messagesIngestionHandler =
       try {
         telemetryService.trackEvent(TelemetryEventName.MALFORMED_MESSAGES, {
           invocationId: context.invocationId,
-          malformedCount: malformedDocuments.length
+          malformedCount: malformedDocuments.length,
         });
         await Promise.all(
           malformedDocuments.map((malformedDocument) =>
