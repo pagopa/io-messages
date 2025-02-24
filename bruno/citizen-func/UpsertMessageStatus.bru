@@ -1,0 +1,18 @@
+meta {
+  name: UpsertMessageStatus
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{citizen_func_url}}/api/v1/messages/{{fiscal-code}}/{{message-id}}/message-status
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "change_type": "reading",
+    "is_read": true
+  }
+}

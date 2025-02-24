@@ -6367,6 +6367,7 @@ __metadata:
     prettier: "npm:3.2.5"
     redis: "npm:^4.7.0"
     typescript: "npm:5.4.3"
+    ulid: "npm:^2.3.0"
     uuid: "npm:^11.0.5"
     vitest: "npm:^2.1.8"
     zod: "npm:^3.24.1"
@@ -11956,6 +11957,7 @@ __metadata:
   dependencies:
     "@azure/cosmos": "npm:^4.0.0"
     "@azure/functions": "npm:^3.2.0"
+    "@azure/identity": "npm:^4.5.0"
     "@azure/storage-queue": "npm:^12.4.0"
     "@pagopa/eslint-config": "npm:^3.0.0"
     "@pagopa/express-azure-functions": "npm:^2.1.1"
@@ -11973,6 +11975,7 @@ __metadata:
     applicationinsights: "npm:^1.8.10"
     azure-storage: "npm:^2.10.3"
     eslint: "npm:^8.57.1"
+    eslint-plugin-perfectionist: "npm:^2.9.0"
     eslint-plugin-prettier: "npm:^4.0.0"
     express: "npm:^4.15.3"
     fp-ts: "npm:^2.10.5"

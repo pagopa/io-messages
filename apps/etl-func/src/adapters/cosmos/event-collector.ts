@@ -1,63 +1,29 @@
-import {
-  EventCollector,
-  EventsSummary,
-  eventsSummarySchema,
-} from "@/domain/event.js";
+import { EventCollector, EventsSummary } from "@/domain/event.js";
 import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { Container, ItemResponse } from "@azure/cosmos";
+import { ulid } from "ulid";
 
 /**
- * Adapter for a cosmos weekly event collector.
- * The goal is to store the number of events sent to the event hub
- *  into a container with year as partition key and week number as model id.
+ * Adapter for a cosmos event collector.
+ * The goal is to store the number of events
+ * into a container using the year as partition key.
  * */
-export class CosmosWeeklyEventCollector<T> implements EventCollector<T> {
+export class CosmosIngestionCollector implements EventCollector {
   #container: Container;
   #telemetry: TelemetryService;
 
   /**
    * @param container The name of the container where to store weekly events.
+   * @param telemetry The telemetry service to use
    * */
   constructor(container: Container, telemetry: TelemetryService) {
     this.#container = container;
     this.#telemetry = telemetry;
   }
 
-  private createSummary(events: T[]): EventsSummary {
-    return {
-      count: events.length,
-      id: this.getCurrentModelId(),
-      year: this.getCurrentPartitionKey(),
-    };
-  }
-
-  private getCurrentModelId(): string {
-    const today = new Date();
-    const startOfYear = new Date(today.getFullYear(), 0, 1);
-    const daysSinceStartOfYear = Math.floor(
-      (today.getTime() - startOfYear.getTime()) / 86_400_000,
-    );
-    const weekNumber = Math.ceil(
-      (daysSinceStartOfYear + startOfYear.getDay() + 1) / 7,
-    );
-    return `${today.getFullYear()}-W${weekNumber.toString().padStart(2, "0")}`;
-  }
-
-  private getCurrentPartitionKey(): string {
-    return new Date().getFullYear().toString();
-  }
-
-  private async getSummary(
-    modelId: string,
-    partitionKey: string,
-  ): Promise<ItemResponse<EventsSummary> | undefined> {
-    const recordToUpdate = await this.#container
-      .item(modelId, partitionKey)
-      .read();
-    if (recordToUpdate.resource === undefined) return undefined;
-    return recordToUpdate;
-  }
-
+  /**
+   * Insert a new summary into the cosmos container.
+   * */
   private insertSummary(
     summary: EventsSummary,
   ): Promise<ItemResponse<EventsSummary>> {
@@ -66,38 +32,22 @@ export class CosmosWeeklyEventCollector<T> implements EventCollector<T> {
 
   /**
    * Utility method to collect an ingestion event.
-   * This method will create a new event summary into the container.
-   * If an event summary already exists for the week, then it wil patch it
-   * updating the counter.
-   * */
-  async collect(events: T[]): Promise<void> {
+   * This will create a new event summary into the container.
+   * If an error occur during the operation then an event is tracked.
+   *
+   * @param events A non empty array of events
+   **/
+  async collect(count: number): Promise<void> {
     try {
-      const summaryToUpdate = await this.getSummary(
-        this.getCurrentModelId(),
-        this.getCurrentPartitionKey(),
-      );
-
-      // if there is no summary then we want to create it
-      if (summaryToUpdate === undefined)
-        await this.insertSummary(this.createSummary(events));
-      // if the summary already exists then we want to patch
-      else {
-        const parsedItemResponse = eventsSummarySchema.parse(
-          summaryToUpdate.resource,
-        );
-        await summaryToUpdate.item.patch({
-          operations: [
-            {
-              op: "replace",
-              path: "/count",
-              value: (parsedItemResponse.count += events.length),
-            },
-          ],
-        });
-      }
+      await this.insertSummary({
+        count,
+        id: ulid(),
+        year: new Date().getFullYear().toString(),
+      });
     } catch (error) {
       this.#telemetry.trackEvent(TelemetryEventName.COLLECT_COUNT_ERROR, {
         detail: `${error}`,
+        eventsCount: count,
       });
     }
   }
