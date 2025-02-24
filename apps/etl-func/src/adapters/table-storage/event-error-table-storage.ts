@@ -1,6 +1,6 @@
 import { EventErrorRepository } from "@/domain/event.js";
 import { TableClient } from "@azure/data-tables";
-import { v4 as uuidv4 } from "uuid";
+import { ulid } from "ulid";
 import { z } from "zod";
 
 const messageErrorTableEntitySchema = z.object({
@@ -30,7 +30,7 @@ export class EventErrorTableStorage<T> implements EventErrorRepository<T> {
       errorType: errorType,
       event: JSON.stringify(event),
       partitionKey: new Date().getFullYear().toString(),
-      rowKey: uuidv4(),
+      rowKey: ulid(),
       timestamp: new Date().getTime().toString(),
     };
   }
