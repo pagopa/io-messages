@@ -2,12 +2,8 @@ import { EventErrorRepository, EventErrorTypesEnum } from "@/domain/event.js";
 import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
 import { CosmosDBHandler, InvocationContext } from "@azure/functions";
-import { ZodError } from "zod";
 
-import {
-  MessageMetadata,
-  messageMetadataSchema,
-} from "../../domain/message.js";
+import { messageMetadataSchema } from "../../domain/message.js";
 
 const messagesIngestionHandler =
   (
@@ -16,23 +12,20 @@ const messagesIngestionHandler =
     telemetryService: TelemetryService,
   ): CosmosDBHandler =>
   async (documents: unknown[], context: InvocationContext) => {
-    const parsedMessagesMetadataOrZodError = documents.map((input) => {
-      const parsedInput = messageMetadataSchema.safeParse(input);
-      if (parsedInput.success) return parsedInput.data;
-      else return parsedInput.error;
-    });
-
     // filter the array in order to get only valid MessageMetadata with
     // isPending = false
-    const nonPendingMessageMetadata = parsedMessagesMetadataOrZodError.filter(
-      (document): document is MessageMetadata =>
-        !(document instanceof ZodError) && !document.isPending,
-    );
+    const nonPendingMessageMetadata = documents
+      .filter((document) => {
+        const parsedInput = messageMetadataSchema.safeParse(document);
+        return parsedInput.success && !parsedInput.data.isPending;
+      })
+      .map((document) => messageMetadataSchema.parse(document));
 
     // get all malformed documents so we can send them to the error repository
-    const malformedDocuments = parsedMessagesMetadataOrZodError.filter(
-      (input): input is ZodError => input instanceof ZodError,
-    );
+    const malformedDocuments = documents.filter((document) => {
+      const parsedInput = messageMetadataSchema.safeParse(document);
+      return !parsedInput.success;
+    });
 
     try {
       await ingestUseCase.execute(nonPendingMessageMetadata);
@@ -58,17 +51,24 @@ const messagesIngestionHandler =
       throw err;
     }
     if (malformedDocuments.length > 0) {
-      await Promise.all(
-        malformedDocuments.map((malformedDocument) =>
-          eventErrorRepository.push(
-            malformedDocument,
-            EventErrorTypesEnum.enum.MALFORMED_EVENT,
+      try {
+        telemetryService.trackEvent(TelemetryEventName.MALFORMED_MESSAGES, {
+          invocationId: context.invocationId,
+          malformedCount: malformedDocuments.length,
+        });
+        await Promise.all(
+          malformedDocuments.map((malformedDocument) =>
+            eventErrorRepository.push(
+              malformedDocument,
+              EventErrorTypesEnum.enum.MALFORMED_EVENT,
+            ),
           ),
-        ),
-      );
-      telemetryService.trackEvent(TelemetryEventName.MALFORMED_MESSAGES, {
-        invocationId: context.invocationId,
-      });
+        );
+      } catch (err) {
+        telemetryService.trackEvent(TelemetryEventName.UNEXPECTED_ERROR, {
+          invocationId: context.invocationId,
+        });
+      }
     }
   };
 

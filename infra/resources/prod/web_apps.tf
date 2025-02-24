@@ -31,7 +31,7 @@ module "web_apps" {
   nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
 
   app_settings = {
-    message_error_table_storage_uri : data.azurerm_storage_account.storage_api.primary_table_endpoint,
+    message_error_table_storage_uri : "https://${module.storage_api_weu.com_st_name}.table.core.windows.net",
     eventhub_connection_uri : "${module.eventhubs.namespace.name}.servicebus.windows.net"
   }
 
