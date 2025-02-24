@@ -29,6 +29,12 @@ resource "azurerm_notification_hub" "common" {
   tags = var.tags
 }
 
+resource "azurerm_role_assignment" "com_devs_notification_hub_common" {
+  scope                = azurerm_notification_hub_namespace.common.id
+  role_definition_name = "Contributor"
+  principal_id         = var.adgroup_com_devs_id
+}
+
 resource "azurerm_notification_hub" "common01" {
   name                = "${var.project}-ntf-common01"
   namespace_name      = azurerm_notification_hub_namespace.common.name

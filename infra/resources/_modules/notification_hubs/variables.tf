@@ -34,3 +34,7 @@ variable "project" {
 variable "action_group_id" {
   type = string
 }
+
+variable "adgroup_com_devs_id" {
+  type = string
+}

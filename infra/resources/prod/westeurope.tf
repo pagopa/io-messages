@@ -43,6 +43,8 @@ module "notification_hubs_weu" {
   key_vault_common_id = data.azurerm_key_vault.weu_common.id
 
   action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id
+  
+  adgroup_com_devs_id = data.azuread_group.adgroup_com_devs.object_id
 
   tags = local.tags
 }
