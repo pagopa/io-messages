@@ -21,7 +21,7 @@ Rel_R(etlfn, msgevh, "Publish")
 Rel_R(etlfn, msgsentevents, "Publish")
 
 Rel_U(etlfn, msgst, "Read metadata")
-Rel_U(etlfn, comDomainDb, "Write stats")
+Rel_U(etlfn, comDomainDb, "Write ingestion summaries")
 Rel_L(etlfn, failtable, "Record failures")
 
 System_Boundary(pdv, "Personal Data Vault") {
