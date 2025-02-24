@@ -8,14 +8,14 @@ import { TokenizerClient } from "../tokenizer.js";
 
 export class IngestMessageUseCase {
   #eventProducer: EventProducer<MessageEvent>;
-  #eventSummaryCollector: EventCollector<MessageEvent>;
+  #eventSummaryCollector: EventCollector;
   #messageRepo: MessageRepository;
   #tokenizer: TokenizerClient;
 
   constructor(
     messageAdapter: MessageRepository,
     tokenizer: TokenizerClient,
-    eventSummaryCollector: EventCollector<MessageEvent>,
+    eventSummaryCollector: EventCollector,
     eventProducer: EventProducer<MessageEvent>,
   ) {
     this.#messageRepo = messageAdapter;
@@ -40,8 +40,10 @@ export class IngestMessageUseCase {
         transformMessageToMessageEvent(message, this.#tokenizer),
       ),
     );
-    if (messagesEvent.length) await this.#eventProducer.publish(messagesEvent);
 
-    this.#eventSummaryCollector.collect(messagesEvent);
+    if (messagesEvent.length > 0) {
+      await this.#eventProducer.publish(messagesEvent);
+      this.#eventSummaryCollector.collect(messagesEvent.length);
+    }
   }
 }

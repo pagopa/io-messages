@@ -162,7 +162,7 @@ describe("checkApplicationHealth - multiple errors - ", () => {
     storageMocks.createBlobService.mockReturnValueOnce(blobServiceKO);
     storageMocks.createQueueService.mockReturnValueOnce(queueServiceKO);
 
-    const res = await checkApplicationHealth(cosmosdbClient)();
+    const res = await checkApplicationHealth(cosmosdbClient, cosmosdbClient)();
     expect(isLeft(res)).toBe(true);
     if (isLeft(res)) {
       const err = res.left;

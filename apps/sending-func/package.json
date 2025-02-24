@@ -1,6 +1,6 @@
 {
   "name": "sending-func",
-  "version": "1.10.12",
+  "version": "1.10.13",
   "license": "UNLICENSED",
   "scripts": {
     "build": "yarn openapi:bundle && yarn generate:definitions && yarn generate:backend-notification-hub && tsc",
@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
+    "@azure/identity": "^4.5.0",
     "@azure/storage-queue": "^12.4.0",
     "@pagopa/express-azure-functions": "^2.1.1",
     "@pagopa/io-backend-session-sdk": "^9.7.0",
@@ -47,6 +48,7 @@
     "applicationinsights": "^1.8.10",
     "azure-storage": "^2.10.3",
     "eslint": "^8.57.1",
+    "eslint-plugin-perfectionist": "^2.9.0",
     "express": "^4.15.3",
     "fp-ts": "^2.10.5",
     "html-to-text": "^5.1.1",
