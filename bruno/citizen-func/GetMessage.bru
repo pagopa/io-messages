@@ -1,11 +1,16 @@
 meta {
   name: GetMessage
   type: http
-  seq: 3
+  seq: 4
 }
 
 get {
-  url: {{citizen_func_url}}/api/v1/messages/{{fiscal-code}}/{{message-id}}
+  url: {{citizen_func_url}}/api/v1/messages/:fiscal_code/:message_id
   body: none
   auth: none
+}
+
+params:path {
+  fiscal_code: {{fiscal_code}}
+  message_id: {{message_id}}
 }
