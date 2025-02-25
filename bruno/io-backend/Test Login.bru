@@ -1,0 +1,39 @@
+meta {
+  name: Test Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{app_backend_public_url}}/test-login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "{{fiscal_code}}",
+    "password": "{{test_user_password}}"
+  }
+}
+
+vars:post-response {
+  user_token: res.body.token
+}
+
+script:pre-request {
+  const crypto = require("node:crypto");
+  
+  const { publicKey } = crypto.generateKeyPairSync("ec", {
+    namedCurve: "P-256",
+    publicKeyEncoding: {
+      type: "spki",
+      format: "jwk",
+    },
+  });
+  
+  const jwk = JSON.stringify(publicKey);
+  const encoded = Buffer.from(jwk).toString("base64url");
+  
+  req.setHeader("x-pagopa-lollipop-pub-key", encoded);
+}
