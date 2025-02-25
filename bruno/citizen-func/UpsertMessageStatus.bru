@@ -5,9 +5,14 @@ meta {
 }
 
 put {
-  url: {{citizen_func_url}}/api/v1/messages/{{fiscal-code}}/{{message-id}}/message-status
+  url: {{citizen_func_url}}/api/v1/messages/:fiscal_code/:message_id/message-status
   body: json
   auth: none
+}
+
+params:path {
+  message_id: {{message_id}}
+  fiscal_code: {{fiscal_code}}
 }
 
 body:json {
