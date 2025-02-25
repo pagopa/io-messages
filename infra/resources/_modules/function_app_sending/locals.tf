@@ -3,11 +3,6 @@ locals {
     app_settings = {
       NODE_ENV = "production"
 
-      // APP INSIGHTS
-      APPINSIGHTS_INSTRUMENTATIONKEY  = var.ai_instrumentation_key
-      APPINSIGHTS_CONNECTION_STRING   = var.ai_connection_string
-      APPINSIGHTS_SAMPLING_PERCENTAGE = var.ai_sampling_percentage
-
       // IO COSMOSDB
       COSMOSDB_NAME = "db"
       COSMOSDB_URI  = var.cosmosdb_api.endpoint
