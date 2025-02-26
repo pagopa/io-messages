@@ -133,3 +133,21 @@ resource "azurerm_cosmosdb_sql_role_assignment" "citizen_func_com" {
   role_definition_id  = "${var.io_com_cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = each.value
 }
+
+module "citizen_func_autoscaler" {
+  source  = "pagopa/dx-azure-app-service-plan-autoscaler/azurerm"
+  version = "~>0"
+
+  resource_group_name = module.citizen_func.function_app.resource_group_name
+  location            = var.environment.location
+
+  app_service_plan_id = module.citizen_func.function_app.plan.id
+
+  target_service = {
+    function_app = {
+      name = module.citizen_func.function_app.function_app.name
+    }
+  }
+
+  tags = var.tags
+}
