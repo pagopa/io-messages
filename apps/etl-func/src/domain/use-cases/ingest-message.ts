@@ -43,7 +43,7 @@ export class IngestMessageUseCase {
 
     if (messagesEvent.length > 0) {
       await this.#eventProducer.publish(messagesEvent);
-      this.#eventSummaryCollector.collect(messagesEvent.length);
+      await this.#eventSummaryCollector.collect(messagesEvent.length);
     }
   }
 }

@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.10.14
+
+### Patch Changes
+
+- ed95360: Replace APPINSIGHTS_INSTRUMENTATION_KEY with APPLICATIONINSIGHTS_CONNECTION_STRING
+
 ## 1.10.13
 
 ### Patch Changes
