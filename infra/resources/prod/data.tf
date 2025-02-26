@@ -111,8 +111,8 @@ data "azurerm_storage_account" "storage_api" {
 }
 
 data "azurerm_storage_account" "storage_api_com" {
-  name                = replace("${local.project}${local.domain}st01", "-", "")
-  resource_group_name = format("%s-%s-rg-01", local.project, local.domain)
+  name                = module.storage_api_weu.com_st_name
+  resource_group_name = module.storage_api_weu.com_st_rg
 }
 
 data "azurerm_storage_container" "messages_content_container" {
