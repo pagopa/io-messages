@@ -112,7 +112,7 @@ data "azurerm_storage_account" "storage_api" {
 
 data "azurerm_storage_account" "storage_api_com" {
   name                = replace("${local.project}${local.domain}st01", "-", "")
-  resource_group_name = format("%s-%srg-01", local.project, local.domain)
+  resource_group_name = format("%s-%s-rg-01", local.project, local.domain)
 }
 
 data "azurerm_storage_container" "messages_content_container" {
