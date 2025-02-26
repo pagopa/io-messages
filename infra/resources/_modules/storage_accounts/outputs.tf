@@ -5,3 +5,7 @@ output "com_st_id" {
 output "com_st_name" {
   value = module.com_st.name
 }
+
+output "com_st_rg" {
+  value = module.com_st.resource_group_name
+}
