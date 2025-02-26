@@ -1,6 +1,6 @@
 {
   "name": "sending-func",
-  "version": "1.10.13",
+  "version": "1.10.14",
   "license": "UNLICENSED",
   "scripts": {
     "build": "yarn openapi:bundle && yarn generate:definitions && yarn generate:backend-notification-hub && tsc",
