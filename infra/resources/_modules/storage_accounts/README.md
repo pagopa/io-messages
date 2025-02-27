@@ -9,7 +9,7 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.18.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 3.116.0 |
 
 ## Modules
 
@@ -55,5 +55,7 @@ No requirements.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_messages_error_table_storage_account_uri"></a> [messages\_error\_table\_storage\_account\_uri](#output\_messages\_error\_table\_storage\_account\_uri) | n/a |
+| <a name="output_com_st_id"></a> [com\_st\_id](#output\_com\_st\_id) | n/a |
+| <a name="output_com_st_name"></a> [com\_st\_name](#output\_com\_st\_name) | n/a |
+| <a name="output_com_st_rg"></a> [com\_st\_rg](#output\_com\_st\_rg) | n/a |
 <!-- END_TF_DOCS -->
