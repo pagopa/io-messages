@@ -26,7 +26,7 @@ locals {
       ACCOUNT_STORAGE__tableServiceUri               = var.app_settings.message_error_table_storage_uri
       MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME        = "MessageStatusesDataplanIngestionErrors",
       MESSAGES_INGESTION_LEASE_CONTAINER             = "messages-dataplan-ingestion-test-lease",
-      MESSAGES_INGESTION_LEASE_CONTAINER_PREFIX      = "load-test-1"
+      MESSAGES_INGESTION_LEASE_CONTAINER_PREFIX      = "messages-ingestion"
     }
   }
 }
