@@ -36,7 +36,7 @@ module "etl_func_autoscaler" {
   source  = "pagopa/dx-azure-app-service-plan-autoscaler/azurerm"
   version = "~>0"
 
-  app_service_plan_id = module.etl_func.function_app.resource_group_name
+  app_service_plan_id = module.etl_func.function_app.plan.id
   location            = var.environment.location
 
   autoscale_name      = "${var.environment.prefix}-${var.environment.env_short}-${local.location_short}-${var.environment.domain}-etl-func"
