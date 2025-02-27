@@ -47,6 +47,8 @@ module "etl_func_autoscaler" {
     }
   }
 
+  # Setting up 4 instances until we process the past messages up to today.
+  # We must setup low and max load paramenters after that.
   scheduler = {
     maximum = 4
     normal_load = {
