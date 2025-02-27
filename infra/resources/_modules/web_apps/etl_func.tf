@@ -32,6 +32,33 @@ module "etl_func" {
   action_group_id = var.action_group_id
 }
 
+module "etl_func_autoscaler" {
+  source  = "pagopa/dx-azure-app-service-plan-autoscaler/azurerm"
+  version = "~>0"
+
+  app_service_plan_id = module.etl_func.function_app.resource_group_name
+  location            = var.environment.location
+
+  autoscale_name      = "${var.environment.prefix}-${var.environment.env_short}-${local.location_short}-${var.environment.domain}-etl-func"
+  resource_group_name = module.etl_func.function_app.resource_group_name
+
+  target_service = {
+    function_app = {
+      name = module.etl_func.function_app.function_app.name
+    }
+  }
+
+  scheduler = {
+    maximum = 4
+    normal_load = {
+      default = 3
+      minimum = 1
+    }
+  }
+
+  tags = var.tags
+}
+
 resource "azurerm_role_assignment" "eventhub_namespace_write" {
   scope                = var.eventhub_namespace.id
   role_definition_name = "Azure Event Hubs Data Sender"
