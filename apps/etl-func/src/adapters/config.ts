@@ -66,7 +66,7 @@ export const configFromEnvironment = envSchema
         tableName: env.MESSAGE_ERROR_TABLE_STORAGE_NAME,
       },
       messageIngestionTrigger: {
-        leaseContainerName: env.MESSAGES_INGESTION_LEASE_CONTAINER,
+        leaseContainerName: env.DATAPLAN_INGESTION_LEASE_CONTAINER,
         leaseContainerPrefix: env.MESSAGES_INGESTION_LEASE_CONTAINER_PREFIX,
       },
       messageStatusErrorTable: {
