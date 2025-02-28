@@ -52,8 +52,8 @@ module "etl_func_autoscaler" {
   scheduler = {
     maximum = 4
     normal_load = {
-      default = 4
-      minimum = 4
+      default = 1
+      minimum = 1
     }
   }
 
