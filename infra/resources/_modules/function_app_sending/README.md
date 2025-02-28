@@ -9,7 +9,7 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.17.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.5.0 |
 
 ## Modules
 
@@ -21,6 +21,10 @@ No requirements.
 
 | Name | Type |
 |------|------|
+| [azurerm_cosmosdb_sql_role_assignment.cosmosdb_api](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
+| [azurerm_cosmosdb_sql_role_assignment.cosmosdb_com](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
+| [azurerm_role_assignment.sending_cosmosdb_api](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.sending_cosmosdb_com](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_subnet_nat_gateway_association.net_gateway_association_subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_nat_gateway_association) | resource |
 | [azurerm_nat_gateway.nat_gateway](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/nat_gateway) | data source |
 
@@ -30,18 +34,14 @@ No requirements.
 |------|-------------|------|---------|:--------:|
 | <a name="input_action_group_id"></a> [action\_group\_id](#input\_action\_group\_id) | The ID of the action group | `string` | n/a | yes |
 | <a name="input_ai_connection_string"></a> [ai\_connection\_string](#input\_ai\_connection\_string) | The connection string to connect to application insights | `string` | n/a | yes |
-| <a name="input_ai_instrumentation_key"></a> [ai\_instrumentation\_key](#input\_ai\_instrumentation\_key) | The key to connect to application insights | `string` | n/a | yes |
 | <a name="input_ai_sampling_percentage"></a> [ai\_sampling\_percentage](#input\_ai\_sampling\_percentage) | The sampling percentage for application insights | `string` | n/a | yes |
 | <a name="input_appbackendli_token"></a> [appbackendli\_token](#input\_appbackendli\_token) | Token to access appbackendli | `string` | n/a | yes |
 | <a name="input_cidr_subnet_messages_sending_func"></a> [cidr\_subnet\_messages\_sending\_func](#input\_cidr\_subnet\_messages\_sending\_func) | CIDR block for messages sending function app subnet | `string` | n/a | yes |
-| <a name="input_cosmos_database_names"></a> [cosmos\_database\_names](#input\_cosmos\_database\_names) | List of Cosmos DB database names | `list(string)` | n/a | yes |
-| <a name="input_cosmos_db_api_endpoint"></a> [cosmos\_db\_api\_endpoint](#input\_cosmos\_db\_api\_endpoint) | Cosmos DB endpoint to use as application environment variable | `string` | n/a | yes |
-| <a name="input_cosmos_db_api_key"></a> [cosmos\_db\_api\_key](#input\_cosmos\_db\_api\_key) | Cosmos DB api key | `string` | n/a | yes |
+| <a name="input_cosmosdb_api"></a> [cosmosdb\_api](#input\_cosmosdb\_api) | REPO DEFINED VARIABLES | <pre>object({<br/>    id                  = string<br/>    name                = string<br/>    endpoint            = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |
+| <a name="input_cosmosdb_com"></a> [cosmosdb\_com](#input\_cosmosdb\_com) | n/a | <pre>object({<br/>    id                  = string<br/>    name                = string<br/>    endpoint            = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |
 | <a name="input_domain"></a> [domain](#input\_domain) | Domain | `string` | n/a | yes |
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | Short environment | `string` | n/a | yes |
 | <a name="input_internal_user_id"></a> [internal\_user\_id](#input\_internal\_user\_id) | Internal user to bypass | `string` | n/a | yes |
-| <a name="input_io_com_cosmos_endpoint"></a> [io\_com\_cosmos\_endpoint](#input\_io\_com\_cosmos\_endpoint) | Cosmos DB endpoint to use as application environment variable | `string` | n/a | yes |
-| <a name="input_io_com_cosmos_key"></a> [io\_com\_cosmos\_key](#input\_io\_com\_cosmos\_key) | Cosmos DB api key | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | Azure region | `string` | n/a | yes |
 | <a name="input_message_storage_account_blob_connection_string"></a> [message\_storage\_account\_blob\_connection\_string](#input\_message\_storage\_account\_blob\_connection\_string) | Connection string to connect to message storage account | `string` | n/a | yes |
 | <a name="input_notification_storage_account_queue_connection_string"></a> [notification\_storage\_account\_queue\_connection\_string](#input\_notification\_storage\_account\_queue\_connection\_string) | Connection string to connect to notification storage account | `string` | n/a | yes |
