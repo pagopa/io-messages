@@ -32,6 +32,34 @@ module "etl_func" {
   action_group_id = var.action_group_id
 }
 
+module "etl_func_autoscaler" {
+  source  = "pagopa/dx-azure-app-service-plan-autoscaler/azurerm"
+  version = "~>0"
+
+  app_service_plan_id = module.etl_func.function_app.plan.id
+  location            = var.environment.location
+
+  resource_group_name = module.etl_func.function_app.resource_group_name
+
+  target_service = {
+    function_app = {
+      name = module.etl_func.function_app.function_app.name
+    }
+  }
+
+  # Setting up 4 instances until we process the past messages up to today.
+  # We must setup low and max load paramenters after that.
+  scheduler = {
+    maximum = 4
+    normal_load = {
+      default = 4
+      minimum = 4
+    }
+  }
+
+  tags = var.tags
+}
+
 resource "azurerm_role_assignment" "eventhub_namespace_write" {
   scope                = var.eventhub_namespace.id
   role_definition_name = "Azure Event Hubs Data Sender"
