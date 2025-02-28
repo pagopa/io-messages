@@ -28,10 +28,6 @@ export const configSchema = z.object({
   messageIngestionTrigger: z.object({
     leaseContainerName: z.string().min(1),
     leaseContainerPrefix: z.string().min(1),
-    maxInvocationItems: z.number().min(1).int(),
-    maxRetryCount: z.number().min(1).int(),
-    maximumInterval: z.number().min(1).int(),
-    minimumInterval: z.number().min(1).int(),
   }),
   messageStatusErrorTable: tableStorageConfigSchema,
   messageStatusEventHub: eventhubConfigSchema,
@@ -72,10 +68,6 @@ export const configFromEnvironment = envSchema
       messageIngestionTrigger: {
         leaseContainerName: env.MESSAGES_INGESTION_LEASE_CONTAINER,
         leaseContainerPrefix: env.MESSAGES_INGESTION_LEASE_CONTAINER_PREFIX,
-        maxInvocationItems: env.MESSAGES_INGESTION_RETRY_MAX_INVOCATION_ITEMS,
-        maxRetryCount: env.MESSAGES_INGESTION_RETRY_MAX_RETRIES_COUNT,
-        maximumInterval: env.MESSAGES_INGESTION_RETRY_MAX_MINUTES_INTERVAL,
-        minimumInterval: env.MESSAGES_INGESTION_RETRY_MIN_MINUTES_INTERVAL,
       },
       messageStatusErrorTable: {
         connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
