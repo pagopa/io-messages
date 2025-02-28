@@ -166,8 +166,8 @@ const main = async (config: Config) => {
       messageIngestionErrorRepository,
       telemetryService,
     ),
-    leaseContainerName: config.messageIngestionTrigger.leaseContainerName,
-    leaseContainerPrefix: config.messageIngestionTrigger.leaseContainerPrefix,
+    leaseContainerName: "dataplan-ingestion-lease",
+    leaseContainerPrefix: "messages",
     maxItemsPerInvocation: 50,
     retry: {
       maxRetryCount: 5,

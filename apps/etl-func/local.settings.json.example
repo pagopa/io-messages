@@ -24,7 +24,5 @@
     "ACCOUNT_STORAGE__tableServiceUri": "https://testgiovannist.table.core.windows.net/",
     "APPLICATIONINSIGHTS_CONNECTION_STRING": "aConnectionString",
     "MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME": "MessageStatusDataplanIngestionErrors",
-    "DATAPLAN_INGESTION_LEASE_CONTAINER": "messages-dataplan-ingestion-test-lease",
-    "MESSAGES_INGESTION_LEASE_CONTAINER_PREFIX": "prefixTest1",
   }
 }

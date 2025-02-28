@@ -25,10 +25,6 @@ export const configSchema = z.object({
     containerName: z.string().min(1),
   }),
   messageIngestionErrorTable: tableStorageConfigSchema,
-  messageIngestionTrigger: z.object({
-    leaseContainerName: z.string().min(1),
-    leaseContainerPrefix: z.string().min(1),
-  }),
   messageStatusErrorTable: tableStorageConfigSchema,
   messageStatusEventHub: eventhubConfigSchema,
   messagesEventHub: eventhubConfigSchema,
@@ -64,10 +60,6 @@ export const configFromEnvironment = envSchema
       messageIngestionErrorTable: {
         connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
         tableName: env.MESSAGE_ERROR_TABLE_STORAGE_NAME,
-      },
-      messageIngestionTrigger: {
-        leaseContainerName: env.DATAPLAN_INGESTION_LEASE_CONTAINER,
-        leaseContainerPrefix: env.MESSAGES_INGESTION_LEASE_CONTAINER_PREFIX,
       },
       messageStatusErrorTable: {
         connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
