@@ -25,12 +25,8 @@ locals {
       IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME = "messages-summary"
       ACCOUNT_STORAGE__tableServiceUri               = var.app_settings.message_error_table_storage_uri
       MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME        = "MessageStatusesDataplanIngestionErrors",
-      MESSAGES_INGESTION_LEASE_CONTAINER             = "messages-dataplan-ingestion-lease",
-      MESSAGES_INGESTION_LEASE_CONTAINER_PREFIX      = "message-ingestion",
-      MESSAGES_INGESTION_RETRY_MAX_INVOCATION_ITEMS  = 50,
-      MESSAGES_INGESTION_RETRY_MIN_MINUTES_INTERVAL  = 1,
-      MESSAGES_INGESTION_RETRY_MAX_MINUTES_INTERVAL  = 30,
-      MESSAGES_INGESTION_RETRY_MAX_RETRIES_COUNT     = 5
+      MESSAGES_INGESTION_LEASE_CONTAINER             = "messages-dataplan-ingestion-test-lease",
+      MESSAGES_INGESTION_LEASE_CONTAINER_PREFIX      = "messages-ingestion"
     }
   }
 }
