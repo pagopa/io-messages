@@ -18,3 +18,4 @@ jobs:
     secrets: inherit
     with:
       verbose: true
+      pre_commit_tf_tag: v1.97.0
