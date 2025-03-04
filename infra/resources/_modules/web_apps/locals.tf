@@ -17,7 +17,7 @@ locals {
       REDIS_URL                                      = "rediss://${var.redis_cache.hostname}:${var.redis_cache.port}",
       COMMON_COSMOS__accountEndpoint                 = var.cosmosdb_account_api.endpoint
       COMMON_COSMOS_DBNAME                           = "db",
-      COMMON_COSMOS_MESSAGES_CONTAINER_NAME          = "messages-dataplan-ingestion-test"
+      COMMON_COSMOS_MESSAGES_CONTAINER_NAME          = "messages"
       COMMON_COSMOS_MESSAGE_STATUS_CONTAINER_NAME    = "message-status"
       MESSAGE_ERROR_TABLE_STORAGE_NAME               = "MessagesDataplanIngestionErrors",
       IOCOM_COSMOS__accountEndpoint                  = var.io_com_cosmos.endpoint
@@ -25,12 +25,6 @@ locals {
       IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME = "messages-summary"
       ACCOUNT_STORAGE__tableServiceUri               = var.app_settings.message_error_table_storage_uri
       MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME        = "MessageStatusesDataplanIngestionErrors",
-      MESSAGES_INGESTION_LEASE_CONTAINER             = "messages-dataplan-ingestion-test-lease",
-      MESSAGES_INGESTION_LEASE_CONTAINER_PREFIX      = "load-test-1",
-      MESSAGES_INGESTION_RETRY_MAX_INVOCATION_ITEMS  = 50,
-      MESSAGES_INGESTION_RETRY_MIN_MINUTES_INTERVAL  = 1,
-      MESSAGES_INGESTION_RETRY_MAX_MINUTES_INTERVAL  = 30,
-      MESSAGES_INGESTION_RETRY_MAX_RETRIES_COUNT     = 5
     }
   }
 }
