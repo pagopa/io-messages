@@ -9,7 +9,7 @@ on:
       - reopened
       - ready_for_review
     paths:
-      - "infra/resources/**"
+      - "infra/**"
 
 jobs:
   static_analysis:
