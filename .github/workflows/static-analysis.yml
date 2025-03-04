@@ -18,3 +18,4 @@ jobs:
     secrets: inherit
     with:
       verbose: true
+      enable_modified_files_detection: true
