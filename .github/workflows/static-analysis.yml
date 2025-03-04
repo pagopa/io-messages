@@ -16,5 +16,3 @@ jobs:
     uses: pagopa/dx/.github/workflows/static_analysis.yaml@main
     name: Terraform Validation
     secrets: inherit
-    with:
-      enable_modified_files_detection: true
