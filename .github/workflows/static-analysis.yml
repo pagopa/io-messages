@@ -16,3 +16,5 @@ jobs:
     uses: pagopa/dx/.github/workflows/static_analysis.yaml@main
     name: Terraform Validation
     secrets: inherit
+    with:
+      verbose: true
