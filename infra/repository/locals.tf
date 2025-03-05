@@ -20,8 +20,8 @@ locals {
   }
 
   apim = {
-    name                = "${local.prefix}-${local.env_short}-apim-v2-api"
-    resource_group_name = "${local.prefix}-${local.env_short}-rg-internal"
+    name                = "${local.prefix}-${local.env_short}-itn-apim-01"
+    resource_group_name = "${local.prefix}-${local.env_short}-itn-common-rg-01"
   }
 
   vnet = {
@@ -29,12 +29,9 @@ locals {
     resource_group_name = "${local.prefix}-${local.env_short}-itn-common-rg-01"
   }
 
-  dns = {
-    resource_group_name = "${local.prefix}-${local.env_short}-rg-external"
-  }
-
-  natgateway = {
-    resource_group_name = "${local.prefix}-${local.env_short}-itn-common-rg-01"
+  common = {
+    weu_resource_group_name = "${local.prefix}-${local.env_short}-rg-common"
+    itn_resource_group_name = "${local.prefix}-${local.env_short}-itn-common-rg-01"
   }
 
   tf_storage_account = {

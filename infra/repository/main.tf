@@ -56,15 +56,15 @@ data "azurerm_key_vault" "common" {
 
 data "azurerm_virtual_network" "common" {
   name                = local.vnet.name
-  resource_group_name = local.vnet.resource_group_name
-}
-
-data "azurerm_resource_group" "external" {
-  name = local.dns.resource_group_name
+  resource_group_name = data.azurerm_resource_group.common_itn_01.name
 }
 
 data "azurerm_resource_group" "common_itn_01" {
-  name = local.natgateway.resource_group_name
+  name = local.common.itn_resource_group_name
+}
+
+data "azurerm_resource_group" "common_weu" {
+  name = local.common.weu_resource_group_name
 }
 
 data "azurerm_resource_group" "dashboards" {
@@ -81,7 +81,7 @@ data "azuread_group" "developers" {
 
 module "repo" {
   source  = "pagopa/dx-azure-github-environment-bootstrap/azurerm"
-  version = "~>0"
+  version = "~>1"
 
   environment = {
     prefix          = local.prefix
@@ -126,9 +126,10 @@ module "repo" {
 
   apim_id                            = data.azurerm_api_management.apim.id
   pep_vnet_id                        = data.azurerm_virtual_network.common.id
-  private_dns_zone_resource_group_id = data.azurerm_resource_group.external.id
+  private_dns_zone_resource_group_id = data.azurerm_resource_group.common_weu.id
   nat_gateway_resource_group_id      = data.azurerm_resource_group.common_itn_01.id
   opex_resource_group_id             = data.azurerm_resource_group.dashboards.id
+
   keyvault_common_ids = [
     data.azurerm_key_vault.common.id
   ]
