@@ -1,0 +1,49 @@
+{
+  "name": "io-messages",
+  "dockerComposeFile": "../compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspace",
+  "features": {
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/pagopa/devcontainer-features/plantuml:1": {},
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "1.10.1",
+      "tflint": "latest",
+      "installTFsec": true,
+      "installTerraformDocs": true
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20.18.1",
+      "installYarnUsingApt": false,
+      "pnpmVersion": "none",
+      "nvmInstallPath": "/opt/nvm"
+    },
+    "ghcr.io/pagopa/devcontainer-features/azure-functions-core-tools:1": {}
+  },
+  "shutdownAction": "stopCompose",
+  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && COREPACK_ENABLE_DOWNLOAD_PROMPT=0 yarn install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "-vscjava.vscode-java-pack",
+        "-ms-dotnettools.csharp",
+        "-ms-azuretools.vscode-azureterraform",
+        "ms-azuretools.vscode-azure-github-copilot",
+        "ms-vscode.vscode-websearchforcopilot",
+        "azapi-vscode.azapi",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github",
+        "arcanis.vscode-zipfs",
+        "esbenp.prettier-vscode",
+        "EditorConfig.EditorConfig",
+        "bruno-api-client.bruno",
+        "vitest.explorer",
+        "redhat.vscode-yaml",
+        "dbaeumer.vscode-eslint",
+        "github.copilot",
+        "github.copilot-chat"
+      ]
+    }
+  }
+}
