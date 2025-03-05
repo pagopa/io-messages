@@ -1,6 +1,5 @@
 {
   "name": "etl-func",
-  "private": true,
   "main": "dist/func.js",
   "type": "module",
   "files": [
