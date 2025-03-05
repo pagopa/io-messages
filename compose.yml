@@ -4,3 +4,45 @@ services:
     command: "sleep infinity"
     volumes:
       - ".:/workspace:cached"
+
+  redis:
+    image: "redis/redis-stack:6.2.6-v19"
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    environment:
+      REDIS_ARGS: "--requirepass local"
+
+  azurite:
+    image: "mcr.microsoft.com/azure-storage/azurite:latest"
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+
+  eventhubs:
+    image: "mcr.microsoft.com/azure-messaging/eventhubs-emulator:latest"
+    depends_on:
+      - "azurite"
+    ports:
+      - "5672:5672"
+      - "9092:9092"
+    volumes:
+      - "./eventhubs-emulator.json:/Eventhubs_Emulator/ConfigFiles/Config.json"
+    environment:
+      BLOB_SERVER: azurite
+      METADATA_SERVER: azurite
+      ACCEPT_EULA: Y
+
+  kafka-ui:
+    image: "provectuslabs/kafka-ui:latest"
+    depends_on:
+      - "eventhubs"
+    ports:
+      - "8002:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: "local"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "eventhubs:9092"
+      KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL: "SASL_PLAINTEXT"
+      KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM: "PLAIN"
+      KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="$$ConnectionString" password="Endpoint=sb://eventhubs;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";'
