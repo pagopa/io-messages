@@ -149,5 +149,26 @@ module "citizen_func_autoscaler" {
     }
   }
 
+  scheduler = {
+    normal_load = {
+      default = 11,
+      minimum = 6
+    },
+    low_load = {
+      minimum = 2,
+      name    = "low_load_profile",
+      default = 10,
+      start = {
+        hour    = 22,
+        minutes = 0
+      }
+      end = {
+        hour    = 5,
+        minutes = 0
+      },
+    },
+    maximum = 30,
+  }
+
   tags = var.tags
 }
