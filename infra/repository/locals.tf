@@ -47,7 +47,6 @@ locals {
     default_branch_name      = "main"
     infra_cd_policy_branches = ["main"]
     opex_cd_policy_branches  = ["main"]
-    app_cd_policy_branches   = ["main"]
     app_cd_policy_tags       = ["*@*"]
   }
 
