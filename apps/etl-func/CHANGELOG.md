@@ -1,5 +1,11 @@
 # etl-func
 
+## 1.0.1
+
+### Patch Changes
+
+- 74bf266: Track batchId in message-summary collect error event
+
 ## 1.0.0
 
 ### Major Changes
