@@ -38,14 +38,16 @@ export class CosmosIngestionCollector implements EventCollector {
    * @param events A non empty array of events
    **/
   async collect(count: number): Promise<void> {
+    const batchId = ulid();
     try {
       await this.insertSummary({
         count,
-        id: ulid(),
+        id: batchId,
         year: new Date().getFullYear().toString(),
       });
     } catch (error) {
       this.#telemetry.trackEvent(TelemetryEventName.COLLECT_COUNT_ERROR, {
+        batchId,
         detail: `${error}`,
         eventsCount: count,
       });
