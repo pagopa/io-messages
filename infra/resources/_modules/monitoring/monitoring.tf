@@ -34,7 +34,7 @@ customEvents
 
   severity    = 1
   frequency   = 10
-  time_window = 30
+  time_window = 10
 
   trigger {
     operator  = "GreaterThanOrEqual"
@@ -67,7 +67,7 @@ customEvents
 
   severity    = 1
   frequency   = 10
-  time_window = 30
+  time_window = 10
 
   trigger {
     operator  = "GreaterThanOrEqual"
@@ -100,7 +100,7 @@ customEvents
 
   severity    = 1
   frequency   = 10
-  time_window = 30
+  time_window = 10
 
   trigger {
     operator  = "GreaterThanOrEqual"
