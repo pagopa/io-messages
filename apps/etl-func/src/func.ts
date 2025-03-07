@@ -23,6 +23,7 @@ import RedisRecipientRepository from "./adapters/redis/recipient.js";
 import { EventErrorTableStorage } from "./adapters/table-storage/event-error-table-storage.js";
 import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
 import { IngestMessageUseCase } from "./domain/use-cases/ingest-message.js";
+import { makeEventHubProducerClient } from "./adapters/eventhub/index.js";
 
 const main = async (config: Config) => {
   const logger = pino({
@@ -39,9 +40,8 @@ const main = async (config: Config) => {
     azureCredentials,
   );
 
-  const messageProducerClient = new EventHubProducerClient(
-    config.messagesEventHub.connectionUri,
-    config.messagesEventHub.eventHubName,
+  const messageProducerClient = makeEventHubProducerClient(
+    config.messagesEventHub,
     azureCredentials,
   );
 
