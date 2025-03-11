@@ -19,10 +19,10 @@ locals {
   legacy_location_short = "weu"
 
   tags = {
-    CostCenter     = "TS310 - PAGAMENTI & SERVIZI"
+    CostCenter     = "TS000 - Tecnologia e Servizi"
     CreatedBy      = "Terraform"
     Environment    = "Prod"
-    Owner          = "IO"
+    BusinessUnit   = "App IO"
     ManagementTeam = "IO Comunicazione"
     Source         = "https://github.com/pagopa/io-messages/blob/main/infra/resources/prod"
   }
