@@ -94,7 +94,7 @@ module "functions_messages_sending" {
   ai_sampling_percentage = 5
 
   cosmosdb_api = data.azurerm_cosmosdb_account.cosmos_api
-  cosmosdb_com = data.azurerm_cosmosdb_account.io_com_cosmos
+  cosmosdb_com = module.cosmos.io_com_cosmos
 
   redis_url      = module.redis_messages.hostname
   redis_port     = module.redis_messages.ssl_port
