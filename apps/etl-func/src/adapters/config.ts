@@ -51,15 +51,14 @@ const mapEnvironmentVariablesToConfig = (env: Env) => {
     env.NODE_ENV === "production"
       ? {
           authStrategy: "Identity",
-          eventHubName: env.MESSAGE_EVENTHUB_NAME,
           connectionUri: env.EVENTHUB_CONNECTION_URI,
+          eventHubName: env.MESSAGE_EVENTHUB_NAME,
         }
       : {
           authStrategy: "ConnectionString",
           connectionString: env.EVENTHUB_CONNECTION_STRING,
         };
   return {
-    environment: env.NODE_ENV,
     appInsights: {
       connectionString: env.APPLICATIONINSIGHTS_CONNECTION_STRING,
     },
@@ -70,6 +69,7 @@ const mapEnvironmentVariablesToConfig = (env: Env) => {
         env.COMMON_COSMOS_MESSAGE_STATUS_CONTAINER_NAME,
       messagesContainerName: env.COMMON_COSMOS_MESSAGES_CONTAINER_NAME,
     },
+    environment: env.NODE_ENV,
     iocomCosmos: {
       accountUri: env.IOCOM_COSMOS__accountEndpoint,
       eventsCollectorDatabaseName: env.IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME,

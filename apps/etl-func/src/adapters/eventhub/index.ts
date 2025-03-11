@@ -1,7 +1,7 @@
 import { EventHubProducerClient } from "@azure/event-hubs";
-import { EventHubConfig } from "./config.js";
-
 import { TokenCredential } from "@azure/identity";
+
+import { EventHubConfig } from "./config.js";
 
 export const makeEventHubProducerClient = (
   config: EventHubConfig,
