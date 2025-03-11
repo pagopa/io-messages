@@ -22,7 +22,10 @@
     "ghcr.io/pagopa/devcontainer-features/azure-functions-core-tools:1": {}
   },
   "shutdownAction": "stopCompose",
-  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && COREPACK_ENABLE_DOWNLOAD_PROMPT=0 yarn install",
+  "postStartCommand": {
+    "set-workspace-as-safe-dir": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+    "install-yarn-and-deps": "yarn install"
+  },
   "customizations": {
     "vscode": {
       "extensions": [
