@@ -51,8 +51,8 @@ locals {
 
 
 module "citizen_func" {
-  source  = "pagopa/dx-azure-function-app/azurerm"
-  version = "~>0"
+  source  = "pagopa-dx/azure-function-app/azurerm"
+  version = "~> 0.0"
 
   environment = merge(var.environment, {
     app_name        = "citizen"
@@ -135,8 +135,8 @@ resource "azurerm_cosmosdb_sql_role_assignment" "citizen_func_com" {
 }
 
 module "citizen_func_autoscaler" {
-  source  = "pagopa/dx-azure-app-service-plan-autoscaler/azurerm"
-  version = "~>0"
+  source  = "pagopa-dx/azure-app-service-plan-autoscaler/azurerm"
+  version = "~> 1.0"
 
   resource_group_name = module.citizen_func.function_app.resource_group_name
   location            = var.environment.location

@@ -13,7 +13,7 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_etl"></a> [etl](#module\_etl) | pagopa/dx-azure-event-hub/azurerm | ~>0 |
+| <a name="module_etl"></a> [etl](#module\_etl) | pagopa-dx/azure-event-hub/azurerm | ~> 0.0 |
 
 ## Resources
 
