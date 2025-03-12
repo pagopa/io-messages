@@ -1,5 +1,5 @@
 module "etl_func" {
-source = "pagopa-dx/azure-function-app/azurerm"
+  source  = "pagopa-dx/azure-function-app/azurerm"
   version = "~> 0.0"
 
   environment = merge(var.environment, {
@@ -33,8 +33,8 @@ source = "pagopa-dx/azure-function-app/azurerm"
 }
 
 module "etl_func_autoscaler" {
-source = "pagopa-dx/azure-app-service-plan-autoscaler/azurerm"
-  version = "~> 0.0"
+  source  = "pagopa-dx/azure-app-service-plan-autoscaler/azurerm"
+  version = "~> 1.0"
 
   app_service_plan_id = module.etl_func.function_app.plan.id
   location            = var.environment.location
