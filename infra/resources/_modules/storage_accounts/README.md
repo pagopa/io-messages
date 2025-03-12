@@ -9,13 +9,13 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.18.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_com_st"></a> [com\_st](#module\_com\_st) | pagopa/dx-azure-storage-account/azurerm | 0.0.9 |
+| <a name="module_com_st"></a> [com\_st](#module\_com\_st) | pagopa-dx/azure-storage-account/azurerm | 0.0.9 |
 | <a name="module_storage_api"></a> [storage\_api](#module\_storage\_api) | github.com/pagopa/terraform-azurerm-v4//storage_account | v1.2.1 |
 | <a name="module_storage_api_events"></a> [storage\_api\_events](#module\_storage\_api\_events) | github.com/pagopa/terraform-azurerm-v4//storage_account | v1.2.1 |
 | <a name="module_storage_api_replica"></a> [storage\_api\_replica](#module\_storage\_api\_replica) | github.com/pagopa/terraform-azurerm-v4//storage_account | v1.2.1 |
@@ -55,5 +55,7 @@ No requirements.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_messages_error_table_storage_account_uri"></a> [messages\_error\_table\_storage\_account\_uri](#output\_messages\_error\_table\_storage\_account\_uri) | n/a |
+| <a name="output_com_st_id"></a> [com\_st\_id](#output\_com\_st\_id) | n/a |
+| <a name="output_com_st_name"></a> [com\_st\_name](#output\_com\_st\_name) | n/a |
+| <a name="output_com_st_rg"></a> [com\_st\_rg](#output\_com\_st\_rg) | n/a |
 <!-- END_TF_DOCS -->

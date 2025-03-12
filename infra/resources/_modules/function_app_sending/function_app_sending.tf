@@ -4,7 +4,7 @@ data "azurerm_nat_gateway" "nat_gateway" {
 }
 
 module "function_app_messages_sending" {
-source = "pagopa-dx/azure-function-app/azurerm"
+  source  = "pagopa-dx/azure-function-app/azurerm"
   version = "~> 0.0"
 
   environment = {
