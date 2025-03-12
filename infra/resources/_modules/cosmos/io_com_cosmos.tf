@@ -1,6 +1,6 @@
 module "io_com_cosmos_account" {
-  source  = "pagopa/dx-azure-cosmos-account/azurerm"
-  version = "~> 0"
+source = "pagopa-dx/azure-cosmos-account/azurerm"
+  version = "~> 0.0"
 
   subnet_pep_id = var.subnet_pep_id
 
