@@ -9,7 +9,7 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.17.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.16.0 |
 
 ## Modules
 
@@ -29,6 +29,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_domain"></a> [domain](#input\_domain) | location used to create resource naming | `string` | n/a | yes |
 | <a name="input_io_com_slack_email"></a> [io\_com\_slack\_email](#input\_io\_com\_slack\_email) | Uri of the slack channel where to send domain related alerts | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | location used to create resource naming | `string` | n/a | yes |
 | <a name="input_project"></a> [project](#input\_project) | IO prefix, short environment and short location | `string` | n/a | yes |

@@ -1,5 +1,5 @@
 module "com_st" {
-  source  = "pagopa/dx-azure-storage-account/azurerm"
+  source  = "pagopa-dx/azure-storage-account/azurerm"
   version = "0.0.9"
 
   subnet_pep_id       = var.subnet_pep_id
