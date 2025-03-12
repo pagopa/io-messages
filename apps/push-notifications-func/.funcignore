@@ -1,0 +1,14 @@
+*.js.map
+*.ts
+.git*
+.vscode*
+.circleci*
+.prettierrc
+local.settings.json*
+tsconfig.json
+tslint.json
+README.md
+yarn.lock
+jest.config.js
+__*
+CODEOWNERS
