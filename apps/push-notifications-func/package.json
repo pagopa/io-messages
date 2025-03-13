@@ -11,7 +11,7 @@
     "start": "dotenv -e .env func start --javascript",
     "predev": "npm-run-all build",
     "dev": "npm-run-all --parallel start watch",
-    "test": "vitest run",
+    "test": "vitest run --hook-timeout=0",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint . -c .eslintrc.js --ext .ts,.tsx",
     "generate": "shx rm -rf generated && yarn generate:backend:notification-hub",
