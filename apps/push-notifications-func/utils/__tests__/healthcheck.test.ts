@@ -5,22 +5,8 @@ import { checkAzureNotificationHub } from "../healthcheck";
 import { pipe } from "fp-ts/lib/function";
 
 import * as TE from "fp-ts/lib/TaskEither";
-import { NotificationHubsClient } from "@azure/notification-hubs";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-// const mockNotificationHubServiceKO = {
-//   deleteInstallation: vi.fn((_, callback) =>
-//     callback(Error("An error occurred"), null),
-//   ),
-// } as unknown as NotificationHubsClient;
-
-// const mockNotificationHubServiceOK = {
-//   deleteInstallation: vi.fn((_) => Promise.resolve({})),
-// } as unknown as NotificationHubsClient;
-
-// -------------
-// TESTS
-// -------------
 import * as nhService from "../notificationhubServicePartition"; // Module containing buildNHClient
 
 vi.mock("../notificationhubServicePartition", () => {
@@ -34,9 +20,6 @@ vi.mock("../notificationhubServicePartition", () => {
 const buildNHClientMock = vi.spyOn(nhService, "buildNHClient");
 
 describe("healthcheck - notification hub", () => {
-  // afterEach(() => {
-  //   vi.resetAllMocks();
-  // });
   it("should not throw exception", async () => {
     await pipe(
       checkAzureNotificationHub(
