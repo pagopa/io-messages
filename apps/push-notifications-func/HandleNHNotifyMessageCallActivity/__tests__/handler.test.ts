@@ -5,7 +5,7 @@ import { context as contextMock } from "../../__mocks__/durable-functions";
 import {
   ActivityInput,
   getActivityBody,
-  ActivityResultSuccess
+  ActivityResultSuccess,
 } from "../handler";
 import { ActivityInput as NHClientActivityInput } from "../handler";
 
@@ -17,8 +17,10 @@ import { TelemetryClient } from "applicationinsights";
 import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
 import { toSHA256 } from "../../utils/conversions";
 import { NotificationHubsClient } from "@azure/notification-hubs";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const aFiscalCodeHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
+const aFiscalCodeHash =
+  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
 
 const aNotifyMessage: NotifyMessage = {
   installationId: aFiscalCodeHash,
@@ -26,30 +28,30 @@ const aNotifyMessage: NotifyMessage = {
   payload: {
     message: "message",
     message_id: "id",
-    title: "title"
-  }
+    title: "title",
+  },
 };
 
 const aNHConfig = {
   AZURE_NH_ENDPOINT: envConfig.AZURE_NH_ENDPOINT,
-  AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME
+  AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME,
 } as NotificationHubConfig;
 
-const mockTelemetryClient = ({
-  trackEvent: () => {}
-} as unknown) as TelemetryClient;
+const mockTelemetryClient = {
+  trackEvent: () => {},
+} as unknown as TelemetryClient;
 
-const getInstallationMock = jest.fn();
-const sendNotificationMock = jest.fn();
+const getInstallationMock = vi.fn();
+const sendNotificationMock = vi.fn();
 
 const mockNotificationHubService = {
   getInstallation: getInstallationMock,
-  sendNotification: sendNotificationMock
+  sendNotification: sendNotificationMock,
 };
-const mockBuildNHClient = jest
+const mockBuildNHClient = vi
   .fn()
   .mockImplementation(
-    _ => (mockNotificationHubService as unknown) as NotificationHubsClient
+    (_) => mockNotificationHubService as unknown as NotificationHubsClient,
   );
 
 const activityName = "any";
@@ -57,8 +59,8 @@ const activityName = "any";
 const aNotifyMessageToBlacklistedUser: NotifyMessage = {
   ...aNotifyMessage,
   installationId: toSHA256(
-    envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST[0]
-  ) as NonEmptyString
+    envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST[0],
+  ) as NonEmptyString,
 };
 
 const handler = createActivity(
@@ -68,13 +70,13 @@ const handler = createActivity(
   getActivityBody(
     mockTelemetryClient,
     mockBuildNHClient,
-    envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST
-  )
+    envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
+  ),
 );
 
 describe("HandleNHNotifyMessageCallActivity", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should call notificationhubServicePartion.buildNHClient to get the right notificationService to call", async () => {
@@ -82,7 +84,7 @@ describe("HandleNHNotifyMessageCallActivity", () => {
 
     const input = ActivityInput.encode({
       message: aNotifyMessage,
-      notificationHubConfig: aNHConfig
+      notificationHubConfig: aNHConfig,
     });
 
     expect.assertions(4);
@@ -102,8 +104,8 @@ describe("HandleNHNotifyMessageCallActivity", () => {
       message: aNotifyMessage,
       notificationHubConfig: {
         AZURE_NH_ENDPOINT: envConfig.AZURE_NH_ENDPOINT,
-        AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME
-      }
+        AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME,
+      },
     });
 
     expect.assertions(2);
@@ -121,7 +123,7 @@ describe("HandleNHNotifyMessageCallActivity", () => {
 
     const input = ActivityInput.encode({
       message: aNotifyMessageToBlacklistedUser,
-      notificationHubConfig: aNHConfig
+      notificationHubConfig: aNHConfig,
     });
 
     expect.assertions(3);

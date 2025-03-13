@@ -4,8 +4,9 @@ import { context as contextMock } from "../../__mocks__/durable-functions";
 import {
   getActivityBody,
   ActivityInput,
-  ActivityResultSuccess
+  ActivityResultSuccess,
 } from "../handler";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PlatformEnum } from "../../generated/notifications/Platform";
 import { CreateOrUpdateInstallationMessage } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
@@ -19,7 +20,8 @@ import { TelemetryClient } from "applicationinsights";
 
 const activityName = "any";
 
-const aFiscalCodeHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
+const aFiscalCodeHash =
+  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
 const aPushChannel =
   "fLKP3EATnBI:APA91bEy4go681jeSEpLkNqhtIrdPnEKu6Dfi-STtUiEnQn8RwMfBiPGYaqdWrmzJyXIh5Yms4017MYRS9O1LGPZwA4sOLCNIoKl4Fwg7cSeOkliAAtlQ0rVg71Kr5QmQiLlDJyxcq3p";
 
@@ -28,48 +30,48 @@ const aCreateOrUpdateInstallationMessage: CreateOrUpdateInstallationMessage = {
   kind: "CreateOrUpdateInstallation" as any,
   platform: PlatformEnum.apns,
   pushChannel: aPushChannel,
-  tags: [aFiscalCodeHash]
+  tags: [aFiscalCodeHash],
 };
 
 const aNHConfig = {
   AZURE_NH_ENDPOINT: envConfig.AZURE_NH_ENDPOINT,
-  AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME
+  AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME,
 } as NotificationHubConfig;
 
-const createOrUpdateInstallationMock = jest.fn();
-const getInstallationMock = jest.fn();
+const createOrUpdateInstallationMock = vi.fn();
+const getInstallationMock = vi.fn();
 
 const mockNotificationHubService = {
   createOrUpdateInstallation: createOrUpdateInstallationMock,
-  getInstallation: getInstallationMock
+  getInstallation: getInstallationMock,
 };
-const mockBuildNHClient = jest
+const mockBuildNHClient = vi
   .fn()
   .mockImplementation(
-    _ => (mockNotificationHubService as unknown) as NotificationHubsClient
+    (_) => mockNotificationHubService as unknown as NotificationHubsClient,
   );
 
-const mockTelemetryClient = ({
-  trackEvent: jest.fn(() => {})
-} as unknown) as TelemetryClient;
+const mockTelemetryClient = {
+  trackEvent: vi.fn(() => {}),
+} as unknown as TelemetryClient;
 
 const handler = createActivity(
   activityName,
   ActivityInput, // FIXME: the editor marks it as type error, but tests compile correctly
   ActivityResultSuccess,
-  getActivityBody(mockBuildNHClient, mockTelemetryClient)
+  getActivityBody(mockBuildNHClient, mockTelemetryClient),
 );
 
 describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should call notificationhubServicePartion.buildNHClient to get the right notificationService to call", async () => {
     getInstallationMock.mockImplementation(() =>
       Promise.resolve({
-        platform: "apns"
-      })
+        platform: "apns",
+      }),
     );
     createOrUpdateInstallationMock.mockReturnValueOnce(Promise.resolve());
 
@@ -78,7 +80,7 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
       platform: aCreateOrUpdateInstallationMessage.platform,
       tags: aCreateOrUpdateInstallationMessage.tags,
       pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
-      notificationHubConfig: aNHConfig
+      notificationHubConfig: aNHConfig,
     });
 
     expect.assertions(3);
@@ -93,11 +95,11 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
   it("should trigger a retry if CreateOrUpdateInstallation fails", async () => {
     getInstallationMock.mockImplementation(() =>
       Promise.resolve({
-        platform: "apns"
-      })
+        platform: "apns",
+      }),
     );
     createOrUpdateInstallationMock.mockImplementationOnce(() =>
-      Promise.reject({})
+      Promise.reject({}),
     );
 
     const input = ActivityInput.encode({
@@ -105,7 +107,7 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
       platform: aCreateOrUpdateInstallationMessage.platform,
       tags: aCreateOrUpdateInstallationMessage.tags,
       pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
-      notificationHubConfig: aNHConfig
+      notificationHubConfig: aNHConfig,
     });
 
     expect.assertions(2);
@@ -114,7 +116,7 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
       await handler(contextMock as any, input);
     } catch (e) {
       expect(
-        mockNotificationHubService.createOrUpdateInstallation
+        mockNotificationHubService.createOrUpdateInstallation,
       ).toHaveBeenCalledTimes(1);
       expect(e).toBeInstanceOf(Error);
     }

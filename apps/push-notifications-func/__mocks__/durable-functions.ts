@@ -1,20 +1,21 @@
 import { Context } from "@azure/functions";
+import { vi } from "vitest";
 
-export const mockStartNew = jest.fn();
+export const mockStartNew = vi.fn();
 
-export const getClient = jest.fn(() => ({
-  startNew: mockStartNew
+export const getClient = vi.fn(() => ({
+  startNew: mockStartNew,
 }));
 
-export const orchestrator = jest.fn();
+export const orchestrator = vi.fn();
 
-export const RetryOptions = jest.fn(() => ({}));
+export const RetryOptions = vi.fn(() => ({}));
 
-export const context = ({
+export const context = {
   log: {
-    error: jest.fn(),
-    info: jest.fn(),
-    verbose: jest.fn(),
-    warn: jest.fn()
-  }
-} as unknown) as Context;
+    error: vi.fn(),
+    info: vi.fn(),
+    verbose: vi.fn(),
+    warn: vi.fn(),
+  },
+} as unknown as Context;

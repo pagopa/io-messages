@@ -5,14 +5,14 @@ import { context as contextMockBase } from "../../__mocks__/durable-functions";
 import { PlatformEnum } from "../../generated/notifications/Platform";
 import {
   CreateOrUpdateInstallationMessage,
-  KindEnum as CreateOrUpdateKind
+  KindEnum as CreateOrUpdateKind,
 } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
 
 import { success } from "../../utils/durable/activities";
 import { consumeGenerator } from "../../utils/durable/utils";
 import {
   getHandler,
-  NhCreateOrUpdateInstallationOrchestratorCallInput
+  NhCreateOrUpdateInstallationOrchestratorCallInput,
 } from "../handler";
 
 import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
@@ -24,7 +24,7 @@ import {
   OrchestratorActivityFailure,
   OrchestratorInvalidInputFailure,
   OrchestratorSuccess,
-  OrchestratorUnhandledFailure
+  OrchestratorUnhandledFailure,
 } from "../../utils/durable/orchestrators";
 import { ActivityInput as CreateOrUpdateActivityInput } from "../../HandleNHCreateOrUpdateInstallationCallActivity";
 
@@ -32,8 +32,10 @@ import { getMockDeleteInstallationActivity } from "../../__mocks__/activities-mo
 import { pipe } from "fp-ts/lib/function";
 
 import * as E from "fp-ts/lib/Either";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const aFiscalCodeHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
+const aFiscalCodeHash =
+  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
 const aPushChannel =
   "fLKP3EATnBI:APA91bEy4go681jeSEpLkNqhtIrdPnEKu6Dfi-STtUiEnQn8RwMfBiPGYaqdWrmzJyXIh5Yms4017MYRS9O1LGPZwA4sOLCNIoKl4Fwg7cSeOkliAAtlQ0rVg71Kr5QmQiLlDJyxcq3p";
 
@@ -43,65 +45,63 @@ const aCreateOrUpdateInstallationMessage = pipe(
     kind: CreateOrUpdateKind.CreateOrUpdateInstallation,
     platform: PlatformEnum.apns,
     pushChannel: aPushChannel,
-    tags: [aFiscalCodeHash]
+    tags: [aFiscalCodeHash],
   },
   CreateOrUpdateInstallationMessage.decode,
-  E.getOrElseW(err => {
+  E.getOrElseW((err) => {
     throw new Error(
-      `Cannot decode aCreateOrUpdateInstallationMessage: ${readableReport(err)}`
+      `Cannot decode aCreateOrUpdateInstallationMessage: ${readableReport(err)}`,
     );
-  })
+  }),
 );
 
-const anOrchestratorInput = NhCreateOrUpdateInstallationOrchestratorCallInput.encode(
-  {
-    message: aCreateOrUpdateInstallationMessage
-  }
-);
+const anOrchestratorInput =
+  NhCreateOrUpdateInstallationOrchestratorCallInput.encode({
+    message: aCreateOrUpdateInstallationMessage,
+  });
 
 const legacyNotificationHubConfig: NotificationHubConfig = {
   AZURE_NH_ENDPOINT: "foo" as NonEmptyString,
-  AZURE_NH_HUB_NAME: "bar" as NonEmptyString
+  AZURE_NH_HUB_NAME: "bar" as NonEmptyString,
 };
 const newNotificationHubConfig: NotificationHubConfig = {
   AZURE_NH_ENDPOINT: "foo" as NonEmptyString,
-  AZURE_NH_HUB_NAME: "bar" as NonEmptyString
+  AZURE_NH_HUB_NAME: "bar" as NonEmptyString,
 };
 
-type CallableCreateOrUpdateActivity = CallableActivity<
-  CreateOrUpdateActivityInput
->;
-const mockCreateOrUpdateActivity = jest.fn<
-  ReturnType<CallableCreateOrUpdateActivity>,
-  Parameters<CallableCreateOrUpdateActivity>
->(function*() {
+type CallableCreateOrUpdateActivity =
+  CallableActivity<CreateOrUpdateActivityInput>;
+const mockCreateOrUpdateActivity = vi.fn<
+  (
+    ...args: Parameters<CallableCreateOrUpdateActivity>
+  ) => ReturnType<CallableCreateOrUpdateActivity>
+>(function* () {
   return { kind: "SUCCESS" };
 });
 
-const mockGetInput = jest.fn<unknown, []>(() => anOrchestratorInput);
-const contextMockWithDf = ({
+const mockGetInput = vi.fn().mockImplementation(() => anOrchestratorInput);
+const contextMockWithDf = {
   ...contextMockBase,
   df: {
-    callActivityWithRetry: jest.fn().mockReturnValueOnce(success()),
+    callActivityWithRetry: vi.fn().mockReturnValueOnce(success()),
     getInput: mockGetInput,
-    setCustomStatus: jest.fn()
-  }
-} as unknown) as IOrchestrationFunctionContext;
+    setCustomStatus: vi.fn(),
+  },
+} as unknown as IOrchestrationFunctionContext;
 
-const mockDeleteInstallationActivitySuccess = getMockDeleteInstallationActivity(
-  success()
-);
+const mockDeleteInstallationActivitySuccess =
+  getMockDeleteInstallationActivity(success());
 
 describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
   it("should start the activities with the right inputs", async () => {
     const orchestratorHandler = getHandler({
       createOrUpdateActivity: mockCreateOrUpdateActivity,
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: _ => newNotificationHubConfig
+      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
     })(contextMockWithDf);
 
     const result = consumeGenerator(orchestratorHandler);
@@ -112,8 +112,12 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
       result,
       OrchestratorSuccess.decode,
       E.fold(
-        err => fail(`Cannot decode test result, err: ${readableReport(err)}`),
-        _ => {
+        (err) => {
+          throw new Error(
+            `Cannot decode test result, err: ${readableReport(err)}`,
+          );
+        },
+        (_) => {
           expect(mockCreateOrUpdateActivity).toBeCalledWith(
             expect.any(Object),
             expect.objectContaining({
@@ -121,11 +125,11 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
               platform: aCreateOrUpdateInstallationMessage.platform,
               tags: aCreateOrUpdateInstallationMessage.tags,
               pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
-              notificationHubConfig: legacyNotificationHubConfig
-            })
+              notificationHubConfig: legacyNotificationHubConfig,
+            }),
           );
-        }
-      )
+        },
+      ),
     );
   });
 
@@ -133,8 +137,8 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
     const orchestratorHandler = getHandler({
       createOrUpdateActivity: mockCreateOrUpdateActivity,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: _ => newNotificationHubConfig,
-      deleteInstallationActivity: mockDeleteInstallationActivitySuccess
+      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
     })(contextMockWithDf);
 
     const result = consumeGenerator(orchestratorHandler);
@@ -145,8 +149,12 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
       result,
       OrchestratorSuccess.decode,
       E.fold(
-        err => fail(`Cannot decode test result, err: ${readableReport(err)}`),
-        _ => {
+        (err) => {
+          throw new Error(
+            `Cannot decode test result, err: ${readableReport(err)}`,
+          );
+        },
+        (_) => {
           expect(mockCreateOrUpdateActivity).toBeCalledWith(
             expect.any(Object),
             expect.objectContaining({
@@ -154,19 +162,19 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
               platform: aCreateOrUpdateInstallationMessage.platform,
               tags: aCreateOrUpdateInstallationMessage.tags,
               pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
-              notificationHubConfig: newNotificationHubConfig
-            })
+              notificationHubConfig: newNotificationHubConfig,
+            }),
           );
 
           expect(mockDeleteInstallationActivitySuccess).toBeCalledWith(
             expect.any(Object),
             expect.objectContaining({
               installationId: aCreateOrUpdateInstallationMessage.installationId,
-              notificationHubConfig: legacyNotificationHubConfig
-            })
+              notificationHubConfig: legacyNotificationHubConfig,
+            }),
           );
-        }
-      )
+        },
+      ),
     );
   });
 
@@ -176,7 +184,7 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
 
   it("should not start activity with wrong inputs", async () => {
     const input = {
-      message: "aMessage"
+      message: "aMessage",
     };
     mockGetInput.mockImplementationOnce(() => input);
 
@@ -184,8 +192,8 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
       const orchestratorHandler = getHandler({
         createOrUpdateActivity: mockCreateOrUpdateActivity,
         legacyNotificationHubConfig: legacyNotificationHubConfig,
-        notificationHubConfigPartitionChooser: _ => newNotificationHubConfig,
-        deleteInstallationActivity: mockDeleteInstallationActivitySuccess
+        notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+        deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       })(contextMockWithDf);
 
       expect.assertions(2);
@@ -204,8 +212,8 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
     const orchestratorHandler = getHandler({
       createOrUpdateActivity: mockCreateOrUpdateActivity,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: _ => newNotificationHubConfig,
-      deleteInstallationActivity: mockDeleteInstallationActivitySuccess
+      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
     })(contextMockWithDf);
 
     expect.assertions(2);
@@ -225,8 +233,8 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
     const orchestratorHandler = getHandler({
       createOrUpdateActivity: mockCreateOrUpdateActivity,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: _ => newNotificationHubConfig,
-      deleteInstallationActivity: mockDeleteInstallationActivitySuccess
+      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
     })(contextMockWithDf);
 
     expect.assertions(2);

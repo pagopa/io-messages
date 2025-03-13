@@ -6,11 +6,12 @@ import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { pipe } from "fp-ts/lib/function";
 
 import * as E from "fp-ts/lib/Either";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const aConfig = { ...envConfig, isProduction: false };
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 describe("IConfig", () => {
@@ -24,10 +25,12 @@ describe("IConfig", () => {
     var decoded = pipe(
       {
         ...aConfig,
-        NH_PARTITION_FEATURE_FLAG: ff
+        NH_PARTITION_FEATURE_FLAG: ff,
       },
       IConfig.decode,
-      E.getOrElseW(e => fail(`Cannot decode config, ${readableReport(e)}`))
+      E.getOrElseW((e) => {
+        throw new Error(`Cannot decode config, ${readableReport(e)}`);
+      }),
     );
 
     expect(typeof decoded).toBe("object");
@@ -36,7 +39,7 @@ describe("IConfig", () => {
   it("should throw error with wrong FF inputs", () => {
     var decoded = IConfig.decode({
       ...aConfig,
-      NH_PARTITION_FEATURE_FLAG: "wrong"
+      NH_PARTITION_FEATURE_FLAG: "wrong",
     });
 
     expect(isRight(decoded)).toBe(false);
@@ -46,10 +49,12 @@ describe("IConfig", () => {
     var config = pipe(
       {
         ...aConfig,
-        AZURE_NOTIFICATION_HUB_PARTITIONS: "any value"
+        AZURE_NOTIFICATION_HUB_PARTITIONS: "any value",
       },
       IConfig.decode,
-      E.getOrElseW(e => fail(`Cannot decode config, ${readableReport(e)}`))
+      E.getOrElseW((e) => {
+        throw new Error(`Cannot decode config, ${readableReport(e)}`);
+      }),
     );
 
     expect(config.AZURE_NOTIFICATION_HUB_PARTITIONS).toEqual(expect.any(Array));

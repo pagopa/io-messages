@@ -3,13 +3,14 @@ import { pipe } from "fp-ts/lib/function";
 import {
   DisjoitedNotificationHubPartitionArray,
   NotificationHubPartition,
-  RegExpFromString
+  RegExpFromString,
 } from "../types";
 
 import * as E from "fp-ts/lib/Either";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 describe("nhDisjoitedFirstCharacterPartitionReadonlyArray", () => {
@@ -26,30 +27,30 @@ describe("nhDisjoitedFirstCharacterPartitionReadonlyArray", () => {
     // a partition which overlaps with aPartition
     anOverlappingPartition,
     // a partition which leaves gaps when used with aPartition
-    aGapedPartition
+    aGapedPartition,
   ] = [aRegex, aComplementaryRegex, anOverlappingRegex, aGapedRegex].map(
     (partitionRegex, i) =>
       pipe(
         {
           name: `partition${i}`,
           partitionRegex,
-          endpoint: "an endpoint"
+          endpoint: "an endpoint",
         },
         NotificationHubPartition.decode,
-        E.getOrElseW(e =>
-          fail(
+        E.getOrElseW((e) => {
+          throw new Error(
             `Cannot decode NotificationHubPartitions, i: ${i} error: ${readableReport(
-              e
-            )}`
-          )
-        )
-      )
+              e,
+            )}`,
+          );
+        }),
+      ),
   );
 
   it("should accept complementary partitions", () => {
     const result = DisjoitedNotificationHubPartitionArray.decode([
       aPartition,
-      aComplementaryPartition
+      aComplementaryPartition,
     ]);
 
     expect(E.isRight(result)).toBe(true);
@@ -58,7 +59,7 @@ describe("nhDisjoitedFirstCharacterPartitionReadonlyArray", () => {
   it("should not accept overlapping partitions", () => {
     const result = DisjoitedNotificationHubPartitionArray.decode([
       aPartition,
-      anOverlappingPartition
+      anOverlappingPartition,
     ]);
 
     expect(E.isRight(result)).toBe(false);
@@ -67,7 +68,7 @@ describe("nhDisjoitedFirstCharacterPartitionReadonlyArray", () => {
   it("should not accept gaped partitions", () => {
     const result = DisjoitedNotificationHubPartitionArray.decode([
       aPartition,
-      aGapedPartition
+      aGapedPartition,
     ]);
 
     expect(E.isRight(result)).toBe(false);
@@ -88,9 +89,9 @@ describe("RegExpFromString", () => {
       const result = pipe(
         input,
         RegExpFromString.decode,
-        E.getOrElseW(e =>
-          fail(`Cannot decode ${input}, err: ${readableReport(e)}`)
-        )
+        E.getOrElseW((e) => {
+          throw new Error(`Cannot decode ${input}, err: ${readableReport(e)}`);
+        }),
       );
 
       expect(result).toEqual(expected);
@@ -102,7 +103,7 @@ describe("RegExpFromString", () => {
       //   undefined means "don't test"
       typeof badExample !== "undefined" &&
         expect(result.test(badExample)).toBe(false);
-    }
+    },
   );
 
   it.each`
@@ -125,17 +126,21 @@ describe("RegExpFromString", () => {
     const decoded = pipe(
       input,
       RegExpFromString.decode,
-      E.getOrElseW(e =>
-        fail(`Cannot decode RegExpFromString, error: ${readableReport(e)}`)
-      )
+      E.getOrElseW((e) => {
+        throw new Error(
+          `Cannot decode RegExpFromString, error: ${readableReport(e)}`,
+        );
+      }),
     );
     const encoded = RegExpFromString.encode(decoded);
     const decodedAgain = pipe(
       input,
       RegExpFromString.decode,
-      E.getOrElseW(e =>
-        fail(`Cannot decode RegExpFromString, error: ${readableReport(e)}`)
-      )
+      E.getOrElseW((e) => {
+        throw new Error(
+          `Cannot decode RegExpFromString, error: ${readableReport(e)}`,
+        );
+      }),
     );
     const encodedAgain = RegExpFromString.encode(decoded);
 

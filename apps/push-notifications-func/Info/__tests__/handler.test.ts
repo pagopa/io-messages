@@ -1,19 +1,20 @@
 import {
   HealthCheck,
-  HealthProblem
+  HealthProblem,
 } from "@pagopa/io-functions-commons/dist/src/utils/healthcheck";
 import * as TE from "fp-ts/lib/TaskEither";
 import { InfoHandler } from "../handler";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 afterEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 describe("InfoHandler", () => {
   it("should return an internal error if the application is not healthy", async () => {
     const healthCheck = TE.left([
       "failure 1" as HealthProblem<"Config">,
-      "failure 2" as HealthProblem<"Config">
+      "failure 2" as HealthProblem<"Config">,
     ]);
     const handler = InfoHandler(() => healthCheck);
 

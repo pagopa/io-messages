@@ -5,7 +5,7 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { context as contextMock } from "../../__mocks__/durable-functions";
 import {
   success as activitySuccess,
-  success
+  success,
 } from "../../utils/durable/activities";
 
 import { KindEnum as NotifyMessageKind } from "../../generated/notifications/NotifyMessage";
@@ -16,28 +16,30 @@ import { getHandler, NhNotifyMessageOrchestratorCallInput } from "../handler";
 import { envConfig } from "../../__mocks__/env-config.mock";
 import {
   getMockIsUserATestUserActivity,
-  getMockNotifyMessageInstallationActivity
+  getMockNotifyMessageInstallationActivity,
 } from "../../__mocks__/activities-mocks";
 
 import {
   OrchestratorFailure,
-  success as orchestratorSuccess
+  success as orchestratorSuccess,
 } from "../../utils/durable/orchestrators";
 import { IOrchestrationFunctionContext } from "durable-functions/lib/src/iorchestrationfunctioncontext";
 import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
 
 import { consumeGenerator } from "../../utils/durable/utils";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const legacyNotificationHubConfig: NotificationHubConfig = {
   AZURE_NH_ENDPOINT: "foo" as NonEmptyString,
-  AZURE_NH_HUB_NAME: "bar" as NonEmptyString
+  AZURE_NH_HUB_NAME: "bar" as NonEmptyString,
 };
 const newNotificationHubConfig: NotificationHubConfig = {
   AZURE_NH_ENDPOINT: "foo2" as NonEmptyString,
-  AZURE_NH_HUB_NAME: "bar2" as NonEmptyString
+  AZURE_NH_HUB_NAME: "bar2" as NonEmptyString,
 };
 
-const aFiscalCodeHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
+const aFiscalCodeHash =
+  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
 
 const aNotifyMessage: NotifyMessage = {
   installationId: aFiscalCodeHash,
@@ -45,43 +47,42 @@ const aNotifyMessage: NotifyMessage = {
   payload: {
     message: "message",
     message_id: "id",
-    title: "title"
-  }
+    title: "title",
+  },
 };
 
 const nhCallOrchestratorInput = NhNotifyMessageOrchestratorCallInput.encode({
-  message: aNotifyMessage
+  message: aNotifyMessage,
 });
 
-const retryOptions = {
-  ...new df.RetryOptions(5000, envConfig.RETRY_ATTEMPT_NUMBER),
-  backoffCoefficient: 1.5
-};
+// const retryOptions = {
+//   ...new df.RetryOptions(5000, envConfig.RETRY_ATTEMPT_NUMBER),
+//   backoffCoefficient: 1.5,
+// };
 
-const mockNotifyMessageActivitySuccess = getMockNotifyMessageInstallationActivity(
-  success()
-);
+const mockNotifyMessageActivitySuccess =
+  getMockNotifyMessageInstallationActivity(success());
 
-const mockGetInput = jest.fn<unknown, []>(() => nhCallOrchestratorInput);
-const contextMockWithDf = ({
+const mockGetInput = vi.fn().mockImplementation(() => nhCallOrchestratorInput);
+const contextMockWithDf = {
   ...contextMock,
   df: {
-    callActivityWithRetry: jest.fn().mockReturnValue(activitySuccess()),
+    callActivityWithRetry: vi.fn().mockReturnValue(activitySuccess()),
     getInput: mockGetInput,
-    setCustomStatus: jest.fn()
-  }
-} as unknown) as IOrchestrationFunctionContext;
+    setCustomStatus: vi.fn(),
+  },
+} as unknown as IOrchestrationFunctionContext;
 
 describe("HandleNHNotifyMessageCallOrchestrator", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should start the activities with the right inputs", async () => {
     const orchestratorHandler = getHandler({
       notifyMessageActivity: mockNotifyMessageActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: _ => newNotificationHubConfig
+      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
     })(contextMockWithDf as any);
 
     consumeGenerator(orchestratorHandler);
@@ -90,8 +91,8 @@ describe("HandleNHNotifyMessageCallOrchestrator", () => {
       expect.any(Object),
       expect.objectContaining({
         message: aNotifyMessage,
-        notificationHubConfig: legacyNotificationHubConfig
-      })
+        notificationHubConfig: legacyNotificationHubConfig,
+      }),
     );
   });
 
@@ -99,7 +100,7 @@ describe("HandleNHNotifyMessageCallOrchestrator", () => {
     const orchestratorHandler = getHandler({
       notifyMessageActivity: mockNotifyMessageActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: _ => newNotificationHubConfig
+      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
     })(contextMockWithDf as any);
 
     const res = consumeGenerator(orchestratorHandler);
@@ -111,7 +112,7 @@ describe("HandleNHNotifyMessageCallOrchestrator", () => {
     const orchestratorHandler = getHandler({
       notifyMessageActivity: mockNotifyMessageActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: _ => newNotificationHubConfig
+      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
     })(contextMockWithDf as any);
 
     consumeGenerator(orchestratorHandler);
@@ -121,21 +122,21 @@ describe("HandleNHNotifyMessageCallOrchestrator", () => {
       expect.any(Object),
       expect.objectContaining({
         message: aNotifyMessage,
-        notificationHubConfig: legacyNotificationHubConfig
-      })
+        notificationHubConfig: legacyNotificationHubConfig,
+      }),
     );
     expect(mockNotifyMessageActivitySuccess).toHaveBeenCalledWith(
       expect.any(Object),
       expect.objectContaining({
         message: aNotifyMessage,
-        notificationHubConfig: newNotificationHubConfig
-      })
+        notificationHubConfig: newNotificationHubConfig,
+      }),
     );
   });
 
   it("should NOT start activity with wrong inputs", async () => {
     const nhCallOrchestratorInput = {
-      message: "aMessage"
+      message: "aMessage",
     };
 
     mockGetInput.mockImplementationOnce(() => nhCallOrchestratorInput);
@@ -143,7 +144,7 @@ describe("HandleNHNotifyMessageCallOrchestrator", () => {
     const orchestratorHandler = getHandler({
       notifyMessageActivity: mockNotifyMessageActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: _ => newNotificationHubConfig
+      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
     })(contextMockWithDf as any);
 
     expect.assertions(2);

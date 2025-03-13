@@ -9,8 +9,10 @@ import { toSHA256 } from "../../utils/conversions";
 import { handle } from "../handler";
 import * as NSP from "../../utils/notificationhubServicePartition";
 import { NotificationHubsClient } from "@azure/notification-hubs";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const aFiscalCodeHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
+const aFiscalCodeHash =
+  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
 
 const aNotifyMessage: NotifyMessage = {
   installationId: aFiscalCodeHash,
@@ -18,62 +20,62 @@ const aNotifyMessage: NotifyMessage = {
   payload: {
     message: "message",
     message_id: "id",
-    title: "title"
-  }
+    title: "title",
+  },
 };
 
 const aNHConfig = {
   AZURE_NH_ENDPOINT: envConfig.AZURE_NH_ENDPOINT,
-  AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME
+  AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME,
 } as NotificationHubConfig;
 
 const legacyNotificationHubConfig: NotificationHubConfig = {
   AZURE_NH_ENDPOINT: "foo" as NonEmptyString,
-  AZURE_NH_HUB_NAME: "bar" as NonEmptyString
+  AZURE_NH_HUB_NAME: "bar" as NonEmptyString,
 };
 
-const mockTelemetryClient = ({
-  trackEvent: jest.fn(() => {})
-} as unknown) as TelemetryClient;
+const mockTelemetryClient = {
+  trackEvent: vi.fn(() => {}),
+} as unknown as TelemetryClient;
 
-const sendNotificationMock = jest.fn();
-const getInstallationMock = jest.fn();
+const sendNotificationMock = vi.fn();
+const getInstallationMock = vi.fn();
 
 const mockNotificationHubService = {
   sendNotification: sendNotificationMock,
-  getInstallation: getInstallationMock
+  getInstallation: getInstallationMock,
 };
-const buildNHClient = jest
+const buildNHClient = vi
   .spyOn(NSP, "buildNHClient")
   .mockImplementation(
-    () => (mockNotificationHubService as unknown) as NotificationHubsClient
+    () => mockNotificationHubService as unknown as NotificationHubsClient,
   );
 
 const aNotifyMessageToBlacklistedUser: NotifyMessage = {
   ...aNotifyMessage,
   installationId: toSHA256(
-    envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST[0]
-  ) as NonEmptyString
+    envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST[0],
+  ) as NonEmptyString,
 };
 
 describe("HandleNHNotifyMessageCallActivityQueue", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should call notificationhubServicePartion.buildNHClient to get the right notificationService to call", async () => {
     getInstallationMock.mockReturnValueOnce(
       Promise.resolve({
-        platform: "apns"
-      })
+        platform: "apns",
+      }),
     );
     sendNotificationMock.mockReturnValueOnce(Promise.resolve({}));
 
     const input = Buffer.from(
       JSON.stringify({
         message: aNotifyMessage,
-        target: "current"
-      })
+        target: "current",
+      }),
     ).toString("base64");
 
     expect.assertions(3);
@@ -83,7 +85,7 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
       legacyNotificationHubConfig,
       () => aNHConfig,
       envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
-      mockTelemetryClient
+      mockTelemetryClient,
     );
     expect(res.kind).toEqual("SUCCESS");
 
@@ -94,16 +96,16 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
   it("should call notificationhubServicePartion.buildNHClient to get the legacy notificationService to call", async () => {
     getInstallationMock.mockReturnValueOnce(
       Promise.resolve({
-        platform: "apns"
-      })
+        platform: "apns",
+      }),
     );
     sendNotificationMock.mockReturnValueOnce(Promise.resolve({}));
 
     const input = Buffer.from(
       JSON.stringify({
         message: aNotifyMessage,
-        target: "legacy"
-      })
+        target: "legacy",
+      }),
     ).toString("base64");
 
     expect.assertions(3);
@@ -113,7 +115,7 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
       legacyNotificationHubConfig,
       () => aNHConfig,
       envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
-      mockTelemetryClient
+      mockTelemetryClient,
     );
     expect(res.kind).toEqual("SUCCESS");
 
@@ -124,18 +126,18 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
   it("should trigger a retry if notify fails", async () => {
     getInstallationMock.mockReturnValueOnce(
       Promise.resolve({
-        platform: "apns"
-      })
+        platform: "apns",
+      }),
     );
     sendNotificationMock.mockImplementation((_, __, ___, cb) =>
-      cb(new Error("send error"))
+      cb(new Error("send error")),
     );
 
     const input = Buffer.from(
       JSON.stringify({
         message: aNotifyMessage,
-        target: "legacy"
-      })
+        target: "legacy",
+      }),
     ).toString("base64");
 
     await expect(
@@ -144,14 +146,14 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
         legacyNotificationHubConfig,
         () => aNHConfig,
         envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
-        mockTelemetryClient
-      )
+        mockTelemetryClient,
+      ),
     ).rejects.toEqual(expect.objectContaining({ kind: "TRANSIENT" }));
     expect(sendNotificationMock).toHaveBeenCalledTimes(1);
     expect(mockTelemetryClient.trackEvent).toHaveBeenCalledWith(
       expect.objectContaining({
-        properties: expect.objectContaining({ isSuccess: "false" })
-      })
+        properties: expect.objectContaining({ isSuccess: "false" }),
+      }),
     );
   });
 
@@ -161,8 +163,8 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
     const input = Buffer.from(
       JSON.stringify({
         message: aNotifyMessageToBlacklistedUser,
-        target: "current"
-      })
+        target: "current",
+      }),
     ).toString("base64");
 
     expect.assertions(3);
@@ -172,7 +174,7 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
       legacyNotificationHubConfig,
       () => aNHConfig,
       envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
-      mockTelemetryClient
+      mockTelemetryClient,
     );
 
     expect(res.kind).toEqual("SUCCESS");

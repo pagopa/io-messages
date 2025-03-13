@@ -9,12 +9,12 @@ import { DeleteInstallationMessage } from "../../generated/notifications/DeleteI
 
 import {
   success as activitySuccess,
-  success
+  success,
 } from "../../utils/durable/activities";
 import { getHandler, OrchestratorCallInput } from "../handler";
 import {
   OrchestratorInvalidInputFailure,
-  success as orchestratorSuccess
+  success as orchestratorSuccess,
 } from "../../utils/durable/orchestrators";
 import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
 
@@ -22,51 +22,52 @@ import { getMockDeleteInstallationActivity } from "../../__mocks__/activities-mo
 
 import { IOrchestrationFunctionContext } from "durable-functions/lib/src/iorchestrationfunctioncontext";
 import { consumeGenerator } from "../../utils/durable/utils";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const aFiscalCodeHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
+const aFiscalCodeHash =
+  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
 const anInstallationId = aFiscalCodeHash;
 
 const aDeleteNotificationHubMessage: DeleteInstallationMessage = {
   installationId: anInstallationId,
-  kind: DeleteKind.DeleteInstallation
+  kind: DeleteKind.DeleteInstallation,
 };
 
 const nhCallOrchestratorInput = OrchestratorCallInput.encode({
-  message: aDeleteNotificationHubMessage
+  message: aDeleteNotificationHubMessage,
 });
 
 const legacyNotificationHubConfig: NotificationHubConfig = {
   AZURE_NH_ENDPOINT: "foo" as NonEmptyString,
-  AZURE_NH_HUB_NAME: "bar" as NonEmptyString
+  AZURE_NH_HUB_NAME: "bar" as NonEmptyString,
 };
 const newNotificationHubConfig: NotificationHubConfig = {
   AZURE_NH_ENDPOINT: "foo2" as NonEmptyString,
-  AZURE_NH_HUB_NAME: "bar2" as NonEmptyString
+  AZURE_NH_HUB_NAME: "bar2" as NonEmptyString,
 };
 
-const mockDeleteInstallationActivitySuccess = getMockDeleteInstallationActivity(
-  success()
-);
+const mockDeleteInstallationActivitySuccess =
+  getMockDeleteInstallationActivity(success());
 
-const mockGetInput = jest.fn<unknown, []>(() => nhCallOrchestratorInput);
-const contextMockWithDf = ({
+const mockGetInput = vi.fn().mockImplementation(() => nhCallOrchestratorInput);
+const contextMockWithDf = {
   ...contextMockBase,
   df: {
-    callActivityWithRetry: jest.fn().mockReturnValue(activitySuccess()),
+    callActivityWithRetry: vi.fn().mockReturnValue(activitySuccess()),
     getInput: mockGetInput,
-    setCustomStatus: jest.fn()
-  }
-} as unknown) as IOrchestrationFunctionContext;
+    setCustomStatus: vi.fn(),
+  },
+} as unknown as IOrchestrationFunctionContext;
 
 describe("HandleNHDeleteInstallationCallOrchestrator", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
   it("should start the activities with the right inputs", async () => {
     const orchestratorHandler = getHandler({
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: _ => newNotificationHubConfig
+      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
     })(contextMockWithDf as any);
 
     consumeGenerator(orchestratorHandler);
@@ -75,8 +76,8 @@ describe("HandleNHDeleteInstallationCallOrchestrator", () => {
       expect.any(Object),
       expect.objectContaining({
         installationId: aDeleteNotificationHubMessage.installationId,
-        notificationHubConfig: legacyNotificationHubConfig
-      })
+        notificationHubConfig: legacyNotificationHubConfig,
+      }),
     );
   });
 
@@ -84,7 +85,7 @@ describe("HandleNHDeleteInstallationCallOrchestrator", () => {
     const orchestratorHandler = getHandler({
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: _ => newNotificationHubConfig
+      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
     })(contextMockWithDf as any);
 
     const result = consumeGenerator(orchestratorHandler);
@@ -96,7 +97,7 @@ describe("HandleNHDeleteInstallationCallOrchestrator", () => {
     const orchestratorHandler = getHandler({
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: _ => newNotificationHubConfig
+      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
     })(contextMockWithDf as any);
 
     consumeGenerator(orchestratorHandler);
@@ -106,21 +107,21 @@ describe("HandleNHDeleteInstallationCallOrchestrator", () => {
       expect.any(Object),
       expect.objectContaining({
         installationId: aDeleteNotificationHubMessage.installationId,
-        notificationHubConfig: legacyNotificationHubConfig
-      })
+        notificationHubConfig: legacyNotificationHubConfig,
+      }),
     );
     expect(mockDeleteInstallationActivitySuccess).toHaveBeenCalledWith(
       expect.any(Object),
       expect.objectContaining({
         installationId: aDeleteNotificationHubMessage.installationId,
-        notificationHubConfig: newNotificationHubConfig
-      })
+        notificationHubConfig: newNotificationHubConfig,
+      }),
     );
   });
 
   it("should not start activity with wrong inputs", async () => {
     const nhCallOrchestratorInput = {
-      message: "aMessage"
+      message: "aMessage",
     };
 
     mockGetInput.mockImplementationOnce(() => nhCallOrchestratorInput);
@@ -128,7 +129,7 @@ describe("HandleNHDeleteInstallationCallOrchestrator", () => {
     const orchestratorHandler = getHandler({
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: _ => newNotificationHubConfig
+      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
     })(contextMockWithDf);
 
     expect.assertions(2);

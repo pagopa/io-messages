@@ -7,86 +7,94 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { ActivityResult } from "../../utils/durable/activities";
 import {
   ActivityLogger,
-  createLogger
+  createLogger,
 } from "../../utils/durable/activities/log";
 import { identity, pipe } from "fp-ts/lib/function";
 
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 
-const aFiscalCodeHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
+import { describe, expect, it, vi } from "vitest";
+
+const aFiscalCodeHash =
+  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
 
 const mockLogger: ActivityLogger = createLogger(contextMock as any, "");
 
-const userIsInActiveSubset: ReturnType<typeof getIsInActiveSubset> = _ => true;
+const userIsInActiveSubset: ReturnType<typeof getIsInActiveSubset> = (_) =>
+  true;
 
-const userIsNotInActiveSubset: ReturnType<typeof getIsInActiveSubset> = _ =>
+const userIsNotInActiveSubset: ReturnType<typeof getIsInActiveSubset> = (_) =>
   false;
 
 describe("IsUserInActiveSubsetActivity - Beta Test Users", () => {
   it("should return false if userIsNotInActiveSubset return true", async () => {
     const handler = getActivityBody({
       enabledFeatureFlag: "beta",
-      isInActiveSubset: userIsInActiveSubset
+      isInActiveSubset: userIsInActiveSubset,
     });
     const input = {
-      installationId: aFiscalCodeHash
+      installationId: aFiscalCodeHash,
     };
     const result = await pipe(
       {
         context: {
           ...contextMock,
           bindings: {
-            betaTestUser: []
-          }
+            betaTestUser: [],
+          },
         },
         input,
-        logger: mockLogger
+        logger: mockLogger,
       },
       handler,
-      TE.toUnion
+      TE.toUnion,
     )();
 
     pipe(
       result,
       activityResultSuccessWithValue.decode,
       E.fold(
-        _ => fail(),
-        r => expect(r.value).toBe(true)
-      )
+        (_) => {
+          throw new Error();
+        },
+        (r) => expect(r.value).toBe(true),
+      ),
     );
   });
 
   it("should return false if userIsNotInActiveSubset return false", async () => {
     const handler = getActivityBody({
       enabledFeatureFlag: "beta",
-      isInActiveSubset: userIsNotInActiveSubset
+      isInActiveSubset: userIsNotInActiveSubset,
     });
     const input = {
-      installationId: aFiscalCodeHash
+      installationId: aFiscalCodeHash,
     };
     const result = await pipe(
       {
         context: {
           ...contextMock,
           bindings: {
-            betaTestUser: []
-          }
+            betaTestUser: [],
+          },
         },
         input,
-        logger: mockLogger
+        logger: mockLogger,
       },
       handler,
-      TE.toUnion
+      TE.toUnion,
     )();
 
     pipe(
       result,
       activityResultSuccessWithValue.decode,
       E.fold(
-        _ => fail(),
-        r => expect(r.value).toBe(false)
-      )
+        (_) => {
+          throw new Error();
+        },
+        (r) => expect(r.value).toBe(false),
+      ),
     );
   });
 });
