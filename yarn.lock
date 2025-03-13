@@ -265,7 +265,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/cosmos@npm:^4.0.0":
+"@azure/cosmos@npm:^4.0.0, @azure/cosmos@npm:^4.2.0":
   version: 4.2.0
   resolution: "@azure/cosmos@npm:4.2.0"
   dependencies:
@@ -279,7 +279,7 @@ __metadata:
     priorityqueuejs: "npm:^2.0.0"
     semaphore: "npm:^1.1.0"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/0210538b0204fe9b27db356e1049f47e8d2a52bc99f9eca1905940161d6b05b67475ab00d304fd45b108a28240094e0016297a5ea5d0cf8d800c2c7f688ead65
+  checksum: 10c0/5d9cedc52ac362ee842fead30ba44644e54b8f79606c8ef3b740f39423731e4013b5849b6b6b0497c83450a2e0b708a1c31d64d34b56a33f3cf063f86faa90a4
   languageName: node
   linkType: hard
 
@@ -363,7 +363,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/logger@npm:*, @azure/logger@npm:^1.0.0, @azure/logger@npm:^1.1.2":
+"@azure/logger@npm:*, @azure/logger@npm:^1.0.0, @azure/logger@npm:^1.1.2, @azure/logger@npm:^1.1.4":
   version: 1.1.4
   resolution: "@azure/logger@npm:1.1.4"
   dependencies:
@@ -5385,6 +5385,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:^16.4.7":
+  version: 16.4.7
+  resolution: "dotenv@npm:16.4.7"
+  checksum: 10c0/be9f597e36a8daf834452daa1f4cc30e5375a5968f98f46d89b16b983c567398a330580c88395069a77473943c06b877d1ca25b4afafcdd6d4adb549e8293462
+  languageName: node
+  linkType: hard
+
 "dunder-proto@npm:^1.0.0, dunder-proto@npm:^1.0.1":
   version: 1.0.1
   resolution: "dunder-proto@npm:1.0.1"
@@ -9573,6 +9580,27 @@ __metadata:
   checksum: 10c0/254a8a4605b58f450308fc474c82ac9a094848081bf4c06778200207820e5193726dc563a0d2c16468810516a5c97d9d3ea0ca6585d23c58ccfff2403e8dbbeb
   languageName: node
   linkType: hard
+
+"message-deleter@workspace:apps/message-deleter":
+  version: 0.0.0-use.local
+  resolution: "message-deleter@workspace:apps/message-deleter"
+  dependencies:
+    "@azure/cosmos": "npm:^4.2.0"
+    "@azure/logger": "npm:^1.1.4"
+    "@azure/storage-blob": "npm:^12.26.0"
+    "@pagopa/eslint-config": "npm:^4.0.1"
+    "@types/node": "npm:^20.17.12"
+    "@vitest/coverage-v8": "npm:^2.1.8"
+    dotenv: "npm:^16.4.7"
+    esbuild: "npm:^0.24.2"
+    eslint: "npm:8.57.1"
+    pino: "npm:^9.6.0"
+    prettier: "npm:3.2.5"
+    typescript: "npm:5.4.3"
+    vitest: "npm:^2.1.8"
+    zod: "npm:^3.24.2"
+  languageName: unknown
+  linkType: soft
 
 "methods@npm:~1.1.2":
   version: 1.1.2
@@ -14569,5 +14597,12 @@ __metadata:
   version: 3.24.1
   resolution: "zod@npm:3.24.1"
   checksum: 10c0/0223d21dbaa15d8928fe0da3b54696391d8e3e1e2d0283a1a070b5980a1dbba945ce631c2d1eccc088fdbad0f2dfa40155590bf83732d3ac4fcca2cc9237591b
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.24.2":
+  version: 3.24.2
+  resolution: "zod@npm:3.24.2"
+  checksum: 10c0/c638c7220150847f13ad90635b3e7d0321b36cce36f3fc6050ed960689594c949c326dfe2c6fa87c14b126ee5d370ccdebd6efb304f41ef5557a4aaca2824565
   languageName: node
   linkType: hard
