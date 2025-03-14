@@ -47,6 +47,7 @@
     "applicationinsights": "^1.7.4",
     "avsc": "^5.7.3",
     "azure-storage": "^2.10.5",
+    "eslint-plugin-perfectionist": "^2.9.0",
     "express": "^4.15.3",
     "fp-ts": "^2.10.5",
     "io-ts": "^2.2.16",

@@ -57,6 +57,11 @@
       "outputs": ["generated/payment-updater"]
     },
 
+    "generate:avro": {
+      "inputs": ["avro/message-status.json", "avro/message.json"],
+      "outputs": ["generated/avro"]
+    },
+
     "//#test:coverage": {
       "dependsOn": [
         "citizen-func#generate:definitions",

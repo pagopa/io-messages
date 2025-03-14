@@ -11109,6 +11109,7 @@ __metadata:
     danger: "npm:^10.3.0"
     dependency-check: "npm:^4.1.0"
     dotenv-cli: "npm:^3.1.0"
+    eslint-plugin-perfectionist: "npm:^2.9.0"
     eslint-plugin-prettier: "npm:^3.3.1"
     express: "npm:^4.15.3"
     fp-ts: "npm:^2.10.5"
