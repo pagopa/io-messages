@@ -1,0 +1,23 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "cosmosDBTrigger",
+      "name": "cosmosApiMessageStatusTrigger",
+      "direction": "in",
+      "connection": "COSMOSDB_CONNECTION_STRING",
+      "databaseName": "%COSMOSDB_NAME%",
+      "containerName": "message-status",
+      "leaseContainerName": "cqrs-leases",
+      "leaseContainerPrefix": "CosmosApiMessageStatusChangeFeedForReminder",
+      "createLeaseContainerIfNotExists": true,
+      "startFromBeginning": false
+    }
+  ],
+  "retry": {
+    "strategy": "fixedDelay",
+    "maxRetryCount": -1,
+    "delayInterval": "00:00:10"
+  },
+  "scriptFile": "../dist/CosmosApiMessageStatusChangeFeedForReminder/index.js"
+}

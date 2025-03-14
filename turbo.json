@@ -52,11 +52,18 @@
       "outputs": ["generated/notifications"]
     },
 
+    "generate:payment-updater": {
+      "inputs": ["openapi/payment-updater.yaml"],
+      "outputs": ["generated/payment-updater"]
+    },
+
     "//#test:coverage": {
       "dependsOn": [
         "citizen-func#generate:definitions",
         "sending-func#generate:definitions",
-        "sending-func#generate:backend-notification-hub"
+        "sending-func#generate:backend-notification-hub",
+        "messages-cqrs-func#generate:payment-updater",
+        "messages-cqrs-func#generate:avro"
       ],
       "inputs": ["apps/**/src/**/*.ts", "packages/**/src/**/*.ts"],
       "outputs": ["coverage"],
