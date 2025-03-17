@@ -1,12 +1,15 @@
 {
   "name": "message-deleter",
-  "main": "dist/index.js",
+  "main": "dist/func.js",
   "type": "module",
+  "files": [
+    "host.json"
+  ],
   "packageManager": "yarn@4.7.0",
   "scripts": {
-    "build": "esbuild --bundle ./src/index.ts --format=esm --platform=node --target=node20 --outdir=dist --packages=external",
+    "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node20 --outdir=dist --packages=external",
     "build:watch": "yarn build --watch",
-    "start": "node ./dist/index.js",
+    "start": "func start",
     "format": "prettier --write .",
     "lint": "eslint --fix src --ignore-pattern dist",
     "lint:check": "eslint src",
@@ -17,9 +20,9 @@
   },
   "dependencies": {
     "@azure/cosmos": "^4.2.0",
+    "@azure/functions": "^4.4.0",
     "@azure/logger": "^1.1.4",
     "@azure/storage-blob": "^12.26.0",
-    "dotenv": "^16.4.7",
     "pino": "^9.6.0",
     "zod": "^3.24.2"
   },

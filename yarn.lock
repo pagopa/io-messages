@@ -5385,13 +5385,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:^16.4.7":
-  version: 16.4.7
-  resolution: "dotenv@npm:16.4.7"
-  checksum: 10c0/be9f597e36a8daf834452daa1f4cc30e5375a5968f98f46d89b16b983c567398a330580c88395069a77473943c06b877d1ca25b4afafcdd6d4adb549e8293462
-  languageName: node
-  linkType: hard
-
 "dunder-proto@npm:^1.0.0, dunder-proto@npm:^1.0.1":
   version: 1.0.1
   resolution: "dunder-proto@npm:1.0.1"
@@ -9586,12 +9579,12 @@ __metadata:
   resolution: "message-deleter@workspace:apps/message-deleter"
   dependencies:
     "@azure/cosmos": "npm:^4.2.0"
+    "@azure/functions": "npm:^4.4.0"
     "@azure/logger": "npm:^1.1.4"
     "@azure/storage-blob": "npm:^12.26.0"
     "@pagopa/eslint-config": "npm:^4.0.1"
     "@types/node": "npm:^20.17.12"
     "@vitest/coverage-v8": "npm:^2.1.8"
-    dotenv: "npm:^16.4.7"
     esbuild: "npm:^0.24.2"
     eslint: "npm:8.57.1"
     pino: "npm:^9.6.0"

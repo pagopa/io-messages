@@ -1,15 +1,14 @@
 import { CosmosClient } from "@azure/cosmos";
 import { BlobServiceClient } from "@azure/storage-blob";
-import { config as dotenvConfig } from "dotenv";
 import { pino } from "pino";
+import { app } from "@azure/functions";
 
 import { BlobMessageContentDeleter } from "./adapters/blob-storage/message-content-deleter.js";
 import { envSchema } from "./adapters/config.js";
 import { CosmosMessageMetadataDeleter } from "./adapters/cosmos/message-metadata-deleter.js";
 import { CosmosMessageStatusDeleter } from "./adapters/cosmos/message-status-deleter.js";
 import { DeleteMessageUseCase } from "./domain/use-cases/delete-message.js";
-
-dotenvConfig();
+import { deleteMessages } from "./adapters/functions/delete-messages.js";
 
 const main = async () => {
   const config = envSchema.parse(process.env);
@@ -19,7 +18,7 @@ const main = async () => {
     endpoint: config.COSMOS_URI,
     key: config.COSMOS_KEY,
   });
-  const database = client.database("io-messages");
+  const database = client.database(config.COSMOS_DATABASE_NAME);
 
   const messagesContainer = database.container("messages");
   const messageStatusContainer = database.container("message-status");
@@ -35,7 +34,7 @@ const main = async () => {
   );
 
   const contentServiceClient = BlobServiceClient.fromConnectionString(
-    config.STORAGE_ACCOUNT_CONNECTION_STRING,
+    config.COMMON_STORAGE_ACCOUNT_CONNECTION_STRING,
   );
 
   const containerClient = contentServiceClient.getContainerClient("messages");
@@ -52,7 +51,20 @@ const main = async () => {
     messageStatusDeleter,
   );
 
-  await deleteMessageUseCase.execute("fakeFiscalCode", "fakeMessageId");
+  app.http("Health", {
+    authLevel: "anonymous",
+    handler: () => ({
+      body: "it works!",
+    }),
+    methods: ["GET"],
+    route: "health",
+  });
+
+  app.storageBlob("DeleteMessages", {
+    connection: "",
+    handler: deleteMessages(deleteMessageUseCase),
+    path: config.STORAGE_ACCOUNT_DELETE_MESSAGES_PATH,
+  });
 };
 
 main();
