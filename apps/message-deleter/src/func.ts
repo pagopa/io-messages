@@ -9,14 +9,17 @@ import { CosmosMessageMetadataDeleter } from "./adapters/cosmos/message-metadata
 import { CosmosMessageStatusDeleter } from "./adapters/cosmos/message-status-deleter.js";
 import { DeleteMessageUseCase } from "./domain/use-cases/delete-message.js";
 import { deleteMessages } from "./adapters/functions/delete-messages.js";
+import { DefaultAzureCredential } from "@azure/identity";
 
 const main = async () => {
   const config = envSchema.parse(process.env);
   const logger = pino();
 
+  const azureCredentials = new DefaultAzureCredential();
+
   const client = new CosmosClient({
+    aadCredentials: azureCredentials,
     endpoint: config.COSMOS_URI,
-    key: config.COSMOS_KEY,
   });
   const database = client.database(config.COSMOS_DATABASE_NAME);
 
@@ -33,8 +36,9 @@ const main = async () => {
     logger,
   );
 
-  const contentServiceClient = BlobServiceClient.fromConnectionString(
-    config.COMMON_STORAGE_ACCOUNT_CONNECTION_STRING,
+  const contentServiceClient = new BlobServiceClient(
+    config.COMMON_STORAGE_ACCOUNT_URL,
+    azureCredentials,
   );
 
   const containerClient = contentServiceClient.getContainerClient("messages");

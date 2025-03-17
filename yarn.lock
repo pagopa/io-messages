@@ -9580,6 +9580,7 @@ __metadata:
   dependencies:
     "@azure/cosmos": "npm:^4.2.0"
     "@azure/functions": "npm:^4.4.0"
+    "@azure/identity": "npm:^4.5.0"
     "@azure/logger": "npm:^1.1.4"
     "@azure/storage-blob": "npm:^12.26.0"
     "@pagopa/eslint-config": "npm:^4.0.1"

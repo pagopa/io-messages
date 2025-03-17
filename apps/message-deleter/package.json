@@ -21,6 +21,7 @@
   "dependencies": {
     "@azure/cosmos": "^4.2.0",
     "@azure/functions": "^4.4.0",
+    "@azure/identity": "^4.5.0",
     "@azure/logger": "^1.1.4",
     "@azure/storage-blob": "^12.26.0",
     "pino": "^9.6.0",
