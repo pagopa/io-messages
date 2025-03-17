@@ -9574,9 +9574,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"message-deleter@workspace:apps/message-deleter":
+"message-deleter@workspace:apps/util-func":
   version: 0.0.0-use.local
-  resolution: "message-deleter@workspace:apps/message-deleter"
+  resolution: "message-deleter@workspace:apps/util-func"
   dependencies:
     "@azure/cosmos": "npm:^4.2.0"
     "@azure/functions": "npm:^4.4.0"
