@@ -10,6 +10,8 @@ import { CosmosMessageStatusDeleter } from "./adapters/cosmos/message-status-del
 import { DeleteMessageUseCase } from "./domain/use-cases/delete-message.js";
 import { deleteMessages } from "./adapters/functions/delete-messages.js";
 import { DefaultAzureCredential } from "@azure/identity";
+import { healthcheck } from "./adapters/functions/health.js";
+import { HealthUseCase } from "./domain/use-cases/health.js";
 
 const main = async () => {
   const config = envSchema.parse(process.env);
@@ -17,14 +19,14 @@ const main = async () => {
 
   const azureCredentials = new DefaultAzureCredential();
 
-  const client = new CosmosClient({
+  const cosmosClient = new CosmosClient({
     aadCredentials: azureCredentials,
     endpoint: config.COSMOS_URI,
   });
-  const database = client.database(config.COSMOS_DATABASE_NAME);
+  const cosmosDatabase = cosmosClient.database(config.COSMOS_DATABASE_NAME);
 
-  const messagesContainer = database.container("messages");
-  const messageStatusContainer = database.container("message-status");
+  const messagesContainer = cosmosDatabase.container("messages");
+  const messageStatusContainer = cosmosDatabase.container("message-status");
 
   const messageMetadataDeleter = new CosmosMessageMetadataDeleter(
     messagesContainer,
@@ -48,6 +50,12 @@ const main = async () => {
     logger,
   );
 
+  const healthcheckUseCase = new HealthUseCase(
+    cosmosDatabase,
+    containerClient,
+    logger,
+  );
+
   const deleteMessageUseCase = new DeleteMessageUseCase(
     logger,
     messageContentDeleter,
@@ -57,9 +65,7 @@ const main = async () => {
 
   app.http("Health", {
     authLevel: "anonymous",
-    handler: () => ({
-      body: "it works!",
-    }),
+    handler: healthcheck(healthcheckUseCase),
     methods: ["GET"],
     route: "health",
   });
