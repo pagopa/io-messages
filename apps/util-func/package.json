@@ -1,5 +1,5 @@
 {
-  "name": "message-deleter",
+  "name": "util-func",
   "main": "dist/func.js",
   "type": "module",
   "files": [

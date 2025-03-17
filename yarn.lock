@@ -279,7 +279,7 @@ __metadata:
     priorityqueuejs: "npm:^2.0.0"
     semaphore: "npm:^1.1.0"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/5d9cedc52ac362ee842fead30ba44644e54b8f79606c8ef3b740f39423731e4013b5849b6b6b0497c83450a2e0b708a1c31d64d34b56a33f3cf063f86faa90a4
+  checksum: 10c0/0210538b0204fe9b27db356e1049f47e8d2a52bc99f9eca1905940161d6b05b67475ab00d304fd45b108a28240094e0016297a5ea5d0cf8d800c2c7f688ead65
   languageName: node
   linkType: hard
 
@@ -9574,28 +9574,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"message-deleter@workspace:apps/util-func":
-  version: 0.0.0-use.local
-  resolution: "message-deleter@workspace:apps/util-func"
-  dependencies:
-    "@azure/cosmos": "npm:^4.2.0"
-    "@azure/functions": "npm:^4.4.0"
-    "@azure/identity": "npm:^4.5.0"
-    "@azure/logger": "npm:^1.1.4"
-    "@azure/storage-blob": "npm:^12.26.0"
-    "@pagopa/eslint-config": "npm:^4.0.1"
-    "@types/node": "npm:^20.17.12"
-    "@vitest/coverage-v8": "npm:^2.1.8"
-    esbuild: "npm:^0.24.2"
-    eslint: "npm:8.57.1"
-    pino: "npm:^9.6.0"
-    prettier: "npm:3.2.5"
-    typescript: "npm:5.4.3"
-    vitest: "npm:^2.1.8"
-    zod: "npm:^3.24.2"
-  languageName: unknown
-  linkType: soft
-
 "methods@npm:~1.1.2":
   version: 1.1.2
   resolution: "methods@npm:1.1.2"
@@ -13918,6 +13896,28 @@ __metadata:
   checksum: 10c0/41a5bdd214df2f6c3ecf8622745e4a366c4adced864bc3c833739791aeeeb1838119af7daed4ba36428114b5c67dcda034a79c882e97e43c03e66a4dd7389942
   languageName: node
   linkType: hard
+
+"util-func@workspace:apps/util-func":
+  version: 0.0.0-use.local
+  resolution: "util-func@workspace:apps/util-func"
+  dependencies:
+    "@azure/cosmos": "npm:^4.2.0"
+    "@azure/functions": "npm:^4.4.0"
+    "@azure/identity": "npm:^4.5.0"
+    "@azure/logger": "npm:^1.1.4"
+    "@azure/storage-blob": "npm:^12.26.0"
+    "@pagopa/eslint-config": "npm:^4.0.1"
+    "@types/node": "npm:^20.17.12"
+    "@vitest/coverage-v8": "npm:^2.1.8"
+    esbuild: "npm:^0.24.2"
+    eslint: "npm:8.57.1"
+    pino: "npm:^9.6.0"
+    prettier: "npm:3.2.5"
+    typescript: "npm:5.4.3"
+    vitest: "npm:^2.1.8"
+    zod: "npm:^3.24.2"
+  languageName: unknown
+  linkType: soft
 
 "utils-merge@npm:1.0.1":
   version: 1.0.1
