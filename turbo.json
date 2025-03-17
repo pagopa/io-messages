@@ -67,8 +67,8 @@
         "citizen-func#generate:definitions",
         "sending-func#generate:definitions",
         "sending-func#generate:backend-notification-hub",
-        "messages-cqrs-func#generate:payment-updater",
-        "messages-cqrs-func#generate:avro"
+        "cqrs-func#generate:payment-updater",
+        "cqrs-func#generate:avro"
       ],
       "inputs": ["apps/**/src/**/*.ts", "packages/**/src/**/*.ts"],
       "outputs": ["coverage"],
