@@ -2,7 +2,7 @@ resource "azurerm_resource_group" "push_notif_rg" {
   name     = "io-p-messages-weu-prod01-push-notif-rg"
   location = var.environment.legacy_location
 
-  tags = var.tags
+  tags = local.tags
 }
 
 
@@ -78,12 +78,30 @@ data "azurerm_application_insights" "application_insights" {
   resource_group_name = local.monitor_resource_group_name
 }
 
+## Private dns zone
+data "azurerm_private_dns_zone" "privatelink_blob_core_windows_net" {
+  name                = "privatelink.blob.core.windows.net"
+  resource_group_name = format("%s-rg-common", local.product)
+}
+
+data "azurerm_private_dns_zone" "privatelink_queue_core_windows_net" {
+  name                = "privatelink.queue.core.windows.net"
+  resource_group_name = format("%s-rg-common", local.product)
+}
+
+data "azurerm_private_dns_zone" "privatelink_table_core_windows_net" {
+  name                = "privatelink.table.core.windows.net"
+  resource_group_name = format("%s-rg-common", local.product)
+}
 
 locals {
 
-  location           = "westeurope"
-  product            = "io-p"
-  push_notif_enabled = true
+  location                      = "westeurope"
+  domain                        = "messages"
+  product                       = "io-p"
+  push_notif_enabled            = true
+  push_notif_function_always_on = true
+
   ## Notification Hub
   nh_resource_group_name = "io-p-rg-common"
   nh_name_prefix         = "io-p-ntf"
@@ -92,11 +110,27 @@ locals {
   ## Virtual net / subnet
   vnet_common_name                = "${local.product}-vnet-common"
   vnet_common_resource_group_name = "${local.product}-rg-common"
+  cidr_subnet_push_notif          = ["10.0.141.0/26"]
 
 
   ## Appliction insights
   application_insights_name   = "io-p-ai-common"
   monitor_resource_group_name = "io-p-rg-common"
+
+  ## Push notification app
+  push_notif_function_kind     = "Linux"
+  push_notif_function_sku_tier = "PremiumV3"
+  push_notif_function_sku_size = "P1v3"
+
+  ## Tags
+  tags = {
+    CreatedBy      = "Terraform"
+    Environment    = "Prod"
+    BusinessUnit   = "App IO"
+    Source         = "https://github.com/pagopa/io-infra/blob/main/src/domains/messages-app"
+    ManagementTeam = "IO Comunicazione"
+    CostCenter     = "TS000 - Tecnologia e Servizi"
+  }
 
   test_users_internal_load = [
     "AAAAAA00A00A000C",
@@ -182,7 +216,7 @@ locals {
 module "push_notif_snet" {
   source                                    = "github.com/pagopa/terraform-azurerm-v3//subnet?ref=v8.27.0"
   name                                      = format("%s-push-notif-snet", local.project)
-  address_prefixes                          = var.cidr_subnet_push_notif
+  address_prefixes                          = local.cidr_subnet_push_notif
   resource_group_name                       = data.azurerm_virtual_network.vnet_common.resource_group_name
   virtual_network_name                      = data.azurerm_virtual_network.vnet_common.name
   private_endpoint_network_policies_enabled = false
@@ -209,21 +243,21 @@ module "push_notif_function" {
 
   resource_group_name = azurerm_resource_group.push_notif_rg.name
   name                = format("%s-push-notif-fn", local.product)
-  domain              = upper(var.domain)
-  location            = var.location
+  domain              = upper(local.domain)
+  location            = local.location
 
   health_check_path            = "/api/v1/info"
   health_check_maxpingfailures = 2
 
   runtime_version                          = "~4"
   node_version                             = "18"
-  always_on                                = var.push_notif_function_always_on
+  always_on                                = local.push_notif_function_always_on
   application_insights_instrumentation_key = data.azurerm_application_insights.application_insights.instrumentation_key
 
   app_service_plan_info = {
-    kind                         = var.push_notif_function_kind
-    sku_tier                     = var.push_notif_function_sku_tier
-    sku_size                     = var.push_notif_function_sku_size
+    kind                         = local.push_notif_function_kind
+    sku_tier                     = local.push_notif_function_sku_tier
+    sku_size                     = local.push_notif_function_sku_size
     maximum_elastic_worker_count = 0
     worker_count                 = null
     zone_balancing_enabled       = false
@@ -290,7 +324,7 @@ module "push_notif_function" {
     }
   ]
 
-  tags = var.tags
+  tags = local.tags
 }
 
 module "push_notif_function_staging_slot" {
@@ -298,7 +332,7 @@ module "push_notif_function_staging_slot" {
   source = "github.com/pagopa/terraform-azurerm-v3//function_app_slot?ref=v8.27.0"
 
   name                = "staging"
-  location            = var.location
+  location            = local.location
   resource_group_name = azurerm_resource_group.push_notif_rg.name
   function_app_id     = module.push_notif_function[0].id
   app_service_plan_id = module.push_notif_function[0].app_service_plan_id
@@ -313,7 +347,7 @@ module "push_notif_function_staging_slot" {
 
   runtime_version                          = "~4"
   node_version                             = "18"
-  always_on                                = var.push_notif_function_always_on
+  always_on                                = local.push_notif_function_always_on
   application_insights_instrumentation_key = data.azurerm_application_insights.application_insights.instrumentation_key
 
   app_settings = merge(
@@ -334,7 +368,7 @@ module "push_notif_function_staging_slot" {
     [],
   )
 
-  tags = var.tags
+  tags = local.tags
 }
 
 resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
