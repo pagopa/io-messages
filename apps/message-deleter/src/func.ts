@@ -71,7 +71,7 @@ const main = async () => {
   });
 
   app.storageBlob("DeleteMessages", {
-    connection: "",
+    connection: "COM_STORAGE_ACCOUNT",
     handler: deleteMessages(deleteMessageUseCase),
     path: config.STORAGE_ACCOUNT_DELETE_MESSAGES_PATH,
   });
