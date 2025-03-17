@@ -4,8 +4,8 @@ import { ContainerClient } from "@azure/storage-blob";
 
 export class HealthUseCase {
   commonCosmosDb: Database;
-  messageContainerClient: ContainerClient;
   logger: Logger;
+  messageContainerClient: ContainerClient;
 
   constructor(
     commonCosmosDb: Database,

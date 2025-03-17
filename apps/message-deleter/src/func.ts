@@ -1,16 +1,16 @@
 import { CosmosClient } from "@azure/cosmos";
+import { app } from "@azure/functions";
+import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { pino } from "pino";
-import { app } from "@azure/functions";
 
 import { BlobMessageContentDeleter } from "./adapters/blob-storage/message-content-deleter.js";
 import { envSchema } from "./adapters/config.js";
 import { CosmosMessageMetadataDeleter } from "./adapters/cosmos/message-metadata-deleter.js";
 import { CosmosMessageStatusDeleter } from "./adapters/cosmos/message-status-deleter.js";
-import { DeleteMessageUseCase } from "./domain/use-cases/delete-message.js";
 import { deleteMessages } from "./adapters/functions/delete-messages.js";
-import { DefaultAzureCredential } from "@azure/identity";
 import { healthcheck } from "./adapters/functions/health.js";
+import { DeleteMessageUseCase } from "./domain/use-cases/delete-message.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
 
 const main = async () => {
