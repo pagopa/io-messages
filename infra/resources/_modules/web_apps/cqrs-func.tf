@@ -139,10 +139,13 @@ module "cqrs_func" {
   source  = "pagopa-dx/azure-function-app/azurerm"
   version = "~> 0.0"
 
-  environment = merge(var.environment, {
-    app_name        = "cqrs"
-    instance_number = "01"
-  })
+  environment = {
+    prefix          = "io"
+    env_short       = "p"
+    location        = "westeurope"
+    app_name        = "messages-cqrs"
+    instance_number = ""
+  }
 
   resource_group_name = azurerm_resource_group.backend_messages_rg.name
   health_check_path   = "/api/v1/info"
