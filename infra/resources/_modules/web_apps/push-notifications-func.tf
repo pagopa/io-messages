@@ -26,6 +26,12 @@ data "azurerm_notification_hub" "common" {
   namespace_name      = format("%s-common", local.nh_namespace_prefix)
   resource_group_name = local.nh_resource_group_name
 }
+data "azurerm_notification_hub" "common_partition" {
+  count               = local.nh_partition_count
+  name                = format("%s-common-partition-%d", local.nh_name_prefix, count.index + 1)
+  namespace_name      = format("%s-common-partition-%d", local.nh_namespace_prefix, count.index + 1)
+  resource_group_name = local.nh_resource_group_name
+}
 
 ## Key vaukt
 data "azurerm_key_vault" "common" {
@@ -77,6 +83,10 @@ data "azurerm_application_insights" "application_insights" {
   name                = local.application_insights_name
   resource_group_name = local.monitor_resource_group_name
 }
+data "azurerm_monitor_action_group" "io_com_action_group" {
+  name                = "io-p-com-error-ag-01"
+  resource_group_name = "io-p-itn-com-rg-01"
+}
 
 ## Private dns zone
 data "azurerm_private_dns_zone" "privatelink_blob_core_windows_net" {
@@ -99,6 +109,7 @@ locals {
   location                      = "westeurope"
   domain                        = "messages"
   product                       = "io-p"
+  project                       = "io-p-messages-weu-prod01"
   push_notif_enabled            = true
   push_notif_function_always_on = true
 
@@ -106,6 +117,7 @@ locals {
   nh_resource_group_name = "io-p-rg-common"
   nh_name_prefix         = "io-p-ntf"
   nh_namespace_prefix    = "io-p-ntfns"
+  nh_partition_count     = 4
 
   ## Virtual net / subnet
   vnet_common_name                = "${local.product}-vnet-common"
