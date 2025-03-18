@@ -144,7 +144,7 @@ module "cqrs_func" {
     env_short       = "p"
     location        = "westeurope"
     app_name        = "messages-cqrs"
-    instance_number = ""
+    instance_number = "01"
   }
 
   resource_group_name = azurerm_resource_group.backend_messages_rg.name
