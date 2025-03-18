@@ -1,39 +1,63 @@
 resource "azurerm_resource_group" "backend_messages_rg" {
-  name     = format("%s-backend-messages-rg", local.function_cqrs.product)
-  location = local.function_cqrs.location
+  name     = format("%s-%s-backend-messages-rg", var.environment.prefix, var.environment.env_short)
+  location = local.cqrs_func.location
 
   tags = var.tags
 }
 
 data "azurerm_eventhub_authorization_rule" "evh_ns_io_auth_messages" {
   name                = "${var.environment.prefix}-messages"
-  namespace_name      = "${local.function_cqrs.product}-evh-ns"
+  namespace_name      = "${var.environment.prefix}-${var.environment.env_short}-evh-ns"
   eventhub_name       = "${var.environment.prefix}-cosmosdb-message-status-for-view"
-  resource_group_name = "${local.function_cqrs.product}-evt-rg"
+  resource_group_name = "${var.environment.prefix}-${var.environment.env_short}-evt-rg"
 }
 
 data "azurerm_eventhub_authorization_rule" "evh_ns_io_auth_cdc" {
   name                = "${var.environment.prefix}-cdc"
-  namespace_name      = "${local.function_cqrs.product}-evh-ns"
+  namespace_name      = "${var.environment.prefix}-${var.environment.env_short}-evh-ns"
   eventhub_name       = "${var.environment.prefix}-cosmosdb-message-status-for-view"
-  resource_group_name = "${local.function_cqrs.product}-evt-rg"
+  resource_group_name = "${var.environment.prefix}-${var.environment.env_short}-evt-rg"
 }
 
 data "azurerm_eventhub_authorization_rule" "io-p-payments-weu-prod01-evh-ns_payment-updates_io-fn-messages-cqrs" {
   name                = "${var.environment.prefix}-fn-messages-cqrs"
-  namespace_name      = "${local.function_cqrs.product}-payments-weu-prod01-evh-ns"
+  namespace_name      = "${var.environment.prefix}-${var.environment.env_short}-payments-weu-prod01-evh-ns"
   eventhub_name       = "payment-updates"
-  resource_group_name = "${local.function_cqrs.product}-payments-weu-prod01-evt-rg"
+  resource_group_name = "${var.environment.prefix}-${var.environment.env_short}-payments-weu-prod01-evt-rg"
+}
+
+data "azurerm_eventhub_authorization_rule" "io-p-messages-weu-prod01-evh-ns_messages_io-fn-messages-cqrs" {
+  name                = "${var.environment.prefix}-fn-messages-cqrs"
+  namespace_name      = "${var.environment.prefix}-${var.environment.env_short}-messages-weu-prod01-evh-ns"
+  eventhub_name       = "message"
+  resource_group_name = "${var.environment.prefix}-${var.environment.env_short}-messages-weu-prod01-evt-rg"
+}
+
+data "azurerm_eventhub_authorization_rule" "io-p-messages-weu-prod01-evh-ns_message-status_io-fn-messages-cqrs" {
+  name                = "${var.environment.prefix}-fn-messages-cqrs"
+  namespace_name      = "${var.environment.prefix}-${var.environment.env_short}-messages-weu-prod01-evh-ns"
+  eventhub_name       = "message-status"
+  resource_group_name = "${var.environment.prefix}-${var.environment.env_short}-messages-weu-prod01-evt-rg"
 }
 
 data "azurerm_key_vault_secret" "apim_services_subscription_key" {
   name         = "apim-IO-SERVICE-KEY"
-  key_vault_id = data.azurerm_key_vault.kv_common.id
+  key_vault_id = var.common_key_vault.id
+}
+
+data "azurerm_virtual_network" "vnet_common" {
+  name                = "${var.environment.prefix}-${var.environment.env_short}-vnet-common"
+  resource_group_name = "${var.environment.prefix}-${var.environment.env_short}-rg-common"
+}
+
+data "azurerm_subnet" "cqrs_func" {
+  name                 = "${var.environment.prefix}-${var.environment.env_short}-fn-messages-cqrs-snet"
+  virtual_network_name = data.azurerm_virtual_network.vnet_common.name
+  resource_group_name  = data.azurerm_virtual_network.vnet_common.resource_group_name
 }
 
 locals {
-  function_cqrs = {
-    product = "${var.environment.prefix}-${var.environment.env_short}"
+  cqrs_func = {
     location = "westeurope"
     ehns_enabled = true
     app_settings = {
@@ -44,14 +68,14 @@ locals {
       NODE_ENV                       = "production"
 
       COSMOSDB_NAME              = "db"
-      COSMOSDB_URI               = data.azurerm_cosmosdb_account.cosmos_api.endpoint
-      COSMOSDB_KEY               = data.azurerm_cosmosdb_account.cosmos_api.primary_key
-      COSMOSDB_CONNECTION_STRING = format("AccountEndpoint=%s;AccountKey=%s;", data.azurerm_cosmosdb_account.cosmos_api.endpoint, data.azurerm_cosmosdb_account.cosmos_api.primary_key)
+      COSMOSDB_URI               = var.io_com_cosmos.endpoint
+      COSMOSDB_KEY               = var.io_com_cosmos.primary_key
+      COSMOSDB_CONNECTION_STRING = format("AccountEndpoint=%s;AccountKey=%s;", var.io_com_cosmos.endpoint, var.io_com_cosmos.primary_key)
 
-      REMOTE_CONTENT_COSMOSDB_URI               = data.azurerm_cosmosdb_account.io_com_cosmos.endpoint
-      REMOTE_CONTENT_COSMOSDB_KEY               = data.azurerm_cosmosdb_account.io_com_cosmos.primary_key
+      REMOTE_CONTENT_COSMOSDB_URI               = var.io_com_cosmos.endpoint
+      REMOTE_CONTENT_COSMOSDB_KEY               = var.io_com_cosmos.primary_key
       REMOTE_CONTENT_COSMOSDB_NAME              = "remote-content"
-      REMOTE_CONTENT_COSMOSDB_CONNECTION_STRING = format("AccountEndpoint=%s;AccountKey=%s;", data.azurerm_cosmosdb_account.io_com_cosmos.endpoint, data.azurerm_cosmosdb_account.io_com_cosmos.primary_key)
+      REMOTE_CONTENT_COSMOSDB_CONNECTION_STRING = format("AccountEndpoint=%s;AccountKey=%s;", var.io_com_cosmos.endpoint, var.io_com_cosmos.primary_key)
 
       MESSAGE_CONFIGURATION_CHANGE_FEED_LEASE_PREFIX = "RemoteContentMessageConfigurationChangeFeed-00"
       MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME   = "0"
@@ -62,32 +86,32 @@ locals {
       MESSAGE_VIEW_PAYMENT_UPDATE_FAILURE_QUEUE_NAME = "message-view-paymentupdate-failures"
       MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME     = "message-paymentupdater-failures"
       MESSAGE_CONTAINER_NAME                         = "message-content"
-      MESSAGE_CONTENT_STORAGE_CONNECTION             = data.azurerm_storage_account.storage_api.primary_connection_string
-      QueueStorageConnection                         = data.azurerm_storage_account.storage_api.primary_connection_string
+      MESSAGE_CONTENT_STORAGE_CONNECTION             = var.message_content_storage.connection_string
+      QueueStorageConnection                         = var.message_content_storage.connection_string
 
       MESSAGE_STATUS_FOR_VIEW_TOPIC_CONSUMER_CONNECTION_STRING = data.azurerm_eventhub_authorization_rule.evh_ns_io_auth_messages.primary_connection_string
       MESSAGE_STATUS_FOR_VIEW_TOPIC_CONSUMER_GROUP             = "${var.environment.prefix}-messages"
       MESSAGE_STATUS_FOR_VIEW_TOPIC_NAME                       = "${var.environment.prefix}-cosmosdb-message-status-for-view"
       MESSAGE_STATUS_FOR_VIEW_TOPIC_PRODUCER_CONNECTION_STRING = data.azurerm_eventhub_authorization_rule.evh_ns_io_auth_cdc.primary_connection_string
-      MESSAGE_STATUS_FOR_VIEW_BROKERS                          = "${local.function_cqrs.product}-evh-ns.servicebus.windows.net:9093"
+      MESSAGE_STATUS_FOR_VIEW_BROKERS                          = "${var.environment.prefix}-${var.environment.env_short}-evh-ns.servicebus.windows.net:9093"
 
       MESSAGE_CHANGE_FEED_LEASE_PREFIX = "CosmosApiMessageChangeFeed-00"
       // This must be expressed as a Timestamp
       // Saturday 1 July 2023 00:00:00
       MESSAGE_CHANGE_FEED_START_TIME = 1688169600000
 
-      MESSAGES_TOPIC_CONNECTION_STRING = local.function_cqrs.ehns_enabled ? module.event_hub[0].keys["messages.${var.environment.prefix}-fn-messages-cqrs"].primary_connection_string : "" # data.azurerm_eventhub_authorization_rule.io-p-messages-weu-prod01-evh-ns_messages_io-fn-messages-cqrs.primary_connection_string
+      MESSAGES_TOPIC_CONNECTION_STRING = var.cqrs_func_ehns_enabled ? data.azurerm_eventhub_authorization_rule.io-p-messages-weu-prod01-evh-ns_messages_io-fn-messages-cqrs.primary_connection_string : ""
       MESSAGES_TOPIC_NAME              = "messages"
 
-      MESSAGE_STATUS_FOR_REMINDER_TOPIC_PRODUCER_CONNECTION_STRING = local.function_cqrs.ehns_enabled ? module.event_hub[0].keys["message-status.${var.environment.prefix}-fn-messages-cqrs"].primary_connection_string : "" # data.azurerm_eventhub_authorization_rule.io-p-messages-weu-prod01-evh-ns_message-status_io-fn-messages-cqrs.primary_connection_string
+      MESSAGE_STATUS_FOR_REMINDER_TOPIC_PRODUCER_CONNECTION_STRING = var.cqrs_func_ehns_enabled ? data.azurerm_eventhub_authorization_rule.io-p-messages-weu-prod01-evh-ns_message-status_io-fn-messages-cqrs.primary_connection_string : ""
       MESSAGE_STATUS_FOR_REMINDER_TOPIC_NAME                       = "message-status"
 
       TARGETKAFKA_clientId        = "IO_FUNCTIONS_MESSAGES_CQRS"
-      TARGETKAFKA_brokers         = "${local.function_cqrs.product}-messages-weu-prod01-evh-ns.servicebus.windows.net:9093"
+      TARGETKAFKA_brokers         = "${var.environment.prefix}-${var.environment.env_short}-messages-weu-prod01-evh-ns.servicebus.windows.net:9093"
       TARGETKAFKA_ssl             = "true"
       TARGETKAFKA_sasl_mechanism  = "plain"
       TARGETKAFKA_sasl_username   = "$ConnectionString"
-      TARGETKAFKA_sasl_password   = local.function_cqrs.ehns_enabled ? module.event_hub[0].keys["messages.${var.environment.prefix}-fn-messages-cqrs"].primary_connection_string : "" # data.azurerm_eventhub_authorization_rule.io-p-messages-weu-prod01-evh-ns_messages_io-fn-messages-cqrs.primary_connection_string
+      TARGETKAFKA_sasl_password   = var.cqrs_func_ehns_enabled ? data.azurerm_eventhub_authorization_rule.io-p-messages-weu-prod01-evh-ns_messages_io-fn-messages-cqrs.primary_connection_string : ""
       TARGETKAFKA_idempotent      = "true"
       TARGETKAFKA_transactionalId = "IO_MESSAGES_CQRS"
       TARGETKAFKA_topic           = "messages"
@@ -111,72 +135,31 @@ locals {
   }
 }
 
-module "function_messages_cqrs_snet" {
-  source = "github.com/pagopa/terraform-azurerm-v3//subnet?ref=v8.86.0"
+module "cqrs_func" {
+  source  = "pagopa-dx/azure-function-app/azurerm"
+  version = "~> 0.0"
 
-  name                                      = format("%s-fn-messages-cqrs-snet", local.function_cqrs.product)
-  address_prefixes                          = var.cidr_subnet_fnmessagescqrs
-  resource_group_name                       = data.azurerm_virtual_network.vnet_common.resource_group_name
-  virtual_network_name                      = data.azurerm_virtual_network.vnet_common.name
-  private_endpoint_network_policies_enabled = false
-
-  service_endpoints = [
-    "Microsoft.Web",
-    "Microsoft.AzureCosmosDB",
-    "Microsoft.Storage",
-  ]
-
-  delegation = {
-    name = "default"
-    service_delegation = {
-      name    = "Microsoft.Web/serverFarms"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
-    }
-  }
-}
-
-module "function_messages_cqrs" {
-  source = "github.com/pagopa/terraform-azurerm-v3//function_app?ref=v8.86.0"
+  environment = merge(var.environment, {
+    app_name        = "cqrs"
+    instance_number = "01"
+  })
 
   resource_group_name = azurerm_resource_group.backend_messages_rg.name
-  name                = format("%s-messages-cqrs-fn", local.function_cqrs.product)
-  location            = azurerm_resource_group.backend_messages_rg.location
   health_check_path   = "/api/v1/info"
-  domain              = "MESSAGES"
+  node_version        = 18
 
-  action = [
-    {
-      action_group_id    = data.azurerm_monitor_action_group.io_com_action_group.id
-      webhook_properties = null
-    }
-  ]
+  tier = "xl"
 
-  storage_account_info = {
-    account_kind                      = "StorageV2"
-    account_tier                      = "Standard"
-    account_replication_type          = "GZRS"
-    access_tier                       = "Hot"
-    advanced_threat_protection_enable = true
-    use_legacy_defender_version       = false
-    public_network_access_enabled     = false
-  }
+  subnet_id           = data.azurerm_subnet.cqrs_func.id
+  subnet_pep_id       = var.subnet_pep_id
 
-  node_version                             = "18"
-  runtime_version                          = "~4"
-  always_on                                = true
-  application_insights_instrumentation_key = data.azurerm_application_insights.application_insights.instrumentation_key
-
-  app_service_plan_info = {
-    kind                         = "Linux"
-    sku_tier                     = "PremiumV3"
-    sku_size                     = "P1v3"
-    maximum_elastic_worker_count = 0
-    worker_count                 = null
-    zone_balancing_enabled       = null
+  virtual_network = {
+    name                = data.azurerm_virtual_network.vnet_common.name
+    resource_group_name = data.azurerm_virtual_network.vnet_common.resource_group_name
   }
 
   app_settings = merge(
-    local.function_messages_cqrs.app_settings, {
+    local.cqrs_func.app_settings, {
       // disable listeners on production slot
       "AzureWebJobs.CosmosApiMessageStatusChangeFeedForView.Disabled"           = "0"
       "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled"       = "0"
@@ -190,75 +173,8 @@ module "function_messages_cqrs" {
       "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "0"
     }
   )
-
-  subnet_id = module.function_messages_cqrs_snet.id
-
-  internal_storage = {
-    "enable"                     = true,
-    "private_endpoint_subnet_id" = data.azurerm_subnet.private_endpoints_subnet.id,
-    "private_dns_zone_blob_ids"  = [data.azurerm_private_dns_zone.privatelink_blob_core_windows_net.id],
-    "private_dns_zone_queue_ids" = [data.azurerm_private_dns_zone.privatelink_queue_core_windows_net.id],
-    "private_dns_zone_table_ids" = [data.azurerm_private_dns_zone.privatelink_table_core_windows_net.id],
-    "queues" = [
-      local.function_messages_cqrs.app_settings.MESSAGE_VIEW_UPDATE_FAILURE_QUEUE_NAME,
-      format("%s-poison", local.function_messages_cqrs.app_settings.MESSAGE_VIEW_UPDATE_FAILURE_QUEUE_NAME),
-      local.function_messages_cqrs.app_settings.MESSAGE_VIEW_PAYMENT_UPDATE_FAILURE_QUEUE_NAME,
-      format("%s-poison", local.function_messages_cqrs.app_settings.MESSAGE_VIEW_PAYMENT_UPDATE_FAILURE_QUEUE_NAME),
-      local.function_messages_cqrs.app_settings.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME,
-      format("%s-poison", local.function_messages_cqrs.app_settings.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME)
-    ],
-    "containers"           = [],
-    "blobs_retention_days" = 1,
-  }
-
-  allowed_subnets = [
-    module.function_messages_cqrs_snet.id,
-    data.azurerm_subnet.apim_snet.id,
-    data.azurerm_subnet.apim_itn_snet.id,
-  ]
-
-  allowed_ips = concat(
-    [],
-    local.app_insights_ips_west_europe,
-  )
-
-  sticky_app_setting_names = [
-    "AzureWebJobs.CosmosApiChangeFeedForMessageRetention.Disabled",
-    "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled",
-    "AzureWebJobs.CosmosApiMessageStatusChangeFeedForView.Disabled",
-    "AzureWebJobs.CosmosApiMessagesChangeFeed.Disabled",
-    "AzureWebJobs.HandleMessageChangeFeedPublishFailures.Disabled",
-    "AzureWebJobs.HandleMessageViewUpdateFailures.Disabled",
-    "AzureWebJobs.HandlePaymentUpdateFailures.Disabled",
-    "AzureWebJobs.UpdateCosmosMessageView.Disabled",
-    "AzureWebJobs.UpdatePaymentOnMessageView.Disabled",
-    "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled"
-  ]
-
-  tags = var.tags
-}
-
-module "function_messages_cqrs_staging_slot" {
-  source = "github.com/pagopa/terraform-azurerm-v3//function_app_slot?ref=v8.86.0"
-
-  name                = "staging"
-  location            = local.function_cqrs.location
-  resource_group_name = azurerm_resource_group.backend_messages_rg.name
-  function_app_id     = module.function_messages_cqrs.id
-  app_service_plan_id = module.function_messages_cqrs.app_service_plan_id
-  health_check_path   = "/api/v1/info"
-
-  storage_account_name               = module.function_messages_cqrs.storage_account.name
-  storage_account_access_key         = module.function_messages_cqrs.storage_account.primary_access_key
-  internal_storage_connection_string = module.function_messages_cqrs.storage_account_internal_function.primary_connection_string
-
-  node_version                             = "18"
-  runtime_version                          = "~4"
-  always_on                                = true
-  application_insights_instrumentation_key = data.azurerm_application_insights.application_insights.instrumentation_key
-
-  app_settings = merge(
-    local.function_messages_cqrs.app_settings, {
+  slot_app_settings = merge(
+    local.cqrs_func.app_settings, {
       // disable listeners on staging slot
       "AzureWebJobs.CosmosApiMessageStatusChangeFeedForView.Disabled"           = "1"
       "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled"       = "1"
@@ -273,25 +189,19 @@ module "function_messages_cqrs_staging_slot" {
     }
   )
 
-  subnet_id = module.function_messages_cqrs_snet.id
-
-  allowed_subnets = [
-    module.function_messages_cqrs_snet.id,
-    data.azurerm_subnet.azdoa_snet.id,
-  ]
-
-  allowed_ips = concat(
-    [],
-  )
-
   tags = var.tags
+
+  application_insights_connection_string   = var.application_insights.connection_string
+  application_insights_sampling_percentage = 5
+
+  action_group_id = var.action_group_id
 }
 
 resource "azurerm_monitor_autoscale_setting" "function_messages_cqrs" {
-  name                = "${replace(module.function_messages_cqrs.name, "fn", "as")}-01"
+  name                = "${replace(module.cqrs_func.function_app.function_app.name, "fn", "as")}-01"
   resource_group_name = azurerm_resource_group.backend_messages_rg.name
-  location            = local.function_cqrs.location
-  target_resource_id  = module.function_messages_cqrs.app_service_plan_id
+  location            = local.cqrs_func.location
+  target_resource_id  = module.cqrs_func.function_app.plan.id
 
   profile {
     name = "default"
@@ -305,7 +215,7 @@ resource "azurerm_monitor_autoscale_setting" "function_messages_cqrs" {
     rule {
       metric_trigger {
         metric_name              = "Requests"
-        metric_resource_id       = module.function_messages_cqrs.id
+        metric_resource_id       = module.cqrs_func.function_app.plan.id
         metric_namespace         = "microsoft.web/sites"
         time_grain               = "PT1M"
         statistic                = "Max"
@@ -327,7 +237,7 @@ resource "azurerm_monitor_autoscale_setting" "function_messages_cqrs" {
     rule {
       metric_trigger {
         metric_name              = "CpuPercentage"
-        metric_resource_id       = module.function_messages_cqrs.app_service_plan_id
+        metric_resource_id       = module.cqrs_func.function_app.plan.id
         metric_namespace         = "microsoft.web/serverfarms"
         time_grain               = "PT1M"
         statistic                = "Max"
@@ -349,7 +259,7 @@ resource "azurerm_monitor_autoscale_setting" "function_messages_cqrs" {
     rule {
       metric_trigger {
         metric_name              = "Requests"
-        metric_resource_id       = module.function_messages_cqrs.id
+        metric_resource_id       = module.cqrs_func.function_app.plan.id
         metric_namespace         = "microsoft.web/sites"
         time_grain               = "PT1M"
         statistic                = "Average"
@@ -371,7 +281,7 @@ resource "azurerm_monitor_autoscale_setting" "function_messages_cqrs" {
     rule {
       metric_trigger {
         metric_name              = "CpuPercentage"
-        metric_resource_id       = module.function_messages_cqrs.app_service_plan_id
+        metric_resource_id       = module.cqrs_func.function_app.plan.id
         metric_namespace         = "microsoft.web/serverfarms"
         time_grain               = "PT1M"
         statistic                = "Average"
