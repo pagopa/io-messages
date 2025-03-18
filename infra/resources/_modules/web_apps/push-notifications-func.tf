@@ -231,50 +231,84 @@ locals {
 }
 
 # Subnet to host push notif function
-# module "push_notif_snet" {
-#   source                                    = "github.com/pagopa/terraform-azurerm-v3//subnet?ref=v8.27.0"
-#   name                                      = format("%s-push-notif-snet", local.project)
-#   address_prefixes                          = local.cidr_subnet_push_notif
-#   resource_group_name                       = data.azurerm_virtual_network.vnet_common.resource_group_name
-#   virtual_network_name                      = data.azurerm_virtual_network.vnet_common.name
-#   private_endpoint_network_policies_enabled = false
+module "push_notif_snet" {
+  source               = "github.com/pagopa/terraform-azurerm-v4//subnet?ref=v1.1.0"
+  name                 = format("%s-push-notif-snet", local.project)
+  address_prefixes     = local.cidr_subnet_push_notif
+  resource_group_name  = data.azurerm_virtual_network.vnet_common.resource_group_name
+  virtual_network_name = data.azurerm_virtual_network.vnet_common.name
+  # private_endpoint_network_policies_enabled = false
 
-#   service_endpoints = [
-#     "Microsoft.Web",
-#     "Microsoft.AzureCosmosDB",
-#     "Microsoft.Storage",
-#   ]
+  service_endpoints = [
+    "Microsoft.Web",
+    "Microsoft.AzureCosmosDB",
+    "Microsoft.Storage",
+  ]
 
-#   delegation = {
-#     name = "default"
-#     service_delegation = {
-#       name    = "Microsoft.Web/serverFarms"
-#       actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
-#     }
-#   }
-# }
-
-#tfsec:ignore:azure-storage-queue-services-logging-enabled:exp:2022-05-01 # already ignored, maybe a bug in tfsec
-module "push_notif_function" {
-
-  source  = "pagopa/dx-azure-function-app/azurerm"
-  version = "~>0"
-
-  count                 = local.push_notif_enabled ? 1 : 0
-  resource_group_name   = azurerm_resource_group.push_notif_rg.name
-  health_check_path     = "/api/v1/info"
-  has_durable_functions = true
-  virtual_network = {
-    name                = data.azurerm_virtual_network.vnet_common.name
-    resource_group_name = data.azurerm_virtual_network.vnet_common.resource_group_name
+  delegation = {
+    name = "default"
+    service_delegation = {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
   }
-  environment = {
-    prefix          = var.environment.prefix
-    env_short       = var.environment.env_short
-    location        = var.environment.legacy_location
-    domain          = local.domain
-    app_name        = "push-notif"
-    instance_number = "01"
+}
+
+module "push_notif_function" {
+  count  = local.push_notif_enabled ? 1 : 0
+  source = "github.com/pagopa/terraform-azurerm-v3//function_app?ref=v8.8.0"
+
+  resource_group_name = azurerm_resource_group.push_notif_rg.name
+  name                = format("%s-push-notif-fn", local.product)
+  domain              = upper(local.domain)
+  location            = local.location
+
+  health_check_path            = "/api/v1/info"
+  health_check_maxpingfailures = 2
+
+  runtime_version                          = "~4"
+  node_version                             = "18"
+  always_on                                = local.push_notif_function_always_on
+  application_insights_instrumentation_key = data.azurerm_application_insights.application_insights.instrumentation_key
+
+  app_service_plan_info = {
+    kind                         = local.push_notif_function_kind
+    sku_tier                     = local.push_notif_function_sku_tier
+    sku_size                     = local.push_notif_function_sku_size
+    maximum_elastic_worker_count = 0
+    worker_count                 = null
+    zone_balancing_enabled       = false
+  }
+
+  internal_storage = {
+    "enable"                     = true,
+    "private_endpoint_subnet_id" = data.azurerm_subnet.private_endpoints_subnet.id,
+    "private_dns_zone_blob_ids"  = [data.azurerm_private_dns_zone.privatelink_blob_core_windows_net.id],
+    "private_dns_zone_queue_ids" = [data.azurerm_private_dns_zone.privatelink_queue_core_windows_net.id],
+    "private_dns_zone_table_ids" = [data.azurerm_private_dns_zone.privatelink_table_core_windows_net.id],
+    "queues"                     = [],
+    "containers"                 = [],
+    "blobs_retention_days"       = 1,
+  }
+
+  storage_account_info = {
+    account_tier                      = "Standard"
+    account_replication_type          = "ZRS"
+    public_network_access_enabled     = true
+    access_tier                       = "Hot"
+    account_kind                      = "StorageV2"
+    advanced_threat_protection_enable = true
+    use_legacy_defender_version       = true
+  }
+
+  internal_storage_account_info = {
+    account_tier                      = "Standard"
+    account_replication_type          = "ZRS"
+    public_network_access_enabled     = true
+    access_tier                       = "Hot"
+    account_kind                      = "StorageV2"
+    advanced_threat_protection_enable = false
+    use_legacy_defender_version       = true
   }
 
   app_settings = merge(
@@ -289,139 +323,77 @@ module "push_notif_function" {
     "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled"
   ]
 
-  subnet_id     = data.azurerm_subnet.push_notifications_func_subnet.id
-  subnet_pep_id = var.subnet_pep_id
-  tags          = local.tags
+  subnet_id = module.push_notif_snet.id
 
-  slot_app_settings = merge(
+  allowed_subnets = [
+    module.push_notif_snet.id
+  ]
+
+  allowed_ips = concat(
+    [],
+  )
+
+  # Action groups for alerts
+  action = [
+    {
+      action_group_id    = data.azurerm_monitor_action_group.io_com_action_group.id
+      webhook_properties = {}
+    }
+  ]
+
+  tags = local.tags
+}
+
+module "push_notif_function_staging_slot" {
+  count  = local.push_notif_enabled ? 1 : 0
+  source = "github.com/pagopa/terraform-azurerm-v4//function_app_slot"
+
+  name                = "staging"
+  location            = local.location
+  resource_group_name = azurerm_resource_group.push_notif_rg.name
+  function_app_id     = module.push_notif_function[0].id
+  app_service_plan_id = module.push_notif_function[0].app_service_plan_id
+
+  health_check_path            = "/api/v1/info"
+  health_check_maxpingfailures = 2
+
+  storage_account_name       = module.push_notif_function[0].storage_account.name
+  storage_account_access_key = module.push_notif_function[0].storage_account.primary_access_key
+
+  internal_storage_connection_string = module.push_notif_function[0].storage_account_internal_function.primary_connection_string
+
+  runtime_version                          = "~4"
+  node_version                             = "18"
+  always_on                                = local.push_notif_function_always_on
+  application_insights_instrumentation_key = data.azurerm_application_insights.application_insights.instrumentation_key
+
+  app_settings = merge(
     local.function_push_notif.app_settings_common, {
       "AzureWebJobs.HandleNHNotificationCall.Disabled"               = "1",
       "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled" = "1"
     }
   )
 
+  subnet_id = module.push_notif_snet.id
 
-  # name                = format("%s-push-notif-fn", local.product)
-  # domain              = upper(local.domain)
-  # location            = local.location
-  #
+  allowed_subnets = [
+    module.push_notif_snet.id,
+    data.azurerm_subnet.azdoa_snet.id,
+  ]
 
-  # health_check_maxpingfailures = 2
+  allowed_ips = concat(
+    [],
+  )
 
-  # runtime_version                          = "~4"
-  # node_version                             = "18"
-  # always_on                                = local.push_notif_function_always_on
-  # application_insights_instrumentation_key = data.azurerm_application_insights.application_insights.instrumentation_key
-
-  # app_service_plan_info = {
-  #   kind                         = local.push_notif_function_kind
-  #   sku_tier                     = local.push_notif_function_sku_tier
-  #   sku_size                     = local.push_notif_function_sku_size
-  #   maximum_elastic_worker_count = 0
-  #   worker_count                 = null
-  #   zone_balancing_enabled       = false
-  # }
-
-  # internal_storage = {
-  #   "enable"                     = true,
-  #   "private_endpoint_subnet_id" = data.azurerm_subnet.private_endpoints_subnet.id,
-  #   "private_dns_zone_blob_ids"  = [data.azurerm_private_dns_zone.privatelink_blob_core_windows_net.id],
-  #   "private_dns_zone_queue_ids" = [data.azurerm_private_dns_zone.privatelink_queue_core_windows_net.id],
-  #   "private_dns_zone_table_ids" = [data.azurerm_private_dns_zone.privatelink_table_core_windows_net.id],
-  #   "queues"                     = [],
-  #   "containers"                 = [],
-  #   "blobs_retention_days"       = 1,
-  # }
-
-  # storage_account_info = {
-  #   account_tier                      = "Standard"
-  #   account_replication_type          = "ZRS"
-  #   public_network_access_enabled     = true
-  #   access_tier                       = "Hot"
-  #   account_kind                      = "StorageV2"
-  #   advanced_threat_protection_enable = true
-  #   use_legacy_defender_version       = true
-  # }
-
-  # internal_storage_account_info = {
-  #   account_tier                      = "Standard"
-  #   account_replication_type          = "ZRS"
-  #   public_network_access_enabled     = true
-  #   access_tier                       = "Hot"
-  #   account_kind                      = "StorageV2"
-  #   advanced_threat_protection_enable = false
-  #   use_legacy_defender_version       = true
-  # }
-
-  # allowed_subnets = [
-  #   module.push_notif_snet.id
-  # ]
-
-  # allowed_ips = concat(
-  #   [],
-  # )
-
-  # Action groups for alerts
-  # action = [
-  #   {
-  #     action_group_id    = data.azurerm_monitor_action_group.io_com_action_group.id
-  #     webhook_properties = {}
-  #   }
-  # ]
-
-
+  tags = local.tags
 }
-
-# module "push_notif_function_staging_slot" {
-#   count  = local.push_notif_enabled ? 1 : 0
-#   source = "github.com/pagopa/terraform-azurerm-v3//function_app_slot?ref=v8.27.0"
-
-#   name                = "staging"
-#   location            = local.location
-#   resource_group_name = azurerm_resource_group.push_notif_rg.name
-#   function_app_id     = module.push_notif_function[0].id
-#   app_service_plan_id = module.push_notif_function[0].app_service_plan_id
-
-#   health_check_path            = "/api/v1/info"
-#   health_check_maxpingfailures = 2
-
-#   storage_account_name       = module.push_notif_function[0].storage_account.name
-#   storage_account_access_key = module.push_notif_function[0].storage_account.primary_access_key
-
-#   internal_storage_connection_string = module.push_notif_function[0].storage_account_internal_function.primary_connection_string
-
-#   runtime_version                          = "~4"
-#   node_version                             = "18"
-#   always_on                                = local.push_notif_function_always_on
-#   application_insights_instrumentation_key = data.azurerm_application_insights.application_insights.instrumentation_key
-
-#   app_settings = merge(
-#     local.function_push_notif.app_settings_common, {
-#       "AzureWebJobs.HandleNHNotificationCall.Disabled"               = "1",
-#       "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled" = "1"
-#     }
-#   )
-
-#   subnet_id = module.push_notif_snet.id
-
-#   allowed_subnets = [
-#     module.push_notif_snet.id,
-#     data.azurerm_subnet.azdoa_snet.id,
-#   ]
-
-#   allowed_ips = concat(
-#     [],
-#   )
-
-#   tags = local.tags
-# }
 
 resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
   count               = local.push_notif_enabled ? 1 : 0
-  name                = "${replace(module.push_notif_function[0].function_app.name, "fn", "as")}-01"
+  name                = "${replace(module.push_notif_function[0].name, "fn", "as")}-01"
   resource_group_name = azurerm_resource_group.push_notif_rg.name
   location            = local.location
-  target_resource_id  = module.push_notif_function[0].function_app.plan.id
+  target_resource_id  = module.push_notif_function[0].app_service_plan_id
 
   profile {
     name = "default"
@@ -435,7 +407,7 @@ resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
     rule {
       metric_trigger {
         metric_name              = "Requests"
-        metric_resource_id       = module.push_notif_function[0].function_app.plan.id
+        metric_resource_id       = module.push_notif_function[0].id
         metric_namespace         = "microsoft.web/sites"
         time_grain               = "PT1M"
         statistic                = "Max"
@@ -457,7 +429,7 @@ resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
     rule {
       metric_trigger {
         metric_name              = "CpuPercentage"
-        metric_resource_id       = module.push_notif_function[0].function_app.plan.id
+        metric_resource_id       = module.push_notif_function[0].app_service_plan_id
         metric_namespace         = "microsoft.web/serverfarms"
         time_grain               = "PT1M"
         statistic                = "Max"
@@ -479,7 +451,7 @@ resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
     rule {
       metric_trigger {
         metric_name              = "Requests"
-        metric_resource_id       = module.push_notif_function[0].function_app.plan.id
+        metric_resource_id       = module.push_notif_function[0].id
         metric_namespace         = "microsoft.web/sites"
         time_grain               = "PT1M"
         statistic                = "Average"
@@ -501,7 +473,7 @@ resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
     rule {
       metric_trigger {
         metric_name              = "CpuPercentage"
-        metric_resource_id       = module.push_notif_function[0].function_app.plan.id
+        metric_resource_id       = module.push_notif_function[0].app_service_plan_id
         metric_namespace         = "microsoft.web/serverfarms"
         time_grain               = "PT1M"
         statistic                = "Average"
@@ -521,3 +493,4 @@ resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
     }
   }
 }
+
