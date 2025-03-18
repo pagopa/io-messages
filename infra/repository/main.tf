@@ -112,7 +112,7 @@ module "repo" {
     default_branch_name      = local.repository.default_branch_name
     infra_cd_policy_branches = local.repository.infra_cd_policy_branches
     opex_cd_policy_branches  = local.repository.opex_cd_policy_branches
-    app_cd_policy_branches   = local.repository.app_cd_policy_branches
+    app_cd_policy_tags       = local.repository.app_cd_policy_tags
   }
 
   github_private_runner = {
