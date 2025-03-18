@@ -29,7 +29,7 @@ data "azurerm_eventhub_authorization_rule" "io-p-payments-weu-prod01-evh-ns_paym
 data "azurerm_eventhub_authorization_rule" "io-p-messages-weu-prod01-evh-ns_messages_io-fn-messages-cqrs" {
   name                = "${var.environment.prefix}-fn-messages-cqrs"
   namespace_name      = "${var.environment.prefix}-${var.environment.env_short}-messages-weu-prod01-evh-ns"
-  eventhub_name       = "message"
+  eventhub_name       = "messages"
   resource_group_name = "${var.environment.prefix}-${var.environment.env_short}-messages-weu-prod01-evt-rg"
 }
 
