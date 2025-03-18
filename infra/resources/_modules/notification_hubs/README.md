@@ -9,7 +9,7 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.5.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.17.0 |
 
 ## Modules
 
@@ -58,11 +58,6 @@ No modules.
 | [azurerm_notification_hub_namespace.common_partition_4](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/notification_hub_namespace) | resource |
 | [azurerm_notification_hub_namespace.sandbox](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/notification_hub_namespace) | resource |
 | [azurerm_notification_hub_namespace.sandbox_partition_1](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/notification_hub_namespace) | resource |
-| [azurerm_role_assignment.com_devs_notification_hub_common](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
-| [azurerm_role_assignment.com_devs_notification_hub_partition_1](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
-| [azurerm_role_assignment.com_devs_notification_hub_partition_2](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
-| [azurerm_role_assignment.com_devs_notification_hub_partition_3](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
-| [azurerm_role_assignment.com_devs_notification_hub_partition_4](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_key_vault_secret.ntfns_common_ntf_common_api_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.ntfns_common_ntf_common_api_key_sandbox](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.ntfns_common_ntf_common_token](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
@@ -73,14 +68,12 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_action_group_id"></a> [action\_group\_id](#input\_action\_group\_id) | n/a | `string` | n/a | yes |
-| <a name="input_adgroup_com_devs_id"></a> [adgroup\_com\_devs\_id](#input\_adgroup\_com\_devs\_id) | n/a | `string` | n/a | yes |
 | <a name="input_key_vault_common_id"></a> [key\_vault\_common\_id](#input\_key\_vault\_common\_id) | n/a | `string` | n/a | yes |
 | <a name="input_legacy_resource_group_name"></a> [legacy\_resource\_group\_name](#input\_legacy\_resource\_group\_name) | n/a | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | n/a | `string` | n/a | yes |
 | <a name="input_location_short"></a> [location\_short](#input\_location\_short) | n/a | `string` | n/a | yes |
 | <a name="input_project"></a> [project](#input\_project) | n/a | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | n/a | `string` | n/a | yes |
-| <a name="input_resource_group_name_itn"></a> [resource\_group\_name\_itn](#input\_resource\_group\_name\_itn) | The resource group name for the ITN resources (needed for migration) | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(string)` | n/a | yes |
 
 ## Outputs

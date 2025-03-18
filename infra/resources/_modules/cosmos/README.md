@@ -15,6 +15,7 @@ No requirements.
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_comsosdb_sql_container_messages_ingestion_test"></a> [comsosdb\_sql\_container\_messages\_ingestion\_test](#module\_comsosdb\_sql\_container\_messages\_ingestion\_test) | github.com/pagopa/terraform-azurerm-v4//cosmosdb_sql_container | v1.2.1 |
 | <a name="module_comsosdb_sql_container_messages_ingestion_test_lease"></a> [comsosdb\_sql\_container\_messages\_ingestion\_test\_lease](#module\_comsosdb\_sql\_container\_messages\_ingestion\_test\_lease) | github.com/pagopa/terraform-azurerm-v4//cosmosdb_sql_container | v1.2.1 |
 | <a name="module_io_com_cosmos_account"></a> [io\_com\_cosmos\_account](#module\_io\_com\_cosmos\_account) | pagopa/dx-azure-cosmos-account/azurerm | ~> 0 |
 
