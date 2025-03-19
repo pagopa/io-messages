@@ -1,9 +1,9 @@
 import { BlobMessageContentDeleter } from "@/adapters/blob-storage/message-content-deleter.js";
 import { CosmosMessageMetadataDeleter } from "@/adapters/cosmos/message-metadata-deleter.js";
 import { CosmosMessageStatusDeleter } from "@/adapters/cosmos/message-status-deleter.js";
+import { ContainerClient } from "@azure/storage-blob";
 import { pino } from "pino";
 import { describe, expect, test, vi } from "vitest";
-import { ContainerClient } from "@azure/storage-blob";
 
 import { DeleteMessageUseCase } from "../delete-message.js";
 

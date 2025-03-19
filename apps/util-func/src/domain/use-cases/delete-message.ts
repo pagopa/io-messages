@@ -1,16 +1,16 @@
 import { Logger } from "@/types.js";
+import { ContainerClient } from "@azure/storage-blob";
 
 import { MessageContentDeleter } from "../message-content.js";
 import { MessageMetadataDeleter } from "../message-metadata.js";
 import { MessageStatusDeleter } from "../message-status.js";
-import { ContainerClient } from "@azure/storage-blob";
 
 export class DeleteMessageUseCase {
+  deletedMessagesLogs: ContainerClient;
   logger: Logger;
   messageContentDeleter: MessageContentDeleter;
   messageMetadataDeleter: MessageMetadataDeleter;
   messageStatusDeleter: MessageStatusDeleter;
-  deletedMessagesLogs: ContainerClient;
 
   constructor(
     logger: Logger,
