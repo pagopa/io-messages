@@ -25,16 +25,16 @@ const main = async () => {
   });
   const cosmosDatabase = cosmosClient.database(config.COSMOS_DATABASE_NAME);
 
-  const messagesContainer = cosmosDatabase.container("messages");
-  const messageStatusContainer = cosmosDatabase.container("message-status");
+  const messageMetadata = cosmosDatabase.container("messages");
+  const messageStatus = cosmosDatabase.container("message-status");
 
   const messageMetadataDeleter = new CosmosMessageMetadataDeleter(
-    messagesContainer,
+    messageMetadata,
     logger,
   );
 
   const messageStatusDeleter = new CosmosMessageStatusDeleter(
-    messageStatusContainer,
+    messageStatus,
     logger,
   );
 
@@ -43,17 +43,27 @@ const main = async () => {
     azureCredentials,
   );
 
-  const containerClient = contentServiceClient.getContainerClient("messages");
+  const messageContent = contentServiceClient.getContainerClient("messages");
+
+  const comBlobServiceClient = new BlobServiceClient(
+    config.COM_STORAGE_ACCOUNT__serviceUri,
+    azureCredentials,
+  );
+
+  const deletedMessagesLogs = comBlobServiceClient.getContainerClient(
+    "deleted-messages-logs",
+  );
 
   const messageContentDeleter = new BlobMessageContentDeleter(
-    containerClient,
+    messageContent,
     logger,
   );
 
   const healthcheckUseCase = new HealthUseCase(
     cosmosDatabase,
-    containerClient,
+    messageContent,
     logger,
+    deletedMessagesLogs,
   );
 
   const deleteMessageUseCase = new DeleteMessageUseCase(
@@ -61,6 +71,7 @@ const main = async () => {
     messageContentDeleter,
     messageMetadataDeleter,
     messageStatusDeleter,
+    deletedMessagesLogs,
   );
 
   app.http("Health", {
@@ -73,7 +84,7 @@ const main = async () => {
   app.storageBlob("DeleteMessages", {
     connection: "COM_STORAGE_ACCOUNT",
     handler: deleteMessages(deleteMessageUseCase),
-    path: config.STORAGE_ACCOUNT_DELETE_MESSAGES_PATH,
+    path: "delete-messages/{name}",
   });
 };
 

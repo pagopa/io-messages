@@ -6,7 +6,6 @@
     "COSMOS_URI":"https://io-d-itn-common-cosno-01.documents.azure.com:443/",
     "COSMOS_DATABASE_NAME": "io-messages",
     "COMMON_STORAGE_ACCOUNT_URL":"https://testgiovannist.blob.core.windows.net/",
-    "STORAGE_ACCOUNT_DELETE_MESSAGES_PATH":"delete-messages/{name}"
     "COM_STORAGE_ACCOUNT__serviceUri": "https://testgiovannist.blob.core.windows.net/"
   }
 }

@@ -3,6 +3,7 @@ import { CosmosMessageMetadataDeleter } from "@/adapters/cosmos/message-metadata
 import { CosmosMessageStatusDeleter } from "@/adapters/cosmos/message-status-deleter.js";
 import { pino } from "pino";
 import { describe, expect, test, vi } from "vitest";
+import { ContainerClient } from "@azure/storage-blob";
 
 import { DeleteMessageUseCase } from "../delete-message.js";
 
@@ -13,6 +14,8 @@ vi.spyOn(logger, "info");
 const deleteContentMock = vi.fn();
 const deleteMessageMetadataMock = vi.fn();
 const deleteMessageStatusesMock = vi.fn();
+
+const uploadBlockBlobMock = vi.fn();
 
 const blobMessageContentDeleterMock = {
   deleteMessageContent: deleteContentMock,
@@ -26,11 +29,16 @@ const cosmosMessageStatusDeleterMock = {
   deleteMessageStatuses: deleteMessageStatusesMock,
 } as unknown as CosmosMessageStatusDeleter;
 
+const deletedMessagesLogsMock = {
+  uploadBlockBlob: uploadBlockBlobMock,
+} as unknown as ContainerClient;
+
 const deleteMessageUseCase = new DeleteMessageUseCase(
   logger,
   blobMessageContentDeleterMock,
   cosmosMessageMetadataDeleterMock,
   cosmosMessageStatusDeleterMock,
+  deletedMessagesLogsMock,
 );
 
 describe("DeleteMessageUseCase.execute", () => {
@@ -50,5 +58,10 @@ describe("DeleteMessageUseCase.execute", () => {
     );
     expect(deleteContentMock).toHaveBeenCalledWith(messageId);
     expect(deleteMessageStatusesMock).toHaveBeenCalledWith(messageId);
+    expect(uploadBlockBlobMock).toHaveBeenCalledWith(
+      messageId,
+      Buffer.from(messageId),
+      messageId.length,
+    );
   });
 });
