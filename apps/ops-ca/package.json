@@ -1,5 +1,5 @@
 {
-  "name": "util-func",
+  "name": "ops-ca",
   "main": "dist/func.js",
   "type": "module",
   "files": [
