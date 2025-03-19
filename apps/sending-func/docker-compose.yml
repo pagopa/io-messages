@@ -1,7 +1,6 @@
 version: "3.2"
 
 services:
-
   functions:
     image: sending-func
     build:
@@ -28,7 +27,7 @@ services:
       - "traefik.http.services.functions.loadbalancer.server.port=7071"
       - "traefik.http.middlewares.testHeader.headers.customrequestheaders.x-user-id=unused"
       - "traefik.http.middlewares.testHeader.headers.customrequestheaders.x-user-groups=${REQ_USER_GROUPS}"
-      - "traefik.http.middlewares.testHeader.headers.customrequestheaders.x-subscription-id=${REQ_SERVICE_ID}"
+      - "traefik.http.middlewares.testHeader.headers.customrequestheaders.x-subscription-id=<io-service-id-here>"
       - "traefik.http.middlewares.testHeader.headers.customrequestheaders.x-user-email=unused@example.com"
       - "traefik.http.middlewares.testHeader.headers.customrequestheaders.x-user-note=unused"
       - "traefik.http.middlewares.testHeader.headers.customrequestheaders.x-functions-key=unused"
@@ -50,7 +49,12 @@ services:
 
   storage:
     image: azurite
-    command: ["sh", "-c", "node bin/azurite -l /opt/azurite/folder --blobPort 10003 --queuePort 10004 --tablePort 10005"]
+    command:
+      [
+        "sh",
+        "-c",
+        "node bin/azurite -l /opt/azurite/folder --blobPort 10003 --queuePort 10004 --tablePort 10005",
+      ]
     ports:
       - "10003:10003"
       - "10004:10004"

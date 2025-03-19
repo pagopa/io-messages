@@ -15,16 +15,8 @@ export const envConfig: IConfig = {
 
   INTERNAL_USER_ID: "internalUserId" as NonEmptyString,
 
-  FF_TYPE: "none",
-  USE_FALLBACK: false,
-  FF_BETA_TESTERS: [],
-  FF_CANARY_USERS_REGEX: "XYZ" as NonEmptyString,
-
   REDIS_URL: "aRedisUrl" as NonEmptyString,
   RC_CONFIGURATION_CACHE_TTL: 1000 as NonNegativeInteger,
-
-  NODE_ENV: "production",
-  REQ_SERVICE_ID: undefined,
 
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: "aConnString" as NonEmptyString,
   MESSAGE_CONTAINER_NAME: "aContainerName" as NonEmptyString,

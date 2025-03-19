@@ -40,19 +40,6 @@ const AnyBut = <A extends string | number | boolean | symbol, Out = A>(
     "AnyBut",
   );
 
-// configuration for REQ_SERVICE_ID in dev
-export type ReqServiceIdConfig = t.TypeOf<typeof ReqServiceIdConfig>;
-export const ReqServiceIdConfig = t.union([
-  t.interface({
-    NODE_ENV: t.literal("production"),
-    REQ_SERVICE_ID: t.undefined,
-  }),
-  t.interface({
-    NODE_ENV: AnyBut("production", t.string),
-    REQ_SERVICE_ID: NonEmptyString,
-  }),
-]);
-
 export const RedisParams = t.intersection([
   t.interface({
     REDIS_URL: NonEmptyString,
@@ -89,13 +76,6 @@ export const IConfig = t.intersection([
 
     INTERNAL_USER_ID: NonEmptyString,
 
-    FF_TYPE: withDefault(t.string, "none").pipe(FeatureFlagType),
-    USE_FALLBACK: withDefault(t.string, "false").pipe(BooleanFromString),
-    FF_BETA_TESTERS: withDefault(t.string, "").pipe(
-      CommaSeparatedListOf(NonEmptyString),
-    ),
-    FF_CANARY_USERS_REGEX: withDefault(t.string, "XYZ").pipe(NonEmptyString),
-
     BACKEND_BASE_URL: NonEmptyString,
     BACKEND_TOKEN: NonEmptyString,
 
@@ -112,7 +92,6 @@ export const IConfig = t.intersection([
     isProduction: t.boolean,
     /* eslint-enable sort-keys */
   }),
-  ReqServiceIdConfig,
   RedisParams,
 ]);
 
