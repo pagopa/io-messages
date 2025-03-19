@@ -2,9 +2,6 @@
   "name": "ops-ca",
   "main": "dist/func.js",
   "type": "module",
-  "files": [
-    "host.json"
-  ],
   "packageManager": "yarn@4.6.0+sha256.eaf1eeabc164a44ca0b65dbdccd54af7e55f3ff9294b3ff318d5aaec92f2b20b",
   "scripts": {
     "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node20 --outdir=dist --packages=external",
