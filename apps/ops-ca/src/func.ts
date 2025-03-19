@@ -46,7 +46,7 @@ const main = async () => {
   const messageContent = contentServiceClient.getContainerClient("messages");
 
   const comBlobServiceClient = new BlobServiceClient(
-    config.COM_STORAGE_ACCOUNT__serviceUri,
+    config.STORAGE_ACCOUNT__serviceUri,
     azureCredentials,
   );
 
@@ -82,7 +82,7 @@ const main = async () => {
   });
 
   app.storageBlob("DeleteMessages", {
-    connection: "COM_STORAGE_ACCOUNT",
+    connection: "STORAGE_ACCOUNT",
     handler: deleteMessages(deleteMessageUseCase),
     path: "delete-messages/{name}",
   });
