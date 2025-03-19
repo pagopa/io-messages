@@ -2,7 +2,17 @@
   "IsEncrypted": false,
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "node",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "foo",
     "AzureWebJobsStorage": "{AzureWebJobsStorage}",
-    "FUNCTIONS_V2_COMPATIBILITY_MODE": false
+    "NODE_ENV": "development",
+    "COSMOSDB_URI": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
+    "COSMOSDB_NAME": "io-messages",
+    "REMOTE_CONTENT_COSMOSDB_URI": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
+    "REMOTE_CONTENT_COSMOSDB_NAME": "io-messages",
+    "MAILHOG_HOSTNAME": "mailhog",
+    "MAIL_FROM": "mail@example.it",
+    "REDIS_URL": "redis",
+    "REDIS_PASSWORD": "local",
+    "REDIS_PORT": "6379"
   }
 }
