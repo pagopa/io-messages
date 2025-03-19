@@ -1,9 +1,8 @@
+import { MessageContentDeleter } from "@/adapters/blob-storage/message-content-deleter.js";
+import { MessageMetadataDeleter } from "@/adapters/cosmos/message-metadata-deleter.js";
+import { MessageStatusDeleter } from "@/adapters/cosmos/message-status-deleter.js";
 import { Logger } from "@/types.js";
 import { ContainerClient } from "@azure/storage-blob";
-
-import { MessageContentDeleter } from "../message-content.js";
-import { MessageMetadataDeleter } from "../message-metadata.js";
-import { MessageStatusDeleter } from "../message-status.js";
 
 export class DeleteMessageUseCase {
   deletedMessagesLogs: ContainerClient;

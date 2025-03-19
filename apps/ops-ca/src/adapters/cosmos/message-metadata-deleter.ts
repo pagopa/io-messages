@@ -1,6 +1,9 @@
-import { MessageMetadataDeleter } from "@/domain/message-metadata.js";
 import { Logger } from "@/types.js";
 import { Container, ErrorResponse } from "@azure/cosmos";
+
+export interface MessageMetadataDeleter {
+  deleteMessageMetadata: (partitionKey: string, id: string) => Promise<void>;
+}
 
 export class CosmosMessageMetadataDeleter implements MessageMetadataDeleter {
   container: Container;

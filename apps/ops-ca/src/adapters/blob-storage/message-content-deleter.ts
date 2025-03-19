@@ -1,6 +1,9 @@
-import { MessageContentDeleter } from "@/domain/message-content.js";
 import { Logger } from "@/types.js";
 import { ContainerClient } from "@azure/storage-blob";
+
+export interface MessageContentDeleter {
+  deleteMessageContent: (messageId: string) => Promise<void>;
+}
 
 export class BlobMessageContentDeleter implements MessageContentDeleter {
   private containerClient: ContainerClient;

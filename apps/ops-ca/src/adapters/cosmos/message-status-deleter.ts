@@ -1,6 +1,9 @@
-import { MessageStatusDeleter } from "@/domain/message-status.js";
 import { Logger } from "@/types.js";
 import { Container } from "@azure/cosmos";
+
+export interface MessageStatusDeleter {
+  deleteMessageStatuses: (partitionKey: string) => Promise<void>;
+}
 
 export class CosmosMessageStatusDeleter implements MessageStatusDeleter {
   container: Container;
