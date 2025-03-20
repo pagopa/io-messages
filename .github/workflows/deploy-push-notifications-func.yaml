@@ -1,0 +1,16 @@
+name: Deploy (push-notifications-func)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  citizen_func_deploy:
+    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@802c7c19c579c6d562496a0d6e7710978603d413
+    secrets: inherit
+    with:
+      workspace_name: push-notifications-func
+      environment: app-prod
+      resource_group_name: io-p-messages-weu-prod01-push-notif-rg
+      function_app_name: io-p-push-notif-fn
+      health_check_path: "/api/v1/info"
+      use_staging_slot: true
