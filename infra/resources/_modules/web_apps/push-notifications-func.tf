@@ -52,7 +52,7 @@ data "azurerm_key_vault_secret" "azure_nh_partition4_endpoint" {
   key_vault_id = data.azurerm_key_vault.common.id
 }
 
-## Virtual network
+# # Virtual network
 # data "azurerm_virtual_network" "vnet_common" {
 #   name                = local.vnet_common_name
 #   resource_group_name = local.vnet_common_resource_group_name
@@ -60,11 +60,11 @@ data "azurerm_key_vault_secret" "azure_nh_partition4_endpoint" {
 
 ##Subnet
 
-data "azurerm_subnet" "push_notifications_func_subnet" {
-  name                 = "io-p-messages-weu-prod01-push-notif-snet"
-  virtual_network_name = var.virtual_network.name
-  resource_group_name  = var.virtual_network.resource_group_name
-}
+# data "azurerm_subnet" "push_notifications_func_subnet" {
+#   name                 = "io-p-messages-weu-prod01-push-notif-snet"
+#   virtual_network_name = data.azurerm_virtual_network.vnet_common.name
+#   resource_group_name  = data.azurerm_virtual_network.vnet_common.resource_group_name
+# }
 
 # data "azurerm_subnet" "private_endpoints_subnet" {
 #   name                 = "pendpoints"
