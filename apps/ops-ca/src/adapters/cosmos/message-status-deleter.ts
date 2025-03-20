@@ -1,9 +1,9 @@
 import { Container } from "@azure/cosmos";
 
-type DeleteMessageStatusResponse = {
-  readonly success: boolean;
+interface DeleteMessageStatusResponse {
   readonly failedOperation?: number;
-};
+  readonly success: boolean;
+}
 
 export interface MessageStatusDeleter {
   deleteMessageStatuses: (
@@ -47,8 +47,8 @@ export class CosmosMessageStatusDeleter implements MessageStatusDeleter {
 
       if (failed.length > 0) {
         return {
-          success: false,
           failedOperation: failed.length,
+          success: false,
         };
       }
 

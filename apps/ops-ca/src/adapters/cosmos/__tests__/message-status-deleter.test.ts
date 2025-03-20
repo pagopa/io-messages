@@ -46,7 +46,7 @@ describe("CosmosMessageStatusDeleter.deleteMessageStatuses", () => {
 
     await expect(
       cosmosMessageStatusDeleter.deleteMessageStatuses(partitionKey),
-    ).resolves.toMatchObject({ success: false, failedOperation: 1 });
+    ).resolves.toMatchObject({ failedOperation: 1, success: false });
   });
 
   test("should reject with an error if deletion fails", async () => {
