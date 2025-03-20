@@ -262,6 +262,7 @@ module "push_notif_function" {
     resource_group_name = var.virtual_network.resource_group_name
   }
 
+  private_dns_zone_resource_group_name   = var.private_dns_zone_resource_group_name
   application_insights_connection_string = data.azurerm_application_insights.application_insights.connection_string
 
   environment = merge(var.environment, {
