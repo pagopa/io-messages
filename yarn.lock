@@ -265,7 +265,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/cosmos@npm:^4.0.0":
+"@azure/cosmos@npm:^4.0.0, @azure/cosmos@npm:^4.2.0":
   version: 4.2.0
   resolution: "@azure/cosmos@npm:4.2.0"
   dependencies:
@@ -363,7 +363,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/logger@npm:*, @azure/logger@npm:^1.0.0, @azure/logger@npm:^1.1.2":
+"@azure/logger@npm:*, @azure/logger@npm:^1.0.0, @azure/logger@npm:^1.1.2, @azure/logger@npm:^1.1.4":
   version: 1.1.4
   resolution: "@azure/logger@npm:1.1.4"
   dependencies:
@@ -10604,6 +10604,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ops-ca@workspace:apps/ops-ca":
+  version: 0.0.0-use.local
+  resolution: "ops-ca@workspace:apps/ops-ca"
+  dependencies:
+    "@azure/cosmos": "npm:^4.2.0"
+    "@azure/functions": "npm:^4.4.0"
+    "@azure/identity": "npm:^4.5.0"
+    "@azure/logger": "npm:^1.1.4"
+    "@azure/storage-blob": "npm:^12.26.0"
+    "@pagopa/eslint-config": "npm:^4.0.1"
+    "@types/node": "npm:^20.17.12"
+    "@vitest/coverage-v8": "npm:^2.1.8"
+    esbuild: "npm:^0.24.2"
+    eslint: "npm:8.57.1"
+    io-messages-common: "workspace:^"
+    pino: "npm:^9.6.0"
+    prettier: "npm:3.2.5"
+    typescript: "npm:5.4.3"
+    vitest: "npm:^2.1.8"
+    zod: "npm:3.24.1"
+  languageName: unknown
+  linkType: soft
+
 "optionator@npm:^0.9.1, optionator@npm:^0.9.3":
   version: 0.9.4
   resolution: "optionator@npm:0.9.4"
@@ -14565,7 +14588,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^3.24.1":
+"zod@npm:3.24.1, zod@npm:^3.24.1":
   version: 3.24.1
   resolution: "zod@npm:3.24.1"
   checksum: 10c0/0223d21dbaa15d8928fe0da3b54696391d8e3e1e2d0283a1a070b5980a1dbba945ce631c2d1eccc088fdbad0f2dfa40155590bf83732d3ac4fcca2cc9237591b
