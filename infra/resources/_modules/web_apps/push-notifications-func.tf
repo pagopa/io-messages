@@ -261,14 +261,11 @@ module "push_notif_function" {
     name                = var.virtual_network.name
     resource_group_name = var.virtual_network.resource_group_name
   }
-  environment = {
-    prefix          = var.environment.prefix
-    env_short       = var.environment.env_short
-    location        = var.environment.domain
-    domain          = local.domain
-    app_name        = "push-notif"
+
+  environment = merge(var.environment, {
+    app_name        = "pushnotif"
     instance_number = "01"
-  }
+  })
 
   app_settings = merge(
     local.function_push_notif.app_settings_common, {

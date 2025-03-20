@@ -5,11 +5,10 @@ module "web_apps" {
   private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
 
   environment = {
-    prefix          = local.prefix
-    env_short       = local.env_short
-    location        = local.location
-    legacy_location = local.legacy_location
-    domain          = local.domain
+    prefix    = local.prefix
+    env_short = local.env_short
+    location  = local.location
+    domain    = local.domain
   }
 
   tags = local.tags
