@@ -429,7 +429,7 @@ resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
     rule {
       metric_trigger {
         metric_name              = "Requests"
-        metric_resource_id       = module.push_notif_function[0].function_app.plan.id
+        metric_resource_id       = module.push_notif_function[0].function_app.function_app.id
         metric_namespace         = "microsoft.web/sites"
         time_grain               = "PT1M"
         statistic                = "Max"
@@ -473,7 +473,7 @@ resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
     rule {
       metric_trigger {
         metric_name              = "Requests"
-        metric_resource_id       = module.push_notif_function[0].function_app.plan.id
+        metric_resource_id       = module.push_notif_function[0].function_app.function_app.id
         metric_namespace         = "microsoft.web/sites"
         time_grain               = "PT1M"
         statistic                = "Average"
