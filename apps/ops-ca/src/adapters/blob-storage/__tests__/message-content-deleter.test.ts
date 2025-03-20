@@ -19,43 +19,39 @@ const containerClient = {
 
 const blobMessageContentDeleter = new BlobMessageContentDeleter(
   containerClient,
-  logger,
 );
 
 const messageId = "01JP800CXX3ZM82SZNPFAQW7VS";
 
 describe("BlobMessageContentDeleter.deleteMessageContent", () => {
-  test("should log a success if message content was deleted successfully", async () => {
-    await blobMessageContentDeleter.deleteMessageContent(messageId);
+  test("should return true if message content was deleted successfully", async () => {
+    await expect(
+      blobMessageContentDeleter.deleteMessageContent(messageId),
+    ).resolves.toBe(true);
 
     expect(containerClient.getBlobClient).toHaveBeenCalledWith(
       `${messageId}.json`,
     );
-    expect(logger.info).toHaveBeenCalledWith(
-      `Message content of message with id ${messageId} deleted successfully`,
-    );
   });
 
-  test("should log an error if deletion fails", async () => {
+  test("should retrun false if deletion fails", async () => {
     deleteIfExistsMock.mockResolvedValueOnce({
       errorCode: "Error",
       succeeded: false,
     });
 
-    await blobMessageContentDeleter.deleteMessageContent(messageId);
-
-    expect(logger.error).toHaveBeenCalledWith(
-      `Failed to delete message content for message ${messageId} | Error code: Error`,
-    );
+    await expect(
+      blobMessageContentDeleter.deleteMessageContent(messageId),
+    ).resolves.toBe(false);
   });
 
-  test("should log an error if an exception is thrown", async () => {
+  test("should reject if an exception is thrown", async () => {
     deleteIfExistsMock.mockRejectedValue(new Error("Exception"));
 
-    await blobMessageContentDeleter.deleteMessageContent(messageId);
-
-    expect(logger.error).toHaveBeenCalledWith(
-      `Failed to delete message content for message ${messageId} | Error: Error: Exception`,
+    await expect(
+      blobMessageContentDeleter.deleteMessageContent(messageId),
+    ).rejects.toThrow(
+      new Error(`Failed to delete message content for message ${messageId}`),
     );
   });
 });

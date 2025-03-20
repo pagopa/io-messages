@@ -22,41 +22,42 @@ const container = {
   },
 } as unknown as Container;
 
-const cosmosMessageStatusDeleter = new CosmosMessageStatusDeleter(
-  container,
-  logger,
-);
+const cosmosMessageStatusDeleter = new CosmosMessageStatusDeleter(container);
 
 const partitionKey = "01JP800CXX3ZM82SZNPFAQW7VS";
 
 describe("CosmosMessageStatusDeleter.deleteMessageStatuses", () => {
-  test("should log a success if message statuses were deleted successfully", async () => {
-    await cosmosMessageStatusDeleter.deleteMessageStatuses(partitionKey);
+  test("should return true if message statuses were deleted successfully", async () => {
+    await expect(
+      cosmosMessageStatusDeleter.deleteMessageStatuses(partitionKey),
+    ).resolves.toMatchObject({ success: true });
 
     expect(container.items.query).toHaveBeenCalledWith({
       parameters: [{ name: "@partitionKey", value: partitionKey }],
       query: "SELECT c.id FROM c WHERE c.messageId = @partitionKey",
     });
 
-    expect(logger.info).toHaveBeenCalledWith(
-      `Attempting to delete 2 message statuses with partition key ${partitionKey}`,
-    );
-
     expect(container.item).toHaveBeenCalledWith("1", partitionKey);
     expect(container.item).toHaveBeenCalledWith("2", partitionKey);
-
-    expect(logger.info).toHaveBeenCalledWith(
-      "message-status with id 1 deleted successfully",
-    );
   });
 
-  test("should log an error if deletion fails", async () => {
-    deleteMock.mockRejectedValue({ message: "Deletion Error" });
+  test("should resolve with success = false if deletion fails for a single status", async () => {
+    deleteMock.mockRejectedValueOnce({ message: "Deletion Error" });
 
-    await cosmosMessageStatusDeleter.deleteMessageStatuses(partitionKey);
+    await expect(
+      cosmosMessageStatusDeleter.deleteMessageStatuses(partitionKey),
+    ).resolves.toMatchObject({ success: false, failedOperation: 1 });
+  });
 
-    expect(logger.error).toHaveBeenCalledWith(
-      `Error deleting message statuses with partition key ${partitionKey} | Message: {"message":"Deletion Error"}`,
+  test("should reject with an error if deletion fails", async () => {
+    queryMock.mockRejectedValueOnce({ message: "Query error" });
+
+    await expect(
+      cosmosMessageStatusDeleter.deleteMessageStatuses(partitionKey),
+    ).rejects.toThrow(
+      new Error(
+        `Failed to delete message statuses with partition key ${partitionKey}`,
+      ),
     );
   });
 });

@@ -12,7 +12,7 @@ const logger = pino({ level: "silent" });
 vi.spyOn(logger, "info");
 
 const deleteContentMock = vi.fn();
-const deleteMessageMetadataMock = vi.fn();
+const deleteMessageMetadataMock = vi.fn().mockResolvedValue({ success: true });
 const deleteMessageStatusesMock = vi.fn();
 
 const uploadBlockBlobMock = vi.fn();

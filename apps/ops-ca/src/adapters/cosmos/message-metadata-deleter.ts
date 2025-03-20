@@ -1,17 +1,22 @@
-import { Logger } from "@/types.js";
-import { Container, ErrorResponse } from "@azure/cosmos";
+import { Container } from "@azure/cosmos";
+
+interface DeleteMessageMetadataResponse {
+  readonly statusCode?: number;
+  readonly success: boolean;
+}
 
 export interface MessageMetadataDeleter {
-  deleteMessageMetadata: (partitionKey: string, id: string) => Promise<void>;
+  deleteMessageMetadata: (
+    partitionKey: string,
+    id: string,
+  ) => Promise<DeleteMessageMetadataResponse>;
 }
 
 export class CosmosMessageMetadataDeleter implements MessageMetadataDeleter {
   container: Container;
-  logger: Logger;
 
-  constructor(container: Container, logger: Logger) {
+  constructor(container: Container) {
     this.container = container;
-    this.logger = logger;
   }
 
   /**
@@ -24,31 +29,22 @@ export class CosmosMessageMetadataDeleter implements MessageMetadataDeleter {
   async deleteMessageMetadata(
     fiscalCode: string,
     messageId: string,
-  ): Promise<void> {
+  ): Promise<DeleteMessageMetadataResponse> {
     try {
       const response = await this.container
         .item(messageId, fiscalCode)
         .delete();
 
       if (response.statusCode === 204) {
-        this.logger.info(
-          `Message metadata with id ${messageId} deleted successfully`,
-        );
+        return { success: true };
       } else {
-        this.logger.error(
-          `Error deleting message metadata with id ${messageId} | Status: ${response.statusCode}`,
-        );
+        return { statusCode: response.statusCode, success: false };
       }
-    } catch (error) {
-      if (error instanceof ErrorResponse)
-        this.logger.error(
-          `Error deleting message metadata with id ${messageId} | Code: ${error.code} | Message: ${error.message}`,
-        );
-      else {
-        this.logger.error(
-          `Error deleting message metadata with id ${messageId} | ${error}`,
-        );
-      }
+    } catch (cause) {
+      throw new Error(
+        `Failed to delete message metadata for message ${messageId}`,
+        { cause },
+      );
     }
   }
 }

@@ -1,17 +1,14 @@
-import { Logger } from "@/types.js";
 import { ContainerClient } from "@azure/storage-blob";
 
 export interface MessageContentDeleter {
-  deleteMessageContent: (messageId: string) => Promise<void>;
+  deleteMessageContent: (messageId: string) => Promise<boolean>;
 }
 
 export class BlobMessageContentDeleter implements MessageContentDeleter {
   private containerClient: ContainerClient;
-  private logger: Logger;
 
-  constructor(containerClient: ContainerClient, logger: Logger) {
+  constructor(containerClient: ContainerClient) {
     this.containerClient = containerClient;
-    this.logger = logger;
   }
 
   /**
@@ -20,24 +17,17 @@ export class BlobMessageContentDeleter implements MessageContentDeleter {
    * @param messageId - The ID of the message whose content is to be deleted.
    * @returns A promise that resolves to a DeleteMessageContentResponse indicating success or failure.
    */
-  async deleteMessageContent(messageId: string): Promise<void> {
+  async deleteMessageContent(messageId: string): Promise<boolean> {
     try {
       const response = await this.containerClient
         .getBlobClient(`${messageId}.json`)
         .deleteIfExists();
 
-      if (response.succeeded) {
-        this.logger.info(
-          `Message content of message with id ${messageId} deleted successfully`,
-        );
-      } else {
-        this.logger.error(
-          `Failed to delete message content for message ${messageId} | Error code: ${response.errorCode}`,
-        );
-      }
-    } catch (error) {
-      this.logger.error(
-        `Failed to delete message content for message ${messageId} | Error: ${error}`,
+      return response.succeeded;
+    } catch (cause) {
+      throw new Error(
+        `Failed to delete message content for message ${messageId}`,
+        { cause },
       );
     }
   }

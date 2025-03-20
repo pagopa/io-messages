@@ -30,13 +30,9 @@ const main = async () => {
 
   const messageMetadataDeleter = new CosmosMessageMetadataDeleter(
     messageMetadata,
-    logger,
   );
 
-  const messageStatusDeleter = new CosmosMessageStatusDeleter(
-    messageStatus,
-    logger,
-  );
+  const messageStatusDeleter = new CosmosMessageStatusDeleter(messageStatus);
 
   const contentServiceClient = new BlobServiceClient(
     config.COMMON_STORAGE_ACCOUNT_URL,
@@ -54,10 +50,7 @@ const main = async () => {
     "deleted-messages-logs",
   );
 
-  const messageContentDeleter = new BlobMessageContentDeleter(
-    messageContent,
-    logger,
-  );
+  const messageContentDeleter = new BlobMessageContentDeleter(messageContent);
 
   const healthcheckUseCase = new HealthUseCase(
     cosmosDatabase,

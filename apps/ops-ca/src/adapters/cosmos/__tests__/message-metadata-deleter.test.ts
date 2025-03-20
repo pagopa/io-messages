@@ -18,48 +18,35 @@ vi.spyOn(logger, "error");
 
 const cosmosMessageMetadataDeleter = new CosmosMessageMetadataDeleter(
   containerMock,
-  logger,
 );
 
 const messageId = "01JP800CXX3ZM82SZNPFAQW7VS";
 const fiscalCode = "RMLGNN97R06F158N";
 
 describe("CosmosMessageMetadataDeleter.deleteMessageMetadata", () => {
-  test("should log a success if message metadata were deleted successfully", async () => {
-    await cosmosMessageMetadataDeleter.deleteMessageMetadata(
-      fiscalCode,
-      messageId,
-    );
+  test("should return true if message metadata were deleted successfully", async () => {
+    await expect(
+      cosmosMessageMetadataDeleter.deleteMessageMetadata(fiscalCode, messageId),
+    ).resolves.toMatchObject({ success: true });
 
     expect(containerMock.item).toHaveBeenCalledWith(messageId, fiscalCode);
-    expect(logger.info).toHaveBeenCalledWith(
-      `Message metadata with id ${messageId} deleted successfully`,
-    );
   });
 
-  test("should log an error if deletion fails with a non-204 status code", async () => {
+  test("should return false with statusCode if deletion fails with a non-204 status code", async () => {
     deleteMock.mockResolvedValue({ statusCode: 400 });
 
-    await cosmosMessageMetadataDeleter.deleteMessageMetadata(
-      fiscalCode,
-      messageId,
-    );
-
-    expect(logger.error).toHaveBeenCalledWith(
-      `Error deleting message metadata with id ${messageId} | Status: 400`,
-    );
+    await expect(
+      cosmosMessageMetadataDeleter.deleteMessageMetadata(fiscalCode, messageId),
+    ).resolves.toMatchObject({ statusCode: 400, success: false });
   });
 
-  test("should log an error if an unknown exception is thrown", async () => {
+  test("should reject with an error if an unknown exception is thrown", async () => {
     deleteMock.mockRejectedValue(new Error("Unknown Error"));
 
-    await cosmosMessageMetadataDeleter.deleteMessageMetadata(
-      fiscalCode,
-      messageId,
-    );
-
-    expect(logger.error).toHaveBeenCalledWith(
-      `Error deleting message metadata with id ${messageId} | Error: Unknown Error`,
+    await expect(
+      cosmosMessageMetadataDeleter.deleteMessageMetadata(fiscalCode, messageId),
+    ).rejects.toThrow(
+      new Error(`Failed to delete message metadata for message ${messageId}`),
     );
   });
 });

@@ -49,13 +49,36 @@ export class DeleteMessageUseCase {
   async execute(fiscalCode: string, messageId: string): Promise<void> {
     this.logger.info(`Starting deletion of message with id ${messageId}`);
 
-    await this.messageMetadataDeleter.deleteMessageMetadata(
-      fiscalCode,
-      messageId,
-    );
+    try {
+      const { statusCode, success } =
+        await this.messageMetadataDeleter.deleteMessageMetadata(
+          fiscalCode,
+          messageId,
+        );
+      if (success) {
+        this.logger.info(`Message metadata with id ${messageId} deleted`);
+      } else {
+        this.logger.error(
+          `Failed to delete message metadata with id ${messageId} (status code ${statusCode})`,
+        );
+      }
 
-    await this.messageStatusDeleter.deleteMessageStatuses(messageId);
-    await this.messageContentDeleter.deleteMessageContent(messageId);
+      this.logger.info(
+        `Attempting to delete message statuses with partition key ${messageId}`,
+      );
+      await this.messageStatusDeleter.deleteMessageStatuses(messageId);
+      this.logger.info(
+        `Message statuses with partition key ${messageId} deleted successfully`,
+      );
+
+      await this.messageContentDeleter.deleteMessageContent(messageId);
+      this.logger.info(
+        `Message content with id ${messageId} deleted successfully`,
+      );
+    } catch (error) {
+      this.logger.error(`${error}`);
+    }
+
     await this.logDeletedMessage(messageId);
   }
 }

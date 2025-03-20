@@ -1,26 +1,32 @@
-import { Logger } from "@/types.js";
 import { Container } from "@azure/cosmos";
 
+type DeleteMessageStatusResponse = {
+  readonly success: boolean;
+  readonly failedOperation?: number;
+};
+
 export interface MessageStatusDeleter {
-  deleteMessageStatuses: (partitionKey: string) => Promise<void>;
+  deleteMessageStatuses: (
+    partitionKey: string,
+  ) => Promise<DeleteMessageStatusResponse>;
 }
 
 export class CosmosMessageStatusDeleter implements MessageStatusDeleter {
   container: Container;
-  logger: Logger;
 
-  constructor(container: Container, logger: Logger) {
+  constructor(container: Container) {
     this.container = container;
-    this.logger = logger;
   }
 
   /**
-   * Deletes all message statuses identified by the partition key.
+   * Deletes message statuses based on the provided partition key.
    *
-   * @param partitionKey - The partition key of the items.
-   * @returns A promise that resolves when the deletion is complete.
+   * @param partitionKey - The partition key used to identify the message statuses to delete.
+   * @returns A promise that resolves to a boolean indicating whether the deletion was successful.
    */
-  async deleteMessageStatuses(partitionKey: string): Promise<void> {
+  async deleteMessageStatuses(
+    partitionKey: string,
+  ): Promise<DeleteMessageStatusResponse> {
     const querySpec = {
       parameters: [{ name: "@partitionKey", value: partitionKey }],
       query: "SELECT c.id FROM c WHERE c.messageId = @partitionKey",
@@ -31,23 +37,26 @@ export class CosmosMessageStatusDeleter implements MessageStatusDeleter {
         .query(querySpec)
         .fetchAll();
 
-      this.logger.info(
-        `Attempting to delete ${resources.length} message statuses with partition key ${partitionKey}`,
-      );
-
-      const deleteResults = await Promise.all(
+      const results = await Promise.allSettled(
         resources.map((item) =>
           this.container.item(item.id, partitionKey).delete(),
         ),
       );
-      deleteResults.map((response) =>
-        this.logger.info(
-          `message-status with id ${response.item.id} deleted successfully`,
-        ),
-      );
-    } catch (error) {
-      this.logger.error(
-        `Error deleting message statuses with partition key ${partitionKey} | Message: ${JSON.stringify(error)}`,
+
+      const failed = results.filter((result) => result.status === "rejected");
+
+      if (failed.length > 0) {
+        return {
+          success: false,
+          failedOperation: failed.length,
+        };
+      }
+
+      return { success: true };
+    } catch (cause) {
+      throw new Error(
+        `Failed to delete message statuses with partition key ${partitionKey}`,
+        { cause },
       );
     }
   }
