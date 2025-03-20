@@ -1,10 +1,3 @@
-resource "azurerm_resource_group" "backend_messages_rg" {
-  name     = format("%s-%s-backend-messages-rg", var.environment.prefix, var.environment.env_short)
-  location = local.cqrs_func.location
-
-  tags = var.tags
-}
-
 data "azurerm_eventhub_authorization_rule" "evh_ns_io_auth_messages" {
   name                = "${var.environment.prefix}-messages"
   namespace_name      = "${var.environment.prefix}-${var.environment.env_short}-evh-ns"
@@ -144,18 +137,19 @@ module "cqrs_func" {
     instance_number = "01"
   })
 
-  resource_group_name = azurerm_resource_group.backend_messages_rg.name
+  resource_group_name = var.resource_group_name
   health_check_path   = "/api/v1/info"
   node_version        = 18
 
   tier = "xl"
 
-  subnet_id           = data.azurerm_subnet.cqrs_func.id
-  subnet_pep_id       = var.subnet_pep_id
+  subnet_cidr                          = var.subnet_cidrs.cqrs_func
+  subnet_pep_id                        = var.subnet_pep_id
+  private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name
 
   virtual_network = {
-    name                = data.azurerm_virtual_network.vnet_common.name
-    resource_group_name = data.azurerm_virtual_network.vnet_common.resource_group_name
+    name                = var.virtual_network.name
+    resource_group_name = var.virtual_network.resource_group_name
   }
 
   app_settings = merge(
@@ -199,7 +193,7 @@ module "cqrs_func" {
 
 resource "azurerm_monitor_autoscale_setting" "function_messages_cqrs" {
   name                = "${replace(module.cqrs_func.function_app.function_app.name, "fn", "as")}-01"
-  resource_group_name = azurerm_resource_group.backend_messages_rg.name
+  resource_group_name = var.resource_group_name
   location            = local.cqrs_func.location
   target_resource_id  = module.cqrs_func.function_app.plan.id
 
