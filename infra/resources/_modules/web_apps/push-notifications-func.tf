@@ -71,11 +71,11 @@ data "azurerm_key_vault_secret" "azure_nh_partition4_endpoint" {
 #   virtual_network_name = local.vnet_common_name
 #   resource_group_name  = local.vnet_common_resource_group_name
 # }
-data "azurerm_subnet" "azdoa_snet" {
-  name                 = "azure-devops"
-  virtual_network_name = local.vnet_common_name
-  resource_group_name  = local.vnet_common_resource_group_name
-}
+# data "azurerm_subnet" "azdoa_snet" {
+#   name                 = "azure-devops"
+#   virtual_network_name = local.vnet_common_name
+#   resource_group_name  = local.vnet_common_resource_group_name
+# }
 
 ## Application insights
 data "azurerm_application_insights" "application_insights" {
@@ -88,20 +88,20 @@ data "azurerm_monitor_action_group" "io_com_action_group" {
 }
 
 ## Private dns zone
-data "azurerm_private_dns_zone" "privatelink_blob_core_windows_net" {
-  name                = "privatelink.blob.core.windows.net"
-  resource_group_name = format("%s-rg-common", local.product)
-}
+# data "azurerm_private_dns_zone" "privatelink_blob_core_windows_net" {
+#   name                = "privatelink.blob.core.windows.net"
+#   resource_group_name = format("%s-rg-common", local.product)
+# }
 
-data "azurerm_private_dns_zone" "privatelink_queue_core_windows_net" {
-  name                = "privatelink.queue.core.windows.net"
-  resource_group_name = format("%s-rg-common", local.product)
-}
+# data "azurerm_private_dns_zone" "privatelink_queue_core_windows_net" {
+#   name                = "privatelink.queue.core.windows.net"
+#   resource_group_name = format("%s-rg-common", local.product)
+# }
 
-data "azurerm_private_dns_zone" "privatelink_table_core_windows_net" {
-  name                = "privatelink.table.core.windows.net"
-  resource_group_name = format("%s-rg-common", local.product)
-}
+# data "azurerm_private_dns_zone" "privatelink_table_core_windows_net" {
+#   name                = "privatelink.table.core.windows.net"
+#   resource_group_name = format("%s-rg-common", local.product)
+# }
 
 locals {
 
@@ -262,6 +262,8 @@ module "push_notif_function" {
     resource_group_name = var.virtual_network.resource_group_name
   }
 
+  application_insights_connection_string = data.azurerm_application_insights.application_insights.connection_string
+
   environment = merge(var.environment, {
     app_name        = "pushnotif"
     instance_number = "01"
@@ -290,6 +292,7 @@ module "push_notif_function" {
     }
   )
 
+  action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id
 
   # name                = format("%s-push-notif-fn", local.product)
   # domain              = upper(local.domain)
