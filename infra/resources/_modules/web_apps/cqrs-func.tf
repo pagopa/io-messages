@@ -190,7 +190,7 @@ module "cqrs_func" {
   action_group_id = var.action_group_id
 }
 
-module "citizen_func_autoscaler" {
+module "cqrs_func_autoscaler" {
   source  = "pagopa-dx/azure-app-service-plan-autoscaler/azurerm"
   version = "~> 1.0"
 
