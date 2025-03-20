@@ -2,10 +2,11 @@ import { CosmosClient } from "@azure/cosmos";
 import { app } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
+import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
 
 import { BlobMessageContentDeleter } from "./adapters/blob-storage/message-content-deleter.js";
-import { envSchema } from "./adapters/config.js";
+import { Config, configFromEnvironment } from "./adapters/config.js";
 import { CosmosMessageMetadataDeleter } from "./adapters/cosmos/message-metadata-deleter.js";
 import { CosmosMessageStatusDeleter } from "./adapters/cosmos/message-status-deleter.js";
 import { deleteMessages } from "./adapters/functions/delete-messages.js";
@@ -13,17 +14,18 @@ import { healthcheck } from "./adapters/functions/health.js";
 import { DeleteMessageUseCase } from "./domain/use-cases/delete-message.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
 
-const main = async () => {
-  const config = envSchema.parse(process.env);
+const main = async (config: Config): Promise<void> => {
   const logger = pino();
 
   const azureCredentials = new DefaultAzureCredential();
 
   const cosmosClient = new CosmosClient({
     aadCredentials: azureCredentials,
-    endpoint: config.COSMOS_URI,
+    endpoint: config.commonCosmos.uri,
   });
-  const cosmosDatabase = cosmosClient.database(config.COSMOS_DATABASE_NAME);
+  const cosmosDatabase = cosmosClient.database(
+    config.commonCosmos.databaseName,
+  );
 
   const messageMetadata = cosmosDatabase.container("messages");
   const messageStatus = cosmosDatabase.container("message-status");
@@ -35,14 +37,14 @@ const main = async () => {
   const messageStatusDeleter = new CosmosMessageStatusDeleter(messageStatus);
 
   const contentServiceClient = new BlobServiceClient(
-    config.COMMON_STORAGE_ACCOUNT_URL,
+    config.commonStorageAccount.url,
     azureCredentials,
   );
 
   const messageContent = contentServiceClient.getContainerClient("messages");
 
   const comBlobServiceClient = new BlobServiceClient(
-    config.STORAGE_ACCOUNT__serviceUri,
+    config.storageAccount.url,
     azureCredentials,
   );
 
@@ -81,4 +83,4 @@ const main = async () => {
   });
 };
 
-main();
+await loadConfigFromEnvironment(main, configFromEnvironment);
