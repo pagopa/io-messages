@@ -412,7 +412,7 @@ module "push_notif_function" {
 
 resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
   count               = local.push_notif_enabled ? 1 : 0
-  name                = "${replace(module.push_notif_function[0].function_app.name, "fn", "as")}-01"
+  name                = "${replace(module.push_notif_function[0].function_app.function_app.name, "fn", "as")}-01"
   resource_group_name = var.resource_group_name
   location            = local.location
   target_resource_id  = module.push_notif_function[0].function_app.plan.id
