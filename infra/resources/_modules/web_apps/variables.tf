@@ -40,6 +40,7 @@ variable "subnet_cidrs" {
     notif_func   = string
     citizen_func = string
     etl_func     = string
+    cqrs_func    = string
   })
 }
 
