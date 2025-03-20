@@ -22,9 +22,10 @@ If you use a code editor that doesn't support Dev Container, you can still run i
 
 1. Follow the instruction of the following chapter ("Using local machine") to setup your local environment
 2. Run devcontainer from your terminal
+
    ```bash
    yarn devcontainer up --workspace-folder .
-   yarn devcontainer exec -- workspace-folder . /bin/bash
+   yarn devcontainer exec --workspace-folder . /bin/bash
    ```
 
 ### Using local machine
@@ -57,6 +58,7 @@ This project use specific versions of `node`, `yarn` and `terraform`. To make su
    ```
 
 4. Build all the workspaces contained by this repo
+
    ```bash
    yarn build
    ```
