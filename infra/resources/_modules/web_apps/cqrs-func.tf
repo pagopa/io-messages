@@ -214,7 +214,7 @@ module "cqrs_func_autoscaler" {
       decrease_by               = 1
       cooldown_decrease         = 1
       upper_threshold           = 40
-      lower_treshold            = 15
+      lower_threshold            = 15
     },
     requests: {
       time_aggregation_increase = "Maximum"
@@ -224,7 +224,7 @@ module "cqrs_func_autoscaler" {
       decrease_by               = 1
       cooldown_decrease         = 1
       upper_threshold           = 3000
-      lower_treshold            = 300
+      lower_threshold            = 300
     }
   }
 
