@@ -51,7 +51,6 @@ data "azurerm_subnet" "cqrs_func" {
 
 locals {
   cqrs_func = {
-    location = "westeurope"
     ehns_enabled = true
     app_settings = {
       FUNCTIONS_WORKER_RUNTIME       = "node"
@@ -191,107 +190,52 @@ module "cqrs_func" {
   action_group_id = var.action_group_id
 }
 
-resource "azurerm_monitor_autoscale_setting" "function_messages_cqrs" {
-  name                = "${replace(module.cqrs_func.function_app.function_app.name, "fn", "as")}-01"
-  resource_group_name = var.resource_group_name
-  location            = local.cqrs_func.location
-  target_resource_id  = module.cqrs_func.function_app.plan.id
+module "citizen_func_autoscaler" {
+  source  = "pagopa-dx/azure-app-service-plan-autoscaler/azurerm"
+  version = "~> 1.0"
 
-  profile {
-    name = "default"
+  resource_group_name = module.cqrs_func.function_app.resource_group_name
+  location            = var.environment.location
 
-    capacity {
-      default = 3
-      minimum = 2
-      maximum = 30
-    }
+  app_service_plan_id = module.cqrs_func.function_app.plan.id
 
-    rule {
-      metric_trigger {
-        metric_name              = "Requests"
-        metric_resource_id       = module.cqrs_func.function_app.plan.id
-        metric_namespace         = "microsoft.web/sites"
-        time_grain               = "PT1M"
-        statistic                = "Max"
-        time_window              = "PT1M"
-        time_aggregation         = "Maximum"
-        operator                 = "GreaterThan"
-        threshold                = 3000
-        divide_by_instance_count = true
-      }
-
-      scale_action {
-        direction = "Increase"
-        type      = "ChangeCount"
-        value     = "2"
-        cooldown  = "PT1M"
-      }
-    }
-
-    rule {
-      metric_trigger {
-        metric_name              = "CpuPercentage"
-        metric_resource_id       = module.cqrs_func.function_app.plan.id
-        metric_namespace         = "microsoft.web/serverfarms"
-        time_grain               = "PT1M"
-        statistic                = "Max"
-        time_window              = "PT1M"
-        time_aggregation         = "Maximum"
-        operator                 = "GreaterThan"
-        threshold                = 40
-        divide_by_instance_count = false
-      }
-
-      scale_action {
-        direction = "Increase"
-        type      = "ChangeCount"
-        value     = "3"
-        cooldown  = "PT2M"
-      }
-    }
-
-    rule {
-      metric_trigger {
-        metric_name              = "Requests"
-        metric_resource_id       = module.cqrs_func.function_app.plan.id
-        metric_namespace         = "microsoft.web/sites"
-        time_grain               = "PT1M"
-        statistic                = "Average"
-        time_window              = "PT5M"
-        time_aggregation         = "Average"
-        operator                 = "LessThan"
-        threshold                = 300
-        divide_by_instance_count = true
-      }
-
-      scale_action {
-        direction = "Decrease"
-        type      = "ChangeCount"
-        value     = "1"
-        cooldown  = "PT1M"
-      }
-    }
-
-    rule {
-      metric_trigger {
-        metric_name              = "CpuPercentage"
-        metric_resource_id       = module.cqrs_func.function_app.plan.id
-        metric_namespace         = "microsoft.web/serverfarms"
-        time_grain               = "PT1M"
-        statistic                = "Average"
-        time_window              = "PT5M"
-        time_aggregation         = "Average"
-        operator                 = "LessThan"
-        threshold                = 15
-        divide_by_instance_count = false
-      }
-
-      scale_action {
-        direction = "Decrease"
-        type      = "ChangeCount"
-        value     = "1"
-        cooldown  = "PT1M"
-      }
+  target_service = {
+    function_app = {
+      name = module.cqrs_func.function_app.function_app.name
     }
   }
+
+  scale_metrics = {
+    cpu: {
+      time_aggregation_increase = "Maximum"
+      time_aggregation_decrease = "Average"
+      increase_by               = 3
+      cooldown_increase         = 2
+      decrease_by               = 1
+      cooldown_decrease         = 1
+      upper_threshold           = 40
+      lower_treshold            = 15
+    },
+    requests: {
+      time_aggregation_increase = "Maximum"
+      time_aggregation_decrease = "Average"
+      increase_by               = 3
+      cooldown_increase         = 1
+      decrease_by               = 1
+      cooldown_decrease         = 1
+      upper_threshold           = 3000
+      lower_treshold            = 300
+    }
+  }
+
+  scheduler = {
+    normal_load = {
+      default = 3,
+      minimum = 2,
+
+    },
+    maximum = 30,
+  }
+
+  tags = var.tags
 }
