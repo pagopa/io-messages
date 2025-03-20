@@ -52,30 +52,6 @@ data "azurerm_key_vault_secret" "azure_nh_partition4_endpoint" {
   key_vault_id = data.azurerm_key_vault.common.id
 }
 
-# # Virtual network
-# data "azurerm_virtual_network" "vnet_common" {
-#   name                = local.vnet_common_name
-#   resource_group_name = local.vnet_common_resource_group_name
-# }
-
-##Subnet
-
-# data "azurerm_subnet" "push_notifications_func_subnet" {
-#   name                 = "io-p-messages-weu-prod01-push-notif-snet"
-#   virtual_network_name = data.azurerm_virtual_network.vnet_common.name
-#   resource_group_name  = data.azurerm_virtual_network.vnet_common.resource_group_name
-# }
-
-# data "azurerm_subnet" "private_endpoints_subnet" {
-#   name                 = "pendpoints"
-#   virtual_network_name = local.vnet_common_name
-#   resource_group_name  = local.vnet_common_resource_group_name
-# }
-# data "azurerm_subnet" "azdoa_snet" {
-#   name                 = "azure-devops"
-#   virtual_network_name = local.vnet_common_name
-#   resource_group_name  = local.vnet_common_resource_group_name
-# }
 
 ## Application insights
 data "azurerm_application_insights" "application_insights" {
@@ -86,22 +62,6 @@ data "azurerm_monitor_action_group" "io_com_action_group" {
   name                = "io-p-com-error-ag-01"
   resource_group_name = "io-p-itn-com-rg-01"
 }
-
-## Private dns zone
-# data "azurerm_private_dns_zone" "privatelink_blob_core_windows_net" {
-#   name                = "privatelink.blob.core.windows.net"
-#   resource_group_name = format("%s-rg-common", local.product)
-# }
-
-# data "azurerm_private_dns_zone" "privatelink_queue_core_windows_net" {
-#   name                = "privatelink.queue.core.windows.net"
-#   resource_group_name = format("%s-rg-common", local.product)
-# }
-
-# data "azurerm_private_dns_zone" "privatelink_table_core_windows_net" {
-#   name                = "privatelink.table.core.windows.net"
-#   resource_group_name = format("%s-rg-common", local.product)
-# }
 
 locals {
 
@@ -223,30 +183,6 @@ locals {
   }
 }
 
-# Subnet to host push notif function
-# module "push_notif_snet" {
-#   source                                    = "github.com/pagopa/terraform-azurerm-v3//subnet?ref=v8.27.0"
-#   name                                      = format("%s-push-notif-snet", local.project)
-#   address_prefixes                          = local.cidr_subnet_push_notif
-#   resource_group_name                       = data.azurerm_virtual_network.vnet_common.resource_group_name
-#   virtual_network_name                      = data.azurerm_virtual_network.vnet_common.name
-#   private_endpoint_network_policies_enabled = false
-
-#   service_endpoints = [
-#     "Microsoft.Web",
-#     "Microsoft.AzureCosmosDB",
-#     "Microsoft.Storage",
-#   ]
-
-#   delegation = {
-#     name = "default"
-#     service_delegation = {
-#       name    = "Microsoft.Web/serverFarms"
-#       actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
-#     }
-#   }
-# }
-
 #tfsec:ignore:azure-storage-queue-services-logging-enabled:exp:2022-05-01 # already ignored, maybe a bug in tfsec
 module "push_notif_function" {
 
@@ -294,75 +230,6 @@ module "push_notif_function" {
   )
 
   action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id
-
-  # name                = format("%s-push-notif-fn", local.product)
-  # domain              = upper(local.domain)
-  # location            = local.location
-  #
-
-  # health_check_maxpingfailures = 2
-
-  # runtime_version                          = "~4"
-  # node_version                             = "18"
-  # always_on                                = local.push_notif_function_always_on
-  # application_insights_instrumentation_key = data.azurerm_application_insights.application_insights.instrumentation_key
-
-  # app_service_plan_info = {
-  #   kind                         = local.push_notif_function_kind
-  #   sku_tier                     = local.push_notif_function_sku_tier
-  #   sku_size                     = local.push_notif_function_sku_size
-  #   maximum_elastic_worker_count = 0
-  #   worker_count                 = null
-  #   zone_balancing_enabled       = false
-  # }
-
-  # internal_storage = {
-  #   "enable"                     = true,
-  #   "private_endpoint_subnet_id" = data.azurerm_subnet.private_endpoints_subnet.id,
-  #   "private_dns_zone_blob_ids"  = [data.azurerm_private_dns_zone.privatelink_blob_core_windows_net.id],
-  #   "private_dns_zone_queue_ids" = [data.azurerm_private_dns_zone.privatelink_queue_core_windows_net.id],
-  #   "private_dns_zone_table_ids" = [data.azurerm_private_dns_zone.privatelink_table_core_windows_net.id],
-  #   "queues"                     = [],
-  #   "containers"                 = [],
-  #   "blobs_retention_days"       = 1,
-  # }
-
-  # storage_account_info = {
-  #   account_tier                      = "Standard"
-  #   account_replication_type          = "ZRS"
-  #   public_network_access_enabled     = true
-  #   access_tier                       = "Hot"
-  #   account_kind                      = "StorageV2"
-  #   advanced_threat_protection_enable = true
-  #   use_legacy_defender_version       = true
-  # }
-
-  # internal_storage_account_info = {
-  #   account_tier                      = "Standard"
-  #   account_replication_type          = "ZRS"
-  #   public_network_access_enabled     = true
-  #   access_tier                       = "Hot"
-  #   account_kind                      = "StorageV2"
-  #   advanced_threat_protection_enable = false
-  #   use_legacy_defender_version       = true
-  # }
-
-  # allowed_subnets = [
-  #   module.push_notif_snet.id
-  # ]
-
-  # allowed_ips = concat(
-  #   [],
-  # )
-
-  # Action groups for alerts
-  # action = [
-  #   {
-  #     action_group_id    = data.azurerm_monitor_action_group.io_com_action_group.id
-  #     webhook_properties = {}
-  #   }
-  # ]
-
 
 }
 
@@ -412,7 +279,7 @@ module "push_notif_function" {
 
 resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
   count               = local.push_notif_enabled ? 1 : 0
-  name                = "${replace(module.push_notif_function[0].function_app.function_app.name, "fn", "as")}-01"
+  name                = replace(module.push_notif_function[0].function_app.function_app.name, "func", "as")
   resource_group_name = var.resource_group_name
   location            = local.location
   target_resource_id  = module.push_notif_function[0].function_app.plan.id
