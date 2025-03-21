@@ -18,6 +18,7 @@ override.tf.json
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+.env.local
 
 # azure
 local.settings.json

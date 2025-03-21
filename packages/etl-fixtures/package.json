@@ -1,0 +1,48 @@
+{
+  "name": "etl-fixtures",
+  "license": "UNLICENSED",
+  "main": "dist/index.js",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    "./*": "./dist/*.js"
+  },
+  "bin": {
+    "fixtures:load": "./dist/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@pagopa/eslint-config": "^4.0.1",
+    "@types/node": "^20.17.12",
+    "eslint": "8.57.1",
+    "prettier": "^3.2.5",
+    "typescript": "5.4.3"
+  },
+  "dependencies": {
+    "@azure/cosmos": "^4.0.0",
+    "@azure/identity": "^4.5.0",
+    "@azure/storage-blob": "^12.26.0",
+    "commander": "^13.1.0",
+    "io-messages-common": "workspace:^",
+    "pino": "^9.6.0",
+    "ulid": "^2.3.0",
+    "zod": "^3.24.1"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint --fix src",
+    "lint:check": "eslint src",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "test:coverage": "vitest run --coverage"
+  }
+}
