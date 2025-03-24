@@ -10,4 +10,4 @@ yarn fixtures:load
 
 In order to be able to load fixtures you need a file named `.env.local` in the
 root of this repo where to put your environment variables, you can find an
-example in the `.env.local.example` file.
+example in the `.env.local`.
