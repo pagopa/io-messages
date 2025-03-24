@@ -6,6 +6,7 @@ import { eventhubConfigSchema } from "./eventhub/config.js";
 import { redisConfigSchema } from "./redis/config.js";
 import { tableStorageConfigSchema } from "./table-storage/config.js";
 import { pdvConfigSchema } from "./tokenizer/config.js";
+import { storageAccountConfigSchema } from "./blob-storage/config.js";
 
 export const common = z.object({
   appInsights: applicationInsightsSchema,
@@ -20,10 +21,6 @@ export const common = z.object({
     eventsCollectorDatabaseName: z.string().min(1),
     messageIngestionSummaryContainerName: z.string().min(1),
   }),
-  messageContentStorage: z.object({
-    accountUri: z.string().url(),
-    containerName: z.string().min(1),
-  }),
   messageIngestionErrorTable: tableStorageConfigSchema,
   messageStatusErrorTable: tableStorageConfigSchema,
   messagesRedis: redisConfigSchema,
@@ -36,10 +33,12 @@ export const configSchema = common.and(
       environment: z.literal("production"),
       messageStatusEventHub: eventhubConfigSchema,
       messagesEventHub: eventhubConfigSchema,
+      messageContentStorage: storageAccountConfigSchema,
     }),
     z.object({
       environment: z.literal("development"),
       messagesEventHub: eventhubConfigSchema,
+      messageContentStorage: storageAccountConfigSchema,
     }),
   ]),
 );
@@ -57,6 +56,18 @@ const mapEnvironmentVariablesToConfig = (env: Env) => {
       : {
           authStrategy: "ConnectionString",
           connectionString: env.EVENTHUB_CONNECTION_STRING,
+        };
+  const messageContentStorage =
+    env.NODE_ENV === "production"
+      ? {
+          authStrategy: "Identity",
+          accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
+          containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
+        }
+      : {
+          authStrategy: "ConnectionString",
+          connectionString: env.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+          containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
         };
   return {
     appInsights: {
@@ -76,10 +87,7 @@ const mapEnvironmentVariablesToConfig = (env: Env) => {
       messageIngestionSummaryContainerName:
         env.IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME,
     },
-    messageContentStorage: {
-      accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
-      containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
-    },
+    messageContentStorage,
     messageIngestionErrorTable: {
       connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
       tableName: env.MESSAGE_ERROR_TABLE_STORAGE_NAME,

@@ -41,6 +41,7 @@ export const envSchema = common.and(
     }),
     z.object({
       EVENTHUB_CONNECTION_STRING: z.string(),
+      MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: z.string().min(1),
       NODE_ENV: z.literal("development"),
     }),
   ]),
