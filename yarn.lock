@@ -6638,6 +6638,7 @@ __metadata:
     prettier: "npm:^3.2.5"
     typescript: "npm:5.4.3"
     ulid: "npm:^2.3.0"
+    vitest: "npm:^2.1.8"
     zod: "npm:^3.24.1"
   bin:
     "fixtures:load": ./dist/index.js
