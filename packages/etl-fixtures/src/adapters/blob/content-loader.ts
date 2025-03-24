@@ -24,7 +24,8 @@ export class BlobContentLoader implements ContentLoader {
     return Array.from({ length: count }, () => ({
       subject: "Lorem ipsum",
       require_secure_channels: false,
-      markdown: "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+      markdown:
+        "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.",
       third_party_data: opts.includeRemoteContents
         ? {
             id: ulid(),
