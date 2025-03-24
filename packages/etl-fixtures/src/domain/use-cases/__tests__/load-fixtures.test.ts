@@ -1,7 +1,6 @@
 import { ContentLoader } from "@/adapters/blob/content-loader.js";
 import { MetadataLoader } from "@/adapters/cosmos/metadata-loader.js";
-import { pino } from "pino";
-import { describe, it, expect, vi } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import { LoadFixturesUseCase } from "../load-fixtures.js";
 import { Logger } from "io-messages-common/types/log";
 
@@ -42,7 +41,7 @@ const loadFixturesUseCase = new LoadFixturesUseCase(
 );
 
 describe("LoadFixturesUseCase.execute", () => {
-  it("should generate and load fixtures successfully", async () => {
+  test("should generate and load fixtures successfully", async () => {
     const count = 2;
     const opts = { includeRemoteContents: true, includePayments: true };
 
@@ -66,7 +65,7 @@ describe("LoadFixturesUseCase.execute", () => {
     );
   });
 
-  it("should log an error if something goes wrong loading metadatas", async () => {
+  test("should log an error if something goes wrong loading metadatas", async () => {
     const count = 2;
     const opts = { includeRemoteContents: true, includePayments: true };
     const error = new Error("Test error");
@@ -77,7 +76,7 @@ describe("LoadFixturesUseCase.execute", () => {
     expect(logger.error).toHaveBeenCalledWith(`Something went wrong: ${error}`);
   });
 
-  it("should log an error if something goes wrong loading content", async () => {
+  test("should log an error if something goes wrong loading content", async () => {
     const count = 2;
     const opts = { includeRemoteContents: true, includePayments: true };
     const error = new Error("Test error");
