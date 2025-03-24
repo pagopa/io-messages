@@ -6,11 +6,13 @@ import { BlobContentLoader } from "./adapters/blob/content-loader.js";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { pino } from "pino";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
-import { Config, configSchema } from "./adapters/config.js";
+import { Config, configSchema, validateArguments } from "./adapters/config.js";
 
 const azureCredentials = new DefaultAzureCredential();
 
 const main = async (config: Config) => {
+  const { fixturesNumber } = validateArguments(process.argv);
+
   const messageContainerClient = new CosmosClient({
     aadCredentials: azureCredentials,
     endpoint: config.COSMOS_URI,
@@ -39,7 +41,7 @@ const main = async (config: Config) => {
     pino(),
   );
 
-  await loadFixturesUseCase.execute(3, {
+  await loadFixturesUseCase.execute(fixturesNumber, {
     includeRemoteContents: config.INCLUDE_REMOTE_CONTENT,
     includePayments: config.INCLUDE_PAYMENTS,
   });

@@ -68,3 +68,13 @@ Expected output:
 ```bash
 it works!
 ```
+
+### Insert fixtures
+
+To insert fixtures simply run:
+
+```bash
+yarn fixtures:load <N>
+```
+
+Where N is the number of messages that you want to load.
