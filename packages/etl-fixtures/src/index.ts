@@ -18,10 +18,17 @@ const main = async (config: Config) => {
     .database(config.COSMOS_DATABASE_NAME)
     .container(config.COSMOS_MESSAGE_CONTAINER_NAME);
 
-  const contentContainerClient = new BlobServiceClient(
-    config.COMMON_STORAGE_ACCOUNT_URI,
-    azureCredentials,
-  ).getContainerClient(config.COMMON_STORAGE_ACCOUNT_MESSAGE_CONTAINER_NAME);
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    config.COMMON_STORAGE_ACCOUNT_CONN_STRING,
+  );
+
+  await blobServiceClient
+    .getContainerClient(config.COMMON_STORAGE_ACCOUNT_MESSAGE_CONTAINER_NAME)
+    .createIfNotExists();
+
+  const contentContainerClient = blobServiceClient.getContainerClient(
+    config.COMMON_STORAGE_ACCOUNT_MESSAGE_CONTAINER_NAME,
+  );
 
   const metadataLoader = new CosmosMetadataLoader(messageContainerClient);
   const contentLoader = new BlobContentLoader(contentContainerClient);
