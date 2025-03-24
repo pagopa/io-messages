@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 import { applicationInsightsSchema } from "./appinsights/config.js";
+import { storageAccountConfigSchema } from "./blob-storage/config.js";
 import { Env, envSchema } from "./env.js";
 import { eventhubConfigSchema } from "./eventhub/config.js";
 import { redisConfigSchema } from "./redis/config.js";
 import { tableStorageConfigSchema } from "./table-storage/config.js";
 import { pdvConfigSchema } from "./tokenizer/config.js";
-import { storageAccountConfigSchema } from "./blob-storage/config.js";
 
 export const common = z.object({
   appInsights: applicationInsightsSchema,
@@ -31,14 +31,14 @@ export const configSchema = common.and(
   z.discriminatedUnion("environment", [
     z.object({
       environment: z.literal("production"),
+      messageContentStorage: storageAccountConfigSchema,
       messageStatusEventHub: eventhubConfigSchema,
       messagesEventHub: eventhubConfigSchema,
-      messageContentStorage: storageAccountConfigSchema,
     }),
     z.object({
       environment: z.literal("development"),
-      messagesEventHub: eventhubConfigSchema,
       messageContentStorage: storageAccountConfigSchema,
+      messagesEventHub: eventhubConfigSchema,
     }),
   ]),
 );
@@ -60,8 +60,8 @@ const mapEnvironmentVariablesToConfig = (env: Env) => {
   const messageContentStorage =
     env.NODE_ENV === "production"
       ? {
-          authStrategy: "Identity",
           accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
+          authStrategy: "Identity",
           containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
         }
       : {

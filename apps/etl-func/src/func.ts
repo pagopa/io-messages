@@ -11,6 +11,7 @@ import {
   initNoSamplingClient,
 } from "./adapters/appinsights/appinsights.js";
 import { messageSchema } from "./adapters/avro.js";
+import { makeStorageAccountService } from "./adapters/blob-storage/index.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
 import { CosmosIngestionCollector } from "./adapters/cosmos/event-collector.js";
@@ -22,7 +23,6 @@ import RedisRecipientRepository from "./adapters/redis/recipient.js";
 import { EventErrorTableStorage } from "./adapters/table-storage/event-error-table-storage.js";
 import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
 import { IngestMessageUseCase } from "./domain/use-cases/ingest-message.js";
-import { makeStorageAccountService } from "./adapters/blob-storage/index.js";
 
 const main = async (config: Config) => {
   const logger = pino({

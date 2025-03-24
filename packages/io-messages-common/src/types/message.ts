@@ -1,5 +1,6 @@
 import { fiscalCodeSchema } from "@/domain/fiscal-code.js";
 import { z } from "zod";
+
 import { timestampSchema } from "./date.js";
 
 export const hasPreconditionSchema = z

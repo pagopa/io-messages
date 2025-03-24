@@ -1,6 +1,7 @@
-import { BlobServiceClient } from "@azure/storage-blob";
-import { StorageAccountConfig } from "./config.js";
 import { DefaultAzureCredential } from "@azure/identity";
+import { BlobServiceClient } from "@azure/storage-blob";
+
+import { StorageAccountConfig } from "./config.js";
 
 export const makeStorageAccountService = (
   config: StorageAccountConfig,
