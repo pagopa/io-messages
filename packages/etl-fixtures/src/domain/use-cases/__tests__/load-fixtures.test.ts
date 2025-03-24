@@ -1,8 +1,9 @@
 import { ContentLoader } from "@/adapters/blob/content-loader.js";
 import { MetadataLoader } from "@/adapters/cosmos/metadata-loader.js";
-import { describe, test, expect, vi } from "vitest";
-import { LoadFixturesUseCase } from "../load-fixtures.js";
 import { Logger } from "io-messages-common/types/log";
+import { describe, expect, test, vi } from "vitest";
+
+import { LoadFixturesUseCase } from "../load-fixtures.js";
 
 const generateManyMetadataMock = vi
   .fn()
@@ -29,8 +30,8 @@ const errorMock = vi.fn();
 const logMock = vi.fn();
 
 const logger: Logger = {
-  info: infoMock,
   error: errorMock,
+  info: infoMock,
   log: logMock,
 };
 
@@ -43,7 +44,7 @@ const loadFixturesUseCase = new LoadFixturesUseCase(
 describe("LoadFixturesUseCase.execute", () => {
   test("should generate and load fixtures successfully", async () => {
     const count = 2;
-    const opts = { includeRemoteContents: true, includePayments: true };
+    const opts = { includePayments: true, includeRemoteContents: true };
 
     await loadFixturesUseCase.execute(count, opts);
 
@@ -67,7 +68,7 @@ describe("LoadFixturesUseCase.execute", () => {
 
   test("should log an error if something goes wrong loading metadatas", async () => {
     const count = 2;
-    const opts = { includeRemoteContents: true, includePayments: true };
+    const opts = { includePayments: true, includeRemoteContents: true };
     const error = new Error("Test error");
     loadMetadataMock.mockRejectedValueOnce(error);
 
@@ -78,7 +79,7 @@ describe("LoadFixturesUseCase.execute", () => {
 
   test("should log an error if something goes wrong loading content", async () => {
     const count = 2;
-    const opts = { includeRemoteContents: true, includePayments: true };
+    const opts = { includePayments: true, includeRemoteContents: true };
     const error = new Error("Test error");
     loadContentMock.mockRejectedValueOnce(error);
 

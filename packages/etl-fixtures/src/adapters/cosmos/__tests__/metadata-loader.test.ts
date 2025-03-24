@@ -1,8 +1,9 @@
-import { describe, test, expect, vi } from "vitest";
-import { CosmosMetadataLoader } from "../metadata-loader.js";
 import { Container } from "@azure/cosmos";
-import { MessageMetadata } from "io-messages-common/types/message";
 import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
+import { MessageMetadata } from "io-messages-common/types/message";
+import { describe, expect, test, vi } from "vitest";
+
+import { CosmosMetadataLoader } from "../metadata-loader.js";
 
 const createMock = vi.fn().mockResolvedValue({});
 
@@ -16,10 +17,10 @@ const fiscalCodeMock = fiscalCodeSchema.parse("LVTEST00A00A195X");
 
 const metadataMock: MessageMetadata[] = [
   {
-    id: "1",
     createdAt: new Date().toISOString(),
-    fiscalCode: fiscalCodeMock,
     featureLevelType: "STANDARD",
+    fiscalCode: fiscalCodeMock,
+    id: "1",
     indexedId: "1",
     isPending: false,
     senderServiceId: "1",
@@ -27,10 +28,10 @@ const metadataMock: MessageMetadata[] = [
     timeToLiveSeconds: 3600,
   },
   {
-    id: "2",
     createdAt: new Date().toISOString(),
-    fiscalCode: fiscalCodeMock,
     featureLevelType: "STANDARD",
+    fiscalCode: fiscalCodeMock,
+    id: "2",
     indexedId: "2",
     isPending: false,
     senderServiceId: "2",

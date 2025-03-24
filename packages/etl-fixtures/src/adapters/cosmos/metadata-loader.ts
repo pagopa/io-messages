@@ -1,12 +1,11 @@
 import { Container } from "@azure/cosmos";
-import { MessageMetadata } from "io-messages-common/types/message";
 import {
   FiscalCode,
   fiscalCodeSchema,
 } from "io-messages-common/domain/fiscal-code";
-
-import { z } from "zod";
+import { MessageMetadata } from "io-messages-common/types/message";
 import { ulid } from "ulid";
+import { z } from "zod";
 
 const TEST_FISCAL_CODES = z
   .array(fiscalCodeSchema)
@@ -19,9 +18,9 @@ const TEST_FISCAL_CODES = z
   ]);
 
 export interface MetadataLoader {
-  load: (metadata: MessageMetadata[]) => Promise<void>;
   generate: () => MessageMetadata;
   generateMany: (count: number) => MessageMetadata[];
+  load: (metadata: MessageMetadata[]) => Promise<void>;
 }
 
 export class CosmosMetadataLoader implements MetadataLoader {

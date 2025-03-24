@@ -2,15 +2,15 @@ import { ContentLoader } from "@/adapters/blob/content-loader.js";
 import { MetadataLoader } from "@/adapters/cosmos/metadata-loader.js";
 import { Logger } from "io-messages-common/types/log";
 
-type LoadFixturesOptions = {
-  includeRemoteContents: boolean;
+interface LoadFixturesOptions {
   includePayments: boolean;
-};
+  includeRemoteContents: boolean;
+}
 
 export class LoadFixturesUseCase {
-  metadataLoader: MetadataLoader;
   contentLoader: ContentLoader;
   logger: Logger;
+  metadataLoader: MetadataLoader;
 
   constructor(
     metadataLoader: MetadataLoader,
@@ -30,8 +30,8 @@ export class LoadFixturesUseCase {
       `Generating ${count} contents including remote contents: ${opts.includeRemoteContents} and payments: ${opts.includePayments}`,
     );
     const contents = this.contentLoader.generateMany(count, {
-      includeRemoteContents: opts.includeRemoteContents,
       includePayments: opts.includePayments,
+      includeRemoteContents: opts.includeRemoteContents,
     });
 
     const contentsWithIds = contents.map((content, i) => ({

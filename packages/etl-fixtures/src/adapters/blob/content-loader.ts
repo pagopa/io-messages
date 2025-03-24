@@ -2,16 +2,16 @@ import { ContainerClient } from "@azure/storage-blob";
 import { MessageContent } from "io-messages-common/types/message";
 import { ulid } from "ulid";
 
-type MessageContentWithIds = MessageContent & { messageId: string };
+type MessageContentWithIds = { messageId: string } & MessageContent;
 
-type GenerateManyOpts = {
-  includeRemoteContents: boolean;
+interface GenerateManyOpts {
   includePayments: boolean;
-};
+  includeRemoteContents: boolean;
+}
 
 export interface ContentLoader {
-  load: (messageContents: MessageContentWithIds[]) => Promise<void>;
   generateMany: (count: number, opts: GenerateManyOpts) => MessageContent[];
+  load: (messageContents: MessageContentWithIds[]) => Promise<void>;
 }
 
 export class BlobContentLoader implements ContentLoader {
@@ -22,27 +22,27 @@ export class BlobContentLoader implements ContentLoader {
 
   generateMany(count: number, opts: GenerateManyOpts): MessageContent[] {
     return Array.from({ length: count }, () => ({
-      subject: "Lorem ipsum",
-      require_secure_channels: false,
+      due_date: new Date().toISOString(),
       markdown:
         "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.",
-      third_party_data: opts.includeRemoteContents
-        ? {
-            id: ulid(),
-            has_attachments: true,
-            configuration_id: "00000000000000000000000000",
-            has_remote_content: false,
-          }
-        : undefined,
       payment_data: opts.includePayments
         ? {
             amount: 20000,
-            notice_number: "396600003529000000",
             invalid_after_due_date: false,
+            notice_number: "396600003529000000",
             payee: { fiscal_code: "00000000001" },
           }
         : undefined,
-      due_date: new Date().toISOString(),
+      require_secure_channels: false,
+      subject: "Lorem ipsum",
+      third_party_data: opts.includeRemoteContents
+        ? {
+            configuration_id: "00000000000000000000000000",
+            has_attachments: true,
+            has_remote_content: false,
+            id: ulid(),
+          }
+        : undefined,
     }));
   }
 

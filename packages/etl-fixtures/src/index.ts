@@ -1,12 +1,13 @@
 import { CosmosClient } from "@azure/cosmos";
+import { DefaultAzureCredential } from "@azure/identity";
+import { BlobServiceClient } from "@azure/storage-blob";
+import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
+import { pino } from "pino";
+
+import { BlobContentLoader } from "./adapters/blob/content-loader.js";
+import { Config, configSchema, validateArguments } from "./adapters/config.js";
 import { CosmosMetadataLoader } from "./adapters/cosmos/metadata-loader.js";
 import { LoadFixturesUseCase } from "./domain/use-cases/load-fixtures.js";
-import { DefaultAzureCredential } from "@azure/identity";
-import { BlobContentLoader } from "./adapters/blob/content-loader.js";
-import { BlobServiceClient } from "@azure/storage-blob";
-import { pino } from "pino";
-import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
-import { Config, configSchema, validateArguments } from "./adapters/config.js";
 
 const azureCredentials = new DefaultAzureCredential();
 
@@ -42,8 +43,8 @@ const main = async (config: Config) => {
   );
 
   await loadFixturesUseCase.execute(fixturesNumber, {
-    includeRemoteContents: config.INCLUDE_REMOTE_CONTENT,
     includePayments: config.INCLUDE_PAYMENTS,
+    includeRemoteContents: config.INCLUDE_REMOTE_CONTENT,
   });
 };
 
