@@ -2,7 +2,6 @@ import { CosmosClient } from "@azure/cosmos";
 import { TableClient } from "@azure/data-tables";
 import { app } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
-import { BlobServiceClient } from "@azure/storage-blob";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
 import { createClient } from "redis";
@@ -23,6 +22,7 @@ import RedisRecipientRepository from "./adapters/redis/recipient.js";
 import { EventErrorTableStorage } from "./adapters/table-storage/event-error-table-storage.js";
 import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
 import { IngestMessageUseCase } from "./domain/use-cases/ingest-message.js";
+import { makeStorageAccountService } from "./adapters/blob-storage/index.js";
 
 const main = async (config: Config) => {
   const logger = pino({
@@ -34,8 +34,8 @@ const main = async (config: Config) => {
   const telemetryClient = initNoSamplingClient(config.appInsights);
   const telemetryService = new TelemetryEventService(telemetryClient);
 
-  const blobServiceCLient = new BlobServiceClient(
-    config.messageContentStorage.accountUri,
+  const blobServiceCLient = makeStorageAccountService(
+    config.messageContentStorage,
     azureCredentials,
   );
 
