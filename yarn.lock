@@ -6631,6 +6631,7 @@ __metadata:
     "@azure/storage-blob": "npm:^12.26.0"
     "@pagopa/eslint-config": "npm:^4.0.1"
     "@types/node": "npm:^20.17.12"
+    "@vitest/coverage-v8": "npm:^2.1.8"
     commander: "npm:^13.1.0"
     eslint: "npm:8.57.1"
     io-messages-common: "workspace:^"

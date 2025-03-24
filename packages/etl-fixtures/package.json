@@ -20,6 +20,7 @@
   "devDependencies": {
     "@pagopa/eslint-config": "^4.0.1",
     "@types/node": "^20.17.12",
+    "@vitest/coverage-v8": "^2.1.8",
     "eslint": "8.57.1",
     "prettier": "^3.2.5",
     "typescript": "5.4.3"
