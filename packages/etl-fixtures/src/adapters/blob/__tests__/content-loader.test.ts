@@ -11,7 +11,7 @@ const messageContainerClientMock = {
 
 const contentLoader = new BlobContentLoader(messageContainerClientMock);
 
-describe("ContentLoader", () => {
+describe("BlobContentLoader.generateMany", () => {
   test("should generate the correct number of message contents without remote content or payment_data", () => {
     const count = 2;
     const opts = { includeRemoteContents: false, includePayments: false };
@@ -58,5 +58,43 @@ describe("ContentLoader", () => {
       });
       expect(content.third_party_data).not.toBeDefined();
     });
+  });
+});
+
+describe("BlobContentLoader.load", () => {
+  test("should upload message contents to blob storage", async () => {
+    const messageContents = [
+      {
+        messageId: "1",
+        content: "content1",
+        subject: "subject1",
+        markdown: "markdown1",
+        require_secure_channels: false,
+      },
+      {
+        messageId: "2",
+        content: "content2",
+        subject: "subject2",
+        markdown: "markdown2",
+        require_secure_channels: false,
+      },
+    ];
+
+    await contentLoader.load(messageContents);
+
+    expect(getBlockBlobClientMock).toHaveBeenCalledTimes(2);
+    expect(getBlockBlobClientMock).toHaveBeenCalledWith("1.json");
+    expect(getBlockBlobClientMock).toHaveBeenCalledWith("2.json");
+
+    const blockBlobClient = getBlockBlobClientMock("1.json");
+
+    expect(blockBlobClient.upload).toHaveBeenCalledWith(
+      JSON.stringify(messageContents[0]),
+      JSON.stringify(messageContents[0]).length,
+    );
+    expect(blockBlobClient.upload).toHaveBeenCalledWith(
+      JSON.stringify(messageContents[1]),
+      JSON.stringify(messageContents[1]).length,
+    );
   });
 });
