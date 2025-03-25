@@ -65,12 +65,8 @@ data "azurerm_monitor_action_group" "io_com_action_group" {
 
 locals {
 
-  # location                      = "westeurope"
-  # domain                        = "messages"
-  product = "io-p"
-  # project                       = "io-p-messages-weu-prod01"
+  product            = "io-p"
   push_notif_enabled = true
-  # push_notif_function_always_on = true
 
   ## Notification Hub
   nh_resource_group_name = "io-p-rg-common"
@@ -78,30 +74,9 @@ locals {
   nh_namespace_prefix    = "io-p-ntfns"
   nh_partition_count     = 4
 
-  ## Virtual net / subnet
-  # vnet_common_name                = "${local.product}-vnet-common"
-  # vnet_common_resource_group_name = "${local.product}-rg-common"
-  # cidr_subnet_push_notif          = ["10.0.141.0/26"]
-
-
   ## Appliction insights
   application_insights_name   = "io-p-ai-common"
   monitor_resource_group_name = "io-p-rg-common"
-
-  ## Push notification app
-  # push_notif_function_kind     = "Linux"
-  # push_notif_function_sku_tier = "PremiumV3"
-  # push_notif_function_sku_size = "P1v3"
-
-  ## Tags
-  # tags = {
-  #   CreatedBy      = "Terraform"
-  #   Environment    = "Prod"
-  #   BusinessUnit   = "App IO"
-  #   Source         = "https://github.com/pagopa/io-infra/blob/main/src/domains/messages-app"
-  #   ManagementTeam = "IO Comunicazione"
-  #   CostCenter     = "TS000 - Tecnologia e Servizi"
-  # }
 
   test_users_internal_load = [
     "AAAAAA00A00A000C",
