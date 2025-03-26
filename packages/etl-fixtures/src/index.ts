@@ -9,36 +9,54 @@ import { Config, configSchema, validateArguments } from "./adapters/config.js";
 import { CosmosMetadataLoader } from "./adapters/cosmos/metadata-loader.js";
 import { LoadFixturesUseCase } from "./domain/use-cases/load-fixtures.js";
 import { TableServiceClient } from "@azure/data-tables";
+import { readFileSync, existsSync } from "fs";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const etlFunctionPath = resolve(
+  __dirname,
+  "../../../apps/etl-func/local.settings.json",
+);
 
 const azureCredentials = new DefaultAzureCredential();
+
+if (existsSync(etlFunctionPath)) {
+  const settings = JSON.parse(readFileSync(etlFunctionPath, "utf8")).Values;
+  Object.keys(settings).forEach((key) => {
+    process.env[key] = settings[key];
+  });
+} else {
+  throw new Error("ETL function not found");
+}
 
 const main = async (config: Config) => {
   const { fixturesNumber } = validateArguments(process.argv);
 
   const messageContainerClient = new CosmosClient({
     aadCredentials: azureCredentials,
-    endpoint: config.COSMOS_URI,
+    endpoint: config.COMMON_COSMOS__accountEndpoint,
   })
-    .database(config.COSMOS_DATABASE_NAME)
-    .container(config.COSMOS_MESSAGE_CONTAINER_NAME);
+    .database(config.COMMON_COSMOS_DBNAME)
+    .container(config.COMMON_COSMOS_MESSAGES_CONTAINER_NAME);
 
   const blobServiceClient = BlobServiceClient.fromConnectionString(
-    config.COMMON_STORAGE_ACCOUNT_CONN_STRING,
+    config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
   );
 
   await blobServiceClient
-    .getContainerClient(config.COMMON_STORAGE_ACCOUNT_MESSAGE_CONTAINER_NAME)
+    .getContainerClient(config.MESSAGE_CONTENT_CONTAINER_NAME)
     .createIfNotExists();
 
   const tableServiceClient = TableServiceClient.fromConnectionString(
-    config.COMMON_STORAGE_ACCOUNT_CONN_STRING,
+    config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
     { allowInsecureConnection: true },
   );
 
   await tableServiceClient.createTable(config.MESSAGE_ERROR_TABLE_STORAGE_NAME);
 
   const contentContainerClient = blobServiceClient.getContainerClient(
-    config.COMMON_STORAGE_ACCOUNT_MESSAGE_CONTAINER_NAME,
+    config.MESSAGE_CONTENT_CONTAINER_NAME,
   );
 
   const metadataLoader = new CosmosMetadataLoader(messageContainerClient);
@@ -51,8 +69,8 @@ const main = async (config: Config) => {
   );
 
   await loadFixturesUseCase.execute(fixturesNumber, {
-    includePayments: config.INCLUDE_PAYMENTS,
-    includeRemoteContents: config.INCLUDE_REMOTE_CONTENT,
+    includePayments: config.FIXTURES_INCLUDE_PAYMENTS,
+    includeRemoteContents: config.FIXTURES_INCLUDE_REMOTE_CONTENT,
   });
 };
 
