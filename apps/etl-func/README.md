@@ -7,13 +7,13 @@
 You can use the `local.settings.json.example` file:
 
 ```bash
-cp local.settings.json.example ./.local.settings.json
+cp local.settings.json.example local.settings.json
 ```
 
 ### Add your test environment variables
 
 ```bash
-cp local.settings.json.example .local.settings.json
+cp local.settings.json.example local.settings.json
 ```
 
 ### Start redis container [OPTIONAL]
