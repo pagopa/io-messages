@@ -6627,6 +6627,7 @@ __metadata:
   resolution: "etl-fixtures@workspace:packages/etl-fixtures"
   dependencies:
     "@azure/cosmos": "npm:^4.0.0"
+    "@azure/data-tables": "npm:^13.3.0"
     "@azure/identity": "npm:^4.5.0"
     "@azure/storage-blob": "npm:^12.26.0"
     "@pagopa/eslint-config": "npm:^4.0.1"

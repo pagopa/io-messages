@@ -8,6 +8,7 @@ import { BlobContentLoader } from "./adapters/blob/content-loader.js";
 import { Config, configSchema, validateArguments } from "./adapters/config.js";
 import { CosmosMetadataLoader } from "./adapters/cosmos/metadata-loader.js";
 import { LoadFixturesUseCase } from "./domain/use-cases/load-fixtures.js";
+import { TableServiceClient } from "@azure/data-tables";
 
 const azureCredentials = new DefaultAzureCredential();
 
@@ -28,6 +29,13 @@ const main = async (config: Config) => {
   await blobServiceClient
     .getContainerClient(config.COMMON_STORAGE_ACCOUNT_MESSAGE_CONTAINER_NAME)
     .createIfNotExists();
+
+  const tableServiceClient = TableServiceClient.fromConnectionString(
+    config.COMMON_STORAGE_ACCOUNT_CONN_STRING,
+    { allowInsecureConnection: true },
+  );
+
+  await tableServiceClient.createTable(config.MESSAGE_ERROR_TABLE_STORAGE_NAME);
 
   const contentContainerClient = blobServiceClient.getContainerClient(
     config.COMMON_STORAGE_ACCOUNT_MESSAGE_CONTAINER_NAME,

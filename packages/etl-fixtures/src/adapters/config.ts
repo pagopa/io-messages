@@ -11,6 +11,7 @@ export const configSchema = z.object({
   COMMON_STORAGE_ACCOUNT_MESSAGE_CONTAINER_NAME: z.string().min(1),
   COSMOS_DATABASE_NAME: z.string().min(1),
   COSMOS_MESSAGE_CONTAINER_NAME: z.string().min(1),
+  MESSAGE_ERROR_TABLE_STORAGE_NAME: z.string().min(1),
   COSMOS_URI: z.string().url(),
   INCLUDE_PAYMENTS: booleanFromStringSchema,
   INCLUDE_REMOTE_CONTENT: booleanFromStringSchema,
