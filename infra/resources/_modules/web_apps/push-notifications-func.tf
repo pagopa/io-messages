@@ -208,49 +208,6 @@ module "push_notif_function" {
 
 }
 
-# module "push_notif_function_staging_slot" {
-#   count  = local.push_notif_enabled ? 1 : 0
-#   source = "github.com/pagopa/terraform-azurerm-v3//function_app_slot?ref=v8.27.0"
-
-#   name                = "staging"
-#   location            = local.location
-#   resource_group_name = azurerm_resource_group.push_notif_rg.name
-#   function_app_id     = module.push_notif_function[0].id
-#   app_service_plan_id = module.push_notif_function[0].app_service_plan_id
-
-#   health_check_path            = "/api/v1/info"
-#   health_check_maxpingfailures = 2
-
-#   storage_account_name       = module.push_notif_function[0].storage_account.name
-#   storage_account_access_key = module.push_notif_function[0].storage_account.primary_access_key
-
-#   internal_storage_connection_string = module.push_notif_function[0].storage_account_internal_function.primary_connection_string
-
-#   runtime_version                          = "~4"
-#   node_version                             = "18"
-#   always_on                                = local.push_notif_function_always_on
-#   application_insights_instrumentation_key = data.azurerm_application_insights.application_insights.instrumentation_key
-
-#   app_settings = merge(
-#     local.function_push_notif.app_settings_common, {
-#       "AzureWebJobs.HandleNHNotificationCall.Disabled"               = "1",
-#       "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled" = "1"
-#     }
-#   )
-
-#   subnet_id = module.push_notif_snet.id
-
-#   allowed_subnets = [
-#     module.push_notif_snet.id,
-#     data.azurerm_subnet.azdoa_snet.id,
-#   ]
-
-#   allowed_ips = concat(
-#     [],
-#   )
-
-#   tags = local.tags
-# }
 
 resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
   count               = local.push_notif_enabled ? 1 : 0
