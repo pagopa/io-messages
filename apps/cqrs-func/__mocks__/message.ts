@@ -13,7 +13,6 @@ import {
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as E from "fp-ts/lib/Either";
-import { RetrievedMessageStatusWithFiscalCode } from "../utils/message_view";
 import {
   MessageModel,
   RetrievedMessageWithoutContent
@@ -21,6 +20,7 @@ import {
 import { MessageStatusModel } from "@pagopa/io-functions-commons/dist/src/models/message_status";
 import { CosmosErrors } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
 import { vi } from "vitest";
+import { RetrievedMessageStatusWithFiscalCode } from "../utils/message_status";
 
 export const now = new Date();
 

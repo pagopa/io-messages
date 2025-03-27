@@ -156,10 +156,6 @@ module "cqrs_func" {
       // disable listeners on production slot
       "AzureWebJobs.CosmosApiMessageStatusChangeFeedForView.Disabled"           = "0"
       "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled"       = "0"
-      "AzureWebJobs.HandleMessageViewUpdateFailures.Disabled"                   = "0"
-      "AzureWebJobs.UpdateCosmosMessageView.Disabled"                           = "0"
-      "AzureWebJobs.UpdatePaymentOnMessageView.Disabled"                        = "0"
-      "AzureWebJobs.HandlePaymentUpdateFailures.Disabled"                       = "0"
       "AzureWebJobs.CosmosApiMessagesChangeFeed.Disabled"                       = "0"
       "AzureWebJobs.HandleMessageChangeFeedPublishFailures.Disabled"            = "0"
       "AzureWebJobs.CosmosApiChangeFeedForMessageRetention.Disabled"            = "1"
@@ -171,10 +167,6 @@ module "cqrs_func" {
       // disable listeners on staging slot
       "AzureWebJobs.CosmosApiMessageStatusChangeFeedForView.Disabled"           = "1"
       "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled"       = "1"
-      "AzureWebJobs.HandleMessageViewUpdateFailures.Disabled"                   = "1"
-      "AzureWebJobs.UpdateCosmosMessageView.Disabled"                           = "1"
-      "AzureWebJobs.UpdatePaymentOnMessageView.Disabled"                        = "1"
-      "AzureWebJobs.HandlePaymentUpdateFailures.Disabled"                       = "1"
       "AzureWebJobs.CosmosApiMessagesChangeFeed.Disabled"                       = "1"
       "AzureWebJobs.HandleMessageChangeFeedPublishFailures.Disabled"            = "1"
       "AzureWebJobs.CosmosApiChangeFeedForMessageRetention.Disabled"            = "1"
