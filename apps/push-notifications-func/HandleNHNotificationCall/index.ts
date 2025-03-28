@@ -4,7 +4,6 @@ import { getHandler } from "./handler";
 
 const config = getConfigOrThrow();
 
-// Initialize application insights
 initTelemetryClient(config);
 
 export const index = getHandler(
