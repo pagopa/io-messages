@@ -26,7 +26,7 @@ module "web_apps" {
     notif_func   = "10.20.8.0/26"
     etl_func     = "10.20.8.0/26"
     citizen_func = "10.20.8.64/26"
-    cqrs_func    = "10.0.148.0/26"
+    cqrs_func    = "10.20.10.0/26"
   }
 
   nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
