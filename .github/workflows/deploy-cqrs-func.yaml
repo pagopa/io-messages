@@ -1,0 +1,15 @@
+name: Deploy (cqrs-func)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  citizen_func_deploy:
+    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@b51b47419e13a066df3915e130c8b3bf75874195
+    secrets: inherit
+    with:
+      workspace_name: cqrs-func
+      environment: app-prod
+      resource_group_name: io-p-itn-com-rg-01
+      function_app_name: io-p-itn-com-cqrs-func-01
+      use_staging_slot: true
