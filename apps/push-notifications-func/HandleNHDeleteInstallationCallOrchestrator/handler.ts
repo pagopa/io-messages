@@ -11,9 +11,6 @@ import { DeleteInstallationMessage } from "../generated/notifications/DeleteInst
 
 import { getCallableActivity as getDeleteInstallationCallableActivity } from "../HandleNHDeleteInstallationCallActivity";
 
-/**
- * Orchestrator Name
- */
 export const OrchestratorName = "HandleNHDeleteInstallationCallOrchestrator";
 
 /**
