@@ -1,7 +1,3 @@
-﻿/**
- * Delete Installation Activity implementation
- */
-
 import { RetryOptions } from "durable-functions";
 import { initTelemetryClient } from "../utils/appinsights";
 import { getConfigOrThrow } from "../utils/config";
