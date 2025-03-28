@@ -9,19 +9,16 @@ import { NotifyMessage } from "../generated/notifications/NotifyMessage";
 import { createOrchestrator } from "../utils/durable/orchestrators";
 import {
   getNotificationHubPartitionConfig,
-  NotificationHubConfig
+  NotificationHubConfig,
 } from "../utils/notificationhubServicePartition";
 
-/**
- * Orchestrator Name
- */
 export const OrchestratorName = "HandleNHNotifyMessageCallOrchestrator";
 
 /**
  * Carries information about Notification Hub Message payload
  */
 export const NhNotifyMessageOrchestratorCallInput = t.interface({
-  message: NotifyMessage
+  message: NotifyMessage,
 });
 
 export type NhNotifyMessageOrchestratorCallInput = t.TypeOf<
@@ -40,34 +37,33 @@ interface IHandlerParams {
 export const getHandler = ({
   notifyMessageActivity,
   legacyNotificationHubConfig,
-  notificationHubConfigPartitionChooser
+  notificationHubConfigPartitionChooser,
 }: IHandlerParams) =>
   createOrchestrator(
     OrchestratorName,
     NhNotifyMessageOrchestratorCallInput,
-    function*({
+    function* ({
       context,
       input: { message },
-      logger
+      logger,
     }): Generator<Task, void, Task> {
       const { installationId } = message;
 
       yield* notifyMessageActivity(context, {
         message,
-        notificationHubConfig: legacyNotificationHubConfig
+        notificationHubConfig: legacyNotificationHubConfig,
       });
 
-      const notificationHubConfigPartition = notificationHubConfigPartitionChooser(
-        installationId
-      );
+      const notificationHubConfigPartition =
+        notificationHubConfigPartitionChooser(installationId);
 
       logger.info(
-        `Pushing the message to user ${installationId} on Notification Hub ${notificationHubConfigPartition.AZURE_NH_HUB_NAME}`
+        `Pushing the message to user ${installationId} on Notification Hub ${notificationHubConfigPartition.AZURE_NH_HUB_NAME}`,
       );
 
       yield* notifyMessageActivity(context, {
         message,
-        notificationHubConfig: notificationHubConfigPartition
+        notificationHubConfig: notificationHubConfigPartition,
       });
-    }
+    },
   );

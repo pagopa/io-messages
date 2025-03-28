@@ -55,11 +55,6 @@ const nhCallOrchestratorInput = NhNotifyMessageOrchestratorCallInput.encode({
   message: aNotifyMessage,
 });
 
-// const retryOptions = {
-//   ...new df.RetryOptions(5000, envConfig.RETRY_ATTEMPT_NUMBER),
-//   backoffCoefficient: 1.5,
-// };
-
 const mockNotifyMessageActivitySuccess =
   getMockNotifyMessageInstallationActivity(success());
 

@@ -5,11 +5,9 @@ import { setAppContext } from "@pagopa/io-functions-commons/dist/src/utils/middl
 import createAzureFunctionHandler from "@pagopa/express-azure-functions/dist/src/createAzureFunctionsHandler";
 import { Info } from "./handler";
 
-// Setup Express
 const app = express();
 secureExpressApp(app);
 
-// Add express route
 app.get("/api/v1/info", Info());
 
 const azureFunctionHandler = createAzureFunctionHandler(app);
