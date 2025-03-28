@@ -57,7 +57,7 @@ const mockTelemetryClient = {
 
 const handler = createActivity(
   activityName,
-  ActivityInput, // FIXME: the editor marks it as type error, but tests compile correctly
+  ActivityInput,
   ActivityResultSuccess,
   getActivityBody(mockBuildNHClient, mockTelemetryClient),
 );
