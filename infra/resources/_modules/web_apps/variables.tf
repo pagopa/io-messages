@@ -88,6 +88,11 @@ variable "com_st_id" {
   type = string
 }
 
+variable "com_st_connectiostring" {
+  type = string
+}
+
+
 variable "cosmosdb_account_api" {
   type = object({
     id                  = string

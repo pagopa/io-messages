@@ -3,14 +3,14 @@ data "azurerm_resource_group" "notifications_rg" {
 }
 
 ## Storage account
-data "azurerm_storage_account" "push_notifications_storage" {
-  name                = "iopweumessagesnotifst"
-  resource_group_name = data.azurerm_resource_group.notifications_rg.name
-}
-data "azurerm_storage_account" "push_notif_beta_storage" {
-  name                = "iopweumessagesbetauserst"
-  resource_group_name = data.azurerm_resource_group.notifications_rg.name
-}
+# data "azurerm_storage_account" "push_notifications_storage" {
+#   name                = "iopweumessagesnotifst"
+#   resource_group_name = data.azurerm_resource_group.notifications_rg.name
+# }
+# data "azurerm_storage_account" "push_notif_beta_storage" {
+#   name                = "iopweumessagesbetauserst"
+#   resource_group_name = data.azurerm_resource_group.notifications_rg.name
+# }
 
 ## Notification Hub
 data "azurerm_notification_hub" "common" {
@@ -103,8 +103,9 @@ locals {
 
       FISCAL_CODE_NOTIFICATION_BLACKLIST = join(",", local.test_users_internal_load)
 
-      NOTIFICATIONS_QUEUE_NAME                = "push-notifications"
-      NOTIFICATIONS_STORAGE_CONNECTION_STRING = data.azurerm_storage_account.push_notifications_storage.primary_connection_string
+      NOTIFICATIONS_QUEUE_NAME = "push-notifications"
+      # NOTIFICATIONS_STORAGE_CONNECTION_STRING = data.azurerm_storage_account.push_notifications_storage.primary_connection_string
+      NOTIFICATIONS_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
 
       NOTIFY_MESSAGE_QUEUE_NAME = "notify-message"
 
@@ -142,7 +143,7 @@ locals {
       # Possible values : "none" | "all" | "beta" | "canary"
       NH_PARTITION_FEATURE_FLAG            = "all"
       NOTIFY_VIA_QUEUE_FEATURE_FLAG        = "all"
-      BETA_USERS_STORAGE_CONNECTION_STRING = data.azurerm_storage_account.push_notif_beta_storage.primary_connection_string
+      BETA_USERS_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
       BETA_USERS_TABLE_NAME                = "notificationhub"
 
       # Takes ~6,25% of users
@@ -208,6 +209,28 @@ module "push_notif_function" {
   action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id
 
 }
+
+
+# resource "azurerm_role_assignment" "push_notif_com_st" {
+#   for_each = toset([
+#     module.push_notif_function.function_app.function_app.principal_id,
+#     module.push_notif_function.function_app.function_app.slot.principal_id
+#   ])
+#   scope                = var.com_st_id
+#   role_definition_name = "Storage Table Data Contributor"
+#   principal_id         = each.value
+# }
+
+# resource "azurerm_role_assignment" "push_notif_com_st_queue" {
+#   for_each = toset([
+#     module.push_notif_function.function_app.function_app.principal_id,
+#     module.push_notif_function.function_app.function_app.slot.principal_id
+#   ])
+#   scope                = var.com_st_id
+#   role_definition_name = "Storage Queue Data Contributor"
+#   principal_id         = each.value
+# }
+
 
 
 resource "azurerm_monitor_autoscale_setting" "push_notif_function" {

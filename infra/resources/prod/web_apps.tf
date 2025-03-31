@@ -63,5 +63,7 @@ module "web_apps" {
 
   tenant_id = data.azurerm_client_config.current.tenant_id
 
-  action_group_id = module.monitoring.action_group.io_com_error_id
+  action_group_id        = module.monitoring.action_group.io_com_error_id
+  com_st_connectiostring = module.storage_api_weu.com_st_connectiostring
+
 }
