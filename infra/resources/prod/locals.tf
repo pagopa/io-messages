@@ -18,6 +18,13 @@ locals {
   legacy_location       = "westeurope"
   legacy_location_short = "weu"
 
+  environment = {
+    prefix    = local.prefix
+    env_short = local.env_short
+    location  = local.location
+    domain    = local.domain
+  }
+
   tags = {
     CostCenter     = "TS000 - Tecnologia e Servizi"
     CreatedBy      = "Terraform"
