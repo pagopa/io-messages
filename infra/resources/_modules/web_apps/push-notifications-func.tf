@@ -181,21 +181,22 @@ module "push_notif_function" {
     instance_number = "01"
   })
 
-  app_settings = merge(
-    local.function_push_notif.app_settings_common, {
-      "AzureWebJobs.HandleNHNotificationCall.Disabled"               = "0",
-      "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled" = "0"
-    }
-  )
-
-  sticky_app_setting_names = [
-    "AzureWebJobs.HandleNHNotificationCall.Disabled",
-    "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled"
-  ]
-
   subnet_pep_id = var.subnet_pep_id
   subnet_cidr   = var.subnet_cidrs.push_notif_func
   tags          = var.tags
+
+
+  app_settings = merge(
+    local.function_push_notif.app_settings_common, {
+      "AzureWebJobs.HandleNHNotificationCall.Disabled"               = "1",
+      "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled" = "1"
+    }
+  )
+
+  # sticky_app_setting_names = [
+  #   "AzureWebJobs.HandleNHNotificationCall.Disabled",
+  #   "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled"
+  # ]
 
   slot_app_settings = merge(
     local.function_push_notif.app_settings_common, {
