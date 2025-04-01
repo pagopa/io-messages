@@ -158,7 +158,6 @@ module "cqrs_func" {
       "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled"       = "0"
       "AzureWebJobs.CosmosApiMessagesChangeFeed.Disabled"                       = "0"
       "AzureWebJobs.HandleMessageChangeFeedPublishFailures.Disabled"            = "0"
-      "AzureWebJobs.CosmosApiChangeFeedForMessageRetention.Disabled"            = "1"
       "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "0"
     }
   )
@@ -169,7 +168,6 @@ module "cqrs_func" {
       "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled"       = "1"
       "AzureWebJobs.CosmosApiMessagesChangeFeed.Disabled"                       = "1"
       "AzureWebJobs.HandleMessageChangeFeedPublishFailures.Disabled"            = "1"
-      "AzureWebJobs.CosmosApiChangeFeedForMessageRetention.Disabled"            = "1"
       "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "1"
     }
   )
