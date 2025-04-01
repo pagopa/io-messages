@@ -60,32 +60,24 @@ locals {
       NODE_ENV                       = "production"
 
       COSMOSDB_NAME              = "db"
-      COSMOSDB_URI               = var.io_com_cosmos.endpoint
-      COSMOSDB_KEY               = var.io_com_cosmos.primary_key
-      COSMOSDB_CONNECTION_STRING = format("AccountEndpoint=%s;AccountKey=%s;", var.io_com_cosmos.endpoint, var.io_com_cosmos.primary_key)
+      COSMOSDB_URI               = var.cosmosdb_account_api.endpoint
+      COSMOSDB_KEY               = var.cosmosdb_account_api.primary_key
+      COSMOSDB_CONNECTION_STRING = format("AccountEndpoint=%s;AccountKey=%s;", var.cosmosdb_account_api.endpoint, var.cosmosdb_account_api.primary_key)
 
-      REMOTE_CONTENT_COSMOSDB_URI               = var.io_com_cosmos.endpoint
-      REMOTE_CONTENT_COSMOSDB_KEY               = var.io_com_cosmos.primary_key
+      REMOTE_CONTENT_COSMOSDB_URI               = var.cosmosdb_account_api.endpoint
+      REMOTE_CONTENT_COSMOSDB_KEY               = var.cosmosdb_account_api.primary_key
       REMOTE_CONTENT_COSMOSDB_NAME              = "remote-content"
-      REMOTE_CONTENT_COSMOSDB_CONNECTION_STRING = format("AccountEndpoint=%s;AccountKey=%s;", var.io_com_cosmos.endpoint, var.io_com_cosmos.primary_key)
+      REMOTE_CONTENT_COSMOSDB_CONNECTION_STRING = format("AccountEndpoint=%s;AccountKey=%s;", var.cosmosdb_account_api.endpoint, var.cosmosdb_account_api.primary_key)
 
       MESSAGE_CONFIGURATION_CHANGE_FEED_LEASE_PREFIX = "RemoteContentMessageConfigurationChangeFeed-00"
       MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME   = "0"
 
       LEASE_COLLECTION_PREFIX = "bulk-status-update-00"
 
-      MESSAGE_VIEW_UPDATE_FAILURE_QUEUE_NAME         = "message-view-update-failures"
-      MESSAGE_VIEW_PAYMENT_UPDATE_FAILURE_QUEUE_NAME = "message-view-paymentupdate-failures"
       MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME     = "message-paymentupdater-failures"
       MESSAGE_CONTAINER_NAME                         = "message-content"
       MESSAGE_CONTENT_STORAGE_CONNECTION             = var.message_content_storage.connection_string
       QueueStorageConnection                         = var.message_content_storage.connection_string
-
-      MESSAGE_STATUS_FOR_VIEW_TOPIC_CONSUMER_CONNECTION_STRING = data.azurerm_eventhub_authorization_rule.evh_ns_io_auth_messages.primary_connection_string
-      MESSAGE_STATUS_FOR_VIEW_TOPIC_CONSUMER_GROUP             = "${var.environment.prefix}-messages"
-      MESSAGE_STATUS_FOR_VIEW_TOPIC_NAME                       = "${var.environment.prefix}-cosmosdb-message-status-for-view"
-      MESSAGE_STATUS_FOR_VIEW_TOPIC_PRODUCER_CONNECTION_STRING = data.azurerm_eventhub_authorization_rule.evh_ns_io_auth_cdc.primary_connection_string
-      MESSAGE_STATUS_FOR_VIEW_BROKERS                          = "${var.environment.prefix}-${var.environment.env_short}-evh-ns.servicebus.windows.net:9093"
 
       MESSAGE_CHANGE_FEED_LEASE_PREFIX = "CosmosApiMessageChangeFeed-00"
       // This must be expressed as a Timestamp
@@ -107,10 +99,6 @@ locals {
       TARGETKAFKA_idempotent      = "true"
       TARGETKAFKA_transactionalId = "IO_MESSAGES_CQRS"
       TARGETKAFKA_topic           = "messages"
-
-      PAYMENT_FOR_VIEW_TOPIC_NAME                       = "payment-updates"
-      PAYMENT_FOR_VIEW_TOPIC_CONSUMER_GROUP             = "$Default"
-      PAYMENT_FOR_VIEW_TOPIC_CONSUMER_CONNECTION_STRING = data.azurerm_eventhub_authorization_rule.io-p-payments-weu-prod01-evh-ns_payment-updates_io-fn-messages-cqrs.primary_connection_string
 
       APIM_BASE_URL         = "https://api-app.internal.io.pagopa.it"
       APIM_SUBSCRIPTION_KEY = data.azurerm_key_vault_secret.apim_services_subscription_key.value
@@ -154,7 +142,6 @@ module "cqrs_func" {
   app_settings = merge(
     local.cqrs_func.app_settings, {
       // disable listeners on production slot
-      "AzureWebJobs.CosmosApiMessageStatusChangeFeedForView.Disabled"           = "0"
       "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled"       = "0"
       "AzureWebJobs.CosmosApiMessagesChangeFeed.Disabled"                       = "0"
       "AzureWebJobs.HandleMessageChangeFeedPublishFailures.Disabled"            = "0"
@@ -164,7 +151,6 @@ module "cqrs_func" {
   slot_app_settings = merge(
     local.cqrs_func.app_settings, {
       // disable listeners on staging slot
-      "AzureWebJobs.CosmosApiMessageStatusChangeFeedForView.Disabled"           = "1"
       "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled"       = "1"
       "AzureWebJobs.CosmosApiMessagesChangeFeed.Disabled"                       = "1"
       "AzureWebJobs.HandleMessageChangeFeedPublishFailures.Disabled"            = "1"
