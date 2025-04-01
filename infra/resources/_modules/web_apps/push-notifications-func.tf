@@ -2,16 +2,6 @@ data "azurerm_resource_group" "notifications_rg" {
   name = "io-p-weu-messages-notifications-rg"
 }
 
-## Storage account
-# data "azurerm_storage_account" "push_notifications_storage" {
-#   name                = "iopweumessagesnotifst"
-#   resource_group_name = data.azurerm_resource_group.notifications_rg.name
-# }
-# data "azurerm_storage_account" "push_notif_beta_storage" {
-#   name                = "iopweumessagesbetauserst"
-#   resource_group_name = data.azurerm_resource_group.notifications_rg.name
-# }
-
 ## Notification Hub
 data "azurerm_notification_hub" "common" {
   name                = format("%s-common", local.nh_name_prefix)
@@ -209,29 +199,6 @@ module "push_notif_function" {
   action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id
 
 }
-
-
-# resource "azurerm_role_assignment" "push_notif_com_st" {
-#   for_each = toset([
-#     module.push_notif_function.function_app.function_app.principal_id,
-#     module.push_notif_function.function_app.function_app.slot.principal_id
-#   ])
-#   scope                = var.com_st_id
-#   role_definition_name = "Storage Table Data Contributor"
-#   principal_id         = each.value
-# }
-
-# resource "azurerm_role_assignment" "push_notif_com_st_queue" {
-#   for_each = toset([
-#     module.push_notif_function.function_app.function_app.principal_id,
-#     module.push_notif_function.function_app.function_app.slot.principal_id
-#   ])
-#   scope                = var.com_st_id
-#   role_definition_name = "Storage Queue Data Contributor"
-#   principal_id         = each.value
-# }
-
-
 
 resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
   count               = local.push_notif_enabled ? 1 : 0
