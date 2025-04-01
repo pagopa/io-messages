@@ -4,12 +4,13 @@ This Azure Function Project manages all the aspects related to the Push Notifica
 
 It uses the Azure Notification Hub to enable the push notifications and the device management.
 
-## Sviluppo in locale
+## Start locally
 
 ```shell
 cp env.example .env
 cp local.settings.json.example local.settings.json
 yarn install
+yarn extensions:install    //requires .net installed on your machine. Tested with v9.0 
 yarn build
 yarn start
 open http://localhost/some/path/test
