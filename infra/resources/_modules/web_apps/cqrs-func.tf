@@ -216,7 +216,7 @@ module "cqrs_func_autoscaler" {
   tags = var.tags
 }
 
-resource "azurerm_cosmosdb_sql_role_assignment" "etl_func" {
+resource "azurerm_cosmosdb_sql_role_assignment" "cqrs_func" {
   resource_group_name = var.cosmosdb_account_api.resource_group_name
   account_name        = var.cosmosdb_account_api.name
   role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
