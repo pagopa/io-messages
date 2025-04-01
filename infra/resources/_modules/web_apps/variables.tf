@@ -146,6 +146,6 @@ variable "nat_gateway_id" {
 }
 
 variable "cqrs_func_ehns_enabled" {
-  type = bool
+  type        = bool
   description = "Enable the Event Hub Namespace for the CQRS function"
 }
