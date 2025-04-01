@@ -216,6 +216,16 @@ module "cqrs_func_autoscaler" {
   tags = var.tags
 }
 
+resource "azurerm_role_assignment" "cosmos_api_etl_func" {
+  for_each = toset([
+    module.cqrs_func.function_app.function_app.principal_id,
+    module.cqrs_func.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.cosmosdb_account_api.id
+  role_definition_name = "SQL DB Contributor"
+  principal_id         = each.value
+}
+
 resource "azurerm_cosmosdb_sql_role_assignment" "cqrs_func" {
   resource_group_name = var.cosmosdb_account_api.resource_group_name
   account_name        = var.cosmosdb_account_api.name
