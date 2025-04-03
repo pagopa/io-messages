@@ -5,7 +5,7 @@ export const deleteMessages =
   (deleteMessageUseCase: DeleteMessageUseCase): StorageBlobHandler =>
   async (blob, context) => {
     if (!Buffer.isBuffer(blob)) {
-      context.error("Invalid input input blob file");
+      context.error("Invalid input blob file");
       return;
     }
     const lines = blob.toString("utf-8").trim().split("\n");
