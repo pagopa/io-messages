@@ -5626,6 +5626,7 @@ __metadata:
   dependencies:
     "@azure/cosmos": "npm:^4.0.0"
     "@azure/functions": "npm:^3.5.0"
+    "@azure/identity": "npm:^4.5.0"
     "@azure/storage-queue": "npm:^12.8.0"
     "@chasdevs/avro-to-typescript": "npm:^1.4.0"
     "@pagopa/danger-custom-rules": "npm:^2.0.3"

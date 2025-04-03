@@ -18,6 +18,7 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { sequenceT } from "fp-ts/lib/Apply";
 import fetch from "node-fetch";
 import { getConfig, IConfig } from "./config";
+import { cosmosdbClient } from "./cosmosdb";
 
 type ProblemSource = "AzureCosmosDB" | "AzureStorage" | "Config" | "Url";
 // eslint-disable-next-line functional/prefer-readonly-type, @typescript-eslint/naming-convention
@@ -74,14 +75,10 @@ export const buildCosmosClient = (dbUri: string, dbKey?: string) =>
  *
  * @returns either true or an array of error messages
  */
-export const checkAzureCosmosDbHealth = (
-  dbUri: string,
-  dbKey?: string
-): HealthCheck<"AzureCosmosDB", true> =>
+export const checkAzureCosmosDbHealth = (): HealthCheck<"AzureCosmosDB", true> =>
   pipe(
     TE.tryCatch(async () => {
-      const client = buildCosmosClient(dbUri, dbKey);
-      return client.getDatabaseAccount();
+      return cosmosdbClient.getDatabaseAccount();
     }, toHealthProblems("AzureCosmosDB")),
     TE.map(_ => true)
   );
@@ -163,7 +160,7 @@ export const checkApplicationHealth = (): HealthCheck<ProblemSource, true> => {
     TE.chain(config =>
       // run each taskEither and collect validation errors from each one of them, if any
       sequenceT(applicativeValidation)(
-        checkAzureCosmosDbHealth(config.COSMOSDB_URI, config.COSMOSDB_KEY),
+        checkAzureCosmosDbHealth(),
         checkAzureStorageHealth(config.QueueStorageConnection)
       )
     ),

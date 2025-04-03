@@ -61,13 +61,9 @@ locals {
 
       COSMOSDB_NAME              = "db"
       COSMOSDB_URI               = var.cosmosdb_account_api.endpoint
-      COSMOSDB_KEY               = var.cosmosdb_account_api.primary_key
-      COSMOSDB_CONNECTION_STRING = format("AccountEndpoint=%s;AccountKey=%s;", var.cosmosdb_account_api.endpoint, var.cosmosdb_account_api.primary_key)
 
-      REMOTE_CONTENT_COSMOSDB_URI               = var.cosmosdb_account_api.endpoint
-      REMOTE_CONTENT_COSMOSDB_KEY               = var.cosmosdb_account_api.primary_key
+      REMOTE_CONTENT_COSMOSDB_URI               = var.io_com_cosmos.endpoint
       REMOTE_CONTENT_COSMOSDB_NAME              = "remote-content"
-      REMOTE_CONTENT_COSMOSDB_CONNECTION_STRING = format("AccountEndpoint=%s;AccountKey=%s;", var.cosmosdb_account_api.endpoint, var.cosmosdb_account_api.primary_key)
 
       MESSAGE_CONFIGURATION_CHANGE_FEED_LEASE_PREFIX = "RemoteContentMessageConfigurationChangeFeed-00"
       MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME   = "0"

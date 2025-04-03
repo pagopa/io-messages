@@ -5,7 +5,7 @@
       "type": "cosmosDBTrigger",
       "name": "cosmosApiMessagesTrigger",
       "direction": "in",
-      "connection": "COSMOSDB_CONNECTION_STRING",
+      "connection": "COSMOSDB_URI",
       "databaseName": "%COSMOSDB_NAME%",
       "containerName": "messages",
       "leaseContainerName": "cqrs-leases",

@@ -35,8 +35,6 @@ export const IConfig = t.intersection([
 
     AzureWebJobsStorage: NonEmptyString,
 
-    COSMOSDB_CONNECTION_STRING: NonEmptyString,
-    COSMOSDB_KEY: NonEmptyString,
     COSMOSDB_NAME: NonEmptyString,
     COSMOSDB_URI: NonEmptyString,
 
@@ -53,7 +51,6 @@ export const IConfig = t.intersection([
 
     QueueStorageConnection: NonEmptyString,
 
-    REMOTE_CONTENT_COSMOSDB_KEY: NonEmptyString,
     REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
     REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
 
