@@ -17,7 +17,7 @@ module "reminder_ca_itn_01" {
   container_app_templates = [
     {
       name         = "reminder"
-      image        = "iopcommonacr.azurecr.io/io-premium-reminder-ms:0.16.0"
+      image        = "mcr.microsoft.com/k8se/quickstart:latest" # "iopcommonacr.azurecr.io/io-premium-reminder-ms:0.16.0"
       app_settings = local.app_settings
 
       # liveness_probe = {
