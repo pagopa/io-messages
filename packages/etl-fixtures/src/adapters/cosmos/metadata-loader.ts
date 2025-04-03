@@ -1,4 +1,4 @@
-import { Container } from "@azure/cosmos";
+import { Container, ItemResponse } from "@azure/cosmos";
 import {
   FiscalCode,
   fiscalCodeSchema,
@@ -20,7 +20,9 @@ const TEST_FISCAL_CODES = z
 export interface MetadataLoader {
   generate: () => MessageMetadata;
   generateMany: (count: number) => MessageMetadata[];
-  load: (metadata: MessageMetadata[]) => Promise<void>;
+  load: (
+    metadata: MessageMetadata[],
+  ) => Promise<ItemResponse<MessageMetadata>[]>;
 }
 
 export class CosmosMetadataLoader implements MetadataLoader {
@@ -63,7 +65,10 @@ export class CosmosMetadataLoader implements MetadataLoader {
     return Array.from({ length: count }, () => this.generate());
   }
 
-  async load(metadata: MessageMetadata[]): Promise<void> {
-    Promise.all(metadata.map((m) => this.container.items.create(m)));
+  async load(
+    metadata: MessageMetadata[],
+  ): Promise<ItemResponse<MessageMetadata>[]> {
+    const r = Promise.all(metadata.map((m) => this.container.items.create(m)));
+    return r;
   }
 }
