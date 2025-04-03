@@ -55,8 +55,7 @@ data "azurerm_monitor_action_group" "io_com_action_group" {
 
 locals {
 
-  product            = "io-p"
-  push_notif_enabled = true
+  product = "io-p"
 
   ## Notification Hub
   nh_resource_group_name = "io-p-rg-common"
@@ -155,7 +154,7 @@ module "push_notif_function" {
   source  = "pagopa/dx-azure-function-app/azurerm"
   version = "~>0"
 
-  count                 = local.push_notif_enabled ? 1 : 0
+  count                 = 1
   resource_group_name   = var.resource_group_name
   health_check_path     = "/api/v1/info"
   has_durable_functions = true
@@ -201,7 +200,7 @@ module "push_notif_function" {
 }
 
 resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
-  count               = local.push_notif_enabled ? 1 : 0
+  count               = 1
   name                = replace(module.push_notif_function[0].function_app.function_app.name, "func", "as")
   resource_group_name = var.resource_group_name
   location            = var.environment.location
