@@ -7,13 +7,13 @@
 You can use the `local.settings.json.example` file:
 
 ```bash
-cp local.settings.json.example ./.local.settings.json
+cp local.settings.json.example local.settings.json
 ```
 
 ### Add your test environment variables
 
 ```bash
-cp local.settings.json.example .local.settings.json
+cp local.settings.json.example local.settings.json
 ```
 
 ### Start redis container [OPTIONAL]
@@ -68,3 +68,13 @@ Expected output:
 ```bash
 it works!
 ```
+
+### Insert fixtures
+
+To insert fixtures simply run:
+
+```bash
+yarn fixtures:load <N>
+```
+
+Where N is the number of messages that you want to load.
