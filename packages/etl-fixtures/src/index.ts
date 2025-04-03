@@ -1,17 +1,17 @@
 import { CosmosClient } from "@azure/cosmos";
+import { TableServiceClient } from "@azure/data-tables";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
+import { existsSync, readFileSync } from "fs";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
+import { dirname, resolve } from "path";
 import { pino } from "pino";
+import { fileURLToPath } from "url";
 
 import { BlobContentLoader } from "./adapters/blob/content-loader.js";
 import { Config, configSchema, validateArguments } from "./adapters/config.js";
 import { CosmosMetadataLoader } from "./adapters/cosmos/metadata-loader.js";
 import { LoadFixturesUseCase } from "./domain/use-cases/load-fixtures.js";
-import { TableServiceClient } from "@azure/data-tables";
-import { readFileSync, existsSync } from "fs";
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const etlFunctionPath = resolve(
