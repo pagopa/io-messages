@@ -26,6 +26,7 @@ module "web_apps" {
     notif_func   = "10.20.8.0/26"
     etl_func     = "10.20.8.0/26"
     citizen_func = "10.20.8.64/26"
+    service_func = "10.20.100.0/26"
   }
 
   nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
@@ -59,6 +60,11 @@ module "web_apps" {
   cosmosdb_account_api       = data.azurerm_cosmosdb_account.cosmos_api
   io_com_cosmos              = data.azurerm_cosmosdb_account.io_com_cosmos
   com_st_id                  = module.storage_api_weu.com_st_id
+
+  # services
+  notification_storage_account_queue_connection_string = data.azurerm_storage_account.storage_push_notifications.primary_connection_string
+  appbackendli_token                                   = data.azurerm_key_vault_secret.appbackendli_token.value
+  internal_user_id                                     = data.azurerm_key_vault_secret.internal_user.value
 
   tenant_id = data.azurerm_client_config.current.tenant_id
 

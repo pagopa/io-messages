@@ -40,6 +40,7 @@ variable "subnet_cidrs" {
     notif_func   = string
     citizen_func = string
     etl_func     = string
+    service_func = string
   })
 }
 
@@ -142,4 +143,19 @@ variable "redis_cache" {
 variable "nat_gateway_id" {
   type        = string
   description = "The ID of the NAT Gateway"
+}
+
+variable "appbackendli_token" {
+  type        = string
+  description = "Token to access appbackendli"
+}
+
+variable "internal_user_id" {
+  type        = string
+  description = "Internal user to bypass"
+}
+
+variable "notification_storage_account_queue_connection_string" {
+  type        = string
+  description = "Connection string to connect to notification storage account"
 }
