@@ -40,6 +40,7 @@ variable "subnet_cidrs" {
     notif_func   = string
     citizen_func = string
     etl_func     = string
+    ops_ca       = string
   })
 }
 
@@ -84,6 +85,10 @@ variable "messages_storage_account" {
 }
 
 variable "com_st_id" {
+  type = string
+}
+
+variable "com_st_uri" {
   type = string
 }
 
