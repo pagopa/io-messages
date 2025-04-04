@@ -13,7 +13,7 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_cae"></a> [cae](#module\_cae) | pagopa-dx/azure-container-app-environment/azurerm | ~> 0.0 |
+| <a name="module_com_cae"></a> [com\_cae](#module\_com\_cae) | pagopa-dx/azure-container-app-environment/azurerm | ~> 0.0 |
 
 ## Resources
 
