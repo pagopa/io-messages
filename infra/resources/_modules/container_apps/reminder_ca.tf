@@ -22,7 +22,7 @@ module "reminder_ca_itn_01" {
 
       liveness_probe = {
         path          = "/api/v1/health/live"
-        initial_delay = 150
+        initial_delay = 60
       }
 
       # readiness_probe = {
@@ -39,7 +39,7 @@ module "reminder_ca_itn_01" {
   tier          = "xs"
   revision_mode = "Single"
 
-  target_port = 9090
+  # target_port = 9090
 
   tags = var.tags
 }
