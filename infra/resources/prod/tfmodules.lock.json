@@ -12,5 +12,7 @@
   "storage_api_weu.com_st": "c073e41130034acebff0c22a7cffc22a1533ef46b64752789d472116abc21eee",
   "storage_api_weu.com_st.naming_convention": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4",
   "web_apps.citizen_func_autoscaler": "343aee1e0ad05349c141152245fcce2921b59c188823d4f464e0d7a011a612ce",
-  "web_apps.etl_func_autoscaler": "343aee1e0ad05349c141152245fcce2921b59c188823d4f464e0d7a011a612ce"
+  "web_apps.etl_func_autoscaler": "343aee1e0ad05349c141152245fcce2921b59c188823d4f464e0d7a011a612ce",
+  "web_apps.push_notif_function": "35993f0f57f017a544522dac18c8b585d9642d93edf9a45d7651a8388ed8980b",
+  "web_apps.push_notif_function.naming_convention": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4"
 }
