@@ -10,10 +10,15 @@ It uses the Azure Notification Hub to enable the push notifications and the devi
 cp env.example .env
 cp local.settings.json.example local.settings.json
 yarn install
-yarn extensions:install    //requires .net installed on your machine. Tested with v9.0 
+
+#if you are using devContainer than execute this command before yarn extensions:install
+export FUNCTIONS_WORKER_RUNTIME=node
+
+#requires .net installed on your machine. Tested with v8.0 and 9.0 
+yarn extensions:install    
+
 yarn build
 yarn start
-open http://localhost/some/path/test
 ```
 
 ## Environment variables
