@@ -18,7 +18,7 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { sequenceT } from "fp-ts/lib/Apply";
 import fetch from "node-fetch";
 import { getConfig, IConfig } from "./config";
-import { cosmosdbClient } from "./cosmosdb";
+import { DefaultAzureCredential } from "@azure/identity";
 
 type ProblemSource = "AzureCosmosDB" | "AzureStorage" | "Config" | "Url";
 // eslint-disable-next-line functional/prefer-readonly-type, @typescript-eslint/naming-convention
@@ -61,11 +61,13 @@ export const checkConfigHealth = (): HealthCheck<"Config", IConfig> =>
  * Return a CosmosClient
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const buildCosmosClient = (dbUri: string, dbKey?: string) =>
-  new CosmosClient({
+export const buildCosmosClient = (dbUri: string) => {
+  const azureCredentials = new DefaultAzureCredential();
+  return new CosmosClient({
+    aadCredentials: azureCredentials,
     endpoint: dbUri,
-    key: dbKey
   });
+}
 
 /**
  * Check the application can connect to an Azure CosmosDb instances
@@ -75,10 +77,13 @@ export const buildCosmosClient = (dbUri: string, dbKey?: string) =>
  *
  * @returns either true or an array of error messages
  */
-export const checkAzureCosmosDbHealth = (): HealthCheck<"AzureCosmosDB", true> =>
+export const checkAzureCosmosDbHealth = (
+  dbUri: string
+): HealthCheck<"AzureCosmosDB", true> =>
   pipe(
     TE.tryCatch(async () => {
-      return cosmosdbClient.getDatabaseAccount();
+      const client = buildCosmosClient(dbUri)
+      return client.getDatabaseAccount();
     }, toHealthProblems("AzureCosmosDB")),
     TE.map(_ => true)
   );
@@ -160,7 +165,7 @@ export const checkApplicationHealth = (): HealthCheck<ProblemSource, true> => {
     TE.chain(config =>
       // run each taskEither and collect validation errors from each one of them, if any
       sequenceT(applicativeValidation)(
-        checkAzureCosmosDbHealth(),
+        checkAzureCosmosDbHealth(config.COSMOSDB_URI),
         checkAzureStorageHealth(config.QueueStorageConnection)
       )
     ),
