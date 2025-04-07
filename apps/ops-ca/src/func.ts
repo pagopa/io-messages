@@ -13,6 +13,8 @@ import { deleteMessages } from "./adapters/functions/delete-messages.js";
 import { healthcheck } from "./adapters/functions/health.js";
 import { DeleteMessageUseCase } from "./domain/use-cases/delete-message.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
+import { splitDeleteMessage } from "./adapters/functions/split-delete-messages.js";
+import { QueueServiceClient } from "@azure/storage-queue";
 
 const main = async (config: Config): Promise<void> => {
   const logger = pino();
@@ -44,7 +46,7 @@ const main = async (config: Config): Promise<void> => {
   const messageContent = contentServiceClient.getContainerClient("messages");
 
   const comBlobServiceClient = new BlobServiceClient(
-    config.storageAccount.url,
+    config.storageAccount.blobUrl,
     azureCredentials,
   );
 
@@ -69,6 +71,11 @@ const main = async (config: Config): Promise<void> => {
     deletedMessagesLogs,
   );
 
+  const queueClient = new QueueServiceClient(
+    config.storageAccount.queueUrl,
+    azureCredentials,
+  ).getQueueClient("delete-messages");
+
   app.http("Health", {
     authLevel: "anonymous",
     handler: healthcheck(healthcheckUseCase),
@@ -76,10 +83,16 @@ const main = async (config: Config): Promise<void> => {
     route: "health",
   });
 
-  app.storageBlob("DeleteMessages", {
+  app.storageBlob("SplitDeleteMessageChunks", {
+    connection: "STORAGE_ACCOUNT",
+    handler: splitDeleteMessage(queueClient),
+    path: "delete-messages/{name}",
+  });
+
+  app.storageQueue("DeleteMessages", {
     connection: "STORAGE_ACCOUNT",
     handler: deleteMessages(deleteMessageUseCase),
-    path: "delete-messages/{name}",
+    queueName: "delete-messages",
   });
 };
 

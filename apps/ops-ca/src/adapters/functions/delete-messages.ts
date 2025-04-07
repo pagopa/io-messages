@@ -1,21 +1,27 @@
 import { DeleteMessageUseCase } from "@/domain/use-cases/delete-message.js";
-import { StorageBlobHandler } from "@azure/functions";
+import { StorageQueueHandler } from "@azure/functions";
+import { z } from "zod";
 
 export const deleteMessages =
-  (deleteMessageUseCase: DeleteMessageUseCase): StorageBlobHandler =>
-  async (blob, context) => {
-    if (!Buffer.isBuffer(blob)) {
-      context.error("Invalid input blob file");
-      return;
-    }
-    const lines = blob.toString("utf-8").trim().split("\n");
-    await Promise.all(
-      lines.map((line) => {
-        const [fiscalCode, messageId] = line.split(",");
-        return deleteMessageUseCase.execute(
-          fiscalCode.trim(),
-          messageId.trim(),
+  (deleteMessageUseCase: DeleteMessageUseCase): StorageQueueHandler =>
+  async (input, context) => {
+    try {
+      context.log("\n\n");
+      context.log(input);
+      context.log("\n\n");
+      const line = z.string().parse(input);
+      const [fiscalCode, messageId] = line.split(",");
+
+      return deleteMessageUseCase.execute(fiscalCode.trim(), messageId.trim());
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        context.error(
+          `Invalid pair [fiscalCode, messageId]: ${input}: ${error}`,
         );
-      }),
-    );
+        return;
+      }
+      context.error(
+        `Something went wrong trying to delete the message ${input}: ${error}`,
+      );
+    }
   };

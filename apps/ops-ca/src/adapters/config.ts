@@ -5,6 +5,7 @@ export const envSchema = z.object({
   COSMOS_DATABASE_NAME: z.string().min(1),
   COSMOS_URI: z.string().min(1),
   STORAGE_ACCOUNT__serviceUri: z.string().url(),
+  STORAGE_ACCOUNT__queueServiceUri: z.string().url(),
 });
 type Env = z.TypeOf<typeof envSchema>;
 
@@ -17,7 +18,8 @@ const mapEnvironmentVariablesToConfig = (env: Env) => ({
     url: env.COMMON_STORAGE_ACCOUNT_URL,
   },
   storageAccount: {
-    url: env.STORAGE_ACCOUNT__serviceUri,
+    blobUrl: env.STORAGE_ACCOUNT__serviceUri,
+    queueUrl: env.STORAGE_ACCOUNT__queueServiceUri,
   },
 });
 

@@ -10753,6 +10753,7 @@ __metadata:
     "@azure/identity": "npm:^4.5.0"
     "@azure/logger": "npm:^1.1.4"
     "@azure/storage-blob": "npm:^12.26.0"
+    "@azure/storage-queue": "npm:^12.4.0"
     "@pagopa/eslint-config": "npm:^4.0.1"
     "@types/node": "npm:^20.17.12"
     "@vitest/coverage-v8": "npm:^2.1.8"
