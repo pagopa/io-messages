@@ -1,7 +1,8 @@
-import { vi, describe, test, expect, afterEach } from "vitest";
-import { deleteMessages } from "../delete-message.js";
 import { DeleteMessageUseCase } from "@/domain/use-cases/delete-message.js";
 import { InvocationContext } from "@azure/functions";
+import { afterEach, describe, expect, test, vi } from "vitest";
+
+import { deleteMessages } from "../delete-message.js";
 
 const executeMock = vi.fn();
 

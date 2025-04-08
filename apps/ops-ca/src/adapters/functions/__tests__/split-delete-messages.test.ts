@@ -1,7 +1,8 @@
-import { QueueClient } from "@azure/storage-queue";
-import { vi, describe, test, afterEach, expect } from "vitest";
-import { splitDeleteMessage } from "../split-delete-messages.js";
 import { InvocationContext } from "@azure/functions";
+import { QueueClient } from "@azure/storage-queue";
+import { afterEach, describe, expect, test, vi } from "vitest";
+
+import { splitDeleteMessage } from "../split-delete-messages.js";
 
 const sendMessageMock = vi.fn();
 

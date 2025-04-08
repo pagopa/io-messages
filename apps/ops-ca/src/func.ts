@@ -2,6 +2,7 @@ import { CosmosClient } from "@azure/cosmos";
 import { app } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
+import { QueueServiceClient } from "@azure/storage-queue";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
 
@@ -11,10 +12,9 @@ import { CosmosMessageMetadataDeleter } from "./adapters/cosmos/message-metadata
 import { CosmosMessageStatusDeleter } from "./adapters/cosmos/message-status-deleter.js";
 import { deleteMessages } from "./adapters/functions/delete-message.js";
 import { healthcheck } from "./adapters/functions/health.js";
+import { splitDeleteMessage } from "./adapters/functions/split-delete-messages.js";
 import { DeleteMessageUseCase } from "./domain/use-cases/delete-message.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
-import { splitDeleteMessage } from "./adapters/functions/split-delete-messages.js";
-import { QueueServiceClient } from "@azure/storage-queue";
 
 const main = async (config: Config): Promise<void> => {
   const logger = pino();
