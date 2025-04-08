@@ -6,20 +6,19 @@ export const deleteMessages =
   (deleteMessageUseCase: DeleteMessageUseCase): StorageQueueHandler =>
   async (input, context) => {
     try {
-      context.log("\n\n");
-      context.log(input);
-      context.log("\n\n");
-      const line = z.string().parse(input);
-      const [fiscalCode, messageId] = line.split(",");
+      const { fiscalCode, messageId } = z
+        .object({ fiscalCode: z.string().min(1), messageId: z.string().min(1) })
+        .parse(input);
 
-      return deleteMessageUseCase.execute(fiscalCode.trim(), messageId.trim());
+      await deleteMessageUseCase.execute(fiscalCode.trim(), messageId.trim());
     } catch (error) {
       if (error instanceof z.ZodError) {
         context.error(
-          `Invalid pair [fiscalCode, messageId]: ${input}: ${error}`,
+          `Invalid pair [fiscalCode, messageId]: ${input}: ${error.message}`,
         );
         return;
       }
+
       context.error(
         `Something went wrong trying to delete the message ${input}: ${error}`,
       );

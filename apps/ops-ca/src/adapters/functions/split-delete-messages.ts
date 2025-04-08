@@ -11,7 +11,19 @@ export const splitDeleteMessage =
     const lines = blob.toString("utf-8").trim().split("\n");
 
     lines.forEach((line) => {
-      context.log("Pushing line", line);
-      return queueClient.sendMessage(line);
+      const [fiscalCode, messageId] = line.split(",");
+
+      if (!fiscalCode || !messageId) {
+        context.error(
+          `Invalid pair fiscalCode: ${fiscalCode}, messageId: ${messageId}`,
+        );
+        return;
+      }
+
+      return queueClient.sendMessage(
+        Buffer.from(JSON.stringify({ fiscalCode, messageId })).toString(
+          "base64",
+        ),
+      );
     });
   };

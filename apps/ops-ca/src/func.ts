@@ -9,7 +9,7 @@ import { BlobMessageContentDeleter } from "./adapters/blob-storage/message-conte
 import { Config, configFromEnvironment } from "./adapters/config.js";
 import { CosmosMessageMetadataDeleter } from "./adapters/cosmos/message-metadata-deleter.js";
 import { CosmosMessageStatusDeleter } from "./adapters/cosmos/message-status-deleter.js";
-import { deleteMessages } from "./adapters/functions/delete-messages.js";
+import { deleteMessages } from "./adapters/functions/delete-message.js";
 import { healthcheck } from "./adapters/functions/health.js";
 import { DeleteMessageUseCase } from "./domain/use-cases/delete-message.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
