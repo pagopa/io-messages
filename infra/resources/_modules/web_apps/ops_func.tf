@@ -48,10 +48,10 @@ module "ops_func" {
 }
 
 resource "azurerm_role_assignment" "message_content_container_contributor" {
-  for_each = toset([
-    module.ops_func.function_app.function_app.principal_id,
-    module.ops_func.function_app.function_app.slot.principal_id
-  ])
+  for_each = {
+    "app"  = module.ops_func.function_app.function_app.principal_id,
+    "slot" = module.ops_func.function_app.function_app.slot.principal_id
+  }
   scope                = "${var.messages_storage_account.id}/blobServices/default/containers/${var.messages_content_container.name}"
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = each.value
