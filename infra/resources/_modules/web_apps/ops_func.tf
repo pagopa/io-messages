@@ -9,7 +9,7 @@ locals {
 
 # TODO: this function should be updated to use container app when the terraform
 # provider supports it
-module "ops_ca" {
+module "ops_func" {
   source  = "pagopa-dx/azure-function-app/azurerm"
   version = "~> 0.0"
 
@@ -48,23 +48,27 @@ module "ops_ca" {
 }
 
 resource "azurerm_role_assignment" "message_content_container_contributor" {
+  for_each = toset([
+    module.ops_func.function_app.function_app.principal_id,
+    module.ops_func.function_app.function_app.slot.principal_id
+  ])
   scope                = "${var.messages_storage_account.id}/blobServices/default/containers/${var.messages_content_container.name}"
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = module.ops_ca.function_app.function_app.slot.principal_id
+  principal_id         = each.value
 }
 
-resource "azurerm_cosmosdb_sql_role_assignment" "read_ops_ca" {
+resource "azurerm_cosmosdb_sql_role_assignment" "read_ops_func" {
   resource_group_name = var.cosmosdb_account_api.resource_group_name
   account_name        = var.cosmosdb_account_api.name
   role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
-  principal_id        = module.ops_ca.function_app.function_app.principal_id
+  principal_id        = module.ops_func.function_app.function_app.principal_id
   scope               = var.cosmosdb_account_api.id
 }
 
-resource "azurerm_cosmosdb_sql_role_assignment" "write_ops_ca" {
+resource "azurerm_cosmosdb_sql_role_assignment" "write_ops_func" {
   resource_group_name = var.cosmosdb_account_api.resource_group_name
   account_name        = var.cosmosdb_account_api.name
   role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000003"
-  principal_id        = module.ops_ca.function_app.function_app.principal_id
+  principal_id        = module.ops_func.function_app.function_app.principal_id
   scope               = var.cosmosdb_account_api.id
 }
