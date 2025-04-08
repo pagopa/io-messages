@@ -1,5 +1,4 @@
 ﻿import { AzureFunction, Context } from "@azure/functions";
-import { fromSas } from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import {
   MessageModel,
   MESSAGE_COLLECTION_NAME
@@ -13,6 +12,7 @@ import { Failure } from "../utils/errors";
 import { avroMessageFormatter } from "../utils/formatter/messagesAvroFormatter";
 import { getThirdPartyDataWithCategoryFetcher } from "../utils/message";
 import { HandleMessageChangeFeedPublishFailureHandler } from "./handler";
+import { fromSas } from "../utils/event_hub";
 
 const config = getConfigOrThrow();
 
@@ -31,6 +31,7 @@ const telemetryClient = initTelemetryClient(
 
 const kafkaClient = fromSas(
   config.MESSAGES_TOPIC_CONNECTION_STRING,
+  config.KAFKA_SSL_ACTIVE,
   avroMessageFormatter(
     getThirdPartyDataWithCategoryFetcher(config)
   )

@@ -5,6 +5,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "yarn generate:payment-updater && yarn generate:avro && tsc",
+    "start": "dotenv -e .env func start --javascript",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "extensions:install": "func extensions install",

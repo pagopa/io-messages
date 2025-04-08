@@ -36,7 +36,7 @@ export const IConfig = t.intersection([
     AzureWebJobsStorage: NonEmptyString,
 
     COSMOSDB_NAME: NonEmptyString,
-    COSMOSDB_URI: NonEmptyString,
+    COSMOSDB__accountEndpoint: NonEmptyString,
 
     INTERNAL_STORAGE_CONNECTION_STRING: NonEmptyString,
 
@@ -46,6 +46,8 @@ export const IConfig = t.intersection([
     MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME: NonEmptyString,
 
     MESSAGE_STATUS_FOR_REMINDER_TOPIC_PRODUCER_CONNECTION_STRING: AzureEventhubSasFromString,
+
+    KAFKA_SSL_ACTIVE: withDefault(t.boolean, true),
 
     PN_SERVICE_ID: NonEmptyString,
 

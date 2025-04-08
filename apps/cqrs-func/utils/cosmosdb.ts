@@ -8,7 +8,7 @@ import { DefaultAzureCredential } from "@azure/identity";
 const azureCredentials = new DefaultAzureCredential();
 
 const config = getConfigOrThrow();
-const cosmosDbUri = config.COSMOSDB_URI;
+const cosmosDbUri = config.COSMOSDB__accountEndpoint;
 const cosmosDbName = config.COSMOSDB_NAME;
 
 export const cosmosdbClient = new CosmosClient({

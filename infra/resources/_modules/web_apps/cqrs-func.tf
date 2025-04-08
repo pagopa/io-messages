@@ -60,7 +60,7 @@ locals {
       NODE_ENV                       = "production"
 
       COSMOSDB_NAME              = "db"
-      COSMOSDB_URI               = var.cosmosdb_account_api.endpoint
+      COSMOSDB__accountEndpoint               = var.cosmosdb_account_api.endpoint
 
       REMOTE_CONTENT_COSMOSDB_URI               = var.io_com_cosmos.endpoint
       REMOTE_CONTENT_COSMOSDB_NAME              = "remote-content"
