@@ -16,12 +16,12 @@ module "reminder_ca_itn_01" {
 
   container_app_templates = [
     {
-      name         = "reminder"
+      # name         = "reminder"
       image        = "mcr.microsoft.com/k8se/quickstart:latest" # "iopcommonacr.azurecr.io/io-premium-reminder-ms:0.16.0"
       app_settings = local.reminder_ca.app_settings
 
       liveness_probe = {
-        path          = "/api/v1/health/live"
+        path          = "/" # "/api/v1/health/live"
         initial_delay = 60
       }
 
