@@ -39,7 +39,7 @@ module "ops_func" {
 
   virtual_network = var.virtual_network
 
-  subnet_cidr   = var.subnet_cidrs.etl_func
+  subnet_cidr   = var.subnet_cidrs.ops_func
   subnet_pep_id = var.subnet_pep_id
 
   tags = var.tags
