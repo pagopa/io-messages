@@ -150,6 +150,6 @@ locals {
 resource "azurerm_key_vault_access_policy" "reminder_kv_messages" {
   key_vault_id       = var.key_vault_id
   secret_permissions = ["Get", "List"]
-  object_id          = module.reminder_ca_itn_01.object_id
+  object_id          = module.reminder_ca_itn_01.principal_id
   tenant_id          = var.tenant_id
 }
