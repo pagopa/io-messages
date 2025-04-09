@@ -11,5 +11,9 @@ module "container_apps" {
 
   log_analytics_workspace_id = data.azurerm_application_insights.common.workspace_id
 
+  key_vault_id = data.azurerm_key_vault.weu_messages.id
+
+  tenant_id = data.azurerm_client_config.current.tenant_id
+
   tags = local.tags
 }
