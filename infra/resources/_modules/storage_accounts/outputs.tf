@@ -9,3 +9,7 @@ output "com_st_name" {
 output "com_st_rg" {
   value = module.com_st.resource_group_name
 }
+
+output "com_st_connectiostring" {
+  value = module.com_st.primary_connection_string
+}
