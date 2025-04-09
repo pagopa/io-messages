@@ -60,7 +60,8 @@ module "web_apps" {
   cosmosdb_account_api       = data.azurerm_cosmosdb_account.cosmos_api
   io_com_cosmos              = data.azurerm_cosmosdb_account.io_com_cosmos
   com_st_id                  = module.storage_api_weu.com_st_id
-  com_st_uri                 = data.azurerm_storage_account.storage_api_com.primary_table_endpoint
+  com_st_uri                 = data.azurerm_storage_account.storage_api_com.primary_blob_endpoint
+  com_st_queue_uri           = data.azurerm_storage_account.storage_api_com.primary_queue_endpoint
 
   tenant_id = data.azurerm_client_config.current.tenant_id
 

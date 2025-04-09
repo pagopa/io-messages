@@ -92,6 +92,10 @@ variable "com_st_uri" {
   type = string
 }
 
+variable "com_st_queue_uri" {
+  type = string
+}
+
 variable "cosmosdb_account_api" {
   type = object({
     id                  = string
