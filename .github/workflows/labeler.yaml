@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: "owner/repositoryName"
+          repository: "pagopa/io-messages"
       - uses: actions/labeler@main
         with:
           sync-labels: true
