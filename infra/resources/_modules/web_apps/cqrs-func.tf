@@ -122,7 +122,7 @@ module "cqrs_func" {
 
   resource_group_name = var.resource_group_name
   health_check_path   = "/api/v1/info"
-  node_version        = 18
+  node_version        = 20
 
   tier = "xl"
 
