@@ -1,0 +1,27 @@
+# fixtures
+
+This package contains message fixtures used for testing purposes.
+
+## Installation
+
+To use these fixtures, install this package in the applications you want to test.
+
+## Setup
+
+1. Create a file named `scripts/fixtures.ts` in your application.
+   - Use this file to call the `loadFixtures` function. You can find an example [here]().
+2. Add a script to the `package.json` of your application:
+   - Name the script `fixtures`. See an example [here]().
+
+> **Note**: Ensure you have `tsx` installed as a development dependency in your application.
+
+## Usage
+
+Run the following command to generate and load fixtures:
+
+```bash
+yarn fixtures <NUMBER>
+```
+
+- Replace `<NUMBER>` with the number of fixtures you want to generate and load.
+- Environment variables are automatically injected from the `local.settings.json` file located in the `apps` directory.

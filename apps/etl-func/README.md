@@ -74,7 +74,7 @@ it works!
 To insert fixtures simply run:
 
 ```bash
-yarn fixtures:load <N>
+yarn fixtures <N>
 ```
 
 Where N is the number of messages that you want to load.

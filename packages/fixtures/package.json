@@ -1,14 +1,11 @@
 {
-  "name": "etl-fixtures",
+  "name": "fixtures",
   "license": "UNLICENSED",
   "main": "dist/index.js",
   "version": "1.0.0",
   "type": "module",
   "exports": {
     "./*": "./dist/*.js"
-  },
-  "bin": {
-    "fixtures:load": "./dist/index.js"
   },
   "typesVersions": {
     "*": {

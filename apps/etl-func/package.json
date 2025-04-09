@@ -9,6 +9,7 @@
   "scripts": {
     "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node20 --outdir=dist --packages=external",
     "build:watch": "yarn build --watch",
+    "fixtures": "tsx scripts/fixtures.ts",
     "start": "func start",
     "format": "prettier --write .",
     "lint": "eslint --fix src",
@@ -39,8 +40,9 @@
     "@vitest/coverage-v8": "^2.1.8",
     "esbuild": "^0.25.0",
     "eslint": "8.57.1",
-    "etl-fixtures": "workspace:^",
+    "fixtures": "workspace:^",
     "prettier": "3.2.5",
+    "tsx": "^4.19.3",
     "typescript": "5.4.3",
     "vitest": "^2.1.8"
   },

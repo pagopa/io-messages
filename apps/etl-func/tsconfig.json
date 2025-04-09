@@ -13,5 +13,6 @@
       "@/*": ["./src/*", "./avro/*"]
     },
     "noEmit": true
-  }
+  },
+  "exclude": ["scripts"]
 }
