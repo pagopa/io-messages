@@ -2,7 +2,7 @@ locals {
   prefix          = "io"
   env_short       = "p"
   location        = "italynorth"
-  domain          = "msgs"
+  domain          = "com"
   instance_number = "01"
 
   adgroups = {
