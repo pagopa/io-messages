@@ -10,6 +10,10 @@ etl-func:
   - changed-files:
       - any-glob-to-any-file: ["apps/etl-func/**"]
 
+ops-func:
+  - changed-files:
+      - any-glob-to-any-file: ["apps/ops-func/**"]
+
 external-interface-changes:
   - changed-files:
       - any-glob-to-any-file: ["apps/**/openapi.yaml", "apps/**/openapi/*.yaml"]

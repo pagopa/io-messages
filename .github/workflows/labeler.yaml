@@ -20,6 +20,9 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: "pagopa/io-messages"
       - uses: actions/labeler@main
         with:
           sync-labels: true
