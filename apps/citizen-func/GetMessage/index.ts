@@ -26,8 +26,8 @@ import { cosmosdbInstance } from "../utils/cosmosdb";
 import { getConfigOrThrow } from "../utils/config";
 import { initTelemetryClient } from "../utils/appinsights";
 import { getThirdPartyDataWithCategoryFetcher } from "../utils/messages";
-import { GetMessage } from "./handler";
 import { RedisClientFactory } from "../utils/redis";
+import { GetMessage } from "./handler";
 
 // Setup Express
 const app = express();
