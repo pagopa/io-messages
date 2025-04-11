@@ -15,14 +15,16 @@ No requirements.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_com_cae"></a> [com\_cae](#module\_com\_cae) | pagopa-dx/azure-container-app-environment/azurerm | ~> 0.0 |
-| <a name="module_reminder_ca_itn_01"></a> [reminder\_ca\_itn\_01](#module\_reminder\_ca\_itn\_01) | pagopa-dx/azure-container-app/azurerm | ~> 0.0 |
+| <a name="module_com_cae"></a> [com\_cae](#module\_com\_cae) | pagopa-dx/azure-container-app-environment/azurerm | ~> 1.0 |
+| <a name="module_reminder_ca_itn_01"></a> [reminder\_ca\_itn\_01](#module\_reminder\_ca\_itn\_01) | pagopa-dx/azure-container-app/azurerm | ~> 1.0 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
 | [azurerm_key_vault_access_policy.reminder_kv_messages](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_access_policy) | resource |
+| [azurerm_role_assignment.cae_acr_pull](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.cae_admins_contributor](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_key_vault_secret.appinsights_connection_string](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.kafka_url_message](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.kafka_url_messagesend](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
@@ -42,6 +44,8 @@ No requirements.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_acr_id"></a> [acr\_id](#input\_acr\_id) | The Id of the ACR to pull images from | `string` | n/a | yes |
+| <a name="input_entra_id_admin_ids"></a> [entra\_id\_admin\_ids](#input\_entra\_id\_admin\_ids) | Id of Entra ID groups that should be admins of the Container App Environment | `set(string)` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | Values which are used to generate resource names and location short names. They are all mandatory except for domain, which should not be used only in the case of a resource used by multiple domains. | <pre>object({<br/>    prefix    = string<br/>    env_short = string<br/>    location  = string<br/>    domain    = string<br/>  })</pre> | n/a | yes |
 | <a name="input_key_vault_id"></a> [key\_vault\_id](#input\_key\_vault\_id) | Id of the team domain key vault | `string` | n/a | yes |
 | <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id) | n/a | `string` | n/a | yes |

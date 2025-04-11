@@ -1,13 +1,15 @@
 module "reminder_ca_itn_01" {
   source  = "pagopa-dx/azure-container-app/azurerm"
-  version = "~> 0.0"
+  version = "~> 1.0"
 
   container_app_environment_id = module.com_cae.id
+  user_assigned_identity_id    = module.com_cae.user_assigned_identity.id
 
   environment = {
     prefix          = var.environment.prefix
     env_short       = var.environment.env_short
     location        = var.environment.location
+    domain          = var.environment.domain
     app_name        = "reminder"
     instance_number = "01"
   }
@@ -16,22 +18,30 @@ module "reminder_ca_itn_01" {
 
   container_app_templates = [
     {
-      image        = "mcr.microsoft.com/k8se/quickstart:latest"
+      image        = "iopcommonacr.azurecr.io/io-premium-reminder-ms:0.16.0"
       app_settings = local.reminder_ca.app_settings
 
       liveness_probe = {
-        path          = "/"
+        path          = "/api/v1/health/live"
         initial_delay = 60
+      }
+
+      readiness_probe = {
+        path                    = "/api/v1/health/ready"
+        success_count_threshold = 1
+        failure_count_threshold = 3
       }
     }
   ]
 
   secrets = local.reminder_ca.secrets
 
+  acr_registry = "iopcommonacr.azurecr.io"
+
   tier          = "xs"
   revision_mode = "Single"
 
-  # target_port = 9090
+  target_port = 9090
 
   tags = var.tags
 }
@@ -145,11 +155,4 @@ locals {
       }
     ]
   }
-}
-
-resource "azurerm_key_vault_access_policy" "reminder_kv_messages" {
-  key_vault_id       = var.key_vault_id
-  secret_permissions = ["Get", "List"]
-  object_id          = module.reminder_ca_itn_01.principal_id
-  tenant_id          = var.tenant_id
 }

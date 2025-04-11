@@ -1,6 +1,6 @@
 module "com_cae" {
   source  = "pagopa-dx/azure-container-app-environment/azurerm"
-  version = "~> 0.0"
+  version = "~> 1.0"
 
   resource_group_name = var.resource_group_name
 

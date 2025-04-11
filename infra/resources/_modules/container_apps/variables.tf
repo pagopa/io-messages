@@ -51,3 +51,13 @@ variable "key_vault_id" {
   type        = string
   description = "Id of the team domain key vault"
 }
+
+variable "entra_id_admin_ids" {
+  type        = set(string)
+  description = "Id of Entra ID groups that should be admins of the Container App Environment"
+}
+
+variable "acr_id" {
+  type        = string
+  description = "The Id of the ACR to pull images from"
+}
