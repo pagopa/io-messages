@@ -2,7 +2,6 @@ import { CosmosClient } from "@azure/cosmos";
 import { TableClient } from "@azure/data-tables";
 import { app } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
-import { BlobServiceClient } from "@azure/storage-blob";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
 import { createClient } from "redis";
@@ -12,6 +11,7 @@ import {
   initNoSamplingClient,
 } from "./adapters/appinsights/appinsights.js";
 import { messageSchema } from "./adapters/avro.js";
+import { makeStorageAccountService } from "./adapters/blob-storage/index.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
 import { CosmosIngestionCollector } from "./adapters/cosmos/event-collector.js";
@@ -34,8 +34,8 @@ const main = async (config: Config) => {
   const telemetryClient = initNoSamplingClient(config.appInsights);
   const telemetryService = new TelemetryEventService(telemetryClient);
 
-  const blobServiceCLient = new BlobServiceClient(
-    config.messageContentStorage.accountUri,
+  const blobServiceCLient = makeStorageAccountService(
+    config.messageContentStorage,
     azureCredentials,
   );
 
