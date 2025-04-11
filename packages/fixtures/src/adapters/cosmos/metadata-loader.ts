@@ -68,7 +68,6 @@ export class CosmosMetadataLoader implements MetadataLoader {
   async load(
     metadata: MessageMetadata[],
   ): Promise<ItemResponse<MessageMetadata>[]> {
-    const r = Promise.all(metadata.map((m) => this.container.items.create(m)));
-    return r;
+    return Promise.all(metadata.map((m) => this.container.items.create(m)));
   }
 }
