@@ -31,8 +31,8 @@ import * as O from "fp-ts/lib/Option";
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { Context } from "@azure/functions";
 import { enrichServiceData } from "../utils/messages";
-import { IGetMessagesFunctionSelector } from "./getMessagesFunctions/getMessages.selector";
 import { RedisClientFactory } from "../utils/redis";
+import { IGetMessagesFunctionSelector } from "./getMessagesFunctions/getMessages.selector";
 
 type IGetMessagesHandlerResponse =
   | IResponseSuccessJson<PageResults>

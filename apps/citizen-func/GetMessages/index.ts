@@ -33,9 +33,9 @@ import { MessageViewExtendedQueryModel } from "../model/message_view_query";
 import { initTelemetryClient } from "../utils/appinsights";
 import { getThirdPartyDataWithCategoryFetcher } from "../utils/messages";
 import RCConfigurationUtility from "../utils/remoteContentConfig";
+import { RedisClientFactory } from "../utils/redis";
 import { GetMessages } from "./handler";
 import { createGetMessagesFunctionSelection } from "./getMessagesFunctions/getMessages.selector";
-import { RedisClientFactory } from "../utils/redis";
 
 // Setup Express
 const app = express();
