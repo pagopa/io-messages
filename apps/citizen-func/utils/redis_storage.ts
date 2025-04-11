@@ -4,6 +4,21 @@ import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import { RedisClientFactory, singleStringReply } from "./redis";
 
+/**
+ * Transform any Redis falsy response to an error
+ *
+ * @param response
+ * @param error
+ * @returns
+ */
+export const falsyResponseToErrorAsync = (error: Error) => (
+  response: TE.TaskEither<Error, boolean>
+): TE.TaskEither<Error, true> =>
+  pipe(
+    response,
+    TE.chain(res => (res ? TE.right(res) : TE.left(error)))
+  );
+
 export const setWithExpirationTask = (
   redisClientFactory: RedisClientFactory,
   key: string,
@@ -49,21 +64,6 @@ export const integerReplAsync = (expectedReply?: number) => (
       }
       return typeof reply === "number";
     })
-  );
-
-/**
- * Transform any Redis falsy response to an error
- *
- * @param response
- * @param error
- * @returns
- */
-export const falsyResponseToErrorAsync = (error: Error) => (
-  response: TE.TaskEither<Error, boolean>
-): TE.TaskEither<Error, true> =>
-  pipe(
-    response,
-    TE.chain(res => (res ? TE.right(res) : TE.left(error)))
   );
 
 export const getTask = (

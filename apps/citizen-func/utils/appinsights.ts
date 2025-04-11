@@ -19,15 +19,15 @@ export const initTelemetryClient = (env = process.env) =>
     : pipe(
         env.APPLICATIONINSIGHTS_CONNECTION_STRING,
         NonEmptyString.decode,
-        E.map((k) =>
+        E.map(k =>
           initAppInsights(k, {
             disableAppInsights: env.APPINSIGHTS_DISABLE === "true",
             samplingPercentage: pipe(
               env.APPINSIGHTS_SAMPLING_PERCENTAGE,
               IntegerFromString.decode,
-              E.getOrElse(() => DEFAULT_SAMPLING_PERCENTAGE),
-            ),
-          }),
+              E.getOrElse(() => DEFAULT_SAMPLING_PERCENTAGE)
+            )
+          })
         ),
-        E.getOrElse(constUndefined),
+        E.getOrElse(constUndefined)
       );
