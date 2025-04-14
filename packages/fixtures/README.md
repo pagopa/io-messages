@@ -8,12 +8,10 @@ To use these fixtures, install this package in the applications you want to test
 
 ## Setup
 
-1. Create a file named `scripts/fixtures.ts` in your application.
+1. Create a file named `scripts/fixtures.js` in your application.
    - Use this file to call the `loadFixtures` function. You can find an example [here](https://github.com/pagopa/io-messages/blob/feats/add-etl-fixtures/apps/etl-func/scripts/fixtures.ts).
 2. Add a script to the `package.json` of your application:
    - Name the script `fixtures`. See an example [here](https://github.com/pagopa/io-messages/blob/feats/add-etl-fixtures/apps/etl-func/package.json#L12).
-
-> **Note**: Ensure you have `tsx` installed as a development dependency in your application.
 
 ## Usage
 
