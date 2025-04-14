@@ -1,4 +1,4 @@
-import { Container, ItemResponse } from "@azure/cosmos";
+import { Container } from "@azure/cosmos";
 import {
   FiscalCode,
   fiscalCodeSchema,
@@ -22,7 +22,7 @@ export interface MetadataLoader {
   generateMany: (count: number) => MessageMetadata[];
   load: (
     metadata: MessageMetadata[],
-  ) => Promise<ItemResponse<MessageMetadata>[]>;
+  ) => Promise<{ error?: Error; success: boolean }>;
 }
 
 export class CosmosMetadataLoader implements MetadataLoader {
@@ -67,7 +67,17 @@ export class CosmosMetadataLoader implements MetadataLoader {
 
   async load(
     metadata: MessageMetadata[],
-  ): Promise<ItemResponse<MessageMetadata>[]> {
-    return Promise.all(metadata.map((m) => this.container.items.create(m)));
+  ): Promise<{ error?: Error; success: boolean }> {
+    try {
+      await Promise.all(metadata.map((m) => this.container.items.create(m)));
+      return { success: true };
+    } catch (error) {
+      return {
+        error: new Error(
+          `Something went wrong trying to load ${metadata.length} message metadata | ${error}`,
+        ),
+        success: false,
+      };
+    }
   }
 }

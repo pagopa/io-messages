@@ -11,7 +11,9 @@ interface GenerateManyOpts {
 
 export interface ContentLoader {
   generateMany: (count: number, opts: GenerateManyOpts) => MessageContent[];
-  load: (messageContents: MessageContentWithIds[]) => Promise<void>;
+  load: (
+    messageContents: MessageContentWithIds[],
+  ) => Promise<{ error?: Error; success: boolean }>;
 }
 
 export class BlobContentLoader implements ContentLoader {
@@ -46,15 +48,27 @@ export class BlobContentLoader implements ContentLoader {
     }));
   }
 
-  async load(messageContents: MessageContentWithIds[]): Promise<void> {
-    Promise.all(
-      messageContents.map((content) => {
-        const stringContent = JSON.stringify(content);
-        const blobClient = this.containerClient.getBlockBlobClient(
-          `${content.messageId}.json`,
-        );
-        return blobClient.upload(stringContent, stringContent.length);
-      }),
-    );
+  async load(
+    messageContents: MessageContentWithIds[],
+  ): Promise<{ error?: Error; success: boolean }> {
+    try {
+      await Promise.all(
+        messageContents.map((content) => {
+          const stringContent = JSON.stringify(content);
+          const blobClient = this.containerClient.getBlockBlobClient(
+            `${content.messageId}.json`,
+          );
+          return blobClient.upload(stringContent, stringContent.length);
+        }),
+      );
+      return { success: true };
+    } catch (error) {
+      return {
+        error: new Error(
+          `Something went wrong trying to load ${messageContents.length} message contents | ${error}`,
+        ),
+        success: false,
+      };
+    }
   }
 }
