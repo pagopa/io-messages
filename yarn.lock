@@ -10744,9 +10744,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ops-ca@workspace:apps/ops-func":
+"ops-func@workspace:apps/ops-func":
   version: 0.0.0-use.local
-  resolution: "ops-ca@workspace:apps/ops-func"
+  resolution: "ops-func@workspace:apps/ops-func"
   dependencies:
     "@azure/cosmos": "npm:^4.2.0"
     "@azure/functions": "npm:^4.4.0"
