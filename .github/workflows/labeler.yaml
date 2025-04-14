@@ -20,6 +20,10 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/labeler@main
+      - name: Check out repository
+        uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2
+
+      - name: Label PR
+        uses: actions/labeler@6463cdb00ee92c05bec55dffc4e1fce250301945
         with:
           sync-labels: true
