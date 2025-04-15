@@ -1,20 +1,18 @@
-import { InvocationContext } from "@azure/functions";
-import { QueueClient } from "@azure/storage-queue";
+import { InvocationContext, StorageQueueOutput } from "@azure/functions";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { splitDeleteMessage } from "../split-delete-messages.js";
 
-const sendMessageMock = vi.fn();
-
-const mockQueueClient = {
-  sendMessage: sendMessageMock,
-} as unknown as QueueClient;
+const setMock = vi.fn();
 
 const mockContext = {
   error: vi.fn(),
+  extraOutputs: { set: setMock },
 } as unknown as InvocationContext;
 
-const handler = splitDeleteMessage(mockQueueClient);
+const queueOutputMock = {} as StorageQueueOutput;
+
+const handler = splitDeleteMessage(queueOutputMock);
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -31,14 +29,17 @@ describe("splitDeleteMessage", () => {
 
     await handler(blob, mockContext);
 
-    expect(sendMessageMock).toHaveBeenCalledTimes(2);
-    expect(sendMessageMock).toHaveBeenCalledWith(
-      Buffer.from(JSON.stringify({ fiscalCode, messageId })).toString("base64"),
-    );
-    expect(sendMessageMock).toHaveBeenCalledWith(
-      Buffer.from(JSON.stringify({ fiscalCode, messageId })).toString("base64"),
-    );
-    expect(mockContext.error).not.toHaveBeenCalled();
+    expect(setMock).toHaveBeenCalledTimes(1);
+    expect(setMock).toHaveBeenCalledWith(queueOutputMock, [
+      {
+        fiscalCode,
+        messageId,
+      },
+      {
+        fiscalCode,
+        messageId,
+      },
+    ]);
   });
 
   test("should log an error for invalid blob input", async () => {
@@ -46,7 +47,7 @@ describe("splitDeleteMessage", () => {
 
     await handler(blob, mockContext);
 
-    expect(sendMessageMock).not.toHaveBeenCalled();
+    expect(setMock).not.toHaveBeenCalled();
     expect(mockContext.error).toHaveBeenCalledWith(
       `Invalid pair fiscalCode: invalid_blob, messageId: undefined`,
     );
@@ -59,10 +60,9 @@ describe("splitDeleteMessage", () => {
 
     await handler(blob, mockContext);
 
-    expect(sendMessageMock).toHaveBeenCalledTimes(1);
-    expect(sendMessageMock).toHaveBeenCalledWith(
-      Buffer.from(JSON.stringify({ fiscalCode, messageId })).toString("base64"),
-    );
+    expect(setMock).toHaveBeenCalledWith(queueOutputMock, [
+      { fiscalCode, messageId },
+    ]);
 
     expect(mockContext.error).toHaveBeenCalledWith(
       `Invalid pair fiscalCode: fiscalCode2, messageId: `,
@@ -71,11 +71,11 @@ describe("splitDeleteMessage", () => {
 
   test("should handle errors from sendMessage gracefully", async () => {
     const blob = Buffer.from("fiscalCode1,messageId1");
-    sendMessageMock.mockRejectedValueOnce(new Error("Queue error"));
+    setMock.mockRejectedValueOnce(new Error("Queue error"));
 
     await handler(blob, mockContext);
 
-    expect(sendMessageMock).toHaveBeenCalledTimes(1);
+    expect(setMock).toHaveBeenCalledTimes(1);
     expect(mockContext.error).not.toHaveBeenCalled(); // No explicit error handling in the function
   });
 });

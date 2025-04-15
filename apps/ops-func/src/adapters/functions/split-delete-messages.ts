@@ -1,8 +1,7 @@
-import { StorageBlobHandler } from "@azure/functions";
-import { QueueClient } from "@azure/storage-queue";
+import { StorageBlobHandler, StorageQueueOutput } from "@azure/functions";
 
 export const splitDeleteMessage =
-  (queueClient: QueueClient): StorageBlobHandler =>
+  (queueOutput: StorageQueueOutput): StorageBlobHandler =>
   async (blob, context) => {
     if (!Buffer.isBuffer(blob)) {
       context.error("Invalid input blob file");
@@ -10,20 +9,25 @@ export const splitDeleteMessage =
     }
     const lines = blob.toString("utf-8").trim().split("\n");
 
-    lines.forEach((line) => {
+    const messages = lines.filter((line) => {
       const [fiscalCode, messageId] = line.split(",");
 
+      // we don't want to stop the execution if a fiscalCode or messageId is not
+      // defined so wqe just skip the line
       if (!fiscalCode || !messageId) {
         context.error(
           `Invalid pair fiscalCode: ${fiscalCode}, messageId: ${messageId}`,
         );
-        return;
+        return false;
       }
-
-      return queueClient.sendMessage(
-        Buffer.from(JSON.stringify({ fiscalCode, messageId })).toString(
-          "base64",
-        ),
-      );
+      return true;
     });
+
+    const serializedMessages = messages.map((message) => ({
+      fiscalCode: message.split(",")[0],
+      messageId: message.split(",")[1],
+    }));
+
+    if (serializedMessages.length > 0)
+      context.extraOutputs.set(queueOutput, serializedMessages);
   };

@@ -1,8 +1,7 @@
 import { CosmosClient } from "@azure/cosmos";
-import { app } from "@azure/functions";
+import { app, output } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
-import { QueueServiceClient } from "@azure/storage-queue";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
 
@@ -71,10 +70,10 @@ const main = async (config: Config): Promise<void> => {
     deletedMessagesLogs,
   );
 
-  const queueClient = new QueueServiceClient(
-    config.storageAccount.queueUrl,
-    azureCredentials,
-  ).getQueueClient("delete-messages");
+  const queueOutput = output.storageQueue({
+    queueName: "delete-messages",
+    connection: "STORAGE_ACCOUNT",
+  });
 
   app.http("Health", {
     authLevel: "anonymous",
@@ -85,8 +84,9 @@ const main = async (config: Config): Promise<void> => {
 
   app.storageBlob("SplitDeleteMessageChunks", {
     connection: "STORAGE_ACCOUNT",
-    handler: splitDeleteMessage(queueClient),
+    handler: splitDeleteMessage(queueOutput),
     path: "delete-messages/{name}",
+    extraOutputs: [queueOutput],
   });
 
   app.storageQueue("DeleteMessages", {
