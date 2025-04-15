@@ -20,9 +20,7 @@ const TEST_FISCAL_CODES = z
 export interface MetadataLoader {
   generate: () => MessageMetadata;
   generateMany: (count: number) => MessageMetadata[];
-  load: (
-    metadata: MessageMetadata[],
-  ) => Promise<{ error?: Error; success: boolean }>;
+  load: (metadata: MessageMetadata[]) => Promise<void>;
 }
 
 export class CosmosMetadataLoader implements MetadataLoader {
@@ -65,19 +63,7 @@ export class CosmosMetadataLoader implements MetadataLoader {
     return Array.from({ length: count }, () => this.generate());
   }
 
-  async load(
-    metadata: MessageMetadata[],
-  ): Promise<{ error?: Error; success: boolean }> {
-    try {
-      await Promise.all(metadata.map((m) => this.container.items.create(m)));
-      return { success: true };
-    } catch (error) {
-      return {
-        error: new Error(
-          `Something went wrong trying to load ${metadata.length} message metadata | ${error}`,
-        ),
-        success: false,
-      };
-    }
+  async load(metadata: MessageMetadata[]): Promise<void> {
+    await Promise.all(metadata.map((m) => this.container.items.create(m)));
   }
 }
