@@ -26,6 +26,8 @@ export class CosmosMessageMetadataDeleter implements MessageMetadataDeleter {
    * @param messageId - The id of the item.
    * @returns A promise that resolves when the deletion is complete.
    */
+  // Here we are not using branded types because we want to be able to delete
+  // messages with malformed fiscal code or message id
   async deleteMessageMetadata(
     fiscalCode: string,
     messageId: string,
