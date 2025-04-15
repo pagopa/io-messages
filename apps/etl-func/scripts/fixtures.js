@@ -18,25 +18,24 @@ const etlFunctionPath = resolve(__dirname, "../local.settings.json");
 
 const aadCredentials = new DefaultAzureCredential();
 
-if (existsSync(etlFunctionPath)) {
-  const settings = JSON.parse(readFileSync(etlFunctionPath, "utf8")).Values;
-  Object.keys(settings).forEach((key) => {
-    process.env[key] = settings[key];
-  });
-} else {
-  throw new Error("ETL function not found");
-}
+const getSettings = (settingsPath) => {
+  if (existsSync(settingsPath)) {
+    return JSON.parse(readFileSync(etlFunctionPath, "utf8")).Values;
+  } else {
+    throw new Error("ETL function not found");
+  }
+};
+
+const settings = getSettings(etlFunctionPath);
 
 const options = loadFixturesOptionsSchema.parse({
-  cosmosEndpoint: process.env.COMMON_COSMOS__accountEndpoint,
-  cosmosDatabaseName: process.env.COMMON_COSMOS_DBNAME,
-  cosmosMessageContainerName: process.env.COMMON_COSMOS_MESSAGES_CONTAINER_NAME,
-  storageConnectionString:
-    process.env.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
-  storageMessageContentContainerName:
-    process.env.MESSAGE_CONTENT_CONTAINER_NAME,
-  includePayments: process.env.FIXTURES_INCLUDE_PAYMENTS,
-  includeRemoteContents: process.env.FIXTURES_INCLUDE_REMOTE_CONTENT,
+  cosmosEndpoint: settings.COMMON_COSMOS__accountEndpoint,
+  cosmosDatabaseName: settings.COMMON_COSMOS_DBNAME,
+  cosmosMessageContainerName: settings.COMMON_COSMOS_MESSAGES_CONTAINER_NAME,
+  storageConnectionString: settings.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+  storageMessageContentContainerName: settings.MESSAGE_CONTENT_CONTAINER_NAME,
+  includePayments: settings.FIXTURES_INCLUDE_PAYMENTS,
+  includeRemoteContents: settings.FIXTURES_INCLUDE_REMOTE_CONTENT,
 });
 
 loadFixtures(fixturesToGenerate, { ...options, aadCredentials });
