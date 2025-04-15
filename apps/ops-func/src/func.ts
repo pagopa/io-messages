@@ -71,8 +71,8 @@ const main = async (config: Config): Promise<void> => {
   );
 
   const queueOutput = output.storageQueue({
-    queueName: "delete-messages",
     connection: "STORAGE_ACCOUNT",
+    queueName: "delete-messages",
   });
 
   app.http("Health", {
@@ -84,9 +84,9 @@ const main = async (config: Config): Promise<void> => {
 
   app.storageBlob("SplitDeleteMessageChunks", {
     connection: "STORAGE_ACCOUNT",
+    extraOutputs: [queueOutput],
     handler: splitDeleteMessage(queueOutput),
     path: "delete-messages/{name}",
-    extraOutputs: [queueOutput],
   });
 
   app.storageQueue("DeleteMessages", {
