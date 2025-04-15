@@ -1,21 +1,18 @@
+import { QueueClient } from "@azure/storage-queue";
 import * as E from "fp-ts/Either";
-
-import { KindEnum as NotifyKind } from "../../generated/notifications/NotifyMessage";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { aFiscalCode, aRetrievedMessage } from "../../__mocks__/models.mock";
-
-import { base64EncodeObject, sendNotification } from "../notification";
-import { QueueClient } from "@azure/storage-queue";
-import { toHash } from "../../utils/crypto";
 import { NotificationMessageKindEnum } from "../../generated/notifications/NotificationMessageKind";
-
-import { vi, it, describe, expect, beforeEach } from "vitest";
+import { KindEnum as NotifyKind } from "../../generated/notifications/NotifyMessage";
+import { toHash } from "../../utils/crypto";
+import { base64EncodeObject, sendNotification } from "../notification";
 
 // -----------------------------
 // Mocks
 // -----------------------------
 
-const mockSendMessage = vi.fn().mockImplementation((_) => Promise.resolve());
+const mockSendMessage = vi.fn().mockImplementation(() => Promise.resolve());
 
 const queueClient = {
   sendMessage: mockSendMessage,
@@ -55,7 +52,7 @@ describe("Notify", () => {
   });
 
   it("should fail if the Queue Storage fails on notify", async () => {
-    mockSendMessage.mockImplementation((_) =>
+    mockSendMessage.mockImplementation(() =>
       Promise.reject(new Error("Generic Error")),
     );
 
