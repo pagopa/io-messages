@@ -1,6 +1,6 @@
 import { ContentLoader } from "@/adapters/blob/content-loader.js";
 import { MetadataLoader } from "@/adapters/cosmos/metadata-loader.js";
-import { Logger } from "io-messages-common/types/log";
+import { Logger } from "pino";
 
 interface LoadFixturesOptions {
   includePayments: boolean;

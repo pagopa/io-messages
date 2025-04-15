@@ -1,6 +1,6 @@
 import { ContentLoader } from "@/adapters/blob/content-loader.js";
 import { MetadataLoader } from "@/adapters/cosmos/metadata-loader.js";
-import { Logger } from "io-messages-common/types/log";
+import { Logger } from "pino";
 import { describe, expect, test, vi } from "vitest";
 
 import { LoadFixturesUseCase } from "../load-fixtures.js";
@@ -29,11 +29,11 @@ const infoMock = vi.fn();
 const errorMock = vi.fn();
 const logMock = vi.fn();
 
-const logger: Logger = {
+const logger = {
   error: errorMock,
   info: infoMock,
   log: logMock,
-};
+} as unknown as Logger;
 
 const loadFixturesUseCase = new LoadFixturesUseCase(
   metadataLoader,
