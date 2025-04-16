@@ -22,12 +22,6 @@ resource "azurerm_storage_container" "operations" {
   container_access_type = "private"
 }
 
-resource "azurerm_storage_container" "delete_messages_logs" {
-  name                  = "deleted-messages-logs"
-  storage_account_name  = module.com_st.name
-  container_access_type = "private"
-}
-
 resource "azurerm_storage_table" "messages_ingestion_error" {
   name                 = "MessagesDataplanIngestionErrors"
   storage_account_name = module.com_st.name
