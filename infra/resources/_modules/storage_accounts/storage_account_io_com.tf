@@ -31,7 +31,6 @@ resource "azurerm_storage_container" "deleted_messages_logs" {
 resource "azurerm_storage_container_immutability_policy" "deleted_messages_logs" {
   storage_container_resource_manager_id = azurerm_storage_container.deleted_messages_logs.resource_manager_id
   immutability_period_in_days           = 146000
-  protected_append_writes_all_enabled   = true
   protected_append_writes_enabled       = true
 }
 
