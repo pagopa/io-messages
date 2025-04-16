@@ -1,14 +1,12 @@
 import { getOrElseW } from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
-
-import { NotificationEntry } from "../printer";
+import { describe, expect, it } from "vitest";
 
 import { messagePrinter } from "../makdown/message";
-import { reminderReadPrinter } from "../makdown/reminderRead";
 import { reminderPaymentPrinter } from "../makdown/reminderPayment";
 import { reminderPaymentLastPrinter } from "../makdown/reminderPaymentLast";
-
-import { it, describe, expect } from "vitest";
+import { reminderReadPrinter } from "../makdown/reminderRead";
+import { NotificationEntry } from "../printer";
 
 const notificationMessage = {
   organizationName: "TEST ORG",
@@ -17,15 +15,15 @@ const notificationMessage = {
 };
 
 describe.each([
-  { test: "MESSAGE", printer: messagePrinter },
-  { test: "REMINDER_READ", printer: reminderReadPrinter },
-  { test: "REMINDER_PAYMENT", printer: reminderPaymentPrinter },
-  { test: "REMINDER_PAYMENT_LAST", printer: reminderPaymentLastPrinter },
+  { printer: messagePrinter, test: "MESSAGE" },
+  { printer: reminderReadPrinter, test: "REMINDER_READ" },
+  { printer: reminderPaymentPrinter, test: "REMINDER_PAYMENT" },
+  { printer: reminderPaymentLastPrinter, test: "REMINDER_PAYMENT_LAST" },
 ])(`Printer - Template - %s`, ({ printer }) => {
   it("should print a silent notification", () => {
     const notification = pipe(
       NotificationEntry.decode(notificationMessage),
-      getOrElseW((_) => {
+      getOrElseW(() => {
         throw "Error decoding object";
       }),
     );
@@ -37,7 +35,7 @@ describe.each([
   it("should print a verbose notification", () => {
     const notification = pipe(
       NotificationEntry.decode(notificationMessage),
-      getOrElseW((_) => {
+      getOrElseW(() => {
         throw "Error decoding object";
       }),
     );

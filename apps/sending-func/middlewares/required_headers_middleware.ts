@@ -1,12 +1,12 @@
-import * as E from "fp-ts/lib/Either";
-import * as T from "fp-ts/lib/Task";
 import { IRequestMiddleware } from "@pagopa/ts-commons/lib/request_middleware";
 import {
   IResponse,
   ResponseErrorForbiddenAnonymousUser,
-  ResponseErrorForbiddenNotAuthorized
+  ResponseErrorForbiddenNotAuthorized,
 } from "@pagopa/ts-commons/lib/responses";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import * as E from "fp-ts/lib/Either";
+import * as T from "fp-ts/lib/Task";
 import { pipe } from "fp-ts/lib/function";
 
 /*
@@ -15,56 +15,62 @@ import { pipe } from "fp-ts/lib/function";
  ** resouce link: https://docs.microsoft.com/en-us/rest/api/apimanagement/current-ga/subscription/get
  */
 export const parseOwnerIdFullPath = (
-  fullPath: NonEmptyString
+  fullPath: NonEmptyString,
 ): NonEmptyString =>
   pipe(
     fullPath,
-    f => f.split("/"),
-    a => a[a.length - 1] as NonEmptyString
+    (f) => f.split("/"),
+    (a) => a[a.length - 1] as NonEmptyString,
   );
 
-export const RequiredUserIdMiddleware = (): IRequestMiddleware<
-  "IResponseErrorForbiddenAnonymousUser",
-  NonEmptyString
-> => (
-  request
-): Promise<
-  E.Either<IResponse<"IResponseErrorForbiddenAnonymousUser">, NonEmptyString>
-> =>
-  pipe(
-    request.header("x-user-id"),
-    NonEmptyString.decode,
-    E.map(parseOwnerIdFullPath),
-    E.mapLeft(() => ResponseErrorForbiddenAnonymousUser),
-    T.of
-  )();
+export const RequiredUserIdMiddleware =
+  (): IRequestMiddleware<
+    "IResponseErrorForbiddenAnonymousUser",
+    NonEmptyString
+  > =>
+  (
+    request,
+  ): Promise<
+    E.Either<IResponse<"IResponseErrorForbiddenAnonymousUser">, NonEmptyString>
+  > =>
+    pipe(
+      request.header("x-user-id"),
+      NonEmptyString.decode,
+      E.map(parseOwnerIdFullPath),
+      E.mapLeft(() => ResponseErrorForbiddenAnonymousUser),
+      T.of,
+    )();
 
-export const RequiredSubscriptionIdMiddleware = (): IRequestMiddleware<
-  "IResponseErrorForbiddenAnonymousUser",
-  NonEmptyString
-> => (
-  request
-): Promise<
-  E.Either<IResponse<"IResponseErrorForbiddenAnonymousUser">, NonEmptyString>
-> =>
-  pipe(
-    request.header("x-subscription-id"),
-    NonEmptyString.decode,
-    E.mapLeft(() => ResponseErrorForbiddenAnonymousUser),
-    T.of
-  )();
+export const RequiredSubscriptionIdMiddleware =
+  (): IRequestMiddleware<
+    "IResponseErrorForbiddenAnonymousUser",
+    NonEmptyString
+  > =>
+  (
+    request,
+  ): Promise<
+    E.Either<IResponse<"IResponseErrorForbiddenAnonymousUser">, NonEmptyString>
+  > =>
+    pipe(
+      request.header("x-subscription-id"),
+      NonEmptyString.decode,
+      E.mapLeft(() => ResponseErrorForbiddenAnonymousUser),
+      T.of,
+    )();
 
-export const RequiredUserGroupsMiddleware = (): IRequestMiddleware<
-  "IResponseErrorForbiddenNotAuthorized",
-  NonEmptyString
-> => (
-  request
-): Promise<
-  E.Either<IResponse<"IResponseErrorForbiddenNotAuthorized">, NonEmptyString>
-> =>
-  pipe(
-    request.header("x-user-groups"),
-    NonEmptyString.decode,
-    E.mapLeft(() => ResponseErrorForbiddenNotAuthorized),
-    T.of
-  )();
+export const RequiredUserGroupsMiddleware =
+  (): IRequestMiddleware<
+    "IResponseErrorForbiddenNotAuthorized",
+    NonEmptyString
+  > =>
+  (
+    request,
+  ): Promise<
+    E.Either<IResponse<"IResponseErrorForbiddenNotAuthorized">, NonEmptyString>
+  > =>
+    pipe(
+      request.header("x-user-groups"),
+      NonEmptyString.decode,
+      E.mapLeft(() => ResponseErrorForbiddenNotAuthorized),
+      T.of,
+    )();

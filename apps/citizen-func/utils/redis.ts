@@ -10,11 +10,11 @@ export const createSimpleRedisClient = async (
   port?: string,
   enableTls: boolean = true
 ): Promise<redis.RedisClientType> => {
-  const DEFAULT_REDIS_PORT = enableTls ? "6380" : "6379";
+  const REDIS_PORT = enableTls ? "6380" : "6379";
   const prefixUrl = enableTls ? "rediss://" : "redis://";
   const completeRedisUrl = `${prefixUrl}${redisUrl}`;
 
-  const redisPort: number = parseInt(port || DEFAULT_REDIS_PORT, 10);
+  const redisPort: number = parseInt(port || REDIS_PORT, 10);
 
   const redisClient = redis.createClient<
     Record<string, never>,
@@ -138,6 +138,7 @@ export class RedisClientFactory {
 
   public readonly getInstance = async (): Promise<RedisClient> => {
     if (!this.redisClient) {
+      // eslint-disable-next-line functional/immutable-data
       this.redisClient = await this.createSimpleRedisClient(
         this.config.REDIS_URL,
         this.config.REDIS_PASSWORD,

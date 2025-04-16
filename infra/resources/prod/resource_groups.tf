@@ -55,6 +55,13 @@ resource "azurerm_role_assignment" "infra_ci_rg_st_table_reader" {
   description          = "Allow Infra CI identity to read Storage Account tables monorepository resource group scope"
 }
 
+resource "azurerm_role_assignment" "infra_ci_rgs_ca_operator" {
+  scope                = azurerm_resource_group.itn_com.id
+  role_definition_name = "Container Apps Operator"
+  principal_id         = data.azurerm_user_assigned_identity.infra_ci_01.principal_id
+  description          = "Allow Infra CI identity to read Container App configuration at monorepository resource group scope"
+}
+
 resource "azurerm_role_assignment" "infra_cd_rg_contributor" {
   scope                = azurerm_resource_group.itn_com.id
   role_definition_name = "Contributor"
@@ -95,6 +102,13 @@ resource "azurerm_role_assignment" "infra_cd_rg_st_table_contributor" {
   role_definition_name = "Storage Table Data Contributor"
   principal_id         = data.azurerm_user_assigned_identity.infra_cd_01.principal_id
   description          = "Allow Infra CD identity to write Storage Account tables monorepository resource group scope"
+}
+
+resource "azurerm_role_assignment" "infra_cd_rgs_ca_contributor" {
+  scope                = azurerm_resource_group.itn_com.id
+  role_definition_name = "Container Apps Contributor"
+  principal_id         = data.azurerm_user_assigned_identity.infra_cd_01.principal_id
+  description          = "Allow Infra CD identity to write Container App configuration at monorepository resource group scope"
 }
 
 resource "azurerm_role_assignment" "admins_group_rg" {
