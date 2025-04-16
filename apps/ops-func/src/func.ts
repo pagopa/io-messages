@@ -50,7 +50,7 @@ const main = async (config: Config): Promise<void> => {
   );
 
   const deletedMessagesLogs = comBlobServiceClient.getContainerClient(
-    "operations/logs/deleted-messages",
+    "deleted-messages-logs",
   );
 
   const messageContentDeleter = new BlobMessageContentDeleter(messageContent);
