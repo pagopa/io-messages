@@ -9,24 +9,22 @@ export const splitDeleteMessage =
     }
     const lines = blob.toString("utf-8").trim().split("\n");
 
-    const messages = lines.filter((line) => {
+    const serializedMessages: { fiscalCode: string; messageId: string }[] = [];
+
+    lines.forEach((line) => {
       const [fiscalCode, messageId] = line.split(",");
 
       // we don't want to stop the execution if a fiscalCode or messageId is not
-      // defined so wqe just skip the line
+      // defined so we just skip the line
       if (!fiscalCode || !messageId) {
         context.error(
           `Invalid pair fiscalCode: ${fiscalCode}, messageId: ${messageId}`,
         );
-        return false;
+        return;
       }
-      return true;
-    });
 
-    const serializedMessages = messages.map((message) => ({
-      fiscalCode: message.split(",")[0],
-      messageId: message.split(",")[1],
-    }));
+      serializedMessages.push({ fiscalCode, messageId });
+    });
 
     if (serializedMessages.length > 0)
       context.extraOutputs.set(queueOutput, serializedMessages);
