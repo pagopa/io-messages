@@ -50,7 +50,7 @@ const main = async (config: Config): Promise<void> => {
   );
 
   const deletedMessagesLogs = comBlobServiceClient.getContainerClient(
-    "deleted-messages-logs",
+    "operations/logs/deleted-messages",
   );
 
   const messageContentDeleter = new BlobMessageContentDeleter(messageContent);
@@ -86,7 +86,7 @@ const main = async (config: Config): Promise<void> => {
     connection: "STORAGE_ACCOUNT",
     extraOutputs: [queueOutput],
     handler: splitDeleteMessage(queueOutput),
-    path: "delete-messages/{name}",
+    path: "operations/delete-messages/{name}",
   });
 
   app.storageQueue("DeleteMessages", {
