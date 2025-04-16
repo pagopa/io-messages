@@ -5,40 +5,39 @@ import {
   createBlobService,
   createFileService,
   createQueueService,
-  createTableService
+  createTableService,
 } from "azure-storage";
-
+import { sequenceT } from "fp-ts/lib/Apply";
 import * as A from "fp-ts/lib/Array";
 import * as E from "fp-ts/lib/Either";
-import { pipe } from "fp-ts/lib/function";
 import * as RA from "fp-ts/lib/ReadonlyArray";
 import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
-
-import { sequenceT } from "fp-ts/lib/Apply";
+import { pipe } from "fp-ts/lib/function";
 import fetch from "node-fetch";
-import { getConfig, IConfig } from "./config";
+
+import { IConfig, getConfig } from "./config";
 
 type ProblemSource = "AzureCosmosDB" | "AzureStorage" | "Config" | "Url";
-// eslint-disable-next-line functional/prefer-readonly-type, @typescript-eslint/naming-convention
-export type HealthProblem<S extends ProblemSource> = string & { __source: S };
+// @typescript-eslint/naming-convention
+export type HealthProblem<S extends ProblemSource> = { __source: S } & string;
 export type HealthCheck<
   S extends ProblemSource = ProblemSource,
-  True = true
-> = TE.TaskEither<ReadonlyArray<HealthProblem<S>>, True>;
+  True = true,
+> = TE.TaskEither<readonly HealthProblem<S>[], True>;
 
 // format and cast a problem message with its source
 const formatProblem = <S extends ProblemSource>(
   source: S,
-  message: string
+  message: string,
 ): HealthProblem<S> => `${source}|${message}` as HealthProblem<S>;
 
 // utility to format an unknown error to an arry of HealthProblem
-const toHealthProblems = <S extends ProblemSource>(source: S) => (
-  e: unknown
-): ReadonlyArray<HealthProblem<S>> => [
-  formatProblem(source, E.toError(e).message)
-];
+const toHealthProblems =
+  <S extends ProblemSource>(source: S) =>
+  (e: unknown): readonly HealthProblem<S>[] => [
+    formatProblem(source, E.toError(e).message),
+  ];
 
 /**
  * Check application's configuration is correct
@@ -48,12 +47,12 @@ const toHealthProblems = <S extends ProblemSource>(source: S) => (
 export const checkConfigHealth = (): HealthCheck<"Config", IConfig> =>
   pipe(
     TE.fromEither(getConfig()),
-    TE.mapLeft(errors =>
-      errors.map(e =>
+    TE.mapLeft((errors) =>
+      errors.map((e) =>
         // give each problem its own line
-        formatProblem("Config", readableReport([e]))
-      )
-    )
+        formatProblem("Config", readableReport([e])),
+      ),
+    ),
   );
 
 /**
@@ -65,14 +64,14 @@ export const checkConfigHealth = (): HealthCheck<"Config", IConfig> =>
  * @returns either true or an array of error messages
  */
 export const checkAzureCosmosDbHealth = (
-  cosmosDbClient: CosmosClient
+  cosmosDbClient: CosmosClient,
 ): HealthCheck<"AzureCosmosDB", true> =>
   pipe(
     TE.tryCatch(
       () => cosmosDbClient.getDatabaseAccount(),
-      toHealthProblems("AzureCosmosDB")
+      toHealthProblems("AzureCosmosDB"),
     ),
-    TE.map(_ => true)
+    TE.map(() => true),
   );
 
 /**
@@ -83,11 +82,11 @@ export const checkAzureCosmosDbHealth = (
  * @returns either true or an array of error messages
  */
 export const checkAzureStorageHealth = (
-  connStr: string
+  connStr: string,
 ): HealthCheck<"AzureStorage"> => {
   const applicativeValidation = TE.getApplicativeTaskValidation(
     T.ApplicativePar,
-    RA.getSemigroup<HealthProblem<"AzureStorage">>()
+    RA.getSemigroup<HealthProblem<"AzureStorage">>(),
   );
 
   // try to instantiate a client for each product of azure storage
@@ -96,28 +95,27 @@ export const checkAzureStorageHealth = (
       createBlobService,
       createFileService,
       createQueueService,
-      createTableService
+      createTableService,
     ]
       // for each, create a task that wraps getServiceProperties
-      .map(createService =>
+      .map((createService) =>
         TE.tryCatch(
           () =>
-            new Promise<
-              azurestorageCommon.models.ServicePropertiesResult.ServiceProperties
-            >((resolve, reject) =>
-              createService(connStr).getServiceProperties((err, result) => {
-                // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-                err
-                  ? reject(err.message.replace(/\n/gim, " ")) // avoid newlines
-                  : resolve(result);
-              })
+            new Promise<azurestorageCommon.models.ServicePropertiesResult.ServiceProperties>(
+              (resolve, reject) =>
+                createService(connStr).getServiceProperties((err, result) => {
+                  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+                  err
+                    ? reject(err.message.replace(/\n/gim, " ")) // avoid newlines
+                    : resolve(result);
+                }),
             ),
-          toHealthProblems("AzureStorage")
-        )
+          toHealthProblems("AzureStorage"),
+        ),
       ),
     // run each taskEither and gather validation errors from each one of them, if any
     A.sequence(applicativeValidation),
-    TE.map(_ => true)
+    TE.map(() => true),
   );
 };
 
@@ -131,7 +129,7 @@ export const checkAzureStorageHealth = (
 export const checkUrlHealth = (url: string): HealthCheck<"Url", true> =>
   pipe(
     TE.tryCatch(() => fetch(url, { method: "HEAD" }), toHealthProblems("Url")),
-    TE.map(_ => true)
+    TE.map(() => true),
   );
 
 /**
@@ -141,30 +139,30 @@ export const checkUrlHealth = (url: string): HealthCheck<"Url", true> =>
  */
 export const checkApplicationHealth = (
   cosmosDbClient: CosmosClient,
-  remoteContentCosmosDbClient: CosmosClient
+  remoteContentCosmosDbClient: CosmosClient,
 ): HealthCheck<ProblemSource, true> => {
   const applicativeValidation = TE.getApplicativeTaskValidation(
     T.ApplicativePar,
-    RA.getSemigroup<HealthProblem<ProblemSource>>()
+    RA.getSemigroup<HealthProblem<ProblemSource>>(),
   );
 
   return pipe(
     void 0,
     TE.of,
-    TE.chain(_ => checkConfigHealth()),
-    TE.chain(config =>
+    TE.chain(() => checkConfigHealth()),
+    TE.chain((config) =>
       // run each taskEither and collect validation errors from each one of them, if any
       sequenceT(applicativeValidation)(
         checkAzureCosmosDbHealth(cosmosDbClient),
         checkAzureCosmosDbHealth(remoteContentCosmosDbClient),
         checkAzureStorageHealth(
-          config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING
+          config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
         ),
         checkAzureStorageHealth(
-          config.NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING
-        )
-      )
+          config.NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING,
+        ),
+      ),
     ),
-    TE.map(_ => true)
+    TE.map(() => true),
   );
 };

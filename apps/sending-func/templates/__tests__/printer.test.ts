@@ -1,11 +1,11 @@
-import { getPrinterForTemplate } from "../printer";
+import { describe, expect, it } from "vitest";
+
 import { NotificationTypeEnum } from "../../generated/definitions/NotificationType";
 import { messagePrinter } from "../makdown/message";
-import { reminderReadPrinter } from "../makdown/reminderRead";
 import { reminderPaymentPrinter } from "../makdown/reminderPayment";
 import { reminderPaymentLastPrinter } from "../makdown/reminderPaymentLast";
-
-import { it, describe, expect } from "vitest";
+import { reminderReadPrinter } from "../makdown/reminderRead";
+import { getPrinterForTemplate } from "../printer";
 
 describe("Printer", () => {
   it.each([

@@ -1,6 +1,12 @@
-import * as TE from "fp-ts/TaskEither";
+import { ErrorResponse } from "@azure/cosmos";
+import { createClient } from "@pagopa/io-backend-session-sdk/client";
+import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
+import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
+import { BlobService } from "azure-storage";
 import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
+import * as TE from "fp-ts/TaskEither";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   aFiscalCode,
@@ -9,22 +15,11 @@ import {
   aRetrievedMessageWithContent,
   aRetrievedService,
 } from "../../__mocks__/models.mock";
-
 import {
   getMessageWithContent,
   getService,
   getUserSessionStatusReader,
 } from "../readers";
-import {
-  Service,
-  ServiceModel,
-} from "@pagopa/io-functions-commons/dist/src/models/service";
-import { ErrorResponse } from "@azure/cosmos";
-import { BlobService } from "azure-storage";
-import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
-import { createClient } from "@pagopa/io-backend-session-sdk/client";
-
-import { vi, it, describe, expect, beforeEach } from "vitest";
 
 const findOneByServiceIdMock = vi.fn(
   () =>
@@ -35,7 +30,7 @@ const findOneByServiceIdMock = vi.fn(
 
 const serviceModelMock = {
   findOneByServiceId: findOneByServiceIdMock,
-} as any as ServiceModel;
+} as unknown as ServiceModel;
 
 const findMessageForRecipientMock = vi
   .fn()
@@ -47,14 +42,14 @@ const getContentFromBlobMock = vi
 const messageModelMock = {
   findMessageForRecipient: findMessageForRecipientMock,
   getContentFromBlob: getContentFromBlobMock,
-} as any as MessageModel;
+} as unknown as MessageModel;
 
 const anActiveSession = { active: true };
 
 const getSessionMock = vi
   .fn()
   .mockImplementation(async () =>
-    E.right({ status: 200, header: [], value: anActiveSession }),
+    E.right({ header: [], status: 200, value: anActiveSession }),
   );
 
 const sessionClientMock: ReturnType<typeof createClient> = {
@@ -86,23 +81,23 @@ describe("ServiceReader", () => {
     const result = await serviceReader(aRetrievedService.id)();
     expect(result).toMatchObject(
       E.left({
-        kind: "IResponseErrorNotFound",
         detail: `Service not found: Service ${aRetrievedService.id} was not found in the system.`,
+        kind: "IResponseErrorNotFound",
       }),
     );
   });
 
   it("should return IResponseErrorInternal if an error occurred", async () => {
     findOneByServiceIdMock.mockImplementationOnce(() =>
-      TE.left({ kind: "COSMOS_ERROR_RESPONSE", error: {} as ErrorResponse }),
+      TE.left({ error: {} as ErrorResponse, kind: "COSMOS_ERROR_RESPONSE" }),
     );
     const serviceReader = getService(serviceModelMock);
 
     const result = await serviceReader(aRetrievedService.id)();
     expect(result).toMatchObject(
       E.left({
-        kind: "IResponseErrorInternal",
         detail: `Internal server error: Error while retrieving the service`,
+        kind: "IResponseErrorInternal",
       }),
     );
   });
@@ -133,8 +128,8 @@ describe("MessageWithContentReader", () => {
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();
     expect(result).toMatchObject(
       E.left({
-        kind: "IResponseErrorNotFound",
         detail: `Message not found: Message ${aRetrievedMessage.id} was not found for the given Fiscal Code`,
+        kind: "IResponseErrorNotFound",
       }),
     );
   });
@@ -149,8 +144,8 @@ describe("MessageWithContentReader", () => {
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();
     expect(result).toMatchObject(
       E.left({
-        kind: "IResponseErrorNotFound",
         detail: `Message content not found: Content of message ${aRetrievedMessage.id} was not found for the given Fiscal Code`,
+        kind: "IResponseErrorNotFound",
       }),
     );
   });
@@ -165,8 +160,8 @@ describe("MessageWithContentReader", () => {
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();
     expect(result).toMatchObject(
       E.left({
-        kind: "IResponseErrorInternal",
         detail: `Internal server error: Error while retrieving the message metadata`,
+        kind: "IResponseErrorInternal",
       }),
     );
   });
@@ -181,8 +176,8 @@ describe("MessageWithContentReader", () => {
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();
     expect(result).toMatchObject(
       E.left({
-        kind: "IResponseErrorInternal",
         detail: `Internal server error: Error while retrieving the message`,
+        kind: "IResponseErrorInternal",
       }),
     );
   });
@@ -207,8 +202,8 @@ describe("SessionStatusReader", () => {
     const result = await userSessionStatusReader(aFiscalCode)();
     expect(result).toMatchObject(
       E.left({
-        kind: "IResponseErrorInternal",
         detail: `Internal server error: Error retrieving user session`,
+        kind: "IResponseErrorInternal",
       }),
     );
   });
@@ -221,15 +216,15 @@ describe("SessionStatusReader", () => {
     const result = await userSessionStatusReader(aFiscalCode)();
     expect(result).toMatchObject(
       E.left({
-        kind: "IResponseErrorInternal",
         detail: `Internal server error: Error decoding user session`,
+        kind: "IResponseErrorInternal",
       }),
     );
   });
 
   it("should return IResponseErrorInternal if response status code is not 200", async () => {
     getSessionMock.mockImplementationOnce(async () =>
-      E.right({ status: 400, header: [], value: {} }),
+      E.right({ header: [], status: 400, value: {} }),
     );
     const userSessionStatusReader =
       getUserSessionStatusReader(sessionClientMock);
@@ -237,8 +232,8 @@ describe("SessionStatusReader", () => {
     const result = await userSessionStatusReader(aFiscalCode)();
     expect(result).toMatchObject(
       E.left({
-        kind: "IResponseErrorInternal",
         detail: `Internal server error: Error retrieving user session`,
+        kind: "IResponseErrorInternal",
       }),
     );
   });

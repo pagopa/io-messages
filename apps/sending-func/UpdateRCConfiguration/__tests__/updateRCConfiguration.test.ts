@@ -1,28 +1,26 @@
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { TelemetryClient } from "applicationinsights";
 import * as E from "fp-ts/lib/Either";
-import * as TE from "fp-ts/lib/TaskEither";
 import * as O from "fp-ts/lib/Option";
-import * as redis_storage from "../../utils/redis_storage";
-
-import { vi, describe, test, expect } from "vitest";
+import * as TE from "fp-ts/lib/TaskEither";
+import { describe, expect, test, vi } from "vitest";
 
 import { envConfig } from "../../__mocks__/env-config.mock";
-
-import {
-  handleEmptyConfiguration,
-  handleGetRCConfiguration,
-  handleUpsert,
-  isUserAllowedToUpdateConfiguration,
-} from "../handler";
+import { redisClientMock } from "../../__mocks__/redis.mock";
 import {
   aRemoteContentConfiguration,
   findByConfigurationIdMock,
   rccModelMock,
   upsertConfigurationMock,
 } from "../../__mocks__/remote-content";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { redisClientMock } from "../../__mocks__/redis.mock";
 import { RC_CONFIGURATION_REDIS_PREFIX } from "../../GetRCConfiguration/handler";
-import { TelemetryClient } from "applicationinsights";
+import * as redis_storage from "../../utils/redis_storage";
+import {
+  handleEmptyConfiguration,
+  handleGetRCConfiguration,
+  handleUpsert,
+  isUserAllowedToUpdateConfiguration,
+} from "../handler";
 
 const setWithExpirationTaskMock = vi.fn();
 vi.spyOn(redis_storage, "setWithExpirationTask").mockImplementation(
@@ -105,8 +103,8 @@ describe("handleUpsert", () => {
     upsertConfigurationMock.mockReturnValueOnce(TE.left({}));
 
     const r = await handleUpsert({
-      rccModel: rccModelMock,
       config: envConfig,
+      rccModel: rccModelMock,
       redisClientFactory: redisClientMock,
       telemetryClient: telemetryClientMock,
     })(aRemoteContentConfiguration)();
@@ -125,8 +123,8 @@ describe("handleUpsert", () => {
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
 
     const r = await handleUpsert({
-      rccModel: rccModelMock,
       config: envConfig,
+      rccModel: rccModelMock,
       redisClientFactory: redisClientMock,
       telemetryClient: telemetryClientMock,
     })(aRemoteContentConfiguration)();
@@ -149,8 +147,8 @@ describe("handleUpsert", () => {
     );
 
     const r = await handleUpsert({
-      rccModel: rccModelMock,
       config: envConfig,
+      rccModel: rccModelMock,
       redisClientFactory: redisClientMock,
       telemetryClient: telemetryClientMock,
     })(aRemoteContentConfiguration)();
