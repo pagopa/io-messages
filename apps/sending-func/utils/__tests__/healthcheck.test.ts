@@ -1,24 +1,21 @@
+import { CosmosClient } from "@azure/cosmos";
 import { BlobService, ErrorOrResult, ServiceResponse } from "azure-storage";
+import { isLeft, isRight, right } from "fp-ts/lib/Either";
+import { beforeAll, describe, expect, it, test, vi } from "vitest";
 
 import { envConfig } from "../../__mocks__/env-config.mock";
-
 import * as config from "../config";
-
-import { it, describe, expect, vi, beforeAll, test } from "vitest";
-
 import {
   checkApplicationHealth,
-  checkAzureStorageHealth,
   checkAzureCosmosDbHealth,
+  checkAzureStorageHealth,
   checkUrlHealth,
 } from "../healthcheck";
-
-import { isRight, isLeft, right } from "fp-ts/lib/Either";
 
 const blobServiceOk: BlobService = {
   getServiceProperties: vi
     .fn()
-    .mockImplementation((callback: ErrorOrResult<any>) =>
+    .mockImplementation((callback: ErrorOrResult<"ok">) =>
       callback(
         null as unknown as Error,
         "ok",
@@ -28,20 +25,20 @@ const blobServiceOk: BlobService = {
 } as unknown as BlobService;
 
 const storageMocks = vi.hoisted(() => ({
-  createBlobService: vi.fn((_) => blobServiceOk),
-  createFileService: vi.fn((_) => blobServiceOk),
-  createTableService: vi.fn((_) => blobServiceOk),
-  createQueueService: vi.fn((_) => blobServiceOk),
+  createBlobService: vi.fn(() => blobServiceOk),
+  createFileService: vi.fn(() => blobServiceOk),
+  createQueueService: vi.fn(() => blobServiceOk),
+  createTableService: vi.fn(() => blobServiceOk),
 }));
 
 vi.mock("azure-storage", async (importOriginal) => {
-  const actual: any = await importOriginal();
+  const actual: object = await importOriginal();
   return {
     ...actual,
     createBlobService: storageMocks.createBlobService,
     createFileService: storageMocks.createFileService,
-    createTableService: storageMocks.createTableService,
     createQueueService: storageMocks.createQueueService,
+    createTableService: storageMocks.createTableService,
   };
 });
 
@@ -49,7 +46,7 @@ const getBlobServiceKO = (name: string) =>
   ({
     getServiceProperties: vi
       .fn()
-      .mockImplementation((callback: ErrorOrResult<any>) =>
+      .mockImplementation((callback: ErrorOrResult<null>) =>
         callback(
           Error(`error - ${name}`),
           null,
@@ -71,7 +68,7 @@ const mockGetDatabaseAccount = vi
 
 const cosmosdbClient = {
   getDatabaseAccount: mockGetDatabaseAccount,
-} as any;
+} as unknown as CosmosClient;
 
 // -------------
 // TESTS
@@ -146,7 +143,7 @@ describe("healthcheck - url health", () => {
   });
 });
 
-describe("checkApplicationHealth - multiple errors - ", () => {
+describe("checkApplicationHealth - multiple errors -", () => {
   beforeAll(() => {
     vi.clearAllMocks();
     vi.spyOn(config, "getConfig").mockReturnValue(

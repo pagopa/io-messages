@@ -1,9 +1,8 @@
 import * as E from "fp-ts/lib/Either";
-
-import { RequiredUserIdMiddleware } from "../required_headers_middleware";
-import { mockReq } from "../../__mocks__/express-types";
-
 import { describe, expect, test } from "vitest";
+
+import { mockReq } from "../../__mocks__/express-types";
+import { RequiredUserIdMiddleware } from "../required_headers_middleware";
 
 describe("RequiredUserIdMiddleware", () => {
   test("Should return a left in case the x-user-id is not provided", async () => {

@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { vi } from "vitest";
 
-export function mockReq({ params = {}, body = {}, query = {} }: any = {}): any {
+export function mockReq({ body = {}, params = {}, query = {} }: any = {}): any {
   const request = {
     accepts: vi.fn(),
     acceptsCharset: vi.fn(),
@@ -28,9 +30,9 @@ export function mockReq({ params = {}, body = {}, query = {} }: any = {}): any {
   request.acceptsLanguages.mockImplementation(() => request);
   request.acceptsLanguage.mockImplementation(() => request);
   request.range.mockImplementation(() => request);
-  request.param.mockImplementation((name) => {
-    return { ...params, ...body, ...query }[name];
-  });
+  request.param.mockImplementation(
+    (name) => ({ ...params, ...body, ...query })[name],
+  );
   request.is.mockImplementation(() => request);
 
   return request;
