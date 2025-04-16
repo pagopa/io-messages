@@ -18,7 +18,7 @@ module "com_st" {
 
 resource "azurerm_storage_container" "operations" {
   name                  = "operations"
-  storage_account_name  = module.com_st.name
+  storage_account_id    = module.com_st.name
   container_access_type = "private"
 }
 
