@@ -4565,6 +4565,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"commander@npm:^13.1.0":
+  version: 13.1.0
+  resolution: "commander@npm:13.1.0"
+  checksum: 10c0/7b8c5544bba704fbe84b7cab2e043df8586d5c114a4c5b607f83ae5060708940ed0b5bd5838cf8ce27539cde265c1cbd59ce3c8c6b017ed3eec8943e3a415164
+  languageName: node
+  linkType: hard
+
 "commander@npm:^2.9.0":
   version: 2.20.3
   resolution: "commander@npm:2.20.3"
@@ -6361,6 +6368,7 @@ __metadata:
     avsc: "npm:^5.7.7"
     esbuild: "npm:^0.25.0"
     eslint: "npm:8.57.1"
+    fixtures: "workspace:^"
     io-messages-common: "workspace:^"
     pino: "npm:^9.6.0"
     prettier: "npm:3.2.5"
@@ -6681,6 +6689,29 @@ __metadata:
   checksum: 10c0/4ed736f0604e9249104fb8679850ad8bfb9262142e79f86bc88e1e731e6958616a1dd6b0d6814634e993e7a59efaa1546a92e0d47a22534c6e79ec382ea60950
   languageName: node
   linkType: hard
+
+"fixtures@workspace:^, fixtures@workspace:packages/fixtures":
+  version: 0.0.0-use.local
+  resolution: "fixtures@workspace:packages/fixtures"
+  dependencies:
+    "@azure/cosmos": "npm:^4.0.0"
+    "@azure/data-tables": "npm:^13.3.0"
+    "@azure/identity": "npm:^4.5.0"
+    "@azure/storage-blob": "npm:^12.26.0"
+    "@pagopa/eslint-config": "npm:^4.0.1"
+    "@types/node": "npm:^20.17.12"
+    "@vitest/coverage-v8": "npm:^2.1.8"
+    commander: "npm:^13.1.0"
+    eslint: "npm:8.57.1"
+    io-messages-common: "workspace:^"
+    pino: "npm:^9.6.0"
+    prettier: "npm:^3.2.5"
+    typescript: "npm:5.4.3"
+    ulid: "npm:^2.3.0"
+    vitest: "npm:^2.1.8"
+    zod: "npm:^3.24.1"
+  languageName: unknown
+  linkType: soft
 
 "flat-cache@npm:^3.0.4":
   version: 3.2.0
