@@ -1,6 +1,6 @@
 {
   "name": "push-notifications-func",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "postbuild": "dependency-check package.json --no-dev --missing ./dist/**/*.js",
