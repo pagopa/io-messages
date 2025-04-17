@@ -6,6 +6,8 @@
   "web_apps.citizen_func": "4c795dfe6da7624ff63814869dd8bd5bf00b129d9b593f40600f562b961ab8e2",
   "storage_api_weu.com_st": "c073e41130034acebff0c22a7cffc22a1533ef46b64752789d472116abc21eee",
   "storage_api_weu.com_st.naming_convention": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4",
+  "web_apps.push_notif_function": "35993f0f57f017a544522dac18c8b585d9642d93edf9a45d7651a8388ed8980b",
+  "web_apps.push_notif_function.naming_convention": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4",
   "web_apps.citizen_func_autoscaler": "ec7ad56d62077d5136358c412c436b321a0706b03834b4023f0499701d0e3a9d",
   "web_apps.etl_func_autoscaler": "ec7ad56d62077d5136358c412c436b321a0706b03834b4023f0499701d0e3a9d",
   "container_apps.com_cae": "2a9399784d8f603bc9a43ad5334308832b7bae3c57280fb0ae418aaa3a70c5a0",
