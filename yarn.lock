@@ -5653,6 +5653,7 @@ __metadata:
     express: "npm:^4.15.3"
     fp-ts: "npm:^2.10.5"
     io-ts: "npm:^2.2.16"
+    io-ts-types: "npm:^0.5.19"
     lodash: "npm:^4.17.21"
     modclean: "npm:^3.0.0-beta.1"
     node-fetch: "npm:^2.6.7"
@@ -9106,6 +9107,18 @@ __metadata:
     vitest: "npm:^2.1.8"
   languageName: unknown
   linkType: soft
+
+"io-ts-types@npm:^0.5.19":
+  version: 0.5.19
+  resolution: "io-ts-types@npm:0.5.19"
+  peerDependencies:
+    fp-ts: ^2.0.0
+    io-ts: ^2.0.0
+    monocle-ts: ^2.0.0
+    newtype-ts: ^0.3.2
+  checksum: 10c0/f7c451f6444660707f02de2dbf9c3c4bca4e9ed3b2f46e10f19ea5dcaa6acef9936d3b24025598d9f59e0647ea704263ba580506a2db3d64cc6d0c7b2b0fcf35
+  languageName: node
+  linkType: hard
 
 "io-ts@npm:^2.2.16":
   version: 2.2.22

@@ -5,7 +5,7 @@
       "type": "cosmosDBTrigger",
       "name": "cosmosRemoteContentMessageConfigurationTrigger",
       "direction": "in",
-      "connection": "REMOTE_CONTENT_COSMOSDB_URI",
+      "connection": "REMOTE_CONTENT_COSMOSDB",
       "databaseName": "%REMOTE_CONTENT_COSMOSDB_NAME%",
       "containerName": "message-configuration",
       "leaseContainerName": "remote-content-leases",

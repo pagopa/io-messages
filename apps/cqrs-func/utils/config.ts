@@ -11,6 +11,7 @@ import * as E from "fp-ts/Either";
 import { pipe } from "fp-ts/lib/function";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { BooleanFromString, withFallback } from "io-ts-types";
 
 import { AzureEventhubSasFromString } from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import { withDefault } from "@pagopa/ts-commons/lib/types";
@@ -47,7 +48,7 @@ export const IConfig = t.intersection([
 
     MESSAGE_STATUS_FOR_REMINDER_TOPIC_PRODUCER_CONNECTION_STRING: AzureEventhubSasFromString,
 
-    KAFKA_SSL_ACTIVE: withDefault(t.boolean, true),
+    KAFKA_SSL_ACTIVE: withFallback(BooleanFromString, false),
 
     PN_SERVICE_ID: NonEmptyString,
 
