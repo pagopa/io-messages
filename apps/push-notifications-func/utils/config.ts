@@ -16,7 +16,7 @@ import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
 import {
   DisjoitedNotificationHubPartitionArray,
-  RegExpFromString
+  RegExpFromString,
 } from "./types";
 
 export type NHPartitionFeatureFlag = t.TypeOf<typeof NHPartitionFeatureFlag>;
@@ -24,7 +24,7 @@ export const NHPartitionFeatureFlag = t.keyof({
   all: null,
   beta: null,
   canary: null,
-  none: null
+  none: null,
 });
 
 // Fixed Notification Hub partition configurations
@@ -48,7 +48,7 @@ const NotificationHubPartitionsConfig = t.interface({
 
   NH4_ENDPOINT: NonEmptyString,
   NH4_NAME: NonEmptyString,
-  NH4_PARTITION_REGEX: RegExpFromString
+  NH4_PARTITION_REGEX: RegExpFromString,
 });
 
 /**
@@ -58,11 +58,10 @@ export type BaseConfig = t.TypeOf<typeof BaseConfig>;
 const BaseConfig = t.intersection([
   t.interface({
     NOTIFICATIONS_QUEUE_NAME: NonEmptyString,
-    NOTIFICATIONS_STORAGE_CONNECTION_STRING: NonEmptyString
+    NOTIFICATIONS_STORAGE_CONNECTION_STRING: NonEmptyString,
   }),
   t.interface({
-    INTERNAL_STORAGE_CONNECTION_STRING: NonEmptyString,
-    NOTIFY_MESSAGE_QUEUE_NAME: NonEmptyString
+    NOTIFY_MESSAGE_QUEUE_NAME: NonEmptyString,
   }),
   t.intersection([
     t.interface({
@@ -75,7 +74,7 @@ const BaseConfig = t.intersection([
 
       RETRY_ATTEMPT_NUMBER: IntegerFromString,
 
-      isProduction: t.boolean
+      isProduction: t.boolean,
     }),
 
     t.interface({
@@ -83,14 +82,14 @@ const BaseConfig = t.intersection([
       //   use case: when doing internal tests
       FISCAL_CODE_NOTIFICATION_BLACKLIST: withDefault(
         CommaSeparatedListOf(FiscalCode),
-        []
-      )
+        [],
+      ),
     }),
 
     // Legacy Notification Hub configuration
     t.interface({
       AZURE_NH_ENDPOINT: NonEmptyString,
-      AZURE_NH_HUB_NAME: NonEmptyString
+      AZURE_NH_HUB_NAME: NonEmptyString,
     }),
 
     t.interface({
@@ -98,10 +97,10 @@ const BaseConfig = t.intersection([
       BETA_USERS_TABLE_NAME: NonEmptyString,
       CANARY_USERS_REGEX: NonEmptyString,
       NH_PARTITION_FEATURE_FLAG: NHPartitionFeatureFlag,
-      NOTIFY_VIA_QUEUE_FEATURE_FLAG: NHPartitionFeatureFlag
+      NOTIFY_VIA_QUEUE_FEATURE_FLAG: NHPartitionFeatureFlag,
     }),
-    t.partial({ APPINSIGHTS_DISABLE: t.string })
-  ])
+    t.partial({ APPINSIGHTS_DISABLE: t.string }),
+  ]),
 ]);
 
 /**
@@ -141,33 +140,33 @@ const WithComputedNHPartitions = new t.Type<
         {
           endpoint: NH1_ENDPOINT,
           name: NH1_NAME,
-          partitionRegex: NH1_PARTITION_REGEX
+          partitionRegex: NH1_PARTITION_REGEX,
         },
         {
           endpoint: NH2_ENDPOINT,
           name: NH2_NAME,
-          partitionRegex: NH2_PARTITION_REGEX
+          partitionRegex: NH2_PARTITION_REGEX,
         },
         {
           endpoint: NH3_ENDPOINT,
           name: NH3_NAME,
-          partitionRegex: NH3_PARTITION_REGEX
+          partitionRegex: NH3_PARTITION_REGEX,
         },
         {
           endpoint: NH4_ENDPOINT,
           name: NH4_NAME,
-          partitionRegex: NH4_PARTITION_REGEX
-        }
+          partitionRegex: NH4_PARTITION_REGEX,
+        },
       ],
       DisjoitedNotificationHubPartitionArray.decode,
       // ...then add the key to the base config
-      E.map(partitions => ({
+      E.map((partitions) => ({
         ...baseConfig,
-        AZURE_NOTIFICATION_HUB_PARTITIONS: partitions
-      }))
+        AZURE_NOTIFICATION_HUB_PARTITIONS: partitions,
+      })),
     ),
   (
-    v: WithComputedNHPartitions
+    v: WithComputedNHPartitions,
   ): BaseConfig & NotificationHubPartitionsConfig => {
     const { AZURE_NOTIFICATION_HUB_PARTITIONS, ...rest } = v;
     return {
@@ -178,12 +177,12 @@ const WithComputedNHPartitions = new t.Type<
           // reconstruct the key set from the array
           [`NH${i}_ENDPOINT`]: e.endpoint,
           [`NH${i}_NAME`]: e.name,
-          [`NH${i}_PARTITION_REGEX`]: e.partitionRegex
+          [`NH${i}_PARTITION_REGEX`]: e.partitionRegex,
         }),
-        {}
-      )
+        {},
+      ),
     } as BaseConfig & NotificationHubPartitionsConfig; // cast needed because TS cannot understand types when we compose keys with strings
-  }
+  },
 );
 
 export type IConfig = t.TypeOf<typeof IConfig>;
@@ -193,7 +192,7 @@ export const IConfig = t
 
 export const envConfig = {
   ...process.env,
-  isProduction: process.env.NODE_ENV === "production"
+  isProduction: process.env.NODE_ENV === "production",
 };
 
 // No need to re-evaluate this object for each call
@@ -217,7 +216,7 @@ export const getConfig = (): t.Validation<IConfig> => errorOrConfig;
 export const getConfigOrThrow = (): IConfig =>
   pipe(
     errorOrConfig,
-    E.getOrElseW(errors => {
+    E.getOrElseW((errors) => {
       throw new Error(`Invalid configuration: ${readableReport(errors)}`);
-    })
+    }),
   );
