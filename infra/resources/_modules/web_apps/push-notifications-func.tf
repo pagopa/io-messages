@@ -154,6 +154,8 @@ module "push_notif_function" {
   source  = "pagopa/dx-azure-function-app/azurerm"
   version = "~>0"
 
+  application_insights_key = var.application_insights.instrumentation_key
+
   count                 = 1
   resource_group_name   = var.resource_group_name
   health_check_path     = "/api/v1/info"
