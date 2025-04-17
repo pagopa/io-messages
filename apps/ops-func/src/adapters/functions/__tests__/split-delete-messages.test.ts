@@ -48,9 +48,7 @@ describe("splitDeleteMessage", () => {
     await handler(blob, mockContext);
 
     expect(setMock).not.toHaveBeenCalled();
-    expect(mockContext.error).toHaveBeenCalledWith(
-      `Invalid pair fiscalCode: invalid_blob, messageId: undefined`,
-    );
+    expect(mockContext.error).toHaveBeenCalledWith(`Unable to parse line 1`);
   });
 
   test("should skip lines with missing fiscalCode or messageId", async () => {
@@ -65,7 +63,7 @@ describe("splitDeleteMessage", () => {
     ]);
 
     expect(mockContext.error).toHaveBeenCalledWith(
-      `Invalid pair fiscalCode: fiscalCode2, messageId: `,
+      expect.stringContaining("Unable to parse line"),
     );
   });
 

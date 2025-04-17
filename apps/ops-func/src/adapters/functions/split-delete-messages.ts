@@ -4,28 +4,23 @@ export const splitDeleteMessage =
   (queueOutput: StorageQueueOutput): StorageBlobHandler =>
   async (blob, context) => {
     if (!Buffer.isBuffer(blob)) {
-      context.error("Invalid input blob file");
+      context.error("The input is not a buffer");
       return;
     }
     const lines = blob.toString("utf-8").trim().split("\n");
 
-    const serializedMessages: { fiscalCode: string; messageId: string }[] = [];
+    const messages = [];
 
-    lines.forEach((line) => {
-      const [fiscalCode, messageId] = line.split(",");
-
-      // we don't want to stop the execution if a fiscalCode or messageId is not
-      // defined so we just skip the line
+    for (let i = 0; i < lines.length; i++) {
+      const [fiscalCode, messageId] = lines[i].split(",");
       if (!fiscalCode || !messageId) {
-        context.error(
-          `Invalid pair fiscalCode: ${fiscalCode}, messageId: ${messageId}`,
-        );
-        return;
+        context.error(`Unable to parse line ${i + 1}`);
+        continue;
       }
+      messages.push({ fiscalCode, messageId });
+    }
 
-      serializedMessages.push({ fiscalCode, messageId });
-    });
-
-    if (serializedMessages.length > 0)
-      context.extraOutputs.set(queueOutput, serializedMessages);
+    if (messages.length > 0) {
+      context.extraOutputs.set(queueOutput, messages);
+    }
   };

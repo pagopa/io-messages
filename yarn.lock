@@ -10650,7 +10650,6 @@ __metadata:
     esbuild: "npm:^0.24.2"
     eslint: "npm:8.57.1"
     io-messages-common: "workspace:^"
-    pino: "npm:^9.6.0"
     prettier: "npm:3.2.5"
     typescript: "npm:5.4.3"
     vitest: "npm:^2.1.8"

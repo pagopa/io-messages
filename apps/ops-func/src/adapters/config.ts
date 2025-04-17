@@ -7,6 +7,7 @@ export const envSchema = z.object({
   STORAGE_ACCOUNT__queueServiceUri: z.string().url(),
   STORAGE_ACCOUNT__serviceUri: z.string().url(),
 });
+
 type Env = z.TypeOf<typeof envSchema>;
 
 const mapEnvironmentVariablesToConfig = (env: Env) => ({
