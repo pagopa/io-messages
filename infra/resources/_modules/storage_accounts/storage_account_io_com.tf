@@ -23,7 +23,7 @@ resource "azurerm_storage_container" "operations" {
 }
 
 resource "azurerm_storage_container" "deleted_messages_logs" {
-  name                  = "deleted-messages-logs"
+  name                  = "audit-logs"
   storage_account_id    = module.com_st.id
   container_access_type = "private"
 }
