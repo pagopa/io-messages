@@ -1,18 +1,23 @@
+import { AuditLogger } from "@/domain/audit.js";
+import { MessageRepository } from "@/domain/message.js";
 import { DeleteMessageUseCase } from "@/domain/use-cases/delete-message.js";
 import { InvocationContext } from "@azure/functions";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { deleteMessages } from "../delete-message.js";
 
-const executeMock = vi.fn();
+const repo: MessageRepository = {
+  deleteMessage: vi.fn(),
+};
 
-const mockDeleteMessageUseCase = {
-  execute: executeMock,
-} as unknown as DeleteMessageUseCase;
+const auditLogger: AuditLogger = {
+  log: vi.fn(),
+};
 
-const mockContext = {
-  error: vi.fn(),
-} as unknown as InvocationContext;
+const deleteMessage = new DeleteMessageUseCase(repo, auditLogger);
+
+const context = new InvocationContext();
+const ctxErrorSpy = vi.spyOn(context, "error");
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -22,7 +27,7 @@ const fiscalCode = "LVTEST00A00A197X";
 const messageId = "01JR0NZGG4GYPY76NJ568MWGVC";
 
 describe("deleteMessages", () => {
-  const handler = deleteMessages(mockDeleteMessageUseCase);
+  const handler = deleteMessages(deleteMessage);
 
   test("should call execute with trimmed fiscalCode and messageId for valid input", async () => {
     const input = {
@@ -30,39 +35,36 @@ describe("deleteMessages", () => {
       messageId: " 01JR0NZGG4GYPY76NJ568MWGVC ",
     };
 
-    await handler(input, mockContext);
+    await handler(input, context);
 
-    expect(mockDeleteMessageUseCase.execute).toHaveBeenCalledWith(
-      fiscalCode,
-      messageId,
-    );
-    expect(mockContext.error).not.toHaveBeenCalled();
+    expect(repo.deleteMessage).toHaveBeenCalledWith(fiscalCode, messageId);
+    expect(ctxErrorSpy).not.toHaveBeenCalled();
   });
 
   test("should log an error for invalid input", async () => {
     const input = { fiscalCode: "", messageId: "" };
 
-    await handler(input, mockContext);
+    await handler(input, context);
 
-    expect(mockDeleteMessageUseCase.execute).not.toHaveBeenCalled();
-    expect(mockContext.error).toHaveBeenCalledWith(
-      expect.stringContaining(`Invalid pair [fiscalCode, messageId]: ${input}`),
-    );
+    expect(repo.deleteMessage).not.toHaveBeenCalled();
+    expect(ctxErrorSpy).toHaveBeenCalledWith(expect.any(String));
   });
 
   test("should log an error for unexpected exceptions", async () => {
     const input = { fiscalCode, messageId };
-    executeMock.mockRejectedValue(new Error("Unexpected error"));
 
-    await expect(handler(input, mockContext)).resolves.toEqual(undefined);
-
-    expect(mockDeleteMessageUseCase.execute).toHaveBeenCalledWith(
-      fiscalCode,
-      messageId,
+    vi.mocked(repo.deleteMessage).mockRejectedValue(
+      new Error("Unexpected error"),
     );
 
-    expect(mockContext.error).toHaveBeenCalledWith(
-      `Something went wrong trying to delete the message ${input}: Error: Unexpected error`,
+    await expect(handler(input, context)).resolves.toEqual(undefined);
+
+    expect(repo.deleteMessage).toHaveBeenCalledWith(fiscalCode, messageId);
+
+    expect(ctxErrorSpy).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.stringContaining(messageId),
+      expect.any(String),
     );
   });
 });

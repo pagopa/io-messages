@@ -3,72 +3,40 @@ import { app, output } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
-import { pino } from "pino";
 
-import { BlobMessageContentDeleter } from "./adapters/blob-storage/message-content-deleter.js";
+import { BlobStorageAuditLogger } from "./adapters/audit.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
-import { CosmosMessageMetadataDeleter } from "./adapters/cosmos/message-metadata-deleter.js";
-import { CosmosMessageStatusDeleter } from "./adapters/cosmos/message-status-deleter.js";
 import { deleteMessages } from "./adapters/functions/delete-message.js";
 import { healthcheck } from "./adapters/functions/health.js";
 import { splitDeleteMessage } from "./adapters/functions/split-delete-messages.js";
+import { MessageRepositoryAdapter } from "./adapters/message.js";
 import { DeleteMessageUseCase } from "./domain/use-cases/delete-message.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
 
 const main = async (config: Config): Promise<void> => {
-  const logger = pino();
-
   const azureCredentials = new DefaultAzureCredential();
 
   const cosmosClient = new CosmosClient({
     aadCredentials: azureCredentials,
     endpoint: config.commonCosmos.uri,
   });
-  const cosmosDatabase = cosmosClient.database(
-    config.commonCosmos.databaseName,
-  );
 
-  const messageMetadata = cosmosDatabase.container("messages");
-  const messageStatus = cosmosDatabase.container("message-status");
+  const db = cosmosClient.database(config.commonCosmos.databaseName);
 
-  const messageMetadataDeleter = new CosmosMessageMetadataDeleter(
-    messageMetadata,
-  );
-
-  const messageStatusDeleter = new CosmosMessageStatusDeleter(messageStatus);
-
-  const contentServiceClient = new BlobServiceClient(
+  const messageStorage = new BlobServiceClient(
     config.commonStorageAccount.url,
     azureCredentials,
   );
 
-  const messageContent = contentServiceClient.getContainerClient("messages");
-
-  const comBlobServiceClient = new BlobServiceClient(
+  const storage = new BlobServiceClient(
     config.storageAccount.blobUrl,
     azureCredentials,
   );
 
-  const deletedMessagesLogs = comBlobServiceClient.getContainerClient(
-    "deleted-messages-logs",
-  );
+  const healthcheckUseCase = new HealthUseCase(db);
 
-  const messageContentDeleter = new BlobMessageContentDeleter(messageContent);
-
-  const healthcheckUseCase = new HealthUseCase(
-    cosmosDatabase,
-    messageContent,
-    logger,
-    deletedMessagesLogs,
-  );
-
-  const deleteMessageUseCase = new DeleteMessageUseCase(
-    logger,
-    messageContentDeleter,
-    messageMetadataDeleter,
-    messageStatusDeleter,
-    deletedMessagesLogs,
-  );
+  const repo = new MessageRepositoryAdapter(db, storage);
+  const auditLogger = new BlobStorageAuditLogger(messageStorage);
 
   const queueOutput = output.storageQueue({
     connection: "STORAGE_ACCOUNT",
@@ -91,7 +59,7 @@ const main = async (config: Config): Promise<void> => {
 
   app.storageQueue("DeleteMessages", {
     connection: "STORAGE_ACCOUNT",
-    handler: deleteMessages(deleteMessageUseCase),
+    handler: deleteMessages(new DeleteMessageUseCase(repo, auditLogger)),
     queueName: "delete-messages",
   });
 };
