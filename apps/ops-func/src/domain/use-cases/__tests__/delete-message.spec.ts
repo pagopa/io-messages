@@ -1,8 +1,8 @@
-import { describe, test, vi, expect, beforeEach } from "vitest";
+import { AuditLogger } from "@/domain/audit.js";
+import { MessageRepository } from "@/domain/message.js";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { DeleteMessageUseCase } from "../delete-message.js";
-import { MessageRepository } from "@/domain/message.js";
-import { AuditLogger } from "@/domain/audit.js";
 
 const repo: MessageRepository = {
   deleteMessage: vi.fn(),

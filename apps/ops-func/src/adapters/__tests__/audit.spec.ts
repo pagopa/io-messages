@@ -1,8 +1,8 @@
+import { deleteMessageAuditLog } from "@/domain/audit.js";
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { describe, expect, test, vi } from "vitest";
 
 import { BlobStorageAuditLogger } from "../audit.js";
-import { deleteMessageAuditLog } from "@/domain/audit.js";
 
 const blobClient = BlobServiceClient.fromConnectionString(
   "UseDevelopmentStorage=true",
@@ -15,12 +15,16 @@ const uploadBlockBlobSpy = vi
 describe("BlobStorageAuditLogger", () => {
   test("log audit log", async () => {
     const auditLogger = new BlobStorageAuditLogger(blobClient);
+    const log = deleteMessageAuditLog("MESSAGE_ID");
 
-    await expect(
-      auditLogger.log(deleteMessageAuditLog("MESSAGE_ID")),
-    ).resolves.toBeUndefined();
+    await expect(auditLogger.log(log)).resolves.toBeUndefined();
+    const logBuffer = Buffer.from(JSON.stringify(log));
 
-    expect(uploadBlockBlobSpy).toHaveBeenCalled();
+    expect(uploadBlockBlobSpy).toHaveBeenCalledWith(
+      "MESSAGE_ID",
+      logBuffer,
+      logBuffer.length,
+    );
   });
 
   test("fail on error uploading log", async () => {
