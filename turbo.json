@@ -56,7 +56,8 @@
       "dependsOn": [
         "citizen-func#generate:definitions",
         "sending-func#generate:definitions",
-        "sending-func#generate:backend-notification-hub"
+        "sending-func#generate:backend-notification-hub",
+        "push-notifications-func#generate:backend-notification-hub"
       ],
       "inputs": ["apps/**/src/**/*.ts", "packages/**/src/**/*.ts"],
       "outputs": ["coverage"],

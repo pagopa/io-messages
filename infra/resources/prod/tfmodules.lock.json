@@ -1,14 +1,16 @@
 {
-  "cosmos.io_com_cosmos_account": "6d42e6626d778d7096293964198b8cfd54032168f931b060930af1358f1c5504",
-  "eventhubs.etl": "9ba622aa606225513d2151f02e9ab8abe83605444dcb6dcfc572030088ad307a",
-  "functions_messages_sending.function_app_messages_sending": "4391598ad038d9e5294d92366d3d180ee9a5c6ba67b54a56750c1e9c4a2e370e",
-  "web_apps.etl_func": "4391598ad038d9e5294d92366d3d180ee9a5c6ba67b54a56750c1e9c4a2e370e",
-  "web_apps.citizen_func": "4391598ad038d9e5294d92366d3d180ee9a5c6ba67b54a56750c1e9c4a2e370e",
+  "container_apps.com_cae": "0e7ffd564bfe6c14dcbd31b90dc65ef59711df0eca26ef0df4e444decefb3896",
+  "container_apps.reminder_ca_itn_01": "5e6b937021c43aabecc15d908a98fb90849581814f0d3a881f0de778bb16ad7e",
+  "cosmos.io_com_cosmos_account": "11a860f9840c2e1e0fab53fac1c74b7118903fff5ed471809c22841077e3791f",
+  "eventhubs.etl": "ed4cc7d76a428cf9427d2c21eff715e5303809324c43c581101d5a9cf6bd8b62",
+  "functions_messages_sending.function_app_messages_sending": "9e8ff9c8a5e80e7ba79922eccfd983b3321e25dd4b22a1e7602fa581a389a6f1",
   "storage_api_weu.com_st": "c073e41130034acebff0c22a7cffc22a1533ef46b64752789d472116abc21eee",
   "storage_api_weu.com_st.naming_convention": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4",
+  "web_apps.citizen_func": "9e8ff9c8a5e80e7ba79922eccfd983b3321e25dd4b22a1e7602fa581a389a6f1",
   "web_apps.citizen_func_autoscaler": "fda4a57780365d23420e4307945db357cee307d8ba0f691c6246bde1627972fc",
+  "web_apps.etl_func": "9e8ff9c8a5e80e7ba79922eccfd983b3321e25dd4b22a1e7602fa581a389a6f1",
   "web_apps.etl_func_autoscaler": "fda4a57780365d23420e4307945db357cee307d8ba0f691c6246bde1627972fc",
-  "container_apps.com_cae": "2a9399784d8f603bc9a43ad5334308832b7bae3c57280fb0ae418aaa3a70c5a0",
-  "container_apps.reminder_ca_itn_01": "f3df237af495ed6408eea7bef3ebb446f0a18698a2cf1cf554b47f3530c4c67f",
-  "web_apps.ops_func": "4391598ad038d9e5294d92366d3d180ee9a5c6ba67b54a56750c1e9c4a2e370e"
+  "web_apps.ops_func": "9e8ff9c8a5e80e7ba79922eccfd983b3321e25dd4b22a1e7602fa581a389a6f1",
+  "web_apps.push_notif_function": "35993f0f57f017a544522dac18c8b585d9642d93edf9a45d7651a8388ed8980b",
+  "web_apps.push_notif_function.naming_convention": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4"
 }
