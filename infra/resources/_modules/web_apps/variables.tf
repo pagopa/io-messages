@@ -40,6 +40,7 @@ variable "subnet_cidrs" {
     notif_func      = string
     citizen_func    = string
     etl_func        = string
+    ops_func        = string
     push_notif_func = string
   })
 }
@@ -88,10 +89,17 @@ variable "com_st_id" {
   type = string
 }
 
-variable "com_st_connectiostring" {
+variable "com_st_uri" {
   type = string
 }
 
+variable "com_st_queue_uri" {
+  type = string
+}
+
+variable "com_st_connectiostring" {
+  type = string
+}
 
 variable "cosmosdb_account_api" {
   type = object({
