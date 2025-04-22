@@ -5,7 +5,7 @@ on:
 
 jobs:
   ops_func_deploy:
-    uses: pagopa/dx/.github/workflows/web_app_deploy.yaml@53825edbcf12f0556a2391d716875dd928a97c69
+    uses: pagopa/dx/.github/workflows/web_app_deploy.yaml@7df96fe88497a60b297ab70537ee2d5ae1be01a2
     name: Deploy
     secrets: inherit
     with:
