@@ -1,6 +1,6 @@
 import { StorageBlobHandler, StorageQueueOutput } from "@azure/functions";
 
-export const splitDeleteMessage =
+export const splitDeleteMessages =
   (queueOutput: StorageQueueOutput): StorageBlobHandler =>
   async (blob, context) => {
     if (!Buffer.isBuffer(blob)) {

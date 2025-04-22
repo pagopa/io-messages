@@ -1,7 +1,7 @@
 import { InvocationContext, StorageQueueOutput } from "@azure/functions";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { splitDeleteMessage } from "../split-delete-messages.js";
+import { splitDeleteMessages } from "../split-delete-messages.js";
 
 const setMock = vi.fn();
 
@@ -12,7 +12,7 @@ const mockContext = {
 
 const queueOutputMock = {} as StorageQueueOutput;
 
-const handler = splitDeleteMessage(queueOutputMock);
+const handler = splitDeleteMessages(queueOutputMock);
 
 afterEach(() => {
   vi.clearAllMocks();

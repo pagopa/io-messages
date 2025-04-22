@@ -6,9 +6,9 @@ import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 
 import { BlobStorageAuditLogger } from "./adapters/audit.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
-import { deleteMessages } from "./adapters/functions/delete-message.js";
+import { deleteMessage } from "./adapters/functions/delete-message.js";
 import { healthcheck } from "./adapters/functions/health.js";
-import { splitDeleteMessage } from "./adapters/functions/split-delete-messages.js";
+import { splitDeleteMessages } from "./adapters/functions/split-delete-messages.js";
 import { MessageRepositoryAdapter } from "./adapters/message.js";
 import { DeleteMessageUseCase } from "./domain/use-cases/delete-message.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
@@ -53,13 +53,13 @@ const main = async (config: Config): Promise<void> => {
   app.storageBlob("SplitDeleteMessageChunks", {
     connection: "STORAGE_ACCOUNT",
     extraOutputs: [queueOutput],
-    handler: splitDeleteMessage(queueOutput),
+    handler: splitDeleteMessages(queueOutput),
     path: "operations/delete-messages/{name}",
   });
 
   app.storageQueue("DeleteMessages", {
     connection: "STORAGE_ACCOUNT",
-    handler: deleteMessages(new DeleteMessageUseCase(repo, auditLogger)),
+    handler: deleteMessage(new DeleteMessageUseCase(repo, auditLogger)),
     queueName: "delete-messages",
   });
 };
