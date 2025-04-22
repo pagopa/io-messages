@@ -4,7 +4,7 @@ import { DeleteMessageUseCase } from "@/domain/use-cases/delete-message.js";
 import { InvocationContext } from "@azure/functions";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { deleteMessages } from "../delete-message.js";
+import { deleteMessage } from "../delete-message.js";
 
 const repo: MessageRepository = {
   deleteMessage: vi.fn(),
@@ -14,7 +14,7 @@ const auditLogger: AuditLogger = {
   log: vi.fn(),
 };
 
-const deleteMessage = new DeleteMessageUseCase(repo, auditLogger);
+const deleteMessageUseCase = new DeleteMessageUseCase(repo, auditLogger);
 
 const context = new InvocationContext();
 const ctxErrorSpy = vi.spyOn(context, "error");
@@ -27,7 +27,7 @@ const fiscalCode = "LVTEST00A00A197X";
 const messageId = "01JR0NZGG4GYPY76NJ568MWGVC";
 
 describe("deleteMessages", () => {
-  const handler = deleteMessages(deleteMessage);
+  const handler = deleteMessage(deleteMessageUseCase);
 
   test("should call execute with trimmed fiscalCode and messageId for valid input", async () => {
     const input = {

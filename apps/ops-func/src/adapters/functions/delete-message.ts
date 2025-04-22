@@ -7,7 +7,7 @@ const payloadSchema = z.object({
   messageId: z.string().nonempty().trim(),
 });
 
-export const deleteMessages =
+export const deleteMessage =
   (deleteMessage: DeleteMessageUseCase): StorageQueueHandler =>
   async (input, context) => {
     const result = payloadSchema.safeParse(input);
