@@ -1,13 +1,12 @@
-// tslint:disable: no-any
-import { pipe } from "fp-ts/lib/function";
 import { isNone } from "fp-ts/lib/Option";
-import { getTask, setWithExpirationTask } from "../redis_storage";
-import * as TE from "fp-ts/lib/TaskEither";
 import * as O from "fp-ts/lib/Option";
+import * as TE from "fp-ts/lib/TaskEither";
+import { pipe } from "fp-ts/lib/function";
 import { RedisClientType } from "redis";
-import { RedisClientFactory } from "../redis";
+import { assert, describe, expect, it, vi } from "vitest";
 
-import { vi, describe, it, expect, assert } from "vitest";
+import { RedisClientFactory } from "../redis";
+import { getTask, setWithExpirationTask } from "../redis_storage";
 
 const aRedisKey = "KEY";
 const aRedisValue = "VALUE";

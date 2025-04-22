@@ -1,24 +1,21 @@
-import * as t from "io-ts";
-
-import * as TE from "fp-ts/TaskEither";
-import * as O from "fp-ts/lib/Option";
-import { pipe } from "fp-ts/lib/function";
-
-import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-
 import { defaultPageSize } from "@pagopa/io-functions-commons/dist/src/models/message";
 import {
   MessageViewModel as MessageViewModelBase,
-  RetrievedMessageView
+  RetrievedMessageView,
 } from "@pagopa/io-functions-commons/dist/src/models/message_view";
 import {
   CosmosErrors,
-  toCosmosErrorResponse
+  toCosmosErrorResponse,
 } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
+import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import * as TE from "fp-ts/TaskEither";
+import * as O from "fp-ts/lib/Option";
+import { pipe } from "fp-ts/lib/function";
+import * as t from "io-ts";
 
 const emptyMessageParameter = {
   condition: "",
-  parameters: []
+  parameters: [],
 };
 
 /**
@@ -32,20 +29,20 @@ export class MessageViewExtendedQueryModel extends MessageViewModelBase {
     fiscalCode: FiscalCode,
     maximumMessageId?: NonEmptyString,
     minimumMessageId?: NonEmptyString,
-    pageSize = defaultPageSize
+    pageSize = defaultPageSize,
   ): TE.TaskEither<
     CosmosErrors,
-    AsyncIterable<ReadonlyArray<t.Validation<RetrievedMessageView>>>
+    AsyncIterable<readonly t.Validation<RetrievedMessageView>[]>
   > {
     return pipe(
       {
         parameters: [
           {
             name: "@fiscalCode",
-            value: fiscalCode
-          }
+            value: fiscalCode,
+          },
         ],
-        query: `SELECT * FROM m WHERE m.fiscalCode = @fiscalCode`
+        query: `SELECT * FROM m WHERE m.fiscalCode = @fiscalCode`,
       },
       TE.of,
       TE.bindTo("commonQuerySpec"),
@@ -54,26 +51,26 @@ export class MessageViewExtendedQueryModel extends MessageViewModelBase {
           O.fromNullable(maximumMessageId),
           O.foldW(
             () => emptyMessageParameter,
-            maximumId => ({
+            (maximumId) => ({
               condition: ` AND m.id < @maxId`,
-              parameters: [{ name: "@maxId", value: maximumId }]
-            })
+              parameters: [{ name: "@maxId", value: maximumId }],
+            }),
           ),
-          TE.of
-        )
+          TE.of,
+        ),
       ),
       TE.bind("prevMessagesParams", () =>
         pipe(
           O.fromNullable(minimumMessageId),
           O.foldW(
             () => emptyMessageParameter,
-            minimumId => ({
+            (minimumId) => ({
               condition: ` AND m.id > @minId`,
-              parameters: [{ name: "@minId", value: minimumId }]
-            })
+              parameters: [{ name: "@minId", value: minimumId }],
+            }),
           ),
-          TE.of
-        )
+          TE.of,
+        ),
       ),
       TE.chain(({ commonQuerySpec, nextMessagesParams, prevMessagesParams }) =>
         TE.tryCatch(
@@ -83,18 +80,18 @@ export class MessageViewExtendedQueryModel extends MessageViewModelBase {
                 parameters: [
                   ...commonQuerySpec.parameters,
                   ...nextMessagesParams.parameters,
-                  ...prevMessagesParams.parameters
+                  ...prevMessagesParams.parameters,
                 ],
                 query: `${commonQuerySpec.query}${nextMessagesParams.condition}${prevMessagesParams.condition} 
-                ORDER BY m.fiscalCode, m.id DESC`
+                ORDER BY m.fiscalCode, m.id DESC`,
               },
               {
-                maxItemCount: pageSize
-              }
+                maxItemCount: pageSize,
+              },
             ),
-          toCosmosErrorResponse
-        )
-      )
+          toCosmosErrorResponse,
+        ),
+      ),
     );
   }
 }

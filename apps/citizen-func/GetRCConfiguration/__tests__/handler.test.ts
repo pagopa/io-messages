@@ -1,23 +1,23 @@
 // eslint-disable @typescript-eslint/no-explicit-any, sonarjs/no-duplicate-string, sonar/sonar-max-lines-per-function
+import * as O from "fp-ts/Option";
+import * as TE from "fp-ts/TaskEither";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { context as contextMock } from "../../__mocks__/context";
-import { GetRCConfigurationHandler } from "../handler";
-import RCConfigurationUtility from "../../utils/remoteContentConfig";
 import {
   aRCConfigurationWithBothEnv,
   aRetrievedRCConfigurationWithBothEnv,
 } from "../../__mocks__/remote-content";
-import * as TE from "fp-ts/TaskEither";
-import * as O from "fp-ts/Option";
-
-import { vi, describe, it, afterEach, expect } from "vitest";
+import RCConfigurationUtility from "../../utils/remoteContentConfig";
+import { GetRCConfigurationHandler } from "../handler";
 
 const getOrCacheMaybeRCConfigurationByIdMock = vi
   .fn()
   .mockReturnValue(TE.right(O.some(aRetrievedRCConfigurationWithBothEnv)));
 
 const mockRCConfigurationUtility = {
-  getOrCacheRCConfigurationWithFallback: vi.fn(), // not used for this handler
   getOrCacheMaybeRCConfigurationById: getOrCacheMaybeRCConfigurationByIdMock,
+  getOrCacheRCConfigurationWithFallback: vi.fn(), // not used for this handler
 } as unknown as RCConfigurationUtility;
 
 describe("GetRCConfigurationHandler", () => {
@@ -34,7 +34,7 @@ describe("GetRCConfigurationHandler", () => {
     );
 
     const result = await getRCConfigurationHandler(
-      contextMock as any,
+      contextMock,
       aRetrievedRCConfigurationWithBothEnv.configurationId,
     );
 
@@ -51,7 +51,7 @@ describe("GetRCConfigurationHandler", () => {
     );
 
     const result = await getRCConfigurationHandler(
-      contextMock as any,
+      contextMock,
       aRetrievedRCConfigurationWithBothEnv.configurationId,
     );
 
@@ -64,7 +64,7 @@ describe("GetRCConfigurationHandler", () => {
     );
 
     const result = await getRCConfigurationHandler(
-      contextMock as any,
+      contextMock,
       aRetrievedRCConfigurationWithBothEnv.configurationId,
     );
 

@@ -1,20 +1,19 @@
-import * as TE from "fp-ts/lib/TaskEither";
-import * as O from "fp-ts/lib/Option";
-
 import { HasPreconditionEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/HasPrecondition";
-import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
-import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
-import { aCosmosResourceMetadata, aFiscalCode } from "./mocks";
-import { IConfig } from "../utils/config";
-import { RCConfigurationBase } from "../generated/definitions/RCConfigurationBase";
-import { RCConfigurationPublic } from "../generated/definitions/RCConfigurationPublic";
 import {
   RCConfiguration,
   RCConfigurationModel,
   RetrievedRCConfiguration,
 } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
-
+import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
+import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
+import * as O from "fp-ts/lib/Option";
+import * as TE from "fp-ts/lib/TaskEither";
 import { vi } from "vitest";
+
+import { RCConfigurationBase } from "../generated/definitions/RCConfigurationBase";
+import { RCConfigurationPublic } from "../generated/definitions/RCConfigurationPublic";
+import { IConfig } from "../utils/config";
+import { aCosmosResourceMetadata, aFiscalCode } from "./mocks";
 
 export const mockRCConfigurationTtl = 100 as NonNegativeInteger;
 
@@ -26,17 +25,17 @@ const aDetailAuthentication = {
 
 export const aRetrievedRCConfiguration: RetrievedRCConfiguration = {
   configurationId: "01HMRBX079WA5SGYBQP1A7FSKH" as Ulid,
-  userId: "01HMRBX079WA5SGYBQP1A7FSKK" as NonEmptyString,
-  hasPrecondition: HasPreconditionEnum.ALWAYS,
-  disableLollipopFor: [aFiscalCode],
-  isLollipopEnabled: true,
-  id: "01HMRBX079WA5SGYBQP1A7FSKH" as NonEmptyString,
-  name: "name" as NonEmptyString,
   description: "description" as NonEmptyString,
+  disableLollipopFor: [aFiscalCode],
+  hasPrecondition: HasPreconditionEnum.ALWAYS,
+  id: "01HMRBX079WA5SGYBQP1A7FSKH" as NonEmptyString,
+  isLollipopEnabled: true,
+  name: "name" as NonEmptyString,
   prodEnvironment: {
     baseUrl: "aValidUrl" as NonEmptyString,
     detailsAuthentication: aDetailAuthentication,
   },
+  userId: "01HMRBX079WA5SGYBQP1A7FSKK" as NonEmptyString,
   ...aCosmosResourceMetadata,
 };
 
@@ -66,11 +65,11 @@ const aRCEnvironmentConfiguration = {
 
 const aRCConfigurationWithNoEnv: RCConfigurationBase = {
   configuration_id: "01HMRBX079WA5SGYBQP1A7FSKH" as Ulid,
-  name: "aName" as NonEmptyString,
   description: "a simple description" as NonEmptyString,
-  has_precondition: HasPreconditionEnum.ALWAYS,
   disable_lollipop_for: [],
+  has_precondition: HasPreconditionEnum.ALWAYS,
   is_lollipop_enabled: false,
+  name: "aName" as NonEmptyString,
 };
 
 export const aRCConfigurationWithProdEnv: RCConfigurationPublic = {
@@ -97,26 +96,26 @@ const aRCConfigurationEnvironmentModel = {
 };
 
 const aRCConfiguration: RCConfiguration = {
-  userId: "aUserId" as NonEmptyString,
-  id: "01HMRBX079WA5SGYBQP1A7FSKH" as NonEmptyString,
   configurationId: "01HMRBX079WA5SGYBQP1A7FSKH" as Ulid,
-  name: "aName" as NonEmptyString,
   description: "a simple description" as NonEmptyString,
-  hasPrecondition: HasPreconditionEnum.ALWAYS,
   disableLollipopFor: [],
+  hasPrecondition: HasPreconditionEnum.ALWAYS,
+  id: "01HMRBX079WA5SGYBQP1A7FSKH" as NonEmptyString,
   isLollipopEnabled: false,
+  name: "aName" as NonEmptyString,
   prodEnvironment: aRCConfigurationEnvironmentModel,
   testEnvironment: {
     ...aRCConfigurationEnvironmentModel,
     testUsers: [],
   },
+  userId: "aUserId" as NonEmptyString,
 };
 
 export const aRetrievedRCConfigurationWithBothEnv: RetrievedRCConfiguration = {
   ...aRCConfiguration,
-  id: `${aRCConfiguration.configurationId}` as NonEmptyString,
   _etag: "_etag",
   _rid: "_rid",
   _self: "_self",
   _ts: 1,
+  id: `${aRCConfiguration.configurationId}` as NonEmptyString,
 };
