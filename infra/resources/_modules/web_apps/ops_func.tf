@@ -1,7 +1,7 @@
 locals {
   app_settings = {
     COSMOS_URI                       = var.cosmosdb_account_api.endpoint,
-    COSMOS_DATABASE_NAME             = var.cosmosdb_account_api.name,
+    COSMOS_DATABASE_NAME             = "db",
     COMMON_STORAGE_ACCOUNT_URL       = var.message_content_storage.endpoint,
     STORAGE_ACCOUNT__serviceUri      = var.com_st_uri
     STORAGE_ACCOUNT__queueServiceUri = var.com_st_queue_uri
