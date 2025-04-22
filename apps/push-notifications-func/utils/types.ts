@@ -19,7 +19,7 @@ export const jsonFromString = new t.Type<object, string>( // eslint-disable-line
         pipe(
           E.tryCatch(
             () => t.success(JSON.parse(s)),
-            (_) => t.failure(s, c),
+            () => t.failure(s, c),
           ),
           E.fold(identity, identity),
         ),

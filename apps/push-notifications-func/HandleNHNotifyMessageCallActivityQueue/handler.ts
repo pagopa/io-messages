@@ -77,7 +77,7 @@ export const handle = (
               message.installationId,
               telemetryClient,
             ),
-            TE.map((_) => ({ kind: "SUCCESS", skipped: false })),
+            TE.map(() => ({ kind: "SUCCESS", skipped: false })),
           ),
         ),
         TE.mapLeft(toTransientFailure),

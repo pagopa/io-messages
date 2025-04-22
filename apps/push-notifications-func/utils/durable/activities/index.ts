@@ -43,7 +43,7 @@ type ActivityResult<R extends ActivityResultFailure | ActivityResultSuccess> =
  */
 export const createActivity =
   <
-    I extends unknown = unknown,
+    I = unknown,
     S extends ActivityResultSuccess = ActivityResultSuccess,
     F extends ActivityResultFailure = ActivityResultFailure,
   >(

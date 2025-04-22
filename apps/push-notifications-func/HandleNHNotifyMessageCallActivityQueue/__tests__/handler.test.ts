@@ -4,7 +4,10 @@ import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { envConfig } from "../../__mocks__/env-config.mock";
-import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
+import {
+  KindEnum,
+  NotifyMessage,
+} from "../../generated/notifications/NotifyMessage";
 import { toSHA256 } from "../../utils/conversions";
 import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
 import * as NSP from "../../utils/notificationhubServicePartition";
@@ -15,7 +18,7 @@ const aFiscalCodeHash =
 
 const aNotifyMessage: NotifyMessage = {
   installationId: aFiscalCodeHash,
-  kind: "Notify" as any,
+  kind: KindEnum.Notify,
   payload: {
     message: "message",
     message_id: "id",

@@ -1,5 +1,4 @@
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { isRight } from "fp-ts/lib/Either";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";

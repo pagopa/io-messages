@@ -101,8 +101,9 @@ describe("RegExpFromString", () => {
       expect(result.test(goodExample)).toBe(true);
       // testing the regex performs well on a bad example
       //   undefined means "don't test"
-      typeof badExample !== "undefined" &&
+      if (typeof badExample !== "undefined") {
         expect(result.test(badExample)).toBe(false);
+      }
     },
   );
 
@@ -115,7 +116,7 @@ describe("RegExpFromString", () => {
     const result = RegExpFromString.encode(input);
 
     expect(result).toEqual(expected);
-    expect(typeof result === "string").toBe(true);
+    expect(typeof result).toBe("string");
   });
 
   it.each`

@@ -17,24 +17,24 @@ export const envConfig: IConfig = {
     {
       endpoint: "endpoint-partition-1" as NonEmptyString,
       name: "partition-1" as NonEmptyString,
-      partitionRegex: "^[0-3]" as NonEmptyString,
+      partitionRegex: /^[0-3]/,
     },
     {
       endpoint: "endpoint-partition-2" as NonEmptyString,
       name: "partition-2" as NonEmptyString,
-      partitionRegex: "^[4-7]" as NonEmptyString,
+      partitionRegex: /^[4-7]/,
     },
     {
       endpoint: "endpoint-partition-3" as NonEmptyString,
       name: "partition-3" as NonEmptyString,
-      partitionRegex: "^[8-b]" as NonEmptyString,
+      partitionRegex: /^[8-b]/,
     },
     {
       endpoint: "endpoint-partition-4" as NonEmptyString,
       name: "partition-4" as NonEmptyString,
-      partitionRegex: "^[c-f]" as NonEmptyString,
+      partitionRegex: /^[c-f]/,
     },
-  ] as any,
+  ],
 
   AzureWebJobsStorage:
     "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar" as NonEmptyString,

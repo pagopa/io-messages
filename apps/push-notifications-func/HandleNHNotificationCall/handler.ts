@@ -47,7 +47,6 @@ const notifyMessage = (
       ),
     ),
     T.sequenceArray,
-    // eslint-disable-next-line functional/immutable-data
     T.map(
       (notifyMessages) => (context.bindings.notifyMessages = notifyMessages),
     ),

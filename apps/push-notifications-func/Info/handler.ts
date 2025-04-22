@@ -32,7 +32,6 @@ type HealthChecker = (
   true
 >;
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function InfoHandler(healthCheck: HealthChecker): InfoHandler {
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   return () =>
@@ -40,7 +39,7 @@ export function InfoHandler(healthCheck: HealthChecker): InfoHandler {
       envConfig,
       healthCheck,
       TE.mapLeft((problems) => ResponseErrorInternal(problems.join("\n\n"))),
-      TE.map((_) =>
+      TE.map(() =>
         ResponseSuccessJson({
           name: packageJson.name,
           version: packageJson.version,
@@ -50,7 +49,6 @@ export function InfoHandler(healthCheck: HealthChecker): InfoHandler {
     )();
 }
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function Info(): express.RequestHandler {
   const handler = InfoHandler(
     healthcheck.checkApplicationHealth(IConfig, [

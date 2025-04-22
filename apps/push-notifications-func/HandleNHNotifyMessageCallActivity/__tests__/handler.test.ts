@@ -5,7 +5,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { context as contextMock } from "../../__mocks__/durable-functions";
 import { envConfig } from "../../__mocks__/env-config.mock";
-import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
+import {
+  KindEnum,
+  NotifyMessage,
+} from "../../generated/notifications/NotifyMessage";
 import { toSHA256 } from "../../utils/conversions";
 import { createActivity } from "../../utils/durable/activities";
 import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
@@ -21,7 +24,7 @@ const aFiscalCodeHash =
 
 const aNotifyMessage: NotifyMessage = {
   installationId: aFiscalCodeHash,
-  kind: "Notify" as any,
+  kind: KindEnum.Notify,
   payload: {
     message: "message",
     message_id: "id",
@@ -48,7 +51,7 @@ const mockNotificationHubService = {
 const mockBuildNHClient = vi
   .fn()
   .mockImplementation(
-    (_) => mockNotificationHubService as unknown as NotificationHubsClient,
+    () => mockNotificationHubService as unknown as NotificationHubsClient,
   );
 
 const activityName = "any";
@@ -86,7 +89,7 @@ describe("HandleNHNotifyMessageCallActivity", () => {
 
     expect.assertions(4);
 
-    const res = await handler(contextMock as any, input);
+    const res = await handler(contextMock, input);
     expect(res.kind).toEqual("SUCCESS");
 
     expect(mockBuildNHClient).toHaveBeenCalledTimes(1);
@@ -108,7 +111,7 @@ describe("HandleNHNotifyMessageCallActivity", () => {
     expect.assertions(2);
 
     try {
-      await handler(contextMock as any, input);
+      await handler(contextMock, input);
     } catch (e) {
       expect(sendNotificationMock).toHaveBeenCalledTimes(1);
       expect(e).toBeInstanceOf(Error);
@@ -125,7 +128,7 @@ describe("HandleNHNotifyMessageCallActivity", () => {
 
     expect.assertions(3);
 
-    const res = await handler(contextMock as any, input);
+    const res = await handler(contextMock, input);
     expect(res.kind).toEqual("SUCCESS");
     expect(res).toHaveProperty("skipped", true);
 

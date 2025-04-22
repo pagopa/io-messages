@@ -21,7 +21,7 @@ describe("healthcheck - notification hub", () => {
         envConfig.AZURE_NH_ENDPOINT,
         envConfig.AZURE_NH_HUB_NAME,
       ),
-      TE.map((_) => {
+      TE.map(() => {
         expect(true).toBe(true);
       }),
     )();
@@ -41,7 +41,7 @@ describe("healthcheck - notification hub", () => {
         expect(err.length).toBe(1);
         expect(true).toBe(true);
       }),
-      TE.map((_) => {
+      TE.map(() => {
         expect(true).toBeFalsy();
       }),
     )();

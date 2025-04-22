@@ -14,7 +14,7 @@ import { NhNotifyMessageRequest } from "../../utils/types";
 import { getHandler } from "../handler";
 
 const dfClient = {
-  startNew: vi.fn().mockImplementation((_, __, ___) => success()),
+  startNew: vi.fn().mockImplementation(() => success()),
 } as any as DurableOrchestrationClient;
 
 vi.spyOn(df, "getClient").mockReturnValue(dfClient);

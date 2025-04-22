@@ -86,7 +86,7 @@ export const createOrchestrator = <I, TNext = TNextDefault>(
   };
 
 export type CallableActivity<
-  I extends unknown = unknown,
+  I = unknown,
   S extends ActivityResultSuccess = ActivityResultSuccess,
   // Failures aren't mapped as they are thrown
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention
@@ -103,7 +103,7 @@ export type CallableActivity<
  * @returns a generator function which takes an orchestrator context and an input for the activity
  */
 export const callableActivity = <
-  I extends unknown = unknown,
+  I = unknown,
   S extends ActivityResultSuccess = ActivityResultSuccess,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention
   __ extends ActivityResultFailure = ActivityResultFailure,
@@ -116,7 +116,6 @@ export const callableActivity = <
     context: IOrchestrationFunctionContext,
     input: I,
   ): Generator<Task, S> {
-    // eslint-disable-next-line functional/no-let
     let result: unknown;
     try {
       result = yield typeof retryOptions === "undefined"

@@ -32,7 +32,7 @@ const mockNotificationHubService = {
 const mockBuildNHClient = vi
   .fn()
   .mockImplementation(
-    (_) => mockNotificationHubService as unknown as NotificationHubsClient,
+    () => mockNotificationHubService as unknown as NotificationHubsClient,
   );
 
 const mockTelemetryClient = {
@@ -54,13 +54,13 @@ describe("HandleNHDeleteInstallationCallActivity", () => {
     vi.spyOn(
       mockNotificationHubService,
       "deleteInstallation",
-    ).mockImplementation((_) => Promise.resolve({}));
+    ).mockImplementation(() => Promise.resolve({}));
 
     const input = ActivityInput.encode({
       installationId: anInstallationId,
       notificationHubConfig: aNHConfig,
     });
-    const res = await handler(contextMock as any, input);
+    const res = await handler(contextMock, input);
     expect(mockNotificationHubService.deleteInstallation).toHaveBeenCalledTimes(
       1,
     );
@@ -80,7 +80,7 @@ describe("HandleNHDeleteInstallationCallActivity", () => {
       installationId: anInstallationId,
       notificationHubConfig: aNHConfig,
     });
-    const res = await handler(contextMock as any, input);
+    const res = await handler(contextMock, input);
     expect(mockNotificationHubService.deleteInstallation).toHaveBeenCalledTimes(
       1,
     );

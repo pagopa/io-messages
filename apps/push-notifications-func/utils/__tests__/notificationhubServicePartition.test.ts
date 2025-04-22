@@ -1,6 +1,6 @@
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as E from "fp-ts/lib/Either";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { envConfig } from "../../__mocks__/env-config.mock";
 import { InstallationId } from "../../generated/notifications/InstallationId";
@@ -127,8 +127,7 @@ describe("Partition Regex", () => {
     const fakeInstallationId = "hhhhhh" as InstallationId;
 
     expect(() => {
-      const NH =
-        getNotificationHubPartitionConfig(envConfig)(fakeInstallationId);
+      getNotificationHubPartitionConfig(envConfig)(fakeInstallationId);
     }).toThrowError(
       `Unable to find Notification Hub partition for ${fakeInstallationId}`,
     );

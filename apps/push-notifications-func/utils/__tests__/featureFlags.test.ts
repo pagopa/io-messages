@@ -17,32 +17,32 @@ describe("featureFlags", () => {
 
   it("should return true when feature flag all is enabled", () => {
     const res = featureFlags.getIsInActiveSubset(
-      (_) => false,
-      (_) => false,
+      () => false,
+      () => false,
     )("all", aFiscalCodeHash, [{ RowKey: aFiscalCodeHash }]);
     expect(res).toBe(true);
   });
 
   it("should return false when feature flag none is enabled", () => {
     const res = featureFlags.getIsInActiveSubset(
-      (_) => true,
-      (_) => false,
+      () => true,
+      () => false,
     )("none", aFiscalCodeHash, [{ RowKey: aFiscalCodeHash }]);
     expect(res).toBe(false);
   });
 
   it("should return true when feature flag beta is enabled adn user is a beta test user", () => {
     const res = featureFlags.getIsInActiveSubset(
-      (_) => true,
-      (_) => false,
+      () => true,
+      () => false,
     )("beta", aFiscalCodeHash, [{ RowKey: aFiscalCodeHash }]);
     expect(res).toBe(true);
   });
 
   it("should return false when feature flag beta is enabled adn user is NOT a beta test user", () => {
     const res = featureFlags.getIsInActiveSubset(
-      (_) => false,
-      (_) => false,
+      () => false,
+      () => false,
     )("beta", aFiscalCodeHash, [{ RowKey: aFiscalCodeHash }]);
     expect(res).toBe(false);
   });

@@ -1,5 +1,4 @@
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import * as df from "durable-functions";
 import { IOrchestrationFunctionContext } from "durable-functions/lib/src/iorchestrationfunctioncontext";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -62,8 +61,8 @@ describe("HandleNHDeleteInstallationCallOrchestrator", () => {
     const orchestratorHandler = getHandler({
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
-    })(contextMockWithDf as any);
+      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
+    })(contextMockWithDf);
 
     consumeGenerator(orchestratorHandler);
 
@@ -80,8 +79,8 @@ describe("HandleNHDeleteInstallationCallOrchestrator", () => {
     const orchestratorHandler = getHandler({
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
-    })(contextMockWithDf as any);
+      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
+    })(contextMockWithDf);
 
     const result = consumeGenerator(orchestratorHandler);
 
@@ -92,8 +91,8 @@ describe("HandleNHDeleteInstallationCallOrchestrator", () => {
     const orchestratorHandler = getHandler({
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
-    })(contextMockWithDf as any);
+      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
+    })(contextMockWithDf);
 
     consumeGenerator(orchestratorHandler);
 
@@ -124,7 +123,7 @@ describe("HandleNHDeleteInstallationCallOrchestrator", () => {
     const orchestratorHandler = getHandler({
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
     })(contextMockWithDf);
 
     expect.assertions(2);

@@ -66,6 +66,8 @@ const newNotificationHubConfig: NotificationHubConfig = {
 
 type CallableCreateOrUpdateActivity =
   CallableActivity<CreateOrUpdateActivityInput>;
+
+/* eslint-disable require-yield */
 const mockCreateOrUpdateActivity = vi.fn<
   (
     ...args: Parameters<CallableCreateOrUpdateActivity>
@@ -73,6 +75,7 @@ const mockCreateOrUpdateActivity = vi.fn<
 >(function* () {
   return { kind: "SUCCESS" };
 });
+/* eslint-enable require-yield */
 
 const mockGetInput = vi.fn().mockImplementation(() => anOrchestratorInput);
 const contextMockWithDf = {
@@ -96,7 +99,7 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
       createOrUpdateActivity: mockCreateOrUpdateActivity,
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
     })(contextMockWithDf);
 
     const result = consumeGenerator(orchestratorHandler);
@@ -112,7 +115,7 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
             `Cannot decode test result, err: ${readableReport(err)}`,
           );
         },
-        (_) => {
+        () => {
           expect(mockCreateOrUpdateActivity).toBeCalledWith(
             expect.any(Object),
             expect.objectContaining({
@@ -133,7 +136,7 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
       createOrUpdateActivity: mockCreateOrUpdateActivity,
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
     })(contextMockWithDf);
 
     const result = consumeGenerator(orchestratorHandler);
@@ -149,7 +152,7 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
             `Cannot decode test result, err: ${readableReport(err)}`,
           );
         },
-        (_) => {
+        () => {
           expect(mockCreateOrUpdateActivity).toBeCalledWith(
             expect.any(Object),
             expect.objectContaining({
@@ -188,7 +191,7 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
         createOrUpdateActivity: mockCreateOrUpdateActivity,
         deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
         legacyNotificationHubConfig: legacyNotificationHubConfig,
-        notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+        notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
       })(contextMockWithDf);
 
       expect.assertions(2);
@@ -208,7 +211,7 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
       createOrUpdateActivity: mockCreateOrUpdateActivity,
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
     })(contextMockWithDf);
 
     expect.assertions(2);
@@ -229,7 +232,7 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
       createOrUpdateActivity: mockCreateOrUpdateActivity,
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
     })(contextMockWithDf);
 
     expect.assertions(2);

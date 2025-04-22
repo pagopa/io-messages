@@ -1,14 +1,9 @@
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import * as df from "durable-functions";
 import { IOrchestrationFunctionContext } from "durable-functions/lib/src/iorchestrationfunctioncontext";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  getMockIsUserATestUserActivity,
-  getMockNotifyMessageInstallationActivity,
-} from "../../__mocks__/activities-mocks";
+import { getMockNotifyMessageInstallationActivity } from "../../__mocks__/activities-mocks";
 import { context as contextMock } from "../../__mocks__/durable-functions";
-import { envConfig } from "../../__mocks__/env-config.mock";
 import { KindEnum as NotifyMessageKind } from "../../generated/notifications/NotifyMessage";
 import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
 import {
@@ -70,9 +65,9 @@ describe("HandleNHNotifyMessageCallOrchestrator", () => {
   it("should start the activities with the right inputs", async () => {
     const orchestratorHandler = getHandler({
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
       notifyMessageActivity: mockNotifyMessageActivitySuccess,
-    })(contextMockWithDf as any);
+    })(contextMockWithDf);
 
     consumeGenerator(orchestratorHandler);
 
@@ -88,9 +83,9 @@ describe("HandleNHNotifyMessageCallOrchestrator", () => {
   it("should end the activity with SUCCESS", async () => {
     const orchestratorHandler = getHandler({
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
       notifyMessageActivity: mockNotifyMessageActivitySuccess,
-    })(contextMockWithDf as any);
+    })(contextMockWithDf);
 
     const res = consumeGenerator(orchestratorHandler);
 
@@ -100,9 +95,9 @@ describe("HandleNHNotifyMessageCallOrchestrator", () => {
   it("should always call Notify Message twice with both legacy and new parameters", async () => {
     const orchestratorHandler = getHandler({
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
       notifyMessageActivity: mockNotifyMessageActivitySuccess,
-    })(contextMockWithDf as any);
+    })(contextMockWithDf);
 
     consumeGenerator(orchestratorHandler);
 
@@ -132,9 +127,9 @@ describe("HandleNHNotifyMessageCallOrchestrator", () => {
 
     const orchestratorHandler = getHandler({
       legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
       notifyMessageActivity: mockNotifyMessageActivitySuccess,
-    })(contextMockWithDf as any);
+    })(contextMockWithDf);
 
     expect.assertions(2);
     try {
