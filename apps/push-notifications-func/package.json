@@ -13,13 +13,14 @@
     "dev": "npm-run-all --parallel start watch",
     "test": "vitest run --hook-timeout=0",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint . -c .eslintrc.js --ext .ts,.tsx",
     "generate": "shx rm -rf generated && yarn generate:backend-notification-hub",
     "generate:backend-notification-hub": "shx rm -rf generated/notifications && shx mkdir -p generated/notifications && gen-api-models --strict 0 --api-spec https://raw.githubusercontent.com/pagopa/io-backend/v7.15.5/notification_queue_messages.yaml --out-dir generated/notifications",
     "dist:modules": "modclean -r -n default:safe && yarn install --production",
     "predeploy": "npm-run-all build dist:*",
     "preversion": "auto-changelog  --config .auto-changelog.json --unreleased --commit-limit false --stdout --template preview.hbs",
-    "version": "auto-changelog -p --config .auto-changelog.json --unreleased && git add CHANGELOG.md"
+    "version": "auto-changelog -p --config .auto-changelog.json --unreleased && git add CHANGELOG.md",
+    "lint": "eslint --fix .",
+    "lint:check": "eslint ."
   },
   "dependencies": {
     "@azure/notification-hubs": "^1.2.3",
@@ -43,7 +44,7 @@
   },
   "devDependencies": {
     "@azure/functions": "^3.2.0",
-    "@pagopa/eslint-config": "^1.3.1",
+    "@pagopa/eslint-config": "^4.0.1",
     "@pagopa/openapi-codegen-ts": "^10.0.5",
     "@types/express": "^4.17.9",
     "@types/node": "^20.17.12",
@@ -53,6 +54,7 @@
     "auto-changelog": "2.2.1",
     "dependency-check": "^4.1.0",
     "dotenv-cli": "^3.1.0",
+    "eslint": "8.57.1",
     "eslint-plugin-prettier": "^3.3.1",
     "modclean": "^3.0.0-beta.1",
     "nock": "^13.0.11",
