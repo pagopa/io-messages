@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "postbuild": "dependency-check package.json --no-dev --missing ./dist/**/*.js",
-    "clean": " tsc --build --clean",
+    "clean": "tsc --build --clean",
     "build": "shx rm -rf dist && yarn generate && tsc",
     "watch": "tsc -w",
     "extensions:install": "func extensions install",
@@ -17,8 +16,6 @@
     "generate:backend-notification-hub": "shx rm -rf generated/notifications && shx mkdir -p generated/notifications && gen-api-models --strict 0 --api-spec https://raw.githubusercontent.com/pagopa/io-backend/v7.15.5/notification_queue_messages.yaml --out-dir generated/notifications",
     "dist:modules": "modclean -r -n default:safe && yarn install --production",
     "predeploy": "npm-run-all build dist:*",
-    "preversion": "auto-changelog  --config .auto-changelog.json --unreleased --commit-limit false --stdout --template preview.hbs",
-    "version": "auto-changelog -p --config .auto-changelog.json --unreleased && git add CHANGELOG.md",
     "lint": "eslint --fix .",
     "lint:check": "eslint ."
   },
@@ -44,27 +41,20 @@
   },
   "devDependencies": {
     "@azure/functions": "^3.2.0",
-    "@pagopa/eslint-config": "^4.0.1",
+    "@pagopa/eslint-config": "^4.0.3",
     "@pagopa/openapi-codegen-ts": "^10.0.5",
     "@types/express": "^4.17.9",
-    "@types/node": "^20.17.12",
+    "@types/node": "^20.17.30",
     "@types/node-fetch": "^2.5.7",
     "@types/vfile-message": "^2.0.0",
-    "@vitest/coverage-v8": "^2.1.8",
-    "auto-changelog": "2.2.1",
-    "dependency-check": "^4.1.0",
-    "dotenv-cli": "^3.1.0",
+    "@vitest/coverage-v8": "^3.1.2",
     "eslint": "8.57.1",
     "modclean": "^3.0.0-beta.1",
-    "nock": "^13.0.11",
     "npm-run-all": "^4.1.5",
     "oval": "^1.0.0",
     "prettier": "^1.18.2",
     "shx": "^0.3.2",
     "typescript": "^4.3.5",
-    "vitest": "^2.1.8"
-  },
-  "resolutions": {
-    "handlebars": "~4.5.3"
+    "vitest": "^3.1.2"
   }
 }
