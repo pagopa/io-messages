@@ -68,13 +68,13 @@ resource "azurerm_role_assignment" "ops_func_slot" {
 }
 
 resource "azurerm_role_assignment" "io_com_cosmos_ops_func" {
-  scope                = var.io_com_cosmos.id
+  scope                = var.cosmosdb_account_api.id
   role_definition_name = "SQL DB Contributor"
   principal_id         = module.ops_func.function_app.function_app.principal_id
 }
 
 resource "azurerm_role_assignment" "io_com_cosmos_ops_func_slot" {
-  scope                = var.io_com_cosmos.id
+  scope                = var.cosmosdb_account_api.id
   role_definition_name = "SQL DB Contributor"
   principal_id         = module.ops_func.function_app.function_app.slot.principal_id
 }
