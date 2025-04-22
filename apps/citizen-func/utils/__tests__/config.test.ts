@@ -1,11 +1,9 @@
+import { Ulid } from "@pagopa/ts-commons/lib/strings";
 import * as E from "fp-ts/lib/Either";
-
-import { IConfig } from "../config";
+import { describe, expect, it } from "vitest";
 
 import { envConfig } from "../../__mocks__/env-config.mock";
-import { Ulid } from "@pagopa/ts-commons/lib/strings";
-
-import { describe, it, expect } from "vitest";
+import { IConfig } from "../config";
 
 describe("IConfig - USE_FALLBACK", () => {
   it("should decode USE_FALLBACK with defalt, when is not defined", () => {

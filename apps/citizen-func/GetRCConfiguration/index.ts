@@ -1,18 +1,15 @@
 import { Context } from "@azure/functions";
-
-import * as express from "express";
-
+import createAzureFunctionHandler from "@pagopa/express-azure-functions/dist/src/createAzureFunctionsHandler";
+import {
+  RC_CONFIGURATION_COLLECTION_NAME,
+  RCConfigurationModel,
+} from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
 import { secureExpressApp } from "@pagopa/io-functions-commons/dist/src/utils/express";
 import { setAppContext } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
+import * as express from "express";
 
-import createAzureFunctionHandler from "@pagopa/express-azure-functions/dist/src/createAzureFunctionsHandler";
-
-import {
-  RCConfigurationModel,
-  RC_CONFIGURATION_COLLECTION_NAME
-} from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
-import { remoteContentCosmosdbInstance } from "../utils/cosmosdb";
 import { getConfigOrThrow } from "../utils/config";
+import { remoteContentCosmosdbInstance } from "../utils/cosmosdb";
 import { RedisClientFactory } from "../utils/redis";
 import RCConfigurationUtility from "../utils/remoteContentConfig";
 import { GetRCConfiguration } from "./handler";
@@ -26,19 +23,19 @@ const config = getConfigOrThrow();
 const redisClientFactory = new RedisClientFactory(config);
 
 const rcConfigurationModel = new RCConfigurationModel(
-  remoteContentCosmosdbInstance.container(RC_CONFIGURATION_COLLECTION_NAME)
+  remoteContentCosmosdbInstance.container(RC_CONFIGURATION_COLLECTION_NAME),
 );
 
 const rcConfigurationUtility = new RCConfigurationUtility(
   redisClientFactory,
   rcConfigurationModel,
   config.SERVICE_CACHE_TTL_DURATION,
-  config.SERVICE_TO_RC_CONFIGURATION_MAP
+  config.SERVICE_TO_RC_CONFIGURATION_MAP,
 );
 
 app.get(
   "/api/v1/remote-contents/configurations/:id",
-  GetRCConfiguration(rcConfigurationUtility)
+  GetRCConfiguration(rcConfigurationUtility),
 );
 
 const azureFunctionHandler = createAzureFunctionHandler(app);

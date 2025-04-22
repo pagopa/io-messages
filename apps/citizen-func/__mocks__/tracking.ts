@@ -1,11 +1,11 @@
 import { createTracker as createTrackerReal } from "../utils/tracking";
-const mockTracker = (name: string | symbol | number) =>
+const mockTracker = (name: number | string | symbol) =>
   new Proxy(
     {},
     {
       get: (_, k) => () =>
-        console.log(`Tracing ${name.toString()}.${k.toString()}`)
-    }
+        console.log(`Tracing ${name.toString()}.${k.toString()}`),
+    },
   );
 export const createTracker: typeof createTrackerReal = (..._) =>
   new Proxy(
@@ -13,6 +13,6 @@ export const createTracker: typeof createTrackerReal = (..._) =>
     {
       get(_, key) {
         return mockTracker(key);
-      }
-    }
+      },
+    },
   ) as ReturnType<typeof createTrackerReal>;

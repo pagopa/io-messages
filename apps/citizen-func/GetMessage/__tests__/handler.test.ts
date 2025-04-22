@@ -1,50 +1,46 @@
 // eslint-disable @typescript-eslint/no-explicit-any, sonarjs/no-duplicate-string, sonar/sonar-max-lines-per-function
 
-import * as O from "fp-ts/lib/Option";
-
+import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
+import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
+import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
+import { MessageBodyMarkdown } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageBodyMarkdown";
+import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
+import { TagEnum as TagEnumPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
+import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
+import { MessageSubject } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageSubject";
+import { PaymentAmount } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentAmount";
+import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
+import { PaymentNoticeNumber } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentNoticeNumber";
+import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
+import {
+  NewMessageWithoutContent,
+  RetrievedMessageWithoutContent,
+} from "@pagopa/io-functions-commons/dist/src/models/message";
+import { Service } from "@pagopa/io-functions-commons/dist/src/models/service";
+import { toCosmosErrorResponse } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
+import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import {
   FiscalCode,
   NonEmptyString,
   OrganizationFiscalCode,
 } from "@pagopa/ts-commons/lib/strings";
-
-import {
-  NewMessageWithoutContent,
-  RetrievedMessageWithoutContent,
-} from "@pagopa/io-functions-commons/dist/src/models/message";
-
-import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
-import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
-
+import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { context as contextMock } from "../../__mocks__/context";
+import { envConfig } from "../../__mocks__/env-config.mock";
 import {
   aCosmosResourceMetadata,
   aPnThirdPartyData,
 } from "../../__mocks__/mocks";
-import { GetMessageHandler } from "../handler";
-import { Service } from "@pagopa/io-functions-commons/dist/src/models/service";
+import { aMessageStatus } from "../../__mocks__/mocks.message-status";
 import {
   aRetrievedService,
   aServiceId,
 } from "../../__mocks__/mocks.service_preference";
-import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
-import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
-import { PaymentAmount } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentAmount";
-import { PaymentNoticeNumber } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentNoticeNumber";
-import { MessageBodyMarkdown } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageBodyMarkdown";
-import { MessageSubject } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageSubject";
-import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
-import { aMessageStatus } from "../../__mocks__/mocks.message-status";
-import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import * as msgUtil from "../../utils/messages";
-import { toCosmosErrorResponse } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
-import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
-import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
-import { TagEnum as TagEnumPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
-import { envConfig } from "../../__mocks__/env-config.mock";
-
-import { vi, afterEach, expect, it, describe } from "vitest";
+import { GetMessageHandler } from "../handler";
 
 const aFiscalCode = "FRLFRC74E04B157I" as FiscalCode;
 const aDate = new Date();
@@ -96,12 +92,12 @@ const aPaymentDataWithoutPayee: PaymentData = {
 
 const anEnrichedMessageResponse: EnrichedMessage = {
   ...aPublicExtendedMessage,
-  service_name: aSenderService.serviceName,
-  organization_name: aSenderService.organizationName,
-  organization_fiscal_code: aSenderService.organizationFiscalCode,
-  message_title: aMessageContent.subject,
   is_archived: aMessageStatus.isArchived,
   is_read: aMessageStatus.isRead,
+  message_title: aMessageContent.subject,
+  organization_fiscal_code: aSenderService.organizationFiscalCode,
+  organization_name: aSenderService.organizationName,
+  service_name: aSenderService.serviceName,
 };
 
 const mockServiceModel = {};
@@ -281,8 +277,8 @@ describe("GetMessageHandler", () => {
         message: {
           ...aPublicExtendedMessageResponse.message,
           category: {
-            tag: "PAYMENT",
             rptId: `${aSenderService.organizationFiscalCode}${aPaymentDataWithoutPayee.notice_number}`,
+            tag: "PAYMENT",
           },
           content: {
             ...aMessageContent,
@@ -299,7 +295,7 @@ describe("GetMessageHandler", () => {
     }
   });
 
-  it("should respond with an enriched message when a PN third-party-data is provided ", async () => {
+  it("should respond with an enriched message when a PN third-party-data is provided", async () => {
     const thirdPartyFetcherForAServiceId = (serviceId) => ({
       category: serviceId == aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
     });

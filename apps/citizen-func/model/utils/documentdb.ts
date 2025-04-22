@@ -13,20 +13,20 @@ export function findAllVersionsByModelIdIn<TR>(
   container: Container,
   retrievedItemType: t.Type<TR, unknown, unknown>,
   partitionKeyField: string,
-  partitionKeyList: ReadonlyArray<string>
-): AsyncIterable<ReadonlyArray<t.Validation<TR>>> {
+  partitionKeyList: readonly string[],
+): AsyncIterable<readonly t.Validation<TR>[]> {
   const iterator = container.items
     .query({
       parameters: [
         {
           name: "@partitionKeyList",
-          value: partitionKeyList
-        }
+          value: partitionKeyList,
+        },
       ],
-      query: `SELECT * FROM m WHERE ARRAY_CONTAINS(@partitionKeyList, m.${partitionKeyField})`
+      query: `SELECT * FROM m WHERE ARRAY_CONTAINS(@partitionKeyList, m.${partitionKeyField})`,
     })
     .getAsyncIterator();
-  return mapAsyncIterable(iterator, feedResponse =>
-    feedResponse.resources.map(retrievedItemType.decode)
+  return mapAsyncIterable(iterator, (feedResponse) =>
+    feedResponse.resources.map(retrievedItemType.decode),
   );
 }

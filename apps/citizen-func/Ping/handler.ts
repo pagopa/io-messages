@@ -1,10 +1,10 @@
-import * as express from "express";
-
 import { wrapRequestHandler } from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import {
   IResponseSuccessJson,
-  ResponseSuccessJson
+  ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
+import * as express from "express";
+
 import * as packageJson from "../package.json";
 
 interface IPing {
@@ -20,7 +20,7 @@ export function PingHandler(): PingHandler {
   return async () =>
     ResponseSuccessJson({
       name: packageJson.name,
-      version: packageJson.version
+      version: packageJson.version,
     });
 }
 

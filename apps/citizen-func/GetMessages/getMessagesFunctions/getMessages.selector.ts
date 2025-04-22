@@ -1,17 +1,14 @@
 import { Context } from "@azure/functions";
-
-import * as TE from "fp-ts/TaskEither";
-
 import { CosmosErrors } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
-import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
+import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import * as TE from "fp-ts/TaskEither";
 
 import { FeatureFlagType } from "../../utils/config";
 import { toFiscalCodeHash } from "../../utils/fiscalCodeHash";
-
 import { getMessagesFromFallback } from "./getMessages.fallback";
-import { EnrichedMessageWithContent } from "./models";
 import { getMessagesFromView } from "./getMessages.view";
+import { EnrichedMessageWithContent } from "./models";
 
 // --------------------------------
 // GetMessages Functions Interface
@@ -20,15 +17,15 @@ import { getMessagesFromView } from "./getMessages.view";
 interface IGetMessagesParams {
   readonly context: Context;
   readonly fiscalCode: FiscalCode;
+  readonly maximumId?: NonEmptyString;
+  readonly minimumId?: NonEmptyString;
   readonly pageSize: NonNegativeInteger;
   readonly shouldEnrichResultData: boolean;
   readonly shouldGetArchivedMessages: boolean;
-  readonly maximumId?: NonEmptyString;
-  readonly minimumId?: NonEmptyString;
 }
 
 export interface IPageResult<T> {
-  readonly items: ReadonlyArray<T>;
+  readonly items: readonly T[];
   readonly next?: string;
   readonly prev?: string;
 }
@@ -36,11 +33,11 @@ export interface IPageResult<T> {
 export type IGetMessagesFunction = ({
   context,
   fiscalCode,
+  maximumId,
+  minimumId,
   pageSize,
   shouldEnrichResultData,
   shouldGetArchivedMessages,
-  maximumId,
-  minimumId
 }: IGetMessagesParams) => TE.TaskEither<
   CosmosErrors | Error,
   IPageResult<EnrichedMessageWithContent>
@@ -61,10 +58,10 @@ export interface IGetMessagesFunctionSelector {
 export const createGetMessagesFunctionSelection = (
   switchToFallback: boolean,
   featureFlagType: FeatureFlagType,
-  betaTesterUsers: ReadonlyArray<NonEmptyString>,
+  betaTesterUsers: readonly NonEmptyString[],
   canaryTestUserRegex: NonEmptyString,
   fallbackSetup: Parameters<typeof getMessagesFromFallback>,
-  viewSetup: Parameters<typeof getMessagesFromView>
+  viewSetup: Parameters<typeof getMessagesFromView>,
   // eslint-disable-next-line max-params
 ): IGetMessagesFunctionSelector => ({
   select: (params: ISelectionParameters): IGetMessagesFunction => {
@@ -92,7 +89,7 @@ export const createGetMessagesFunctionSelection = (
           return getMessagesFromFallback(...fallbackSetup);
       }
     }
-  }
+  },
 });
 
 /**
@@ -101,7 +98,7 @@ export const createGetMessagesFunctionSelection = (
  * @returns
  */
 export const getIsUserACanaryTestUser = (
-  regex: string
+  regex: string,
 ): ((sha: NonEmptyString) => boolean) => {
   const regExp = new RegExp(regex);
 

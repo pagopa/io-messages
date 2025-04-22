@@ -5,57 +5,58 @@ import { Activation } from "@pagopa/io-functions-commons/dist/src/models/activat
 import { RetrievedService } from "@pagopa/io-functions-commons/dist/src/models/service";
 import {
   AccessReadMessageStatusEnum,
-  makeServicesPreferencesDocumentId,
   NewServicePreference,
-  RetrievedServicePreference
+  RetrievedServicePreference,
+  makeServicesPreferencesDocumentId,
 } from "@pagopa/io-functions-commons/dist/src/models/service_preference";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
+
 import { aCosmosResourceMetadata, aFiscalCode } from "./mocks";
 
 export const aServiceId = "aServiceId" as ServiceId;
 export const aServicePreferenceVersion = 0 as NonNegativeInteger;
 
 export const aNewServicePreference: NewServicePreference = {
-  isEmailEnabled: true,
-  isInboxEnabled: true,
-  isWebhookEnabled: true,
-  settingsVersion: aServicePreferenceVersion,
   accessReadMessageStatus: AccessReadMessageStatusEnum.ALLOW,
   fiscalCode: aFiscalCode,
-  serviceId: aServiceId,
-  kind: "INewServicePreference",
   id: makeServicesPreferencesDocumentId(
     aFiscalCode,
     aServiceId,
-    aServicePreferenceVersion
-  )
+    aServicePreferenceVersion,
+  ),
+  isEmailEnabled: true,
+  isInboxEnabled: true,
+  isWebhookEnabled: true,
+  kind: "INewServicePreference",
+  serviceId: aServiceId,
+  settingsVersion: aServicePreferenceVersion,
 };
 export const aRetrievedServicePreference: RetrievedServicePreference = {
   ...aCosmosResourceMetadata,
   ...aNewServicePreference,
-  kind: "IRetrievedServicePreference"
+  kind: "IRetrievedServicePreference",
 };
 
 export const aServicePreference: ServicePreference = {
+  can_access_message_read_status: true,
   is_email_enabled: true,
   is_inbox_enabled: true,
   is_webhook_enabled: true,
-  can_access_message_read_status: true,
-  settings_version: aServicePreferenceVersion
+  settings_version: aServicePreferenceVersion,
 };
 
-export const aRetrievedService: RetrievedService = ({
+export const aRetrievedService: RetrievedService = {
   ...aCosmosResourceMetadata,
-  serviceId: aServiceId,
   isVisible: true,
-  serviceName: "a Service",
+  organizationFiscalCode: "99999999999",
   organizationName: "a Organization",
-  organizationFiscalCode: "99999999999"
-} as any) as RetrievedService;
+  serviceId: aServiceId,
+  serviceName: "a Service",
+} as any as RetrievedService;
 
 export const anActiveActivation: Activation = {
   ...aCosmosResourceMetadata,
   fiscalCode: aFiscalCode,
   serviceId: aServiceId,
-  status: ActivationStatusEnum.ACTIVE
+  status: ActivationStatusEnum.ACTIVE,
 };

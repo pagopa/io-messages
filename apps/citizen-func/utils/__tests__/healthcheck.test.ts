@@ -1,23 +1,18 @@
+import { CosmosClient } from "@azure/cosmos";
 import { BlobService, ErrorOrResult, ServiceResponse } from "azure-storage";
+import { right } from "fp-ts/lib/Either";
+import * as TE from "fp-ts/lib/TaskEither";
+import { pipe } from "fp-ts/lib/function";
+import { beforeAll, describe, expect, it, test, vi } from "vitest";
 
 import { envConfig } from "../../__mocks__/env-config.mock";
-
+import * as config from "../config";
 import {
   checkApplicationHealth,
-  checkAzureStorageHealth,
   checkAzureCosmosDbHealth,
+  checkAzureStorageHealth,
   checkUrlHealth,
 } from "../healthcheck";
-
-import { pipe } from "fp-ts/lib/function";
-
-import * as TE from "fp-ts/lib/TaskEither";
-import { right } from "fp-ts/lib/Either";
-
-import { vi, expect, describe, beforeAll, it, test } from "vitest";
-import { CosmosClient } from "@azure/cosmos";
-
-import * as config from "../config";
 
 vi.spyOn(config, "getConfig").mockReturnValue(right(envConfig));
 
@@ -36,8 +31,8 @@ const blobServiceOk: BlobService = {
 const storageMocks = vi.hoisted(() => ({
   createBlobService: vi.fn((_) => blobServiceOk),
   createFileService: vi.fn((_) => blobServiceOk),
-  createTableService: vi.fn((_) => blobServiceOk),
   createQueueService: vi.fn((_) => blobServiceOk),
+  createTableService: vi.fn((_) => blobServiceOk),
 }));
 
 vi.mock("azure-storage", async (importOriginal) => {
@@ -46,8 +41,8 @@ vi.mock("azure-storage", async (importOriginal) => {
     ...actual,
     createBlobService: storageMocks.createBlobService,
     createFileService: storageMocks.createFileService,
-    createTableService: storageMocks.createTableService,
     createQueueService: storageMocks.createQueueService,
+    createTableService: storageMocks.createTableService,
   };
 });
 
@@ -224,7 +219,7 @@ describe("healthcheck - url health", () => {
     }));
 });
 
-describe("checkApplicationHealth - multiple errors - ", () => {
+describe("checkApplicationHealth - multiple errors -", () => {
   beforeAll(() => {
     vi.clearAllMocks();
   });
