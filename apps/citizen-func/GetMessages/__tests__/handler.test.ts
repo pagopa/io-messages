@@ -1,4 +1,4 @@
-// eslint-disable @typescript-eslint/no-explicit-any, sonarjs/no-duplicate-string, sonar/sonar-max-lines-per-function
+/* eslint-disable @typescript-eslint/no-explicit-any, max-lines-per-function, no-useless-escape */
 import { Context } from "@azure/functions";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
 import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
@@ -211,21 +211,19 @@ const serviceModelMock = {
 
 const functionsContextMock = {
   log: {
-    error: vi.fn(console.log),
+    error: vi.fn(),
   },
 } as unknown as Context;
 
 /**
  * Build a service list iterator
  */
-async function* buildIterator<A, I extends unknown, O extends unknown>(
+async function* buildIterator<A, I, O>(
   codec: t.Type<A, I, O>,
   list: readonly O[],
   onNewPage?: (i: number) => void,
   errorToThrow?: CosmosErrors | Error,
 ): AsyncIterable<readonly t.Validation<A>[]> {
-  // eslint-disable-next-line functional/no-let
-
   if (errorToThrow) {
     throw errorToThrow;
   }
@@ -251,14 +249,14 @@ const messageStatusModelMock = {
 } as unknown as MessageStatusExtendedQueryModel;
 
 // MessageView Mocks
-const mockQueryPage = vi.fn((_) =>
+const mockQueryPage = vi.fn(() =>
   TE.of<
     CosmosErrors,
     AsyncIterable<readonly t.Validation<RetrievedMessageView>[]>
   >(
     buildIterator(
       RetrievedMessageView,
-      Array.from({ length: 1 }, (_) => aRetrievedMessageView),
+      Array.from({ length: 1 }, () => aRetrievedMessageView),
     ),
   ),
 );
@@ -301,9 +299,9 @@ const mockRCConfigurationUtility = new RCConfigurationUtility(
 const getCreateGetMessagesFunctionSelection = (
   messageStatusModel: MessageStatusExtendedQueryModel,
   messageModelMock: MessageModel,
-  dummyThirdPartyDataWithCategoryFetcher?: (serviceId: NonEmptyString) => {
+  dummyThirdPartyDataWithCategoryFetcher: (serviceId: NonEmptyString) => {
     category: TagEnumBase | TagEnumPN;
-  },
+  } = () => ({ category: TagEnumBase.GENERIC }),
 ) =>
   createGetMessagesFunctionSelection(
     false,
@@ -315,12 +313,12 @@ const getCreateGetMessagesFunctionSelection = (
       messageStatusModel,
       blobServiceMock,
       mockRCConfigurationUtility,
-      dummyThirdPartyDataWithCategoryFetcher!,
+      dummyThirdPartyDataWithCategoryFetcher,
     ],
     [
       messageViewModelMock,
       mockRCConfigurationUtility,
-      dummyThirdPartyDataWithCategoryFetcher!,
+      dummyThirdPartyDataWithCategoryFetcher,
     ],
   );
 
@@ -890,7 +888,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
 
   it("should respond with a pn message when third_party_data is defined", async () => {
     const thirdPartyFetcherForAServiceId = (serviceId: NonEmptyString) => ({
-      category: serviceId == aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
+      category: serviceId === aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
     });
 
     getTaskMock.mockReturnValueOnce(
@@ -1308,9 +1306,9 @@ describe("GetMessagesHandler |> Message View", () => {
   it("should respond with a page of messages", async () => {
     let iteratorCalls = 0;
 
-    mockQueryPage.mockImplementationOnce((_) =>
+    mockQueryPage.mockImplementationOnce(() =>
       TE.of(
-        buildIterator(RetrievedMessageView, aSimpleList, (_) => {
+        buildIterator(RetrievedMessageView, aSimpleList, () => {
           iteratorCalls++;
         }),
       ),
@@ -1388,18 +1386,13 @@ describe("GetMessagesHandler |> Message View", () => {
       TE.of(O.some(JSON.stringify(aRetrievedRCConfiguration))),
     );
 
-    let iteratorCalls = 0;
     dummyThirdPartyDataWithCategoryFetcher.mockImplementationOnce(
       (serviceId) => ({
-        category: serviceId == aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
+        category: serviceId === aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
       }),
     );
-    mockQueryPage.mockImplementationOnce((_) =>
-      TE.of(
-        buildIterator(RetrievedMessageView, aPnMessageList, (_) => {
-          iteratorCalls++;
-        }),
-      ),
+    mockQueryPage.mockImplementationOnce(() =>
+      TE.of(buildIterator(RetrievedMessageView, aPnMessageList, () => {})),
     );
 
     const getMessagesHandler = GetMessagesHandler(
@@ -1445,9 +1438,9 @@ describe("GetMessagesHandler |> Message View", () => {
   it("should respond with no messages when archived is requested", async () => {
     let iteratorCalls = 0;
 
-    mockQueryPage.mockImplementationOnce((_) =>
+    mockQueryPage.mockImplementationOnce(() =>
       TE.of(
-        buildIterator(RetrievedMessageView, [], (_) => {
+        buildIterator(RetrievedMessageView, [], () => {
           iteratorCalls++;
         }),
       ),
@@ -1489,7 +1482,7 @@ describe("GetMessagesHandler |> Message View", () => {
   it("should respond with archived messages only when archived is requested", async () => {
     let iteratorCalls = 0;
 
-    mockQueryPage.mockImplementationOnce((_) =>
+    mockQueryPage.mockImplementationOnce(() =>
       TE.of(
         buildIterator(
           RetrievedMessageView,
@@ -1497,7 +1490,7 @@ describe("GetMessagesHandler |> Message View", () => {
             ...m,
             status: { ...m.status, archived: i === 0 },
           })),
-          (_) => {
+          () => {
             iteratorCalls++;
           },
         ),
@@ -1563,7 +1556,7 @@ describe("GetMessagesHandler |> Message View", () => {
   it("should respond with internal error when messages cannot be enriched with service info", async () => {
     let iteratorCalls = 0;
 
-    mockQueryPage.mockImplementationOnce((_) =>
+    mockQueryPage.mockImplementationOnce(() =>
       TE.of(
         buildIterator(
           RetrievedMessageView,
@@ -1571,7 +1564,7 @@ describe("GetMessagesHandler |> Message View", () => {
             ...m,
             status: { ...m.status, archived: true },
           })),
-          (_) => {
+          () => {
             iteratorCalls++;
           },
         ),
@@ -1611,7 +1604,7 @@ describe("GetMessagesHandler |> Message View", () => {
   });
 
   it("should respond with query error if it cannot build queryPage iterator", async () => {
-    mockQueryPage.mockImplementationOnce((_) =>
+    mockQueryPage.mockImplementationOnce(() =>
       TE.left(toCosmosErrorResponse("Cosmos Error")),
     );
 
@@ -1638,12 +1631,12 @@ describe("GetMessagesHandler |> Message View", () => {
   });
 
   it("should respond with query error if it cannot retrieve messages", async () => {
-    mockQueryPage.mockImplementationOnce((_) =>
+    mockQueryPage.mockImplementationOnce(() =>
       TE.of(
         buildIterator(
           RetrievedMessageView,
           aSimpleList,
-          (_) => {},
+          () => {},
           Error("IterationError"),
         ),
       ),

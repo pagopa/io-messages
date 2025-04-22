@@ -19,7 +19,7 @@ import fetch from "node-fetch";
 import { IConfig, getConfig } from "./config";
 
 type ProblemSource = "AzureCosmosDB" | "AzureStorage" | "Config" | "Url";
-// eslint-disable-next-line functional/prefer-readonly-type, @typescript-eslint/naming-convention
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export type HealthProblem<S extends ProblemSource> = { __source: S } & string;
 export type HealthCheck<
   S extends ProblemSource = ProblemSource,
@@ -81,7 +81,7 @@ export const checkAzureCosmosDbHealth = (
       () => cosmosClient.getDatabaseAccount(),
       toHealthProblems("AzureCosmosDB"),
     ),
-    TE.map((_) => true),
+    TE.map(() => true),
   );
 
 /**
@@ -125,7 +125,7 @@ export const checkAzureStorageHealth = (
       ),
     // run each taskEither and gather validation errors from each one of them, if any
     A.sequence(applicativeValidation),
-    TE.map((_) => true),
+    TE.map(() => true),
   );
 };
 
@@ -139,7 +139,7 @@ export const checkAzureStorageHealth = (
 export const checkUrlHealth = (url: string): HealthCheck<"Url", true> =>
   pipe(
     TE.tryCatch(() => fetch(url, { method: "HEAD" }), toHealthProblems("Url")),
-    TE.map((_) => true),
+    TE.map(() => true),
   );
 
 /**
@@ -159,7 +159,7 @@ export const checkApplicationHealth = (
   return pipe(
     void 0,
     TE.of,
-    TE.chain((_) => checkConfigHealth()),
+    TE.chain(() => checkConfigHealth()),
     TE.chain((config) =>
       // run each taskEither and collect validation errors from each one of them, if any
       sequenceT(applicativeValidation)(
@@ -170,6 +170,6 @@ export const checkApplicationHealth = (
         ),
       ),
     ),
-    TE.map((_) => true),
+    TE.map(() => true),
   );
 };

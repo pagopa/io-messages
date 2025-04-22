@@ -22,7 +22,6 @@ type InfoHandler = () => Promise<
   IResponseErrorInternal | IResponseSuccessJson<IInfo>
 >;
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   return () =>
@@ -30,7 +29,7 @@ export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
       healthCheck,
       TE.bimap(
         (problems) => ResponseErrorInternal(problems.join("\n\n")),
-        (_) =>
+        () =>
           ResponseSuccessJson({
             name: packageJson.name,
             version: packageJson.version,
@@ -40,7 +39,6 @@ export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
     )();
 }
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function Info(
   cosmosClient: CosmosClient,
   remoteContentCosmosClient: CosmosClient,

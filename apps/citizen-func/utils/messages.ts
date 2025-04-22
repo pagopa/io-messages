@@ -223,8 +223,8 @@ export const enrichServiceData =
   ) =>
   <M extends EnrichedMessageWithContent>(
     messages: readonly M[],
-  ): // eslint-disable-next-line functional/prefer-readonly-type, @typescript-eslint/array-type
-  TE.TaskEither<Error, ReadonlyArray<EnrichedMessage>> =>
+  ): // eslint-disable-next-line, @typescript-eslint/array-type
+  TE.TaskEither<Error, readonly EnrichedMessage[]> =>
     pipe(
       messages,
       RA.map((m) => m.sender_service_id),
@@ -294,7 +294,7 @@ const getMessageStatusLastVersion = (
     messageIds,
     (ids) => messageStatusModel.findAllVersionsByModelIdIn(ids),
     AI.fromAsyncIterator,
-    AI.foldTaskEither((_) => new Error(`Error retrieving data from cosmos.`)),
+    AI.foldTaskEither(() => new Error(`Error retrieving data from cosmos.`)),
     TE.map(RA.flatten),
     TE.chainW((_) => {
       const lefts = RA.lefts(_);
@@ -307,7 +307,6 @@ const getMessageStatusLastVersion = (
     TE.map(
       RA.reduce({} as Record<string, RetrievedMessageStatus>, (acc, val) => {
         if (!acc[val.messageId] || acc[val.messageId].version < val.version) {
-          // eslint-disable-next-line functional/immutable-data
           acc[val.messageId] = val;
         }
         return acc;
@@ -328,14 +327,14 @@ export const enrichMessagesStatus =
   (context: Context, messageStatusModel: MessageStatusExtendedQueryModel) =>
   (
     messages: readonly CreatedMessageWithoutContent[],
-    // eslint-disable-next-line functional/prefer-readonly-type,  @typescript-eslint/array-type
+    // eslint-disable-next-line @typescript-eslint/array-type
   ): T.Task<E.Either<Error, CreatedMessageWithoutContentWithStatus>[]> =>
     pipe(
       messages.map((message) => message.id as NonEmptyString),
       (ids) => getMessageStatusLastVersion(messageStatusModel, ids),
       TE.mapLeft((error) => {
         context.log.error(`Cannot enrich message status | ${error}`);
-        return messages.map((_m) => E.left(error));
+        return messages.map(() => E.left(error));
       }),
       TE.map((lastMessageStatusPerMessage) =>
         messages.map((m) =>

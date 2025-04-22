@@ -10,6 +10,7 @@ import {
   mockConfig,
   mockRCConfigurationModel,
 } from "../../__mocks__/remote-content";
+import { RedisClientFactory } from "../redis";
 import * as redis from "../redis_storage";
 import RCConfigurationUtility, {
   RC_CONFIGURATION_REDIS_PREFIX,
@@ -25,7 +26,7 @@ vi.spyOn(redis, "getTask").mockImplementation(getTaskMock);
 const setTaskMock = vi.fn().mockImplementation(() => TE.of(true));
 vi.spyOn(redis, "setWithExpirationTask").mockImplementation(setTaskMock);
 
-const aRedisClient = {} as any;
+const aRedisClient = {} as unknown as RedisClientFactory;
 
 const mockRCConfigurationUtility = new RCConfigurationUtility(
   aRedisClient,

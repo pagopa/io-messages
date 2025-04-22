@@ -19,7 +19,7 @@ vi.spyOn(config, "getConfig").mockReturnValue(right(envConfig));
 const blobServiceOk: BlobService = {
   getServiceProperties: vi
     .fn()
-    .mockImplementation((callback: ErrorOrResult<any>) =>
+    .mockImplementation((callback: ErrorOrResult<"ok">) =>
       callback(
         null as unknown as Error,
         "ok",
@@ -29,14 +29,14 @@ const blobServiceOk: BlobService = {
 } as unknown as BlobService;
 
 const storageMocks = vi.hoisted(() => ({
-  createBlobService: vi.fn((_) => blobServiceOk),
-  createFileService: vi.fn((_) => blobServiceOk),
-  createQueueService: vi.fn((_) => blobServiceOk),
-  createTableService: vi.fn((_) => blobServiceOk),
+  createBlobService: vi.fn(() => blobServiceOk),
+  createFileService: vi.fn(() => blobServiceOk),
+  createQueueService: vi.fn(() => blobServiceOk),
+  createTableService: vi.fn(() => blobServiceOk),
 }));
 
 vi.mock("azure-storage", async (importOriginal) => {
-  const actual: any = await importOriginal();
+  const actual = await importOriginal<typeof import("azure-storage")>();
   return {
     ...actual,
     createBlobService: storageMocks.createBlobService,
@@ -50,7 +50,7 @@ const getBlobServiceKO = (name: string) =>
   ({
     getServiceProperties: vi
       .fn()
-      .mockImplementation((callback: ErrorOrResult<any>) =>
+      .mockImplementation((callback: ErrorOrResult<null>) =>
         callback(
           Error(`error - ${name}`),
           null,
@@ -72,7 +72,7 @@ const mockGetDatabaseAccountKO = vi.hoisted(() =>
 const mockGetDatabaseAccount = vi.hoisted(() => mockGetDatabaseAccountOk);
 
 vi.mock("@azure/cosmos", async (importOriginal) => {
-  const actual: any = await importOriginal();
+  const actual = await importOriginal<typeof import("@azure/cosmos")>();
   return {
     ...actual,
     CosmosClient: vi.fn().mockReturnValue({
@@ -100,7 +100,7 @@ describe("healthcheck - storage account", () => {
       pipe(
         "",
         checkAzureStorageHealth,
-        TE.map((_) => {
+        TE.map(() => {
           expect(true).toBeTruthy();
           done();
         }),
@@ -140,7 +140,7 @@ describe("healthcheck - storage account", () => {
             expect(err[0]).toBe(`AzureStorage|error - ${name}`);
             done();
           }),
-          TE.map((_) => {
+          TE.map(() => {
             expect(true).toBeFalsy();
             done();
           }),
@@ -160,11 +160,11 @@ describe("healthcheck - cosmos db", () => {
 
       pipe(
         checkAzureCosmosDbHealth(cosmosClient),
-        TE.map((_) => {
+        TE.map(() => {
           expect(true).toBeTruthy();
           done();
         }),
-        TE.mapLeft((_) => {
+        TE.mapLeft(() => {
           expect(true).toBeFalsy();
           done();
         }),
@@ -179,11 +179,11 @@ describe("healthcheck - cosmos db", () => {
 
       pipe(
         checkAzureCosmosDbHealth(cosmosClient),
-        TE.map((_) => {
+        TE.map(() => {
           expect(false).toBeTruthy();
           done();
         }),
-        TE.mapLeft((_) => {
+        TE.mapLeft(() => {
           expect(true).toBeTruthy();
           done();
         }),
@@ -207,11 +207,11 @@ describe("healthcheck - url health", () => {
 
       pipe(
         checkUrlHealth(""),
-        TE.map((_) => {
+        TE.map(() => {
           expect(false).toBeTruthy();
           done();
         }),
-        TE.mapLeft((_) => {
+        TE.mapLeft(() => {
           expect(true).toBeTruthy();
           done();
         }),
@@ -241,7 +241,7 @@ describe("checkApplicationHealth - multiple errors -", () => {
           expect(err[1]).toBe(`AzureStorage|error - createQueueService`);
           done();
         }),
-        TE.map((_) => {
+        TE.map(() => {
           expect(true).toBeFalsy();
           done();
         }),

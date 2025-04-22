@@ -105,7 +105,7 @@ export default class RCConfigurationUtility {
       configurationId ?? this.serviceToRCConfigurationMap.get(serviceId),
       Ulid.decode,
       E.fold(
-        (_) => TE.left(new Error(`ConfigurationId is not valid`)),
+        () => TE.left(new Error(`ConfigurationId is not valid`)),
         (configId) =>
           pipe(
             this.getOrCacheMaybeRCConfigurationById(configId),

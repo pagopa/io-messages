@@ -92,10 +92,8 @@ export const foldTaskEither =
 const foldIterableArray =
   <A>(asyncIterable: AsyncIterable<A>) =>
   async (): Promise<readonly A[]> => {
-    // eslint-disable-next-line functional/prefer-readonly-type
     const array: A[] = [];
     for await (const variable of asyncIterable) {
-      // eslint-disable-next-line functional/immutable-data
       array.push(variable);
     }
     return array;
@@ -143,7 +141,6 @@ const reduceIterableArray =
   <A, B>(initialValue: B, reducer: (prev: B, curr: A) => B | Promise<B>) =>
   (asyncIterable: AsyncIterable<A>) =>
   async (): Promise<B> => {
-    // eslint-disable-next-line functional/no-let
     let p: B = initialValue;
 
     for await (const variable of asyncIterable) {

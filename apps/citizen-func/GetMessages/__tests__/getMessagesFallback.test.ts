@@ -44,11 +44,11 @@ const messages = [E.right(aRetrievedMessageWithoutContent)];
 
 const functionsContextMock = {
   log: {
-    error: vi.fn((e) => console.log(e)),
+    error: vi.fn(),
   },
 } as unknown as Context;
 
-const getMockIterator = (values: any) => ({
+const getMockIterator = (values: unknown) => ({
   next: vi
     .fn()
     .mockImplementationOnce(async () => ({
@@ -63,7 +63,7 @@ const getContentFromBlobMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aMessageContent)));
 
-const getMessageModelMock = (messageIterator: any) =>
+const getMessageModelMock = (messageIterator: unknown) =>
   ({
     findMessages: vi.fn(() => TE.of(messageIterator)),
     getContentFromBlob: getContentFromBlobMock,
@@ -72,7 +72,7 @@ const getMessageModelMock = (messageIterator: any) =>
 const messageModelMock = getMessageModelMock(messageIterator);
 
 const dummyThirdPartyDataWithCategoryFetcher: ThirdPartyDataWithCategoryFetcher =
-  vi.fn().mockImplementation((_serviceId) => ({
+  vi.fn().mockImplementation(() => ({
     category: TagEnumBase.GENERIC,
   }));
 

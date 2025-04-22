@@ -28,7 +28,7 @@ export const createSimpleRedisClient = async (
     // (https://github.com/redis/node-redis/issues/1598)
     pingInterval: 1000 * 60 * 9,
     socket: {
-      checkServerIdentity: (_hostname, _cert) => undefined,
+      checkServerIdentity: () => undefined,
       keepAlive: 2000,
       reconnectStrategy: (retries) => Math.min(retries * 100, 3000),
       tls: enableTls,
@@ -82,7 +82,6 @@ export const CreateRedisClientTask: (
     }),
   );
 
-// eslint-disable-next-line functional/no-let
 let REDIS_CLIENT: redis.RedisClientType;
 
 /**
@@ -156,7 +155,6 @@ export class RedisClientFactory {
 
   public readonly getInstance = async (): Promise<RedisClient> => {
     if (!this.redisClient) {
-      // eslint-disable-next-line functional/immutable-data
       this.redisClient = await this.createSimpleRedisClient(
         this.config.REDIS_URL,
         this.config.REDIS_PASSWORD,
@@ -167,7 +165,6 @@ export class RedisClientFactory {
     return this.redisClient;
   };
 
-  // eslint-disable-next-line functional/prefer-readonly-type
   protected redisClient: RedisClient | undefined;
 
   constructor(config: IConfig) {

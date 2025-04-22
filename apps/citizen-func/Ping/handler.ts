@@ -14,7 +14,6 @@ interface IPing {
 
 type PingHandler = () => Promise<IResponseSuccessJson<IPing>>;
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function PingHandler(): PingHandler {
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   return async () =>
@@ -24,7 +23,6 @@ export function PingHandler(): PingHandler {
     });
 }
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function Ping(): express.RequestHandler {
   const handler = PingHandler();
 

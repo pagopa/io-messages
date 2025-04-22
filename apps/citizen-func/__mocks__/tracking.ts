@@ -4,10 +4,11 @@ const mockTracker = (name: number | string | symbol) =>
     {},
     {
       get: (_, k) => () =>
+        // eslint-disable-next-line no-console
         console.log(`Tracing ${name.toString()}.${k.toString()}`),
     },
   );
-export const createTracker: typeof createTrackerReal = (..._) =>
+export const createTracker: typeof createTrackerReal = () =>
   new Proxy(
     {},
     {

@@ -43,7 +43,7 @@ const aBulkStatusChange = {
 // Mocks
 // --------------------------
 
-const mockFindLastVersionByModelId = vi.fn((key) =>
+const mockFindLastVersionByModelId = vi.fn(() =>
   TE.of<CosmosErrors, O.Option<RetrievedMessageStatus>>(
     O.some(aRetrievedMessageStatus),
   ),
@@ -60,7 +60,7 @@ const mockUpsert = vi.fn((status) =>
 const mockMessageStatusModel = {
   findLastVersionByModelId: mockFindLastVersionByModelId,
   upsert: mockUpsert,
-} as any as MessageStatusModel;
+} as unknown as MessageStatusModel;
 
 describe("UpsertMessageStatus", () => {
   afterEach(() => {
@@ -73,7 +73,7 @@ describe("UpsertMessageStatus", () => {
     );
 
     const result = await upsertMessageStatusHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aMessageId,
       aReadingStatusChange,
@@ -102,7 +102,7 @@ describe("UpsertMessageStatus", () => {
     );
 
     const result = await upsertMessageStatusHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aMessageId,
       anArchivingStatusChange,
@@ -131,7 +131,7 @@ describe("UpsertMessageStatus", () => {
     );
 
     const result = await upsertMessageStatusHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aMessageId,
       aBulkStatusChange,
@@ -168,7 +168,7 @@ describe("UpsertMessageStatus - Errors", () => {
     );
 
     const result = await upsertMessageStatusHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aMessageId,
       aReadingStatusChange,
@@ -185,7 +185,7 @@ describe("UpsertMessageStatus - Errors", () => {
     );
 
     const result = await upsertMessageStatusHandler(
-      contextMock as any,
+      contextMock,
       "anotherFiscalCode" as FiscalCode,
       aMessageId,
       aReadingStatusChange,

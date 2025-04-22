@@ -45,9 +45,7 @@ const RetrievedNotPendingMessage = t.intersection([
 const filterMessages =
   (shouldGetArchivedMessages: boolean) =>
   (
-    // eslint-disable-next-line functional/prefer-readonly-type, @typescript-eslint/array-type
     messages: E.Either<Error, CreatedMessageWithoutContentWithStatus>[],
-    // eslint-disable-next-line functional/prefer-readonly-type, @typescript-eslint/array-type
   ): E.Either<Error, CreatedMessageWithoutContentWithStatus>[] =>
     pipe(
       messages,
@@ -119,7 +117,6 @@ export const enrichContentData =
   ) =>
   (
     messages: readonly CreatedMessageWithoutContentWithStatus[],
-    // eslint-disable-next-line functional/prefer-readonly-type, @typescript-eslint/array-type
   ): Promise<E.Either<Error, EnrichedMessageWithContent>>[] =>
     messages.map((message) =>
       pipe(

@@ -1,4 +1,4 @@
-// eslint-disable @typescript-eslint/no-explicit-any, sonarjs/no-duplicate-string, sonar/sonar-max-lines-per-function
+/* eslint-disable @typescript-eslint/no-explicit-any, max-lines-per-function */
 
 import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
 import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
@@ -297,7 +297,7 @@ describe("GetMessageHandler", () => {
 
   it("should respond with an enriched message when a PN third-party-data is provided", async () => {
     const thirdPartyFetcherForAServiceId = (serviceId) => ({
-      category: serviceId == aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
+      category: serviceId === aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
     });
 
     getContentFromBlobMock.mockImplementationOnce(() =>

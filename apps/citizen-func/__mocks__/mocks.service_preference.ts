@@ -52,7 +52,7 @@ export const aRetrievedService: RetrievedService = {
   organizationName: "a Organization",
   serviceId: aServiceId,
   serviceName: "a Service",
-} as any as RetrievedService;
+} as unknown as RetrievedService;
 
 export const anActiveActivation: Activation = {
   ...aCosmosResourceMetadata,

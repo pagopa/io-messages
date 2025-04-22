@@ -124,7 +124,6 @@ export const UpsertMessageStatusHandler =
 /**
  * Wraps a GetMessage handler inside an Express request handler.
  */
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function UpsertMessageStatus(
   messageStatusModel: MessageStatusModel,
 ): express.RequestHandler {

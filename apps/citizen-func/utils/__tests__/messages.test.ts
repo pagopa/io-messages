@@ -46,12 +46,13 @@ import {
   getThirdPartyDataWithCategoryFetcher,
   mapMessageCategory,
 } from "../messages";
+import { RedisClientFactory } from "../redis";
 import * as redis from "../redis_storage";
 
 vi.stubEnv("APPLICATIONINSIGHTS_CONNECTION_STRING", "foo");
 
 const dummyThirdPartyDataWithCategoryFetcher: ThirdPartyDataWithCategoryFetcher =
-  vi.fn().mockImplementation((_serviceId) => ({
+  vi.fn().mockImplementation(() => ({
     category: TagEnumBase.GENERIC,
   }));
 
@@ -128,7 +129,7 @@ const serviceModelMock = {
 
 const functionsContextMock = {
   log: {
-    error: vi.fn((e) => console.log(e)),
+    error: vi.fn(),
   },
 } as unknown as Context;
 
@@ -175,7 +176,7 @@ const getTaskMock = vi
   .mockImplementation(() => TE.of(O.some(JSON.stringify(aRetrievedService))));
 vi.spyOn(redis, "getTask").mockImplementation(getTaskMock);
 
-const aRedisClient = {} as any;
+const aRedisClient = {} as unknown as RedisClientFactory;
 const aServiceCacheTtl = 10 as NonNegativeInteger;
 
 // ------------------------

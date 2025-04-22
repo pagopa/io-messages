@@ -191,7 +191,7 @@ const getErrorOrMaybeThirdPartyData = async (
 /**
  * Handles requests for getting a single message for a recipient.
  */
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions, max-params
+// eslint-disable-next-line max-params
 export function GetMessageHandler(
   messageModel: MessageModel,
   messageStatusModel: MessageStatusModel,
@@ -359,7 +359,7 @@ export function GetMessageHandler(
 /**
  * Wraps a GetMessage handler inside an Express request handler.
  */
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions, max-params
+// eslint-disable-next-line max-params
 export function GetMessage(
   messageModel: MessageModel,
   messageStatusModel: MessageStatusModel,

@@ -34,7 +34,7 @@ describe("GetRCConfigurationHandler", () => {
     );
 
     const result = await getRCConfigurationHandler(
-      contextMock as any,
+      contextMock,
       aRetrievedRCConfigurationWithBothEnv.configurationId,
     );
 
@@ -51,7 +51,7 @@ describe("GetRCConfigurationHandler", () => {
     );
 
     const result = await getRCConfigurationHandler(
-      contextMock as any,
+      contextMock,
       aRetrievedRCConfigurationWithBothEnv.configurationId,
     );
 
@@ -64,7 +64,7 @@ describe("GetRCConfigurationHandler", () => {
     );
 
     const result = await getRCConfigurationHandler(
-      contextMock as any,
+      contextMock,
       aRetrievedRCConfigurationWithBothEnv.configurationId,
     );
 
