@@ -3,8 +3,9 @@ import {
   HealthProblem,
 } from "@pagopa/io-functions-commons/dist/src/utils/healthcheck";
 import * as TE from "fp-ts/lib/TaskEither";
-import { InfoHandler } from "../handler";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+import { InfoHandler } from "../handler";
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -25,7 +26,7 @@ describe("InfoHandler", () => {
 
   it("should return a success if the application is healthy", async () => {
     const healthCheck: HealthCheck<
-      "AzureStorage" | "Config" | "AzureNotificationHub",
+      "AzureNotificationHub" | "AzureStorage" | "Config",
       true
     > = TE.of(true);
     const handler = InfoHandler(() => healthCheck);

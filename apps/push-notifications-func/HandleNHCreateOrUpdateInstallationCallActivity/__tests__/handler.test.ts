@@ -1,22 +1,22 @@
-// tslint:disable:no-any
+import { NotificationHubsClient } from "@azure/notification-hubs";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { context as contextMock } from "../../__mocks__/durable-functions";
-import {
-  getActivityBody,
-  ActivityInput,
-  ActivityResultSuccess,
-} from "../handler";
+import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { PlatformEnum } from "../../generated/notifications/Platform";
-import { CreateOrUpdateInstallationMessage } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
-
-import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
-
+import { context as contextMock } from "../../__mocks__/durable-functions";
 import { envConfig } from "../../__mocks__/env-config.mock";
+import {
+  CreateOrUpdateInstallationMessage,
+  KindEnum,
+} from "../../generated/notifications/CreateOrUpdateInstallationMessage";
+import { PlatformEnum } from "../../generated/notifications/Platform";
 import { createActivity } from "../../utils/durable/activities";
-import { NotificationHubsClient } from "@azure/notification-hubs";
-import { TelemetryClient } from "applicationinsights";
+import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
+import {
+  ActivityInput,
+  ActivityResultSuccess,
+  getActivityBody,
+} from "../handler";
 
 const activityName = "any";
 
@@ -27,7 +27,7 @@ const aPushChannel =
 
 const aCreateOrUpdateInstallationMessage: CreateOrUpdateInstallationMessage = {
   installationId: aFiscalCodeHash,
-  kind: "CreateOrUpdateInstallation" as any,
+  kind: KindEnum.CreateOrUpdateInstallation,
   platform: PlatformEnum.apns,
   pushChannel: aPushChannel,
   tags: [aFiscalCodeHash],
@@ -48,7 +48,7 @@ const mockNotificationHubService = {
 const mockBuildNHClient = vi
   .fn()
   .mockImplementation(
-    (_) => mockNotificationHubService as unknown as NotificationHubsClient,
+    () => mockNotificationHubService as unknown as NotificationHubsClient,
   );
 
 const mockTelemetryClient = {
@@ -77,15 +77,15 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
 
     const input = ActivityInput.encode({
       installationId: aCreateOrUpdateInstallationMessage.installationId,
-      platform: aCreateOrUpdateInstallationMessage.platform,
-      tags: aCreateOrUpdateInstallationMessage.tags,
-      pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
       notificationHubConfig: aNHConfig,
+      platform: aCreateOrUpdateInstallationMessage.platform,
+      pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
+      tags: aCreateOrUpdateInstallationMessage.tags,
     });
 
     expect.assertions(3);
 
-    const res = await handler(contextMock as any, input);
+    const res = await handler(contextMock, input);
     expect(ActivityResultSuccess.is(res)).toBeTruthy();
 
     expect(mockBuildNHClient).toHaveBeenCalledTimes(1);
@@ -104,16 +104,16 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
 
     const input = ActivityInput.encode({
       installationId: aCreateOrUpdateInstallationMessage.installationId,
-      platform: aCreateOrUpdateInstallationMessage.platform,
-      tags: aCreateOrUpdateInstallationMessage.tags,
-      pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
       notificationHubConfig: aNHConfig,
+      platform: aCreateOrUpdateInstallationMessage.platform,
+      pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
+      tags: aCreateOrUpdateInstallationMessage.tags,
     });
 
     expect.assertions(2);
 
     try {
-      await handler(contextMock as any, input);
+      await handler(contextMock, input);
     } catch (e) {
       expect(
         mockNotificationHubService.createOrUpdateInstallation,

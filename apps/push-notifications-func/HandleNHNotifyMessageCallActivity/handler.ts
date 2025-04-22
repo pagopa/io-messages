@@ -1,22 +1,20 @@
-import { pipe } from "fp-ts/lib/function";
+import { NotificationHubsClient } from "@azure/notification-hubs";
+import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
+import { TelemetryClient } from "applicationinsights";
 import * as TE from "fp-ts/lib/TaskEither";
+import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
-import { TelemetryClient } from "applicationinsights";
-
-import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
-import { NotificationHubsClient } from "@azure/notification-hubs";
+import { NotifyMessage } from "../generated/notifications/NotifyMessage";
 import { toString } from "../utils/conversions";
+import { toSHA256 } from "../utils/conversions";
 import {
   ActivityBody,
   ActivityResultSuccess as ActivityResultSuccessBase,
   retryActivity,
 } from "../utils/durable/activities";
 import { notify } from "../utils/notification";
-
-import { NotifyMessage } from "../generated/notifications/NotifyMessage";
 import { NotificationHubConfig } from "../utils/notificationhubServicePartition";
-import { toSHA256 } from "../utils/conversions";
 
 export const ActivityInput = t.interface({
   message: NotifyMessage,
@@ -39,7 +37,7 @@ export const getActivityBody =
   (
     telemetryClient: TelemetryClient,
     buildNHClient: (nhConfig: NotificationHubConfig) => NotificationHubsClient,
-    fiscalCodeNotificationBlacklist: ReadonlyArray<FiscalCode>,
+    fiscalCodeNotificationBlacklist: readonly FiscalCode[],
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBody<ActivityInput, ActivityResultSuccess> =>
   ({ input, logger }) => {

@@ -1,20 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Task } from "durable-functions/lib/src/classes";
 import * as t from "io-ts";
-import { toString } from "../utils/conversions";
-
-import * as o from "../utils/durable/orchestrators";
-import { failureUnhandled } from "../utils/durable/orchestrators";
-
-import {
-  getNotificationHubPartitionConfig,
-  NotificationHubConfig
-} from "../utils/notificationhubServicePartition";
-
-import { CreateOrUpdateInstallationMessage } from "../generated/notifications/CreateOrUpdateInstallationMessage";
 
 import { getCallableActivity as getCreateOrUpdateCallableActivity } from "../HandleNHCreateOrUpdateInstallationCallActivity";
 import { getCallableActivity as getDeleteInstallationCallableActivity } from "../HandleNHDeleteInstallationCallActivity";
+import { CreateOrUpdateInstallationMessage } from "../generated/notifications/CreateOrUpdateInstallationMessage";
+import { toString } from "../utils/conversions";
+import * as o from "../utils/durable/orchestrators";
+import { failureUnhandled } from "../utils/durable/orchestrators";
+import {
+  NotificationHubConfig,
+  getNotificationHubPartitionConfig,
+} from "../utils/notificationhubServicePartition";
 
 export const OrchestratorName =
   "HandleNHCreateOrUpdateInstallationCallOrchestrator";
@@ -23,7 +20,7 @@ export const OrchestratorName =
  * Carries information about Notification Hub Message payload
  */
 export const NhCreateOrUpdateInstallationOrchestratorCallInput = t.interface({
-  message: CreateOrUpdateInstallationMessage
+  message: CreateOrUpdateInstallationMessage,
 });
 
 export type NhCreateOrUpdateInstallationOrchestratorCallInput = t.TypeOf<
@@ -48,21 +45,20 @@ export const getHandler = ({
   createOrUpdateActivity,
   deleteInstallationActivity,
   legacyNotificationHubConfig,
-  notificationHubConfigPartitionChooser
+  notificationHubConfigPartitionChooser,
 }: IHandlerParams) =>
   o.createOrchestrator(
     OrchestratorName,
     NhCreateOrUpdateInstallationOrchestratorCallInput,
-    function*({
+    function* ({
       context,
       input: {
-        message: { installationId, platform, pushChannel, tags }
+        message: { installationId, platform, pushChannel, tags },
       },
-      logger
+      logger,
     }): Generator<Task, void, Task> {
-      const notificationHubConfigPartition = notificationHubConfigPartitionChooser(
-        installationId
-      );
+      const notificationHubConfigPartition =
+        notificationHubConfigPartitionChooser(installationId);
 
       try {
         yield* createOrUpdateActivity(context, {
@@ -70,14 +66,14 @@ export const getHandler = ({
           notificationHubConfig: notificationHubConfigPartition,
           platform,
           pushChannel,
-          tags
+          tags,
         });
       } catch (err) {
         // ^In case of exception, restore into legacy NH
         logger.error(
           failureUnhandled(
-            `ERROR|TEST_USER ${installationId}: ${toString(err)}`
-          )
+            `ERROR|TEST_USER ${installationId}: ${toString(err)}`,
+          ),
         );
 
         yield* createOrUpdateActivity(context, {
@@ -85,7 +81,7 @@ export const getHandler = ({
           notificationHubConfig: legacyNotificationHubConfig,
           platform,
           pushChannel,
-          tags
+          tags,
         });
 
         throw err;
@@ -94,7 +90,7 @@ export const getHandler = ({
       // Always delete installation from legacy Notification Hub
       yield* deleteInstallationActivity(context, {
         installationId,
-        notificationHubConfig: legacyNotificationHubConfig
+        notificationHubConfig: legacyNotificationHubConfig,
       });
-    }
+    },
   );

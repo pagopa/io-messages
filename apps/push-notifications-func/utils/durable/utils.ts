@@ -1,7 +1,7 @@
+import { readableReport } from "@pagopa/ts-commons/lib/reporters";
+import * as E from "fp-ts/lib/Either";
 import { flow } from "fp-ts/lib/function";
 import * as t from "io-ts";
-import * as E from "fp-ts/lib/Either";
-import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 
 /**
  * Util function that takes a generator and executes each step until is done.
@@ -11,9 +11,8 @@ import { readableReport } from "@pagopa/ts-commons/lib/reporters";
  * @returns the last value yielded by the generator
  */
 export const consumeGenerator = <TReturn = unknown>(
-  gen: Generator<unknown, TReturn, unknown>
+  gen: Generator<unknown, TReturn, unknown>,
 ): TReturn => {
-  // eslint-disable-next-line functional/no-let
   let prevValue: unknown;
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -40,10 +39,10 @@ export const toString: (x: unknown) => string = JSON.stringify;
  */
 export const decodeOrError = <S>(
   OutputCodec: t.Type<S>,
-  error: string
+  error: string,
 ): ((value: unknown) => E.Either<Error, S>) =>
   flow(
     OutputCodec.decode,
     E.mapLeft(readableReport),
-    E.mapLeft(r => new Error(`${error}. Err: ${r}`))
+    E.mapLeft((r) => new Error(`${error}. Err: ${r}`)),
   );

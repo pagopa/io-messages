@@ -1,22 +1,24 @@
+import { NotificationHubsClient } from "@azure/notification-hubs";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-
-import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
+import { TelemetryClient } from "applicationinsights";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { envConfig } from "../../__mocks__/env-config.mock";
-import { TelemetryClient } from "applicationinsights";
-import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
+import {
+  KindEnum,
+  NotifyMessage,
+} from "../../generated/notifications/NotifyMessage";
 import { toSHA256 } from "../../utils/conversions";
-import { handle } from "../handler";
+import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
 import * as NSP from "../../utils/notificationhubServicePartition";
-import { NotificationHubsClient } from "@azure/notification-hubs";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { handle } from "../handler";
 
 const aFiscalCodeHash =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
 
 const aNotifyMessage: NotifyMessage = {
   installationId: aFiscalCodeHash,
-  kind: "Notify" as any,
+  kind: KindEnum.Notify,
   payload: {
     message: "message",
     message_id: "id",
@@ -42,8 +44,8 @@ const sendNotificationMock = vi.fn();
 const getInstallationMock = vi.fn();
 
 const mockNotificationHubService = {
-  sendNotification: sendNotificationMock,
   getInstallation: getInstallationMock,
+  sendNotification: sendNotificationMock,
 };
 const buildNHClient = vi
   .spyOn(NSP, "buildNHClient")

@@ -1,29 +1,30 @@
+import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import {
   IOrchestrationFunctionContext,
   RetryOptions,
-  Task
+  Task,
 } from "durable-functions/lib/src/classes";
 import * as E from "fp-ts/lib/Either";
 import { identity, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
-import { readableReport } from "@pagopa/ts-commons/lib/reporters";
+
 import {
   ActivityResult,
   ActivityResultFailure,
-  ActivityResultSuccess
+  ActivityResultSuccess,
 } from "../activities";
 import { decodeOrError } from "../utils";
-import { createLogger, IOrchestratorLogger } from "./log";
+import { IOrchestratorLogger, createLogger } from "./log";
 import {
+  OrchestratorFailure,
+  OrchestratorSuccess,
   failureActivity,
   failureInvalidInput,
   failureUnhandled,
-  OrchestratorFailure,
-  OrchestratorSuccess,
-  success
+  success,
 } from "./returnTypes";
 
-export { createLogger, IOrchestratorLogger as OrchestratorLogger } from "./log";
+export { IOrchestratorLogger as OrchestratorLogger, createLogger } from "./log";
 export * from "./returnTypes";
 
 // TODO: define a more specific type so that OrchestratorBody must be strict in what it yields
@@ -31,8 +32,8 @@ type TNextDefault = unknown;
 
 type OrchestratorBody<I, TNext> = (p: {
   readonly context: IOrchestrationFunctionContext;
-  readonly logger: IOrchestratorLogger;
   readonly input: I;
+  readonly logger: IOrchestratorLogger;
 }) => Generator<Task, void, TNext>;
 
 /**
@@ -47,10 +48,10 @@ type OrchestratorBody<I, TNext> = (p: {
 export const createOrchestrator = <I, TNext = TNextDefault>(
   orchestratorName: string,
   InputCodec: t.Type<I>,
-  body: OrchestratorBody<I, TNext>
+  body: OrchestratorBody<I, TNext>,
 ) =>
-  function*(
-    context: IOrchestrationFunctionContext
+  function* (
+    context: IOrchestrationFunctionContext,
   ): Generator<Task, OrchestratorFailure | OrchestratorSuccess, TNext> {
     // TODO: define type variable TNext so that
     const logger = createLogger(context, orchestratorName);
@@ -62,20 +63,20 @@ export const createOrchestrator = <I, TNext = TNextDefault>(
       const input = pipe(
         rawInput,
         InputCodec.decode,
-        E.getOrElseW(err => {
+        E.getOrElseW((err) => {
           throw failureInvalidInput(rawInput, `${readableReport(err)}`);
-        })
+        }),
       );
 
       // eslint-disable-next-line sort-keys
-      yield* body({ context, logger, input });
+      yield* body({ context, input, logger });
 
       return success();
     } catch (error) {
       const failure = pipe(
         error,
         OrchestratorFailure.decode,
-        E.getOrElse(() => failureUnhandled(error) as OrchestratorFailure)
+        E.getOrElse(() => failureUnhandled(error) as OrchestratorFailure),
       );
       logger.error(failure);
 
@@ -85,11 +86,11 @@ export const createOrchestrator = <I, TNext = TNextDefault>(
   };
 
 export type CallableActivity<
-  I extends unknown = unknown,
+  I = unknown,
   S extends ActivityResultSuccess = ActivityResultSuccess,
   // Failures aren't mapped as they are thrown
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention
-  __ extends ActivityResultFailure = ActivityResultFailure
+  __ extends ActivityResultFailure = ActivityResultFailure,
 > = (context: IOrchestrationFunctionContext, input: I) => Generator<Task, S>;
 
 /**
@@ -102,20 +103,19 @@ export type CallableActivity<
  * @returns a generator function which takes an orchestrator context and an input for the activity
  */
 export const callableActivity = <
-  I extends unknown = unknown,
+  I = unknown,
   S extends ActivityResultSuccess = ActivityResultSuccess,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention
-  __ extends ActivityResultFailure = ActivityResultFailure
+  __ extends ActivityResultFailure = ActivityResultFailure,
 >(
   activityName: string,
   OutputCodec: t.Type<S>,
-  retryOptions?: RetryOptions
+  retryOptions?: RetryOptions,
 ) =>
-  function*(
+  function* (
     context: IOrchestrationFunctionContext,
-    input: I
+    input: I,
   ): Generator<Task, S> {
-    // eslint-disable-next-line functional/no-let
     let result: unknown;
     try {
       result = yield typeof retryOptions === "undefined"
@@ -124,7 +124,7 @@ export const callableActivity = <
     } catch (e) {
       throw failureActivity(
         activityName,
-        e instanceof Error ? e.message : (e as ActivityResultFailure).reason
+        e instanceof Error ? e.message : (e as ActivityResultFailure).reason,
       );
     }
     return pipe(
@@ -133,22 +133,22 @@ export const callableActivity = <
       E.chain(
         decodeOrError(
           ActivityResult,
-          `Cannot decode result from ${activityName}`
-        )
+          `Cannot decode result from ${activityName}`,
+        ),
       ),
-      E.chainW(r => (ActivityResultFailure.is(r) ? E.left(r) : E.right(r))),
+      E.chainW((r) => (ActivityResultFailure.is(r) ? E.left(r) : E.right(r))),
       E.chainW(
-        decodeOrError(OutputCodec, `Invalid output value from ${activityName}`)
+        decodeOrError(OutputCodec, `Invalid output value from ${activityName}`),
       ),
       E.fold(
         // In case of failure, trow a failure object with the activity name
-        e => {
+        (e) => {
           throw failureActivity(
             activityName,
-            e instanceof Error ? e.message : e.reason
+            e instanceof Error ? e.message : e.reason,
           );
         },
-        identity
-      )
+        identity,
+      ),
     );
   };

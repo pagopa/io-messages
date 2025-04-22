@@ -5,15 +5,15 @@
  * The configuration is evaluate eagerly at the first access to the module. The module exposes convenient methods to access such value.
  */
 
-import * as t from "io-ts";
+import { CommaSeparatedListOf } from "@pagopa/ts-commons/lib/comma-separated-list";
 import { IntegerFromString } from "@pagopa/ts-commons/lib/numbers";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { withDefault } from "@pagopa/ts-commons/lib/types";
-import { CommaSeparatedListOf } from "@pagopa/ts-commons/lib/comma-separated-list";
-
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
+import * as t from "io-ts";
+
 import {
   DisjoitedNotificationHubPartitionArray,
   RegExpFromString,
@@ -108,9 +108,9 @@ const BaseConfig = t.intersection([
  * by computing fixed Notification Hub partition configurations
  * into a single array of struct named AZURE_NOTIFICATION_HUB_PARTITIONS.
  */
-type WithComputedNHPartitions = BaseConfig & {
+type WithComputedNHPartitions = {
   readonly AZURE_NOTIFICATION_HUB_PARTITIONS: DisjoitedNotificationHubPartitionArray;
-};
+} & BaseConfig;
 const WithComputedNHPartitions = new t.Type<
   WithComputedNHPartitions,
   BaseConfig & NotificationHubPartitionsConfig,

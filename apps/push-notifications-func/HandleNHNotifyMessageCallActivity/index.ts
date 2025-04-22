@@ -1,16 +1,14 @@
 ﻿import { RetryOptions } from "durable-functions";
 
-import * as o from "../utils/durable/orchestrators";
-
 import { initTelemetryClient } from "../utils/appinsights";
 import { getConfigOrThrow } from "../utils/config";
 import { createActivity } from "../utils/durable/activities";
+import * as o from "../utils/durable/orchestrators";
 import { buildNHClient } from "../utils/notificationhubServicePartition";
-
 import {
   ActivityInput,
   ActivityResultSuccess,
-  getActivityBody
+  getActivityBody,
 } from "./handler";
 
 export { ActivityInput, ActivityResultSuccess } from "./handler";
@@ -23,12 +21,12 @@ export const activityName = "HandleNHNotifyMessageCallActivity";
  * @returns A callable `HandleNHDeleteInstallationCallActivity`
  */
 export const getCallableActivity = (
-  retryOptions: RetryOptions
+  retryOptions: RetryOptions,
 ): o.CallableActivity<ActivityInput> =>
   o.callableActivity<ActivityInput>(
     activityName,
     ActivityResultSuccess,
-    retryOptions
+    retryOptions,
   );
 
 const config = getConfigOrThrow();
@@ -41,8 +39,8 @@ const activityFunctionHandler = createActivity(
   getActivityBody(
     telemetryClient,
     buildNHClient,
-    config.FISCAL_CODE_NOTIFICATION_BLACKLIST
-  )
+    config.FISCAL_CODE_NOTIFICATION_BLACKLIST,
+  ),
 );
 
 export default activityFunctionHandler;

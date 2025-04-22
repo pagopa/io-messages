@@ -1,15 +1,12 @@
+import { Task } from "durable-functions/lib/src/classes";
 import * as t from "io-ts";
 
-import { Task } from "durable-functions/lib/src/classes";
-
 import { getCallableActivity as getNotifyCallableActivity } from "../HandleNHNotifyMessageCallActivity";
-
 import { NotifyMessage } from "../generated/notifications/NotifyMessage";
-
 import { createOrchestrator } from "../utils/durable/orchestrators";
 import {
-  getNotificationHubPartitionConfig,
   NotificationHubConfig,
+  getNotificationHubPartitionConfig,
 } from "../utils/notificationhubServicePartition";
 
 export const OrchestratorName = "HandleNHNotifyMessageCallOrchestrator";
@@ -26,18 +23,18 @@ export type NhNotifyMessageOrchestratorCallInput = t.TypeOf<
 >;
 
 interface IHandlerParams {
-  readonly notifyMessageActivity: ReturnType<typeof getNotifyCallableActivity>;
   readonly legacyNotificationHubConfig: NotificationHubConfig;
   readonly notificationHubConfigPartitionChooser: ReturnType<
     typeof getNotificationHubPartitionConfig
   >;
+  readonly notifyMessageActivity: ReturnType<typeof getNotifyCallableActivity>;
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const getHandler = ({
-  notifyMessageActivity,
   legacyNotificationHubConfig,
   notificationHubConfigPartitionChooser,
+  notifyMessageActivity,
 }: IHandlerParams) =>
   createOrchestrator(
     OrchestratorName,

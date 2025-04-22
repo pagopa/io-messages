@@ -1,30 +1,30 @@
-// tslint:disable:no-any
-
+import { NotificationHubsClient } from "@azure/notification-hubs";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { TelemetryClient } from "applicationinsights";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { context as contextMock } from "../../__mocks__/durable-functions";
+import { envConfig } from "../../__mocks__/env-config.mock";
+import {
+  KindEnum,
+  NotifyMessage,
+} from "../../generated/notifications/NotifyMessage";
+import { toSHA256 } from "../../utils/conversions";
+import { createActivity } from "../../utils/durable/activities";
+import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
 import {
   ActivityInput,
-  getActivityBody,
   ActivityResultSuccess,
+  getActivityBody,
 } from "../handler";
 import { ActivityInput as NHClientActivityInput } from "../handler";
-
-import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
-
-import { envConfig } from "../../__mocks__/env-config.mock";
-import { createActivity } from "../../utils/durable/activities";
-import { TelemetryClient } from "applicationinsights";
-import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
-import { toSHA256 } from "../../utils/conversions";
-import { NotificationHubsClient } from "@azure/notification-hubs";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const aFiscalCodeHash =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
 
 const aNotifyMessage: NotifyMessage = {
   installationId: aFiscalCodeHash,
-  kind: "Notify" as any,
+  kind: KindEnum.Notify,
   payload: {
     message: "message",
     message_id: "id",
@@ -51,7 +51,7 @@ const mockNotificationHubService = {
 const mockBuildNHClient = vi
   .fn()
   .mockImplementation(
-    (_) => mockNotificationHubService as unknown as NotificationHubsClient,
+    () => mockNotificationHubService as unknown as NotificationHubsClient,
   );
 
 const activityName = "any";
@@ -89,7 +89,7 @@ describe("HandleNHNotifyMessageCallActivity", () => {
 
     expect.assertions(4);
 
-    const res = await handler(contextMock as any, input);
+    const res = await handler(contextMock, input);
     expect(res.kind).toEqual("SUCCESS");
 
     expect(mockBuildNHClient).toHaveBeenCalledTimes(1);
@@ -111,7 +111,7 @@ describe("HandleNHNotifyMessageCallActivity", () => {
     expect.assertions(2);
 
     try {
-      await handler(contextMock as any, input);
+      await handler(contextMock, input);
     } catch (e) {
       expect(sendNotificationMock).toHaveBeenCalledTimes(1);
       expect(e).toBeInstanceOf(Error);
@@ -128,7 +128,7 @@ describe("HandleNHNotifyMessageCallActivity", () => {
 
     expect.assertions(3);
 
-    const res = await handler(contextMock as any, input);
+    const res = await handler(contextMock, input);
     expect(res.kind).toEqual("SUCCESS");
     expect(res).toHaveProperty("skipped", true);
 

@@ -1,15 +1,13 @@
 import { Task } from "durable-functions/lib/src/classes";
 import * as t from "io-ts";
 
+import { getCallableActivity as getDeleteInstallationCallableActivity } from "../HandleNHDeleteInstallationCallActivity";
+import { DeleteInstallationMessage } from "../generated/notifications/DeleteInstallationMessage";
 import * as o from "../utils/durable/orchestrators";
 import {
+  NotificationHubConfig,
   getNotificationHubPartitionConfig,
-  NotificationHubConfig
 } from "../utils/notificationhubServicePartition";
-
-import { DeleteInstallationMessage } from "../generated/notifications/DeleteInstallationMessage";
-
-import { getCallableActivity as getDeleteInstallationCallableActivity } from "../HandleNHDeleteInstallationCallActivity";
 
 export const OrchestratorName = "HandleNHDeleteInstallationCallOrchestrator";
 
@@ -18,7 +16,7 @@ export const OrchestratorName = "HandleNHDeleteInstallationCallOrchestrator";
  */
 export type OrchestratorCallInput = t.TypeOf<typeof OrchestratorCallInput>;
 export const OrchestratorCallInput = t.interface({
-  message: DeleteInstallationMessage
+  message: DeleteInstallationMessage,
 });
 
 interface IHandlerParams {
@@ -35,30 +33,33 @@ interface IHandlerParams {
 export const getHandler = ({
   deleteInstallationActivity,
   legacyNotificationHubConfig,
-  notificationHubConfigPartitionChooser
+  notificationHubConfigPartitionChooser,
 }: IHandlerParams) =>
-  o.createOrchestrator(OrchestratorName, OrchestratorCallInput, function*({
-    context,
-    input: {
-      message: { installationId }
+  o.createOrchestrator(
+    OrchestratorName,
+    OrchestratorCallInput,
+    function* ({
+      context,
+      input: {
+        message: { installationId },
+      },
+      logger,
+    }): Generator<Task, void, Task> {
+      yield* deleteInstallationActivity(context, {
+        installationId,
+        notificationHubConfig: legacyNotificationHubConfig,
+      });
+
+      const notificationHubConfigPartition =
+        notificationHubConfigPartitionChooser(installationId);
+
+      logger.info(
+        `Deleting user ${installationId} from Notification Hub ${notificationHubConfigPartition.AZURE_NH_HUB_NAME}`,
+      );
+
+      yield* deleteInstallationActivity(context, {
+        installationId,
+        notificationHubConfig: notificationHubConfigPartition,
+      });
     },
-    logger
-  }): Generator<Task, void, Task> {
-    yield* deleteInstallationActivity(context, {
-      installationId,
-      notificationHubConfig: legacyNotificationHubConfig
-    });
-
-    const notificationHubConfigPartition = notificationHubConfigPartitionChooser(
-      installationId
-    );
-
-    logger.info(
-      `Deleting user ${installationId} from Notification Hub ${notificationHubConfigPartition.AZURE_NH_HUB_NAME}`
-    );
-
-    yield* deleteInstallationActivity(context, {
-      installationId,
-      notificationHubConfig: notificationHubConfigPartition
-    });
-  });
+  );

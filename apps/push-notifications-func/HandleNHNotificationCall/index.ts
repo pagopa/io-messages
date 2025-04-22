@@ -8,7 +8,7 @@ initTelemetryClient(config);
 
 export const index = getHandler(
   config.CANARY_USERS_REGEX,
-  config.NOTIFY_VIA_QUEUE_FEATURE_FLAG
+  config.NOTIFY_VIA_QUEUE_FEATURE_FLAG,
 );
 
 export default index;
