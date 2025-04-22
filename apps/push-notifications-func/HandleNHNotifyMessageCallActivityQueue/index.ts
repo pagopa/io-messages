@@ -1,29 +1,29 @@
 import { AzureFunction, Context } from "@azure/functions";
-import { getConfigOrThrow } from "../utils/config";
+
 import { initTelemetryClient } from "../utils/appinsights";
+import { getConfigOrThrow } from "../utils/config";
 import {
   getNHLegacyConfig,
-  getNotificationHubPartitionConfig
+  getNotificationHubPartitionConfig,
 } from "../utils/notificationhubServicePartition";
-import { handle, NhNotifyMessageResponse } from "./handler";
+import { NhNotifyMessageResponse, handle } from "./handler";
 
 const config = getConfigOrThrow();
 
 const telemetryClient = initTelemetryClient(config);
 
 const legacyNotificationHubConfig = getNHLegacyConfig(config);
-const notificationHubConfigPartitionChooser = getNotificationHubPartitionConfig(
-  config
-);
+const notificationHubConfigPartitionChooser =
+  getNotificationHubPartitionConfig(config);
 
 export const index: AzureFunction = (
   context: Context,
-  notifyRequest: unknown
+  notifyRequest: unknown,
 ): NhNotifyMessageResponse =>
   handle(
     notifyRequest,
     legacyNotificationHubConfig,
     notificationHubConfigPartitionChooser,
     config.FISCAL_CODE_NOTIFICATION_BLACKLIST,
-    telemetryClient
+    telemetryClient,
   );

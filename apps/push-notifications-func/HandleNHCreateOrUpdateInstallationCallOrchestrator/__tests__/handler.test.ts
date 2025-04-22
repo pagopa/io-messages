@@ -1,38 +1,33 @@
-// tslint:disable:no-any
-
+import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { IOrchestrationFunctionContext } from "durable-functions/lib/src/iorchestrationfunctioncontext";
+import * as E from "fp-ts/lib/Either";
+import { pipe } from "fp-ts/lib/function";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { getMockDeleteInstallationActivity } from "../../__mocks__/activities-mocks";
 import { context as contextMockBase } from "../../__mocks__/durable-functions";
-import { PlatformEnum } from "../../generated/notifications/Platform";
+import { ActivityInput as CreateOrUpdateActivityInput } from "../../HandleNHCreateOrUpdateInstallationCallActivity";
 import {
   CreateOrUpdateInstallationMessage,
   KindEnum as CreateOrUpdateKind,
 } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
-
+import { PlatformEnum } from "../../generated/notifications/Platform";
 import { success } from "../../utils/durable/activities";
-import { consumeGenerator } from "../../utils/durable/utils";
-import {
-  getHandler,
-  NhCreateOrUpdateInstallationOrchestratorCallInput,
-} from "../handler";
-
-import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
-import { readableReport } from "@pagopa/ts-commons/lib/reporters";
-import { IOrchestrationFunctionContext } from "durable-functions/lib/src/iorchestrationfunctioncontext";
 import {
   CallableActivity,
-  failureActivity,
   OrchestratorActivityFailure,
   OrchestratorInvalidInputFailure,
   OrchestratorSuccess,
   OrchestratorUnhandledFailure,
+  failureActivity,
 } from "../../utils/durable/orchestrators";
-import { ActivityInput as CreateOrUpdateActivityInput } from "../../HandleNHCreateOrUpdateInstallationCallActivity";
-
-import { getMockDeleteInstallationActivity } from "../../__mocks__/activities-mocks";
-import { pipe } from "fp-ts/lib/function";
-
-import * as E from "fp-ts/lib/Either";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { consumeGenerator } from "../../utils/durable/utils";
+import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
+import {
+  NhCreateOrUpdateInstallationOrchestratorCallInput,
+  getHandler,
+} from "../handler";
 
 const aFiscalCodeHash =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
@@ -122,10 +117,10 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
             expect.any(Object),
             expect.objectContaining({
               installationId: aCreateOrUpdateInstallationMessage.installationId,
-              platform: aCreateOrUpdateInstallationMessage.platform,
-              tags: aCreateOrUpdateInstallationMessage.tags,
-              pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
               notificationHubConfig: legacyNotificationHubConfig,
+              platform: aCreateOrUpdateInstallationMessage.platform,
+              pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
+              tags: aCreateOrUpdateInstallationMessage.tags,
             }),
           );
         },
@@ -136,9 +131,9 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
   it("should always call CreateOrUpdate activity with new NH parameters", async () => {
     const orchestratorHandler = getHandler({
       createOrUpdateActivity: mockCreateOrUpdateActivity,
+      deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
       notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
-      deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
     })(contextMockWithDf);
 
     const result = consumeGenerator(orchestratorHandler);
@@ -159,10 +154,10 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
             expect.any(Object),
             expect.objectContaining({
               installationId: aCreateOrUpdateInstallationMessage.installationId,
-              platform: aCreateOrUpdateInstallationMessage.platform,
-              tags: aCreateOrUpdateInstallationMessage.tags,
-              pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
               notificationHubConfig: newNotificationHubConfig,
+              platform: aCreateOrUpdateInstallationMessage.platform,
+              pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
+              tags: aCreateOrUpdateInstallationMessage.tags,
             }),
           );
 
@@ -191,9 +186,9 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
     try {
       const orchestratorHandler = getHandler({
         createOrUpdateActivity: mockCreateOrUpdateActivity,
+        deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
         legacyNotificationHubConfig: legacyNotificationHubConfig,
         notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
-        deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       })(contextMockWithDf);
 
       expect.assertions(2);
@@ -211,9 +206,9 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
 
     const orchestratorHandler = getHandler({
       createOrUpdateActivity: mockCreateOrUpdateActivity,
+      deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
       notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
-      deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
     })(contextMockWithDf);
 
     expect.assertions(2);
@@ -225,16 +220,16 @@ describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
     }
   });
 
-  it("should fail if CreateOrUpdateActivity fails ", async () => {
+  it("should fail if CreateOrUpdateActivity fails", async () => {
     mockCreateOrUpdateActivity.mockImplementationOnce(() => {
       throw failureActivity("any activity name", "any reason");
     });
 
     const orchestratorHandler = getHandler({
       createOrUpdateActivity: mockCreateOrUpdateActivity,
+      deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
       notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
-      deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
     })(contextMockWithDf);
 
     expect.assertions(2);

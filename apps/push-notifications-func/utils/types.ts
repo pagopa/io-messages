@@ -1,7 +1,8 @@
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as E from "fp-ts/lib/Either";
 import { identity, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+
 import { NotifyMessage } from "../generated/notifications/NotifyMessage";
 
 /**
@@ -14,17 +15,17 @@ export const jsonFromString = new t.Type<object, string>( // eslint-disable-line
   (m, c) =>
     pipe(
       t.string.validate(m, c),
-      E.chain(s =>
+      E.chain((s) =>
         pipe(
           E.tryCatch(
             () => t.success(JSON.parse(s)),
-            _ => t.failure(s, c)
+            (_) => t.failure(s, c),
           ),
-          E.fold(identity, identity)
-        )
-      )
+          E.fold(identity, identity),
+        ),
+      ),
     ),
-  String
+  String,
 );
 
 /**
@@ -38,9 +39,9 @@ export const RegExpFromString = new t.Type<RegExp, string>(
     v instanceof RegExp
       ? t.success(v)
       : typeof v === "string"
-      ? t.success(new RegExp(v))
-      : t.failure(v, c),
-  (v: RegExp | string): string => (typeof v === "string" ? v : v.source)
+        ? t.success(new RegExp(v))
+        : t.failure(v, c),
+  (v: RegExp | string): string => (typeof v === "string" ? v : v.source),
 );
 
 /**
@@ -52,7 +53,7 @@ export type NotificationHubPartition = t.TypeOf<
 export const NotificationHubPartition = t.interface({
   endpoint: NonEmptyString,
   name: NonEmptyString,
-  partitionRegex: RegExpFromString
+  partitionRegex: RegExpFromString,
 });
 
 /**
@@ -64,24 +65,24 @@ export type DisjoitedNotificationHubPartitionArray = t.TypeOf<
 >;
 export const DisjoitedNotificationHubPartitionArray = t.refinement(
   t.readonlyArray(NotificationHubPartition),
-  array => {
-    const partitionsRegex = array.map(a => a.partitionRegex);
+  (array) => {
+    const partitionsRegex = array.map((a) => a.partitionRegex);
     const initialHexCharacter = Array.from({ length: 16 }, (_, i) =>
-      i.toString(16)
+      i.toString(16),
     );
     // Regex must all check fist character
     const useFirstLetter = !partitionsRegex.some(
-      r => !r.toString().includes("^")
+      (r) => !r.toString().includes("^"),
     );
 
     // Partitions needs to be complete and disjoint
     const oneAndOnlyPartition = !initialHexCharacter.some(
-      hex => partitionsRegex.filter(regex => regex.test(hex)).length !== 1
+      (hex) => partitionsRegex.filter((regex) => regex.test(hex)).length !== 1,
     );
 
     return useFirstLetter && oneAndOnlyPartition;
   },
-  "DisjoitedNotificationHubPartitionArray"
+  "DisjoitedNotificationHubPartitionArray",
 );
 
 export const NhTarget = t.union([t.literal("current"), t.literal("legacy")]);
@@ -89,6 +90,6 @@ export type NhTarget = t.TypeOf<typeof NhTarget>;
 
 export const NhNotifyMessageRequest = t.interface({
   message: NotifyMessage,
-  target: NhTarget
+  target: NhTarget,
 });
 export type NhNotifyMessageRequest = t.TypeOf<typeof NhNotifyMessageRequest>;

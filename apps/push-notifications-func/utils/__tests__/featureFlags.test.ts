@@ -1,9 +1,9 @@
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { InstallationId } from "../../generated/notifications/InstallationId";
-import * as featureFlags from "../featureFlags";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { envConfig } from "../../__mocks__/env-config.mock";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { InstallationId } from "../../generated/notifications/InstallationId";
+import * as featureFlags from "../featureFlags";
 
 const aFiscalCodeHash =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;

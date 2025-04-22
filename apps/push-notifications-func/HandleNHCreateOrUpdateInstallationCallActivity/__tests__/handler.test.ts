@@ -1,22 +1,19 @@
-// tslint:disable:no-any
+import { NotificationHubsClient } from "@azure/notification-hubs";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { context as contextMock } from "../../__mocks__/durable-functions";
-import {
-  getActivityBody,
-  ActivityInput,
-  ActivityResultSuccess,
-} from "../handler";
+import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { PlatformEnum } from "../../generated/notifications/Platform";
-import { CreateOrUpdateInstallationMessage } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
-
-import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
-
+import { context as contextMock } from "../../__mocks__/durable-functions";
 import { envConfig } from "../../__mocks__/env-config.mock";
+import { CreateOrUpdateInstallationMessage } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
+import { PlatformEnum } from "../../generated/notifications/Platform";
 import { createActivity } from "../../utils/durable/activities";
-import { NotificationHubsClient } from "@azure/notification-hubs";
-import { TelemetryClient } from "applicationinsights";
+import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
+import {
+  ActivityInput,
+  ActivityResultSuccess,
+  getActivityBody,
+} from "../handler";
 
 const activityName = "any";
 
@@ -77,10 +74,10 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
 
     const input = ActivityInput.encode({
       installationId: aCreateOrUpdateInstallationMessage.installationId,
-      platform: aCreateOrUpdateInstallationMessage.platform,
-      tags: aCreateOrUpdateInstallationMessage.tags,
-      pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
       notificationHubConfig: aNHConfig,
+      platform: aCreateOrUpdateInstallationMessage.platform,
+      pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
+      tags: aCreateOrUpdateInstallationMessage.tags,
     });
 
     expect.assertions(3);
@@ -104,10 +101,10 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
 
     const input = ActivityInput.encode({
       installationId: aCreateOrUpdateInstallationMessage.installationId,
-      platform: aCreateOrUpdateInstallationMessage.platform,
-      tags: aCreateOrUpdateInstallationMessage.tags,
-      pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
       notificationHubConfig: aNHConfig,
+      platform: aCreateOrUpdateInstallationMessage.platform,
+      pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
+      tags: aCreateOrUpdateInstallationMessage.tags,
     });
 
     expect.assertions(2);

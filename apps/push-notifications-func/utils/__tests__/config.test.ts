@@ -1,12 +1,12 @@
-import { isRight } from "fp-ts/lib/Either";
-import { IConfig } from "../config";
-import { envConfig } from "../../__mocks__/env.mock";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
-import { pipe } from "fp-ts/lib/function";
-
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { isRight } from "fp-ts/lib/Either";
 import * as E from "fp-ts/lib/Either";
+import { pipe } from "fp-ts/lib/function";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { envConfig } from "../../__mocks__/env.mock";
+import { IConfig } from "../config";
 
 const aConfig = { ...envConfig, isProduction: false };
 
@@ -22,7 +22,7 @@ describe("IConfig", () => {
     ${"beta"}
     ${"canary"}
   `("should deserialize config with $ff user subset", ({ ff }) => {
-    var decoded = pipe(
+    const decoded = pipe(
       {
         ...aConfig,
         NH_PARTITION_FEATURE_FLAG: ff,
@@ -37,7 +37,7 @@ describe("IConfig", () => {
   });
 
   it("should throw error with wrong FF inputs", () => {
-    var decoded = IConfig.decode({
+    const decoded = IConfig.decode({
       ...aConfig,
       NH_PARTITION_FEATURE_FLAG: "wrong",
     });
@@ -46,7 +46,7 @@ describe("IConfig", () => {
   });
 
   it("should not override computed value for AZURE_NOTIFICATION_HUB_PARTITIONS", () => {
-    var config = pipe(
+    const config = pipe(
       {
         ...aConfig,
         AZURE_NOTIFICATION_HUB_PARTITIONS: "any value",

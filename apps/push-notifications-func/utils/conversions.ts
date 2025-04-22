@@ -1,5 +1,5 @@
-import * as crypto from "crypto";
 import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
+import * as crypto from "crypto";
 
 /**
  * Convert a string into SHA256
@@ -8,10 +8,7 @@ import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
  * @returns
  */
 export const toSHA256 = (source: FiscalCode): string =>
-  crypto
-    .createHash("sha256")
-    .update(source)
-    .digest("hex");
+  crypto.createHash("sha256").update(source).digest("hex");
 
 /**
  * Utility function for printing a unknown object.
@@ -21,5 +18,5 @@ export const toString = (err: unknown): string =>
   typeof err === "string"
     ? err
     : err instanceof Error
-    ? err.message
-    : JSON.stringify(err);
+      ? err.message
+      : JSON.stringify(err);

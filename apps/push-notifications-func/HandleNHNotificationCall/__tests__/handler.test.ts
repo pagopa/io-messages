@@ -1,18 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as df from "durable-functions";
 import { DurableOrchestrationClient } from "durable-functions/lib/src/durableorchestrationclient";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { context } from "../../__mocks__/durable-functions";
+import { describe, expect, it, vi } from "vitest";
 
+import { context } from "../../__mocks__/durable-functions";
 import { CreateOrUpdateInstallationMessage } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
 import { DeleteInstallationMessage } from "../../generated/notifications/DeleteInstallationMessage";
 import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
 import { PlatformEnum } from "../../generated/notifications/Platform";
-
 import { success } from "../../utils/durable/activities";
-import { getHandler } from "../handler";
 import { NhNotifyMessageRequest } from "../../utils/types";
-import { describe, expect, it, vi } from "vitest";
+import { getHandler } from "../handler";
 
 const dfClient = {
   startNew: vi.fn().mockImplementation((_, __, ___) => success()),
@@ -48,7 +47,7 @@ const aNotifyMessage: NotifyMessage = {
   },
 };
 
-const betaTestUser: ReadonlyArray<{ readonly RowKey: string }> = [
+const betaTestUser: readonly { readonly RowKey: string }[] = [
   { RowKey: aNotifyMessage.installationId },
 ];
 const dummyContextWithBeta = {

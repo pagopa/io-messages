@@ -1,13 +1,13 @@
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
+import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import {
   DisjoitedNotificationHubPartitionArray,
   NotificationHubPartition,
   RegExpFromString,
 } from "../types";
-
-import * as E from "fp-ts/lib/Either";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -32,9 +32,9 @@ describe("nhDisjoitedFirstCharacterPartitionReadonlyArray", () => {
     (partitionRegex, i) =>
       pipe(
         {
+          endpoint: "an endpoint",
           name: `partition${i}`,
           partitionRegex,
-          endpoint: "an endpoint",
         },
         NotificationHubPartition.decode,
         E.getOrElseW((e) => {
@@ -85,7 +85,7 @@ describe("RegExpFromString", () => {
     ${"a regex"}           | ${/^foo/}    | ${/^foo/}         | ${"foo"}    | ${"afoo"}
   `(
     "should decode $title into a regex",
-    ({ input, expected, goodExample, badExample }) => {
+    ({ badExample, expected, goodExample, input }) => {
       const result = pipe(
         input,
         RegExpFromString.decode,
@@ -111,7 +111,7 @@ describe("RegExpFromString", () => {
     ${"a string"}          | ${"any string"}   | ${"any string"}
     ${"an escaped string"} | ${"any \\string"} | ${"any \\string"}
     ${"a regex"}           | ${/^foo/}         | ${"^foo"}
-  `("should encode $title into a string", ({ input, expected }) => {
+  `("should encode $title into a string", ({ expected, input }) => {
     const result = RegExpFromString.encode(input);
 
     expect(result).toEqual(expected);

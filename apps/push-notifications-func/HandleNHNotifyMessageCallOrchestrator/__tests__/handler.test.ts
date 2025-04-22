@@ -1,33 +1,27 @@
-// tslint:disable:no-any
-import * as df from "durable-functions";
-
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { context as contextMock } from "../../__mocks__/durable-functions";
-import {
-  success as activitySuccess,
-  success,
-} from "../../utils/durable/activities";
+import * as df from "durable-functions";
+import { IOrchestrationFunctionContext } from "durable-functions/lib/src/iorchestrationfunctioncontext";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { KindEnum as NotifyMessageKind } from "../../generated/notifications/NotifyMessage";
-import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
-
-import { getHandler, NhNotifyMessageOrchestratorCallInput } from "../handler";
-
-import { envConfig } from "../../__mocks__/env-config.mock";
 import {
   getMockIsUserATestUserActivity,
   getMockNotifyMessageInstallationActivity,
 } from "../../__mocks__/activities-mocks";
-
+import { context as contextMock } from "../../__mocks__/durable-functions";
+import { envConfig } from "../../__mocks__/env-config.mock";
+import { KindEnum as NotifyMessageKind } from "../../generated/notifications/NotifyMessage";
+import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
+import {
+  success as activitySuccess,
+  success,
+} from "../../utils/durable/activities";
 import {
   OrchestratorFailure,
   success as orchestratorSuccess,
 } from "../../utils/durable/orchestrators";
-import { IOrchestrationFunctionContext } from "durable-functions/lib/src/iorchestrationfunctioncontext";
-import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
-
 import { consumeGenerator } from "../../utils/durable/utils";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
+import { NhNotifyMessageOrchestratorCallInput, getHandler } from "../handler";
 
 const legacyNotificationHubConfig: NotificationHubConfig = {
   AZURE_NH_ENDPOINT: "foo" as NonEmptyString,
@@ -75,9 +69,9 @@ describe("HandleNHNotifyMessageCallOrchestrator", () => {
 
   it("should start the activities with the right inputs", async () => {
     const orchestratorHandler = getHandler({
-      notifyMessageActivity: mockNotifyMessageActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
       notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      notifyMessageActivity: mockNotifyMessageActivitySuccess,
     })(contextMockWithDf as any);
 
     consumeGenerator(orchestratorHandler);
@@ -93,9 +87,9 @@ describe("HandleNHNotifyMessageCallOrchestrator", () => {
 
   it("should end the activity with SUCCESS", async () => {
     const orchestratorHandler = getHandler({
-      notifyMessageActivity: mockNotifyMessageActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
       notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      notifyMessageActivity: mockNotifyMessageActivitySuccess,
     })(contextMockWithDf as any);
 
     const res = consumeGenerator(orchestratorHandler);
@@ -105,9 +99,9 @@ describe("HandleNHNotifyMessageCallOrchestrator", () => {
 
   it("should always call Notify Message twice with both legacy and new parameters", async () => {
     const orchestratorHandler = getHandler({
-      notifyMessageActivity: mockNotifyMessageActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
       notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      notifyMessageActivity: mockNotifyMessageActivitySuccess,
     })(contextMockWithDf as any);
 
     consumeGenerator(orchestratorHandler);
@@ -137,9 +131,9 @@ describe("HandleNHNotifyMessageCallOrchestrator", () => {
     mockGetInput.mockImplementationOnce(() => nhCallOrchestratorInput);
 
     const orchestratorHandler = getHandler({
-      notifyMessageActivity: mockNotifyMessageActivitySuccess,
       legacyNotificationHubConfig: legacyNotificationHubConfig,
       notificationHubConfigPartitionChooser: (_) => newNotificationHubConfig,
+      notifyMessageActivity: mockNotifyMessageActivitySuccess,
     })(contextMockWithDf as any);
 
     expect.assertions(2);

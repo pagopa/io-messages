@@ -1,27 +1,28 @@
-import { flow, pipe } from "fp-ts/lib/function";
-import * as E from "fp-ts/Either";
-import * as TE from "fp-ts/TaskEither";
-import * as t from "io-ts";
 import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
+import * as E from "fp-ts/Either";
+import * as TE from "fp-ts/TaskEither";
+import { flow, pipe } from "fp-ts/lib/function";
+import * as t from "io-ts";
+
 import { errorsToError } from "../IsUserInActiveSubsetActivity/handler";
-import {
-  buildNHClient,
-  getNotificationHubPartitionConfig,
-  NotificationHubConfig
-} from "../utils/notificationhubServicePartition";
 import { toSHA256 } from "../utils/conversions";
-import { notify } from "../utils/notification";
-import { NhNotifyMessageRequest } from "../utils/types";
 import {
   Failure,
   throwTransientFailure,
   toPermanentFailure,
-  toTransientFailure
+  toTransientFailure,
 } from "../utils/errors";
+import { notify } from "../utils/notification";
+import {
+  NotificationHubConfig,
+  buildNHClient,
+  getNotificationHubPartitionConfig,
+} from "../utils/notificationhubServicePartition";
+import { NhNotifyMessageRequest } from "../utils/types";
 
 export type NhNotifyMessageResponse = Promise<
-  Failure | { readonly kind: string }
+  { readonly kind: string } | Failure
 >;
 
 export const handle = (
@@ -30,14 +31,14 @@ export const handle = (
   notificationHubConfigPartitionChooser: ReturnType<
     typeof getNotificationHubPartitionConfig
   >,
-  fiscalCodeNotificationBlacklist: ReadonlyArray<FiscalCode>,
-  telemetryClient: TelemetryClient
+  fiscalCodeNotificationBlacklist: readonly FiscalCode[],
+  telemetryClient: TelemetryClient,
 ): NhNotifyMessageResponse =>
   pipe(
     inputRequest,
     t.string.decode,
-    E.map(inputRequestAsBase64 =>
-      Buffer.from(inputRequestAsBase64, "base64").toString()
+    E.map((inputRequestAsBase64) =>
+      Buffer.from(inputRequestAsBase64, "base64").toString(),
     ),
     E.map(JSON.parse),
     E.chain(NhNotifyMessageRequest.decode),
@@ -49,16 +50,16 @@ export const handle = (
       ({
         request: {
           message: { installationId },
-          target
-        }
+          target,
+        },
       }) =>
         TE.of(
           target === "legacy"
             ? legacyNotificationHubConfig
-            : notificationHubConfigPartitionChooser(installationId)
-        )
+            : notificationHubConfigPartitionChooser(installationId),
+        ),
     ),
-    TE.chain(({ request: { message }, nhConfig }) =>
+    TE.chain(({ nhConfig, request: { message } }) =>
       pipe(
         { kind: "SUCCESS", skipped: true },
         TE.fromPredicate(
@@ -66,7 +67,7 @@ export const handle = (
             fiscalCodeNotificationBlacklist
               .map(toSHA256)
               .includes(message.installationId),
-          () => "execute notify"
+          () => "execute notify",
         ),
         TE.orElseW(() =>
           pipe(
@@ -74,13 +75,13 @@ export const handle = (
               buildNHClient(nhConfig),
               message.payload,
               message.installationId,
-              telemetryClient
+              telemetryClient,
             ),
-            TE.map(_ => ({ kind: "SUCCESS", skipped: false }))
-          )
+            TE.map((_) => ({ kind: "SUCCESS", skipped: false })),
+          ),
         ),
         TE.mapLeft(toTransientFailure),
-        TE.mapLeft(error => {
+        TE.mapLeft((error) => {
           telemetryClient.trackEvent({
             name: "api.messages.notification.push.sent.failure",
             properties: {
@@ -88,14 +89,14 @@ export const handle = (
               isSuccess: "false",
               messageId: message.payload.message_id,
               notificationHub: nhConfig.AZURE_NH_HUB_NAME,
-              reason: error.reason
+              reason: error.reason,
             },
-            tagOverrides: { samplingEnabled: "false" }
+            tagOverrides: { samplingEnabled: "false" },
           });
 
           return error;
         }),
-        TE.map(result => {
+        TE.map((result) => {
           telemetryClient.trackEvent({
             name: "api.messages.notification.push.sent",
             properties: {
@@ -103,15 +104,15 @@ export const handle = (
               installationId: message.installationId,
               isSuccess: "true",
               messageId: message.payload.message_id,
-              notificationHub: nhConfig.AZURE_NH_HUB_NAME
+              notificationHub: nhConfig.AZURE_NH_HUB_NAME,
             },
-            tagOverrides: { samplingEnabled: "false" }
+            tagOverrides: { samplingEnabled: "false" },
           });
 
           return result;
-        })
-      )
+        }),
+      ),
     ),
     TE.mapLeft(throwTransientFailure),
-    TE.toUnion
+    TE.toUnion,
   )();

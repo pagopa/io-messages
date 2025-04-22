@@ -1,28 +1,23 @@
-// tslint:disable:no-any
-import * as df from "durable-functions";
-
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import * as df from "durable-functions";
+import { IOrchestrationFunctionContext } from "durable-functions/lib/src/iorchestrationfunctioncontext";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { getMockDeleteInstallationActivity } from "../../__mocks__/activities-mocks";
 import { context as contextMockBase } from "../../__mocks__/durable-functions";
 import { KindEnum as DeleteKind } from "../../generated/notifications/DeleteInstallationMessage";
-
 import { DeleteInstallationMessage } from "../../generated/notifications/DeleteInstallationMessage";
-
 import {
   success as activitySuccess,
   success,
 } from "../../utils/durable/activities";
-import { getHandler, OrchestratorCallInput } from "../handler";
 import {
   OrchestratorInvalidInputFailure,
   success as orchestratorSuccess,
 } from "../../utils/durable/orchestrators";
-import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
-
-import { getMockDeleteInstallationActivity } from "../../__mocks__/activities-mocks";
-
-import { IOrchestrationFunctionContext } from "durable-functions/lib/src/iorchestrationfunctioncontext";
 import { consumeGenerator } from "../../utils/durable/utils";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
+import { OrchestratorCallInput, getHandler } from "../handler";
 
 const aFiscalCodeHash =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;

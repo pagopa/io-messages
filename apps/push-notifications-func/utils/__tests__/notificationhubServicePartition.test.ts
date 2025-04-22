@@ -1,15 +1,15 @@
-import * as E from "fp-ts/lib/Either";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import * as E from "fp-ts/lib/Either";
+import { describe, expect, it, vi } from "vitest";
+
+import { envConfig } from "../../__mocks__/env-config.mock";
+import { InstallationId } from "../../generated/notifications/InstallationId";
+import { NHClientError } from "../notification";
 import {
   getNHLegacyConfig,
   getNotificationHubPartitionConfig,
   testShaForPartitionRegex,
 } from "../notificationhubServicePartition";
-import { NHClientError } from "../notification";
-
-import { envConfig } from "../../__mocks__/env-config.mock";
-import { InstallationId } from "../../generated/notifications/InstallationId";
-import { describe, expect, it, vi } from "vitest";
 
 const aFiscalCodeHash =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
@@ -26,13 +26,13 @@ describe("NotificationHubServicepartition", () => {
 describe("NHClientError", () => {
   it("should decode a 404 as right", () => {
     expect(
-      E.isRight(NHClientError.decode({ statusCode: 404, message: "foo" })),
+      E.isRight(NHClientError.decode({ message: "foo", statusCode: 404 })),
     ).toBe(true);
   });
 
   it("should decode a 401 as left", () => {
     expect(
-      E.isLeft(NHClientError.decode({ statusCode: 401, message: "foo" })),
+      E.isLeft(NHClientError.decode({ message: "foo", statusCode: 401 })),
     ).toBe(true);
   });
 });

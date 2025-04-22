@@ -1,23 +1,20 @@
-// tslint:disable:no-any
-
+import { NotificationHubsClient } from "@azure/notification-hubs";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { TelemetryClient } from "applicationinsights";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { context as contextMock } from "../../__mocks__/durable-functions";
+import { envConfig } from "../../__mocks__/env-config.mock";
+import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
+import { toSHA256 } from "../../utils/conversions";
+import { createActivity } from "../../utils/durable/activities";
+import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
 import {
   ActivityInput,
-  getActivityBody,
   ActivityResultSuccess,
+  getActivityBody,
 } from "../handler";
 import { ActivityInput as NHClientActivityInput } from "../handler";
-
-import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
-
-import { envConfig } from "../../__mocks__/env-config.mock";
-import { createActivity } from "../../utils/durable/activities";
-import { TelemetryClient } from "applicationinsights";
-import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
-import { toSHA256 } from "../../utils/conversions";
-import { NotificationHubsClient } from "@azure/notification-hubs";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const aFiscalCodeHash =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;

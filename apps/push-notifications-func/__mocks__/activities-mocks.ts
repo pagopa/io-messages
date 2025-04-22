@@ -1,19 +1,18 @@
-import { CallableActivity } from "../utils/durable/orchestrators";
 import { vi } from "vitest";
-import {
-  ActivityInput as IsUserInActiveSubsetActivityInput,
-  ActivityResultSuccessWithValue as IsUserInActiveSubsetActivityResultSuccess,
-} from "../IsUserInActiveSubsetActivity";
 
 import {
   ActivityInput as DeleteInstallationActivityInput,
   ActivityResultSuccess as DeleteInstallationActivityResultSuccess,
 } from "../HandleNHDeleteInstallationCallActivity";
-
 import {
   ActivityInput as NotifyMessageActivityInput,
   ActivityResultSuccess as NotifyMessageActivityResultSuccess,
 } from "../HandleNHNotifyMessageCallActivity";
+import {
+  ActivityInput as IsUserInActiveSubsetActivityInput,
+  ActivityResultSuccessWithValue as IsUserInActiveSubsetActivityResultSuccess,
+} from "../IsUserInActiveSubsetActivity";
+import { CallableActivity } from "../utils/durable/orchestrators";
 
 type CallableIsUserInActiveSubsetActivity = CallableActivity<
   IsUserInActiveSubsetActivityInput,

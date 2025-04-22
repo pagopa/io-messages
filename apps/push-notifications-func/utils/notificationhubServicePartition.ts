@@ -1,16 +1,15 @@
-import * as t from "io-ts";
-
+import { NotificationHubsClient } from "@azure/notification-hubs";
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
+import * as t from "io-ts";
 
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { NotificationHubsClient } from "@azure/notification-hubs";
 import { InstallationId } from "../generated/notifications/InstallationId";
 import { IConfig } from "./config";
 
 export const NotificationHubConfig = t.interface({
   AZURE_NH_ENDPOINT: NonEmptyString,
-  AZURE_NH_HUB_NAME: NonEmptyString
+  AZURE_NH_HUB_NAME: NonEmptyString,
 });
 
 export type NotificationHubConfig = t.TypeOf<typeof NotificationHubConfig>;
@@ -22,10 +21,10 @@ export type NotificationHubConfig = t.TypeOf<typeof NotificationHubConfig>;
  *                  `AZURE_NH_ENDPOINT` and `AZURE_NH_HUB_NAME` variables
  */
 export const getNHLegacyConfig = (
-  envConfig: IConfig
+  envConfig: IConfig,
 ): NotificationHubConfig => ({
   AZURE_NH_ENDPOINT: envConfig.AZURE_NH_ENDPOINT,
-  AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME
+  AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME,
 });
 
 /**
@@ -34,7 +33,7 @@ export const getNHLegacyConfig = (
  */
 export const testShaForPartitionRegex = (
   regex: RegExp | string,
-  sha: InstallationId
+  sha: InstallationId,
 ): boolean => (typeof regex === "string" ? new RegExp(regex) : regex).test(sha);
 
 /**
@@ -44,27 +43,27 @@ export const testShaForPartitionRegex = (
  * @param envConfig the env config with Notification Hub connection strings and names
  * @param sha a valid hash256 representing a Fiscal Code
  */
-export const getNotificationHubPartitionConfig = (envConfig: IConfig) => (
-  sha: InstallationId
-): NotificationHubConfig =>
-  pipe(
-    envConfig.AZURE_NOTIFICATION_HUB_PARTITIONS.find(p =>
-      testShaForPartitionRegex(p.partitionRegex, sha)
-    ),
-    E.fromNullable(
-      Error(`Unable to find Notification Hub partition for ${sha}`)
-    ),
-    E.map(partition => ({
-      AZURE_NH_ENDPOINT: partition.endpoint,
-      AZURE_NH_HUB_NAME: partition.name
-    })),
-    E.getOrElseW(e => {
-      throw e;
-    })
-  );
+export const getNotificationHubPartitionConfig =
+  (envConfig: IConfig) =>
+  (sha: InstallationId): NotificationHubConfig =>
+    pipe(
+      envConfig.AZURE_NOTIFICATION_HUB_PARTITIONS.find((p) =>
+        testShaForPartitionRegex(p.partitionRegex, sha),
+      ),
+      E.fromNullable(
+        Error(`Unable to find Notification Hub partition for ${sha}`),
+      ),
+      E.map((partition) => ({
+        AZURE_NH_ENDPOINT: partition.endpoint,
+        AZURE_NH_HUB_NAME: partition.name,
+      })),
+      E.getOrElseW((e) => {
+        throw e;
+      }),
+    );
 
 export const buildNHClient = ({
+  AZURE_NH_ENDPOINT,
   AZURE_NH_HUB_NAME,
-  AZURE_NH_ENDPOINT
 }: NotificationHubConfig): NotificationHubsClient =>
   new NotificationHubsClient(AZURE_NH_ENDPOINT, AZURE_NH_HUB_NAME);

@@ -7,26 +7,25 @@
 
 import { RetryOptions } from "durable-functions";
 
-import * as o from "../utils/durable/orchestrators";
 import { getConfigOrThrow } from "../utils/config";
 import { createActivity } from "../utils/durable/activities";
+import * as o from "../utils/durable/orchestrators";
 import {
   getIsInActiveSubset,
   getIsUserABetaTestUser,
-  getIsUserACanaryTestUser
+  getIsUserACanaryTestUser,
 } from "../utils/featureFlags";
-
 import {
   ActivityInput,
   ActivityResultSuccessWithValue,
   activityResultSuccessWithValue,
-  getActivityBody
+  getActivityBody,
 } from "./handler";
 
 export {
   ActivityInput,
   ActivityResultSuccessWithValue,
-  activityResultSuccessWithValue
+  activityResultSuccessWithValue,
 };
 
 export const activityName = "IsUserInActiveSubsetActivity";
@@ -38,12 +37,12 @@ export const activityName = "IsUserInActiveSubsetActivity";
  * @returns A callable `IsUserInActiveSubsetActivity`
  */
 export const getCallableActivity = (
-  retryOptions: RetryOptions
+  retryOptions: RetryOptions,
 ): o.CallableActivity<ActivityInput, ActivityResultSuccessWithValue> =>
   o.callableActivity<ActivityInput, ActivityResultSuccessWithValue>(
     activityName,
     activityResultSuccessWithValue,
-    retryOptions
+    retryOptions,
   );
 
 const config = getConfigOrThrow();
@@ -52,15 +51,15 @@ const activityFunction = getActivityBody({
   enabledFeatureFlag: config.NH_PARTITION_FEATURE_FLAG,
   isInActiveSubset: getIsInActiveSubset(
     getIsUserABetaTestUser(),
-    getIsUserACanaryTestUser(config.CANARY_USERS_REGEX)
-  )
+    getIsUserACanaryTestUser(config.CANARY_USERS_REGEX),
+  ),
 });
 
 const activityFunctionHandler = createActivity(
   activityName,
   ActivityInput,
   activityResultSuccessWithValue,
-  activityFunction
+  activityFunction,
 );
 
 export default activityFunctionHandler;

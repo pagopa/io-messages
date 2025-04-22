@@ -1,9 +1,7 @@
+import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import * as ai from "applicationinsights";
 import { IOrchestrationFunctionContext } from "durable-functions/lib/src/classes";
-
 import * as t from "io-ts";
-
-import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 
 import { toString } from "../utils";
 import { OrchestratorFailure } from "./returnTypes";
@@ -34,7 +32,7 @@ export interface IOrchestratorLogger {
  */
 export const createLogger = (
   context: IOrchestrationFunctionContext,
-  logPrefix: string = ""
+  logPrefix = "",
 ): IOrchestratorLogger => ({
   error: (failure: OrchestratorFailure): void => {
     const log = `${logPrefix}|Error executing orchestrator: ${failure.kind}`;
@@ -42,33 +40,35 @@ export const createLogger = (
       failure.kind === "FAILURE_INVALID_INPUT"
         ? `ERROR=${failure.reason}|INPUT=${toString(failure.input)}`
         : failure.kind === "FAILURE_ACTIVITY"
-        ? `ERROR=${failure.reason}|ACTIVITY=${failure.activityName}`
-        : failure.kind === "FAILURE_UNHANDLED"
-        ? `ERROR=${failure.reason}`
-        : defaultNever(
-            failure,
-            `unknown failure kind, failure: ${toString(failure)}`
-          );
+          ? `ERROR=${failure.reason}|ACTIVITY=${failure.activityName}`
+          : failure.kind === "FAILURE_UNHANDLED"
+            ? `ERROR=${failure.reason}`
+            : defaultNever(
+                failure,
+                `unknown failure kind, failure: ${toString(failure)}`,
+              );
     context.log.error(`${log}|${verbose}`);
     context.log.verbose(`${log}|${verbose}`);
   },
   info: (s: string): void => {
     context.log.info(`${logPrefix}|${s}`);
-  }
+  },
 });
 
-export const trackExceptionAndThrow = (
-  context: IOrchestrationFunctionContext,
-  aiTelemetry: ai.TelemetryClient,
-  logPrefix: string
-) => (err: Error | t.Errors, name: string): never => {
-  const errMessage = err instanceof Error ? err.message : readableReport(err);
-  context.log.verbose(`${logPrefix}|ERROR=${errMessage}`);
-  aiTelemetry.trackException({
-    exception: new Error(`${logPrefix}|ERROR=${errMessage}`),
-    properties: {
-      name
-    }
-  });
-  throw new Error(errMessage);
-};
+export const trackExceptionAndThrow =
+  (
+    context: IOrchestrationFunctionContext,
+    aiTelemetry: ai.TelemetryClient,
+    logPrefix: string,
+  ) =>
+  (err: Error | t.Errors, name: string): never => {
+    const errMessage = err instanceof Error ? err.message : readableReport(err);
+    context.log.verbose(`${logPrefix}|ERROR=${errMessage}`);
+    aiTelemetry.trackException({
+      exception: new Error(`${logPrefix}|ERROR=${errMessage}`),
+      properties: {
+        name,
+      },
+    });
+    throw new Error(errMessage);
+  };
