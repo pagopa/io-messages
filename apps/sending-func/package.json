@@ -2,6 +2,7 @@
   "name": "sending-func",
   "version": "1.10.14",
   "license": "UNLICENSED",
+  "type": "commonjs",
   "scripts": {
     "build": "yarn openapi:bundle && yarn generate:definitions && yarn generate:backend-notification-hub && tsc",
     "watch": "tsc --w",
