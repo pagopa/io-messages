@@ -12,6 +12,7 @@ import { splitDeleteMessages } from "./adapters/functions/split-delete-messages.
 import { MessageRepositoryAdapter } from "./adapters/message.js";
 import { DeleteMessageUseCase } from "./domain/use-cases/delete-message.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
+import { CosmosHealthchecker } from "./adapters/cosmos/health.js";
 
 const main = async (config: Config): Promise<void> => {
   const azureCredentials = new DefaultAzureCredential();
@@ -33,7 +34,7 @@ const main = async (config: Config): Promise<void> => {
     azureCredentials,
   );
 
-  const healthcheckUseCase = new HealthUseCase(db);
+  const healthcheckUseCase = new HealthUseCase([new CosmosHealthchecker(db)]);
 
   const repo = new MessageRepositoryAdapter(db, storage);
   const auditLogger = new BlobStorageAuditLogger(messageStorage);

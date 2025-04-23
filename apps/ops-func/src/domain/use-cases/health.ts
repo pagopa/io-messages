@@ -1,29 +1,31 @@
-import { Database, ErrorResponse } from "@azure/cosmos";
+export interface HealthChecker {
+  health(): Promise<void>;
+  id: string;
+}
 
 export class HealthUseCase {
-  db: Database;
+  #checkers: HealthChecker[];
 
-  constructor(db: Database) {
-    this.db = db;
+  constructor(checkers: HealthChecker[]) {
+    this.#checkers = checkers;
   }
 
-  async execute() {
-    try {
-      await this.db.read();
-      return {
-        body: "it works!",
-      };
-    } catch (error) {
-      if (error instanceof ErrorResponse) {
-        return {
-          body: `Service connection failed: ${error.name} code: ${error.code} cause: ${error.cause}`,
-          status: 500,
-        };
-      }
-      return {
-        body: "Service connection failed",
-        status: 500,
-      };
-    }
+  async execute(): Promise<string[]> {
+    const checks = await Promise.all(
+      this.#checkers.map(async (checker) => {
+        const isHealthy = await checker.health().then(
+          () => true,
+          () => false,
+        );
+        return { id: checker.id, isHealthy };
+      }),
+    );
+
+    const failures = checks.reduce<string[]>(
+      (failures, check) =>
+        check.isHealthy ? failures : [...failures, check.id],
+      [],
+    );
+    return failures;
   }
 }
