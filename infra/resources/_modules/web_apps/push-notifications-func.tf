@@ -152,7 +152,7 @@ locals {
 module "push_notif_function" {
 
   source  = "pagopa/dx-azure-function-app/azurerm"
-  version = "~>0"
+  version = "~>0.0"
 
   application_insights_key = var.application_insights.instrumentation_key
 
