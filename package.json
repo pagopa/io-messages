@@ -24,7 +24,7 @@
     "@yarnpkg/types": "^4.0.1",
     "prettier": "3.2.5",
     "turbo": "2.5.0",
-    "typescript": "5.4.3",
+    "typescript": "^5.8.3",
     "vitest": "^3.1.2"
   }
 }
