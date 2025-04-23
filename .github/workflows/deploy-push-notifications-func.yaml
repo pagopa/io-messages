@@ -5,12 +5,13 @@ on:
 
 jobs:
   push_notifications_func_deploy:
-    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@87ca7654673290b2f80bb8d301c54dd27c4150b5
+    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@802c7c19c579c6d562496a0d6e7710978603d413
+    name: Deploy
     secrets: inherit
     with:
       workspace_name: push-notifications-func
       environment: app-prod
       resource_group_name: io-p-itn-com-rg-01
       function_app_name: io-p-itn-com-pushnotif-func-01
-      health_check_path: "/api/v1/info"
       use_staging_slot: true
+      use_private_agent: true
