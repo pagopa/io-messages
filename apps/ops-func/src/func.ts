@@ -6,13 +6,13 @@ import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 
 import { BlobStorageAuditLogger } from "./adapters/audit.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
+import { CosmosHealthchecker } from "./adapters/cosmos/health.js";
 import { deleteMessage } from "./adapters/functions/delete-message.js";
 import { healthcheck } from "./adapters/functions/health.js";
 import { splitDeleteMessages } from "./adapters/functions/split-delete-messages.js";
 import { MessageRepositoryAdapter } from "./adapters/message.js";
 import { DeleteMessageUseCase } from "./domain/use-cases/delete-message.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
-import { CosmosHealthchecker } from "./adapters/cosmos/health.js";
 
 const main = async (config: Config): Promise<void> => {
   const azureCredentials = new DefaultAzureCredential();
