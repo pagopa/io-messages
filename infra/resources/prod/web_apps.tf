@@ -23,7 +23,6 @@ module "web_apps" {
   subnet_pep_id = data.azurerm_subnet.pep.id
 
   subnet_cidrs = {
-    notif_func      = "10.20.8.0/26"
     etl_func        = "10.20.8.0/26"
     citizen_func    = "10.20.8.64/26"
     ops_func        = "10.20.10.0/26"
