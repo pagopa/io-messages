@@ -10,6 +10,7 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint --fix src",
     "lint:check": "eslint src",
+    "start": "func start",
     "openapi:bundle": "yarn node copy-commons-definitions.js && yarn openapi:bundle:internal && yarn openapi:bundle:external",
     "openapi:bundle:internal": "bundle-api-spec -i openapi/index_internal.yaml.template -o openapi/index.yaml -V $npm_package_version",
     "openapi:bundle:external": "bundle-api-spec -i openapi/index_external.yaml.template -o openapi/index_external.yaml -V $npm_package_version",
