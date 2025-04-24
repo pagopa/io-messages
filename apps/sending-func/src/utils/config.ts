@@ -39,19 +39,6 @@ const AnyBut = <A extends boolean | number | string | symbol, Out = A>(
     "AnyBut",
   );
 
-// configuration for REQ_SERVICE_ID in dev
-export type ReqServiceIdConfig = t.TypeOf<typeof ReqServiceIdConfig>;
-export const ReqServiceIdConfig = t.union([
-  t.interface({
-    NODE_ENV: t.literal("production"),
-    REQ_SERVICE_ID: t.undefined,
-  }),
-  t.interface({
-    NODE_ENV: AnyBut("production", t.string),
-    REQ_SERVICE_ID: NonEmptyString,
-  }),
-]);
-
 export const RedisParams = t.intersection([
   t.interface({
     REDIS_URL: NonEmptyString,
@@ -86,14 +73,7 @@ export const IConfig = t.intersection([
     COSMOSDB_NAME: NonEmptyString,
     COSMOSDB_URI: NonEmptyString,
 
-    FF_BETA_TESTERS: withDefault(t.string, "").pipe(
-      CommaSeparatedListOf(NonEmptyString),
-    ),
-
-    FF_CANARY_USERS_REGEX: withDefault(t.string, "XYZ").pipe(NonEmptyString),
-    FF_TYPE: withDefault(t.string, "none").pipe(FeatureFlagType),
     INTERNAL_USER_ID: NonEmptyString,
-    MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: NonNegativeInteger,
 
     MESSAGE_CONTAINER_NAME: NonEmptyString,
     MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
@@ -106,24 +86,15 @@ export const IConfig = t.intersection([
 
     REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
 
-    USE_FALLBACK: withDefault(t.string, "false").pipe(BooleanFromString),
-
     isProduction: t.boolean,
     /* eslint-enable sort-keys */
   }),
-  ReqServiceIdConfig,
   RedisParams,
 ]);
 
 // No need to re-evaluate this object for each call
 const errorOrConfig: t.Validation<IConfig> = IConfig.decode({
   ...process.env,
-
-  MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: pipe(
-    process.env.MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME,
-    NonNegativeIntegerFromString.decode,
-    E.getOrElse(() => 0 as NonNegativeInteger),
-  ),
 
   REDIS_CLUSTER_ENABLED: pipe(
     O.fromNullable(process.env.REDIS_CLUSTER_ENABLED),
@@ -136,11 +107,6 @@ const errorOrConfig: t.Validation<IConfig> = IConfig.decode({
     O.toUndefined,
   ),
 
-  SERVICE_CACHE_TTL_DURATION: pipe(
-    process.env.SERVICE_CACHE_TTL_DURATION,
-    IntegerFromString.decode,
-    E.getOrElse(() => 3600 * 8),
-  ),
   isProduction: process.env.NODE_ENV === "production",
 });
 

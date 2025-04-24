@@ -12,17 +12,10 @@ export const envConfig: IConfig = {
   COSMOSDB_NAME: "aName" as NonEmptyString,
 
   COSMOSDB_URI: "aUri" as NonEmptyString,
-  FF_BETA_TESTERS: [],
-
-  FF_CANARY_USERS_REGEX: "XYZ" as NonEmptyString,
-
-  FF_TYPE: "none",
   INTERNAL_USER_ID: "internalUserId" as NonEmptyString,
-  MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: 0 as NonNegativeInteger,
   MESSAGE_CONTAINER_NAME: "aContainerName" as NonEmptyString,
 
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: "aConnString" as NonEmptyString,
-  NODE_ENV: "production",
 
   NOTIFICATION_QUEUE_NAME: "aQueueName" as NonEmptyString,
   NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: "aConnString" as NonEmptyString,
@@ -33,8 +26,6 @@ export const envConfig: IConfig = {
   REMOTE_CONTENT_COSMOSDB_NAME: "aName" as NonEmptyString,
 
   REMOTE_CONTENT_COSMOSDB_URI: "aUri" as NonEmptyString,
-  REQ_SERVICE_ID: undefined,
 
-  USE_FALLBACK: false,
   isProduction: false,
 };
