@@ -80,7 +80,7 @@ const parseRedisValue: (redisValue: string) => E.Either<Error, Json> = flow(
 );
 
 const validateRedisValue: (
-  redisValue: string,
+  redisValue: Json,
 ) => E.Either<Error, RetrievedRCConfiguration> = flow(
   RetrievedRCConfiguration.decode,
   E.mapLeft(() => new Error("Cannot decode RCConfiguration Json from Redis")),
@@ -125,7 +125,7 @@ const getOrCacheMaybeRCConfigurationById = (
             (e) =>
               new Error(`${e.kind}, RCConfiguration Id=${configurationId}`),
           ),
-          TE.chainFirst((maybeRCConfiguration) =>
+          TE.chainFirstW((maybeRCConfiguration) =>
             pipe(
               maybeRCConfiguration,
               TE.fromOption(

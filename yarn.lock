@@ -8817,6 +8817,7 @@ __metadata:
     "@pagopa/ts-commons": "npm:^12.5.0"
     "@types/express": "npm:^4.17.11"
     "@types/node": "npm:^20.17.30"
+    "@types/node-fetch": "npm:^2.5.7"
     "@vitest/coverage-v8": "npm:^3.1.2"
     abort-controller: "npm:^3.0.0"
     applicationinsights: "npm:^1.8.10"

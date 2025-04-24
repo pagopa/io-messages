@@ -10,16 +10,13 @@ import * as express from "express";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 
-import * as packageJson from "../package.json";
 import { HealthCheck, checkApplicationHealth } from "../utils/healthcheck";
 
-interface IInfo {
-  readonly name: string;
-  readonly version: string;
-}
-
 type InfoHandler = () => Promise<
-  IResponseErrorInternal | IResponseSuccessJson<IInfo>
+  | IResponseErrorInternal
+  | IResponseSuccessJson<{
+      message: string;
+    }>
 >;
 
 export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
@@ -31,8 +28,7 @@ export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
         (problems) => ResponseErrorInternal(problems.join("\n\n")),
         () =>
           ResponseSuccessJson({
-            name: packageJson.name,
-            version: packageJson.version,
+            message: "It works",
           }),
       ),
       TE.toUnion,

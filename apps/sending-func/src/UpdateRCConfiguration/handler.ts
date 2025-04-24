@@ -55,7 +55,7 @@ interface IHandleUpsertParameter {
   readonly config: IConfig;
   readonly rccModel: RCConfigurationModel;
   readonly redisClientFactory: RedisClientFactory;
-  readonly telemetryClient: TelemetryClient;
+  readonly telemetryClient?: TelemetryClient;
 }
 
 export const handleUpsert =
@@ -75,7 +75,7 @@ export const handleUpsert =
           `Something went wrong trying to upsert the configuration: ${e}`,
         ),
       ),
-      TE.chainFirst((rcConfiguration) =>
+      TE.chainFirstW((rcConfiguration) =>
         pipe(
           setWithExpirationTask(
             redisClientFactory,
@@ -88,7 +88,7 @@ export const handleUpsert =
       ),
       TE.map((rcConfiguration) =>
         pipe(
-          telemetryClient.trackEvent({
+          telemetryClient?.trackEvent({
             name: eventName,
             properties: {
               configurationId: rcConfiguration.configurationId,
@@ -140,7 +140,7 @@ interface IUpdateRCConfigurationHandlerParameter {
   readonly config: IConfig;
   readonly rccModel: RCConfigurationModel;
   readonly redisClientFactory: RedisClientFactory;
-  readonly telemetryClient: TelemetryClient;
+  readonly telemetryClient?: TelemetryClient;
 }
 
 type UpdateRCConfigurationHandlerReturnType = (
@@ -195,7 +195,7 @@ interface IGetUpdateRCConfigurationHandlerParameter {
   readonly config: IConfig;
   readonly rccModel: RCConfigurationModel;
   readonly redisClientFactory: RedisClientFactory;
-  readonly telemetryClient: TelemetryClient;
+  readonly telemetryClient?: TelemetryClient;
 }
 
 type GetUpdateRCConfigurationHandlerReturnType = express.RequestHandler;

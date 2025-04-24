@@ -58,8 +58,8 @@ export interface ILogger {
  */
 export const createLogger = (
   context: Context,
-  telemetryClient: TelemetryClient,
   logPrefix: string,
+  telemetryClient?: TelemetryClient,
 ): ILogger => ({
   error: (s: string): void => {
     context.log.error(`${logPrefix}|${s}`);
@@ -68,7 +68,7 @@ export const createLogger = (
     context.log.info(`${logPrefix}|${s}`);
   },
   trackEvent: (e): void => {
-    telemetryClient.trackEvent({
+    telemetryClient?.trackEvent({
       name: e.name,
       properties: e.properties,
       tagOverrides: { samplingEnabled: "false" },

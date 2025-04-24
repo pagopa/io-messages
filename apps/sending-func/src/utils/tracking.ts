@@ -16,7 +16,7 @@ export const createTracker = (
     messageId?: string,
     serviceId?: ServiceId,
   ) => {
-    telemetryClient.trackEvent({
+    telemetryClient?.trackEvent({
       name: "messages.enrichMessages.failure",
       properties: {
         fiscalCode: toHash(fiscalCode),

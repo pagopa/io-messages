@@ -22,7 +22,7 @@ import {
   ResponseSuccessNoContent,
   getResponseErrorForbiddenNotAuthorized,
 } from "@pagopa/ts-commons/lib/responses";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as express from "express";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
@@ -111,8 +111,8 @@ const prepareNotification =
   ) =>
   (
     notification_type: NotificationTypeEnum,
-    fiscal_code,
-    message_id,
+    fiscal_code: FiscalCode,
+    message_id: NonEmptyString,
   ): TE.TaskEither<
     IResponseErrorInternal | IResponseErrorNotFound,
     NotificationPrinter
@@ -242,7 +242,7 @@ export const NotifyHandler =
         }),
       ),
       TE.bindTo("userProfile"),
-      TE.bind("notificationPermission", ({ userProfile }) =>
+      TE.bindW("notificationPermission", ({ userProfile }) =>
         pipe(
           checkSendNotificationPermission(userProfile)(notification_type),
           TE.of,
@@ -289,7 +289,7 @@ export const Notify = (
   retrieveMessageWithContent: MessageWithContentReader,
   retrieveService: ServiceReader,
   sendNotification: SendNotification,
-  telemetryClient: ReturnType<typeof initAppInsights>,
+  telemetryClient?: ReturnType<typeof initAppInsights>,
   // eslint-disable-next-line max-params
 ): express.RequestHandler => {
   const handler = NotifyHandler(
@@ -313,7 +313,7 @@ export const Notify = (
   );
   return wrapRequestHandler(
     middlewaresWrap((context, _) =>
-      handler(createLogger(context, telemetryClient, "Notify"), _),
+      handler(createLogger(context, "Notify", telemetryClient), _),
     ),
   );
 };

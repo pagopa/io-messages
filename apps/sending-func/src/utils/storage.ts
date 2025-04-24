@@ -29,7 +29,7 @@ export const insertTableEntity =
           resolve(
             // We need to check error first because response could be null
             // @ref https://github.com/Azure/azure-storage-node/blob/v2.10.2/lib/common/services/storageserviceclient.js#L250
-            error || !response.isSuccessful
+            error || !response?.isSuccessful
               ? Tuple2(
                   left(
                     error || new Error("Unsuccessful response from storage"),
@@ -59,7 +59,7 @@ export const deleteTableEntity =
           resolve(
             // We need to check error first because response could be null
             // @ref https://github.com/Azure/azure-storage-node/blob/v2.10.2/lib/common/services/storageserviceclient.js#L250
-            error || !response.isSuccessful
+            error || !response?.isSuccessful
               ? Tuple2(
                   some(
                     error || new Error("Unsuccessful response from storage"),
