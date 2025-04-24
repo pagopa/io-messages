@@ -18,6 +18,8 @@ services:
       - "10000:10000"
       - "10001:10001"
       - "10002:10002"
+    environment:
+      AZURITE_ACCOUNTS: "localst01:bG9jYWw="
 
   eventhubs:
     image: "mcr.microsoft.com/azure-messaging/eventhubs-emulator:latest@sha256:25ec4141efb69933a0c82e6a787fa147a3895519e7d236d4c41ba568e03100eb"
