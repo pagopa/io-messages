@@ -70,8 +70,6 @@ const BaseConfig = t.intersection([
       // @see https://github.com/Azure/azure-functions-host/blob/master/src/WebJobs.Script/Config/ApplicationInsightsLoggerOptionsSetup.cs#L29
       APPINSIGHTS_SAMPLING_PERCENTAGE: withDefault(IntegerFromString, 5),
 
-      AzureWebJobsStorage: NonEmptyString,
-
       RETRY_ATTEMPT_NUMBER: IntegerFromString,
 
       isProduction: t.boolean,

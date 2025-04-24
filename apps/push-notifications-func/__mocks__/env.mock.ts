@@ -6,8 +6,6 @@ export const envConfig = {
     "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar",
 
   AZURE_NH_HUB_NAME: "io-notification-hub-mock",
-  AzureWebJobsStorage:
-    "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar",
   BETA_USERS_STORAGE_CONNECTION_STRING:
     "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar",
 
