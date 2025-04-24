@@ -15,20 +15,8 @@
       }
     }
   },
-  "extensions": {
-    "http": {
-      "routePrefix": ""
-    },
-    "durableTask": {
-      "hubName": "%SLOT_TASK_HUBNAME%",
-      "localRpcEndpointEnabled": false,
-      "storageProvider": {
-        "connectionStringName": "DURABLE_FUNCTION_STORAGE_CONNECTION_STRING"
-      },
-      "tracing": {
-        "traceInputsAndOutputs": false,
-        "traceReplayEvents": false
-      }
-    }
+  "extensionBundle": {
+    "id": "Microsoft.Azure.Functions.ExtensionBundle",
+    "version": "[3.3.0, 4.0.0)"
   }
 }
