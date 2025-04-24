@@ -1,9 +1,9 @@
 ApplicationInfo:
   type: object
   properties:
-    name: 
+    name:
       type: string
-    version: 
+    version:
       type: string
   required:
     - name
@@ -114,7 +114,7 @@ MessageContent:
         prescription_data:
           $ref: "#/PrescriptionData"
         legal_data:
-          $ref: '#/LegalData'
+          $ref: "#/LegalData"
         eu_covid_cert:
           $ref: "#/EUCovidCert"
         third_party_data:
@@ -137,7 +137,7 @@ NewMessageContent:
         third_party_data:
           $ref: "#/ThirdPartyData"
         legal_data:
-          $ref: '#/LegalData'
+          $ref: "#/LegalData"
 NewMessage:
   type: object
   properties:
@@ -154,12 +154,12 @@ NewMessage:
   required:
     - content
 FeatureLevelType:
-   type: string
-   default: STANDARD
-   x-extensible-enum:
-     - STANDARD
-     - ADVANCED
-   example: STANDARD
+  type: string
+  default: STANDARD
+  x-extensible-enum:
+    - STANDARD
+    - ADVANCED
+  example: STANDARD
 PrescriptionData:
   type: object
   description: |-
@@ -176,7 +176,7 @@ PrescriptionData:
 LegalData:
   type: object
   properties:
-    sender_mail_from: 
+    sender_mail_from:
       type: string
       minLength: 1
     has_attachment:
@@ -431,7 +431,7 @@ BaseEnrichedMessage:
     message_title:
       type: string
     category:
-      $ref: '#/MessageCategory'
+      $ref: "#/MessageCategory"
     has_attachments:
       type: boolean
       default: false
@@ -479,7 +479,7 @@ ExternalMessageResponseWithoutContent:
       $ref: "#/MessageResponseNotificationStatus"
     status:
       $ref: "#/MessageStatusValue"
-    read_status: 
+    read_status:
       $ref: "#/ReadStatus"
       description: |-
         Describes whether a user has read the message or not
@@ -501,7 +501,7 @@ ExternalMessageResponseWithContent:
       $ref: "#/MessageResponseNotificationStatus"
     status:
       $ref: "#/MessageStatusValue"
-    read_status: 
+    read_status:
       $ref: "#/ReadStatus"
       description: |-
         Describes whether a user has read the message or not
@@ -519,7 +519,7 @@ PublicMessage:
   x-one-of: true
   allOf:
     - $ref: "#/EnrichedMessage"
-    - $ref: "#/CreatedMessageWithoutContent" 
+    - $ref: "#/CreatedMessageWithoutContent"
 MessageResponseNotificationStatus:
   type: object
   properties:
@@ -571,7 +571,7 @@ NewRCConfigurationBase:
       minLength: 1
       description: Configuration description.
     has_precondition:
-       $ref: "#/HasPrecondition"
+      $ref: "#/HasPrecondition"
     disable_lollipop_for:
       type: array
       items:
@@ -585,20 +585,20 @@ NewRCConfigurationBase:
     - has_precondition
     - disable_lollipop_for
     - is_lollipop_enabled
- 
+
 RCConfigurationBase:
   allOf:
-      - $ref: "#/NewRCConfigurationBase"
-      - type: object
-        properties:
-          configuration_id:
-            type: string
-            description: Ulid string.
-            format: Ulid
-            x-import: '@pagopa/ts-commons/lib/strings'
-            example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
-        required:
-          - configuration_id
+    - $ref: "#/NewRCConfigurationBase"
+    - type: object
+      properties:
+        configuration_id:
+          type: string
+          description: Ulid string.
+          format: Ulid
+          x-import: "@pagopa/ts-commons/lib/strings"
+          example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
+      required:
+        - configuration_id
 
 RCConfigurationEnvironment:
   type: object
@@ -673,7 +673,7 @@ RCConfigurationTestEnvironment:
           items:
             $ref: "#/FiscalCode"
       required:
-      - test_users
+        - test_users
 
 MessageResponseWithContent:
   type: object
@@ -714,17 +714,17 @@ ThirdPartyMessageWithContent:
       required:
         - third_party_message
 ThirdPartyMessagePrecondition:
-    type: object
-    title: ThirdPartyMessagePrecondition
-    description: Describes a message precondition
-    properties:
-      title:
-        type: string
-      markdown:
-        type: string
-    required:
-      - title
-      - markdown
+  type: object
+  title: ThirdPartyMessagePrecondition
+  description: Describes a message precondition
+  properties:
+    title:
+      type: string
+    markdown:
+      type: string
+  required:
+    - title
+    - markdown
 MessageResponseWithoutContent:
   type: object
   properties:
@@ -740,26 +740,26 @@ FiscalCode:
   type: string
   description: User's fiscal code.
   format: FiscalCode
-  x-import: '@pagopa/ts-commons/lib/strings'
+  x-import: "@pagopa/ts-commons/lib/strings"
   example: SPNDNL80R13C555X
 PrescriberFiscalCode:
   type: string
   description: Fiscal code of the Doctor that made the prescription.
   format: FiscalCode
-  x-import: '@pagopa/ts-commons/lib/strings'
+  x-import: "@pagopa/ts-commons/lib/strings"
   example: TCNZRO80R13C555Y
 SandboxFiscalCode:
   type: string
   description: |-
     Sandbox user's fiscal code (used for development).
   format: SandboxFiscalCode
-  x-import: '@pagopa/ts-commons/lib/strings'
+  x-import: "@pagopa/ts-commons/lib/strings"
   example: SPNDNL80A13Y555X
 OrganizationFiscalCode:
   type: string
   description: Organization fiscal code.
   format: OrganizationFiscalCode
-  x-import: '@pagopa/ts-commons/lib/strings'
+  x-import: "@pagopa/ts-commons/lib/strings"
   example: "12345678901"
 MessageSubject:
   type: string
@@ -795,7 +795,7 @@ PaginationResponse:
     next:
       type: string
       description: Contains a value useful to get the next page
-      example: "last_id_of_the_page"  
+      example: "last_id_of_the_page"
 CreatedMessageWithoutContentCollection:
   description: A collection of messages
   type: object
@@ -972,11 +972,10 @@ ReminderStatus:
     - ENABLED
     - DISABLED
   example: ENABLED
-  description:
-    Api definition of reminder opt-in status
+  description: Api definition of reminder opt-in status
 IsTestProfile:
   type: boolean
-  description: True if the user's profile is only for test purpose. 
+  description: True if the user's profile is only for test purpose.
   default: false
 AppVersion:
   type: string
@@ -1059,8 +1058,8 @@ ServicePayload:
   description: A payload used to create/update a service for a user.
   x-one-of: true
   allOf:
-   - $ref: "#/VisibleServicePayload"
-   - $ref: "#/HiddenServicePayload"
+    - $ref: "#/VisibleServicePayload"
+    - $ref: "#/HiddenServicePayload"
 ExtendedServicePayload:
   allOf:
     - $ref: "#/ServicePayload"
@@ -1105,61 +1104,61 @@ CommonServicePayload:
 VisibleServicePayload:
   description: A payload used to create/update a service that appears in the service list.
   allOf:
-  - $ref: "#/CommonServicePayload"
-  - type: object
-    properties:
-      is_visible:
-        type: boolean
-        enum:
-          - true
-        description: |-
-          It indicates that service appears in the service list
-      service_metadata:
-        description: |-
-          That service can't handle some ServiceMetadata fields (es. category)
-        $ref: "#/CommonServiceMetadata"
-    required:
-      - is_visible
-      - service_metadata
+    - $ref: "#/CommonServicePayload"
+    - type: object
+      properties:
+        is_visible:
+          type: boolean
+          enum:
+            - true
+          description: |-
+            It indicates that service appears in the service list
+        service_metadata:
+          description: |-
+            That service can't handle some ServiceMetadata fields (es. category)
+          $ref: "#/CommonServiceMetadata"
+      required:
+        - is_visible
+        - service_metadata
 HiddenServicePayload:
   description: A payload used to create/update a service that is hidden.
   allOf:
-  - $ref: "#/CommonServicePayload"
-  - type: object
-    properties:
-      is_visible:
-        type: boolean
-        default: false
-        enum:
-          - false
-        description: |-
-          It indicates that service is hidden
-      service_metadata:
-        description: |-
-          That service can't handle some ServiceMetadata fields (es. category)
-        $ref: "#/CommonServiceMetadata"
-Service: 
+    - $ref: "#/CommonServicePayload"
+    - type: object
+      properties:
+        is_visible:
+          type: boolean
+          default: false
+          enum:
+            - false
+          description: |-
+            It indicates that service is hidden
+        service_metadata:
+          description: |-
+            That service can't handle some ServiceMetadata fields (es. category)
+          $ref: "#/CommonServiceMetadata"
+Service:
   description: A service tied to user's subscription.
   allOf:
-  - $ref: "#/ExtendedServicePayload"
-  - type: object
-    properties:
-      id:
-        type: string
-      service_id:
-        $ref: "#/ServiceId"
-      authorized_recipients:
-        description: |-
-          If non empty, the service will be able
-          to send messages only to these fiscal codes.
-        type: array
-        items:
-          $ref: "#/FiscalCode"
-      max_allowed_payment_amount:
-        $ref: "#/MaxAllowedPaymentAmount"
-    required:
-      - service_id
-      - authorized_recipients
+    - $ref: "#/ExtendedServicePayload"
+    - type: object
+      properties:
+        id:
+          type: string
+        service_id:
+          $ref: "#/ServiceId"
+        authorized_recipients:
+          description: |-
+            If non empty, the service will be able
+            to send messages only to these fiscal codes.
+          type: array
+          items:
+            $ref: "#/FiscalCode"
+        max_allowed_payment_amount:
+          $ref: "#/MaxAllowedPaymentAmount"
+      required:
+        - service_id
+        - authorized_recipients
 CommonServiceMetadata:
   type: object
   description: A set of metadata properties related to this service.
@@ -1197,7 +1196,7 @@ CommonServiceMetadata:
     cta:
       type: string
       minLength: 1
-    token_name: 
+    token_name:
       type: string
       minLength: 1
     support_url:
@@ -1363,7 +1362,7 @@ Timestamp:
   type: string
   format: UTCISODateFromString
   description: A date-time field in ISO-8601 format and UTC timezone.
-  x-import: '@pagopa/ts-commons/lib/dates'
+  x-import: "@pagopa/ts-commons/lib/dates"
   example: "2018-10-13T00:00:00.000Z"
 HttpsUrl:
   type: string
@@ -1508,7 +1507,7 @@ MessageCategoryBase:
     - tag
 MessageCategoryPayment:
   type: object
-  properties: 
+  properties:
     tag:
       type: string
       enum:
@@ -1522,7 +1521,7 @@ MessageCategoryPN:
   allOf:
     - $ref: "#/ThirdPartyData"
     - type: object
-      properties: 
+      properties:
         tag:
           type: string
           enum:
@@ -1532,11 +1531,11 @@ MessageCategoryPN:
 LegalMessage:
   type: object
   properties:
-    eml: 
+    eml:
       $ref: "#/LegalMessageEml"
     cert_data:
       $ref: "#/LegalMessageCertData"
-  required: 
+  required:
     - eml
     - cert_data
 LegalMessageEml:
@@ -1551,7 +1550,7 @@ LegalMessageEml:
     attachments:
       type: array
       items:
-        $ref: '#/Attachment'
+        $ref: "#/Attachment"
   required:
     - subject
     - plain_text_content
@@ -1639,9 +1638,9 @@ ImpersonatedService:
 ThirdPartyMessage:
   type: object
   properties:
-    attachments: 
+    attachments:
       type: array
-      items: 
+      items:
         $ref: "#/ThirdPartyAttachment"
     # We expects additional properties to be free-form objects
     details:
@@ -1650,21 +1649,21 @@ ThirdPartyMessage:
 ThirdPartyAttachment:
   type: object
   properties:
-      id:
-        type: string
-        minLength: 1
-      content_type:
-        type: string
-        minLength: 1
-      name:
-        type: string
-        minLength: 1
-      url:
-        type: string
-        minLength: 1
-      category:
-        type: string
-        default: DOCUMENT
+    id:
+      type: string
+      minLength: 1
+    content_type:
+      type: string
+      minLength: 1
+    name:
+      type: string
+      minLength: 1
+    url:
+      type: string
+      minLength: 1
+    category:
+      type: string
+      default: DOCUMENT
   required:
     - id
     - url
@@ -1673,7 +1672,7 @@ MessageStatusReadingChange:
   properties:
     change_type:
       type: string
-      enum: 
+      enum:
         - reading
     is_read:
       type: boolean
@@ -1687,7 +1686,7 @@ MessageStatusArchivingChange:
   properties:
     change_type:
       type: string
-      enum: 
+      enum:
         - archiving
     is_archived:
       type: boolean
@@ -1699,7 +1698,7 @@ MessageStatusBulkChange:
   properties:
     change_type:
       type: string
-      enum: 
+      enum:
         - bulk
     is_archived:
       type: boolean
@@ -1743,17 +1742,15 @@ ReadStatus:
     - UNREAD
     - READ
   example: UNREAD
-  description:
-    Api definition of read status enumeration
+  description: Api definition of read status enumeration
 Ulid:
   type: string
   description: Ulid string.
   format: Ulid
-  x-import: '@pagopa/ts-commons/lib/strings'
+  x-import: "@pagopa/ts-commons/lib/strings"
   example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
 PathTraversalSafePathParam:
-  description:
-    A non empty string that is safe to be used in an url parameter to avoid path traversal attacks
+  description: A non empty string that is safe to be used in an url parameter to avoid path traversal attacks
   type: string
   pattern: "^[0-9a-zA-Z\\-\\._\\/+]+$"
 UnlockCode:

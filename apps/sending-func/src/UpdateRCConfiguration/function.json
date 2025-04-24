@@ -6,9 +6,7 @@
       "direction": "in",
       "name": "req",
       "route": "v1/remote-contents/configurations/{configurationId}",
-      "methods": [
-        "put"
-      ]
+      "methods": ["put"]
     },
     {
       "type": "http",

@@ -1,4 +1,4 @@
-swagger: '2.0'
+swagger: "2.0"
 info:
   version: 1.10.14
   title: IO API for messages sending functions
@@ -26,7 +26,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/NewRCConfigurationPublic'
+            $ref: "#/definitions/NewRCConfigurationPublic"
           x-examples:
             text/json: |
               "name": "Descriptive congiguration name",
@@ -56,10 +56,10 @@ paths:
                 }
               }
       responses:
-        '201':
+        "201":
           description: Configuration created
           schema:
-            $ref: '#/definitions/RCConfigurationPublic'
+            $ref: "#/definitions/RCConfigurationPublic"
           examples:
             text/json: |
               "configuration_id": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
@@ -89,14 +89,14 @@ paths:
                   "type": "API-KEY",
                 }
               }
-        '400':
+        "400":
           description: Bad request
           schema:
-            $ref: '#/definitions/ProblemJson'
-        '500':
+            $ref: "#/definitions/ProblemJson"
+        "500":
           description: There was an error creating the configuration.
           schema:
-            $ref: '#/definitions/ProblemJson'
+            $ref: "#/definitions/ProblemJson"
       consumes:
         - application/json
       produces:
@@ -106,10 +106,10 @@ paths:
       summary: Get all the owned remote-content configurations
       description: Get all the owned remote-content configurations
       responses:
-        '200':
+        "200":
           description: Return the configurations
           schema:
-            $ref: '#/definitions/RCConfigurationListResponse'
+            $ref: "#/definitions/RCConfigurationListResponse"
           examples:
             text/json: |
               rcConfigList: [
@@ -143,18 +143,18 @@ paths:
                   }
                 }
               ]
-        '400':
+        "400":
           description: Bad request
           schema:
-            $ref: '#/definitions/ProblemJson'
-        '403':
+            $ref: "#/definitions/ProblemJson"
+        "403":
           description: Request not authorized.
-        '404':
+        "404":
           description: Resource not found.
-        '500':
+        "500":
           description: There was an error trying to get the configurations.
           schema:
-            $ref: '#/definitions/ProblemJson'
+            $ref: "#/definitions/ProblemJson"
       consumes:
         - application/json
       produces:
@@ -173,12 +173,12 @@ paths:
           type: string
           description: Ulid string.
           format: Ulid
-          x-import: '@pagopa/ts-commons/lib/strings'
+          x-import: "@pagopa/ts-commons/lib/strings"
       responses:
-        '200':
+        "200":
           description: Return the configuration
           schema:
-            $ref: '#/definitions/RCConfigurationResponse'
+            $ref: "#/definitions/RCConfigurationResponse"
           examples:
             text/json: |
               "configuration_id": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
@@ -208,18 +208,18 @@ paths:
                   "type": "API-KEY",
                 }
               }
-        '400':
+        "400":
           description: Bad request
           schema:
-            $ref: '#/definitions/ProblemJson'
-        '403':
+            $ref: "#/definitions/ProblemJson"
+        "403":
           description: Request not authorized.
-        '404':
+        "404":
           description: Resource not found.
-        '500':
+        "500":
           description: There was an error trying to get the configuration.
           schema:
-            $ref: '#/definitions/ProblemJson'
+            $ref: "#/definitions/ProblemJson"
       consumes:
         - application/json
       produces:
@@ -235,7 +235,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/NewRCConfigurationPublic'
+            $ref: "#/definitions/NewRCConfigurationPublic"
           x-examples:
             text/json: |
               "name": "Descriptive congiguration name",
@@ -270,22 +270,22 @@ paths:
           type: string
           description: Ulid string.
           format: Ulid
-          x-import: '@pagopa/ts-commons/lib/strings'
+          x-import: "@pagopa/ts-commons/lib/strings"
       responses:
-        '204':
+        "204":
           description: Configuration updated
-        '400':
+        "400":
           description: Bad request
           schema:
-            $ref: '#/definitions/ProblemJson'
-        '403':
+            $ref: "#/definitions/ProblemJson"
+        "403":
           description: Request not authorized.
-        '404':
+        "404":
           description: Resource not found.
-        '500':
+        "500":
           description: There was an error updating the configuration.
           schema:
-            $ref: '#/definitions/ProblemJson'
+            $ref: "#/definitions/ProblemJson"
       consumes:
         - application/json
       produces:
@@ -295,12 +295,12 @@ definitions:
     type: string
     description: Ulid string.
     format: Ulid
-    x-import: '@pagopa/ts-commons/lib/strings'
+    x-import: "@pagopa/ts-commons/lib/strings"
     example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
   RCConfigurationPublic:
     allOf:
-      - $ref: '#/definitions/RCConfigurationBase'
-      - $ref: '#/definitions/RCConfigurationEnvironment'
+      - $ref: "#/definitions/RCConfigurationBase"
+      - $ref: "#/definitions/RCConfigurationEnvironment"
   NewRCConfigurationBase:
     type: object
     properties:
@@ -313,14 +313,14 @@ definitions:
         minLength: 1
         description: Configuration description.
       has_precondition:
-        $ref: '#/definitions/HasPrecondition'
+        $ref: "#/definitions/HasPrecondition"
       disable_lollipop_for:
         type: array
         items:
           type: string
           description: User's fiscal code.
           format: FiscalCode
-          x-import: '@pagopa/ts-commons/lib/strings'
+          x-import: "@pagopa/ts-commons/lib/strings"
           example: SPNDNL80R13C555X
       is_lollipop_enabled:
         type: boolean
@@ -333,18 +333,18 @@ definitions:
       - is_lollipop_enabled
   NewRCConfigurationPublic:
     allOf:
-      - $ref: '#/definitions/NewRCConfigurationBase'
-      - $ref: '#/definitions/RCConfigurationEnvironment'
+      - $ref: "#/definitions/NewRCConfigurationBase"
+      - $ref: "#/definitions/RCConfigurationEnvironment"
   RCConfigurationBase:
     allOf:
-      - $ref: '#/definitions/NewRCConfigurationBase'
+      - $ref: "#/definitions/NewRCConfigurationBase"
       - type: object
         properties:
           configuration_id:
             type: string
             description: Ulid string.
             format: Ulid
-            x-import: '@pagopa/ts-commons/lib/strings'
+            x-import: "@pagopa/ts-commons/lib/strings"
             example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
         required:
           - configuration_id
@@ -352,9 +352,9 @@ definitions:
     type: object
     properties:
       test_environment:
-        $ref: '#/definitions/RCConfigurationTestEnvironment'
+        $ref: "#/definitions/RCConfigurationTestEnvironment"
       prod_environment:
-        $ref: '#/definitions/RCConfigurationProdEnvironment'
+        $ref: "#/definitions/RCConfigurationProdEnvironment"
   RCConfigurationProdEnvironment:
     type: object
     properties:
@@ -363,7 +363,7 @@ definitions:
         minLength: 1
         description: Base url of the server.
       details_authentication:
-        $ref: '#/definitions/RCAuthenticationConfig'
+        $ref: "#/definitions/RCAuthenticationConfig"
     required:
       - base_url
       - details_authentication
@@ -388,13 +388,13 @@ definitions:
       - type
   RCConfigurationTestEnvironment:
     allOf:
-      - $ref: '#/definitions/RCConfigurationProdEnvironment'
+      - $ref: "#/definitions/RCConfigurationProdEnvironment"
       - type: object
         properties:
           test_users:
             type: array
             items:
-              $ref: '#/definitions/FiscalCode'
+              $ref: "#/definitions/FiscalCode"
         required:
           - test_users
   HasPrecondition:
@@ -409,10 +409,10 @@ definitions:
       rcConfigList:
         type: array
         items:
-          $ref: '#/definitions/RCConfigurationResponse'
+          $ref: "#/definitions/RCConfigurationResponse"
   RCConfigurationResponse:
     allOf:
-      - $ref: '#/definitions/RCConfigurationPublic'
+      - $ref: "#/definitions/RCConfigurationPublic"
       - type: object
         properties:
           user_id:
@@ -466,7 +466,7 @@ definitions:
     type: string
     description: User's fiscal code.
     format: FiscalCode
-    x-import: '@pagopa/ts-commons/lib/strings'
+    x-import: "@pagopa/ts-commons/lib/strings"
     example: SPNDNL80R13C555X
 securityDefinitions:
   SubscriptionKey:

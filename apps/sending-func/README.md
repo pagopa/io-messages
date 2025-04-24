@@ -6,7 +6,6 @@ This project implements the APIs to enable IO Platform consumers to interacts wi
 
 The project is structured as follows:
 
-
 ## Contributing
 
 ### Setup
@@ -71,7 +70,7 @@ appVersion: 1.0.0
 dependencies:
   - name: microservice-chart
     version: 1.20.0 # change me
-    repository: 'https://pagopa.github.io/aks-microservice-chart-blueprint'
+    repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
 ```
 
 ### step2) update helm dependency to set Chart.lock

@@ -6,9 +6,7 @@
       "direction": "in",
       "name": "req",
       "route": "v1/notify",
-      "methods": [
-        "post"
-      ]
+      "methods": ["post"]
     },
     {
       "type": "http",
