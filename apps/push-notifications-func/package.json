@@ -6,7 +6,6 @@
     "clean": "tsc --build --clean",
     "build": "shx rm -rf dist && yarn generate && tsc",
     "watch": "tsc -w",
-    "extensions:install": "func extensions install",
     "start": "dotenv -e .env func start --javascript",
     "predev": "npm-run-all build",
     "dev": "npm-run-all --parallel start watch",
