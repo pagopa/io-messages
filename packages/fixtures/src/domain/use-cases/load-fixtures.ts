@@ -1,6 +1,5 @@
-import { ContentLoader } from "@/adapters/blob/content-loader.js";
-import { MetadataLoader } from "@/adapters/cosmos/metadata-loader.js";
 import { Logger } from "pino";
+import { MessageGeneratorRepository, MessageRepository } from "../message.js";
 
 interface LoadFixturesOptions {
   includePayments: boolean;
@@ -8,48 +7,40 @@ interface LoadFixturesOptions {
 }
 
 export class LoadFixturesUseCase {
-  contentLoader: ContentLoader;
   logger: Logger;
-  metadataLoader: MetadataLoader;
+  messageLoader: MessageRepository;
+  messageGenerator: MessageGeneratorRepository;
 
   constructor(
-    metadataLoader: MetadataLoader,
-    contentLoader: ContentLoader,
+    messageGenerator: MessageGeneratorRepository,
+    messageLoader: MessageRepository,
     logger: Logger,
   ) {
-    this.metadataLoader = metadataLoader;
-    this.contentLoader = contentLoader;
+    this.messageLoader = messageLoader;
+    this.messageGenerator = messageGenerator;
     this.logger = logger;
   }
 
   async execute(count: number, opts: LoadFixturesOptions): Promise<void> {
-    this.logger.info(`Generating ${count} metadatas`);
-    const metadatas = this.metadataLoader.generateMany(count);
+    this.logger.info(`generating ${count} messages`);
+    const messages = this.messageGenerator.generate(count, opts);
+    this.logger.info(`fixtures generated`);
+
+    this.logger.info(`loading ${count} fixtures`);
+    const failed = (
+      await Promise.allSettled(
+        messages.map((message) => this.messageLoader.loadMessage(message)),
+      )
+    ).filter((result) => result.status === "rejected");
+
+    if (failed.length > 0) {
+      this.logger.error(
+        `something went wrong trying to load ${failed.length} fixtures`,
+      );
+    }
 
     this.logger.info(
-      `Generating ${count} contents including remote contents: ${opts.includeRemoteContents} and payments: ${opts.includePayments}`,
+      `total fixtures loaded successfully: ${count - failed.length}`,
     );
-    const contents = this.contentLoader.generateMany(count, {
-      includePayments: opts.includePayments,
-      includeRemoteContents: opts.includeRemoteContents,
-    });
-
-    const contentsWithIds = contents.map((content, i) => ({
-      ...content,
-      messageId: metadatas[i].id,
-    }));
-
-    metadatas.forEach((m) => this.logger.info(`Generated metadata: ${m.id}`));
-
-    try {
-      this.logger.info(`Loading ${count} metadatas`);
-      await this.metadataLoader.load(metadatas);
-
-      this.logger.info(`Loading ${count} contents`);
-      await this.contentLoader.load(contentsWithIds);
-      this.logger.info(`${count} fixtures loaded successfully`);
-    } catch (error) {
-      this.logger.error(`Something went wrong: ${error}`);
-    }
   }
 }

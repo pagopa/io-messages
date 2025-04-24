@@ -1,29 +1,11 @@
-import { ContentLoader } from "@/adapters/blob/content-loader.js";
-import { MetadataLoader } from "@/adapters/cosmos/metadata-loader.js";
 import { Logger } from "pino";
 import { describe, expect, test, vi } from "vitest";
 
 import { LoadFixturesUseCase } from "../load-fixtures.js";
-
-const generateManyMetadataMock = vi
-  .fn()
-  .mockReturnValue([{ id: "1" }, { id: "2" }]);
-const loadMetadataMock = vi.fn();
-
-const metadataLoader = {
-  generateMany: generateManyMetadataMock,
-  load: loadMetadataMock,
-} as unknown as MetadataLoader;
-
-const generateManyContentMock = vi
-  .fn()
-  .mockReturnValue([{ content: "content1" }, { content: "content2" }]);
-const loadContentMock = vi.fn();
-
-const contentLoader = {
-  generateMany: generateManyContentMock,
-  load: loadContentMock,
-} as unknown as ContentLoader;
+import {
+  MessageGeneratorRepository,
+  MessageRepository,
+} from "@/domain/message.js";
 
 const infoMock = vi.fn();
 const errorMock = vi.fn();
@@ -35,56 +17,67 @@ const logger = {
   log: logMock,
 } as unknown as Logger;
 
-const loadFixturesUseCase = new LoadFixturesUseCase(
-  metadataLoader,
-  contentLoader,
+const generateMock = vi.fn();
+
+const messageGenerator: MessageGeneratorRepository = {
+  generate: generateMock,
+};
+
+const loadMessageMock = vi.fn();
+const messageLoader: MessageRepository = {
+  loadMessage: loadMessageMock,
+};
+
+const useCase = new LoadFixturesUseCase(
+  messageGenerator,
+  messageLoader,
   logger,
 );
 
-describe("LoadFixturesUseCase.execute", () => {
-  test("should generate and load fixtures successfully", async () => {
-    const count = 2;
-    const opts = { includePayments: true, includeRemoteContents: true };
+describe("LoadFixturesUseCase", () => {
+  test("should log the number of generated messages", async () => {
+    generateMock.mockReturnValue([{ id: 1 }, { id: 2 }]);
+    loadMessageMock.mockResolvedValue(undefined);
 
-    await loadFixturesUseCase.execute(count, opts);
+    await useCase.execute(2, {
+      includePayments: false,
+      includeRemoteContents: false,
+    });
 
-    expect(infoMock).toHaveBeenCalledWith(`Generating ${count} metadatas`);
-    expect(generateManyMetadataMock).toHaveBeenCalledWith(count);
-    expect(infoMock).toHaveBeenCalledWith(
-      `Generating ${count} contents including remote contents: ${opts.includeRemoteContents} and payments: ${opts.includePayments}`,
-    );
-    expect(generateManyContentMock).toHaveBeenCalledWith(count, opts);
-    expect(infoMock).toHaveBeenCalledWith(`Loading ${count} metadatas`);
-    expect(loadMetadataMock).toHaveBeenCalledWith([{ id: "1" }, { id: "2" }]);
-    expect(infoMock).toHaveBeenCalledWith(`Loading ${count} contents`);
-    expect(loadContentMock).toHaveBeenCalledWith([
-      { content: "content1", messageId: "1" },
-      { content: "content2", messageId: "2" },
-    ]);
-    expect(infoMock).toHaveBeenCalledWith(
-      `${count} fixtures loaded successfully`,
+    expect(logger.info).toHaveBeenCalledWith("generating 2 messages");
+    expect(logger.info).toHaveBeenCalledWith("fixtures generated");
+  });
+
+  test("should log the number of successfully loaded fixtures", async () => {
+    generateMock.mockReturnValue([{ id: 1 }, { id: 2 }]);
+    loadMessageMock.mockResolvedValue(undefined);
+
+    await useCase.execute(2, {
+      includeRemoteContents: false,
+      includePayments: false,
+    });
+
+    expect(logger.info).toHaveBeenCalledWith(
+      "total fixtures loaded successfully: 2",
     );
   });
 
-  test("should log an error if something goes wrong loading metadatas", async () => {
-    const count = 2;
-    const opts = { includePayments: true, includeRemoteContents: true };
-    const error = new Error("Test error");
-    loadMetadataMock.mockRejectedValueOnce(error);
+  test("should log an error if some fixtures fail to load", async () => {
+    generateMock.mockReturnValue([{ id: 1 }, { id: 2 }]);
+    loadMessageMock
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error("Failed"));
 
-    await loadFixturesUseCase.execute(count, opts);
+    await useCase.execute(2, {
+      includePayments: false,
+      includeRemoteContents: false,
+    });
 
-    expect(logger.error).toHaveBeenCalledWith(`Something went wrong: ${error}`);
-  });
-
-  test("should log an error if something goes wrong loading content", async () => {
-    const count = 2;
-    const opts = { includePayments: true, includeRemoteContents: true };
-    const error = new Error("Test error");
-    loadContentMock.mockRejectedValueOnce(error);
-
-    await loadFixturesUseCase.execute(count, opts);
-
-    expect(logger.error).toHaveBeenCalledWith(`Something went wrong: ${error}`);
+    expect(logger.error).toHaveBeenCalledWith(
+      "something went wrong trying to load 1 fixtures",
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      "total fixtures loaded successfully: 1",
+    );
   });
 });

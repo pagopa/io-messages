@@ -3,16 +3,16 @@ import { TableServiceClient } from "@azure/data-tables";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { pino } from "pino";
 
-import { BlobContentLoader } from "./adapters/blob/content-loader.js";
 import { LoadFixturesOptions } from "./adapters/config.js";
-import { CosmosMetadataLoader } from "./adapters/cosmos/metadata-loader.js";
 import { LoadFixturesUseCase } from "./domain/use-cases/load-fixtures.js";
+import { MessageGeneratorRepositoryAdapter } from "./adapters/message-generator.js";
+import { MessageRepositoryAdapter } from "./adapters/message.js";
 
 export const loadFixtures = async (
   count: number,
   options: LoadFixturesOptions,
 ) => {
-  const messageContainerClient = new CosmosClient({
+  const metadataContainerClient = new CosmosClient({
     aadCredentials: options.aadCredentials,
     endpoint: options.cosmosEndpoint,
   })
@@ -38,12 +38,12 @@ export const loadFixtures = async (
     options.storageMessageContentContainerName,
   );
 
-  const metadataLoader = new CosmosMetadataLoader(messageContainerClient);
-  const contentLoader = new BlobContentLoader(contentContainerClient);
-
   const loadFixturesUseCase = new LoadFixturesUseCase(
-    metadataLoader,
-    contentLoader,
+    new MessageGeneratorRepositoryAdapter(),
+    new MessageRepositoryAdapter(
+      metadataContainerClient,
+      contentContainerClient,
+    ),
     pino(),
   );
 
