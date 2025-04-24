@@ -1,13 +1,16 @@
 {
-  "cosmos.io_com_cosmos_account": "6d42e6626d778d7096293964198b8cfd54032168f931b060930af1358f1c5504",
-  "eventhubs.etl": "9ba622aa606225513d2151f02e9ab8abe83605444dcb6dcfc572030088ad307a",
-  "functions_messages_sending.function_app_messages_sending": "4c795dfe6da7624ff63814869dd8bd5bf00b129d9b593f40600f562b961ab8e2",
-  "web_apps.etl_func": "4c795dfe6da7624ff63814869dd8bd5bf00b129d9b593f40600f562b961ab8e2",
-  "web_apps.citizen_func": "4c795dfe6da7624ff63814869dd8bd5bf00b129d9b593f40600f562b961ab8e2",
-  "storage_api_weu.com_st": "c073e41130034acebff0c22a7cffc22a1533ef46b64752789d472116abc21eee",
-  "storage_api_weu.com_st.naming_convention": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4",
-  "web_apps.citizen_func_autoscaler": "ec7ad56d62077d5136358c412c436b321a0706b03834b4023f0499701d0e3a9d",
-  "web_apps.etl_func_autoscaler": "ec7ad56d62077d5136358c412c436b321a0706b03834b4023f0499701d0e3a9d",
-  "container_apps.com_cae": "2a9399784d8f603bc9a43ad5334308832b7bae3c57280fb0ae418aaa3a70c5a0",
-  "container_apps.reminder_ca_itn_01": "f3df237af495ed6408eea7bef3ebb446f0a18698a2cf1cf554b47f3530c4c67f"
+  "container_apps.com_cae": "75684f8b03414a97f563f0362599a5884972e342fc37e787e574b10ace0e13c3",
+  "container_apps.reminder_ca_itn_01": "e3c9eab165ef2fd7747352c632d82e50c08fd65136c5bb0c1f597d5b65b8e416",
+  "cosmos.io_com_cosmos_account": "72f41c5184cb8695e6eddd984f2ae08738d8635846afb974d507ac41a3983864",
+  "eventhubs.etl": "d991aeb48a7114caa6bcea13f84473178f86ad9dedf4b976db07718e6a89cc63",
+  "functions_messages_sending.function_app_messages_sending": "83c22598e95c022813d067c8d6dd0fdc6fb038c76186e470d74bbc2a5f33f1cb",
+  "storage_api_weu.com_st": "6b2dd9cb63d7d4fe897b45441718f93ba8db7e804cace6ed0b5c31aabc516683",
+  "storage_api_weu.com_st.naming_convention": "25b80e6211e0e6fd6760ccceefd611316b805644863fbfd7c29b4af4cd23355e",
+  "web_apps.citizen_func": "83c22598e95c022813d067c8d6dd0fdc6fb038c76186e470d74bbc2a5f33f1cb",
+  "web_apps.citizen_func_autoscaler": "d015b2f40b398aa172c477317de22d02e72788ab0d6f35ec8137d06d9013d912",
+  "web_apps.etl_func": "83c22598e95c022813d067c8d6dd0fdc6fb038c76186e470d74bbc2a5f33f1cb",
+  "web_apps.etl_func_autoscaler": "d015b2f40b398aa172c477317de22d02e72788ab0d6f35ec8137d06d9013d912",
+  "web_apps.ops_func": "83c22598e95c022813d067c8d6dd0fdc6fb038c76186e470d74bbc2a5f33f1cb",
+  "web_apps.push_notif_function": "414ec6a81ead386eea11d8d4a9af0fdacd498cf58b445205d7f4254491c06cf7",
+  "web_apps.push_notif_function.naming_convention": "25b80e6211e0e6fd6760ccceefd611316b805644863fbfd7c29b4af4cd23355e"
 }

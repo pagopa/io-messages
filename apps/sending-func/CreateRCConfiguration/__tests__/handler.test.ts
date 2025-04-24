@@ -1,5 +1,9 @@
+import { RCConfiguration } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
+import { ulidGeneratorAsUlid } from "@pagopa/io-functions-commons/dist/src/utils/strings";
+import { Ulid } from "@pagopa/ts-commons/lib/strings";
 import * as E from "fp-ts/lib/Either";
 import * as TE from "fp-ts/lib/TaskEither";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import {
   aManageSubscriptionId,
@@ -12,13 +16,8 @@ import {
   someUserGroups,
   someUserGroupsWithTheAllowedOne,
 } from "../../__mocks__/remote-content";
-import { ulidGeneratorAsUlid } from "@pagopa/io-functions-commons/dist/src/utils/strings";
-import { createRCConfigurationHandler } from "../handler";
-import { RCConfiguration } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
-import { Ulid } from "@pagopa/ts-commons/lib/strings";
 import { makeNewRCConfigurationWithConfigurationId } from "../../utils/mappers";
-
-import { describe, test, expect, beforeEach, vi } from "vitest";
+import { createRCConfigurationHandler } from "../handler";
 
 describe("makeNewRCConfigurationWithConfigurationId", () => {
   test("should return a valid RCConfiguration", () => {
@@ -43,8 +42,8 @@ describe("createRCConfigurationHandler", () => {
   test("should return 500 if the model return an error", async () => {
     createNewConfigurationMock.mockReturnValueOnce(TE.left({}));
     const r = await createRCConfigurationHandler({
-      rccModel: rccModelMock,
       generateConfigurationId: ulidGeneratorAsUlid,
+      rccModel: rccModelMock,
     })({
       newRCConfiguration: {
         ...aPublicRemoteContentConfiguration,
@@ -65,8 +64,8 @@ describe("createRCConfigurationHandler", () => {
       TE.right(aRemoteContentConfiguration),
     );
     const r = await createRCConfigurationHandler({
-      rccModel: rccModelMock,
       generateConfigurationId: ulidGeneratorAsUlid,
+      rccModel: rccModelMock,
     })({
       newRCConfiguration: aPublicRemoteContentConfiguration,
       subscriptionId: aManageSubscriptionId,
@@ -84,8 +83,8 @@ describe("createRCConfigurationHandler", () => {
   test("should return 403 if group is not allowed", async () => {
     createNewConfigurationMock.mockReturnValueOnce(TE.left({}));
     const r = await createRCConfigurationHandler({
-      rccModel: rccModelMock,
       generateConfigurationId: ulidGeneratorAsUlid,
+      rccModel: rccModelMock,
     })({
       newRCConfiguration: aPublicRemoteContentConfiguration,
       subscriptionId: aManageSubscriptionId,
@@ -100,8 +99,8 @@ describe("createRCConfigurationHandler", () => {
   test("should return 403 if subscription is not manage", async () => {
     createNewConfigurationMock.mockReturnValueOnce(TE.left({}));
     const r = await createRCConfigurationHandler({
-      rccModel: rccModelMock,
       generateConfigurationId: ulidGeneratorAsUlid,
+      rccModel: rccModelMock,
     })({
       newRCConfiguration: aPublicRemoteContentConfiguration,
       subscriptionId: aSubscriptionId,

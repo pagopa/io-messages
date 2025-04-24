@@ -1,14 +1,17 @@
-import * as e from "express";
-import { TelemetryClient } from "applicationinsights";
+/* eslint-disable vitest/prefer-called-with, no-useless-escape */
 
-import * as TE from "fp-ts/TaskEither";
-import * as E from "fp-ts/Either";
-
+import { Context } from "@azure/functions";
+import { PushNotificationsContentTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/PushNotificationsContentType";
+import { ReminderStatusEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/ReminderStatus";
+import { UserGroup } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_api_auth";
+import context_middleware from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
+import { ResponseErrorInternal } from "@pagopa/ts-commons/lib/responses";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-
-import { NotificationInfo } from "../../generated/definitions/NotificationInfo";
-import { NotificationTypeEnum } from "../../generated/definitions/NotificationType";
-import { Notify, NotifyHandler } from "../handler";
+import { TelemetryClient } from "applicationinsights";
+import * as e from "express";
+import * as E from "fp-ts/Either";
+import * as TE from "fp-ts/TaskEither";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mockReq, mockRes } from "../../__mocks__/express-types";
 import {
@@ -17,32 +20,28 @@ import {
   aRetrievedProfile,
   aRetrievedService,
 } from "../../__mocks__/models.mock";
-import { ResponseErrorInternal } from "@pagopa/ts-commons/lib/responses";
+import { NotificationInfo } from "../../generated/definitions/NotificationInfo";
+import { NotificationTypeEnum } from "../../generated/definitions/NotificationType";
+import { toHash } from "../../utils/crypto";
+import { Notify, NotifyHandler } from "../handler";
+import { SendNotification } from "../notification";
 import {
   MessageWithContentReader,
   ServiceReader,
   SessionStatusReader,
   UserProfileReader,
 } from "../readers";
-import { SendNotification } from "../notification";
-import { UserGroup } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_api_auth";
-import { Context } from "@azure/functions";
-import { toHash } from "../../utils/crypto";
-import { ReminderStatusEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/ReminderStatus";
-import { PushNotificationsContentTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/PushNotificationsContentType";
-
-import { it, describe, expect, vi, beforeEach } from "vitest";
 
 const aValidMessageNotifyPayload: NotificationInfo = {
-  notification_type: NotificationTypeEnum.MESSAGE,
-  message_id: "aMessageId" as NonEmptyString,
   fiscal_code: aFiscalCode,
+  message_id: "aMessageId" as NonEmptyString,
+  notification_type: NotificationTypeEnum.MESSAGE,
 };
 
 const aValidReadReminderNotifyPayload: NotificationInfo = {
-  notification_type: NotificationTypeEnum.REMINDER_READ,
-  message_id: "aMessageId" as NonEmptyString,
   fiscal_code: aFiscalCode,
+  message_id: "aMessageId" as NonEmptyString,
+  notification_type: NotificationTypeEnum.REMINDER_READ,
 };
 
 const aMockedRequestWithRightParams = {
@@ -57,11 +56,11 @@ const aMockedRequestWithRightParams = {
 // -------------------------------------
 
 const userSessionReaderMock = vi.fn(
-  (fiscalCode) => TE.of({ active: true }) as ReturnType<SessionStatusReader>,
+  () => TE.of({ active: true }) as ReturnType<SessionStatusReader>,
 );
 
 const messageReaderMock = vi.fn(
-  (fiscalCode, messageId) =>
+  (_, messageId) =>
     TE.of({
       ...aRetrievedMessageWithContent,
       id: messageId,
@@ -69,11 +68,11 @@ const messageReaderMock = vi.fn(
 );
 
 const serviceReaderMock = vi.fn(
-  (_) => TE.of(aRetrievedService) as ReturnType<ServiceReader>,
+  () => TE.of(aRetrievedService) as ReturnType<ServiceReader>,
 );
 
 const userProfileReaderMock = vi.fn(
-  (_) =>
+  () =>
     TE.of({
       ...aRetrievedProfile,
       reminderStatus: ReminderStatusEnum.ENABLED,
@@ -81,24 +80,21 @@ const userProfileReaderMock = vi.fn(
 );
 
 const sendNotificationMock = vi.fn(
-  (_) => TE.of(void 0) as ReturnType<SendNotification>,
+  () => TE.of(void 0) as ReturnType<SendNotification>,
 );
 
 const mockContext = {} as Context;
 const mockContextMiddleware = vi.fn(async () => E.of(mockContext));
 
-const context_middleware = require("@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware");
 vi.spyOn(context_middleware, "ContextMiddleware").mockReturnValue(
   mockContextMiddleware,
 );
 
 const logger = {
-  info: vi.fn(),
   error: vi.fn(),
+  info: vi.fn(),
+  trackEvent: vi.fn(() => void 0),
   warning: vi.fn(),
-  trackEvent: vi.fn((e) => {
-    return void 0;
-  }),
 };
 
 const getHandler = () =>
@@ -132,16 +128,16 @@ describe("Notify Middlewares", () => {
     const res = mockRes();
     await notifyhandler(
       aRequestWithInvalidPayload,
-      res as any as e.Response,
+      res as unknown as e.Response,
       {} as e.NextFunction,
     );
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
+        detail: `value [undefined] at [root.0.notification_type] is not a valid [NotificationType]\nvalue [undefined] at [root.0.fiscal_code] is not a valid [string that matches the pattern \"^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$\"]\nvalue [undefined] at [root.0.message_id] is not a valid [non empty string]`,
         status: 400,
         title: "Invalid NotificationInfo",
-        detail: `value [undefined] at [root.0.notification_type] is not a valid [NotificationType]\nvalue [undefined] at [root.0.fiscal_code] is not a valid [string that matches the pattern \"^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$\"]\nvalue [undefined] at [root.0.message_id] is not a valid [non empty string]`,
       }),
     );
   });
@@ -164,16 +160,16 @@ describe("Notify Middlewares", () => {
     const res = mockRes();
     await notifyhandler(
       aRequestWithInvalidPayload,
-      res as any as e.Response,
+      res as unknown as e.Response,
       {} as e.NextFunction,
     );
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
+        detail: `value [\"\"] at [root.0.message_id] is not a valid [non empty string]`,
         status: 400,
         title: "Invalid NotificationInfo",
-        detail: `value [\"\"] at [root.0.message_id] is not a valid [non empty string]`,
       }),
     );
   });
@@ -220,22 +216,23 @@ describe("Notify Middlewares", () => {
       const res = mockRes();
       await notifyhandler(
         aRequestWithNotAllowedPayload,
-        res as any as e.Response,
+        res as unknown as e.Response,
         {} as e.NextFunction,
       );
 
       expect(res.status).toHaveBeenCalledWith(403);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
+          detail: `No valid scopes, you are not allowed to send such payloads. Ask the administrator to give you the required permissions.`,
           status: 403,
           title: "You are not allowed here",
-          detail: `No valid scopes, you are not allowed to send such payloads. Ask the administrator to give you the required permissions.`,
         }),
       );
     },
   );
 });
 
+/* eslint-disable max-lines-per-function */
 describe("Notify |> Reminder |> Success", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -262,15 +259,15 @@ describe("Notify |> Reminder |> Success", () => {
           ) as NonEmptyString,
           messageId: aValidReadReminderNotifyPayload.message_id,
           notificationType: aValidReadReminderNotifyPayload.notification_type,
-          verbose: true,
           userSessionRetrieved: true,
+          verbose: true,
         },
       }),
     );
   });
 
   it("should return Success if a Read Reminder is sent to allowed fiscal code with silent notification", async () => {
-    userSessionReaderMock.mockImplementationOnce((_) =>
+    userSessionReaderMock.mockImplementationOnce(() =>
       TE.of({ active: false }),
     );
 
@@ -294,15 +291,15 @@ describe("Notify |> Reminder |> Success", () => {
           ) as NonEmptyString,
           messageId: aValidReadReminderNotifyPayload.message_id,
           notificationType: aValidReadReminderNotifyPayload.notification_type,
-          verbose: false,
           userSessionRetrieved: true,
+          verbose: false,
         },
       }),
     );
   });
 
   it("should return Success if a Read Reminder is sent to allowed fiscal code with silent notification when service is privacy critical", async () => {
-    serviceReaderMock.mockImplementationOnce((_) =>
+    serviceReaderMock.mockImplementationOnce(() =>
       TE.of({ ...aRetrievedService, requireSecureChannels: true }),
     );
 
@@ -326,8 +323,8 @@ describe("Notify |> Reminder |> Success", () => {
           ) as NonEmptyString,
           messageId: aValidReadReminderNotifyPayload.message_id,
           notificationType: aValidReadReminderNotifyPayload.notification_type,
-          verbose: false,
           userSessionRetrieved: true,
+          verbose: false,
         },
       }),
     );
@@ -358,15 +355,15 @@ describe("Notify |> Reminder |> Success", () => {
           ) as NonEmptyString,
           messageId: aValidReadReminderNotifyPayload.message_id,
           notificationType: NotificationTypeEnum.REMINDER_PAYMENT,
-          verbose: true,
           userSessionRetrieved: true,
+          verbose: true,
         },
       }),
     );
   });
 
   it("should return Success if user session cannot be retrieved, sending a silent notification", async () => {
-    userSessionReaderMock.mockImplementationOnce((_) =>
+    userSessionReaderMock.mockImplementationOnce(() =>
       TE.left(ResponseErrorInternal("an Error")),
     );
 
@@ -391,16 +388,17 @@ describe("Notify |> Reminder |> Success", () => {
           ) as NonEmptyString,
           messageId: aValidReadReminderNotifyPayload.message_id,
           notificationType: aValidReadReminderNotifyPayload.notification_type,
-          verbose: false,
           userSessionRetrieved: false,
+          verbose: false,
         },
       }),
     );
   });
 
   it("should return Success if user did not choose push notification verbosity level, sending a silent notification", async () => {
-    userProfileReaderMock.mockImplementationOnce((_) => {
-      const { pushNotificationsContentType, ...oldProfile } = aRetrievedProfile;
+    userProfileReaderMock.mockImplementationOnce(() => {
+      const oldProfile = aRetrievedProfile;
+      delete oldProfile.pushNotificationsContentType;
       return TE.of({
         ...oldProfile,
         reminderStatus: ReminderStatusEnum.ENABLED,
@@ -411,7 +409,6 @@ describe("Notify |> Reminder |> Success", () => {
 
     const res = await notifyhandler(logger, aValidReadReminderNotifyPayload);
 
-    console.log(res);
     expect(res).toMatchObject({ kind: "IResponseSuccessNoContent" });
 
     expect(sendNotificationMock).toHaveBeenCalledWith(
@@ -429,28 +426,27 @@ describe("Notify |> Reminder |> Success", () => {
           ) as NonEmptyString,
           messageId: aValidReadReminderNotifyPayload.message_id,
           notificationType: aValidReadReminderNotifyPayload.notification_type,
-          verbose: false,
           userSessionRetrieved: true,
+          verbose: false,
         },
       }),
     );
   });
 
   it("should return Success if user choosed to receve anonymous push notification, sending a silent notification", async () => {
-    userProfileReaderMock.mockImplementationOnce((_) => {
-      return TE.of({
+    userProfileReaderMock.mockImplementationOnce(() =>
+      TE.of({
         ...aRetrievedProfile,
         pushNotificationsContentType:
           PushNotificationsContentTypeEnum.ANONYMOUS,
         reminderStatus: ReminderStatusEnum.ENABLED,
-      });
-    });
+      }),
+    );
 
     const notifyhandler = getHandler();
 
     const res = await notifyhandler(logger, aValidReadReminderNotifyPayload);
 
-    console.log(res);
     expect(res).toMatchObject({ kind: "IResponseSuccessNoContent" });
 
     expect(sendNotificationMock).toHaveBeenCalledWith(
@@ -468,8 +464,8 @@ describe("Notify |> Reminder |> Success", () => {
           ) as NonEmptyString,
           messageId: aValidReadReminderNotifyPayload.message_id,
           notificationType: aValidReadReminderNotifyPayload.notification_type,
-          verbose: false,
           userSessionRetrieved: true,
+          verbose: false,
         },
       }),
     );
@@ -508,16 +504,15 @@ describe("Notify |> Reminder |> Success", () => {
         serviceReaderMock,
         sendNotificationMock,
         {
-          trackEvent: (_) => {
-            return void 0;
-          },
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          trackEvent: (_) => void 0,
         } as TelemetryClient,
       );
 
       const res = mockRes();
       await notifyhandler(
         aRequestWithNotAllowedPayload,
-        res as any as e.Response,
+        res as unknown as e.Response,
         {} as e.NextFunction,
       );
 
@@ -525,6 +520,7 @@ describe("Notify |> Reminder |> Success", () => {
     },
   );
 });
+/* eslint-enable max-lines-per-function */
 
 describe("Notify |> Reminder |> Errors", () => {
   beforeEach(() => {
@@ -540,15 +536,15 @@ describe("Notify |> Reminder |> Errors", () => {
     });
 
     expect(res).toMatchObject({
-      kind: "IResponseErrorForbiddenNotAuthorized",
       detail:
         "You are not allowed here: You're not allowed to send the notification",
+      kind: "IResponseErrorForbiddenNotAuthorized",
     });
     expect(sendNotificationMock).not.toHaveBeenCalled();
   });
 
   it("should return NotAuthorized if user has not enabled reminder notification", async () => {
-    userProfileReaderMock.mockImplementationOnce((_) =>
+    userProfileReaderMock.mockImplementationOnce(() =>
       TE.of(aRetrievedProfile),
     );
 
@@ -557,16 +553,16 @@ describe("Notify |> Reminder |> Errors", () => {
     const res = await notifyhandler(logger, aValidReadReminderNotifyPayload);
 
     expect(res).toMatchObject({
-      kind: "IResponseErrorForbiddenNotAuthorized",
       detail:
         "You are not allowed here: You're not allowed to send the notification",
+      kind: "IResponseErrorForbiddenNotAuthorized",
     });
     expect(userProfileReaderMock).toHaveBeenCalled();
     expect(sendNotificationMock).not.toHaveBeenCalled();
   });
 
   it("should return InternalError if user's profile cannot be retrieved", async () => {
-    userProfileReaderMock.mockImplementationOnce((_) =>
+    userProfileReaderMock.mockImplementationOnce(() =>
       TE.left(ResponseErrorInternal("an Error")),
     );
 
@@ -575,15 +571,15 @@ describe("Notify |> Reminder |> Errors", () => {
     const res = await notifyhandler(logger, aValidReadReminderNotifyPayload);
 
     expect(res).toMatchObject({
-      kind: "IResponseErrorInternal",
       detail: "Internal server error: Error checking user preferences",
+      kind: "IResponseErrorInternal",
     });
     expect(userProfileReaderMock).toHaveBeenCalled();
     expect(sendNotificationMock).not.toHaveBeenCalled();
   });
 
   it("should return InternalError if message cannot be retrieved", async () => {
-    messageReaderMock.mockImplementationOnce((_) =>
+    messageReaderMock.mockImplementationOnce(() =>
       TE.left(ResponseErrorInternal("an Error")),
     );
 
@@ -592,14 +588,14 @@ describe("Notify |> Reminder |> Errors", () => {
     const res = await notifyhandler(logger, aValidReadReminderNotifyPayload);
 
     expect(res).toMatchObject({
-      kind: "IResponseErrorInternal",
       detail: "Internal server error: an Error",
+      kind: "IResponseErrorInternal",
     });
     expect(sendNotificationMock).not.toHaveBeenCalled();
   });
 
   it("should return InternalError if service cannot be retrieved", async () => {
-    serviceReaderMock.mockImplementationOnce((_) =>
+    serviceReaderMock.mockImplementationOnce(() =>
       TE.left(ResponseErrorInternal("an Error")),
     );
 
@@ -608,14 +604,14 @@ describe("Notify |> Reminder |> Errors", () => {
     const res = await notifyhandler(logger, aValidReadReminderNotifyPayload);
 
     expect(res).toMatchObject({
-      kind: "IResponseErrorInternal",
       detail: "Internal server error: an Error",
+      kind: "IResponseErrorInternal",
     });
     expect(sendNotificationMock).not.toHaveBeenCalled();
   });
 
   it("should return InternalError if sendNotification fails", async () => {
-    sendNotificationMock.mockImplementationOnce((_) =>
+    sendNotificationMock.mockImplementationOnce(() =>
       TE.left(Error("a Queue Error")),
     );
 
@@ -624,9 +620,9 @@ describe("Notify |> Reminder |> Errors", () => {
     const res = await notifyhandler(logger, aValidReadReminderNotifyPayload);
 
     expect(res).toMatchObject({
-      kind: "IResponseErrorInternal",
       detail:
         "Internal server error: Error while sending notification to queue",
+      kind: "IResponseErrorInternal",
     });
   });
 });

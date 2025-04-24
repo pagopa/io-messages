@@ -67,6 +67,10 @@ data "azurerm_resource_group" "common_weu" {
   name = local.common.weu_resource_group_name
 }
 
+data "azurerm_resource_group" "com_itn_01" {
+  name = "io-p-itn-com-rg-01"
+}
+
 data "azurerm_resource_group" "dashboards" {
   name = "dashboards"
 }
@@ -90,6 +94,10 @@ module "repo" {
     domain          = local.domain
     instance_number = local.instance_number
   }
+
+  additional_resource_group_ids = [
+    data.azurerm_resource_group.com_itn_01.id
+  ]
 
   subscription_id = data.azurerm_subscription.current.id
   tenant_id       = data.azurerm_client_config.current.tenant_id

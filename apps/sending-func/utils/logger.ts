@@ -1,8 +1,8 @@
+import { Context } from "@azure/functions";
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { TelemetryClient } from "applicationinsights";
 import * as t from "io-ts";
 
-import { Context } from "@azure/functions";
-import { TelemetryClient } from "applicationinsights";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { NotificationType } from "../generated/definitions/NotificationType";
 
 export const NotificationInfoEvent = t.type({
@@ -12,12 +12,12 @@ export const NotificationInfoEvent = t.type({
       hashedFiscalCode: NonEmptyString,
       messageId: NonEmptyString,
       notificationType: NotificationType,
-      verbose: t.boolean
+      verbose: t.boolean,
     }),
     t.partial({
-      switchedToAnonymous: t.boolean
-    })
-  ])
+      switchedToAnonymous: t.boolean,
+    }),
+  ]),
 });
 
 export const BusinessEvent = NotificationInfoEvent;
@@ -31,12 +31,6 @@ export interface ILogger {
    */
   readonly error: (s: string) => void;
   /**
-   * Logs a warning string
-   *
-   * @param s an info string
-   */
-  readonly warning: (s: string) => void;
-  /**
    * Logs an info string
    *
    * @param s an info string
@@ -48,6 +42,12 @@ export interface ILogger {
    * @param s an info string
    */
   readonly trackEvent: (e: BusinessEvent) => void;
+  /**
+   * Logs a warning string
+   *
+   * @param s an info string
+   */
+  readonly warning: (s: string) => void;
 }
 
 /**
@@ -59,7 +59,7 @@ export interface ILogger {
 export const createLogger = (
   context: Context,
   telemetryClient: TelemetryClient,
-  logPrefix: string
+  logPrefix: string,
 ): ILogger => ({
   error: (s: string): void => {
     context.log.error(`${logPrefix}|${s}`);
@@ -71,10 +71,10 @@ export const createLogger = (
     telemetryClient.trackEvent({
       name: e.name,
       properties: e.properties,
-      tagOverrides: { samplingEnabled: "false" }
+      tagOverrides: { samplingEnabled: "false" },
     });
   },
   warning: (s: string): void => {
     context.log.warn(`${logPrefix}|${s}`);
-  }
+  },
 });

@@ -1,7 +1,7 @@
 {
   "name": "io-messages",
   "type": "module",
-  "packageManager": "yarn@4.6.0+sha256.eaf1eeabc164a44ca0b65dbdccd54af7e55f3ff9294b3ff318d5aaec92f2b20b",
+  "packageManager": "yarn@4.9.1+sha512.f95ce356460e05be48d66401c1ae64ef84d163dd689964962c6888a9810865e39097a5e9de748876c2e0bf89b232d583c33982773e9903ae7a76257270986538",
   "license": "UNLICENSED",
   "private": true,
   "workspaces": [
@@ -18,13 +18,13 @@
     "release": "changeset tag"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.11",
+    "@changesets/cli": "^2.29.2",
     "@devcontainers/cli": "^0.75.0",
-    "@vitest/coverage-v8": "^2.1.8",
-    "@yarnpkg/types": "^4.0.0",
+    "@vitest/coverage-v8": "^3.1.2",
+    "@yarnpkg/types": "^4.0.1",
     "prettier": "3.2.5",
-    "turbo": "2.4.1",
-    "typescript": "5.4.3",
-    "vitest": "^2.1.8"
+    "turbo": "2.5.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
   }
 }

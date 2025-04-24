@@ -1,0 +1,59 @@
+{
+  "name": "push-notifications-func",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "clean": "tsc --build --clean",
+    "build": "shx rm -rf dist && yarn generate && tsc",
+    "watch": "tsc -w",
+    "start": "dotenv -e .env func start --javascript",
+    "predev": "npm-run-all build",
+    "dev": "npm-run-all --parallel start watch",
+    "test": "vitest run --hook-timeout=0",
+    "test:coverage": "vitest run --coverage",
+    "generate": "shx rm -rf generated && yarn generate:backend-notification-hub",
+    "generate:backend-notification-hub": "shx rm -rf generated/notifications && shx mkdir -p generated/notifications && gen-api-models --strict 0 --api-spec https://raw.githubusercontent.com/pagopa/io-backend/v7.15.5/notification_queue_messages.yaml --out-dir generated/notifications",
+    "dist:modules": "modclean -r -n default:safe && yarn install --production",
+    "predeploy": "npm-run-all build dist:*",
+    "lint": "eslint --fix .",
+    "lint:check": "eslint ."
+  },
+  "dependencies": {
+    "@azure/notification-hubs": "^1.2.3",
+    "@azure/service-bus": "^7.9.4",
+    "@pagopa/express-azure-functions": "^2.0.0",
+    "@pagopa/io-functions-commons": "^28.0.0",
+    "@pagopa/ts-commons": "^11.0.0",
+    "applicationinsights": "^1.8.10",
+    "azure-storage": "^2.10.3",
+    "durable-functions": "^1.4.4",
+    "express": "^4.15.3",
+    "fp-ts": "^2.10.5",
+    "io-ts": "^2.2.16",
+    "node-fetch": "^2.6.1",
+    "winston": "^3.2.1"
+  },
+  "dependenciesMeta": {
+    "express-azure-functions": {
+      "built": false
+    }
+  },
+  "devDependencies": {
+    "@azure/functions": "^3.2.0",
+    "@pagopa/eslint-config": "^4.0.3",
+    "@pagopa/openapi-codegen-ts": "^10.0.5",
+    "@types/express": "^4.17.9",
+    "@types/node": "^20.17.30",
+    "@types/node-fetch": "^2.5.7",
+    "@types/vfile-message": "^2.0.0",
+    "@vitest/coverage-v8": "^3.1.2",
+    "eslint": "8.57.1",
+    "modclean": "^3.0.0-beta.1",
+    "npm-run-all": "^4.1.5",
+    "oval": "^1.0.0",
+    "prettier": "^1.18.2",
+    "shx": "^0.3.2",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
+  }
+}
