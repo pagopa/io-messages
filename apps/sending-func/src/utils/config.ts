@@ -4,40 +4,13 @@
  * Single point of access for the application confguration. Handles validation on required environment variables.
  * The configuration is evaluate eagerly at the first access to the module. The module exposes convenient methods to access such value.
  */
-
-import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
-import {
-  IntegerFromString,
-  NonNegativeInteger,
-  NonNegativeIntegerFromString,
-} from "@pagopa/ts-commons/lib/numbers";
+import { NonNegativeIntegerFromString } from "@pagopa/ts-commons/lib/numbers";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { withDefault } from "@pagopa/ts-commons/lib/types";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
-
-import { CommaSeparatedListOf } from "./types";
-
-// exclude a specific value from a type
-// as strict equality is performed, allowed input types are constrained to be values not references (object, arrays, etc)
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const AnyBut = <A extends boolean | number | string | symbol, Out = A>(
-  but: A,
-  base: t.Type<A, Out> = t.any,
-) =>
-  t.brand(
-    base,
-    (
-      s,
-    ): s is t.Branded<
-      t.TypeOf<typeof base>,
-      { readonly AnyBut: unique symbol }
-    > => s !== but,
-    "AnyBut",
-  );
 
 export const RedisParams = t.intersection([
   t.interface({
@@ -52,16 +25,52 @@ export const RedisParams = t.intersection([
 ]);
 export type RedisParams = t.TypeOf<typeof RedisParams>;
 
-export const FeatureFlagType = t.union([
-  t.literal("none"),
-  t.literal("beta"),
-  t.literal("canary"),
-  t.literal("prod"),
+/**
+ * Configuration parameters for Cosmos DB.
+ *
+ * This configuration is a combination of:
+ * 1. Required parameters for all environments (COSMOSDB_NAME, COSMOSDB_URI)
+ * 2. Environment-specific parameters:
+ *    - For production environment: only NODE_ENV = "production" is required (we use managed identity)
+ *    - For development environment: NODE_ENV = "development" plus COSMOSDB_KEY are required
+ *
+ * @example
+ * // Production configuration
+ * {
+ *   COSMOSDB_NAME: "mydb",
+ *   COSMOSDB_URI: "https://mydb.documents.azure.com:443/",
+ *   NODE_ENV: "production"
+ * }
+ *
+ * @example
+ * // Development configuration
+ * {
+ *   COSMOSDB_NAME: "mydb",
+ *   COSMOSDB_URI: "https://mydb.documents.azure.com:443/",
+ *   NODE_ENV: "development",
+ *   COSMOSDB_KEY: "your-cosmos-db-key"
+ * }
+ */
+export const CosmosDbParams = t.intersection([
+  t.type({
+    COSMOSDB_NAME: NonEmptyString,
+    COSMOSDB_URI: NonEmptyString,
+    REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
+    REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
+  }),
+  t.union([
+    t.type({
+      NODE_ENV: t.literal("production"),
+    }),
+    t.type({
+      NODE_ENV: t.literal("development"),
+      COSMOSDB_KEY: NonEmptyString,
+      REMOTE_CONTENT_COSMOSDB_KEY: NonEmptyString,
+    }),
+  ]),
 ]);
-export type FeatureFlagType = t.TypeOf<typeof FeatureFlagType>;
 
 // global app configuration
-export type IConfig = t.TypeOf<typeof IConfig>;
 export const IConfig = t.intersection([
   t.interface({
     /* eslint-disable sort-keys */
@@ -69,9 +78,6 @@ export const IConfig = t.intersection([
 
     BACKEND_BASE_URL: NonEmptyString,
     BACKEND_TOKEN: NonEmptyString,
-
-    COSMOSDB_NAME: NonEmptyString,
-    COSMOSDB_URI: NonEmptyString,
 
     INTERNAL_USER_ID: NonEmptyString,
 
@@ -82,15 +88,14 @@ export const IConfig = t.intersection([
     NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: NonEmptyString,
 
     RC_CONFIGURATION_CACHE_TTL: NonNegativeIntegerFromString,
-    REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
-
-    REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
 
     isProduction: t.boolean,
     /* eslint-enable sort-keys */
   }),
   RedisParams,
+  CosmosDbParams,
 ]);
+export type IConfig = t.TypeOf<typeof IConfig>;
 
 // No need to re-evaluate this object for each call
 const errorOrConfig: t.Validation<IConfig> = IConfig.decode({
