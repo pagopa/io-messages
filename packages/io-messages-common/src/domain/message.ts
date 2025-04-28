@@ -1,6 +1,7 @@
-import { z } from "zod";
-import { fiscalCodeSchema } from "./fiscal-code.js";
 import { timestampSchema } from "@/types/date.js";
+import { z } from "zod";
+
+import { fiscalCodeSchema } from "./fiscal-code.js";
 
 export const hasPreconditionSchema = z
   .enum(["ALWAYS", "ONCE", "NEVER"])

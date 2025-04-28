@@ -1,9 +1,9 @@
 import { CosmosClient, Items } from "@azure/cosmos";
 import { BlobServiceClient, BlockBlobClient } from "@azure/storage-blob";
+import { Message } from "io-messages-common/domain/message";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { MessageRepositoryAdapter } from "../message.js";
-import { Message } from "io-messages-common/domain/message";
 
 const cosmosClient = new CosmosClient(
   "AccountEndpoint=https://vitest/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==;",
