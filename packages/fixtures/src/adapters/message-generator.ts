@@ -7,7 +7,7 @@ import { Message, messageSchema } from "io-messages-common/domain/message";
 import {
   MessageContent,
   MessageMetadata,
-} from "io-messages-common/types/message";
+} from "io-messages-common/domain/message";
 import { ulid } from "ulid";
 import { z } from "zod";
 

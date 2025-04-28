@@ -2,7 +2,7 @@ import { MessageRepository } from "@/domain/message.js";
 import { Container } from "@azure/cosmos";
 import { ContainerClient } from "@azure/storage-blob";
 import { Message } from "io-messages-common/domain/message";
-import { MessageContent } from "io-messages-common/types/message";
+import { MessageContent } from "io-messages-common/domain/message";
 
 export class MessageRepositoryAdapter implements MessageRepository {
   contentContainerClient: ContainerClient;
