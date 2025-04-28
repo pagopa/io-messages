@@ -1,11 +1,7 @@
 import { MessageRepository } from "@/domain/message.js";
 import { Container } from "@azure/cosmos";
 import { ContainerClient } from "@azure/storage-blob";
-import {
-  Message,
-  MessageContent,
-  MessageMetadata,
-} from "io-messages-common/types/message";
+import { Message, MessageContent } from "io-messages-common/types/message";
 
 export class MessageRepositoryAdapter implements MessageRepository {
   metadataContainer: Container;
@@ -26,7 +22,7 @@ export class MessageRepositoryAdapter implements MessageRepository {
     const blobClient = this.contentContainerClient.getBlockBlobClient(
       `${content.messageId}.json`,
     );
-    blobClient.upload(stringContent, stringContent.length);
+    await blobClient.upload(stringContent, stringContent.length);
   }
 
   async loadMessage(message: Message): Promise<void> {
