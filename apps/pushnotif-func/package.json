@@ -1,12 +1,12 @@
 {
-  "name": "push-notifications-func",
+  "name": "pushnotif-func",
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "clean": "tsc --build --clean",
     "build": "shx rm -rf dist && yarn generate && tsc",
     "watch": "tsc -w",
-    "start": "dotenv -e .env func start --javascript",
+    "start": "func start",
     "predev": "npm-run-all build",
     "dev": "npm-run-all --parallel start watch",
     "test": "vitest run --hook-timeout=0",

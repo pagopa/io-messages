@@ -8204,9 +8204,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"push-notifications-func@workspace:apps/push-notifications-func":
+"pushnotif-func@workspace:apps/pushnotif-func":
   version: 0.0.0-use.local
-  resolution: "push-notifications-func@workspace:apps/push-notifications-func"
+  resolution: "pushnotif-func@workspace:apps/pushnotif-func"
   dependencies:
     "@azure/functions": "npm:^3.2.0"
     "@azure/notification-hubs": "npm:^1.2.3"
