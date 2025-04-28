@@ -20,7 +20,7 @@ const aadCredentials = new DefaultAzureCredential();
 
 const getSettings = (settingsPath) => {
   if (existsSync(settingsPath)) {
-    return JSON.parse(readFileSync(etlFunctionPath, "utf8")).Values;
+    return JSON.parse(readFileSync(settingsPath, "utf8")).Values;
   } else {
     throw new Error("ETL function not found");
   }
