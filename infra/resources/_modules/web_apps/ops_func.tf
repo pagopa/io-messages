@@ -79,3 +79,18 @@ resource "azurerm_role_assignment" "io_com_cosmos_ops_func_slot" {
   principal_id         = module.ops_func.function_app.function_app.slot.principal_id
 }
 
+resource "azurerm_cosmosdb_sql_role_assignment" "ops_func" {
+  resource_group_name = var.cosmosdb_account_api.resource_group_name
+  account_name        = var.cosmosdb_account_api.name
+  role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = module.ops_func.function_app.function_app.principal_id
+  scope               = var.cosmosdb_account_api.id
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "ops_func_slot" {
+  resource_group_name = var.cosmosdb_account_api.resource_group_name
+  account_name        = var.cosmosdb_account_api.name
+  role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = module.ops_func.function_app.function_app.slot.principal_id
+  scope               = var.cosmosdb_account_api.id
+}

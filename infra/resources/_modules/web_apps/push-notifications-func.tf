@@ -151,8 +151,8 @@ locals {
 #tfsec:ignore:azure-storage-queue-services-logging-enabled:exp:2022-05-01 # already ignored, maybe a bug in tfsec
 module "push_notif_function" {
 
-  source  = "pagopa/dx-azure-function-app/azurerm"
-  version = "~>0"
+  source  = "pagopa-dx/azure-function-app/azurerm"
+  version = "~>0.0"
 
   application_insights_key = var.application_insights.instrumentation_key
 
