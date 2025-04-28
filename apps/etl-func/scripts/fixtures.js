@@ -38,4 +38,4 @@ const options = loadFixturesOptionsSchema.parse({
   includeRemoteContents: settings.FIXTURES_INCLUDE_REMOTE_CONTENT,
 });
 
-loadFixtures(fixturesToGenerate, { ...options, aadCredentials });
+await loadFixtures(fixturesToGenerate, { ...options, aadCredentials });
