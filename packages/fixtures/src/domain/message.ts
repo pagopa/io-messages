@@ -1,4 +1,4 @@
-import { Message } from "io-messages-common/types/message";
+import { Message } from "io-messages-common/domain/message";
 
 export interface GenerateOpts {
   includePayments: boolean;

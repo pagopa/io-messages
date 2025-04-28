@@ -1,4 +1,5 @@
 import { Logger } from "pino";
+
 import { MessageGeneratorRepository, MessageRepository } from "../message.js";
 
 interface LoadFixturesOptions {
@@ -8,8 +9,8 @@ interface LoadFixturesOptions {
 
 export class LoadFixturesUseCase {
   logger: Logger;
-  messageLoader: MessageRepository;
   messageGenerator: MessageGeneratorRepository;
+  messageLoader: MessageRepository;
 
   constructor(
     messageGenerator: MessageGeneratorRepository,

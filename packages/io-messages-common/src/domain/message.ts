@@ -1,7 +1,6 @@
-import { fiscalCodeSchema } from "@/domain/fiscal-code.js";
 import { z } from "zod";
-
-import { timestampSchema } from "./date.js";
+import { fiscalCodeSchema } from "./fiscal-code.js";
+import { timestampSchema } from "@/types/date.js";
 
 export const hasPreconditionSchema = z
   .enum(["ALWAYS", "ONCE", "NEVER"])
@@ -80,3 +79,11 @@ export const messageMetadataSchema = z.object({
 });
 
 export type MessageMetadata = z.TypeOf<typeof messageMetadataSchema>;
+
+export const messageSchema = z.object({
+  content: messageContentSchema,
+  id: z.string().min(1),
+  metadata: messageMetadataSchema,
+});
+
+export type Message = z.TypeOf<typeof messageSchema>;

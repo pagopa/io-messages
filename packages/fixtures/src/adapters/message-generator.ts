@@ -3,11 +3,10 @@ import {
   FiscalCode,
   fiscalCodeSchema,
 } from "io-messages-common/domain/fiscal-code";
+import { Message, messageSchema } from "io-messages-common/domain/message";
 import {
-  Message,
   MessageContent,
   MessageMetadata,
-  messageSchema,
 } from "io-messages-common/types/message";
 import { ulid } from "ulid";
 import { z } from "zod";
@@ -15,35 +14,6 @@ import { z } from "zod";
 export class MessageGeneratorRepositoryAdapter
   implements MessageGeneratorRepository
 {
-  #getRandomTestFiscalCode(): FiscalCode {
-    const testFiscalCodes = z
-      .array(fiscalCodeSchema)
-      .parse([
-        "LVTEST00A00A195X",
-        "LVTEST00A00A196X",
-        "LVTEST00A00A197X",
-        "LVTEST00A00A198X",
-        "LVTEST00A00A199X",
-      ]);
-
-    return testFiscalCodes[Math.floor(Math.random() * testFiscalCodes.length)];
-  }
-
-  #generateMetadata(): MessageMetadata {
-    const id = ulid();
-    return {
-      createdAt: new Date().toISOString(),
-      featureLevelType: "STANDARD",
-      fiscalCode: this.#getRandomTestFiscalCode(),
-      id,
-      indexedId: id,
-      isPending: Math.random() > 0.5,
-      senderServiceId: ulid(),
-      senderUserId: ulid(),
-      timeToLiveSeconds: 3600,
-    };
-  }
-
   #generateContent(opts: GenerateOpts): MessageContent {
     return {
       markdown:
@@ -69,13 +39,42 @@ export class MessageGeneratorRepositoryAdapter
     };
   }
 
+  #generateMetadata(): MessageMetadata {
+    const id = ulid();
+    return {
+      createdAt: new Date().toISOString(),
+      featureLevelType: "STANDARD",
+      fiscalCode: this.#getRandomTestFiscalCode(),
+      id,
+      indexedId: id,
+      isPending: Math.random() > 0.5,
+      senderServiceId: ulid(),
+      senderUserId: ulid(),
+      timeToLiveSeconds: 3600,
+    };
+  }
+
+  #getRandomTestFiscalCode(): FiscalCode {
+    const testFiscalCodes = z
+      .array(fiscalCodeSchema)
+      .parse([
+        "LVTEST00A00A195X",
+        "LVTEST00A00A196X",
+        "LVTEST00A00A197X",
+        "LVTEST00A00A198X",
+        "LVTEST00A00A199X",
+      ]);
+
+    return testFiscalCodes[Math.floor(Math.random() * testFiscalCodes.length)];
+  }
+
   generate(count: number, opts: GenerateOpts): Message[] {
     return Array.from({ length: count }, () => {
       const metadata = this.#generateMetadata();
       return messageSchema.parse({
-        metadata,
         content: this.#generateContent(opts),
         id: metadata.id,
+        metadata,
       });
     });
   }

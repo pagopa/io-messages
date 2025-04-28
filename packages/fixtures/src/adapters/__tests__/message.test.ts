@@ -1,8 +1,9 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
-import { MessageRepositoryAdapter } from "../message.js";
 import { CosmosClient, Items } from "@azure/cosmos";
 import { BlobServiceClient, BlockBlobClient } from "@azure/storage-blob";
-import { Message } from "io-messages-common/types/message";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+
+import { MessageRepositoryAdapter } from "../message.js";
+import { Message } from "io-messages-common/domain/message";
 
 const cosmosClient = new CosmosClient(
   "AccountEndpoint=https://vitest/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==;",
@@ -29,9 +30,9 @@ describe("MessageRepositoryAdapter", () => {
 
   test("should load a message by calling both metadata and content loaders", async () => {
     const message = {
-      id: "123",
-      metadata: { id: "123", createdAt: "2023-01-01" },
       content: { text: "Hello, world!" },
+      id: "123",
+      metadata: { createdAt: "2023-01-01", id: "123" },
     } as unknown as Message;
 
     const expectedContent = JSON.stringify({
@@ -52,9 +53,9 @@ describe("MessageRepositoryAdapter", () => {
     createMock.mockRejectedValueOnce(undefined);
 
     const message = {
-      id: "123",
-      metadata: { id: "123", createdAt: "2023-01-01" },
       content: { text: "Hello, world!" },
+      id: "123",
+      metadata: { createdAt: "2023-01-01", id: "123" },
     } as unknown as Message;
 
     await expect(adapter.loadMessage(message)).rejects.toThrow();
@@ -67,9 +68,9 @@ describe("MessageRepositoryAdapter", () => {
     uploadMock.mockRejectedValueOnce(undefined);
 
     const message = {
-      id: "123",
-      metadata: { id: "123", createdAt: "2023-01-01" },
       content: { text: "Hello, world!" },
+      id: "123",
+      metadata: { createdAt: "2023-01-01", id: "123" },
     } as unknown as Message;
     const expectedContent = JSON.stringify({
       ...message.content,

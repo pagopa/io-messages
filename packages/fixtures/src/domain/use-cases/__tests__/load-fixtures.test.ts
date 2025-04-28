@@ -1,11 +1,11 @@
-import { Logger } from "pino";
-import { describe, expect, test, vi } from "vitest";
-
-import { LoadFixturesUseCase } from "../load-fixtures.js";
 import {
   MessageGeneratorRepository,
   MessageRepository,
 } from "@/domain/message.js";
+import { Logger } from "pino";
+import { describe, expect, test, vi } from "vitest";
+
+import { LoadFixturesUseCase } from "../load-fixtures.js";
 
 const infoMock = vi.fn();
 const errorMock = vi.fn();
@@ -53,8 +53,8 @@ describe("LoadFixturesUseCase", () => {
     loadMessageMock.mockResolvedValue(undefined);
 
     await useCase.execute(2, {
-      includeRemoteContents: false,
       includePayments: false,
+      includeRemoteContents: false,
     });
 
     expect(logger.info).toHaveBeenCalledWith(

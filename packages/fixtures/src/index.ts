@@ -4,9 +4,9 @@ import { BlobServiceClient } from "@azure/storage-blob";
 import { pino } from "pino";
 
 import { LoadFixturesOptions } from "./adapters/config.js";
-import { LoadFixturesUseCase } from "./domain/use-cases/load-fixtures.js";
-import { MessageGeneratorRepositoryAdapter } from "./adapters/message-generator.js";
 import { MessageRepositoryAdapter } from "./adapters/message.js";
+import { MessageGeneratorRepositoryAdapter } from "./adapters/message-generator.js";
+import { LoadFixturesUseCase } from "./domain/use-cases/load-fixtures.js";
 
 export const loadFixtures = async (
   count: number,

@@ -1,4 +1,5 @@
-import { describe, test, expect, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
+
 import { MessageGeneratorRepositoryAdapter } from "../message-generator.js";
 
 const mockedUlid = "01JSM2JD7FRQJJCZGFZVMMD6H5";
