@@ -37,9 +37,10 @@ variable "subnet_pep_id" {
 
 variable "subnet_cidrs" {
   type = object({
-    notif_func   = string
-    citizen_func = string
-    etl_func     = string
+    citizen_func    = string
+    etl_func        = string
+    ops_func        = string
+    push_notif_func = string
     cqrs_func    = string
   })
 }
@@ -85,6 +86,18 @@ variable "messages_storage_account" {
 }
 
 variable "com_st_id" {
+  type = string
+}
+
+variable "com_st_uri" {
+  type = string
+}
+
+variable "com_st_queue_uri" {
+  type = string
+}
+
+variable "com_st_connectiostring" {
   type = string
 }
 

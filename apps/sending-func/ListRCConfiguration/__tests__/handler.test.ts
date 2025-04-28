@@ -1,25 +1,23 @@
+import { RetrievedRCConfiguration } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
+import { RetrievedUserRCConfiguration } from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
+import { describe, expect, test } from "vitest";
 
 import {
+  aManageSubscriptionId,
   aRemoteContentConfiguration,
+  aSubscriptionId,
   aUserRCCList,
   allConfigurations,
-  findAllByUserId,
   findAllByConfigurationId,
+  findAllByUserId,
   rccModelMock,
-  userRCCModelMock,
-  aManageSubscriptionId,
-  aSubscriptionId,
-  someUserGroupsWithTheAllowedOne,
   someUserGroups,
+  someUserGroupsWithTheAllowedOne,
+  userRCCModelMock,
 } from "../../__mocks__/remote-content";
-
 import { listRCConfigurationHandler } from "../handler";
-import { RetrievedUserRCConfiguration } from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
-import { RetrievedRCConfiguration } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
-
-import { describe, expect, test } from "vitest";
 
 describe("listRCConfigurationHandler", () => {
   test("should return an IResponseSuccessJson if the model return a valid configuration and the userId match", async () => {
@@ -42,10 +40,10 @@ describe("listRCConfigurationHandler", () => {
 
   test("should return an IResponseSuccessJson with an empty response if the userId does not have any configurations", async () => {
     findAllByUserId.mockReturnValueOnce(
-      TE.right([] as ReadonlyArray<RetrievedUserRCConfiguration>),
+      TE.right([] as readonly RetrievedUserRCConfiguration[]),
     );
     findAllByConfigurationId.mockReturnValueOnce(
-      TE.right([] as ReadonlyArray<RetrievedRCConfiguration>),
+      TE.right([] as readonly RetrievedRCConfiguration[]),
     );
     const r = await listRCConfigurationHandler({
       rcConfigurationModel: rccModelMock,
@@ -79,10 +77,10 @@ describe("listRCConfigurationHandler", () => {
 
   test("should return an IResponseErrorForbiddenNotAuthorized if not called from a manage subscription", async () => {
     findAllByUserId.mockReturnValueOnce(
-      TE.right([] as ReadonlyArray<RetrievedUserRCConfiguration>),
+      TE.right([] as readonly RetrievedUserRCConfiguration[]),
     );
     findAllByConfigurationId.mockReturnValueOnce(
-      TE.right([] as ReadonlyArray<RetrievedRCConfiguration>),
+      TE.right([] as readonly RetrievedRCConfiguration[]),
     );
     const r = await listRCConfigurationHandler({
       rcConfigurationModel: rccModelMock,
@@ -97,10 +95,10 @@ describe("listRCConfigurationHandler", () => {
 
   test("should return an IResponseErrorForbiddenNotAuthorized if user is not in the allowed group", async () => {
     findAllByUserId.mockReturnValueOnce(
-      TE.right([] as ReadonlyArray<RetrievedUserRCConfiguration>),
+      TE.right([] as readonly RetrievedUserRCConfiguration[]),
     );
     findAllByConfigurationId.mockReturnValueOnce(
-      TE.right([] as ReadonlyArray<RetrievedRCConfiguration>),
+      TE.right([] as readonly RetrievedRCConfiguration[]),
     );
     const r = await listRCConfigurationHandler({
       rcConfigurationModel: rccModelMock,

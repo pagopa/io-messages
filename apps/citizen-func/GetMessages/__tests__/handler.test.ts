@@ -1,34 +1,23 @@
-// eslint-disable @typescript-eslint/no-explicit-any, sonarjs/no-duplicate-string, sonar/sonar-max-lines-per-function
-import * as E from "fp-ts/lib/Either";
-import * as O from "fp-ts/lib/Option";
-import * as TE from "fp-ts/lib/TaskEither";
-import * as RA from "fp-ts/ReadonlyArray";
-import * as t from "io-ts";
-
-import {
-  FiscalCode,
-  NonEmptyString,
-  Ulid,
-} from "@pagopa/ts-commons/lib/strings";
+/* eslint-disable @typescript-eslint/no-explicit-any, max-lines-per-function, no-useless-escape */
+import { Context } from "@azure/functions";
+import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
+import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
+import { TagEnum as TagEnumPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
+import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
+import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
+import { NotRejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/NotRejectedMessageStatusValue";
+import { PaymentAmount } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentAmount";
+import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
+import { PaymentDataWithRequiredPayee } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentDataWithRequiredPayee";
+import { PaymentNoticeNumber } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentNoticeNumber";
+import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
 import {
   MessageModel,
   NewMessageWithoutContent,
   RetrievedMessageWithoutContent,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
-import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
-import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
-import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
-import {
-  aCosmosResourceMetadata,
-  aPnThirdPartyData,
-} from "../../__mocks__/mocks";
-import {
-  aRetrievedService,
-  aServiceId,
-} from "../../__mocks__/mocks.service_preference";
-import { GetMessagesHandler } from "../handler";
-import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
-import { BlobService } from "azure-storage";
+import { RetrievedMessageStatus } from "@pagopa/io-functions-commons/dist/src/models/message_status";
+import { RetrievedMessageView } from "@pagopa/io-functions-commons/dist/src/models/message_view";
 import {
   RetrievedService,
   ServiceModel,
@@ -37,26 +26,31 @@ import {
   CosmosErrors,
   toCosmosErrorResponse,
 } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
-import { Context } from "@azure/functions";
-import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
-import { TagEnum as TagEnumPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
-import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
-import { RetrievedMessageStatus } from "@pagopa/io-functions-commons/dist/src/models/message_status";
-import { NotRejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/NotRejectedMessageStatusValue";
-import { MessageStatusExtendedQueryModel } from "../../model/message_status_query";
-import { pipe } from "fp-ts/lib/function";
-import * as redis from "../../utils/redis_storage";
-import { createGetMessagesFunctionSelection } from "../getMessagesFunctions/getMessages.selector";
-import { MessageViewExtendedQueryModel } from "../../model/message_view_query";
-import { RetrievedMessageView } from "@pagopa/io-functions-commons/dist/src/models/message_view";
-import { toEnrichedMessageWithContent } from "../getMessagesFunctions/getMessages.view";
-import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
-import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
-import { PaymentAmount } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentAmount";
-import { PaymentNoticeNumber } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentNoticeNumber";
-import { PaymentDataWithRequiredPayee } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentDataWithRequiredPayee";
+import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
+import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
+import {
+  FiscalCode,
+  NonEmptyString,
+  Ulid,
+} from "@pagopa/ts-commons/lib/strings";
 import { OrganizationFiscalCode } from "@pagopa/ts-commons/lib/strings";
-import { IConfig } from "../../utils/config";
+import { BlobService } from "azure-storage";
+import * as RA from "fp-ts/ReadonlyArray";
+import * as E from "fp-ts/lib/Either";
+import * as O from "fp-ts/lib/Option";
+import * as TE from "fp-ts/lib/TaskEither";
+import { pipe } from "fp-ts/lib/function";
+import * as t from "io-ts";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import {
+  aCosmosResourceMetadata,
+  aPnThirdPartyData,
+} from "../../__mocks__/mocks";
+import {
+  aRetrievedService,
+  aServiceId,
+} from "../../__mocks__/mocks.service_preference";
 import {
   aRetrievedRCConfiguration,
   mockFind,
@@ -64,9 +58,14 @@ import {
   mockRCConfigurationTtl,
 } from "../../__mocks__/remote-content";
 import { HasPreconditionEnum } from "../../generated/definitions/HasPrecondition";
+import { MessageStatusExtendedQueryModel } from "../../model/message_status_query";
+import { MessageViewExtendedQueryModel } from "../../model/message_view_query";
+import { IConfig } from "../../utils/config";
+import * as redis from "../../utils/redis_storage";
 import RCConfigurationUtility from "../../utils/remoteContentConfig";
-
-import { vi, beforeEach, expect, it, describe } from "vitest";
+import { createGetMessagesFunctionSelection } from "../getMessagesFunctions/getMessages.selector";
+import { toEnrichedMessageWithContent } from "../getMessagesFunctions/getMessages.view";
+import { GetMessagesHandler } from "../handler";
 
 vi.stubEnv("APPLICATIONINSIGHTS_CONNECTION_STRING", "foo");
 
@@ -77,13 +76,13 @@ const aPendingMessageId = "A_PENDING_MESSAGE_ID" as NonEmptyString;
 const aRetrievedMessageStatus: RetrievedMessageStatus = {
   ...aCosmosResourceMetadata,
   id: "1" as NonEmptyString,
+  isArchived: false,
+  isRead: false,
+  kind: "IRetrievedMessageStatus",
   messageId: "1" as NonEmptyString,
   status: NotRejectedMessageStatusValueEnum.PROCESSED,
   updatedAt: new Date(),
   version: 2 as NonNegativeInteger,
-  isRead: false,
-  isArchived: false,
-  kind: "IRetrievedMessageStatus",
 };
 
 const aNewMessageWithoutContent: NewMessageWithoutContent = {
@@ -151,8 +150,8 @@ const aRetrievedMessageView: RetrievedMessageView = pipe(
       processing: "PROCESSED",
       read: false,
     },
-    version: 0,
     timeToLive: 3600,
+    version: 0,
   }),
   E.getOrElseW(() => {
     throw Error("wrong RetrievedMessageView");
@@ -167,8 +166,8 @@ const blobServiceMock = {
   getBlobToText: vi.fn().mockReturnValue(
     TE.of(
       O.some({
-        subject: "a subject",
         markdown: "a markdown",
+        subject: "a subject",
       } as MessageContent),
     ),
   ),
@@ -186,23 +185,21 @@ const getMockIterator = (values) => ({
 const getContentFromBlobMock = vi.fn().mockImplementation(() =>
   TE.of(
     O.some({
-      subject: "a subject",
       markdown: "a markdown",
+      subject: "a subject",
     } as MessageContent),
   ),
 );
 
 const getMessageModelMock = (messageIterator) =>
   ({
-    getContentFromBlob: getContentFromBlobMock,
     findMessages: vi.fn(() => TE.of(messageIterator)),
+    getContentFromBlob: getContentFromBlobMock,
   }) as unknown as MessageModel;
 
 const errorMessageModelMock = {
+  findMessages: vi.fn(() => TE.left(toCosmosErrorResponse("Not found"))),
   getContentFromBlob: vi.fn(() => TE.left("Error blob")),
-  findMessages: vi.fn(() => {
-    return TE.left(toCosmosErrorResponse("Not found"));
-  }),
 } as unknown as MessageModel;
 
 const mockFindLastVersionByModelId = vi.fn(() =>
@@ -214,21 +211,19 @@ const serviceModelMock = {
 
 const functionsContextMock = {
   log: {
-    error: vi.fn(console.log),
+    error: vi.fn(),
   },
 } as unknown as Context;
 
 /**
  * Build a service list iterator
  */
-async function* buildIterator<A, I extends unknown, O extends unknown>(
+async function* buildIterator<A, I, O>(
   codec: t.Type<A, I, O>,
-  list: ReadonlyArray<O>,
+  list: readonly O[],
   onNewPage?: (i: number) => void,
   errorToThrow?: CosmosErrors | Error,
-): AsyncIterable<ReadonlyArray<t.Validation<A>>> {
-  // eslint-disable-next-line functional/no-let
-
+): AsyncIterable<readonly t.Validation<A>[]> {
   if (errorToThrow) {
     throw errorToThrow;
   }
@@ -242,29 +237,29 @@ async function* buildIterator<A, I extends unknown, O extends unknown>(
 }
 
 // MessageStatus Mocks
-const mockFindAllVersionsByModelIdIn = vi.fn((ids: string[]) => {
-  return buildIterator(
+const mockFindAllVersionsByModelIdIn = vi.fn((ids: string[]) =>
+  buildIterator(
     RetrievedMessageStatus,
     ids.map((id) => ({ ...aRetrievedMessageStatus, messageId: id })),
-  );
-});
+  ),
+);
 
 const messageStatusModelMock = {
   findAllVersionsByModelIdIn: mockFindAllVersionsByModelIdIn,
 } as unknown as MessageStatusExtendedQueryModel;
 
 // MessageView Mocks
-const mockQueryPage = vi.fn((_) => {
-  return TE.of<
+const mockQueryPage = vi.fn(() =>
+  TE.of<
     CosmosErrors,
-    AsyncIterable<ReadonlyArray<t.Validation<RetrievedMessageView>>>
+    AsyncIterable<readonly t.Validation<RetrievedMessageView>[]>
   >(
     buildIterator(
       RetrievedMessageView,
-      Array.from({ length: 1 }, (_) => aRetrievedMessageView),
+      Array.from({ length: 1 }, () => aRetrievedMessageView),
     ),
-  );
-});
+  ),
+);
 const messageViewModelMock = {
   queryPage: mockQueryPage,
 } as unknown as MessageViewExtendedQueryModel;
@@ -304,9 +299,9 @@ const mockRCConfigurationUtility = new RCConfigurationUtility(
 const getCreateGetMessagesFunctionSelection = (
   messageStatusModel: MessageStatusExtendedQueryModel,
   messageModelMock: MessageModel,
-  dummyThirdPartyDataWithCategoryFetcher?: (serviceId: NonEmptyString) => {
-    category: TagEnumPN | TagEnumBase;
-  },
+  dummyThirdPartyDataWithCategoryFetcher: (serviceId: NonEmptyString) => {
+    category: TagEnumBase | TagEnumPN;
+  } = () => ({ category: TagEnumBase.GENERIC }),
 ) =>
   createGetMessagesFunctionSelection(
     false,
@@ -318,12 +313,12 @@ const getCreateGetMessagesFunctionSelection = (
       messageStatusModel,
       blobServiceMock,
       mockRCConfigurationUtility,
-      dummyThirdPartyDataWithCategoryFetcher!,
+      dummyThirdPartyDataWithCategoryFetcher,
     ],
     [
       messageViewModelMock,
       mockRCConfigurationUtility,
-      dummyThirdPartyDataWithCategoryFetcher!,
+      dummyThirdPartyDataWithCategoryFetcher,
     ],
   );
 
@@ -437,8 +432,8 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
     if (result.kind === "IResponseSuccessJson") {
       expect(result.value).toEqual({
         items: [retrievedMessageToPublic(aRetrievedMessageWithoutContent)],
-        prev: aRetrievedMessageWithoutContent.id,
         next: undefined,
+        prev: aRetrievedMessageWithoutContent.id,
       });
     }
 
@@ -482,8 +477,8 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
           aRetrievedMessageWithoutContent,
           aRetrievedMessageWithoutContent,
         ].map(retrievedMessageToPublic),
-        prev: aSimpleList[0].id,
         next: aSimpleList[2].id,
+        prev: aSimpleList[0].id,
       });
     }
 
@@ -526,8 +521,8 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
           aRetrievedMessageWithoutContent,
           aRetrievedMessageWithoutContent,
         ].map(retrievedMessageToPublic),
-        prev: aRetrievedMessageWithoutContent.id,
         next: aRetrievedMessageWithoutContent.id,
+        prev: aRetrievedMessageWithoutContent.id,
       });
     }
 
@@ -571,8 +566,8 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
           aRetrievedMessageWithoutContent,
           aRetrievedMessageWithoutContent,
         ].map(retrievedMessageToPublic),
-        prev: aRetrievedMessageWithoutContent.id,
         next: aRetrievedMessageWithoutContent.id,
+        prev: aRetrievedMessageWithoutContent.id,
       });
     }
 
@@ -620,8 +615,8 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
           aRetrievedMessageWithoutContent,
           aRetrievedMessageWithoutContent,
         ].map(retrievedMessageToPublic),
-        prev: aRetrievedMessageWithoutContent.id,
         next: undefined,
+        prev: aRetrievedMessageWithoutContent.id,
       });
     }
 
@@ -697,13 +692,13 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
       ...retrievedMessageToPublic(aSimpleList[0]),
       category: { tag: TagEnumBase.GENERIC },
       has_attachments: false,
-      message_title: "a subject",
-      is_archived: false,
-      is_read: false,
       has_precondition: false,
       has_remote_content: false,
-      organization_name: aRetrievedService.organizationName,
+      is_archived: false,
+      is_read: false,
+      message_title: "a subject",
       organization_fiscal_code: aRetrievedService.organizationFiscalCode,
+      organization_name: aRetrievedService.organizationName,
       service_name: aRetrievedService.serviceName,
     };
 
@@ -713,8 +708,8 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
           { ...expectedEnrichedMessage, id: aSimpleList[0].id },
           { ...expectedEnrichedMessage, id: aSimpleList[1].id },
         ],
-        prev: aSimpleList[0].id,
         next: aSimpleList[1].id,
+        prev: aSimpleList[0].id,
       });
     }
 
@@ -735,11 +730,11 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     getContentFromBlobMock.mockReturnValueOnce(
       TE.of(
         O.some({
-          subject: "a subject",
           markdown: "a markdown",
+          subject: "a subject",
           third_party_data: {
-            has_remote_content: true,
             has_precondition: HasPreconditionEnum.ALWAYS,
+            has_remote_content: true,
           },
         }),
       ),
@@ -748,11 +743,11 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     getContentFromBlobMock.mockReturnValueOnce(
       TE.of(
         O.some({
-          subject: "a subject",
           markdown: "a markdown",
+          subject: "a subject",
           third_party_data: {
-            has_remote_content: true,
             has_precondition: HasPreconditionEnum.ALWAYS,
+            has_remote_content: true,
           },
         }),
       ),
@@ -788,13 +783,13 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
       ...retrievedMessageToPublic(aSimpleList[0]),
       category: { tag: TagEnumBase.GENERIC },
       has_attachments: false,
-      message_title: "a subject",
-      is_archived: false,
-      is_read: false,
       has_precondition: true,
       has_remote_content: true,
-      organization_name: aRetrievedService.organizationName,
+      is_archived: false,
+      is_read: false,
+      message_title: "a subject",
       organization_fiscal_code: aRetrievedService.organizationFiscalCode,
+      organization_name: aRetrievedService.organizationName,
       service_name: aRetrievedService.serviceName,
     };
 
@@ -804,8 +799,8 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
           { ...expectedEnrichedMessage, id: aSimpleList[0].id },
           { ...expectedEnrichedMessage, id: aSimpleList[1].id },
         ],
-        prev: aSimpleList[0].id,
         next: aSimpleList[1].id,
+        prev: aSimpleList[0].id,
       });
     }
 
@@ -820,12 +815,12 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     const messageIterator = getMockIterator(aMessageList);
     const messageModelMock = getMessageModelMock(messageIterator);
 
-    messageModelMock.getContentFromBlob = vi.fn().mockImplementation(() =>
+    vi.spyOn(messageModelMock, "getContentFromBlob").mockImplementation(() =>
       TE.of(
         O.some({
-          subject: "a subject",
           markdown: "a markdown",
           payment_data: aPaymentDataWithPayee,
+          subject: "a subject",
         } as MessageContent),
       ),
     );
@@ -859,17 +854,17 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     const expectedEnrichedMessage = {
       ...retrievedMessageToPublic(aSimpleList[0]),
       category: {
-        tag: TagEnumPayment.PAYMENT,
         rptId: `${aPaymentDataWithPayee.payee.fiscal_code}${aPaymentDataWithPayee.notice_number}`,
+        tag: TagEnumPayment.PAYMENT,
       },
       has_attachments: false,
       has_precondition: false,
       has_remote_content: false,
-      message_title: "a subject",
       is_archived: false,
       is_read: false,
-      organization_name: aRetrievedService.organizationName,
+      message_title: "a subject",
       organization_fiscal_code: aRetrievedService.organizationFiscalCode,
+      organization_name: aRetrievedService.organizationName,
       service_name: aRetrievedService.serviceName,
     };
 
@@ -879,8 +874,8 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
           { ...expectedEnrichedMessage, id: aSimpleList[0].id },
           { ...expectedEnrichedMessage, id: aSimpleList[1].id },
         ],
-        prev: aSimpleList[0].id,
         next: aSimpleList[1].id,
+        prev: aSimpleList[0].id,
       });
     }
 
@@ -893,7 +888,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
 
   it("should respond with a pn message when third_party_data is defined", async () => {
     const thirdPartyFetcherForAServiceId = (serviceId: NonEmptyString) => ({
-      category: serviceId == aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
+      category: serviceId === aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
     });
 
     getTaskMock.mockReturnValueOnce(
@@ -906,8 +901,8 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     getContentFromBlobMock.mockReturnValueOnce(
       TE.of(
         O.some({
-          subject: "a subject",
           markdown: "a markdown",
+          subject: "a subject",
           third_party_data: aPnThirdPartyData,
         } as MessageContent),
       ),
@@ -946,14 +941,14 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
         tag: TagEnumPN.PN,
         ...aPnThirdPartyData,
       },
-      has_precondition: true,
       has_attachments: false,
+      has_precondition: true,
       has_remote_content: false,
-      message_title: "a subject",
       is_archived: false,
       is_read: false,
-      organization_name: aRetrievedService.organizationName,
+      message_title: "a subject",
       organization_fiscal_code: aRetrievedService.organizationFiscalCode,
+      organization_name: aRetrievedService.organizationName,
       service_name: aRetrievedService.serviceName,
     };
 
@@ -975,12 +970,12 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     const messageIterator = getMockIterator(aMessageList);
     const messageModelMock = getMessageModelMock(messageIterator);
 
-    messageModelMock.getContentFromBlob = vi.fn().mockImplementation(() =>
+    vi.spyOn(messageModelMock, "getContentFromBlob").mockImplementation(() =>
       TE.of(
         O.some({
-          subject: "a subject",
           markdown: "a markdown",
           payment_data: aPaymentDataWithoutPayee,
+          subject: "a subject",
         } as MessageContent),
       ),
     );
@@ -1014,17 +1009,17 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     const expectedEnrichedMessage = {
       ...retrievedMessageToPublic(aSimpleList[0]),
       category: {
-        tag: TagEnumPayment.PAYMENT,
         rptId: `${aRetrievedService.organizationFiscalCode}${aPaymentDataWithoutPayee.notice_number}`,
+        tag: TagEnumPayment.PAYMENT,
       },
       has_attachments: false,
-      has_remote_content: false,
       has_precondition: false,
-      message_title: "a subject",
+      has_remote_content: false,
       is_archived: false,
       is_read: false,
-      organization_name: aRetrievedService.organizationName,
+      message_title: "a subject",
       organization_fiscal_code: aRetrievedService.organizationFiscalCode,
+      organization_name: aRetrievedService.organizationName,
       service_name: aRetrievedService.serviceName,
     };
 
@@ -1034,8 +1029,8 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
           { ...expectedEnrichedMessage, id: aSimpleList[0].id },
           { ...expectedEnrichedMessage, id: aSimpleList[1].id },
         ],
-        prev: aSimpleList[0].id,
         next: aSimpleList[1].id,
+        prev: aSimpleList[0].id,
       });
     }
 
@@ -1079,8 +1074,8 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     if (result.kind === "IResponseSuccessJson") {
       expect(result.value).toEqual({
         items: [],
-        prev: undefined,
         next: undefined,
+        prev: undefined,
       });
     }
 
@@ -1092,16 +1087,16 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     const messageIterator = getMockIterator(aMessageList);
     const messageModelMock = getMessageModelMock(messageIterator);
 
-    mockFindAllVersionsByModelIdIn.mockImplementationOnce((ids: string[]) => {
-      return buildIterator(
+    mockFindAllVersionsByModelIdIn.mockImplementationOnce((ids: string[]) =>
+      buildIterator(
         RetrievedMessageStatus,
         ids.map((id, index) => ({
           ...aRetrievedMessageStatus,
-          messageId: id,
           isArchived: index === 0,
+          messageId: id,
         })),
-      );
-    });
+      ),
+    );
 
     const getMessagesFunctionSelector = getCreateGetMessagesFunctionSelection(
       messageStatusModelMock,
@@ -1133,21 +1128,21 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
       ...retrievedMessageToPublic(aSimpleList[0]),
       category: { tag: TagEnumBase.GENERIC },
       has_attachments: false,
-      has_remote_content: false,
       has_precondition: false,
-      message_title: "a subject",
+      has_remote_content: false,
       is_archived: true,
       is_read: false,
-      organization_name: aRetrievedService.organizationName,
+      message_title: "a subject",
       organization_fiscal_code: aRetrievedService.organizationFiscalCode,
+      organization_name: aRetrievedService.organizationName,
       service_name: aRetrievedService.serviceName,
     };
 
     if (result.kind === "IResponseSuccessJson") {
       expect(result.value).toEqual({
         items: [expectedEnrichedMessage],
-        prev: aSimpleList[0].id,
         next: undefined,
+        prev: aSimpleList[0].id,
       });
     }
 
@@ -1161,8 +1156,8 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
       .mockReturnValue(
         TE.of(
           O.some({
-            subject: "a subject",
             markdown: "a markdown",
+            subject: "a subject",
           } as MessageContent),
         ),
       )
@@ -1176,8 +1171,8 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
         .mockImplementationOnce(async () => ({ done: true })),
     };
     const messageModelMock = {
-      getContentFromBlob,
       findMessages: vi.fn().mockReturnValue(TE.of(messagesIter)),
+      getContentFromBlob,
     };
     const getMessagesFunctionSelector = getCreateGetMessagesFunctionSelection(
       messageStatusModelMock,
@@ -1215,18 +1210,18 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     const messageIterator = getMockIterator(aMessageList);
     const messageModelMock = getMessageModelMock(messageIterator);
 
-    mockFindAllVersionsByModelIdIn.mockImplementationOnce((ids: string[]) => {
-      return buildIterator(
+    mockFindAllVersionsByModelIdIn.mockImplementationOnce((ids: string[]) =>
+      buildIterator(
         RetrievedMessageStatus,
         ids.map((id, index) => ({
           ...aRetrievedMessageStatus,
-          messageId: id,
           isArchived: index === 0,
+          messageId: id,
         })),
         undefined,
         toCosmosErrorResponse("Any message-status error"),
-      );
-    });
+      ),
+    );
 
     const getMessagesFunctionSelector = getCreateGetMessagesFunctionSelection(
       messageStatusModelMock,
@@ -1311,13 +1306,13 @@ describe("GetMessagesHandler |> Message View", () => {
   it("should respond with a page of messages", async () => {
     let iteratorCalls = 0;
 
-    mockQueryPage.mockImplementationOnce((_) => {
-      return TE.of(
-        buildIterator(RetrievedMessageView, aSimpleList, (_) => {
+    mockQueryPage.mockImplementationOnce(() =>
+      TE.of(
+        buildIterator(RetrievedMessageView, aSimpleList, () => {
           iteratorCalls++;
         }),
-      );
-    });
+      ),
+    );
 
     const getMessagesHandler = GetMessagesHandler(
       getMessagesFunctionSelector,
@@ -1349,10 +1344,10 @@ describe("GetMessagesHandler |> Message View", () => {
         rptId: `${aRetrievedService.organizationFiscalCode}177777777777777777`,
         tag: "PAYMENT",
       },
-      organization_name: aRetrievedService.organizationName,
-      organization_fiscal_code: aRetrievedService.organizationFiscalCode,
-      has_remote_content: false,
       has_precondition: false,
+      has_remote_content: false,
+      organization_fiscal_code: aRetrievedService.organizationFiscalCode,
+      organization_name: aRetrievedService.organizationName,
       service_name: aRetrievedService.serviceName,
     };
 
@@ -1362,8 +1357,8 @@ describe("GetMessagesHandler |> Message View", () => {
           { ...expectedEnrichedMessage, id: aSimpleList[0].id },
           { ...expectedEnrichedMessage, id: aSimpleList[1].id },
         ],
-        prev: aSimpleList[0].id,
         next: aSimpleList[1].id,
+        prev: aSimpleList[0].id,
       });
     }
 
@@ -1372,15 +1367,15 @@ describe("GetMessagesHandler |> Message View", () => {
   });
 
   it("should respond with a page with a PN message if the sender service id match PN one", async () => {
-    const aPnMessageList: ReadonlyArray<RetrievedMessageView> = pipe(
+    const aPnMessageList: readonly RetrievedMessageView[] = pipe(
       RA.makeBy(5, (i) => ({
         ...aRetrievedMessageView,
-        id: `aMessageId_${i + 1}` as NonEmptyString,
-        senderServiceId: aServiceId,
         components: {
           ...aRetrievedMessageView.components,
           thirdParty: { has: true, ...aPnThirdPartyData },
         },
+        id: `aMessageId_${i + 1}` as NonEmptyString,
+        senderServiceId: aServiceId,
       })),
       RA.map(RetrievedMessageView.decode),
       RA.rights,
@@ -1391,19 +1386,14 @@ describe("GetMessagesHandler |> Message View", () => {
       TE.of(O.some(JSON.stringify(aRetrievedRCConfiguration))),
     );
 
-    let iteratorCalls = 0;
     dummyThirdPartyDataWithCategoryFetcher.mockImplementationOnce(
       (serviceId) => ({
-        category: serviceId == aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
+        category: serviceId === aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
       }),
     );
-    mockQueryPage.mockImplementationOnce((_) => {
-      return TE.of(
-        buildIterator(RetrievedMessageView, aPnMessageList, (_) => {
-          iteratorCalls++;
-        }),
-      );
-    });
+    mockQueryPage.mockImplementationOnce(() =>
+      TE.of(buildIterator(RetrievedMessageView, aPnMessageList, () => {})),
+    );
 
     const getMessagesHandler = GetMessagesHandler(
       getMessagesFunctionSelector,
@@ -1430,11 +1420,11 @@ describe("GetMessagesHandler |> Message View", () => {
         expect.objectContaining({
           items: expect.arrayContaining([
             expect.objectContaining({
-              has_precondition: true,
               category: {
                 ...aPnThirdPartyData,
                 tag: TagEnumPN.PN,
               },
+              has_precondition: true,
             }),
           ]),
         }),
@@ -1448,13 +1438,13 @@ describe("GetMessagesHandler |> Message View", () => {
   it("should respond with no messages when archived is requested", async () => {
     let iteratorCalls = 0;
 
-    mockQueryPage.mockImplementationOnce((_) => {
-      return TE.of(
-        buildIterator(RetrievedMessageView, [], (_) => {
+    mockQueryPage.mockImplementationOnce(() =>
+      TE.of(
+        buildIterator(RetrievedMessageView, [], () => {
           iteratorCalls++;
         }),
-      );
-    });
+      ),
+    );
 
     const getMessagesHandler = GetMessagesHandler(
       getMessagesFunctionSelector,
@@ -1480,8 +1470,8 @@ describe("GetMessagesHandler |> Message View", () => {
     if (result.kind === "IResponseSuccessJson") {
       expect(result.value).toEqual({
         items: [],
-        prev: undefined,
         next: undefined,
+        prev: undefined,
       });
     }
 
@@ -1492,20 +1482,20 @@ describe("GetMessagesHandler |> Message View", () => {
   it("should respond with archived messages only when archived is requested", async () => {
     let iteratorCalls = 0;
 
-    mockQueryPage.mockImplementationOnce((_) => {
-      return TE.of(
+    mockQueryPage.mockImplementationOnce(() =>
+      TE.of(
         buildIterator(
           RetrievedMessageView,
           aSimpleList.map((m, i) => ({
             ...m,
             status: { ...m.status, archived: i === 0 },
           })),
-          (_) => {
+          () => {
             iteratorCalls++;
           },
         ),
-      );
-    });
+      ),
+    );
 
     const getMessagesHandler = GetMessagesHandler(
       getMessagesFunctionSelector,
@@ -1537,10 +1527,10 @@ describe("GetMessagesHandler |> Message View", () => {
         rptId: `${aRetrievedService.organizationFiscalCode}177777777777777777`,
         tag: "PAYMENT",
       },
-      has_remote_content: false,
       has_precondition: false,
-      organization_name: aRetrievedService.organizationName,
+      has_remote_content: false,
       organization_fiscal_code: aRetrievedService.organizationFiscalCode,
+      organization_name: aRetrievedService.organizationName,
       service_name: aRetrievedService.serviceName,
     };
 
@@ -1553,8 +1543,8 @@ describe("GetMessagesHandler |> Message View", () => {
             is_archived: true,
           },
         ],
-        prev: aSimpleList[0].id,
         next: undefined,
+        prev: aSimpleList[0].id,
       });
     }
 
@@ -1566,20 +1556,20 @@ describe("GetMessagesHandler |> Message View", () => {
   it("should respond with internal error when messages cannot be enriched with service info", async () => {
     let iteratorCalls = 0;
 
-    mockQueryPage.mockImplementationOnce((_) => {
-      return TE.of(
+    mockQueryPage.mockImplementationOnce(() =>
+      TE.of(
         buildIterator(
           RetrievedMessageView,
           aSimpleList.map((m) => ({
             ...m,
             status: { ...m.status, archived: true },
           })),
-          (_) => {
+          () => {
             iteratorCalls++;
           },
         ),
-      );
-    });
+      ),
+    );
 
     mockFindLastVersionByModelId.mockImplementationOnce(() =>
       TE.left(toCosmosErrorResponse("Any error message")),
@@ -1614,7 +1604,7 @@ describe("GetMessagesHandler |> Message View", () => {
   });
 
   it("should respond with query error if it cannot build queryPage iterator", async () => {
-    mockQueryPage.mockImplementationOnce((_) =>
+    mockQueryPage.mockImplementationOnce(() =>
       TE.left(toCosmosErrorResponse("Cosmos Error")),
     );
 
@@ -1641,16 +1631,16 @@ describe("GetMessagesHandler |> Message View", () => {
   });
 
   it("should respond with query error if it cannot retrieve messages", async () => {
-    mockQueryPage.mockImplementationOnce((_) => {
-      return TE.of(
+    mockQueryPage.mockImplementationOnce(() =>
+      TE.of(
         buildIterator(
           RetrievedMessageView,
           aSimpleList,
-          (_) => {},
+          () => {},
           Error("IterationError"),
         ),
-      );
-    });
+      ),
+    );
 
     const getMessagesHandler = GetMessagesHandler(
       getMessagesFunctionSelector,

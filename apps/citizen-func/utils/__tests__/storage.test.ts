@@ -1,9 +1,9 @@
 import { ServiceResponse, TableService } from "azure-storage";
 import { left, right } from "fp-ts/lib/Either";
 import { none, some } from "fp-ts/lib/Option";
-import { deleteTableEntity, insertTableEntity } from "../storage";
+import { describe, expect, it, vi } from "vitest";
 
-import { vi, expect, describe, it } from "vitest";
+import { deleteTableEntity, insertTableEntity } from "../storage";
 
 const mockInsertEntity = vi.fn();
 const mockDeleteEntity = vi.fn();
@@ -36,7 +36,7 @@ describe("insertTableEntity", () => {
     ${"returns an error if insertEntity fail with a response"} | ${genericError} | ${null}               | ${anErrorResponse}  | ${left(genericError)}        | ${anErrorResponse}
     ${"returns an error if insertEntity fail with no error"}   | ${null}         | ${null}               | ${anErrorResponse}  | ${left(expect.any(Error))}   | ${anErrorResponse}
     ${"returns the response value if insertEntity succeded"}   | ${null}         | ${anEntityDescriptor} | ${aSuccessResponse} | ${right(anEntityDescriptor)} | ${aSuccessResponse}
-  `("should $title", async ({ error, result, response, e1, e2 }) => {
+  `("should $title", async ({ e1, e2, error, response, result }) => {
     mockInsertEntity.mockImplementationOnce((_, __, callback) =>
       callback(error, result, response),
     );
@@ -61,7 +61,7 @@ describe("deleteTableEntity", () => {
     ${"returns an error if deleteEntity fail with a response"} | ${genericError} | ${anErrorResponse}  | ${some(genericError)}      | ${anErrorResponse}
     ${"returns an error if deleteEntity fail with no error"}   | ${null}         | ${anErrorResponse}  | ${some(expect.any(Error))} | ${anErrorResponse}
     ${"returns the response value if deleteEntity succeded"}   | ${null}         | ${aSuccessResponse} | ${none}                    | ${aSuccessResponse}
-  `("should $title", async ({ error, response, e1, e2 }) => {
+  `("should $title", async ({ e1, e2, error, response }) => {
     mockDeleteEntity.mockImplementationOnce((_, __, callback) =>
       callback(error, response),
     );

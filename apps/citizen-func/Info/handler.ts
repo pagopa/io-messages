@@ -1,5 +1,4 @@
-import * as express from "express";
-
+import { CosmosClient } from "@azure/cosmos";
 import { wrapRequestHandler } from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import {
   IResponseErrorInternal,
@@ -7,12 +6,12 @@ import {
   ResponseErrorInternal,
   ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
-import { pipe } from "fp-ts/lib/function";
+import * as express from "express";
 import * as TE from "fp-ts/lib/TaskEither";
-import * as packageJson from "../package.json";
+import { pipe } from "fp-ts/lib/function";
 
-import { checkApplicationHealth, HealthCheck } from "../utils/healthcheck";
-import { CosmosClient } from "@azure/cosmos";
+import * as packageJson from "../package.json";
+import { HealthCheck, checkApplicationHealth } from "../utils/healthcheck";
 
 interface IInfo {
   readonly name: string;
@@ -20,10 +19,9 @@ interface IInfo {
 }
 
 type InfoHandler = () => Promise<
-  IResponseSuccessJson<IInfo> | IResponseErrorInternal
+  IResponseErrorInternal | IResponseSuccessJson<IInfo>
 >;
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   return () =>
@@ -31,7 +29,7 @@ export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
       healthCheck,
       TE.bimap(
         (problems) => ResponseErrorInternal(problems.join("\n\n")),
-        (_) =>
+        () =>
           ResponseSuccessJson({
             name: packageJson.name,
             version: packageJson.version,
@@ -41,7 +39,6 @@ export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
     )();
 }
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function Info(
   cosmosClient: CosmosClient,
   remoteContentCosmosClient: CosmosClient,

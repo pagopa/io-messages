@@ -68,7 +68,8 @@
         "sending-func#generate:definitions",
         "sending-func#generate:backend-notification-hub",
         "cqrs-func#generate:payment-updater",
-        "cqrs-func#generate:avro"
+        "cqrs-func#generate:avro",
+        "push-notifications-func#generate:backend-notification-hub"
       ],
       "inputs": ["apps/**/src/**/*.ts", "packages/**/src/**/*.ts"],
       "outputs": ["coverage"],

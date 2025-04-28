@@ -7,25 +7,24 @@ import {
   createQueueService,
   createTableService,
 } from "azure-storage";
-
+import { sequenceT } from "fp-ts/lib/Apply";
 import * as A from "fp-ts/lib/Array";
 import * as E from "fp-ts/lib/Either";
-import { pipe } from "fp-ts/lib/function";
 import * as RA from "fp-ts/lib/ReadonlyArray";
 import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
-
-import { sequenceT } from "fp-ts/lib/Apply";
+import { pipe } from "fp-ts/lib/function";
 import fetch from "node-fetch";
-import { getConfig, IConfig } from "./config";
+
+import { IConfig, getConfig } from "./config";
 
 type ProblemSource = "AzureCosmosDB" | "AzureStorage" | "Config" | "Url";
-// eslint-disable-next-line functional/prefer-readonly-type, @typescript-eslint/naming-convention
-export type HealthProblem<S extends ProblemSource> = string & { __source: S };
+// @typescript-eslint/naming-convention
+export type HealthProblem<S extends ProblemSource> = { __source: S } & string;
 export type HealthCheck<
   S extends ProblemSource = ProblemSource,
   True = true,
-> = TE.TaskEither<ReadonlyArray<HealthProblem<S>>, True>;
+> = TE.TaskEither<readonly HealthProblem<S>[], True>;
 
 // format and cast a problem message with its source
 const formatProblem = <S extends ProblemSource>(
@@ -36,7 +35,7 @@ const formatProblem = <S extends ProblemSource>(
 // utility to format an unknown error to an arry of HealthProblem
 const toHealthProblems =
   <S extends ProblemSource>(source: S) =>
-  (e: unknown): ReadonlyArray<HealthProblem<S>> => [
+  (e: unknown): readonly HealthProblem<S>[] => [
     formatProblem(source, E.toError(e).message),
   ];
 
@@ -72,7 +71,7 @@ export const checkAzureCosmosDbHealth = (
       () => cosmosDbClient.getDatabaseAccount(),
       toHealthProblems("AzureCosmosDB"),
     ),
-    TE.map((_) => true),
+    TE.map(() => true),
   );
 
 /**
@@ -116,7 +115,7 @@ export const checkAzureStorageHealth = (
       ),
     // run each taskEither and gather validation errors from each one of them, if any
     A.sequence(applicativeValidation),
-    TE.map((_) => true),
+    TE.map(() => true),
   );
 };
 
@@ -130,7 +129,7 @@ export const checkAzureStorageHealth = (
 export const checkUrlHealth = (url: string): HealthCheck<"Url", true> =>
   pipe(
     TE.tryCatch(() => fetch(url, { method: "HEAD" }), toHealthProblems("Url")),
-    TE.map((_) => true),
+    TE.map(() => true),
   );
 
 /**
@@ -150,7 +149,7 @@ export const checkApplicationHealth = (
   return pipe(
     void 0,
     TE.of,
-    TE.chain((_) => checkConfigHealth()),
+    TE.chain(() => checkConfigHealth()),
     TE.chain((config) =>
       // run each taskEither and collect validation errors from each one of them, if any
       sequenceT(applicativeValidation)(
@@ -164,6 +163,6 @@ export const checkApplicationHealth = (
         ),
       ),
     ),
-    TE.map((_) => true),
+    TE.map(() => true),
   );
 };

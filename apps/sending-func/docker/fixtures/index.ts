@@ -4,21 +4,20 @@
 import { ContainerResponse, CosmosClient, Database } from "@azure/cosmos";
 import {
   NewProfile,
-  Profile,
   PROFILE_COLLECTION_NAME,
-  ProfileModel
+  Profile,
+  ProfileModel,
 } from "@pagopa/io-functions-commons/dist/src/models/profile";
 import {
   NewService,
-  Service,
   SERVICE_COLLECTION_NAME,
-  ServiceModel
+  Service,
+  ServiceModel,
 } from "@pagopa/io-functions-commons/dist/src/models/service";
-
 import * as A from "fp-ts/lib/Apply";
 import * as E from "fp-ts/lib/Either";
-import { pipe } from "fp-ts/lib/function";
 import * as TE from "fp-ts/lib/TaskEither";
+import { pipe } from "fp-ts/lib/function";
 
 import { getConfigOrThrow } from "../../utils/config";
 
@@ -29,27 +28,27 @@ export const cosmosDbKey = config.COSMOSDB_KEY;
 
 export const cosmosdbClient = new CosmosClient({
   endpoint: cosmosDbUri,
-  key: cosmosDbKey
+  key: cosmosDbKey,
 });
 
 function createDatabase(databaseName: string): TE.TaskEither<Error, Database> {
   return pipe(
     TE.tryCatch(
       () => cosmosdbClient.databases.create({ id: databaseName }),
-      E.toError
+      E.toError,
     ),
-    TE.map(_ => _.database)
+    TE.map((_) => _.database),
   );
 }
 
 function createCollection(
   db: Database,
   collectionName: string,
-  partitionKey: string
+  partitionKey: string,
 ): TE.TaskEither<Error, ContainerResponse> {
   return TE.tryCatch(
     () => db.containers.createIfNotExists({ id: collectionName, partitionKey }),
-    E.toError
+    E.toError,
   );
 }
 
@@ -64,21 +63,21 @@ const aService: Service = pipe(
     organizationName: "Organization name",
     requireSecureChannels: false,
     serviceId: config.REQ_SERVICE_ID,
-    serviceName: "MyServiceName"
+    serviceName: "MyServiceName",
   }),
   E.getOrElseW(() => {
     throw new Error("Cannot decode service payload.");
-  })
+  }),
 );
 
 const aNewService = pipe(
   NewService.decode({
     ...aService,
-    kind: "INewService"
+    kind: "INewService",
   }),
   E.getOrElseW(() => {
     throw new Error("Cannot decode new service.");
-  })
+  }),
 );
 
 const aProfile: Profile = pipe(
@@ -89,26 +88,26 @@ const aProfile: Profile = pipe(
     isEmailEnabled: true,
     isEmailValidated: true,
     isInboxEnabled: true,
-    isWebhookEnabled: true
+    isWebhookEnabled: true,
   }),
   E.getOrElseW(() => {
     throw new Error("Cannot decode profile payload.");
-  })
+  }),
 );
 
 const aNewProfile = pipe(
   NewProfile.decode({
     ...aProfile,
-    kind: "INewProfile"
+    kind: "INewProfile",
   }),
   E.getOrElseW(() => {
     throw new Error("Cannot decode new profile.");
-  })
+  }),
 );
 
 pipe(
   createDatabase(config.COSMOSDB_NAME),
-  TE.chain(db =>
+  TE.chain((db) =>
     pipe(
       A.sequenceT(TE.ApplicativeSeq)(
         createCollection(db, "message-status", "messageId"),
@@ -116,27 +115,27 @@ pipe(
         createCollection(db, "notification-status", "notificationId"),
         createCollection(db, "notifications", "messageId"),
         createCollection(db, "profiles", "fiscalCode"),
-        createCollection(db, "services", "serviceId")
+        createCollection(db, "services", "serviceId"),
       ),
-      TE.map(_ => db)
-    )
+      TE.map((_) => db),
+    ),
   ),
-  TE.chain(db =>
+  TE.chain((db) =>
     pipe(
       A.sequenceT(TE.ApplicativeSeq)(
         new ServiceModel(db.container(SERVICE_COLLECTION_NAME)).create(
-          aNewService
+          aNewService,
         ),
         new ProfileModel(db.container(PROFILE_COLLECTION_NAME)).create(
-          aNewProfile
-        )
+          aNewProfile,
+        ),
       ),
-      TE.mapLeft(_ => new Error(`CosmosError: ${_.kind}`))
-    )
-  )
+      TE.mapLeft((_) => new Error(`CosmosError: ${_.kind}`)),
+    ),
+  ),
 )().then(
-  // eslint-disable-next-line no-console
-  _ => console.log(`Successfully created fixtures`),
-  // eslint-disable-next-line no-console
-  _ => console.error(`Failed generate fixtures ${_.message}`)
+  /* eslint-disable no-console */
+  () => console.log(`Successfully created fixtures`),
+  (error) => console.error(`Failed to generate fixtures ${error.message}`),
+  /* eslint-enable no-console */
 );

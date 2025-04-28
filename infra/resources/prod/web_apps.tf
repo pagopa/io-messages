@@ -23,9 +23,10 @@ module "web_apps" {
   subnet_pep_id = data.azurerm_subnet.pep.id
 
   subnet_cidrs = {
-    notif_func   = "10.20.8.0/26"
-    etl_func     = "10.20.8.0/26"
-    citizen_func = "10.20.8.64/26"
+    etl_func        = "10.20.8.0/26"
+    citizen_func    = "10.20.8.64/26"
+    ops_func        = "10.20.10.0/26"
+    push_notif_func = "10.20.10.64/26"
     cqrs_func    = "10.20.10.0/26"
   }
 
@@ -60,10 +61,13 @@ module "web_apps" {
   cosmosdb_account_api       = data.azurerm_cosmosdb_account.cosmos_api
   io_com_cosmos              = data.azurerm_cosmosdb_account.io_com_cosmos
   com_st_id                  = module.storage_api_weu.com_st_id
+  com_st_uri                 = data.azurerm_storage_account.storage_api_com.primary_blob_endpoint
+  com_st_queue_uri           = data.azurerm_storage_account.storage_api_com.primary_queue_endpoint
 
   tenant_id = data.azurerm_client_config.current.tenant_id
 
-  action_group_id = module.monitoring.action_group.io_com_error_id
+  action_group_id        = module.monitoring.action_group.io_com_error_id
+  com_st_connectiostring = module.storage_api_weu.com_st_connectiostring
 
   cqrs_func_ehns_enabled = true
 }

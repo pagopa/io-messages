@@ -1,3 +1,4 @@
+import { Context } from "@azure/functions";
 import { vi } from "vitest";
 
 export const context = {
@@ -7,4 +8,4 @@ export const context = {
     verbose: vi.fn(),
     warn: vi.fn(),
   },
-};
+} as unknown as Context;

@@ -5,27 +5,26 @@
  * The configuration is evaluate eagerly at the first access to the module. The module exposes convenient methods to access such value.
  */
 
-import * as t from "io-ts";
-
-import * as E from "fp-ts/lib/Either";
-import * as O from "fp-ts/lib/Option";
-import { pipe } from "fp-ts/lib/function";
-
-import { readableReport } from "@pagopa/ts-commons/lib/reporters";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
 import {
   IntegerFromString,
   NonNegativeInteger,
   NonNegativeIntegerFromString,
 } from "@pagopa/ts-commons/lib/numbers";
+import { readableReport } from "@pagopa/ts-commons/lib/reporters";
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { withDefault } from "@pagopa/ts-commons/lib/types";
-import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
+import * as E from "fp-ts/lib/Either";
+import * as O from "fp-ts/lib/Option";
+import { pipe } from "fp-ts/lib/function";
+import * as t from "io-ts";
+
 import { CommaSeparatedListOf } from "./types";
 
 // exclude a specific value from a type
 // as strict equality is performed, allowed input types are constrained to be values not references (object, arrays, etc)
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const AnyBut = <A extends string | number | boolean | symbol, Out = A>(
+const AnyBut = <A extends boolean | number | string | symbol, Out = A>(
   but: A,
   base: t.Type<A, Out> = t.any,
 ) =>
@@ -81,33 +80,33 @@ export const IConfig = t.intersection([
     /* eslint-disable sort-keys */
     APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
-    COSMOSDB_NAME: NonEmptyString,
-    COSMOSDB_URI: NonEmptyString,
-
-    REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
-    REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
-
-    INTERNAL_USER_ID: NonEmptyString,
-
-    FF_TYPE: withDefault(t.string, "none").pipe(FeatureFlagType),
-    USE_FALLBACK: withDefault(t.string, "false").pipe(BooleanFromString),
-    FF_BETA_TESTERS: withDefault(t.string, "").pipe(
-      CommaSeparatedListOf(NonEmptyString),
-    ),
-    FF_CANARY_USERS_REGEX: withDefault(t.string, "XYZ").pipe(NonEmptyString),
-
     BACKEND_BASE_URL: NonEmptyString,
     BACKEND_TOKEN: NonEmptyString,
 
-    MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
+    COSMOSDB_NAME: NonEmptyString,
+    COSMOSDB_URI: NonEmptyString,
+
+    FF_BETA_TESTERS: withDefault(t.string, "").pipe(
+      CommaSeparatedListOf(NonEmptyString),
+    ),
+
+    FF_CANARY_USERS_REGEX: withDefault(t.string, "XYZ").pipe(NonEmptyString),
+    FF_TYPE: withDefault(t.string, "none").pipe(FeatureFlagType),
+    INTERNAL_USER_ID: NonEmptyString,
+    MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: NonNegativeInteger,
+
     MESSAGE_CONTAINER_NAME: NonEmptyString,
+    MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
 
     NOTIFICATION_QUEUE_NAME: NonEmptyString,
     NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: NonEmptyString,
 
     RC_CONFIGURATION_CACHE_TTL: NonNegativeIntegerFromString,
+    REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
 
-    MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: NonNegativeInteger,
+    REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
+
+    USE_FALLBACK: withDefault(t.string, "false").pipe(BooleanFromString),
 
     isProduction: t.boolean,
     /* eslint-enable sort-keys */
@@ -151,7 +150,6 @@ const errorOrConfig: t.Validation<IConfig> = IConfig.decode({
  *
  * @returns either the configuration values or a list of validation errors
  */
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function getConfig(): t.Validation<IConfig> {
   return errorOrConfig;
 }
@@ -163,7 +161,6 @@ export function getConfig(): t.Validation<IConfig> {
  * @returns the configuration values
  * @throws validation errors found while parsing the application configuration
  */
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function getConfigOrThrow(): IConfig {
   return pipe(
     errorOrConfig,
