@@ -1,0 +1,21 @@
+meta {
+  name: CreateRCConfiguration
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{sending_func_url}}/api/v1/remote-contents/configurations
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "New configuration",
+    "description": "A new RC Configuration",
+    "has_precondition": "NEVER",
+    "disable_lollipop_for": [],
+    "is_lollipop_enabled": false
+  }
+}
