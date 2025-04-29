@@ -26,7 +26,6 @@ import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 
-import { RC_CONFIGURATION_REDIS_PREFIX } from "../GetRCConfiguration/handler";
 import { NewRCConfigurationPublic } from "../../generated/definitions/NewRCConfigurationPublic";
 import {
   RequiredSubscriptionIdMiddleware,
@@ -38,6 +37,7 @@ import { makeNewRCConfigurationWithConfigurationId } from "../../utils/mappers";
 import { RedisClientFactory } from "../../utils/redis";
 import { setWithExpirationTask } from "../../utils/redis_storage";
 import { checkGroupAndManageSubscription } from "../../utils/remote_content";
+import { RC_CONFIGURATION_REDIS_PREFIX } from "../GetRCConfiguration/handler";
 
 export const eventName = "remote.content.configuration.updated";
 

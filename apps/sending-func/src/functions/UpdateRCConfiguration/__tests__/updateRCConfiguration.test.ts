@@ -13,8 +13,8 @@ import {
   rccModelMock,
   upsertConfigurationMock,
 } from "../../../__mocks__/remote-content";
-import { RC_CONFIGURATION_REDIS_PREFIX } from "../../GetRCConfiguration/handler";
 import * as redis_storage from "../../../utils/redis_storage";
+import { RC_CONFIGURATION_REDIS_PREFIX } from "../../GetRCConfiguration/handler";
 import {
   handleEmptyConfiguration,
   handleGetRCConfiguration,

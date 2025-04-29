@@ -63,8 +63,8 @@ export const CosmosDbParams = t.intersection([
       NODE_ENV: t.literal("production"),
     }),
     t.type({
-      NODE_ENV: t.literal("development"),
       COSMOSDB_KEY: NonEmptyString,
+      NODE_ENV: t.literal("development"),
       REMOTE_CONTENT_COSMOSDB_KEY: NonEmptyString,
     }),
   ]),
