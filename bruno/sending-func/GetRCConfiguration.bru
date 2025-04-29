@@ -1,0 +1,17 @@
+meta {
+  name: GetRCConfiguration
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{sending_func_url}}/api/v1/remote-contents/configurations/{{configuration_id}}
+  body: none
+  auth: none
+}
+
+headers {
+  x-user-id: {{user_id}}
+  x-user-groups: {{user_groups}}
+  x-subscription-id: {{subscription_id}}
+}

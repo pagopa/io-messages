@@ -8,6 +8,8 @@ export const envConfig: IConfig = {
 
   BACKEND_BASE_URL: "aBaseUrl" as NonEmptyString,
 
+  NODE_ENV: "production",
+
   BACKEND_TOKEN: "aToken" as NonEmptyString,
   COSMOSDB_NAME: "aName" as NonEmptyString,
 
