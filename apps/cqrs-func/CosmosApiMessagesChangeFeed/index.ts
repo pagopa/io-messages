@@ -11,7 +11,6 @@ import { AzureContextTransport } from "@pagopa/io-functions-commons/dist/src/uti
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 
 import { QueueClient } from "@azure/storage-queue";
-import { fromSas } from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import { initTelemetryClient } from "../utils/appinsights";
 import { getConfigOrThrow } from "../utils/config";
 import { cosmosdbInstance } from "../utils/cosmosdb";
@@ -20,6 +19,7 @@ import { avroMessageFormatter } from "../utils/formatter/messagesAvroFormatter";
 import { getThirdPartyDataWithCategoryFetcher } from "../utils/message";
 import { IBulkOperationResult } from "../utils/publish";
 import { handleMessageChange } from "./handler";
+import { fromSas } from "../utils/event_hub";
 
 // eslint-disable-next-line functional/no-let
 let logger: Context["log"] | undefined;
@@ -36,6 +36,7 @@ const telemetryClient = initTelemetryClient(
 
 const kafkaClient = fromSas(
   config.MESSAGES_TOPIC_CONNECTION_STRING,
+  config.KAFKA_SSL_ACTIVE,
   avroMessageFormatter(getThirdPartyDataWithCategoryFetcher(config))
 );
 
