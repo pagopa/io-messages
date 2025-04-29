@@ -7,7 +7,6 @@ It uses the Azure Notification Hub to enable the push notifications and the devi
 ## Start locally
 
 ```shell
-cp env.example .env
 cp local.settings.json.example local.settings.json
 yarn install
 
@@ -15,8 +14,6 @@ yarn install
 export FUNCTIONS_WORKER_RUNTIME=node
 
 #requires .net installed on your machine. Tested with v8.0 and 9.0 
-yarn extensions:install    
-
 yarn build
 yarn start
 ```
@@ -53,7 +50,3 @@ Those are all Environment variables needed by the application:
 | NH4_NAME            | The name of the Notification Hub in the forth namespace                                | string | true     |
 | NH4_PARTITION_REGEX | The regex which defines the user subset associated with the forth namespace Namespace  | string | true     |
 
-
-## Deploy
-
-Deployment is automatized by a [pipeline](./.devops/deploy-pipelines.yml)

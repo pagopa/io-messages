@@ -6,7 +6,7 @@ const { defineConfig } = require("@yarnpkg/types");
 const LEGACY_WORKSPACES = [
   "sending-func",
   "citizen-func",
-  "push-notifications-func",
+  "pushnotif-func",
   "cqrs-func"
 ];
 
