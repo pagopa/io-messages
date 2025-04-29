@@ -15,16 +15,12 @@ const aadCredentials = new DefaultAzureCredential();
 // We will refactor this in the future to focus this service on "Remote Content" only.
 
 export const cosmosdbClient = new CosmosClient({
-  ...(config.NODE_ENV === "development"
-    ? { key: config.COSMOSDB_KEY }
-    : { aadCredentials }),
+  aadCredentials,
   endpoint: config.COSMOSDB_URI,
 });
 
 export const remoteContentCosmosDbClient = new CosmosClient({
-  ...(config.NODE_ENV === "development"
-    ? { key: config.REMOTE_CONTENT_COSMOSDB_KEY }
-    : { aadCredentials }),
+  aadCredentials,
   endpoint: config.REMOTE_CONTENT_COSMOSDB_URI,
 });
 

@@ -53,12 +53,6 @@ services:
       - "8025:8025"
       - "1025:1025"
 
-  cosmosdb:
-    image: "mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview@sha256:9aac06e133da5f9f4ee7d9cf9022bf5133095cbeebc3685c563cf2fced432594"
-    ports:
-      - "8081:8081"
-      - "8003:1234"
-
   mock-server:
     image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
     command: ["--data", "data", "--port", "3000"]

@@ -17,8 +17,6 @@ export const envConfig: IConfig = {
   MESSAGE_CONTAINER_NAME: "aContainerName" as NonEmptyString,
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: "aConnString" as NonEmptyString,
 
-  NODE_ENV: "production",
-
   NOTIFICATION_QUEUE_NAME: "aQueueName" as NonEmptyString,
   NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: "aConnString" as NonEmptyString,
 

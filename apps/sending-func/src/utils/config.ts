@@ -25,51 +25,6 @@ export const RedisParams = t.intersection([
 ]);
 export type RedisParams = t.TypeOf<typeof RedisParams>;
 
-/**
- * Configuration parameters for Cosmos DB.
- *
- * This configuration is a combination of:
- * 1. Required parameters for all environments (COSMOSDB_NAME, COSMOSDB_URI)
- * 2. Environment-specific parameters:
- *    - For production environment: only NODE_ENV = "production" is required (we use managed identity)
- *    - For development environment: NODE_ENV = "development" plus COSMOSDB_KEY are required
- *
- * @example
- * // Production configuration
- * {
- *   COSMOSDB_NAME: "mydb",
- *   COSMOSDB_URI: "https://mydb.documents.azure.com:443/",
- *   NODE_ENV: "production"
- * }
- *
- * @example
- * // Development configuration
- * {
- *   COSMOSDB_NAME: "mydb",
- *   COSMOSDB_URI: "https://mydb.documents.azure.com:443/",
- *   NODE_ENV: "development",
- *   COSMOSDB_KEY: "your-cosmos-db-key"
- * }
- */
-export const CosmosDbParams = t.intersection([
-  t.type({
-    COSMOSDB_NAME: NonEmptyString,
-    COSMOSDB_URI: NonEmptyString,
-    REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
-    REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
-  }),
-  t.union([
-    t.type({
-      NODE_ENV: t.literal("production"),
-    }),
-    t.type({
-      COSMOSDB_KEY: NonEmptyString,
-      NODE_ENV: t.literal("development"),
-      REMOTE_CONTENT_COSMOSDB_KEY: NonEmptyString,
-    }),
-  ]),
-]);
-
 // global app configuration
 export const IConfig = t.intersection([
   t.interface({
@@ -79,6 +34,9 @@ export const IConfig = t.intersection([
     BACKEND_BASE_URL: NonEmptyString,
     BACKEND_TOKEN: NonEmptyString,
 
+    COSMOSDB_NAME: NonEmptyString,
+
+    COSMOSDB_URI: NonEmptyString,
     INTERNAL_USER_ID: NonEmptyString,
 
     MESSAGE_CONTAINER_NAME: NonEmptyString,
@@ -86,14 +44,15 @@ export const IConfig = t.intersection([
 
     NOTIFICATION_QUEUE_NAME: NonEmptyString,
     NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: NonEmptyString,
-
     RC_CONFIGURATION_CACHE_TTL: NonNegativeIntegerFromString,
+    REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
+
+    REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
 
     isProduction: t.boolean,
     /* eslint-enable sort-keys */
   }),
   RedisParams,
-  CosmosDbParams,
 ]);
 export type IConfig = t.TypeOf<typeof IConfig>;
 
