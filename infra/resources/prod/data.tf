@@ -1,21 +1,11 @@
-data "azurerm_subscription" "current" {}
-
 data "azurerm_client_config" "current" {}
 
 data "azurerm_resource_group" "weu_common" {
   name = "${local.project_legacy}-rg-common"
 }
 
-data "azurerm_resource_group" "itn_messages" {
-  name = "${local.project}-msgs-rg-01"
-}
-
 data "azurerm_resource_group" "itn_common_01" {
   name = "${local.project}-common-rg-01"
-}
-
-data "azurerm_resource_group" "weu_sec" {
-  name = "${local.project_legacy}-sec-rg"
 }
 
 data "azurerm_resource_group" "operations_weu" {
@@ -90,11 +80,6 @@ data "azurerm_key_vault_secret" "internal_user" {
   key_vault_id = data.azurerm_key_vault.weu_messages.id
 }
 
-data "azurerm_key_vault_secret" "fn_messages_APP_MESSAGES_BETA_FISCAL_CODES" {
-  name         = "BETA-FISCAL-CODES"
-  key_vault_id = data.azurerm_key_vault.weu_messages.id
-}
-
 data "azurerm_cosmosdb_account" "cosmos_api" {
   name                = format("%s-cosmos-api", local.project_legacy)
   resource_group_name = format("%s-rg-internal", local.project_legacy)
@@ -103,11 +88,6 @@ data "azurerm_cosmosdb_account" "cosmos_api" {
 data "azurerm_storage_account" "storage_api" {
   name                = replace("${local.project_legacy}stapi", "-", "")
   resource_group_name = format("%s-rg-internal", local.project_legacy)
-}
-
-data "azurerm_storage_account" "storage_api_com" {
-  name                = module.storage_api_weu.com_st_name
-  resource_group_name = module.storage_api_weu.com_st_rg
 }
 
 data "azurerm_storage_container" "messages_content_container" {
@@ -125,24 +105,19 @@ data "azurerm_storage_account" "iopstexportdata" {
   resource_group_name = data.azurerm_resource_group.operations_weu.name
 }
 
-data "azurerm_monitor_action_group" "io_com_action_group" {
-  resource_group_name = "${local.project}-com-rg-01"
-  name                = "${local.project_legacy}-com-error-ag-01"
-}
-
 data "azurerm_user_assigned_identity" "infra_ci_01" {
   name                = "${local.project}-msgs-infra-github-ci-id-01"
-  resource_group_name = data.azurerm_resource_group.itn_messages.name
+  resource_group_name = var.legacy_itn_rg
 }
 
 data "azurerm_user_assigned_identity" "infra_cd_01" {
   name                = "${local.project}-msgs-infra-github-cd-id-01"
-  resource_group_name = data.azurerm_resource_group.itn_messages.name
+  resource_group_name = var.legacy_itn_rg
 }
 
 data "azurerm_user_assigned_identity" "app_cd_01" {
   name                = "${local.project}-msgs-app-github-cd-id-01"
-  resource_group_name = data.azurerm_resource_group.itn_messages.name
+  resource_group_name = var.legacy_itn_rg
 }
 
 data "azuread_group" "adgroup_io_admins" {

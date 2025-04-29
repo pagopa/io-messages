@@ -29,8 +29,8 @@ module "redis_messages" {
   source = "github.com/pagopa/terraform-azurerm-v4//redis_cache?ref=v1.2.1"
 
   name                = "${local.project}-msgs-redis-01"
-  resource_group_name = data.azurerm_resource_group.itn_messages.name
-  location            = data.azurerm_resource_group.itn_messages.location
+  resource_group_name = var.legacy_itn_rg
+  location            = "italynorth"
 
   capacity              = 2
   family                = "C"
@@ -80,7 +80,7 @@ module "functions_messages_sending" {
   location            = local.location
   project             = local.project
   domain              = "msgs"
-  resource_group_name = data.azurerm_resource_group.itn_messages.name
+  resource_group_name = var.legacy_itn_rg
 
   cidr_subnet_messages_sending_func    = "10.20.1.0/24"
   private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
@@ -94,7 +94,7 @@ module "functions_messages_sending" {
   ai_sampling_percentage = 5
 
   cosmosdb_api = data.azurerm_cosmosdb_account.cosmos_api
-  cosmosdb_com = module.cosmos.io_com_cosmos
+  cosmosdb_com = module.cosmos.io_com_cosmos_account
 
   redis_url      = module.redis_messages.hostname
   redis_port     = module.redis_messages.ssl_port
@@ -109,7 +109,7 @@ module "functions_messages_sending" {
 
   tags = local.tags
 
-  action_group_id = module.monitoring.action_group.io_com_error_id
+  action_group_id = module.monitoring.action_group.id
 }
 
 module "monitoring" {
@@ -126,7 +126,7 @@ module "cosmos" {
   cosmosdb_account = data.azurerm_cosmosdb_account.cosmos_api
   tags             = local.tags
   resource_group   = "io-p-itn-com-rg-01"
-  action_group_id  = module.monitoring.action_group.io_com_error_id
+  action_group_id  = module.monitoring.action_group.id
   subnet_pep_id    = data.azurerm_subnet.pep.id
   environment = {
     prefix          = local.prefix
