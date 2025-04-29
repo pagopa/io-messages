@@ -58,3 +58,11 @@ services:
     ports:
       - "8081:8081"
       - "8003:1234"
+
+  mock-server:
+    image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
+    command: ["--data", "data", "--port", "3000"]
+    ports:
+      - "8004:3000"
+    volumes:
+      - "./mockoon.json:/data:readonly"
