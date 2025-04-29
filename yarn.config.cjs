@@ -3,11 +3,7 @@ const { defineConfig } = require("@yarnpkg/types");
 
 // We don't want to apply the same configuration to all workspaces.
 // These workspaces use a different toolchain that will be migrated in the future.
-const LEGACY_WORKSPACES = [
-  "sending-func",
-  "citizen-func",
-  "push-notifications-func",
-];
+const LEGACY_WORKSPACES = ["sending-func", "citizen-func", "pushnotif-func"];
 
 /** @param {import('@yarnpkg/types').Yarn.Constraints.Workspace} w */
 function setWorkspaceScripts(w) {

@@ -8,7 +8,7 @@ LAYOUT_WITH_LEGEND()
 title Push Notifications
 
 Boundary(io, "Push Notifications Function") {
-    Container(pushNotifFunc, "push-notifications-func", "Azure Durable Function")
+    Container(pushNotifFunc, "pushnotif-func", "Azure Durable Function")
     Container(internalStorage, "func-internal-storage", "Azure Storage Account")
     Container(durableStorage, "func-durable-storage", "Azure Storage Account")
 }
