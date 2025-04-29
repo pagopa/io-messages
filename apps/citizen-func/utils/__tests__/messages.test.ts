@@ -1,4 +1,18 @@
+import { Context } from "@azure/functions";
+import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
+import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
+import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
+import { HasPreconditionEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/HasPrecondition";
 import { MaxAllowedPaymentAmount } from "@pagopa/io-functions-commons/dist/generated/definitions/MaxAllowedPaymentAmount";
+import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
+import { TagEnum as TagEnumPn } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
+import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
+import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
+import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
+import {
+  NewMessageWithoutContent,
+  RetrievedMessageWithoutContent,
+} from "@pagopa/io-functions-commons/dist/src/models/message";
 import {
   NewService,
   RetrievedService,
@@ -7,51 +21,38 @@ import {
   toAuthorizedCIDRs,
   toAuthorizedRecipients,
 } from "@pagopa/io-functions-commons/dist/src/models/service";
+import { toCosmosErrorResponse } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
+import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import {
   FiscalCode,
   NonEmptyString,
   OrganizationFiscalCode,
 } from "@pagopa/ts-commons/lib/strings";
-import { aCosmosResourceMetadata } from "../../__mocks__/mocks";
+import { TelemetryClient } from "applicationinsights";
+import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
-import * as E from "fp-ts/lib/Either";
-import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
+import { beforeEach, describe, expect, it, test, vi } from "vitest";
+
+import { aCosmosResourceMetadata } from "../../__mocks__/mocks";
+import { EnrichedMessageWithContent } from "../../GetMessages/getMessagesFunctions/models";
+import { IConfig } from "../config";
 import {
-  computeFlagFromHasPrecondition,
   CreatedMessageWithoutContentWithStatus,
+  ThirdPartyDataWithCategoryFetcher,
+  computeFlagFromHasPrecondition,
   enrichServiceData,
   getThirdPartyDataWithCategoryFetcher,
   mapMessageCategory,
-  ThirdPartyDataWithCategoryFetcher,
 } from "../messages";
-import {
-  NewMessageWithoutContent,
-  RetrievedMessageWithoutContent,
-} from "@pagopa/io-functions-commons/dist/src/models/message";
-import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
-import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
-import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
-import { Context } from "@azure/functions";
-import { toCosmosErrorResponse } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
-import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
-import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
+import { RedisClientFactory } from "../redis";
 import * as redis from "../redis_storage";
-import { EnrichedMessageWithContent } from "../../GetMessages/getMessagesFunctions/models";
-import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
-import { TelemetryClient } from "applicationinsights";
-import { IConfig } from "../config";
-import { TagEnum as TagEnumPn } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
-import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
-import { HasPreconditionEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/HasPrecondition";
-
-import { it, describe, vi, expect, beforeEach, test } from "vitest";
 
 vi.stubEnv("APPLICATIONINSIGHTS_CONNECTION_STRING", "foo");
 
 const dummyThirdPartyDataWithCategoryFetcher: ThirdPartyDataWithCategoryFetcher =
-  vi.fn().mockImplementation((_serviceId) => ({
+  vi.fn().mockImplementation(() => ({
     category: TagEnumBase.GENERIC,
   }));
 
@@ -106,17 +107,17 @@ const aRetrievedMessageWithoutContent: RetrievedMessageWithoutContent = {
 };
 
 const mockedGenericContent = {
-  subject: "a subject",
   markdown: "a markdown",
+  subject: "a subject",
 } as MessageContent;
 
 const mockedPaymentContent = {
-  subject: "a subject".repeat(10),
   markdown: "a markdown".repeat(80),
   payment_data: {
     amount: 1,
     notice_number: "012345678901234567",
   },
+  subject: "a subject".repeat(10),
 } as MessageContent;
 
 const findLastVersionByModelIdMock = vi
@@ -128,7 +129,7 @@ const serviceModelMock = {
 
 const functionsContextMock = {
   log: {
-    error: vi.fn((e) => console.log(e)),
+    error: vi.fn(),
   },
 } as unknown as Context;
 
@@ -143,25 +144,25 @@ const messages: CreatedMessageWithoutContentWithStatus[] = [
 const messagesWithGenericContent: readonly EnrichedMessageWithContent[] =
   messages.map((m) => ({
     ...m,
-    id: m.id as NonEmptyString,
-    message_title: mockedGenericContent.subject,
     category: mapMessageCategory(
       m,
       mockedGenericContent,
       dummyThirdPartyDataWithCategoryFetcher,
     ),
+    id: m.id as NonEmptyString,
+    message_title: mockedGenericContent.subject,
   }));
 
 const messagesWithPaymentContent: EnrichedMessageWithContent[] = messages.map(
   (m) => ({
     ...m,
-    id: m.id as NonEmptyString,
-    message_title: mockedPaymentContent.subject,
     category: mapMessageCategory(
       m,
       mockedPaymentContent,
       dummyThirdPartyDataWithCategoryFetcher,
     ),
+    id: m.id as NonEmptyString,
+    message_title: mockedPaymentContent.subject,
   }),
 );
 
@@ -175,7 +176,7 @@ const getTaskMock = vi
   .mockImplementation(() => TE.of(O.some(JSON.stringify(aRetrievedService))));
 vi.spyOn(redis, "getTask").mockImplementation(getTaskMock);
 
-const aRedisClient = {} as any;
+const aRedisClient = {} as unknown as RedisClientFactory;
 const aServiceCacheTtl = 10 as NonNegativeInteger;
 
 // ------------------------
@@ -293,8 +294,8 @@ describe("enrichServiceData", () => {
       enrichedMessages.right.map((enrichedMessage) => {
         expect(EnrichedMessage.is(enrichedMessage)).toBe(true);
         expect(enrichedMessage.category).toEqual({
-          tag: TagEnumPayment.PAYMENT,
           rptId: `${aRetrievedService.organizationFiscalCode}${mockedPaymentContent.payment_data?.notice_number}`,
+          tag: TagEnumPayment.PAYMENT,
         });
       });
     }
@@ -471,8 +472,8 @@ describe("mapMessageCategory", () => {
       { ...aPublicExtendedMessage, sender_service_id: aPnServiceId },
       {
         ...aMessageContent,
-        third_party_data: { id: "aMessageId" },
         eu_covid_cert: { auth_code: "aCode" },
+        third_party_data: { id: "aMessageId" },
       } as MessageContent,
       getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient),
     );
@@ -480,7 +481,7 @@ describe("mapMessageCategory", () => {
   });
 });
 
-describe("computeFlagFromHasPrecondition ", () => {
+describe("computeFlagFromHasPrecondition", () => {
   it("should return false if the has_precondition is NEVER an the message has not been read", () => {
     expect(
       computeFlagFromHasPrecondition(HasPreconditionEnum.NEVER, false),

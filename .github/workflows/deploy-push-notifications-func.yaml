@@ -1,0 +1,17 @@
+name: Deploy (pushnotif-func)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  push_notifications_func_deploy:
+    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@7df96fe88497a60b297ab70537ee2d5ae1be01a2
+    name: Deploy
+    secrets: inherit
+    with:
+      workspace_name: pushnotif-func
+      environment: app-prod
+      resource_group_name: io-p-itn-com-rg-01
+      function_app_name: io-p-itn-com-pushnotif-func-01
+      use_staging_slot: true
+      use_private_agent: true

@@ -2,9 +2,9 @@
  * Use a singleton CosmosDB client across functions.
  */
 import { CosmosClient } from "@azure/cosmos";
+import { DefaultAzureCredential } from "@azure/identity";
 
 import { getConfigOrThrow } from "../utils/config";
-import { DefaultAzureCredential } from "@azure/identity";
 
 const config = getConfigOrThrow();
 
@@ -15,8 +15,8 @@ export const cosmosDbUri = config.COSMOSDB_URI;
 export const cosmosDbName = config.COSMOSDB_NAME;
 
 export const cosmosdbClient = new CosmosClient({
-  endpoint: cosmosDbUri,
   aadCredentials,
+  endpoint: cosmosDbUri,
 });
 
 export const cosmosdbInstance = cosmosdbClient.database(cosmosDbName);
@@ -26,8 +26,8 @@ export const remoteContentCosmosDbUri = config.REMOTE_CONTENT_COSMOSDB_URI;
 export const remoteContentCosmosDbName = config.REMOTE_CONTENT_COSMOSDB_NAME;
 
 export const remoteContentCosmosdbClient = new CosmosClient({
-  endpoint: remoteContentCosmosDbUri,
   aadCredentials,
+  endpoint: remoteContentCosmosDbUri,
 });
 
 export const remoteContentCosmosdbInstance =

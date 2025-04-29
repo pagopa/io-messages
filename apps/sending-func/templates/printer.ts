@@ -1,25 +1,26 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import * as t from "io-ts";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import * as t from "io-ts";
+
 import {
   NotificationType,
-  NotificationTypeEnum
+  NotificationTypeEnum,
 } from "../generated/definitions/NotificationType";
 import { messagePrinter } from "./makdown/message";
-import { reminderReadPrinter } from "./makdown/reminderRead";
 import { reminderPaymentPrinter } from "./makdown/reminderPayment";
 import { reminderPaymentLastPrinter } from "./makdown/reminderPaymentLast";
+import { reminderReadPrinter } from "./makdown/reminderRead";
 
 export const NotificationEntry = t.interface({
   organizationName: NonEmptyString,
   serviceName: NonEmptyString,
-  title: NonEmptyString
+  title: NonEmptyString,
 });
 export type NotificationEntry = t.TypeOf<typeof NotificationEntry>;
 
 export interface NotificationPrinter {
-  readonly title: string;
   readonly body: string;
+  readonly title: string;
 }
 
 export interface IPrintersForTemplate {
@@ -31,11 +32,11 @@ const printersConfigurations: {
   readonly [key in NotificationType]: IPrintersForTemplate;
 } = {
   [NotificationTypeEnum.MESSAGE]: messagePrinter,
-  [NotificationTypeEnum.REMINDER_READ]: reminderReadPrinter,
   [NotificationTypeEnum.REMINDER_PAYMENT]: reminderPaymentPrinter,
-  [NotificationTypeEnum.REMINDER_PAYMENT_LAST]: reminderPaymentLastPrinter
+  [NotificationTypeEnum.REMINDER_PAYMENT_LAST]: reminderPaymentLastPrinter,
+  [NotificationTypeEnum.REMINDER_READ]: reminderReadPrinter,
 };
 
 export const getPrinterForTemplate = (
-  notificationType: NotificationType
+  notificationType: NotificationType,
 ): IPrintersForTemplate => printersConfigurations[notificationType];

@@ -1,35 +1,34 @@
+import { Context } from "@azure/functions";
+import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
+import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
+import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
+import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
+import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
+import { Ulid } from "@pagopa/ts-commons/lib/strings";
+import { BlobService } from "azure-storage";
 import * as E from "fp-ts/lib/Either";
-import * as TE from "fp-ts/lib/TaskEither";
 import * as O from "fp-ts/lib/Option";
+import * as TE from "fp-ts/lib/TaskEither";
+import { pipe } from "fp-ts/lib/function";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { enrichContentData } from "../getMessagesFunctions/getMessages.fallback";
+import { aRetrievedMessageWithoutContent } from "../../__mocks__/messages";
+import { aRetrievedService } from "../../__mocks__/mocks.service_preference";
 import { redisClientMock } from "../../__mocks__/redis";
 import {
   mockRCConfigurationModel,
   mockRCConfigurationTtl,
 } from "../../__mocks__/remote-content";
-import { Context } from "@azure/functions";
-import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
-import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
-import { BlobService } from "azure-storage";
+import { HasPreconditionEnum } from "../../generated/definitions/HasPrecondition";
+import { aMessageContent } from "../../utils/__tests__/messages.test";
 import {
   CreatedMessageWithoutContentWithStatus,
   ThirdPartyDataWithCategoryFetcher,
 } from "../../utils/messages";
-import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
-import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
-import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
-import { pipe } from "fp-ts/lib/function";
-import { EnrichedMessageWithContent } from "../getMessagesFunctions/models";
-import { aMessageContent } from "../../utils/__tests__/messages.test";
-import { HasPreconditionEnum } from "../../generated/definitions/HasPrecondition";
-import { aRetrievedService } from "../../__mocks__/mocks.service_preference";
-import { aRetrievedMessageWithoutContent } from "../../__mocks__/messages";
-import RCConfigurationUtility from "../../utils/remoteContentConfig";
-import { Ulid } from "@pagopa/ts-commons/lib/strings";
 import { RedisClientFactory } from "../../utils/redis";
-
-import { vi, describe, expect, it, beforeEach } from "vitest";
+import RCConfigurationUtility from "../../utils/remoteContentConfig";
+import { enrichContentData } from "../getMessagesFunctions/getMessages.fallback";
+import { EnrichedMessageWithContent } from "../getMessagesFunctions/models";
 
 vi.stubEnv("APPLICATIONINSIGHTS_CONNECTION_STRING", "foo");
 
@@ -45,11 +44,11 @@ const messages = [E.right(aRetrievedMessageWithoutContent)];
 
 const functionsContextMock = {
   log: {
-    error: vi.fn((e) => console.log(e)),
+    error: vi.fn(),
   },
 } as unknown as Context;
 
-const getMockIterator = (values: any) => ({
+const getMockIterator = (values: unknown) => ({
   next: vi
     .fn()
     .mockImplementationOnce(async () => ({
@@ -64,16 +63,16 @@ const getContentFromBlobMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aMessageContent)));
 
-const getMessageModelMock = (messageIterator: any) =>
+const getMessageModelMock = (messageIterator: unknown) =>
   ({
-    getContentFromBlob: getContentFromBlobMock,
     findMessages: vi.fn(() => TE.of(messageIterator)),
+    getContentFromBlob: getContentFromBlobMock,
   }) as unknown as MessageModel;
 
 const messageModelMock = getMessageModelMock(messageIterator);
 
 const dummyThirdPartyDataWithCategoryFetcher: ThirdPartyDataWithCategoryFetcher =
-  vi.fn().mockImplementation((_serviceId) => ({
+  vi.fn().mockImplementation(() => ({
     category: TagEnumBase.GENERIC,
   }));
 
@@ -86,20 +85,20 @@ const messageList: CreatedMessageWithoutContentWithStatus[] = [
 ];
 
 const mockedGreenPassContent = {
-  subject: "a subject".repeat(10),
-  markdown: "a markdown".repeat(80),
   eu_covid_cert: {
     auth_code: "an_auth_code",
   },
+  markdown: "a markdown".repeat(80),
+  subject: "a subject".repeat(10),
 } as MessageContent;
 
 const mockedPaymentContent = {
-  subject: "a subject".repeat(10),
   markdown: "a markdown".repeat(80),
   payment_data: {
     amount: 1,
     notice_number: "012345678901234567",
   },
+  subject: "a subject".repeat(10),
 } as MessageContent;
 
 const redisClientFactoryMock = {
@@ -204,8 +203,8 @@ describe("enrichContentData", () => {
       if (E.isRight(enrichedMessage)) {
         expect(EnrichedMessageWithContent.is(enrichedMessage.right)).toBe(true);
         expect(enrichedMessage.right.category).toEqual({
-          tag: TagEnumPayment.PAYMENT,
           noticeNumber: mockedPaymentContent.payment_data?.notice_number,
+          tag: TagEnumPayment.PAYMENT,
         });
         expect(enrichedMessage.right.has_remote_content).toBeFalsy();
         expect(enrichedMessage.right.has_precondition).toBeFalsy();
@@ -220,8 +219,8 @@ describe("enrichContentData", () => {
         O.some({
           ...aMessageContent,
           third_party_data: {
-            has_remote_content: true,
             has_precondition: HasPreconditionEnum.ALWAYS,
+            has_remote_content: true,
           },
         }),
       ),

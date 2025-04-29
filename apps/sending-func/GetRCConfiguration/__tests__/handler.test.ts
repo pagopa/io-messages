@@ -1,9 +1,12 @@
-import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
-import * as O from "fp-ts/lib/Option";
-import * as E from "fp-ts/lib/Either";
-import * as TE from "fp-ts/lib/TaskEither";
-import * as redis_storage from "../../utils/redis_storage";
+/* eslint-disable vitest/prefer-called-with */
 
+import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
+import * as E from "fp-ts/lib/Either";
+import * as O from "fp-ts/lib/Option";
+import * as TE from "fp-ts/lib/TaskEither";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+
+import { redisClientMock } from "../../__mocks__/redis.mock";
 import {
   aManageSubscriptionId,
   aRemoteContentConfiguration,
@@ -14,16 +17,13 @@ import {
   someUserGroups,
   someUserGroupsWithTheAllowedOne,
 } from "../../__mocks__/remote-content";
-
+import { IConfig } from "../../utils/config";
+import * as redis_storage from "../../utils/redis_storage";
 import {
+  RC_CONFIGURATION_REDIS_PREFIX,
   getRCConfigurationHandler,
   handleEmptyErrorResponse,
-  RC_CONFIGURATION_REDIS_PREFIX,
 } from "../handler";
-import { IConfig } from "../../utils/config";
-import { redisClientMock } from "../../__mocks__/redis.mock";
-
-import { vi, beforeEach, afterEach, describe, test, expect } from "vitest";
 
 const aUserId = "aUserId" as NonEmptyString;
 const aConfig = { INTERNAL_USER_ID: "internalUserId" } as IConfig;
@@ -44,7 +44,7 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe("handleEmptyErrorResponse ", () => {
+describe("handleEmptyErrorResponse", () => {
   test("should return a left with detail if the Option is none", async () => {
     const r = await handleEmptyErrorResponse("aValidUlid" as Ulid)(O.none)();
 
@@ -56,6 +56,7 @@ describe("handleEmptyErrorResponse ", () => {
   });
 });
 
+/* eslint-disable max-lines-per-function */
 describe("getRCConfigurationHandler", () => {
   test("should return an IResponseSuccessJson calling the model if redis does not return a valid configuration and the userId match", async () => {
     getTaskMock.mockReturnValueOnce(TE.right(O.none));
@@ -64,8 +65,8 @@ describe("getRCConfigurationHandler", () => {
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
     const r = await getRCConfigurationHandler({
-      rccModel: rccModelMock,
       config: aConfig,
+      rccModel: rccModelMock,
       redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
@@ -89,8 +90,8 @@ describe("getRCConfigurationHandler", () => {
       TE.right(O.some(JSON.stringify(aRetrievedRCConfiguration))),
     );
     const r = await getRCConfigurationHandler({
-      rccModel: rccModelMock,
       config: aConfig,
+      rccModel: rccModelMock,
       redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
@@ -111,8 +112,8 @@ describe("getRCConfigurationHandler", () => {
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
     const r = await getRCConfigurationHandler({
-      rccModel: rccModelMock,
       config: aConfig,
+      rccModel: rccModelMock,
       redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
@@ -138,8 +139,8 @@ describe("getRCConfigurationHandler", () => {
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
     const r = await getRCConfigurationHandler({
-      rccModel: rccModelMock,
       config: aConfig,
+      rccModel: rccModelMock,
       redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
@@ -162,8 +163,8 @@ describe("getRCConfigurationHandler", () => {
     getTaskMock.mockReturnValueOnce(TE.right(O.none));
     findByConfigurationIdMock.mockReturnValueOnce(TE.right(O.none));
     const r = await getRCConfigurationHandler({
-      rccModel: rccModelMock,
       config: aConfig,
+      rccModel: rccModelMock,
       redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
@@ -184,8 +185,8 @@ describe("getRCConfigurationHandler", () => {
     getTaskMock.mockReturnValueOnce(TE.right(O.none));
     findByConfigurationIdMock.mockReturnValueOnce(TE.left(O.none));
     const r = await getRCConfigurationHandler({
-      rccModel: rccModelMock,
       config: aConfig,
+      rccModel: rccModelMock,
       redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
@@ -204,8 +205,8 @@ describe("getRCConfigurationHandler", () => {
 
   test("should return an IResponseErrorForbiddenNotAuthorized if subscription is not manage", async () => {
     const r = await getRCConfigurationHandler({
-      rccModel: rccModelMock,
       config: aConfig,
+      rccModel: rccModelMock,
       redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
@@ -221,8 +222,8 @@ describe("getRCConfigurationHandler", () => {
 
   test("should return an IResponseErrorForbiddenNotAuthorized if group is not allowed", async () => {
     const r = await getRCConfigurationHandler({
-      rccModel: rccModelMock,
       config: aConfig,
+      rccModel: rccModelMock,
       redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
@@ -243,8 +244,8 @@ describe("getRCConfigurationHandler", () => {
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
     const r = await getRCConfigurationHandler({
-      rccModel: rccModelMock,
       config: aConfig,
+      rccModel: rccModelMock,
       redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
@@ -270,8 +271,8 @@ describe("getRCConfigurationHandler", () => {
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
     const r = await getRCConfigurationHandler({
-      rccModel: rccModelMock,
       config: aConfig,
+      rccModel: rccModelMock,
       redisClient: redisClientMock,
     })({
       configurationId: aRemoteContentConfiguration.configurationId,
@@ -290,3 +291,4 @@ describe("getRCConfigurationHandler", () => {
     );
   });
 });
+/* eslint-enable max-lines-per-function */

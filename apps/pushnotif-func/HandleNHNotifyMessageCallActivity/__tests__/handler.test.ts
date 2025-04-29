@@ -1,0 +1,137 @@
+import { NotificationHubsClient } from "@azure/notification-hubs";
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { TelemetryClient } from "applicationinsights";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { context as contextMock } from "../../__mocks__/durable-functions";
+import { envConfig } from "../../__mocks__/env-config.mock";
+import {
+  KindEnum,
+  NotifyMessage,
+} from "../../generated/notifications/NotifyMessage";
+import { toSHA256 } from "../../utils/conversions";
+import { createActivity } from "../../utils/durable/activities";
+import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
+import {
+  ActivityInput,
+  ActivityResultSuccess,
+  getActivityBody,
+} from "../handler";
+import { ActivityInput as NHClientActivityInput } from "../handler";
+
+const aFiscalCodeHash =
+  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
+
+const aNotifyMessage: NotifyMessage = {
+  installationId: aFiscalCodeHash,
+  kind: KindEnum.Notify,
+  payload: {
+    message: "message",
+    message_id: "id",
+    title: "title",
+  },
+};
+
+const aNHConfig = {
+  AZURE_NH_ENDPOINT: envConfig.AZURE_NH_ENDPOINT,
+  AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME,
+} as NotificationHubConfig;
+
+const mockTelemetryClient = {
+  trackEvent: () => {},
+} as unknown as TelemetryClient;
+
+const getInstallationMock = vi.fn();
+const sendNotificationMock = vi.fn();
+
+const mockNotificationHubService = {
+  getInstallation: getInstallationMock,
+  sendNotification: sendNotificationMock,
+};
+const mockBuildNHClient = vi
+  .fn()
+  .mockImplementation(
+    () => mockNotificationHubService as unknown as NotificationHubsClient,
+  );
+
+const activityName = "any";
+
+const aNotifyMessageToBlacklistedUser: NotifyMessage = {
+  ...aNotifyMessage,
+  installationId: toSHA256(
+    envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST[0],
+  ) as NonEmptyString,
+};
+
+const handler = createActivity(
+  activityName,
+  ActivityInput,
+  ActivityResultSuccess,
+  getActivityBody(
+    mockTelemetryClient,
+    mockBuildNHClient,
+    envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
+  ),
+);
+
+describe("HandleNHNotifyMessageCallActivity", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should call notificationhubServicePartion.buildNHClient to get the right notificationService to call", async () => {
+    sendNotificationMock.mockImplementation(() => Promise.resolve({}));
+
+    const input = ActivityInput.encode({
+      message: aNotifyMessage,
+      notificationHubConfig: aNHConfig,
+    });
+
+    expect.assertions(4);
+
+    const res = await handler(contextMock, input);
+    expect(res.kind).toEqual("SUCCESS");
+
+    expect(mockBuildNHClient).toHaveBeenCalledTimes(1);
+    expect(mockBuildNHClient).toBeCalledWith(aNHConfig);
+    expect(sendNotificationMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("should trigger a retry if notify fails", async () => {
+    sendNotificationMock.mockImplementation(() => Promise.reject());
+
+    const input = NHClientActivityInput.encode({
+      message: aNotifyMessage,
+      notificationHubConfig: {
+        AZURE_NH_ENDPOINT: envConfig.AZURE_NH_ENDPOINT,
+        AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME,
+      },
+    });
+
+    expect.assertions(2);
+
+    try {
+      await handler(contextMock, input);
+    } catch (e) {
+      expect(sendNotificationMock).toHaveBeenCalledTimes(1);
+      expect(e).toBeInstanceOf(Error);
+    }
+  });
+
+  it("should not call notificationhubServicePartion.buildNHClient when using a blacklisted user", async () => {
+    sendNotificationMock.mockImplementation(() => Promise.resolve({}));
+
+    const input = ActivityInput.encode({
+      message: aNotifyMessageToBlacklistedUser,
+      notificationHubConfig: aNHConfig,
+    });
+
+    expect.assertions(3);
+
+    const res = await handler(contextMock, input);
+    expect(res.kind).toEqual("SUCCESS");
+    expect(res).toHaveProperty("skipped", true);
+
+    expect(sendNotificationMock).not.toBeCalled();
+  });
+});

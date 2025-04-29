@@ -1,9 +1,10 @@
 import {
   MESSAGE_STATUS_MODEL_PK_FIELD,
   MessageStatusModel as MessageStatusModelBase,
-  RetrievedMessageStatus
+  RetrievedMessageStatus,
 } from "@pagopa/io-functions-commons/dist/src/models/message_status";
 import * as t from "io-ts";
+
 import * as DocumentDbUtils from "./utils/documentdb";
 
 /**
@@ -16,13 +17,13 @@ export class MessageStatusExtendedQueryModel extends MessageStatusModelBase {
    * @param modelId
    */
   public findAllVersionsByModelIdIn(
-    partitionKeyList: ReadonlyArray<string>
-  ): AsyncIterator<ReadonlyArray<t.Validation<RetrievedMessageStatus>>> {
+    partitionKeyList: readonly string[],
+  ): AsyncIterator<readonly t.Validation<RetrievedMessageStatus>[]> {
     return DocumentDbUtils.findAllVersionsByModelIdIn(
       this.container,
       this.retrievedItemT,
       MESSAGE_STATUS_MODEL_PK_FIELD,
-      partitionKeyList
+      partitionKeyList,
     )[Symbol.asyncIterator]();
   }
 }

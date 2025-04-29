@@ -2,17 +2,17 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~>4"
+      version = "~> 4.0"
     }
 
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~>3"
+      version = "~> 3.0"
     }
 
     github = {
       source  = "integrations/github"
-      version = "~>6"
+      version = "~> 6.0"
     }
   }
 
@@ -67,6 +67,10 @@ data "azurerm_resource_group" "common_weu" {
   name = local.common.weu_resource_group_name
 }
 
+data "azurerm_resource_group" "com_itn_01" {
+  name = "io-p-itn-com-rg-01"
+}
+
 data "azurerm_resource_group" "dashboards" {
   name = "dashboards"
 }
@@ -80,8 +84,8 @@ data "azuread_group" "developers" {
 }
 
 module "repo" {
-  source  = "pagopa/dx-azure-github-environment-bootstrap/azurerm"
-  version = "~>1"
+  source  = "pagopa-dx/azure-github-environment-bootstrap/azurerm"
+  version = "~> 1.0"
 
   environment = {
     prefix          = local.prefix
@@ -90,6 +94,10 @@ module "repo" {
     domain          = local.domain
     instance_number = local.instance_number
   }
+
+  additional_resource_group_ids = [
+    data.azurerm_resource_group.com_itn_01.id
+  ]
 
   subscription_id = data.azurerm_subscription.current.id
   tenant_id       = data.azurerm_client_config.current.tenant_id

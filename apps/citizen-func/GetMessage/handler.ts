@@ -1,12 +1,27 @@
-import * as express from "express";
-
-import * as E from "fp-ts/lib/Either";
-import * as O from "fp-ts/lib/Option";
-import * as A from "fp-ts/lib/Apply";
-import * as B from "fp-ts/lib/boolean";
-
-import { BlobService } from "azure-storage";
-
+import { Context } from "@azure/functions";
+import { InternalMessageResponseWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/InternalMessageResponseWithContent";
+import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
+import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
+import { PaymentDataWithRequiredPayee } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentDataWithRequiredPayee";
+import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
+import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
+import { MessageStatusModel } from "@pagopa/io-functions-commons/dist/src/models/message_status";
+import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
+import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
+import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
+import { FiscalCodeMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/fiscalcode";
+import { OptionalQueryParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/optional_query_param";
+import { RequiredParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_param";
+import {
+  withRequestMiddlewares,
+  wrapRequestHandler,
+} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
+import {
+  IResponseErrorQuery,
+  ResponseErrorQuery,
+} from "@pagopa/io-functions-commons/dist/src/utils/response";
+import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
+import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import {
   IResponseErrorForbiddenNotAuthorized,
   IResponseErrorInternal,
@@ -15,49 +30,29 @@ import {
   IResponseSuccessJson,
   ResponseErrorInternal,
   ResponseErrorNotFound,
-  ResponseSuccessJson
+  ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
 import {
   FiscalCode,
   NonEmptyString,
-  Ulid
+  Ulid,
 } from "@pagopa/ts-commons/lib/strings";
 import { withoutUndefinedValues } from "@pagopa/ts-commons/lib/types";
-
-import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
-import { FiscalCodeMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/fiscalcode";
-import { RequiredParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_param";
-import {
-  withRequestMiddlewares,
-  wrapRequestHandler
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
-import {
-  IResponseErrorQuery,
-  ResponseErrorQuery
-} from "@pagopa/io-functions-commons/dist/src/utils/response";
-
-import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
-
-import { Context } from "@azure/functions";
-import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
-import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
-import { flow, pipe } from "fp-ts/lib/function";
-import { PaymentDataWithRequiredPayee } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentDataWithRequiredPayee";
-import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
-import { InternalMessageResponseWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/InternalMessageResponseWithContent";
-import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
-import { OptionalQueryParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/optional_query_param";
-import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
-import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
+import { BlobService } from "azure-storage";
+import * as express from "express";
+import * as A from "fp-ts/lib/Apply";
+import * as E from "fp-ts/lib/Either";
+import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
-import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
-import { MessageStatusModel } from "@pagopa/io-functions-commons/dist/src/models/message_status";
+import * as B from "fp-ts/lib/boolean";
+import { flow, pipe } from "fp-ts/lib/function";
+
+import { ThirdPartyData } from "../generated/definitions/ThirdPartyData";
 import {
+  ThirdPartyDataWithCategoryFetcher,
   getOrCacheService,
   mapMessageCategory,
-  ThirdPartyDataWithCategoryFetcher
 } from "../utils/messages";
-import { ThirdPartyData } from "../generated/definitions/ThirdPartyData";
 import { RedisClientFactory } from "../utils/redis";
 
 /**
@@ -71,14 +66,14 @@ type IGetMessageHandler = (
   context: Context,
   fiscalCode: FiscalCode,
   messageId: string,
-  maybePublicMessage: O.Option<boolean>
+  maybePublicMessage: O.Option<boolean>,
 ) => Promise<
-  | IResponseSuccessJson<InternalMessageResponseWithContent>
+  | IResponseErrorForbiddenNotAuthorized
+  | IResponseErrorInternal
   | IResponseErrorNotFound
   | IResponseErrorQuery
   | IResponseErrorValidation
-  | IResponseErrorForbiddenNotAuthorized
-  | IResponseErrorInternal
+  | IResponseSuccessJson<InternalMessageResponseWithContent>
 >;
 
 /**
@@ -97,20 +92,22 @@ const getErrorOrPaymentData = async (
   redisClientFactory: RedisClientFactory,
   serviceCacheTtl: NonNegativeInteger,
   senderServiceId: ServiceId,
-  maybePaymentData: O.Option<PaymentData>
-): Promise<E.Either<
-  IResponseErrorInternal,
-  O.Option<PaymentDataWithRequiredPayee>
-  // eslint-disable-next-line max-params
->> =>
+  maybePaymentData: O.Option<PaymentData>,
+): Promise<
+  E.Either<
+    IResponseErrorInternal,
+    O.Option<PaymentDataWithRequiredPayee>
+    // eslint-disable-next-line max-params
+  >
+> =>
   pipe(
     maybePaymentData,
     O.fold(
       () => TE.right(O.none),
-      paymentData =>
+      (paymentData) =>
         pipe(
           O.fromNullable(paymentData.payee),
-          O.map(payee => ({ ...paymentData, payee })),
+          O.map((payee) => ({ ...paymentData, payee })),
           O.map(flow(O.some, TE.of)),
           O.getOrElse(() =>
             pipe(
@@ -118,26 +115,26 @@ const getErrorOrPaymentData = async (
                 senderServiceId,
                 serviceModel,
                 redisClientFactory,
-                serviceCacheTtl
+                serviceCacheTtl,
               ),
-              TE.mapLeft(err => {
+              TE.mapLeft((err) => {
                 context.log.error(`GetMessageHandler|${JSON.stringify(err)}`);
                 return ResponseErrorInternal(
-                  `Cannot get message Sender Service|ERROR=${err.message}`
+                  `Cannot get message Sender Service|ERROR=${err.message}`,
                 );
               }),
-              TE.map(senderService =>
+              TE.map((senderService) =>
                 O.some({
                   ...paymentData,
                   payee: {
-                    fiscal_code: senderService.organizationFiscalCode
-                  }
-                })
-              )
-            )
-          )
-        )
-    )
+                    fiscal_code: senderService.organizationFiscalCode,
+                  },
+                }),
+              ),
+            ),
+          ),
+        ),
+    ),
   )();
 
 /**
@@ -154,44 +151,47 @@ const getErrorOrMaybeThirdPartyData = async (
   context: Context,
   senderServiceId: ServiceId,
   serviceToRCConfigurationMap: ReadonlyMap<string, string>,
-  maybeThirdPartyData: O.Option<ThirdPartyData>
+  maybeThirdPartyData: O.Option<ThirdPartyData>,
 ): Promise<E.Either<IResponseErrorInternal, O.Option<ThirdPartyData>>> =>
   pipe(
     maybeThirdPartyData,
     O.fold(
       () => TE.right(O.none),
-      thirdPartyData =>
+      (thirdPartyData) =>
         pipe(
           O.fromNullable(thirdPartyData.configuration_id),
-          O.map(configuration_id => ({ ...thirdPartyData, configuration_id })),
+          O.map((configuration_id) => ({
+            ...thirdPartyData,
+            configuration_id,
+          })),
           O.map(flow(O.some, TE.of)),
           O.getOrElse(() =>
             pipe(
               O.fromNullable(serviceToRCConfigurationMap.get(senderServiceId)),
               TE.fromOption(() => {
                 context.log.error(
-                  `GetMessageHandler|Error getting configuration id for the service ${senderServiceId}`
+                  `GetMessageHandler|Error getting configuration id for the service ${senderServiceId}`,
                 );
                 return ResponseErrorInternal(
-                  `Cannot convert SERVICE_TO_RCCONFIGURATION_MAP`
+                  `Cannot convert SERVICE_TO_RCCONFIGURATION_MAP`,
                 );
               }),
-              TE.map(configurationId =>
+              TE.map((configurationId) =>
                 O.some({
                   ...thirdPartyData,
-                  configuration_id: configurationId as Ulid
-                })
-              )
-            )
-          )
-        )
-    )
+                  configuration_id: configurationId as Ulid,
+                }),
+              ),
+            ),
+          ),
+        ),
+    ),
   )();
 
 /**
  * Handles requests for getting a single message for a recipient.
  */
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions, max-params
+// eslint-disable-next-line max-params
 export function GetMessageHandler(
   messageModel: MessageModel,
   messageStatusModel: MessageStatusModel,
@@ -200,7 +200,7 @@ export function GetMessageHandler(
   redisClientFactory: RedisClientFactory,
   serviceCacheTtl: NonNegativeInteger,
   serviceToRCConfigurationMap: ReadonlyMap<string, string>,
-  categoryFetcher: ThirdPartyDataWithCategoryFetcher
+  categoryFetcher: ThirdPartyDataWithCategoryFetcher,
 ): IGetMessageHandler {
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   return async (context, fiscalCode, messageId, maybePublicMessage) => {
@@ -209,16 +209,16 @@ export function GetMessageHandler(
     const [errorOrMaybeDocument, errorOrMaybeContent] = await Promise.all([
       messageModel.findMessageForRecipient(
         fiscalCode,
-        messageId as NonEmptyString
+        messageId as NonEmptyString,
       )(), // FIXME: decode instead of cast
-      messageModel.getContentFromBlob(blobService, messageId)()
+      messageModel.getContentFromBlob(blobService, messageId)(),
     ]);
 
     if (E.isLeft(errorOrMaybeDocument)) {
       // the query failed
       return ResponseErrorQuery(
         "Error while retrieving the message",
-        errorOrMaybeDocument.left
+        errorOrMaybeDocument.left,
       );
     }
 
@@ -227,7 +227,7 @@ export function GetMessageHandler(
       // the document does not exist
       return ResponseErrorNotFound(
         "Message not found",
-        "The message that you requested was not found in the system."
+        "The message that you requested was not found in the system.",
       );
     }
 
@@ -235,10 +235,10 @@ export function GetMessageHandler(
 
     if (E.isLeft(errorOrMaybeContent)) {
       context.log.error(
-        `GetMessageHandler|${JSON.stringify(errorOrMaybeContent.left)}`
+        `GetMessageHandler|${JSON.stringify(errorOrMaybeContent.left)}`,
       );
       return ResponseErrorInternal(
-        `${errorOrMaybeContent.left.name}: ${errorOrMaybeContent.left.message}`
+        `${errorOrMaybeContent.left.name}: ${errorOrMaybeContent.left.message}`,
       );
     }
 
@@ -257,7 +257,7 @@ export function GetMessageHandler(
       redisClientFactory,
       serviceCacheTtl,
       retrievedMessage.senderServiceId,
-      maybePaymentData
+      maybePaymentData,
     );
     if (E.isLeft(errorOrMaybePaymentData)) {
       return errorOrMaybePaymentData.left;
@@ -273,21 +273,21 @@ export function GetMessageHandler(
             A.sequenceS(TE.ApplicativePar)({
               messageStatus: pipe(
                 messageStatusModel.findLastVersionByModelId([
-                  retrievedMessage.id
+                  retrievedMessage.id,
                 ]),
                 TE.mapLeft(E.toError),
                 TE.chain(
                   TE.fromOption(
-                    () => new Error("Cannot find status for message")
-                  )
-                )
+                    () => new Error("Cannot find status for message"),
+                  ),
+                ),
               ),
               service: getOrCacheService(
                 retrievedMessage.senderServiceId,
                 serviceModel,
                 redisClientFactory,
-                serviceCacheTtl
-              )
+                serviceCacheTtl,
+              ),
             }),
             TE.map(({ messageStatus, service }) =>
               O.some({
@@ -295,30 +295,30 @@ export function GetMessageHandler(
                   mapMessageCategory(
                     publicMessage,
                     messageContent,
-                    categoryFetcher
+                    categoryFetcher,
                   ),
-                  category =>
+                  (category) =>
                     category?.tag !== TagEnumPayment.PAYMENT
                       ? category
                       : {
-                          rptId: `${messageContent.payment_data.payee
-                            ?.fiscal_code ?? service.organizationFiscalCode}${
-                            category.noticeNumber
-                          }`,
-                          tag: TagEnumPayment.PAYMENT
-                        }
+                          rptId: `${
+                            messageContent.payment_data.payee?.fiscal_code ??
+                            service.organizationFiscalCode
+                          }${category.noticeNumber}`,
+                          tag: TagEnumPayment.PAYMENT,
+                        },
                 ),
                 is_archived: messageStatus.isArchived,
                 is_read: messageStatus.isRead,
                 message_title: messageContent.subject,
                 organization_fiscal_code: service.organizationFiscalCode,
                 organization_name: service.organizationName,
-                service_name: service.serviceName
-              })
+                service_name: service.serviceName,
+              }),
             ),
-            TE.mapLeft(err => ResponseErrorInternal(err.message))
-          )
-      )
+            TE.mapLeft((err) => ResponseErrorInternal(err.message)),
+          ),
+      ),
     )();
 
     if (E.isLeft(getErrorOrMaybePublicData)) {
@@ -331,7 +331,7 @@ export function GetMessageHandler(
       context,
       retrievedMessage.senderServiceId,
       serviceToRCConfigurationMap,
-      maybeThirdPartyData
+      maybeThirdPartyData,
     );
 
     if (E.isLeft(errorOrMaybeThirdPartyData)) {
@@ -342,14 +342,14 @@ export function GetMessageHandler(
       content: {
         ...messageContent,
         payment_data: O.toUndefined(errorOrMaybePaymentData.right),
-        third_party_data: O.toUndefined(errorOrMaybeThirdPartyData.right)
+        third_party_data: O.toUndefined(errorOrMaybeThirdPartyData.right),
       },
       ...publicMessage,
-      ...O.toUndefined(getErrorOrMaybePublicData.right)
+      ...O.toUndefined(getErrorOrMaybePublicData.right),
     });
 
     const returnedMessage: InternalMessageResponseWithContent = {
-      message
+      message,
     };
 
     return ResponseSuccessJson(returnedMessage);
@@ -359,7 +359,7 @@ export function GetMessageHandler(
 /**
  * Wraps a GetMessage handler inside an Express request handler.
  */
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions, max-params
+// eslint-disable-next-line max-params
 export function GetMessage(
   messageModel: MessageModel,
   messageStatusModel: MessageStatusModel,
@@ -368,7 +368,7 @@ export function GetMessage(
   redisClientFactory: RedisClientFactory,
   serviceCacheTtl: NonNegativeInteger,
   serviceToRCConfigurationMap: ReadonlyMap<string, string>,
-  categoryFetcher: ThirdPartyDataWithCategoryFetcher
+  categoryFetcher: ThirdPartyDataWithCategoryFetcher,
 ): express.RequestHandler {
   const handler = GetMessageHandler(
     messageModel,
@@ -378,13 +378,13 @@ export function GetMessage(
     redisClientFactory,
     serviceCacheTtl,
     serviceToRCConfigurationMap,
-    categoryFetcher
+    categoryFetcher,
   );
   const middlewaresWrap = withRequestMiddlewares(
     ContextMiddleware(),
     FiscalCodeMiddleware,
     RequiredParamMiddleware("id", NonEmptyString),
-    OptionalQueryParamMiddleware("public_message", BooleanFromString)
+    OptionalQueryParamMiddleware("public_message", BooleanFromString),
   );
   return wrapRequestHandler(middlewaresWrap(handler));
 }

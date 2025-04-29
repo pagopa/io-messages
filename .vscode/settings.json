@@ -4,10 +4,6 @@
   "[terraform]": {
     "editor.defaultFormatter": "hashicorp.terraform"
   },
-  "plantuml.exportFormat": "png",
-  "plantuml.render": "Local",
-  "plantuml.exportOutDir": ".",
-  "plantuml.exportSubFolder": false,
   "search.exclude": {
     "**/.yarn": true,
     "**/.pnp.*": true

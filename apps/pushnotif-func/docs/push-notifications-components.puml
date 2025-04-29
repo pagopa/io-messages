@@ -1,0 +1,27 @@
+@startuml push-notifications
+!include <C4/C4_Component>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+LAYOUT_WITH_LEGEND()
+
+title Push Notifications
+
+Boundary(io, "Push Notifications Function") {
+    Container(pushNotifFunc, "pushnotif-func", "Azure Durable Function")
+    Container(internalStorage, "func-internal-storage", "Azure Storage Account")
+    Container(durableStorage, "func-durable-storage", "Azure Storage Account")
+}
+
+Rel_U(pushNotifFunc, internalStorage, "Save function informations")
+Rel_U(pushNotifFunc, durableStorage, "writes on notify-message queue")
+Rel_D(durableStorage, pushNotifFunc, "notify-message queue trigger in")
+
+Container(iopweumessagesbetauserst, "iopweumessagesbetauserst", "Storage Account Table")
+Container(iobackend, "io-backend")
+Container(pushNotifQueue, "push-notifications", "Storage Account Queue")
+
+Rel_D(iobackend, pushNotifQueue, "")
+Rel_D(pushNotifQueue, pushNotifFunc, "push-notifications queue trigger in")
+Rel_U(iopweumessagesbetauserst,pushNotifFunc,"")
+@enduml

@@ -1,19 +1,17 @@
 /* eslint-disable sort-keys */
-import * as t from "io-ts";
-
+import { MessageCategoryBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
+import { MessageCategoryPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
+import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
+import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
+import { DateFromTimestamp } from "@pagopa/ts-commons/lib/dates";
 import {
   FiscalCode,
   NonEmptyString,
-  OrganizationFiscalCode
+  OrganizationFiscalCode,
 } from "@pagopa/ts-commons/lib/strings";
-import { DateFromTimestamp } from "@pagopa/ts-commons/lib/dates";
 import { enumType, withDefault } from "@pagopa/ts-commons/lib/types";
-
-import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
-import { MessageCategoryBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
-import { MessageCategoryPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
-import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
+import * as t from "io-ts";
 
 // ---------------------------------------
 // ---------------------------------------
@@ -21,14 +19,14 @@ import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/d
 export const InternalMessageCategoryPayment = t.exact(
   t.intersection([
     t.interface({
+      noticeNumber: NonEmptyString,
       tag: enumType<TagEnumPayment>(TagEnumPayment, "tag"),
-      noticeNumber: NonEmptyString
     }),
     t.partial({
-      payeeFiscalCode: OrganizationFiscalCode
-    })
+      payeeFiscalCode: OrganizationFiscalCode,
+    }),
   ]),
-  "MessageCategoryPayment"
+  "MessageCategoryPayment",
 );
 
 export type InternalMessageCategoryPayment = t.TypeOf<
@@ -40,7 +38,7 @@ export type InternalMessageCategoryPayment = t.TypeOf<
 
 export const InternalMessageCategory = t.union(
   [InternalMessageCategoryPayment, MessageCategoryBase, MessageCategoryPN],
-  "MessageCategory"
+  "MessageCategory",
 );
 
 export type InternalMessageCategory = t.TypeOf<typeof InternalMessageCategory>;
@@ -50,29 +48,29 @@ export type InternalMessageCategory = t.TypeOf<typeof InternalMessageCategory>;
 
 // required attributes
 const EnrichedMessageWithContentR = t.interface({
-  id: NonEmptyString,
-  fiscal_code: FiscalCode,
   created_at: DateFromTimestamp,
-  sender_service_id: ServiceId,
-  message_title: t.string,
+  fiscal_code: FiscalCode,
+  id: NonEmptyString,
+  is_archived: t.boolean,
   is_read: t.boolean,
-  is_archived: t.boolean
+  message_title: t.string,
+  sender_service_id: ServiceId,
 });
 
 // optional attributes
 const EnrichedMessageWithContentO = t.partial({
-  time_to_live: TimeToLiveSeconds,
   category: InternalMessageCategory,
   has_attachments: withDefault(t.boolean, false),
   has_precondition: withDefault(t.boolean, false),
-  has_remote_content: withDefault(t.boolean, false)
+  has_remote_content: withDefault(t.boolean, false),
+  time_to_live: TimeToLiveSeconds,
 });
 
 export const EnrichedMessageWithContent = t.exact(
   t.intersection(
     [EnrichedMessageWithContentR, EnrichedMessageWithContentO],
-    "EnrichedMessage"
-  )
+    "EnrichedMessage",
+  ),
 );
 
 export type EnrichedMessageWithContent = t.TypeOf<

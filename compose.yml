@@ -1,0 +1,47 @@
+services:
+  devcontainer:
+    build: .devcontainer
+    volumes:
+      - ".:/workspace:cached"
+
+  redis:
+    image: "redis/redis-stack:6.2.6-v19@sha256:93b5454f383821d7279373ff97fcaa48960cc543c53afe1471e2e2a97efee6df"
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    environment:
+      REDIS_ARGS: "--requirepass local"
+
+  azurite:
+    image: "mcr.microsoft.com/azure-storage/azurite:latest@sha256:0a47e12e3693483cef5c71f35468b91d751611f172d2f97414e9c69113b106d9"
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+
+  eventhubs:
+    image: "mcr.microsoft.com/azure-messaging/eventhubs-emulator:latest@sha256:25ec4141efb69933a0c82e6a787fa147a3895519e7d236d4c41ba568e03100eb"
+    depends_on:
+      - "azurite"
+    ports:
+      - "5672:5672"
+      - "9092:9092"
+    volumes:
+      - "./eventhubs-emulator.json:/Eventhubs_Emulator/ConfigFiles/Config.json"
+    environment:
+      BLOB_SERVER: azurite
+      METADATA_SERVER: azurite
+      ACCEPT_EULA: Y
+
+  kafka-ui:
+    image: "provectuslabs/kafka-ui:latest@sha256:8f2ff02d64b0a7a2b71b6b3b3148b85f66d00ec20ad40c30bdcd415d46d31818"
+    depends_on:
+      - "eventhubs"
+    ports:
+      - "8002:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: "local"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "eventhubs:9092"
+      KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL: "SASL_PLAINTEXT"
+      KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM: "PLAIN"
+      KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="$$ConnectionString" password="Endpoint=sb://eventhubs;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";'

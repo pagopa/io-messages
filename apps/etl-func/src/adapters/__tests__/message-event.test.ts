@@ -49,7 +49,7 @@ describe("publishMessageEvent", () => {
     tryAddMock.mockImplementation(() => false);
     await expect(
       messageEventAdapter.publish(aSimpleMessageEventArray),
-    ).rejects.toEqual(new Error("Error while adding event to the batch"));
+    ).rejects.toThrowError("Error while adding event to the batch");
     expect(tryAddMock).toHaveBeenCalledOnce();
     expect(tryAddMock).toHaveReturnedWith(false);
     expect(sendBatchMock).not.toHaveBeenCalledOnce();
