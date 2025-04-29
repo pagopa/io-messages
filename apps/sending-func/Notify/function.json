@@ -14,5 +14,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/Notify/index.js"
+  "scriptFile": "../dist/functions/Notify/index.js"
 }
