@@ -16,16 +16,8 @@ data "azurerm_resource_group" "weu_messages_sec" {
   name = "${local.project_legacy}-messages-sec-rg"
 }
 
-data "azurerm_resource_group" "notifications_rg" {
-  name = format("%s-weu-messages-notifications-rg", local.project_legacy)
-}
-
 data "azurerm_resource_group" "internal_rg" {
   name = format("%s-rg-internal", local.project_legacy)
-}
-
-data "azurerm_resource_group" "evt-rg" {
-  name = "${local.prefix}-${local.env_short}-evt-rg"
 }
 
 ### TODO: THIS weu_common KEY VAULT HAS TO BE DISMISSED IN FAVOUR OF weu_messages ###
@@ -97,22 +89,22 @@ data "azurerm_storage_container" "messages_content_container" {
 
 data "azurerm_storage_account" "storage_push_notifications" {
   name                = replace(format("%s-weu-messages-notifst", local.project_legacy), "-", "")
-  resource_group_name = data.azurerm_resource_group.notifications_rg.name
+  resource_group_name = var.notifications_rg_name
 }
 
 data "azurerm_user_assigned_identity" "infra_ci_01" {
   name                = "${local.project}-msgs-infra-github-ci-id-01"
-  resource_group_name = var.legacy_itn_rg
+  resource_group_name = var.legacy_itn_rg_name
 }
 
 data "azurerm_user_assigned_identity" "infra_cd_01" {
   name                = "${local.project}-msgs-infra-github-cd-id-01"
-  resource_group_name = var.legacy_itn_rg
+  resource_group_name = var.legacy_itn_rg_name
 }
 
 data "azurerm_user_assigned_identity" "app_cd_01" {
   name                = "${local.project}-msgs-app-github-cd-id-01"
-  resource_group_name = var.legacy_itn_rg
+  resource_group_name = var.legacy_itn_rg_name
 }
 
 data "azuread_group" "adgroup_io_admins" {

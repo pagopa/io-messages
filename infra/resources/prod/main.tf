@@ -29,7 +29,7 @@ module "redis_messages" {
   source = "github.com/pagopa/terraform-azurerm-v4//redis_cache?ref=v1.2.1"
 
   name                = "${local.project}-msgs-redis-01"
-  resource_group_name = var.legacy_itn_rg
+  resource_group_name = var.legacy_itn_rg_name
   location            = "italynorth"
 
   capacity              = 2
@@ -80,7 +80,7 @@ module "functions_messages_sending" {
   location            = local.location
   project             = local.project
   domain              = "msgs"
-  resource_group_name = var.legacy_itn_rg
+  resource_group_name = var.legacy_itn_rg_name
 
   cidr_subnet_messages_sending_func    = "10.20.1.0/24"
   private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
