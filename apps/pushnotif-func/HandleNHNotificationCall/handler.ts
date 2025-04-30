@@ -88,10 +88,7 @@ const startOrchestrator = async (
  * Invoke Orchestrator to manage Notification Hub Service call with data provided by an enqued message
  */
 export const getHandler =
-  (
-    CANARY_USERS_REGEX: NonEmptyString,
-    NOTIFY_VIA_QUEUE_FEATURE_FLAG: NHPartitionFeatureFlag,
-  ) =>
+  () =>
   async (
     context: Context,
     notificationHubMessage: NotificationHubMessage,

@@ -88,54 +88,6 @@ describe("HandleNHNotificationCall", () => {
     );
   });
 
-  it("should call Notify Orchestrator when message is NotifyMessage", async () => {
-    await getHandler(".*" as NonEmptyString, "none")(
-      dummyContextWithBeta,
-      aNotifyMessage,
-    );
-
-    expect(dfClient.startNew).toHaveBeenCalledWith(
-      "HandleNHNotifyMessageCallOrchestrator",
-      undefined,
-      {
-        message: aNotifyMessage,
-      },
-    );
-  });
-
-  it("should push to Notify Queue when message is NotifyMessage and FF i set to beta", async () => {
-    const bindedContext = {
-      ...dummyContextWithBeta,
-      bindings: {
-        ...dummyContextWithBeta.bindings,
-        notifyMessages: null,
-      },
-    };
-    await getHandler(".*" as NonEmptyString, "beta")(
-      bindedContext as any,
-      aNotifyMessage,
-    );
-
-    expect(bindedContext.bindings.notifyMessages).toEqual([
-      Buffer.from(
-        JSON.stringify(
-          NhNotifyMessageRequest.encode({
-            message: aNotifyMessage,
-            target: "current",
-          }),
-        ),
-      ).toString("base64"),
-      Buffer.from(
-        JSON.stringify(
-          NhNotifyMessageRequest.encode({
-            message: aNotifyMessage,
-            target: "legacy",
-          }),
-        ),
-      ).toString("base64"),
-    ]);
-  });
-
   it("should not call any Orchestrator when message kind is not correct", async () => {
     const aWrongMessage = {
       installationId: aFiscalCodeHash,

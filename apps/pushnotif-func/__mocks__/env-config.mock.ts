@@ -36,20 +36,12 @@ export const envConfig: IConfig = {
     },
   ],
 
-  BETA_USERS_STORAGE_CONNECTION_STRING:
-    "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar" as NonEmptyString,
-  BETA_USERS_TABLE_NAME: "nhpartitiontestusers" as NonEmptyString,
-
-  CANARY_USERS_REGEX:
-    "^([(0-9)|(a-f)|(A-F)]{63}0)|([(0-9)|(a-f)|(A-F)]{62}[(0-7)]{1}1)$" as NonEmptyString,
-
   FISCAL_CODE_NOTIFICATION_BLACKLIST: [aBlacklistedFiscalCode],
   NH_PARTITION_FEATURE_FLAG: "all",
   NOTIFICATIONS_QUEUE_NAME: "notification-queue-name" as NonEmptyString,
   NOTIFICATIONS_STORAGE_CONNECTION_STRING:
     "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar" as NonEmptyString,
   NOTIFY_MESSAGE_QUEUE_NAME: "notify-queue-name" as NonEmptyString,
-  NOTIFY_VIA_QUEUE_FEATURE_FLAG: "none",
   RETRY_ATTEMPT_NUMBER: "1" as unknown as IntegerFromString,
   isProduction: false,
 };
