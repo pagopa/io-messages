@@ -13,7 +13,7 @@ import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
 export const RedisParams = t.intersection([
-  t.interface({
+  t.type({
     REDIS_URL: NonEmptyString,
   }),
   t.partial({
@@ -27,7 +27,7 @@ export type RedisParams = t.TypeOf<typeof RedisParams>;
 
 // global app configuration
 export const IConfig = t.intersection([
-  t.interface({
+  t.type({
     /* eslint-disable sort-keys */
     APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
