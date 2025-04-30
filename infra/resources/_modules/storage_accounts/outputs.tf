@@ -13,7 +13,3 @@ output "com_st_rg" {
 output "com_st_connectiostring" {
   value = module.com_st.primary_connection_string
 }
-
-output "com_st" {
-  value = module.com_st
-}

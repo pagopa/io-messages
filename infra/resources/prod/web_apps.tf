@@ -32,7 +32,7 @@ module "web_apps" {
   nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
 
   app_settings = {
-    message_error_table_storage_uri = module.storage_api_weu.com_st
+    message_error_table_storage_uri = "https://${module.storage_api_weu.com_st_name}.table.core.windows.net/"
     eventhub_connection_uri         = "${module.eventhubs.namespace.name}.servicebus.windows.net"
   }
 
@@ -60,8 +60,8 @@ module "web_apps" {
   cosmosdb_account_api       = data.azurerm_cosmosdb_account.cosmos_api
   io_com_cosmos              = module.cosmos.io_com_cosmos_account
   com_st_id                  = module.storage_api_weu.com_st_id
-  com_st_uri                 = module.storage_api_weu.com_st
-  com_st_queue_uri           = module.storage_api_weu.com_st
+  com_st_uri                 = "https://${module.storage_api_weu.com_st_name}.blob.core.windows.net/"
+  com_st_queue_uri           = "https://${module.storage_api_weu.com_st_name}.queue.core.windows.net/"
 
   tenant_id = data.azurerm_client_config.current.tenant_id
 
