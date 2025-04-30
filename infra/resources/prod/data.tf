@@ -100,11 +100,6 @@ data "azurerm_storage_account" "storage_push_notifications" {
   resource_group_name = data.azurerm_resource_group.notifications_rg.name
 }
 
-data "azurerm_storage_account" "iopstexportdata" {
-  name                = "iopstexportdata"
-  resource_group_name = data.azurerm_resource_group.operations_weu.name
-}
-
 data "azurerm_user_assigned_identity" "infra_ci_01" {
   name                = "${local.project}-msgs-infra-github-ci-id-01"
   resource_group_name = var.legacy_itn_rg

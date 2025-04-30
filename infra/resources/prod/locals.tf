@@ -14,7 +14,6 @@ locals {
   project_legacy = "${local.prefix}-${local.env_short}"
 
   location              = "italynorth"
-  secondary_location    = "germanywestcentral"
   legacy_location       = "westeurope"
   legacy_location_short = "weu"
 
