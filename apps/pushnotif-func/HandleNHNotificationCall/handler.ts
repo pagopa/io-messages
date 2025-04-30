@@ -9,7 +9,6 @@ import * as t from "io-ts";
 
 import { OrchestratorName as CreateOrUpdateInstallationOrchestrator } from "../HandleNHCreateOrUpdateInstallationCallOrchestrator/handler";
 import { OrchestratorName as DeleteInstallationOrchestratorName } from "../HandleNHDeleteInstallationCallOrchestrator/handler";
-import { OrchestratorName as NotifyMessageOrchestratorName } from "../HandleNHNotifyMessageCallOrchestrator/handler";
 import { CreateOrUpdateInstallationMessage } from "../generated/notifications/CreateOrUpdateInstallationMessage";
 import { KindEnum as CreateOrUpdateKind } from "../generated/notifications/CreateOrUpdateInstallationMessage";
 import { DeleteInstallationMessage } from "../generated/notifications/DeleteInstallationMessage";
@@ -18,10 +17,6 @@ import { NotifyMessage } from "../generated/notifications/NotifyMessage";
 import { KindEnum as NotifyKind } from "../generated/notifications/NotifyMessage";
 import { NHPartitionFeatureFlag } from "../utils/config";
 import { toString } from "../utils/conversions";
-import {
-  DefaultFFEvaluator,
-  getDefaultFFEvaluator,
-} from "../utils/featureFlags";
 import { NhNotifyMessageRequest, NhTarget } from "../utils/types";
 
 export const NotificationMessage = t.union([
@@ -57,7 +52,6 @@ const startOrchestrator = async (
   notificationHubMessage: NotificationHubMessage,
   context: Context,
   client: DurableOrchestrationClient,
-  isNotifyViaQueue: DefaultFFEvaluator,
 ): Promise<string> => {
   switch (notificationHubMessage.kind) {
     case DeleteKind.DeleteInstallation:
@@ -77,11 +71,7 @@ const startOrchestrator = async (
         },
       );
     case NotifyKind.Notify:
-      return isNotifyViaQueue(notificationHubMessage.installationId)
-        ? notifyMessage(context, notificationHubMessage)
-        : await client.startNew(NotifyMessageOrchestratorName, undefined, {
-            message: notificationHubMessage,
-          });
+      notifyMessage(context, notificationHubMessage);
     default:
       context.log.error(
         `HandleNHNotificationCall|ERROR=Unknown message kind, message: ${toString(
@@ -107,15 +97,6 @@ export const getHandler =
     notificationHubMessage: NotificationHubMessage,
   ): Promise<string> => {
     const client = df.getClient(context);
-    const isNotifyViaQueue = getDefaultFFEvaluator(
-      CANARY_USERS_REGEX,
-      context.bindings.betaTestUser,
-      NOTIFY_VIA_QUEUE_FEATURE_FLAG,
-    );
-    return startOrchestrator(
-      notificationHubMessage,
-      context,
-      client,
-      isNotifyViaQueue,
-    );
+
+    return startOrchestrator(notificationHubMessage, context, client);
   };
