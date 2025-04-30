@@ -59,10 +59,7 @@ const dummyContextWithBeta = {
 
 describe("HandleNHNotificationCall", () => {
   it("should call Delete Orchestrator when message is DeleteInstallation", async () => {
-    await getHandler(".*" as NonEmptyString, "none")(
-      dummyContextWithBeta,
-      aDeleteInStalltionMessage,
-    );
+    await getHandler()(dummyContextWithBeta, aDeleteInStalltionMessage);
 
     expect(dfClient.startNew).toHaveBeenCalledWith(
       "HandleNHDeleteInstallationCallOrchestrator",
@@ -74,7 +71,7 @@ describe("HandleNHNotificationCall", () => {
   });
 
   it("should call CreateOrUpdate Orchestrator when message is CreateorUpdateInstallation", async () => {
-    await getHandler(".*" as NonEmptyString, "none")(
+    await getHandler()(
       dummyContextWithBeta,
       aCreateOrUpdateInstallationMessage,
     );
@@ -96,10 +93,7 @@ describe("HandleNHNotificationCall", () => {
 
     expect.assertions(1);
     try {
-      await getHandler(".*" as NonEmptyString, "none")(
-        dummyContextWithBeta,
-        aWrongMessage,
-      );
+      await getHandler()(dummyContextWithBeta, aWrongMessage);
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
     }
