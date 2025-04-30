@@ -15,9 +15,8 @@ import { vi } from "vitest";
 import { FiscalCode } from "../generated/definitions/FiscalCode";
 import { NewRCConfigurationPublic } from "../generated/definitions/NewRCConfigurationPublic";
 import { ALLOWED_RC_CONFIG_API_GROUP } from "../utils/remote_content";
-import { aCosmosResourceMetadata } from "./models.mock";
-
 import { MANAGE_SUBSCRIPTION_PREFIX } from "../utils/remote_content";
+import { aCosmosResourceMetadata } from "./models.mock";
 
 const aPublicDetailAuthentication = {
   header_key_name: "a" as NonEmptyString,
