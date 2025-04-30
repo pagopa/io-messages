@@ -4,7 +4,7 @@
   "license": "UNLICENSED",
   "type": "commonjs",
   "scripts": {
-    "build": "yarn openapi:bundle && yarn generate:definitions && yarn generate:backend-notification-hub && tsc",
+    "build": "yarn openapi:bundle && yarn generate && tsc",
     "watch": "tsc --w",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -14,6 +14,7 @@
     "openapi:bundle": "yarn node copy-commons-definitions.js && yarn openapi:bundle:internal && yarn openapi:bundle:external",
     "openapi:bundle:internal": "bundle-api-spec -i openapi/index_internal.yaml.template -o openapi/index.yaml -V $npm_package_version",
     "openapi:bundle:external": "bundle-api-spec -i openapi/index_external.yaml.template -o openapi/index_external.yaml -V $npm_package_version",
+    "generate": "yarn generate:definitions && yarn generate:backend-notification-hub",
     "generate:definitions": "rimraf ./src/generated/definitions && shx mkdir -p ./src/generated/definitions && gen-api-models --api-spec ./openapi/index.yaml --no-strict --out-dir ./src/generated/definitions",
     "generate:backend-notification-hub": "rimraf ./src/generated/notifications && shx mkdir -p ./src/generated/notifications && gen-api-models --strict 0 --api-spec https://raw.githubusercontent.com/pagopa/io-backend/v8.10.1/notification_queue_messages.yaml --out-dir ./src/generated/notifications",
     "version": "yarn bump:openapi:internal && yarn bump:openapi:external",
