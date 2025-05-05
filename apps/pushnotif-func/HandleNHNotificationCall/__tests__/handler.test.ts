@@ -10,7 +10,6 @@ import { DeleteInstallationMessage } from "../../generated/notifications/DeleteI
 import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
 import { PlatformEnum } from "../../generated/notifications/Platform";
 import { success } from "../../utils/durable/activities";
-import { NhNotifyMessageRequest } from "../../utils/types";
 import { getHandler } from "../handler";
 
 const dfClient = {

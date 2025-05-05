@@ -1,5 +1,4 @@
 import { Context } from "@azure/functions";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as df from "durable-functions";
 import { DurableOrchestrationClient } from "durable-functions/lib/src/durableorchestrationclient";
 import * as AR from "fp-ts/Array";
@@ -15,7 +14,6 @@ import { DeleteInstallationMessage } from "../generated/notifications/DeleteInst
 import { KindEnum as DeleteKind } from "../generated/notifications/DeleteInstallationMessage";
 import { NotifyMessage } from "../generated/notifications/NotifyMessage";
 import { KindEnum as NotifyKind } from "../generated/notifications/NotifyMessage";
-import { NHPartitionFeatureFlag } from "../utils/config";
 import { toString } from "../utils/conversions";
 import { NhNotifyMessageRequest, NhTarget } from "../utils/types";
 
@@ -62,6 +60,7 @@ const startOrchestrator = async (
           message: notificationHubMessage,
         },
       );
+      break;
     case CreateOrUpdateKind.CreateOrUpdateInstallation:
       return await client.startNew(
         CreateOrUpdateInstallationOrchestrator,
@@ -70,8 +69,10 @@ const startOrchestrator = async (
           message: notificationHubMessage,
         },
       );
+      break;
     case NotifyKind.Notify:
       notifyMessage(context, notificationHubMessage);
+      break;
     default:
       context.log.error(
         `HandleNHNotificationCall|ERROR=Unknown message kind, message: ${toString(

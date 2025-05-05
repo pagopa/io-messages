@@ -1,3 +1,4 @@
+import { errorsToReadableMessages } from "@pagopa/ts-commons/lib/reporters";
 import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
 import * as E from "fp-ts/Either";
@@ -19,7 +20,6 @@ import {
   getNotificationHubPartitionConfig,
 } from "../utils/notificationhubServicePartition";
 import { NhNotifyMessageRequest } from "../utils/types";
-import { errorsToReadableMessages } from "@pagopa/ts-commons/lib/reporters";
 
 const errorsToError = (errors: t.Errors): Error =>
   new Error(errorsToReadableMessages(errors).join(" / "));
