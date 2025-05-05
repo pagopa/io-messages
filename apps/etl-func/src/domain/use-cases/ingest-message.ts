@@ -1,5 +1,7 @@
+import { Message, MessageMetadata } from "io-messages-common/domain/message";
+
 import { EventCollector, EventProducer } from "../event.js";
-import { Message, MessageMetadata, MessageRepository } from "../message.js";
+import { MessageRepository } from "../message.js";
 import {
   MessageEvent,
   transformMessageToMessageEvent,
