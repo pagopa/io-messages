@@ -41,6 +41,7 @@ variable "subnet_cidrs" {
     etl_func        = string
     ops_func        = string
     push_notif_func = string
+    cqrs_func    = string
   })
 }
 
@@ -155,4 +156,9 @@ variable "redis_cache" {
 variable "nat_gateway_id" {
   type        = string
   description = "The ID of the NAT Gateway"
+}
+
+variable "cqrs_func_ehns_enabled" {
+  type        = bool
+  description = "Enable the Event Hub Namespace for the CQRS function"
 }

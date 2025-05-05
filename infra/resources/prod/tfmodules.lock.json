@@ -12,5 +12,8 @@
   "web_apps.etl_func_autoscaler": "d015b2f40b398aa172c477317de22d02e72788ab0d6f35ec8137d06d9013d912",
   "web_apps.ops_func": "83c22598e95c022813d067c8d6dd0fdc6fb038c76186e470d74bbc2a5f33f1cb",
   "web_apps.push_notif_function": "414ec6a81ead386eea11d8d4a9af0fdacd498cf58b445205d7f4254491c06cf7",
-  "web_apps.push_notif_function.naming_convention": "25b80e6211e0e6fd6760ccceefd611316b805644863fbfd7c29b4af4cd23355e"
+  "web_apps.push_notif_function.naming_convention": "25b80e6211e0e6fd6760ccceefd611316b805644863fbfd7c29b4af4cd23355e",
+  "web_apps.cqrs_func": "6d1c93792cb0951596b3215eecb7faeae5b020deba5e67a80766419a07191ab9",
+  "web_apps.cqrs_func.naming_convention": "c71cfaa7ccaebb4dab588075d332bc788c21dc833f872218079e816c832aae69",
+  "web_apps.cqrs_func_autoscaler": "88b6378ab8ade5820b81aa32e79b666d28d981db5c76e172df9976e88ab4e4aa"
 }

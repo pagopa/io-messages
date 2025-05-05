@@ -85,11 +85,23 @@
         "generated/notifications"
       ]
     },
+
+    "generate:payment-updater": {
+      "inputs": ["openapi/payment-updater.yaml"],
+      "outputs": ["generated/payment-updater"]
+    },
+
+    "generate:avro": {
+      "inputs": ["avro/message-status.json", "avro/message.json"],
+      "outputs": ["generated/avro"]
+    },
     "//#test:coverage": {
       "dependsOn": [
         "citizen-func#generate:definitions",
         "sending-func#generate:definitions",
         "sending-func#generate:backend-notification-hub",
+        "cqrs-func#generate:payment-updater",
+        "cqrs-func#generate:avro",
         "pushnotif-func#generate:backend-notification-hub"
       ],
       "inputs": [
