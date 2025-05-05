@@ -89,8 +89,6 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_evt_rg_name"></a> [evt\_rg\_name](#input\_evt\_rg\_name) | n/a | `string` | `"io-p-evt-rg"` | no |
-| <a name="input_legacy_itn_rg_name"></a> [legacy\_itn\_rg\_name](#input\_legacy\_itn\_rg\_name) | n/a | `string` | `"io-p-itn-msgs-rg-01"` | no |
-| <a name="input_notifications_rg_name"></a> [notifications\_rg\_name](#input\_notifications\_rg\_name) | n/a | `string` | `"io-p-weu-messages-notifications-rg"` | no |
 
 ## Outputs
 
