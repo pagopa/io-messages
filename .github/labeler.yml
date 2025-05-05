@@ -14,9 +14,9 @@ ops-func:
   - changed-files:
       - any-glob-to-any-file: ["apps/ops-func/**"]
 
-push-notifications-func:
+pushnotif-func:
   - changed-files:
-      - any-glob-to-any-file: ["apps/push-notifications-func/**"]
+      - any-glob-to-any-file: ["apps/pushnotif-func/**"]
 
 external-interface-changes:
   - changed-files:
