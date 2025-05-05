@@ -30,7 +30,7 @@ module "redis_messages" {
 
   name                = "${local.project}-msgs-redis-01"
   resource_group_name = var.legacy_itn_rg_name
-  location            = "italynorth"
+  location            = local.location
 
   capacity              = 2
   family                = "C"
