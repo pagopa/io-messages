@@ -1,5 +1,10 @@
 import { EventErrorRepository, EventErrorTypesEnum } from "@/domain/event.js";
-import { MessageRepository } from "@/domain/message.js";
+import {
+  Message,
+  MessageMetadata,
+  MessageRepository,
+  messageSchema,
+} from "@/domain/message.js";
 import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { Logger } from "pino";
 
@@ -7,11 +12,6 @@ import {
   MessageContentError,
   MessageContentProvider,
 } from "./blob-storage/message-content.js";
-import {
-  Message,
-  MessageMetadata,
-  messageSchema,
-} from "io-messages-common/domain/message";
 
 export class MessageAdapter implements MessageRepository {
   #content: MessageContentProvider;

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
+import { Message, featureLevelSchema } from "./message.js";
 import { TokenizerClient } from "./tokenizer.js";
-import { featureLevelSchema, Message } from "io-messages-common/domain/message";
 
 const contentTypeSchema = z
   .enum(["GENERIC", "PAYMENT", "EU_COVID_CERT", "SEND", "PAGOPA_RECEIPT"])
