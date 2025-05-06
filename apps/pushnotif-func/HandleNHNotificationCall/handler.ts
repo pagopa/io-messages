@@ -60,7 +60,6 @@ const startOrchestrator = async (
           message: notificationHubMessage,
         },
       );
-      break;
     case CreateOrUpdateKind.CreateOrUpdateInstallation:
       return await client.startNew(
         CreateOrUpdateInstallationOrchestrator,
@@ -69,10 +68,8 @@ const startOrchestrator = async (
           message: notificationHubMessage,
         },
       );
-      break;
     case NotifyKind.Notify:
-      notifyMessage(context, notificationHubMessage);
-      break;
+      return await notifyMessage(context, notificationHubMessage);
     default:
       context.log.error(
         `HandleNHNotificationCall|ERROR=Unknown message kind, message: ${toString(
