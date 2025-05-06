@@ -3,6 +3,7 @@ services:
     build: .devcontainer
     volumes:
       - ".:/workspace:cached"
+    network_mode: host
 
   redis:
     image: "redis/redis-stack:6.2.6-v19@sha256:93b5454f383821d7279373ff97fcaa48960cc543c53afe1471e2e2a97efee6df"
@@ -45,3 +46,17 @@ services:
       KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL: "SASL_PLAINTEXT"
       KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM: "PLAIN"
       KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="$$ConnectionString" password="Endpoint=sb://eventhubs;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";'
+
+  mailhog:
+    image: "mailhog/mailhog"
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+  mock-server:
+    image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
+    command: ["--data", "data", "--port", "3000"]
+    ports:
+      - "8004:3000"
+    volumes:
+      - "./mockoon.json:/data:readonly"

@@ -3,7 +3,7 @@ const { defineConfig } = require("@yarnpkg/types");
 
 // We don't want to apply the same configuration to all workspaces.
 // These workspaces use a different toolchain that will be migrated in the future.
-const LEGACY_WORKSPACES = ["sending-func", "citizen-func", "pushnotif-func"];
+const LEGACY_WORKSPACES = ["citizen-func", "pushnotif-func"];
 
 /** @param {import('@yarnpkg/types').Yarn.Constraints.Workspace} w */
 function setWorkspaceScripts(w) {
@@ -17,8 +17,10 @@ function setWorkspaceScripts(w) {
 }
 
 /** @param {import('@yarnpkg/types').Yarn.Constraints.Workspace} w */
-function enforceESM(w) {
-  w.set("type", "module");
+function setDefaultWorkspaceType(w) {
+  if (w.manifest.type === undefined) {
+    w.set("type", "module");
+  }
 }
 
 module.exports = defineConfig({
@@ -30,7 +32,7 @@ module.exports = defineConfig({
       )
       .forEach((w) => {
         setWorkspaceScripts(w);
-        enforceESM(w);
+        setDefaultWorkspaceType(w);
       });
   },
 });
