@@ -2,17 +2,21 @@
   "name": "citizen-func",
   "version": "5.5.5",
   "license": "UNLICENSED",
+  "type": "commonjs",
   "scripts": {
-    "build": "yarn openapi:bundle && rimraf ./generated && yarn generate:definitions && tsc",
+    "build": "yarn openapi:bundle && yarn generate && tsc",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "openapi:bundle": "yarn node copy-commons-definitions.js && bundle-api-spec -i openapi/index.yaml.template -o openapi/index.yaml -V $npm_package_version",
-    "generate:definitions": "shx rm -rf generated/definitions && shx mkdir -p generated/definitions && gen-api-models --api-spec ./openapi/index.yaml --no-strict --out-dir ./generated/definitions",
     "dist:modules": "modclean -r -n default:safe && yarn install --production",
     "version": "yarn openapi:bundle",
-    "lint": "eslint --fix .",
-    "lint:check": "eslint .",
-    "generate": "yarn generate:definitions"
+    "lint": "eslint --fix src",
+    "lint:check": "eslint src",
+    "generate": "yarn generate:definitions",
+    "generate:definitions": "shx rm -rf src/generated/definitions && shx mkdir -p src/generated/definitions && gen-api-models --api-spec ./openapi/index.yaml --no-strict --out-dir ./src/generated/definitions",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@pagopa/eslint-config": "^4.0.3",
