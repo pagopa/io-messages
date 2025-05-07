@@ -7,7 +7,7 @@
     "sourceMap": true,
     "strict": false,
     "resolveJsonModule": true
-  }, 
+  },
   "exclude": [
     "node_modules",
     "dist",

@@ -6,9 +6,7 @@
       "direction": "in",
       "name": "req",
       "route": "v1/messages/{fiscal_code}/{id}/message-status",
-      "methods": [
-        "put"
-      ]
+      "methods": ["put"]
     },
     {
       "type": "http",
