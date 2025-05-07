@@ -1,9 +1,0 @@
-{
-  "extends": ["//"],
-  "tasks": {
-    "generate": {
-      "dependsOn": ["openapi:bundle"],
-      "outputs": ["generated/**"]
-    }
-  }
-}
