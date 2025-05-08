@@ -6,9 +6,7 @@
       "direction": "in",
       "name": "req",
       "route": "v1/remote-contents/configurations/{configurationId}",
-      "methods": [
-        "put"
-      ]
+      "methods": ["put"]
     },
     {
       "type": "http",
@@ -16,5 +14,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/UpdateRCConfiguration/index.js"
+  "scriptFile": "../dist/functions/UpdateRCConfiguration/index.js"
 }

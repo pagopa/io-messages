@@ -11,7 +11,8 @@
     "dist:modules": "modclean -r -n default:safe && yarn install --production",
     "version": "yarn openapi:bundle",
     "lint": "eslint --fix .",
-    "lint:check": "eslint ."
+    "lint:check": "eslint .",
+    "generate": "yarn generate:definitions"
   },
   "devDependencies": {
     "@pagopa/eslint-config": "^4.0.3",

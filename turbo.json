@@ -2,47 +2,27 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build",
-        "^typecheck"
-      ],
-      "inputs": [
-        "src/**/*.ts"
-      ],
-      "outputs": [
-        "dist/**"
-      ],
+      "dependsOn": ["^build", "^typecheck"],
+      "inputs": ["src/**/*.ts"],
+      "outputs": ["dist/**"],
       "outputLogs": "errors-only"
     },
     "lint": {
-      "inputs": [
-        "src/**/*.ts"
-      ],
+      "inputs": ["src/**/*.ts"],
       "outputLogs": "errors-only"
     },
     "lint:check": {
-      "inputs": [
-        "src/**/*.ts"
-      ],
+      "inputs": ["src/**/*.ts"],
       "outputLogs": "errors-only"
     },
     "test": {
-      "dependsOn": [
-        "^test"
-      ],
-      "inputs": [
-        "src/**/*.spec.ts"
-      ],
+      "dependsOn": ["^test"],
+      "inputs": ["src/**/*.spec.ts"],
       "outputLogs": "errors-only"
     },
     "test:coverage": {
-      "dependsOn": [
-        "^test",
-        "build"
-      ],
-      "inputs": [
-        "src/**/*.spec.ts"
-      ],
+      "dependsOn": ["^test", "build"],
+      "inputs": ["src/**/*.spec.ts"],
       "outputLogs": "full"
     },
     "format": {
@@ -52,53 +32,22 @@
       "outputLogs": "errors-only"
     },
     "typecheck": {
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "src/**/*.ts"
-      ],
+      "dependsOn": ["^build", "generate"],
+      "inputs": ["src/**/*.ts"],
       "outputLogs": "errors-only"
     },
     "openapi:bundle": {
-      "inputs": [
-        "openapi/index.yaml.template"
-      ],
-      "outputs": [
-        "openapi/index.yaml",
-        "openapi/common-definitions.yaml"
-      ]
+      "inputs": ["openapi/index.yaml.template"],
+      "outputs": ["openapi/index.yaml", "openapi/common-definitions.yaml"]
     },
-    "generate:definitions": {
-      "dependsOn": [
-        "openapi:bundle"
-      ],
-      "inputs": [
-        "openapi/index.yaml"
-      ],
-      "outputs": [
-        "generated/definitions"
-      ]
-    },
-    "generate:backend-notification-hub": {
-      "outputs": [
-        "generated/notifications"
-      ]
+    "generate": {
+      "dependsOn": ["openapi:bundle"],
+      "outputs": ["src/generated/**"]
     },
     "//#test:coverage": {
-      "dependsOn": [
-        "citizen-func#generate:definitions",
-        "sending-func#generate:definitions",
-        "sending-func#generate:backend-notification-hub",
-        "pushnotif-func#generate:backend-notification-hub"
-      ],
-      "inputs": [
-        "apps/**/src/**/*.ts",
-        "packages/**/src/**/*.ts"
-      ],
-      "outputs": [
-        "coverage"
-      ],
+      "dependsOn": ["^generate"],
+      "inputs": ["apps/**/src/**/*.ts", "packages/**/src/**/*.ts"],
+      "outputs": ["coverage"],
       "outputLogs": "errors-only"
     }
   }

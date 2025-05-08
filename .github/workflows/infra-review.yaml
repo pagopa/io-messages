@@ -1,4 +1,7 @@
 name: Plan (resources)
+permissions:
+  contents: read
+  pull-requests: write
 
 on:
   workflow_dispatch:
