@@ -130,14 +130,7 @@ locals {
       # Variable used during transition to new NH management
 
       # Possible values : "none" | "all" | "beta" | "canary"
-      NH_PARTITION_FEATURE_FLAG            = "all"
-      NOTIFY_VIA_QUEUE_FEATURE_FLAG        = "all"
-      BETA_USERS_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
-      BETA_USERS_TABLE_NAME                = "notificationhub"
-
-      # Takes ~6,25% of users
-      CANARY_USERS_REGEX = "^([(0-9)|(a-f)|(A-F)]{63}0)$"
-      # ------------------------------------------------------------------------------
+      NH_PARTITION_FEATURE_FLAG = "all"
 
       AzureFunctionsJobHost__extensions__durableTask__storageProvider__partitionCount = "8"
     }

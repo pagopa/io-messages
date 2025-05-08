@@ -63,8 +63,3 @@ resource "azurerm_storage_queue" "push_notifications_poison" {
   name                 = "push-notifications-poison"
   storage_account_name = module.com_st.name
 }
-
-resource "azurerm_storage_table" "push_notif_betausertests" {
-  name                 = "notificationhub"
-  storage_account_name = module.com_st.name
-}
