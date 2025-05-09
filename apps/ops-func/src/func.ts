@@ -6,6 +6,7 @@ import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 
 import { BlobStorageAuditLogger } from "./adapters/audit.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
+import { CosmosHealthchecker } from "./adapters/cosmos/health.js";
 import { deleteMessage } from "./adapters/functions/delete-message.js";
 import { healthcheck } from "./adapters/functions/health.js";
 import { splitDeleteMessages } from "./adapters/functions/split-delete-messages.js";
@@ -33,7 +34,7 @@ const main = async (config: Config): Promise<void> => {
     azureCredentials,
   );
 
-  const healthcheckUseCase = new HealthUseCase(db);
+  const healthcheckUseCase = new HealthUseCase([new CosmosHealthchecker(db)]);
 
   const repo = new MessageRepositoryAdapter(db, storage);
   const auditLogger = new BlobStorageAuditLogger(messageStorage);
