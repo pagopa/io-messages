@@ -1,11 +1,11 @@
 import { EventErrorRepository, EventErrorTypesEnum } from "@/domain/event.js";
+import { MessageRepository } from "@/domain/message.js";
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import {
   Message,
   MessageMetadata,
-  MessageRepository,
   messageSchema,
-} from "@/domain/message.js";
-import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
+} from "io-messages-common/domain/message";
 import { Logger } from "pino";
 
 import {

@@ -1,9 +1,9 @@
+import { FiscalCode } from "io-messages-common/domain/fiscal-code";
 import {
   Message,
   messageContentSchema,
   messageMetadataSchema,
-} from "@/domain/message.js";
-import { FiscalCode } from "io-messages-common/domain/fiscal-code";
+} from "io-messages-common/domain/message";
 
 export const aFiscalCode = "RMLGNN97R06F158N" as FiscalCode;
 export const aMaskedFiscalCode = "3f5a5e37-63a0-423c-a108-94b535e03f91";

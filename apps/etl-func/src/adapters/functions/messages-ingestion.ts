@@ -2,8 +2,7 @@ import { EventErrorRepository, EventErrorTypesEnum } from "@/domain/event.js";
 import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
 import { CosmosDBHandler, InvocationContext } from "@azure/functions";
-
-import { messageMetadataSchema } from "../../domain/message.js";
+import { messageMetadataSchema } from "io-messages-common/domain/message";
 
 const messagesIngestionHandler =
   (

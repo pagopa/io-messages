@@ -1,6 +1,6 @@
+import { Message, featureLevelSchema } from "io-messages-common/domain/message";
 import { z } from "zod";
 
-import { Message, featureLevelSchema } from "./message.js";
 import { TokenizerClient } from "./tokenizer.js";
 
 const contentTypeSchema = z
