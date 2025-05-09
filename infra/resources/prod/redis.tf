@@ -2,8 +2,8 @@ module "redis_messages" {
   source = "github.com/pagopa/terraform-azurerm-v4//redis_cache?ref=v1.2.1"
 
   name                = "${local.project}-msgs-redis-01"
-  resource_group_name = data.azurerm_resource_group.itn_messages.name
-  location            = data.azurerm_resource_group.itn_messages.location
+  resource_group_name = local.legacy_itn_rg_name
+  location            = local.location
 
   capacity              = 2
   family                = "C"

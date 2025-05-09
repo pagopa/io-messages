@@ -3,7 +3,7 @@ module "cosmos" {
   cosmosdb_account = data.azurerm_cosmosdb_account.cosmos_api
   tags             = local.tags
   resource_group   = "io-p-itn-com-rg-01"
-  action_group_id  = module.monitoring.action_group.io_com_error_id
+  action_group_id  = module.monitoring.action_group.id
   subnet_pep_id    = data.azurerm_subnet.pep.id
   environment = {
     prefix          = local.prefix

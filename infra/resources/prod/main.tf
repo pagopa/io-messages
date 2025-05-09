@@ -33,7 +33,7 @@ module "functions_messages_sending" {
   location            = local.location
   project             = local.project
   domain              = "msgs"
-  resource_group_name = data.azurerm_resource_group.itn_messages.name
+  resource_group_name = local.legacy_itn_rg_name
 
   cidr_subnet_messages_sending_func    = "10.20.1.0/24"
   private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
@@ -47,7 +47,7 @@ module "functions_messages_sending" {
   ai_sampling_percentage = 5
 
   cosmosdb_api = data.azurerm_cosmosdb_account.cosmos_api
-  cosmosdb_com = data.azurerm_cosmosdb_account.io_com_cosmos
+  cosmosdb_com = module.cosmos.io_com_cosmos_account
 
   redis_url      = module.redis_messages.hostname
   redis_port     = module.redis_messages.ssl_port
@@ -62,5 +62,5 @@ module "functions_messages_sending" {
 
   tags = local.tags
 
-  action_group_id = module.monitoring.action_group.io_com_error_id
+  action_group_id = module.monitoring.action_group.id
 }
