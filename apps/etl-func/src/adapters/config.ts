@@ -34,7 +34,6 @@ export const configSchema = common.and(
   z.discriminatedUnion("environment", [
     z.object({
       environment: z.literal("production"),
-      messageStatusEventHub: eventhubConfigSchema,
       messagesEventHub: eventhubConfigSchema,
     }),
     z.object({
