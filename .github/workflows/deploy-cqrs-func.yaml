@@ -1,5 +1,8 @@
 name: Deploy (cqrs-func)
-
+permissions:
+  id-token: write
+  contents: read
+  
 on:
   workflow_dispatch: {}
 
