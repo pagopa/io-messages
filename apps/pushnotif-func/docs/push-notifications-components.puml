@@ -3,27 +3,29 @@
 !include <C4/C4_Context>
 !include <C4/C4_Container>
 
-LAYOUT_WITH_LEGEND()
-
 title Push Notifications
 
-Boundary(io, "Push Notifications Function") {
+Boundary(io_com_push_func, "Push Notifications Function") {
     Container(pushNotifFunc, "pushnotif-func", "Azure Durable Function")
     Container(internalStorage, "func-internal-storage", "Azure Storage Account")
     Container(durableStorage, "func-durable-storage", "Azure Storage Account")
 }
 
-Container(pushNotifQueue, "push-notifications queue", "Storage Account Common")
-Container(notifMessageQueue, "push-notifications queue", "Storage Account Common")
+Boundary(io_com_account, "Common Account Storage") {
+    Container(pushNotifQueue, "push-notifications queue", "Storage Account Common")
+    Container(notifMessageQueue, "notify-messages queue", "Storage Account Common")
+}
+
+Rel_D(notifMessageQueue, pushNotifFunc, "notify-message queue trigger in")
+Rel_U(pushNotifFunc, notifMessageQueue, "writes on notify-message queue")
 
 Rel_U(pushNotifFunc, internalStorage, "Save function informations")
-Rel_U(pushNotifFunc, durableStorage, "writes on notify-message queue")
-Rel_D(durableStorage, pushNotifFunc, "notify-message queue trigger in")
+Rel_D(pushNotifFunc, durableStorage,  "Save function informations")
 
 Container(iobackend, "io-backend")
 
 
 Rel_D(iobackend, pushNotifQueue, "")
 Rel_D(pushNotifQueue, pushNotifFunc, "push-notifications queue trigger in")
-Rel_D(notifMessageQueue, pushNotifFunc, "notify-message queue trigger in")
+
 @enduml
