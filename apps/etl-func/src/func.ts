@@ -14,7 +14,6 @@ import {
 import { messageSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
-import { CosmosIngestionCollector } from "./adapters/cosmos/event-collector.js";
 import { EventHubEventProducer } from "./adapters/eventhub/event.js";
 import { makeEventHubProducerClient } from "./adapters/eventhub/index.js";
 import messagesIngestionHandler from "./adapters/functions/messages-ingestion.js";
@@ -91,19 +90,9 @@ const main = async (config: Config) => {
     endpoint: config.iocomCosmos.accountUri,
   });
 
-  const ingestionSummaryContainer = ioComCosmosClient
-    .database(config.iocomCosmos.eventsCollectorDatabaseName)
-    .container(config.iocomCosmos.messageIngestionSummaryContainerName);
-
-  const messagesWeeklyCollector = new CosmosIngestionCollector(
-    ingestionSummaryContainer,
-    telemetryService,
-  );
-
   const ingestMessageUseCase = new IngestMessageUseCase(
     messageAdapter,
     tokenizerClient,
-    messagesWeeklyCollector,
     messageEventProducer,
   );
 

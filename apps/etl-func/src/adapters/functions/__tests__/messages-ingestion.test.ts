@@ -6,26 +6,16 @@ import {
 import { TelemetryEventService } from "@/adapters/appinsights/appinsights.js";
 import { messageSchema } from "@/adapters/avro.js";
 import { MessageContentProvider } from "@/adapters/blob-storage/message-content.js";
-import { CosmosIngestionCollector } from "@/adapters/cosmos/event-collector.js";
 import { EventHubEventProducer } from "@/adapters/eventhub/event.js";
 import { MessageAdapter } from "@/adapters/message.js";
 import { EventErrorTableStorage } from "@/adapters/table-storage/event-error-table-storage.js";
 import PDVTokenizerClient from "@/adapters/tokenizer/pdv-tokenizer-client.js";
 import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
-import { Container } from "@azure/cosmos";
 import { InvocationContext } from "@azure/functions";
 import { pino } from "pino";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import messagesIngestion from "../messages-ingestion.js";
-
-const createMock = vi.fn();
-
-const containerMock = {
-  items: {
-    create: createMock,
-  },
-} as unknown as Container;
 
 const logger = pino();
 
@@ -105,15 +95,9 @@ const eventErrorRepoPushSpy = vi
   .spyOn(messageIngestionErrorRepositoryMock, "push")
   .mockResolvedValue();
 
-const cosmosCollectorMock = new CosmosIngestionCollector(
-  containerMock,
-  telemetryServiceMock,
-);
-
 const ingestMessageUseCase = new IngestMessageUseCase(
   messageAdapter,
   PDVTokenizer,
-  cosmosCollectorMock,
   producer,
 );
 
