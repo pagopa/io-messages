@@ -6,9 +6,7 @@
       "direction": "in",
       "name": "req",
       "route": "v1/remote-contents/configurations",
-      "methods": [
-        "post"
-      ]
+      "methods": ["post"]
     },
     {
       "type": "http",
@@ -16,5 +14,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/CreateRCConfiguration/index.js"
+  "scriptFile": "../dist/functions/CreateRCConfiguration/index.js"
 }
