@@ -19,6 +19,7 @@ import {
   aRetrievedMessageWithContent,
   aRetrievedProfile,
   aRetrievedService,
+  aService,
 } from "../../../__mocks__/models.mock";
 import { NotificationInfo } from "../../../generated/definitions/NotificationInfo";
 import { NotificationTypeEnum } from "../../../generated/definitions/NotificationType";
@@ -527,20 +528,20 @@ describe("Notify |> Reminder |> Errors", () => {
     vi.clearAllMocks();
   });
   // TODO: This will change in future
-  it("should return NotAuthorized if a MESSAGE notification type is sent", async () => {
+  it.only("should return success no content if a MESSAGE notification type is sent", async () => {
     const notifyhandler = getHandler();
 
-    const res = await notifyhandler(logger, {
-      ...aValidReadReminderNotifyPayload,
-      notification_type: NotificationTypeEnum.MESSAGE,
-    });
+    const res = await notifyhandler(logger, aValidMessageNotifyPayload);
 
     expect(res).toMatchObject({
-      detail:
-        "You are not allowed here: You're not allowed to send the notification",
-      kind: "IResponseErrorForbiddenNotAuthorized",
+      kind: "IResponseSuccessNoContent",
     });
-    expect(sendNotificationMock).not.toHaveBeenCalled();
+    expect(sendNotificationMock).toHaveBeenCalledWith(
+      aFiscalCode,
+      "aMessageId",
+      aService.organizationName,
+      aRetrievedMessageWithContent.content.subject,
+    );
   });
 
   it("should return NotAuthorized if user has not enabled reminder notification", async () => {
