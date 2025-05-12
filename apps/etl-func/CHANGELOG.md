@@ -1,5 +1,11 @@
 # etl-func
 
+## 1.0.2
+
+### Patch Changes
+
+- c2563db: Remove summary collection
+
 ## 1.0.1
 
 ### Patch Changes
