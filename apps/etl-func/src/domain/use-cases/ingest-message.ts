@@ -1,4 +1,4 @@
-import { EventCollector, EventProducer } from "../event.js";
+import { EventProducer } from "../event.js";
 import { Message, MessageMetadata, MessageRepository } from "../message.js";
 import {
   MessageEvent,
