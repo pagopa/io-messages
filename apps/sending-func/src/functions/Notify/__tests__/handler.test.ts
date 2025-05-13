@@ -19,7 +19,6 @@ import {
   aRetrievedMessageWithContent,
   aRetrievedProfile,
   aRetrievedService,
-  aService,
 } from "../../../__mocks__/models.mock";
 import { NotificationInfo } from "../../../generated/definitions/NotificationInfo";
 import { NotificationTypeEnum } from "../../../generated/definitions/NotificationType";
