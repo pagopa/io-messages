@@ -527,7 +527,6 @@ describe("Notify |> Reminder |> Errors", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
-  // TODO: This will change in future
   it("should return success no content if a MESSAGE notification type is sent", async () => {
     const notifyhandler = getHandler();
 
