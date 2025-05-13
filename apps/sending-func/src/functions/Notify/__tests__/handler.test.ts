@@ -528,7 +528,7 @@ describe("Notify |> Reminder |> Errors", () => {
     vi.clearAllMocks();
   });
   // TODO: This will change in future
-  it.only("should return success no content if a MESSAGE notification type is sent", async () => {
+  it("should return success no content if a MESSAGE notification type is sent", async () => {
     const notifyhandler = getHandler();
 
     const res = await notifyhandler(logger, aValidMessageNotifyPayload);
