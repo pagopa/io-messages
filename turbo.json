@@ -55,10 +55,7 @@
       "outputs": ["generated/avro"]
     },
     "//#test:coverage": {
-      "dependsOn": [
-        "^generate",
-        "cqrs-func#generate:payment-updater",
-        "cqrs-func#generate:avro"],
+      "dependsOn": ["^generate"],
       "inputs": ["apps/**/src/**/*.ts", "packages/**/src/**/*.ts"],
       "outputs": ["coverage"],
       "outputLogs": "errors-only"
