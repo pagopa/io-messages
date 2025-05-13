@@ -538,8 +538,8 @@ describe("Notify |> Reminder |> Errors", () => {
     expect(sendNotificationMock).toHaveBeenCalledWith(
       aFiscalCode,
       "aMessageId",
-      aService.organizationName,
-      aRetrievedMessageWithContent.content.subject,
+      "Hai un nuovo messaggio",
+      "Entra nell'app per leggerlo",
     );
   });
 
