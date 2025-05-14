@@ -1,3 +1,7 @@
+variable "evt_rg_name" {
+  type    = string
+  default = "io-p-evt-rg"
+}
 locals {
   prefix         = "io"
   env_short      = "p"
@@ -14,9 +18,12 @@ locals {
   project_legacy = "${local.prefix}-${local.env_short}"
 
   location              = "italynorth"
-  secondary_location    = "germanywestcentral"
   legacy_location       = "westeurope"
   legacy_location_short = "weu"
+
+  legacy_itn_rg_name    = "io-p-itn-msgs-rg-01"
+  notifications_rg_name = "io-p-weu-messages-notifications-rg"
+  evt_rg_name           = "io-p-evt-rg"
 
   environment = {
     prefix    = local.prefix
