@@ -2,9 +2,9 @@ import {
   aSimpleMessageContent,
   aSimpleMessageMetadata,
 } from "@/__mocks__/message.js";
-import { RestError } from "@azure/storage-blob";
 import { describe, expect, test, vi } from "vitest";
 
+import { BlobNotFoundError } from "../blob.js";
 import { BlobMessageContent, MessageContentError } from "../message-content.js";
 
 const mocks = vi.hoisted(() => ({
@@ -71,14 +71,7 @@ describe("getByMessageId", () => {
   });
 
   test("Given a message id which refers to a non existing message, when the storage is reachable then it should return a RestError with code 404", async () => {
-    downloadMock.mockReturnValueOnce(
-      Promise.reject(
-        new RestError("The specified blob does not exist.", {
-          code: "BlobNotFound",
-          statusCode: 404,
-        }),
-      ),
-    );
+    downloadMock.mockReturnValueOnce(Promise.reject(new BlobNotFoundError()));
     await expect(() =>
       blobMessageContent.getByMessageContentById(aSimpleMessageMetadata.id),
     ).rejects.toThrowError(MessageContentError);

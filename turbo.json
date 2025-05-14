@@ -44,16 +44,6 @@
       "dependsOn": ["openapi:bundle"],
       "outputs": ["src/generated/**"]
     },
-
-    "generate:payment-updater": {
-      "inputs": ["openapi/payment-updater.yaml"],
-      "outputs": ["generated/payment-updater"]
-    },
-
-    "generate:avro": {
-      "inputs": ["avro/message-status.json", "avro/message.json"],
-      "outputs": ["generated/avro"]
-    },
     "//#test:coverage": {
       "dependsOn": ["^generate"],
       "inputs": ["apps/**/src/**/*.ts", "packages/**/src/**/*.ts"],
