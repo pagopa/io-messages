@@ -4,7 +4,7 @@
   "version": "4.0.1",
   "license": "UNLICENSED",
   "scripts": {
-    "build": "yarn generate:payment-updater && yarn generate:avro && tsc",
+    "build": "yarn generate && tsc",
     "start": "func start --javascript",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
