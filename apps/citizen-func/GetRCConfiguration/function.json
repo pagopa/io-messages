@@ -14,5 +14,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/GetRCConfiguration/index.js"
+  "scriptFile": "../dist/functions/GetRCConfiguration/index.js"
 }
