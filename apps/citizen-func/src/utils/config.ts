@@ -20,39 +20,8 @@ import * as t from "io-ts";
 
 import { CommaSeparatedListOf } from "./types";
 
-// exclude a specific value from a type
-// as strict equality is performed, allowed input types are constrained to be values not references (object, arrays, etc)
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const AnyBut = <A extends boolean | number | string | symbol, Out = A>(
-  but: A,
-  base: t.Type<A, Out> = t.any,
-) =>
-  t.brand(
-    base,
-    (
-      s,
-    ): s is t.Branded<
-      t.TypeOf<typeof base>,
-      { readonly AnyBut: unique symbol }
-    > => s !== but,
-    "AnyBut",
-  );
-
-// configuration for REQ_SERVICE_ID in dev
-export type ReqServiceIdConfig = t.TypeOf<typeof ReqServiceIdConfig>;
-export const ReqServiceIdConfig = t.union([
-  t.interface({
-    NODE_ENV: t.literal("production"),
-    REQ_SERVICE_ID: t.undefined,
-  }),
-  t.interface({
-    NODE_ENV: AnyBut("production", t.string),
-    REQ_SERVICE_ID: NonEmptyString,
-  }),
-]);
-
 export const RedisParams = t.intersection([
-  t.interface({
+  t.type({
     REDIS_URL: NonEmptyString,
   }),
   t.partial({
@@ -99,7 +68,7 @@ export type UlidMapFromString = t.TypeOf<typeof UlidMapFromString>;
 // global app configuration
 export type IConfig = t.TypeOf<typeof IConfig>;
 export const IConfig = t.intersection([
-  t.interface({
+  t.type({
     APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
     /* eslint-disable sort-keys */
@@ -129,7 +98,6 @@ export const IConfig = t.intersection([
     isProduction: t.boolean,
     /* eslint-enable sort-keys */
   }),
-  ReqServiceIdConfig,
   RedisParams,
 ]);
 
