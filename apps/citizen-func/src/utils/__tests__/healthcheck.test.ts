@@ -11,7 +11,6 @@ import {
   checkApplicationHealth,
   checkAzureCosmosDbHealth,
   checkAzureStorageHealth,
-  checkUrlHealth,
 } from "../healthcheck";
 
 vi.spyOn(config, "getConfig").mockReturnValue(right(envConfig));
@@ -114,13 +113,7 @@ describe("healthcheck - storage account", () => {
       name: "createBlobService",
     },
     {
-      name: "createFileService",
-    },
-    {
       name: "createQueueService",
-    },
-    {
-      name: "createTableService",
     },
   ];
   test.each(testcases)(
@@ -200,23 +193,6 @@ describe("healthcheck - url health", () => {
   it("should return no error", () => {
     expect(true).toBeTruthy();
   });
-
-  it("should return an error if Url check fails", () =>
-    new Promise<void>((done) => {
-      expect.assertions(1);
-
-      pipe(
-        checkUrlHealth(""),
-        TE.map(() => {
-          expect(false).toBeTruthy();
-          done();
-        }),
-        TE.mapLeft(() => {
-          expect(true).toBeTruthy();
-          done();
-        }),
-      )();
-    }));
 });
 
 describe("checkApplicationHealth - multiple errors -", () => {
