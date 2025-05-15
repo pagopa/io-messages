@@ -94,11 +94,7 @@ const getErrorOrPaymentData = async (
   senderServiceId: ServiceId,
   maybePaymentData: O.Option<PaymentData>,
 ): Promise<
-  E.Either<
-    IResponseErrorInternal,
-    O.Option<PaymentDataWithRequiredPayee>
-    // eslint-disable-next-line max-params
-  >
+  E.Either<IResponseErrorInternal, O.Option<PaymentDataWithRequiredPayee>>
 > =>
   pipe(
     maybePaymentData,
@@ -191,7 +187,6 @@ const getErrorOrMaybeThirdPartyData = async (
 /**
  * Handles requests for getting a single message for a recipient.
  */
-// eslint-disable-next-line max-params
 export function GetMessageHandler(
   messageModel: MessageModel,
   messageStatusModel: MessageStatusModel,
@@ -359,7 +354,6 @@ export function GetMessageHandler(
 /**
  * Wraps a GetMessage handler inside an Express request handler.
  */
-// eslint-disable-next-line max-params
 export function GetMessage(
   messageModel: MessageModel,
   messageStatusModel: MessageStatusModel,
