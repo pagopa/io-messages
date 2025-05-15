@@ -526,21 +526,20 @@ describe("Notify |> Reminder |> Errors", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
-  // TODO: This will change in future
-  it("should return NotAuthorized if a MESSAGE notification type is sent", async () => {
+  it("should return success no content if a MESSAGE notification type is sent", async () => {
     const notifyhandler = getHandler();
 
-    const res = await notifyhandler(logger, {
-      ...aValidReadReminderNotifyPayload,
-      notification_type: NotificationTypeEnum.MESSAGE,
-    });
+    const res = await notifyhandler(logger, aValidMessageNotifyPayload);
 
     expect(res).toMatchObject({
-      detail:
-        "You are not allowed here: You're not allowed to send the notification",
-      kind: "IResponseErrorForbiddenNotAuthorized",
+      kind: "IResponseSuccessNoContent",
     });
-    expect(sendNotificationMock).not.toHaveBeenCalled();
+    expect(sendNotificationMock).toHaveBeenCalledWith(
+      aFiscalCode,
+      "aMessageId",
+      "Hai un nuovo messaggio",
+      "Entra nell'app per leggerlo",
+    );
   });
 
   it("should return NotAuthorized if user has not enabled reminder notification", async () => {

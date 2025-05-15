@@ -17,9 +17,6 @@
     "NOTIFICATIONS_QUEUE_NAME": "push-notifications",
     "NOTIFICATIONS_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;",
     "NH_PARTITION_FEATURE_FLAG": "all",
-    "BETA_USERS_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;",
-    "BETA_USERS_TABLE_NAME": "nhpartitiontestusers",
-    "CANARY_USERS_REGEX":"^([(0-9)|(a-f)|(A-F)]{63}0)$",
     "AZURE_NH_HUB_NAME": "NotificationHubName",
     "AZURE_NH_ENDPOINT": "AzureNotificationHubConnectionString",
     "NH1_ENDPOINT": "NotificationHubPartitionConnectionString",
@@ -34,7 +31,6 @@
     "NH4_ENDPOINT": "NotificationHubPartitionConnectionString",
     "NH4_NAME": "partitionName4",
     "NH4_PARTITION_REGEX":"^[ \"c-f]",
-    "NOTIFY_VIA_QUEUE_FEATURE_FLAG":"all",
     "NOTIFY_MESSAGE_QUEUE_NAME": "notify-queue-name",
     "NODE_TLS_REJECT_UNAUTHORIZED": "0",
     "AZURE_ENABLE_STRICT_SSL": "false"
