@@ -16,7 +16,8 @@
     "generate:definitions": "shx rm -rf src/generated/definitions && shx mkdir -p src/generated/definitions && gen-api-models --api-spec ./openapi/index.yaml --no-strict --out-dir ./src/generated/definitions",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "start": "func start --port 7072"
   },
   "devDependencies": {
     "@pagopa/eslint-config": "^4.0.3",

@@ -17,14 +17,12 @@ export const envConfig: IConfig = {
   MESSAGE_CONTAINER_NAME: "aaa" as NonEmptyString,
 
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: "aaa" as NonEmptyString,
-  NODE_ENV: "production",
 
   PN_SERVICE_ID: "a-pn-service-id" as NonEmptyString,
   REDIS_URL: "aaa" as NonEmptyString,
 
   REMOTE_CONTENT_COSMOSDB_NAME: "aName" as NonEmptyString,
   REMOTE_CONTENT_COSMOSDB_URI: "aUri" as NonEmptyString,
-  REQ_SERVICE_ID: undefined,
   SERVICE_CACHE_TTL_DURATION: 10 as NonNegativeInteger,
 
   SERVICE_TO_RC_CONFIGURATION_MAP: new Map(
