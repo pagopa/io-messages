@@ -82,6 +82,10 @@ const checkSendNotificationPermission =
       .when(isReminderNotification, () =>
         canSendReminderNotification(retrievedUserProfile),
       )
+      .when(
+        (notificationType) => notificationType === NotificationTypeEnum.MESSAGE,
+        () => true,
+      )
       // Not implemented yet
       .otherwise(() => false);
 
