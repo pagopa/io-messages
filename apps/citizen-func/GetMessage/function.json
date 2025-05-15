@@ -14,5 +14,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/GetMessage/index.js"
+  "scriptFile": "../dist/functions/GetMessage/index.js"
 }
