@@ -3,9 +3,7 @@ import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import {
   common as azurestorageCommon,
   createBlobService,
-  createFileService,
   createQueueService,
-  createTableService,
 } from "azure-storage";
 import { sequenceT } from "fp-ts/lib/Apply";
 import * as A from "fp-ts/lib/Array";
@@ -14,11 +12,11 @@ import * as RA from "fp-ts/lib/ReadonlyArray";
 import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
-import fetch from "node-fetch";
 
 import { IConfig, getConfig } from "./config";
 
-type ProblemSource = "AzureCosmosDB" | "AzureStorage" | "Config" | "Url";
+type ProblemSource = "AzureCosmosDB" | "AzureStorage" | "Config";
+
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export type HealthProblem<S extends ProblemSource> = { __source: S } & string;
 export type HealthCheck<
@@ -54,16 +52,6 @@ export const checkConfigHealth = (): HealthCheck<"Config", IConfig> =>
       ),
     ),
   );
-
-/**
- * Return a CosmosClient
- */
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const buildCosmosClient = (dbUri: string, dbKey?: string) =>
-  new CosmosClient({
-    endpoint: dbUri,
-    key: dbKey,
-  });
 
 /**
  * Check the application can connect to an Azure CosmosDb instances
@@ -125,19 +113,6 @@ export const checkAzureStorageHealth = (
 };
 
 /**
- * Check a url is reachable
- *
- * @param url url to connect with
- *
- * @returns either true or an array of error messages
- */
-export const checkUrlHealth = (url: string): HealthCheck<"Url", true> =>
-  pipe(
-    TE.tryCatch(() => fetch(url, { method: "HEAD" }), toHealthProblems("Url")),
-    TE.map(() => true),
-  );
-
-/**
  * Execute all the health checks for the application
  *
  * @returns either true or an array of error messages
@@ -152,8 +127,7 @@ export const checkApplicationHealth = (
   );
 
   return pipe(
-    void 0,
-    TE.of,
+    TE.of(undefined),
     TE.chain(() => checkConfigHealth()),
     TE.chain((config) =>
       // run each taskEither and collect validation errors from each one of them, if any
