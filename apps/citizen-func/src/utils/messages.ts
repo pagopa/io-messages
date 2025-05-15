@@ -1,17 +1,13 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Context } from "@azure/functions";
 import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
-import { EUCovidCert } from "@pagopa/io-functions-commons/dist/generated/definitions/EUCovidCert";
 import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
-import { LegalData } from "@pagopa/io-functions-commons/dist/generated/definitions/LegalData";
 import { MessageCategory } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategory";
 import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
 import { TagEnum as TagEnumPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
 import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
-import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
-import { ThirdPartyData } from "@pagopa/io-functions-commons/dist/generated/definitions/ThirdPartyData";
 import { RetrievedMessageStatus } from "@pagopa/io-functions-commons/dist/src/models/message_status";
 import {
   RetrievedService,
@@ -19,16 +15,14 @@ import {
 } from "@pagopa/io-functions-commons/dist/src/models/service";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { TelemetryClient } from "applicationinsights";
-import * as AR from "fp-ts/lib/Array";
 import * as E from "fp-ts/lib/Either";
+import { Eq } from "fp-ts/lib/Eq";
 import { parse } from "fp-ts/lib/Json";
 import * as O from "fp-ts/lib/Option";
 import * as RA from "fp-ts/lib/ReadonlyArray";
 import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
-import { constVoid, flow, pipe } from "fp-ts/lib/function";
-import * as S from "fp-ts/string";
+import { flow, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
 import {
@@ -90,7 +84,6 @@ export const messageCategoryMappings = (
   }
   if (messageContent.third_party_data) {
     return {
-      tag: categoryFetcher(message.sender_service_id).category,
       has_attachments: messageContent.third_party_data.has_attachments,
       has_remote_content: messageContent.third_party_data.has_remote_content,
       id: messageContent.third_party_data.id,
@@ -98,13 +91,14 @@ export const messageCategoryMappings = (
         messageContent.third_party_data.original_receipt_date,
       original_sender: messageContent.third_party_data.original_sender,
       summary: messageContent.third_party_data.summary,
+      tag: categoryFetcher(message.sender_service_id).category,
     };
   }
   if (messageContent.payment_data) {
     return {
-      tag: TagEnumPayment.PAYMENT,
       noticeNumber: messageContent.payment_data.notice_number,
       payeeFiscalCode: messageContent.payment_data.payee?.fiscal_code,
+      tag: TagEnumPayment.PAYMENT,
     };
   }
   return {
@@ -175,6 +169,10 @@ export const computeFlagFromHasPrecondition = (
     ? true
     : false;
 
+const nonEmptyStringEq: Eq<NonEmptyString> = {
+  equals: (x, y) => x === y,
+};
+
 /**
  * This function enrich a CreatedMessageWithoutContent with
  * service's details and message's subject.
@@ -199,7 +197,7 @@ export const enrichServiceData =
     pipe(
       messages,
       RA.map((m) => m.sender_service_id),
-      RA.uniq(S.Eq),
+      RA.uniq(nonEmptyStringEq),
       RA.map((serviceId: NonEmptyString) =>
         pipe(
           getOrCacheService(
@@ -222,36 +220,49 @@ export const enrichServiceData =
       ),
       RA.sequence(TE.ApplicativePar),
       TE.map((services) => new Map(services.map((s) => [s.serviceId, s]))),
-      TE.map((serviceMap) =>
-        messages.map((m) =>
-          pipe(
-            serviceMap.get(m.sender_service_id),
-            (service) => ({
-              message: {
-                ...m,
-                organization_fiscal_code: service.organizationFiscalCode,
-                organization_name: service.organizationName,
-                service_name: service.serviceName,
-              },
-              service,
-            }),
-            ({ message, service }) =>
-              message.category?.tag !== TagEnumPayment.PAYMENT
-                ? { ...message, category: message.category }
-                : {
-                    ...message,
-                    category: {
-                      rptId: `${
-                        message.category.payeeFiscalCode ??
-                        service.organizationFiscalCode
-                      }${message.category.noticeNumber}`,
-                      tag: TagEnumPayment.PAYMENT,
+      TE.chain((serviceMap) =>
+        TE.sequenceArray(
+          messages.map((m) =>
+            pipe(
+              serviceMap.get(m.sender_service_id),
+              O.fromNullable,
+              O.map(
+                flow(
+                  (service) => ({
+                    message: {
+                      ...m,
+                      organization_fiscal_code: service.organizationFiscalCode,
+                      organization_name: service.organizationName,
+                      service_name: service.serviceName,
                     },
-                  },
-            (message) =>
-              message.category?.tag === TagEnumPN.PN
-                ? { ...message, has_precondition: true }
-                : message,
+                    service,
+                  }),
+                  ({ message, service }) =>
+                    message.category?.tag !== TagEnumPayment.PAYMENT
+                      ? { ...message, category: message.category }
+                      : {
+                          ...message,
+                          category: {
+                            rptId: `${
+                              message.category.payeeFiscalCode ??
+                              service.organizationFiscalCode
+                            }${message.category.noticeNumber}`,
+                            tag: TagEnumPayment.PAYMENT,
+                          },
+                        },
+                  (message) =>
+                    message.category?.tag === TagEnumPN.PN
+                      ? { ...message, has_precondition: true }
+                      : message,
+                ),
+              ),
+              TE.fromOption(
+                () =>
+                  new Error(
+                    `Service ${m.sender_service_id} not found for message ${m.id}`,
+                  ),
+              ),
+            ),
           ),
         ),
       ),
@@ -285,6 +296,17 @@ const getMessageStatusLastVersion = (
     ),
   );
 
+const CreatedMessageWithoutContentWithMessageId = t.intersection([
+  CreatedMessageWithoutContent,
+  t.type({
+    id: NonEmptyString,
+  }),
+]);
+
+type CreatedMessageWithoutContentWithMessageId = t.TypeOf<
+  typeof CreatedMessageWithoutContentWithMessageId
+>;
+
 /**
  * This function enrich a CreatedMessageWithoutContent with
  * message status details
@@ -301,21 +323,37 @@ export const enrichMessagesStatus =
     // eslint-disable-next-line @typescript-eslint/array-type
   ): T.Task<E.Either<Error, CreatedMessageWithoutContentWithStatus>[]> =>
     pipe(
-      messages.map((message) => message.id as NonEmptyString),
-      (ids) => getMessageStatusLastVersion(messageStatusModel, ids),
+      messages,
+      RA.map(CreatedMessageWithoutContentWithMessageId.decode),
+      E.sequenceArray,
+
+      E.mapLeft(() => new Error("Cannot decode message")),
+      TE.fromEither,
+
+      TE.bindTo("messages"),
+
+      TE.bind("lastMessageStatus", ({ messages }) =>
+        pipe(
+          messages.map((m) => m.id),
+          (ids) => getMessageStatusLastVersion(messageStatusModel, ids),
+        ),
+      ),
+
       TE.mapLeft((error) => {
         context.log.error(`Cannot enrich message status | ${error}`);
         return messages.map(() => E.left(error));
       }),
-      TE.map((lastMessageStatusPerMessage) =>
+
+      TE.map(({ lastMessageStatus, messages }) =>
         messages.map((m) =>
           E.of({
             ...m,
-            is_archived: lastMessageStatusPerMessage[m.id].isArchived,
-            is_read: lastMessageStatusPerMessage[m.id].isRead,
+            is_archived: lastMessageStatus[m.id].isArchived,
+            is_read: lastMessageStatus[m.id].isRead,
           }),
         ),
       ),
+
       TE.toUnion,
     );
 
@@ -328,7 +366,6 @@ export type ThirdPartyDataWithCategoryFetcher = (
 
 export const getThirdPartyDataWithCategoryFetcher: (
   config: IConfig,
-  telemetryClient: TelemetryClient,
 ) => ThirdPartyDataWithCategoryFetcher = (config) => (serviceId) =>
   pipe(
     serviceId,

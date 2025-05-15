@@ -5445,6 +5445,7 @@ __metadata:
     "@types/express": "npm:^4.17.11"
     "@types/html-to-text": "npm:^1.4.31"
     "@types/node": "npm:^20.17.30"
+    "@types/node-fetch": "npm:^2.5.7"
     "@types/redis": "npm:^2.8.28"
     "@vitest/coverage-v8": "npm:^3.1.2"
     applicationinsights: "npm:^1.8.10"

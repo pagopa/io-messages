@@ -11,6 +11,7 @@ import { MessageSubject } from "@pagopa/io-functions-commons/dist/generated/defi
 import { PaymentAmount } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentAmount";
 import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
 import { PaymentNoticeNumber } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentNoticeNumber";
+import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
 import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
 import {
   NewMessageWithoutContent,
@@ -41,8 +42,6 @@ import {
 } from "../../../__mocks__/mocks.service_preference";
 import * as msgUtil from "../../../utils/messages";
 import { GetMessageHandler } from "../handler";
-import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
-import { InternalMessageCategory } from "../../GetMessages/getMessagesFunctions/models";
 
 const aFiscalCode = "FRLFRC74E04B157I" as FiscalCode;
 const aDate = new Date();

@@ -29,7 +29,6 @@ import {
   NonEmptyString,
   OrganizationFiscalCode,
 } from "@pagopa/ts-commons/lib/strings";
-import { TelemetryClient } from "applicationinsights";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
@@ -377,27 +376,20 @@ describe("enrichServiceData", () => {
   });
 });
 
-const mockTelemetryClient = {
-  trackEvent: vi.fn(),
-  trackException: vi.fn(),
-} as unknown as TelemetryClient;
 const aPnServiceId = "a-pn-service-id" as NonEmptyString;
 const dummyConfig = { PN_SERVICE_ID: aPnServiceId } as IConfig;
 
 describe("getThirdPartyDataWithCategoryFetcher", () => {
   it("GIVEN a pn service id WHEN get category fetcher is called THEN return PN category", () => {
-    const result = getThirdPartyDataWithCategoryFetcher(
-      dummyConfig,
-      mockTelemetryClient,
-    )(aPnServiceId);
+    const result =
+      getThirdPartyDataWithCategoryFetcher(dummyConfig)(aPnServiceId);
     expect(result.category).toEqual(TagEnumPn.PN);
   });
 
   it("GIVEN a generic service id WHEN get category fetcher is called THEN return GENERIC category", () => {
-    const result = getThirdPartyDataWithCategoryFetcher(
-      dummyConfig,
-      mockTelemetryClient,
-    )(aService.serviceId);
+    const result = getThirdPartyDataWithCategoryFetcher(dummyConfig)(
+      aService.serviceId,
+    );
     expect(result.category).toEqual(TagEnumBase.GENERIC);
   });
 });
@@ -421,7 +413,7 @@ describe("mapMessageCategory", () => {
     const r = mapMessageCategory(
       aPublicExtendedMessage,
       aMessageContent as MessageContent,
-      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient),
+      getThirdPartyDataWithCategoryFetcher(dummyConfig),
     );
     expect(r.tag).toBe("GENERIC");
   });
@@ -433,7 +425,7 @@ describe("mapMessageCategory", () => {
         ...aMessageContent,
         eu_covid_cert: { auth_code: "aCode" },
       } as MessageContent,
-      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient),
+      getThirdPartyDataWithCategoryFetcher(dummyConfig),
     );
     expect(r.tag).toBe("EU_COVID_CERT");
   });
@@ -445,7 +437,7 @@ describe("mapMessageCategory", () => {
         ...aMessageContent,
         third_party_data: { id: "aValidId" },
       } as MessageContent,
-      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient),
+      getThirdPartyDataWithCategoryFetcher(dummyConfig),
     );
     expect(r.tag).toBe("GENERIC");
   });
@@ -457,7 +449,7 @@ describe("mapMessageCategory", () => {
         ...aMessageContent,
         third_party_data: { id: "aMessageId" },
       } as MessageContent,
-      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient),
+      getThirdPartyDataWithCategoryFetcher(dummyConfig),
     );
     expect(r.tag).toBe("PN");
   });
@@ -475,7 +467,7 @@ describe("mapMessageCategory", () => {
         eu_covid_cert: { auth_code: "aCode" },
         third_party_data: { id: "aMessageId" },
       } as MessageContent,
-      getThirdPartyDataWithCategoryFetcher(dummyConfig, mockTelemetryClient),
+      getThirdPartyDataWithCategoryFetcher(dummyConfig),
     );
     expect(r.tag).toBe("EU_COVID_CERT");
   });

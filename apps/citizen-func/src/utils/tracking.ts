@@ -1,6 +1,5 @@
 import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/FiscalCode";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
-import { EventTelemetry } from "applicationinsights/out/Declarations/Contracts";
 
 import { initTelemetryClient } from "./appinsights";
 import { toHash } from "./crypto";
@@ -16,7 +15,7 @@ export const createTracker = (
     messageId?: string,
     serviceId?: ServiceId,
   ) => {
-    telemetryClient.trackEvent({
+    telemetryClient?.trackEvent({
       name: "messages.enrichMessages.failure",
       properties: {
         fiscalCode: toHash(fiscalCode),
@@ -25,9 +24,8 @@ export const createTracker = (
         serviceId,
       },
       tagOverrides: { samplingEnabled: "false" },
-    } as EventTelemetry);
+    });
   };
-
   return {
     messages: {
       trackEnrichmentFailure,

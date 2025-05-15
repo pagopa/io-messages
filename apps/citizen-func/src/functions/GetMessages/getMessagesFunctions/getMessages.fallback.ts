@@ -19,6 +19,7 @@ import * as AP from "fp-ts/lib/Apply";
 import * as A from "fp-ts/lib/Array";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
+import * as RA from "fp-ts/lib/ReadonlyArray";
 import * as TE from "fp-ts/lib/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
@@ -89,7 +90,7 @@ export const getHasPreconditionFlagForMessagesFallback = (
         })),
       ),
     ),
-    O.getOrElse(() =>
+    O.getOrElseW(() =>
       TE.of({
         ...message,
         has_precondition: false,
@@ -123,7 +124,7 @@ export const enrichContentData =
         {
           content: pipe(
             messageModel.getContentFromBlob(blobService, message.id),
-            TE.map(O.toUndefined),
+            TE.chain(TE.fromOption(() => new Error("Content not found"))),
             TE.mapLeft((e) =>
               trackErrorAndContinue(
                 context,
@@ -180,11 +181,11 @@ export const getMessagesFromFallback =
   > =>
     pipe(
       messageModel.findMessages(fiscalCode, pageSize, maximumId, minimumId),
-      TE.map((i) => mapAsyncIterator(i, A.rights)),
+      TE.map((i) => mapAsyncIterator(i, RA.rights)),
       TE.map((i) =>
-        mapAsyncIterator(i, A.filter(RetrievedNotPendingMessage.is)),
+        mapAsyncIterator(i, RA.filter(RetrievedNotPendingMessage.is)),
       ),
-      TE.map((i) => mapAsyncIterator(i, A.map(retrievedMessageToPublic))),
+      TE.map((i) => mapAsyncIterator(i, RA.map(retrievedMessageToPublic))),
       TE.chainW((i) =>
         // check whether we should enrich messages or not
         pipe(
@@ -194,7 +195,7 @@ export const getMessagesFromFallback =
               // if no enrichment is requested we just wrap messages
               mapAsyncIterator(
                 i,
-                A.map(async (e) =>
+                RA.map(async (e) =>
                   E.right<Error, CreatedMessageWithoutContent>(e),
                 ),
               ),

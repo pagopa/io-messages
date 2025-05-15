@@ -173,7 +173,7 @@ const blobServiceMock = {
   ),
 } as unknown as BlobService;
 
-const getMockIterator = (values) => ({
+const getMockIterator = <T>(values: T): Iterator<T> => ({
   next: vi
     .fn()
     .mockImplementationOnce(async () => ({
@@ -191,7 +191,7 @@ const getContentFromBlobMock = vi.fn().mockImplementation(() =>
   ),
 );
 
-const getMessageModelMock = (messageIterator) =>
+const getMessageModelMock = <T>(messageIterator: Iterator<T>) =>
   ({
     findMessages: vi.fn(() => TE.of(messageIterator)),
     getContentFromBlob: getContentFromBlobMock,

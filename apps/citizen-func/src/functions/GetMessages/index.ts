@@ -21,7 +21,6 @@ import * as express from "express";
 
 import { MessageStatusExtendedQueryModel } from "../../model/message_status_query";
 import { MessageViewExtendedQueryModel } from "../../model/message_view_query";
-import { initTelemetryClient } from "../../utils/appinsights";
 import { getConfigOrThrow } from "../../utils/config";
 import {
   cosmosdbInstance,
@@ -72,11 +71,7 @@ const blobService = createBlobService(
   config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
 );
 
-const telemetryClient = initTelemetryClient();
-const categoryFecther = getThirdPartyDataWithCategoryFetcher(
-  config,
-  telemetryClient,
-);
+const categoryFecther = getThirdPartyDataWithCategoryFetcher(config);
 
 const getMessagesFunctionSelector = createGetMessagesFunctionSelection(
   config.USE_FALLBACK,
