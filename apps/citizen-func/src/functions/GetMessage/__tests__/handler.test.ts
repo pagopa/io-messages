@@ -41,6 +41,8 @@ import {
 } from "../../../__mocks__/mocks.service_preference";
 import * as msgUtil from "../../../utils/messages";
 import { GetMessageHandler } from "../handler";
+import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
+import { InternalMessageCategory } from "../../GetMessages/getMessagesFunctions/models";
 
 const aFiscalCode = "FRLFRC74E04B157I" as FiscalCode;
 const aDate = new Date();
@@ -296,7 +298,7 @@ describe("GetMessageHandler", () => {
   });
 
   it("should respond with an enriched message when a PN third-party-data is provided", async () => {
-    const thirdPartyFetcherForAServiceId = (serviceId) => ({
+    const thirdPartyFetcherForAServiceId = (serviceId: ServiceId) => ({
       category: serviceId === aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
     });
 

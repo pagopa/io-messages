@@ -943,7 +943,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
       },
       has_attachments: false,
       has_precondition: true,
-      has_remote_content: false,
+      has_remote_content: true,
       is_archived: false,
       is_read: false,
       message_title: "a subject",

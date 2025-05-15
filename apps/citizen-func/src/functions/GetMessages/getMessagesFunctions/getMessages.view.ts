@@ -186,6 +186,7 @@ const toCategory =
         : components.thirdParty.has
           ? {
               has_attachments: components.thirdParty.has_attachments,
+              has_remote_content: components.thirdParty.has_remote_content,
               id: components.thirdParty.id,
               original_receipt_date:
                 components.thirdParty.original_receipt_date,

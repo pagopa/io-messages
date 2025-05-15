@@ -18,7 +18,7 @@ import * as t from "io-ts";
 
 export const InternalMessageCategoryPayment = t.exact(
   t.intersection([
-    t.interface({
+    t.type({
       noticeNumber: NonEmptyString,
       tag: enumType<TagEnumPayment>(TagEnumPayment, "tag"),
     }),
