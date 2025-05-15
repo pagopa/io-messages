@@ -1,3 +1,4 @@
+import { errorsToReadableMessages } from "@pagopa/ts-commons/lib/reporters";
 import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
 import * as E from "fp-ts/Either";
@@ -5,7 +6,6 @@ import * as TE from "fp-ts/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
-import { errorsToError } from "../IsUserInActiveSubsetActivity/handler";
 import { toSHA256 } from "../utils/conversions";
 import {
   Failure,
@@ -20,6 +20,9 @@ import {
   getNotificationHubPartitionConfig,
 } from "../utils/notificationhubServicePartition";
 import { NhNotifyMessageRequest } from "../utils/types";
+
+const errorsToError = (errors: t.Errors): Error =>
+  new Error(errorsToReadableMessages(errors).join(" / "));
 
 export type NhNotifyMessageResponse = Promise<
   { readonly kind: string } | Failure

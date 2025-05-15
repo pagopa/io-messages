@@ -24,7 +24,7 @@
       "type": "http",
       "documentation": "",
       "method": "get",
-      "endpoint": "io-backend/sessions/:fiscalCode",
+      "endpoint": "io-backend/api/v1/sessions/:fiscalCode",
       "responses": [
         {
           "uuid": "36a38629-865b-462f-9d13-dbb2fdcd55dc",

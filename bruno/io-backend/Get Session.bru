@@ -5,11 +5,16 @@ meta {
 }
 
 get {
-  url: {{app_backend_public_url}}/api/v1/session
+  url: {{app_backend_public_url}}/io-backend/api/v1/sessions/{{fiscal_code}}?token={{token}}
   body: none
-  auth: bearer
+  auth: none
 }
 
-auth:bearer {
-  token: {{user_token}}
+params:query {
+  token: {{token}}
+}
+
+vars:pre-request {
+  fiscal_code: RMLGNN97R06F158N
+  token: mock-secret
 }
