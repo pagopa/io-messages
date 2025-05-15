@@ -6,9 +6,7 @@
       "direction": "in",
       "name": "req",
       "route": "v1/messages/{fiscalcode}/{id}",
-      "methods": [
-        "get"
-      ]
+      "methods": ["get"]
     },
     {
       "type": "http",
@@ -16,5 +14,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/GetMessage/index.js"
+  "scriptFile": "../dist/functions/GetMessage/index.js"
 }
