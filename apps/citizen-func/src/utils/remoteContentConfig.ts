@@ -62,7 +62,7 @@ export default class RCConfigurationUtility {
               (e) =>
                 new Error(`${e.kind}, RCConfiguration Id=${configurationId}`),
             ),
-            TE.chainFirst((maybeRCConfiguration) =>
+            TE.chainFirstW((maybeRCConfiguration) =>
               pipe(
                 maybeRCConfiguration,
                 TE.fromOption(

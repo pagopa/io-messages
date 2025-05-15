@@ -302,7 +302,7 @@ export function GetMessageHandler(
                       ? category
                       : {
                           rptId: `${
-                            messageContent.payment_data.payee?.fiscal_code ??
+                            messageContent.payment_data?.payee?.fiscal_code ??
                             service.organizationFiscalCode
                           }${category.noticeNumber}`,
                           tag: TagEnumPayment.PAYMENT,

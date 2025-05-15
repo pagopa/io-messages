@@ -8,7 +8,7 @@ import {
   aRCConfigurationWithBothEnv,
   aRetrievedRCConfigurationWithBothEnv,
 } from "../../../__mocks__/remote-content";
-import RCConfigurationUtility from "../../utils/remoteContentConfig";
+import RCConfigurationUtility from "../../../utils/remoteContentConfig";
 import { GetRCConfigurationHandler } from "../handler";
 
 const getOrCacheMaybeRCConfigurationByIdMock = vi

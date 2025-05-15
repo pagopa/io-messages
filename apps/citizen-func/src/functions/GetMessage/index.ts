@@ -17,7 +17,6 @@ import { setAppContext } from "@pagopa/io-functions-commons/dist/src/utils/middl
 import { createBlobService } from "azure-storage";
 import * as express from "express";
 
-import { initTelemetryClient } from "../../utils/appinsights";
 import { getConfigOrThrow } from "../../utils/config";
 import { cosmosdbInstance } from "../../utils/cosmosdb";
 import { getThirdPartyDataWithCategoryFetcher } from "../../utils/messages";
@@ -49,8 +48,6 @@ const serviceModel = new ServiceModel(
 
 const redisClientFactory = new RedisClientFactory(config);
 
-const telemetryClient = initTelemetryClient();
-
 app.get(
   "/api/v1/messages/:fiscalcode/:id",
   GetMessage(
@@ -61,7 +58,7 @@ app.get(
     redisClientFactory,
     config.SERVICE_CACHE_TTL_DURATION,
     config.SERVICE_TO_RC_CONFIGURATION_MAP,
-    getThirdPartyDataWithCategoryFetcher(config, telemetryClient),
+    getThirdPartyDataWithCategoryFetcher(config),
   ),
 );
 
