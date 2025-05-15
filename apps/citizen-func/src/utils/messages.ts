@@ -73,81 +73,52 @@ export type CreatedMessageWithoutContentWithStatus = {
   readonly is_read: boolean;
 } & CreatedMessageWithoutContent;
 
-interface IMessageCategoryMapping {
-  readonly buildOtherCategoryProperties?: (
-    m: CreatedMessageWithoutContent,
-    c: MessageContent,
-  ) => Record<string, unknown>;
-  readonly pattern: t.Type<
-    Partial<typeof MessageContent._A>,
-    Partial<typeof MessageContent._O>
-  >;
-  readonly tag: (
-    message: CreatedMessageWithoutContent,
-    messageContent: MessageContent,
-    categoryFetcher: ThirdPartyDataWithCategoryFetcher,
-  ) => MessageCategory["tag"];
-}
-
-const messageCategoryMappings: readonly IMessageCategoryMapping[] = [
-  {
-    pattern: t.interface({ eu_covid_cert: EUCovidCert }),
-    tag: () => TagEnumBase.EU_COVID_CERT,
-  },
-  {
-    pattern: t.interface({ legal_data: LegalData }),
-    tag: () => TagEnumBase.LEGAL_MESSAGE,
-  },
-  {
-    buildOtherCategoryProperties: (_, c): Record<string, unknown> => ({
-      has_attachments: c.third_party_data.has_attachments,
-      id: c.third_party_data.id,
-      original_receipt_date: c.third_party_data.original_receipt_date,
-      original_sender: c.third_party_data.original_sender,
-      summary: c.third_party_data.summary,
-    }),
-    pattern: t.interface({ third_party_data: ThirdPartyData }),
-    tag: (metadata, _, fetcher) => fetcher(metadata.sender_service_id).category,
-  },
-  {
-    buildOtherCategoryProperties: (_, c): Record<string, string> => ({
-      // Notice Number only. Organization fiscal code will be enriched by enrichServiceData
-      // based on payeeFiscalCode or service fiscaCode, if payee is not defined
-      noticeNumber: c.payment_data.notice_number,
-      payeeFiscalCode: c.payment_data.payee?.fiscal_code,
-    }),
-    pattern: t.interface({ payment_data: PaymentData }),
-    tag: () => TagEnumPayment.PAYMENT,
-  },
-];
-
-export const mapMessageCategory = (
+export const messageCategoryMappings = (
   message: CreatedMessageWithoutContent,
   messageContent: MessageContent,
   categoryFetcher: ThirdPartyDataWithCategoryFetcher,
-): InternalMessageCategory =>
-  pipe(
-    messageCategoryMappings,
-    AR.map((mapping) =>
-      pipe(
-        messageContent,
-        mapping.pattern.decode,
-        E.fold(constVoid, () => ({
-          tag: mapping.tag(message, messageContent, categoryFetcher),
-          ...pipe(
-            O.fromNullable(mapping.buildOtherCategoryProperties),
-            O.fold(
-              () => ({}),
-              (f) => f(message, messageContent),
-            ),
-          ),
-        })),
-      ),
-    ),
-    AR.filter(InternalMessageCategory.is),
-    AR.head,
-    O.getOrElse(() => ({ tag: TagEnumBase.GENERIC })),
-  );
+) => {
+  if (messageContent.eu_covid_cert) {
+    return {
+      tag: TagEnumBase.EU_COVID_CERT,
+    };
+  }
+  if (messageContent.legal_data) {
+    return {
+      tag: TagEnumBase.LEGAL_MESSAGE,
+    };
+  }
+  if (messageContent.third_party_data) {
+    return {
+      tag: categoryFetcher(message.sender_service_id).category,
+      has_attachments: messageContent.third_party_data.has_attachments,
+      has_remote_content: messageContent.third_party_data.has_remote_content,
+      id: messageContent.third_party_data.id,
+      original_receipt_date:
+        messageContent.third_party_data.original_receipt_date,
+      original_sender: messageContent.third_party_data.original_sender,
+      summary: messageContent.third_party_data.summary,
+    };
+  }
+  if (messageContent.payment_data) {
+    return {
+      tag: TagEnumPayment.PAYMENT,
+      noticeNumber: messageContent.payment_data.notice_number,
+      payeeFiscalCode: messageContent.payment_data.payee?.fiscal_code,
+    };
+  }
+  return {
+    tag: TagEnumBase.GENERIC,
+  };
+};
+
+export const mapMessageCategory = flow(
+  messageCategoryMappings,
+  InternalMessageCategory.decode,
+  E.getOrElseW(() => ({
+    tag: TagEnumBase.GENERIC,
+  })),
+);
 
 export const getOrCacheService = (
   serviceId: ServiceId,
