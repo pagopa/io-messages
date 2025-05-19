@@ -6,9 +6,7 @@
       "direction": "in",
       "name": "req",
       "route": "v1/messages/{fiscal_code}/{id}/message-status",
-      "methods": [
-        "put"
-      ]
+      "methods": ["put"]
     },
     {
       "type": "http",
@@ -16,5 +14,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/UpsertMessageStatus/index.js"
+  "scriptFile": "../dist/functions/UpsertMessageStatus/index.js"
 }

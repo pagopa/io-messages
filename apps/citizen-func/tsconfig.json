@@ -1,20 +1,19 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
+    "module": "NodeNext",
+    "esModuleInterop": false,
+    "rootDir": "src",
+    "target": "ES2022",
+    "noImplicitAny": true,
+    "moduleResolution": "NodeNext",
     "outDir": "dist",
-    "rootDir": ".",
-    "sourceMap": true,
-    "strict": false,
+    "strict": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true
-  },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "__mocks__",
-    "docker",
-    "**/__tests__",
-    "**/__integrations__"
-  ]
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "skipLibCheck": true,
+    "sourceMap": true
+  }
 }
