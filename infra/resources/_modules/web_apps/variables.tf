@@ -41,7 +41,7 @@ variable "subnet_cidrs" {
     etl_func        = string
     ops_func        = string
     push_notif_func = string
-    cqrs_func    = string
+    cqrs_func       = string
   })
 }
 
@@ -49,12 +49,8 @@ variable "application_insights" {
   type = object({
     connection_string   = string
     instrumentation_key = string
+    sampling_percentage = number
   })
-}
-
-variable "application_insights_sampling_percentage" {
-  type        = number
-  description = "The sampling percentage of logs of application insight"
 }
 
 variable "common_key_vault" {

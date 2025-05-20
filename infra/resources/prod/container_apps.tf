@@ -9,7 +9,7 @@ module "container_apps" {
   subnet_pep_id                        = data.azurerm_subnet.pep.id
   private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
 
-  log_analytics_workspace_id = data.azurerm_application_insights.common.workspace_id
+  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.common.id
 
   key_vault_id = data.azurerm_key_vault.weu_messages.id
   acr_id       = data.azurerm_container_registry.acr.id

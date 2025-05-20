@@ -75,6 +75,11 @@ data "azurerm_application_insights" "common" {
   resource_group_name = data.azurerm_resource_group.weu_common.name
 }
 
+data "azurerm_log_analytics_workspace" "common" {
+  name                = "${local.project_legacy}-law-common"
+  resource_group_name = data.azurerm_resource_group.weu_common.name
+}
+
 data "azurerm_key_vault_secret" "appbackendli_token" {
   name         = "appbackendli-token"
   key_vault_id = data.azurerm_key_vault.weu_messages.id
