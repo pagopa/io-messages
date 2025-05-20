@@ -59,21 +59,21 @@ locals {
       FUNCTIONS_WORKER_PROCESS_COUNT = 4
       NODE_ENV                       = "production"
 
-      COSMOSDB_NAME              = "db"
-      COSMOSDB__accountEndpoint               = var.cosmosdb_account_api.endpoint
+      COSMOSDB_NAME             = "db"
+      COSMOSDB__accountEndpoint = var.cosmosdb_account_api.endpoint
 
-      REMOTE_CONTENT_COSMOSDB_URI               = var.io_com_cosmos.endpoint
-      REMOTE_CONTENT_COSMOSDB_NAME              = "remote-content"
+      REMOTE_CONTENT_COSMOSDB_URI  = var.io_com_cosmos.endpoint
+      REMOTE_CONTENT_COSMOSDB_NAME = "remote-content"
 
       MESSAGE_CONFIGURATION_CHANGE_FEED_LEASE_PREFIX = "RemoteContentMessageConfigurationChangeFeed-00"
       MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME   = "0"
 
       LEASE_COLLECTION_PREFIX = "bulk-status-update-00"
 
-      MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME     = "message-paymentupdater-failures"
-      MESSAGE_CONTAINER_NAME                         = "message-content"
-      MESSAGE_CONTENT_STORAGE_CONNECTION             = var.message_content_storage.connection_string
-      QueueStorageConnection                         = var.message_content_storage.connection_string
+      MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME = "message-paymentupdater-failures"
+      MESSAGE_CONTAINER_NAME                     = "message-content"
+      MESSAGE_CONTENT_STORAGE_CONNECTION         = var.message_content_storage.connection_string
+      QueueStorageConnection                     = var.message_content_storage.connection_string
 
       MESSAGE_CHANGE_FEED_LEASE_PREFIX = "CosmosApiMessageChangeFeed-00"
       // This must be expressed as a Timestamp

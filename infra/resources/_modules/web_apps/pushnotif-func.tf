@@ -44,10 +44,7 @@ data "azurerm_key_vault_secret" "azure_nh_partition4_endpoint" {
 
 
 ## Application insights
-data "azurerm_application_insights" "application_insights" {
-  name                = local.application_insights_name
-  resource_group_name = local.monitor_resource_group_name
-}
+
 data "azurerm_monitor_action_group" "io_com_action_group" {
   name                = "io-p-com-error-ag-01"
   resource_group_name = "io-p-itn-com-rg-01"
@@ -159,7 +156,7 @@ module "push_notif_function" {
   }
 
   private_dns_zone_resource_group_name   = var.private_dns_zone_resource_group_name
-  application_insights_connection_string = data.azurerm_application_insights.application_insights.connection_string
+  application_insights_connection_string = var.application_insights.connection_string
 
   environment = merge(var.environment, {
     app_name        = "pushnotif"

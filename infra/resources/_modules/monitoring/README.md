@@ -23,12 +23,12 @@ No modules.
 | [azurerm_monitor_scheduled_query_rules_alert.message-ingestion-alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
 | [azurerm_monitor_scheduled_query_rules_alert.message-ingestion-count-collect-alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
 | [azurerm_monitor_scheduled_query_rules_alert.message-status-ingestion-alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
-| [azurerm_application_insights.common](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/application_insights) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_appi_id"></a> [appi\_id](#input\_appi\_id) | Application Insights resource Id | `string` | n/a | yes |
 | <a name="input_domain"></a> [domain](#input\_domain) | location used to create resource naming | `string` | n/a | yes |
 | <a name="input_io_com_slack_email"></a> [io\_com\_slack\_email](#input\_io\_com\_slack\_email) | Uri of the slack channel where to send domain related alerts | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | location used to create resource naming | `string` | n/a | yes |

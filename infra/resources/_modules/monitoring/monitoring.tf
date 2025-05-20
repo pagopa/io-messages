@@ -1,8 +1,3 @@
-data "azurerm_application_insights" "common" {
-  name                = "io-p-ai-common"
-  resource_group_name = "io-p-rg-common"
-}
-
 resource "azurerm_monitor_action_group" "io_com_error" {
   name                = "io-p-com-error-ag-01"
   resource_group_name = var.resource_group_name
@@ -20,7 +15,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "message-ingestion-alert"
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  data_source_id          = data.azurerm_application_insights.common.id
+  data_source_id          = var.appi_id
   description             = "[IO-COM] Alerts for all the errors during the message ingestion to data lake"
   enabled                 = true
   auto_mitigation_enabled = false
@@ -53,7 +48,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "message-status-ingestion
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  data_source_id          = data.azurerm_application_insights.common.id
+  data_source_id          = var.appi_id
   description             = "[IO-COM] Alerts for all the errors during the message status ingestion to data lake"
   enabled                 = true
   auto_mitigation_enabled = false
@@ -86,7 +81,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "message-ingestion-count-
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  data_source_id          = data.azurerm_application_insights.common.id
+  data_source_id          = var.appi_id
   description             = "[IO-COM] Alerts for the errors during the count collection of message ingested"
   enabled                 = true
   auto_mitigation_enabled = false

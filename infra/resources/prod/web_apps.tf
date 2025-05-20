@@ -49,9 +49,11 @@ module "web_apps" {
     access_key = module.redis_messages.primary_access_key
   }
 
-  application_insights = data.azurerm_application_insights.common
-
-  application_insights_sampling_percentage = 5
+  application_insights = {
+    connection_string   = data.azurerm_application_insights.common.connection_string
+    instrumentation_key = data.azurerm_application_insights.common.instrumentation_key
+    sampling_percentage = 5
+  }
 
   common_key_vault = data.azurerm_key_vault.weu_common
 
