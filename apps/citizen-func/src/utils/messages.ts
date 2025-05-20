@@ -45,7 +45,6 @@ export const trackErrorAndContinue = (
   fiscalCode: FiscalCode,
   messageId?: string,
   serviceId?: ServiceId,
-  // eslint-disable-next-line max-params
 ): Error => {
   const message =
     kind === "SERVICE"
@@ -188,12 +187,10 @@ export const enrichServiceData =
     serviceModel: ServiceModel,
     redisClientFactory: RedisClientFactory,
     serviceCacheTtl: NonNegativeInteger,
-    // eslint-disable-next-line max-params
   ) =>
   <M extends EnrichedMessageWithContent>(
     messages: readonly M[],
-  ): // eslint-disable-next-line, @typescript-eslint/array-type
-  TE.TaskEither<Error, readonly EnrichedMessage[]> =>
+  ): TE.TaskEither<Error, readonly EnrichedMessage[]> =>
     pipe(
       messages,
       RA.map((m) => m.sender_service_id),
@@ -320,7 +317,6 @@ export const enrichMessagesStatus =
   (context: Context, messageStatusModel: MessageStatusExtendedQueryModel) =>
   (
     messages: readonly CreatedMessageWithoutContent[],
-    // eslint-disable-next-line @typescript-eslint/array-type
   ): T.Task<E.Either<Error, CreatedMessageWithoutContentWithStatus>[]> =>
     pipe(
       messages,

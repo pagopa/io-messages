@@ -67,7 +67,6 @@ export const GetMessagesHandler =
     serviceModel: ServiceModel,
     redisClientFactory: RedisClientFactory,
     serviceCacheTtlDuration: NonNegativeInteger,
-    // eslint-disable-next-line max-params
   ): IGetMessagesHandler =>
   async (
     context,
@@ -77,7 +76,6 @@ export const GetMessagesHandler =
     maybeGetArchived,
     maybeMaximumId,
     maybeMinimumId,
-    // eslint-disable-next-line max-params
   ): Promise<IGetMessagesHandlerResponse> =>
     pipe(
       TE.Do,
@@ -150,7 +148,6 @@ export const GetMessages = (
   serviceModel: ServiceModel,
   redisClientFactory: RedisClientFactory,
   serviceCacheTtlDuration: NonNegativeInteger,
-  // eslint-disable-next-line max-params
 ): express.RequestHandler => {
   const handler = GetMessagesHandler(
     functionSelector,

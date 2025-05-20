@@ -24,8 +24,8 @@ const mapAsyncIterable2 = <T, V>(
   const iter = source[Symbol.asyncIterator]();
   const iterMapped = mapAsyncIterator(iter, f);
   return {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [Symbol.asyncIterator]: (): AsyncIterator<V, any, undefined> => iterMapped,
+    [Symbol.asyncIterator]: (): AsyncIterator<V, undefined, undefined> =>
+      iterMapped,
   };
 };
 
@@ -66,7 +66,6 @@ export const fromAsyncIterator = <A>(
 export const fold = <A>(fa: AsyncIterableTask<A>): T.Task<readonly A[]> =>
   pipe(
     fa,
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define, @typescript-eslint/explicit-function-return-type
     T.chain((_) => foldIterableArray<A>(_)),
   );
 
@@ -79,7 +78,6 @@ export const foldTaskEither =
     pipe(
       fa,
       TE.fromTask,
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       TE.chain((_) => TE.tryCatch(() => foldIterableArray<A>(_)(), onError)),
     );
 
@@ -125,11 +123,7 @@ export const reduceTaskEither =
       fa,
       TE.fromTask,
       TE.chain((_) =>
-        TE.tryCatch(
-          // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          reduceIterableArray(initialValue, reducer)(_),
-          onError,
-        ),
+        TE.tryCatch(reduceIterableArray(initialValue, reducer)(_), onError),
       ),
     );
 
