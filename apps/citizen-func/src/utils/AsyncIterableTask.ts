@@ -37,8 +37,7 @@ const mapAsyncIterable2 = <T, V>(
  */
 export const map: <A, B>(
   f: (a: A) => B | Promise<B>,
-) => // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-(fa: AsyncIterableTask<A>) => AsyncIterableTask<B> = (f) => (fa) =>
+) => (fa: AsyncIterableTask<A>) => AsyncIterableTask<B> = (f) => (fa) =>
   pipe(
     fa,
     T.map((_) => mapAsyncIterable2(_, f)),
@@ -100,7 +99,6 @@ const foldIterableArray =
 export const run = <A>(fa: AsyncIterableTask<A>): T.Task<void> =>
   pipe(
     fa,
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     T.chain((asyncIterable) => async () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for await (const _ of asyncIterable) {
