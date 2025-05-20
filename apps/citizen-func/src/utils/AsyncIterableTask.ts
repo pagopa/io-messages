@@ -96,17 +96,6 @@ const foldIterableArray =
     return array;
   };
 
-export const run = <A>(fa: AsyncIterableTask<A>): T.Task<void> =>
-  pipe(
-    fa,
-    T.chain((asyncIterable) => async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      for await (const _ of asyncIterable) {
-        // nothing to do: this is done to resolve the async iterator
-      }
-    }),
-  );
-
 /**
  * Process an AsyncIterableTask that can fail and return either an error or an array of results
  */
