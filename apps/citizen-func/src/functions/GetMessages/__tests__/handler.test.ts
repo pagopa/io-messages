@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, max-lines-per-function, no-useless-escape */
+import { RedisClientFactory } from "@/utils/redis";
 import { Context } from "@azure/functions";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
 import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
@@ -275,7 +275,7 @@ const getTaskMock = vi.fn(
 );
 vi.spyOn(redis, "getTask").mockImplementation(getTaskMock);
 
-const redisClientMock = {} as any;
+const redisClientMock = {} as unknown as RedisClientFactory;
 
 const dummyThirdPartyDataWithCategoryFetcher = vi
   .fn()
@@ -326,6 +326,7 @@ const getCreateGetMessagesFunctionSelection = (
 // Tests
 // ---------------------
 
+/* eslint-disable max-lines-per-function*/
 describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
   const aSimpleList = [
     aRetrievedMessageWithoutContent,
@@ -624,7 +625,7 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
     expect(functionsContextMock.log.error).not.toHaveBeenCalled();
   });
 });
-
+/* eslint-disable max-lines-per-function*/
 describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
   const aSimpleList = [
     {
@@ -1176,7 +1177,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     };
     const getMessagesFunctionSelector = getCreateGetMessagesFunctionSelection(
       messageStatusModelMock,
-      messageModelMock as any,
+      messageModelMock as unknown as MessageModel,
     );
 
     const getMessagesHandler = GetMessagesHandler(
@@ -1255,7 +1256,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     );
   });
 });
-
+/* eslint-disable max-lines-per-function*/
 describe("GetMessagesHandler |> Message View", () => {
   const aSimpleList = [
     {
@@ -1660,7 +1661,7 @@ describe("GetMessagesHandler |> Message View", () => {
     );
     expect(result.kind).toBe("IResponseErrorQuery");
     expect(functionsContextMock.log.error).toHaveBeenCalledWith(
-      `getMessagesFromView|Error retrieving page data from cosmos|{\"error\":{},\"kind\":\"COSMOS_ERROR_RESPONSE\"}`,
+      `getMessagesFromView|Error retrieving page data from cosmos|{"error":{},"kind":"COSMOS_ERROR_RESPONSE"}`,
     );
   });
 });
