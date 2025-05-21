@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.11.0
+
+### Minor Changes
+
+- b7e00f2: Enable MESSAGE notification
+
 ## 1.10.14
 
 ### Patch Changes
