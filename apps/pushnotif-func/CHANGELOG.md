@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.0.1
+
+### Patch Changes
+
+- aa02330: remove unused code
+
 ## 1.0.0
 
 ### Major Changes
