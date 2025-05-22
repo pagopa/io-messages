@@ -20,6 +20,12 @@ export const envConfig: IConfig = {
   NOTIFICATION_QUEUE_NAME: "aQueueName" as NonEmptyString,
   NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: "aConnString" as NonEmptyString,
 
+  NEW_NOTIFICATION_QUEUE_NAME: "aQueueName" as NonEmptyString,
+  NEW_NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING:
+    "aConnString" as NonEmptyString,
+
+  IO_COM_PUSH_NOTIFICATIONS_REDIRECT_PERCENTAGE: "0.3" as NonEmptyString,
+
   RC_CONFIGURATION_CACHE_TTL: 1000 as NonNegativeInteger,
   REDIS_URL: "aRedisUrl" as NonEmptyString,
 
