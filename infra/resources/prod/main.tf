@@ -62,5 +62,6 @@ module "functions_messages_sending" {
 
   tags = local.tags
 
-  action_group_id = module.monitoring.action_group.io_com_error_id
+  action_group_id        = module.monitoring.action_group.io_com_error_id
+  com_st_connectiostring = data.azurerm_storage_account.storage_api_com.primary_connection_string
 }
