@@ -4,6 +4,8 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { IConfig } from "../utils/config";
 
 export const envConfig: IConfig = {
+  APPINSIGHTS_DISABLE: false,
+  APPINSIGHTS_SAMPLING_PERCENTAGE: 5,
   APPLICATIONINSIGHTS_CONNECTION_STRING: "aKey" as NonEmptyString,
 
   BACKEND_BASE_URL: "aBaseUrl" as NonEmptyString,

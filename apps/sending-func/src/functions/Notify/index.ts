@@ -66,7 +66,7 @@ winston.add(contextTransport);
 const app = express();
 secureExpressApp(app);
 
-const telemetryClient = initTelemetryClient();
+const telemetryClient = initTelemetryClient(config);
 
 // Models
 const messageModel = new MessageModel(
