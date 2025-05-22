@@ -29,5 +29,7 @@ export const envConfig: IConfig = {
 
   REMOTE_CONTENT_COSMOSDB_URI: "aUri" as NonEmptyString,
 
+  MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: 1000 as NonNegativeInteger,
+
   isProduction: false,
 };

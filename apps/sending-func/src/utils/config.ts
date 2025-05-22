@@ -56,6 +56,8 @@ export const IConfig = t.intersection([
 
     REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
 
+    MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: NonNegativeIntegerFromString,
+
     isProduction: t.boolean,
     /* eslint-enable sort-keys */
   }),
