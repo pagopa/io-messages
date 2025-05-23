@@ -19,6 +19,12 @@ locals {
       NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING = var.notification_storage_account_queue_connection_string
       NOTIFICATION_QUEUE_NAME                      = "push-notifications"
 
+      // TMP NEW NOTIFICATION QUEUE STORAGE
+      NEW_NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
+      NEW_NOTIFICATION_QUEUE_NAME                      = "push-notifications"
+
+      IO_COM_PUSH_NOTIFICATIONS_REDIRECT_PERCENTAGE = "0"
+
       // REDIS
       REDIS_URL      = var.redis_url
       REDIS_PORT     = var.redis_port

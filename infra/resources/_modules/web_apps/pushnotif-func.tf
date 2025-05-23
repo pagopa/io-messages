@@ -170,8 +170,8 @@ module "push_notif_function" {
 
   app_settings = merge(
     local.function_push_notif.app_settings_common, {
-      "AzureWebJobs.HandleNHNotificationCall.Disabled"               = "1",
-      "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled" = "1"
+      "AzureWebJobs.HandleNHNotificationCall.Disabled"               = "0",
+      "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled" = "0"
     }
   )
 

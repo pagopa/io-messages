@@ -124,3 +124,8 @@ variable "action_group_id" {
   type        = string
   description = "The ID of the action group"
 }
+
+variable "com_st_connectiostring" {
+  type        = string
+  description = "COM storage account connection string"
+}
