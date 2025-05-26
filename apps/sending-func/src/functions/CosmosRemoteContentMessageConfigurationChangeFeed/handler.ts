@@ -4,7 +4,6 @@ import {
   UserRCConfiguration,
   UserRCConfigurationModel,
 } from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
-import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import { errorsToReadableMessages } from "@pagopa/ts-commons/lib/reporters";
 import { TelemetryClient } from "applicationinsights";
 import * as E from "fp-ts/lib/Either";
@@ -45,7 +44,7 @@ const processRecords = async (
   userRCConfigurationModel: UserRCConfigurationModel,
   telemetryClient: TelemetryClient,
   documents: readonly unknown[],
-  startTimeFilter: NonNegativeInteger,
+  startTimeFilter: number,
 ): Promise<void> => {
   for (const doc of documents) {
     // check if docs sent by change feed are valid RetrievedRCConfiguration
@@ -107,7 +106,7 @@ export const handleRemoteContentMessageConfigurationChange =
     context: Context,
     userRCConfigurationModel: UserRCConfigurationModel,
     telemetryClient: TelemetryClient,
-    startTimeFilter: NonNegativeInteger,
+    startTimeFilter: number,
   ) =>
   async (documents: readonly unknown[]): Promise<void> => {
     await processRecords(

@@ -16,16 +16,16 @@ export const envConfig: IConfig = {
   COSMOSDB_URI: "aUri" as NonEmptyString,
 
   INTERNAL_USER_ID: "internalUserId" as NonEmptyString,
-  MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: 1000 as NonNegativeInteger,
   MESSAGE_CONTAINER_NAME: "aContainerName" as NonEmptyString,
-
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: "aConnString" as NonEmptyString,
+
   NOTIFICATION_QUEUE_NAME: "aQueueName" as NonEmptyString,
-
   NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: "aConnString" as NonEmptyString,
-  RC_CONFIGURATION_CACHE_TTL: 1000 as NonNegativeInteger,
 
+  RC_CONFIGURATION_CACHE_TTL: 1000 as NonNegativeInteger,
   REDIS_URL: "aRedisUrl" as NonEmptyString,
+
+  REMOTE_CONTENT_COSMOSDB_CON_STRING: "aConnectionString" as NonEmptyString,
 
   REMOTE_CONTENT_COSMOSDB_NAME: "aName" as NonEmptyString,
 

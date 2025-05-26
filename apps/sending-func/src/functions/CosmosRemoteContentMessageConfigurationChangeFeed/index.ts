@@ -1,12 +1,12 @@
-import { initTelemetryClient } from "@/utils/appinsights";
-import { getConfigOrThrow } from "@/utils/config";
-import { remoteContentCosmosDbInstance } from "@/utils/cosmosdb";
 import { Context } from "@azure/functions";
 import {
   USER_RC_CONFIGURATIONS_COLLECTION_NAME,
   UserRCConfigurationModel,
 } from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
 
+import { initTelemetryClient } from "../../utils/appinsights";
+import { getConfigOrThrow } from "../../utils/config";
+import { remoteContentCosmosDbInstance } from "../../utils/cosmosdb";
 import { handleRemoteContentMessageConfigurationChange } from "./handler";
 
 const config = getConfigOrThrow();
@@ -27,7 +27,7 @@ const run = async (
     context,
     userRCConfigurationModel,
     telemetryClient,
-    config.MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME,
+    0,
   )(documents);
 };
 
