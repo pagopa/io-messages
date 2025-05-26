@@ -1,4 +1,4 @@
-import { RedisClientFactory } from "@/utils/redis";
+import { RedisClientFactory } from "../../../utils/redis";
 import { Context } from "@azure/functions";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
 import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
@@ -43,6 +43,7 @@ import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { envConfig } from "../../../__mocks__/env-config.mock";
 import {
   aCosmosResourceMetadata,
   aPnThirdPartyData,
@@ -275,7 +276,12 @@ const getTaskMock = vi.fn(
 );
 vi.spyOn(redis, "getTask").mockImplementation(getTaskMock);
 
-const redisClientMock = {} as unknown as RedisClientFactory;
+export class MockRedisClientFactory extends RedisClientFactory {
+  public readonly getInstance = vi.fn().mockResolvedValue({});
+}
+
+const mockRedisFactoryMock = new MockRedisClientFactory(envConfig);
+const redisClientMock = mockRedisFactoryMock.getInstance();
 
 const dummyThirdPartyDataWithCategoryFetcher = vi
   .fn()
