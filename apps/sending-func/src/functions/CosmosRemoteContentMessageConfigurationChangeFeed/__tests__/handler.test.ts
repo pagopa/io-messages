@@ -1,19 +1,18 @@
 import { Context } from "@azure/functions";
-import * as TE from "fp-ts/lib/TaskEither";
-
 import {
-  UserRCConfigurationModel,
   RetrievedUserRCConfiguration,
+  UserRCConfigurationModel,
 } from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
-import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
-import { aRetrievedRemoteContentConfiguration } from "../../../__mocks__/remote-content";
-import { aCosmosResourceMetadata } from "../../../__mocks__/models.mock";
-
-import { handleRemoteContentMessageConfigurationChange } from "../handler";
-import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
 import { CosmosErrors } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
-import { vi, beforeEach, describe, test, expect } from "vitest";
+import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
+import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
+import * as TE from "fp-ts/lib/TaskEither";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+
+import { aCosmosResourceMetadata } from "../../../__mocks__/models.mock";
+import { aRetrievedRemoteContentConfiguration } from "../../../__mocks__/remote-content";
+import { handleRemoteContentMessageConfigurationChange } from "../handler";
 
 const mockLoggerError = vi.fn();
 const contextMock = {
@@ -39,7 +38,7 @@ const mockUpsert = vi
 
 const mockUserRCConfigurationModel = {
   upsert: mockUpsert,
-} as any as UserRCConfigurationModel;
+} as unknown as UserRCConfigurationModel;
 
 const defaultStartTime = 0 as NonNegativeInteger;
 

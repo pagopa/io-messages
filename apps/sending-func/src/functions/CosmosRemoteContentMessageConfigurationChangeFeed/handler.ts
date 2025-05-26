@@ -1,8 +1,4 @@
 import { Context } from "@azure/functions";
-
-import * as E from "fp-ts/lib/Either";
-import { pipe } from "fp-ts/lib/function";
-import * as TE from "fp-ts/lib/TaskEither";
 import { RetrievedRCConfiguration } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
 import {
   UserRCConfiguration,
@@ -11,6 +7,9 @@ import {
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import { errorsToReadableMessages } from "@pagopa/ts-commons/lib/reporters";
 import { TelemetryClient } from "applicationinsights";
+import * as E from "fp-ts/lib/Either";
+import * as TE from "fp-ts/lib/TaskEither";
+import { pipe } from "fp-ts/lib/function";
 
 const logErrorAndThrow = (
   context: Context,
@@ -45,7 +44,7 @@ const processRecords = async (
   context: Context,
   userRCConfigurationModel: UserRCConfigurationModel,
   telemetryClient: TelemetryClient,
-  documents: ReadonlyArray<unknown>,
+  documents: readonly unknown[],
   startTimeFilter: NonNegativeInteger,
 ): Promise<void> => {
   for (const doc of documents) {
@@ -110,7 +109,7 @@ export const handleRemoteContentMessageConfigurationChange =
     telemetryClient: TelemetryClient,
     startTimeFilter: NonNegativeInteger,
   ) =>
-  async (documents: ReadonlyArray<unknown>): Promise<void> => {
+  async (documents: readonly unknown[]): Promise<void> => {
     await processRecords(
       context,
       userRCConfigurationModel,

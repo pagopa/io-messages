@@ -1,12 +1,12 @@
-import { Context } from "@azure/functions";
-
-import {
-  UserRCConfigurationModel,
-  USER_RC_CONFIGURATIONS_COLLECTION_NAME,
-} from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
-import { remoteContentCosmosDbInstance } from "@/utils/cosmosdb";
-import { getConfigOrThrow } from "@/utils/config";
 import { initTelemetryClient } from "@/utils/appinsights";
+import { getConfigOrThrow } from "@/utils/config";
+import { remoteContentCosmosDbInstance } from "@/utils/cosmosdb";
+import { Context } from "@azure/functions";
+import {
+  USER_RC_CONFIGURATIONS_COLLECTION_NAME,
+  UserRCConfigurationModel,
+} from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
+
 import { handleRemoteContentMessageConfigurationChange } from "./handler";
 
 const config = getConfigOrThrow();
@@ -21,7 +21,7 @@ const userRCConfigurationModel = new UserRCConfigurationModel(
 
 const run = async (
   context: Context,
-  documents: ReadonlyArray<unknown>,
+  documents: readonly unknown[],
 ): Promise<void> => {
   await handleRemoteContentMessageConfigurationChange(
     context,

@@ -46,17 +46,17 @@ export const IConfig = t.intersection([
     COSMOSDB_URI: NonEmptyString,
     INTERNAL_USER_ID: NonEmptyString,
 
+    MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: NonNegativeIntegerFromString,
     MESSAGE_CONTAINER_NAME: NonEmptyString,
-    MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
 
+    MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
     NOTIFICATION_QUEUE_NAME: NonEmptyString,
     NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: NonEmptyString,
     RC_CONFIGURATION_CACHE_TTL: NonNegativeIntegerFromString,
+
     REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
 
     REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
-
-    MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: NonNegativeIntegerFromString,
 
     isProduction: t.boolean,
     /* eslint-enable sort-keys */
