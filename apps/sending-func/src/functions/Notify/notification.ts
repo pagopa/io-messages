@@ -21,13 +21,22 @@ export type SendNotification = (
   notificationBody: string,
 ) => TE.TaskEither<Error, void>;
 
+const redirectOnNewPushNotifyQueue = (redirectPercentage: string): boolean => {
+  const redirectionPercentage = parseFloat(redirectPercentage);
+  return Math.random() < redirectionPercentage;
+};
+
 /**
  *
  * @param notificationQueueClient
  * @returns
  */
 export const sendNotification =
-  (notificationQueueClient: QueueClient): SendNotification =>
+  (
+    notificationQueueClient: QueueClient,
+    newNotificationQueueClient: QueueClient,
+    redirectPercentage: string,
+  ): SendNotification =>
   (
     fiscalCode,
     messageId,
@@ -45,13 +54,13 @@ export const sendNotification =
         },
       },
       (notifyMessage: NotifyMessage) =>
-        TE.tryCatch(
-          () =>
-            notificationQueueClient.sendMessage(
-              base64EncodeObject(notifyMessage),
-            ),
-          E.toError,
-        ),
+        TE.tryCatch(() => {
+          const queueClient = redirectOnNewPushNotifyQueue(redirectPercentage)
+            ? newNotificationQueueClient
+            : notificationQueueClient;
+
+          return queueClient.sendMessage(base64EncodeObject(notifyMessage));
+        }, E.toError),
       TE.mapLeft((err) =>
         Error(
           `Error while sending notify message to the queue [${err.message}]`,

@@ -1,5 +1,11 @@
 ### Changelog
 
+## 5.5.6
+
+### Patch Changes
+
+- dabbbcd: Update toolchain and remove unused code
+
 ## 5.5.5
 
 ### Patch Changes

@@ -18,6 +18,12 @@ const queueClient = {
   sendMessage: mockSendMessage,
 } as unknown as QueueClient;
 
+const newQueueClientForNotifyRedirect = {
+  sendMessage: mockSendMessage,
+} as unknown as QueueClient;
+
+const redirectPercentage = "0.3";
+
 // -----------------------------
 // Tests
 // -----------------------------
@@ -28,7 +34,11 @@ describe("Notify", () => {
   });
 
   it("should submit a notification to the Queue Storage", async () => {
-    const notify = sendNotification(queueClient);
+    const notify = sendNotification(
+      queueClient,
+      newQueueClientForNotifyRedirect,
+      redirectPercentage,
+    );
 
     const res = await notify(
       aFiscalCode,
@@ -56,7 +66,11 @@ describe("Notify", () => {
       Promise.reject(new Error("Generic Error")),
     );
 
-    const notify = sendNotification(queueClient);
+    const notify = sendNotification(
+      queueClient,
+      newQueueClientForNotifyRedirect,
+      redirectPercentage,
+    );
 
     const res = await notify(
       aFiscalCode,
