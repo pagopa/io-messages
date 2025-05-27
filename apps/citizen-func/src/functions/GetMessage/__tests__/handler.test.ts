@@ -1,4 +1,4 @@
-import { RedisClientFactory } from "@/utils/redis";
+import { RedisClientFactory } from "../../../utils/redis";
 import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
 import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
@@ -47,6 +47,7 @@ import {
 } from "../../../__mocks__/mocks.service_preference";
 import * as msgUtil from "../../../utils/messages";
 import { GetMessageHandler } from "../handler";
+import { Container } from "@azure/cosmos";
 
 const aFiscalCode = "FRLFRC74E04B157I" as FiscalCode;
 const aDate = new Date();
@@ -106,7 +107,8 @@ const anEnrichedMessageResponse: EnrichedMessage = {
   service_name: aSenderService.serviceName,
 };
 
-const mockServiceModel = {};
+const mockServiceModel = new ServiceModel({} as Container);
+const mockBlobServiceModel = new BlobService("UseDevelopmentStorage=true");
 
 const findMessageForRecipientMock = vi
   .fn()
@@ -115,17 +117,35 @@ const findMessageForRecipientMock = vi
 const getContentFromBlobMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aMessageContent)));
-const mockMessageModel = {
-  findMessageForRecipient: findMessageForRecipientMock,
-  getContentFromBlob: getContentFromBlobMock,
-};
+
+class MockMessageModel extends MessageModel {
+  constructor() {
+    super({} as Container, "mock-container" as NonEmptyString);
+  }
+  findMessageForRecipient = findMessageForRecipientMock;
+  getContentFromBlob = getContentFromBlobMock;
+}
+
+const mockMessageModel = new MockMessageModel();
 
 const findLastVersionByModelIdMessageStatusMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aMessageStatus)));
-const mockMessageStatusModel = {
-  findLastVersionByModelId: findLastVersionByModelIdMessageStatusMock,
-};
+
+class MockMessageStatusModel extends MessageStatusModel {
+  constructor() {
+    super({} as Container);
+  }
+  findLastVersionByModelId = findLastVersionByModelIdMessageStatusMock;
+}
+const mockMessageStatusModel = new MockMessageStatusModel();
+
+export class MockRedisClientFactory extends RedisClientFactory {
+  public readonly getInstance = vi.fn().mockResolvedValue({});
+}
+
+const mockRedisFactoryMock = new MockRedisClientFactory(envConfig);
+const redisClientMock = mockRedisFactoryMock.getInstance();
 
 const aServiceCacheTTL = 3600 as NonNegativeInteger;
 
@@ -151,11 +171,11 @@ describe("GetMessageHandler", () => {
     getContentFromBlobMock.mockImplementationOnce(() => TE.left(new Error()));
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as unknown as MessageModel,
-      mockMessageStatusModel as unknown as MessageStatusModel,
-      {} as unknown as BlobService,
-      mockServiceModel as unknown as ServiceModel,
-      {} as unknown as RedisClientFactory,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
@@ -186,11 +206,11 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as unknown as MessageModel,
-      mockMessageStatusModel as unknown as MessageStatusModel,
-      {} as unknown as BlobService,
-      mockServiceModel as unknown as ServiceModel,
-      {} as unknown as RedisClientFactory,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
@@ -219,11 +239,11 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as unknown as MessageModel,
-      mockMessageStatusModel as unknown as MessageStatusModel,
-      {} as unknown as BlobService,
-      mockServiceModel as unknown as ServiceModel,
-      {} as unknown as RedisClientFactory,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
@@ -253,11 +273,11 @@ describe("GetMessageHandler", () => {
       ),
     );
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as unknown as MessageModel,
-      mockMessageStatusModel as unknown as MessageStatusModel,
-      {} as unknown as BlobService,
-      mockServiceModel as unknown as ServiceModel,
-      {} as unknown as RedisClientFactory,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
@@ -316,11 +336,11 @@ describe("GetMessageHandler", () => {
       ),
     );
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as unknown as MessageModel,
-      mockMessageStatusModel as unknown as MessageStatusModel,
-      {} as unknown as BlobService,
-      mockServiceModel as unknown as ServiceModel,
-      {} as unknown as RedisClientFactory,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       thirdPartyFetcherForAServiceId,
@@ -365,11 +385,11 @@ describe("GetMessageHandler", () => {
 
   it("should respond with a message", async () => {
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as unknown as MessageModel,
-      mockMessageStatusModel as unknown as MessageStatusModel,
-      {} as unknown as BlobService,
-      mockServiceModel as unknown as ServiceModel,
-      {} as unknown as RedisClientFactory,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
@@ -421,11 +441,11 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as unknown as MessageModel,
-      mockMessageStatusModel as unknown as MessageStatusModel,
-      {} as unknown as BlobService,
-      mockServiceModel as unknown as ServiceModel,
-      {} as unknown as RedisClientFactory,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
@@ -459,11 +479,11 @@ describe("GetMessageHandler", () => {
     findMessageForRecipientMock.mockImplementationOnce(() => TE.of(O.none));
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as unknown as MessageModel,
-      mockMessageStatusModel as unknown as MessageStatusModel,
-      {} as unknown as BlobService,
-      mockServiceModel as unknown as ServiceModel,
-      {} as unknown as RedisClientFactory,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
@@ -492,11 +512,11 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as unknown as MessageModel,
-      mockMessageStatusModel as unknown as MessageStatusModel,
-      {} as unknown as BlobService,
-      mockServiceModel as unknown as ServiceModel,
-      {} as unknown as RedisClientFactory,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
@@ -547,11 +567,11 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as unknown as MessageModel,
-      mockMessageStatusModel as unknown as MessageStatusModel,
-      {} as unknown as BlobService,
-      mockServiceModel as unknown as ServiceModel,
-      {} as unknown as RedisClientFactory,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
@@ -585,11 +605,11 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as unknown as MessageModel,
-      mockMessageStatusModel as unknown as MessageStatusModel,
-      {} as unknown as BlobService,
-      mockServiceModel as unknown as ServiceModel,
-      {} as unknown as RedisClientFactory,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
