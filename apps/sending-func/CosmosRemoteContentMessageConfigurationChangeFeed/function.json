@@ -5,11 +5,11 @@
       "type": "cosmosDBTrigger",
       "name": "cosmosRemoteContentMessageConfigurationTrigger",
       "direction": "in",
-      "connectionStringSetting": "REMOTE_CONTENT_COSMOSDB_CON_STRING",
+      "connection": "REMOTE_CONTENT_COSMOSDB",
       "databaseName": "remote-content-cosmos-01",
-      "collectionName": "message-configuration",
-      "leaseCollectionName": "remote-content-leases",
-      "leaseCollectionPrefix": "RemoteContentMessageConfigurationChangeFeed-00",
+      "containerName": "message-configuration",
+      "leaseContainerName": "remote-content-leases",
+      "leaseContainerPrefix": "RemoteContentMessageConfigurationChangeFeed-00",
       "createLeaseContainerIfNotExists": false,
       "startFromBeginning": true
     }

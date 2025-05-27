@@ -25,8 +25,6 @@ export const envConfig: IConfig = {
   RC_CONFIGURATION_CACHE_TTL: 1000 as NonNegativeInteger,
   REDIS_URL: "aRedisUrl" as NonEmptyString,
 
-  REMOTE_CONTENT_COSMOSDB_CON_STRING: "aConnectionString" as NonEmptyString,
-
   REMOTE_CONTENT_COSMOSDB_NAME: "aName" as NonEmptyString,
 
   REMOTE_CONTENT_COSMOSDB_URI: "aUri" as NonEmptyString,

@@ -5,7 +5,6 @@
     "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=testkey",
     "APPINSIGHTS_SAMPLING_PERCENTAGE": "5",
     "APPINSIGHTS_DISABLE": true,
-    "REMOTE_CONTENT_COSMOSDB_CON_STRING": "connstring",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "NODE_ENV": "development",
     "RC_CONFIGURATION_CACHE_TTL": "28800",
