@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.11.1
+
+### Patch Changes
+
+- a4db226: Add a temporary new push notification rollout logic
+
 ## 1.11.0
 
 ### Minor Changes
