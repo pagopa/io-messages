@@ -1,4 +1,4 @@
-import { RedisClientFactory } from "../../../utils/redis";
+import { Container } from "@azure/cosmos";
 import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
 import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
@@ -46,8 +46,8 @@ import {
   aServiceId,
 } from "../../../__mocks__/mocks.service_preference";
 import * as msgUtil from "../../../utils/messages";
+import { RedisClientFactory } from "../../../utils/redis";
 import { GetMessageHandler } from "../handler";
-import { Container } from "@azure/cosmos";
 
 const aFiscalCode = "FRLFRC74E04B157I" as FiscalCode;
 const aDate = new Date();
@@ -119,11 +119,11 @@ const getContentFromBlobMock = vi
   .mockImplementation(() => TE.of(O.some(aMessageContent)));
 
 class MockMessageModel extends MessageModel {
+  findMessageForRecipient = findMessageForRecipientMock;
+  getContentFromBlob = getContentFromBlobMock;
   constructor() {
     super({} as Container, "mock-container" as NonEmptyString);
   }
-  findMessageForRecipient = findMessageForRecipientMock;
-  getContentFromBlob = getContentFromBlobMock;
 }
 
 const mockMessageModel = new MockMessageModel();
@@ -133,10 +133,10 @@ const findLastVersionByModelIdMessageStatusMock = vi
   .mockImplementation(() => TE.of(O.some(aMessageStatus)));
 
 class MockMessageStatusModel extends MessageStatusModel {
+  findLastVersionByModelId = findLastVersionByModelIdMessageStatusMock;
   constructor() {
     super({} as Container);
   }
-  findLastVersionByModelId = findLastVersionByModelIdMessageStatusMock;
 }
 const mockMessageStatusModel = new MockMessageStatusModel();
 

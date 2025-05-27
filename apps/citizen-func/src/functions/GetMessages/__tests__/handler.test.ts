@@ -1,4 +1,3 @@
-import { RedisClientFactory } from "../../../utils/redis";
 import { Context } from "@azure/functions";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
 import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
@@ -62,6 +61,7 @@ import { HasPreconditionEnum } from "../../../generated/definitions/HasPrecondit
 import { MessageStatusExtendedQueryModel } from "../../../model/message_status_query";
 import { MessageViewExtendedQueryModel } from "../../../model/message_view_query";
 import { IConfig } from "../../../utils/config";
+import { RedisClientFactory } from "../../../utils/redis";
 import * as redis from "../../../utils/redis_storage";
 import RCConfigurationUtility from "../../../utils/remoteContentConfig";
 import { createGetMessagesFunctionSelection } from "../getMessagesFunctions/getMessages.selector";
