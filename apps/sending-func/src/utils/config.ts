@@ -4,9 +4,14 @@
  * Single point of access for the application confguration. Handles validation on required environment variables.
  * The configuration is evaluate eagerly at the first access to the module. The module exposes convenient methods to access such value.
  */
-import { NonNegativeIntegerFromString } from "@pagopa/ts-commons/lib/numbers";
+import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
+import {
+  IntegerFromString,
+  NonNegativeIntegerFromString,
+} from "@pagopa/ts-commons/lib/numbers";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { withDefault } from "@pagopa/ts-commons/lib/types";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/function";
@@ -28,6 +33,8 @@ export type RedisParams = t.TypeOf<typeof RedisParams>;
 // global app configuration
 export const IConfig = t.intersection([
   t.type({
+    APPINSIGHTS_DISABLE: withDefault(BooleanFromString, false),
+    APPINSIGHTS_SAMPLING_PERCENTAGE: IntegerFromString,
     /* eslint-disable sort-keys */
     APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 

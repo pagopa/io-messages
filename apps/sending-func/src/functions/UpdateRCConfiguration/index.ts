@@ -27,7 +27,7 @@ const redisClientFactory = new RedisClientFactory(config);
 const app = express();
 secureExpressApp(app);
 
-const telemetryClient = initTelemetryClient();
+const telemetryClient = initTelemetryClient(config);
 
 // Add express route
 app.put(

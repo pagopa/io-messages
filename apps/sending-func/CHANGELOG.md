@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.11.2
+
+### Patch Changes
+
+- 91e4273: Use config to initialize the telemetry client
+
 ## 1.11.1
 
 ### Patch Changes
