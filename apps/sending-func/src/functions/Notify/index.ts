@@ -87,13 +87,12 @@ const profileModel = new ProfileModel(
 );
 
 const sessionManagerClient = createClient<"ApiKeyAuth">({
-  baseUrl: config.BACKEND_BASE_URL,
+  baseUrl: config.SESSION_MANAGER_BASE_URL,
   fetchApi: httpOrHttpsApiFetch,
   withDefaults: (op) => (params) =>
     op({
       ...params,
       ApiKeyAuth: config.SESSION_MANAGER_API_KEY,
-      token: config.BACKEND_TOKEN,
     }),
 });
 
