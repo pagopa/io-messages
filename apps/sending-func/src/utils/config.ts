@@ -41,6 +41,9 @@ export const IConfig = t.intersection([
     BACKEND_BASE_URL: NonEmptyString,
     BACKEND_TOKEN: NonEmptyString,
 
+    SESSION_MANAGER_BASE_URL: NonEmptyString,
+    SESSION_MANAGER_API_KEY: NonEmptyString,
+
     COSMOSDB_NAME: NonEmptyString,
 
     COSMOSDB_URI: NonEmptyString,

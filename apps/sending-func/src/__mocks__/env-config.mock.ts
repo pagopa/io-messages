@@ -8,6 +8,9 @@ export const envConfig: IConfig = {
   APPINSIGHTS_SAMPLING_PERCENTAGE: 5,
   APPLICATIONINSIGHTS_CONNECTION_STRING: "aKey" as NonEmptyString,
 
+  SESSION_MANAGER_BASE_URL: "aBaseUrl" as NonEmptyString,
+  SESSION_MANAGER_API_KEY: "apiKey" as NonEmptyString,
+
   BACKEND_BASE_URL: "aBaseUrl" as NonEmptyString,
 
   BACKEND_TOKEN: "aToken" as NonEmptyString,

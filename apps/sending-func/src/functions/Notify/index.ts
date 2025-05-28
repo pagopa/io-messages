@@ -1,7 +1,6 @@
 import { AzureFunction, Context } from "@azure/functions";
 import { QueueClient } from "@azure/storage-queue";
 import createAzureFunctionHandler from "@pagopa/express-azure-functions/dist/src/createAzureFunctionsHandler";
-import { createClient } from "@pagopa/io-backend-session-sdk/client";
 import {
   MESSAGE_COLLECTION_NAME,
   MessageModel,
@@ -41,6 +40,7 @@ import {
   getUserProfileReader,
   getUserSessionStatusReader,
 } from "./readers";
+import { createClient } from "../../generated/session-manager/client";
 
 const DEFAULT_REQUEST_TIMEOUT_MS = 10000 as Millisecond;
 
@@ -86,11 +86,11 @@ const profileModel = new ProfileModel(
   cosmosdbInstance.container(PROFILE_COLLECTION_NAME),
 );
 
-const sessionClient = createClient<"token">({
-  baseUrl: config.BACKEND_BASE_URL,
+const sessionManagerClient = createClient<"token">({
+  baseUrl: config.SESSION_MANAGER_BASE_URL,
   fetchApi: httpOrHttpsApiFetch,
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   withDefaults: (op) => (params) =>
+    // TODO: use the correct token here
     op({ ...params, token: config.BACKEND_TOKEN }),
 });
 
@@ -99,7 +99,10 @@ app.post(
   "/api/v1/notify",
   Notify(
     getUserProfileReader(profileModel),
-    getUserSessionStatusReader(sessionClient),
+    getUserSessionStatusReader(
+      sessionManagerClient,
+      config.SESSION_MANAGER_API_KEY,
+    ),
     getMessageWithContent(messageModel, blobService),
     getService(serviceModel),
     sendNotification(

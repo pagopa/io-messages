@@ -1,5 +1,4 @@
 import { ErrorResponse } from "@azure/cosmos";
-import { createClient } from "@pagopa/io-backend-session-sdk/client";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
 import { BlobService } from "azure-storage";
@@ -20,6 +19,8 @@ import {
   getService,
   getUserSessionStatusReader,
 } from "../readers";
+import { createClient } from "@/generated/session-manager/client";
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 
 const findOneByServiceIdMock = vi.fn(
   () =>
@@ -56,7 +57,14 @@ const sessionClientMock: ReturnType<typeof createClient> = {
   getSession: getSessionMock,
   lockUserSession: vi.fn(),
   unlockUserSession: vi.fn(),
+  releaseAuthLock: vi.fn(),
+  deleteUserSession: vi.fn(),
+  info: vi.fn(),
+  getUserSessionState: vi.fn(),
+  authLock: vi.fn(),
 };
+
+const apiKey = "apiKey" as NonEmptyString;
 
 // -----------------------------
 // Tests
@@ -185,8 +193,10 @@ describe("MessageWithContentReader", () => {
 
 describe("SessionStatusReader", () => {
   it("should return the existing user session status", async () => {
-    const userSessionStatusReader =
-      getUserSessionStatusReader(sessionClientMock);
+    const userSessionStatusReader = getUserSessionStatusReader(
+      sessionClientMock,
+      apiKey,
+    );
 
     const result = await userSessionStatusReader(aFiscalCode)();
     expect(result).toEqual(E.right(anActiveSession));
@@ -196,8 +206,10 @@ describe("SessionStatusReader", () => {
     getSessionMock.mockImplementationOnce(async () => {
       throw Error("");
     });
-    const userSessionStatusReader =
-      getUserSessionStatusReader(sessionClientMock);
+    const userSessionStatusReader = getUserSessionStatusReader(
+      sessionClientMock,
+      apiKey,
+    );
 
     const result = await userSessionStatusReader(aFiscalCode)();
     expect(result).toMatchObject(
@@ -210,8 +222,10 @@ describe("SessionStatusReader", () => {
 
   it("should return IResponseErrorInternal if validation fails", async () => {
     getSessionMock.mockImplementationOnce(async () => E.left({}));
-    const userSessionStatusReader =
-      getUserSessionStatusReader(sessionClientMock);
+    const userSessionStatusReader = getUserSessionStatusReader(
+      sessionClientMock,
+      apiKey,
+    );
 
     const result = await userSessionStatusReader(aFiscalCode)();
     expect(result).toMatchObject(
@@ -226,8 +240,10 @@ describe("SessionStatusReader", () => {
     getSessionMock.mockImplementationOnce(async () =>
       E.right({ header: [], status: 400, value: {} }),
     );
-    const userSessionStatusReader =
-      getUserSessionStatusReader(sessionClientMock);
+    const userSessionStatusReader = getUserSessionStatusReader(
+      sessionClientMock,
+      apiKey,
+    );
 
     const result = await userSessionStatusReader(aFiscalCode)();
     expect(result).toMatchObject(

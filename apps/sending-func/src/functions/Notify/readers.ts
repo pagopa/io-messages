@@ -1,5 +1,5 @@
-import { UserSessionInfo } from "@pagopa/io-backend-session-sdk/UserSessionInfo";
-import { Client as SessionClient } from "@pagopa/io-backend-session-sdk/client";
+import { UserSessionInfo } from "@/generated/session-manager/UserSessionInfo";
+import { Client } from "@/generated/session-manager/client";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
 import {
@@ -134,11 +134,18 @@ export type SessionStatusReader = (
 ) => TE.TaskEither<IResponseErrorInternal, UserSessionInfo>;
 
 export const getUserSessionStatusReader =
-  (sessionClient: SessionClient<"token">): SessionStatusReader =>
+  (
+    sessionClient: Client<"token">,
+    sessionManagerApiKey: NonEmptyString,
+  ): SessionStatusReader =>
   (fiscalCode): ReturnType<SessionStatusReader> =>
     pipe(
       TE.tryCatch(
-        async () => sessionClient.getSession({ fiscalcode: fiscalCode }),
+        async () =>
+          sessionClient.getSession({
+            fiscalCode,
+            ApiKeyAuth: sessionManagerApiKey,
+          }),
         () => ResponseErrorInternal("Error retrieving user session"),
       ),
       TE.chainW(
