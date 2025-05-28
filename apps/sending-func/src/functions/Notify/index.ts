@@ -86,11 +86,15 @@ const profileModel = new ProfileModel(
   cosmosdbInstance.container(PROFILE_COLLECTION_NAME),
 );
 
-const sessionManagerClient = createClient<"token">({
-  baseUrl: config.SESSION_MANAGER_BASE_URL,
+const sessionManagerClient = createClient<"ApiKeyAuth">({
+  baseUrl: config.BACKEND_BASE_URL,
   fetchApi: httpOrHttpsApiFetch,
   withDefaults: (op) => (params) =>
-    op({ ...params, token: config.SESSION_MANAGER_TOKEN }),
+    op({
+      ...params,
+      ApiKeyAuth: config.SESSION_MANAGER_API_KEY,
+      token: config.BACKEND_TOKEN,
+    }),
 });
 
 // Add express route

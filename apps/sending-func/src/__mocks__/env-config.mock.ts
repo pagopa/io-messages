@@ -8,6 +8,10 @@ export const envConfig: IConfig = {
   APPINSIGHTS_SAMPLING_PERCENTAGE: 5,
   APPLICATIONINSIGHTS_CONNECTION_STRING: "aKey" as NonEmptyString,
 
+  BACKEND_BASE_URL: "aBaseUrl" as NonEmptyString,
+
+  BACKEND_TOKEN: "aToken" as NonEmptyString,
+
   COSMOSDB_NAME: "aName" as NonEmptyString,
   COSMOSDB_URI: "aUri" as NonEmptyString,
   INTERNAL_USER_ID: "internalUserId" as NonEmptyString,
@@ -32,8 +36,6 @@ export const envConfig: IConfig = {
   SESSION_MANAGER_API_KEY: "apiKey" as NonEmptyString,
 
   SESSION_MANAGER_BASE_URL: "aBaseUrl" as NonEmptyString,
-
-  SESSION_MANAGER_TOKEN: "token" as NonEmptyString,
 
   isProduction: false,
 };
