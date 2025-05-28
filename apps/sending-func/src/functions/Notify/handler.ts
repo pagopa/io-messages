@@ -1,3 +1,4 @@
+import { UserSessionInfo } from "@/generated/session-manager/UserSessionInfo";
 import { PushNotificationsContentTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/PushNotificationsContentType";
 import { ReminderStatusEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/ReminderStatus";
 import { RetrievedProfile } from "@pagopa/io-functions-commons/dist/src/models/profile";
@@ -46,7 +47,6 @@ import {
   SessionStatusReader,
   UserProfileReader,
 } from "./readers";
-import { UserSessionInfo } from "@/generated/session-manager/UserSessionInfo";
 
 const isReminderNotification = (notificationType: NotificationType): boolean =>
   [

@@ -38,28 +38,28 @@ export const IConfig = t.intersection([
     /* eslint-disable sort-keys */
     APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
-    SESSION_MANAGER_BASE_URL: NonEmptyString,
-    SESSION_MANAGER_TOKEN: NonEmptyString,
-    SESSION_MANAGER_API_KEY: NonEmptyString,
-
     COSMOSDB_NAME: NonEmptyString,
-
     COSMOSDB_URI: NonEmptyString,
     INTERNAL_USER_ID: NonEmptyString,
 
     IO_COM_PUSH_NOTIFICATIONS_REDIRECT_PERCENTAGE: NonEmptyString,
-    MESSAGE_CONTAINER_NAME: NonEmptyString,
 
+    MESSAGE_CONTAINER_NAME: NonEmptyString,
     MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
+
     NEW_NOTIFICATION_QUEUE_NAME: NonEmptyString,
     NEW_NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: NonEmptyString,
+
     NOTIFICATION_QUEUE_NAME: NonEmptyString,
     NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: NonEmptyString,
-
     RC_CONFIGURATION_CACHE_TTL: NonNegativeIntegerFromString,
     REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
-
     REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
+
+    SESSION_MANAGER_API_KEY: NonEmptyString,
+    SESSION_MANAGER_BASE_URL: NonEmptyString,
+
+    SESSION_MANAGER_TOKEN: NonEmptyString,
 
     isProduction: t.boolean,
     /* eslint-enable sort-keys */

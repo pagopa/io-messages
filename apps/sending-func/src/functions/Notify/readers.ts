@@ -143,8 +143,8 @@ export const getUserSessionStatusReader =
       TE.tryCatch(
         async () =>
           sessionClient.getSession({
-            fiscalCode,
             ApiKeyAuth: sessionManagerApiKey,
+            fiscalCode,
           }),
         () => ResponseErrorInternal("Error retrieving user session"),
       ),

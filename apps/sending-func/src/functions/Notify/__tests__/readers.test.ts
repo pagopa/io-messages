@@ -1,6 +1,8 @@
+import { createClient } from "@/generated/session-manager/client";
 import { ErrorResponse } from "@azure/cosmos";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { BlobService } from "azure-storage";
 import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
@@ -19,8 +21,6 @@ import {
   getService,
   getUserSessionStatusReader,
 } from "../readers";
-import { createClient } from "@/generated/session-manager/client";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 
 const findOneByServiceIdMock = vi.fn(
   () =>
@@ -54,14 +54,14 @@ const getSessionMock = vi
   );
 
 const sessionClientMock: ReturnType<typeof createClient> = {
-  getSession: getSessionMock,
-  lockUserSession: vi.fn(),
-  unlockUserSession: vi.fn(),
-  releaseAuthLock: vi.fn(),
-  deleteUserSession: vi.fn(),
-  info: vi.fn(),
-  getUserSessionState: vi.fn(),
   authLock: vi.fn(),
+  deleteUserSession: vi.fn(),
+  getSession: getSessionMock,
+  getUserSessionState: vi.fn(),
+  info: vi.fn(),
+  lockUserSession: vi.fn(),
+  releaseAuthLock: vi.fn(),
+  unlockUserSession: vi.fn(),
 };
 
 const apiKey = "apiKey" as NonEmptyString;

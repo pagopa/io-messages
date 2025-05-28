@@ -29,6 +29,7 @@ import { pipe } from "fp-ts/lib/function";
 import nodeFetch from "node-fetch";
 import * as winston from "winston";
 
+import { createClient } from "../../generated/session-manager/client";
 import { initTelemetryClient } from "../../utils/appinsights";
 import { getConfigOrThrow } from "../../utils/config";
 import { cosmosdbInstance } from "../../utils/cosmosdb";
@@ -40,7 +41,6 @@ import {
   getUserProfileReader,
   getUserSessionStatusReader,
 } from "./readers";
-import { createClient } from "../../generated/session-manager/client";
 
 const DEFAULT_REQUEST_TIMEOUT_MS = 10000 as Millisecond;
 
