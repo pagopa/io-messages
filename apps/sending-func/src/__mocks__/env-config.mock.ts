@@ -9,11 +9,8 @@ export const envConfig: IConfig = {
   APPLICATIONINSIGHTS_CONNECTION_STRING: "aKey" as NonEmptyString,
 
   SESSION_MANAGER_BASE_URL: "aBaseUrl" as NonEmptyString,
+  SESSION_MANAGER_TOKEN: "token" as NonEmptyString,
   SESSION_MANAGER_API_KEY: "apiKey" as NonEmptyString,
-
-  BACKEND_BASE_URL: "aBaseUrl" as NonEmptyString,
-
-  BACKEND_TOKEN: "aToken" as NonEmptyString,
 
   COSMOSDB_NAME: "aName" as NonEmptyString,
   COSMOSDB_URI: "aUri" as NonEmptyString,

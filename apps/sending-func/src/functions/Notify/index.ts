@@ -90,8 +90,7 @@ const sessionManagerClient = createClient<"token">({
   baseUrl: config.SESSION_MANAGER_BASE_URL,
   fetchApi: httpOrHttpsApiFetch,
   withDefaults: (op) => (params) =>
-    // TODO: use the correct token here
-    op({ ...params, token: config.BACKEND_TOKEN }),
+    op({ ...params, token: config.SESSION_MANAGER_TOKEN }),
 });
 
 // Add express route

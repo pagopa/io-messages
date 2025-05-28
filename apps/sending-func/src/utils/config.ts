@@ -38,10 +38,8 @@ export const IConfig = t.intersection([
     /* eslint-disable sort-keys */
     APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
-    BACKEND_BASE_URL: NonEmptyString,
-    BACKEND_TOKEN: NonEmptyString,
-
     SESSION_MANAGER_BASE_URL: NonEmptyString,
+    SESSION_MANAGER_TOKEN: NonEmptyString,
     SESSION_MANAGER_API_KEY: NonEmptyString,
 
     COSMOSDB_NAME: NonEmptyString,
