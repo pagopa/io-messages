@@ -1,5 +1,10 @@
 data "azurerm_subscription" "current" {}
 
+data "azurerm_linux_function_app" "session_manager_internal" {
+  name                = format("%s-weu-auth-sm-int-func-01", local.project)
+  resource_group_name = format("io-p-itn-auth-main-rg-01")
+}
+
 data "azurerm_client_config" "current" {}
 
 data "azurerm_resource_group" "weu_common" {
