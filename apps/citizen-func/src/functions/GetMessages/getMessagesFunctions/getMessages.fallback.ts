@@ -114,7 +114,6 @@ export const enrichContentData =
     blobService: BlobService,
     rcConfigurationUtility: RCConfigurationUtility,
     categoryFetcher: ThirdPartyDataWithCategoryFetcher,
-    // eslint-disable-next-line max-params
   ) =>
   (
     messages: readonly CreatedMessageWithoutContentWithStatus[],

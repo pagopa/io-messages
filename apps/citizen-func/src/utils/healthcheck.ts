@@ -17,7 +17,6 @@ import { IConfig, getConfig } from "./config";
 
 type ProblemSource = "AzureCosmosDB" | "AzureStorage" | "Config";
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export type HealthProblem<S extends ProblemSource> = { __source: S } & string;
 export type HealthCheck<
   S extends ProblemSource = ProblemSource,
@@ -97,10 +96,8 @@ export const checkAzureStorageHealth = (
             new Promise<azurestorageCommon.models.ServicePropertiesResult.ServiceProperties>(
               (resolve, reject) =>
                 createService(connStr).getServiceProperties((err, result) => {
-                  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-                  err
-                    ? reject(err.message.replace(/\n/gim, " ")) // avoid newlines
-                    : resolve(result);
+                  if (err) reject(err.message.replace(/\n/gim, " ")); // avoid newlines
+                  resolve(result);
                 }),
             ),
           toHealthProblems("AzureStorage"),
