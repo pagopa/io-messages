@@ -101,10 +101,7 @@ app.post(
   "/api/v1/notify",
   Notify(
     getUserProfileReader(profileModel),
-    getUserSessionStatusReader(
-      sessionManagerClient,
-      config.SESSION_MANAGER_API_KEY,
-    ),
+    getUserSessionStatusReader(sessionManagerClient),
     getMessageWithContent(messageModel, blobService),
     getService(serviceModel),
     sendNotification(

@@ -134,16 +134,12 @@ export type SessionStatusReader = (
 ) => TE.TaskEither<IResponseErrorInternal, UserSessionInfo>;
 
 export const getUserSessionStatusReader =
-  (
-    sessionClient: Client<"token">,
-    sessionManagerApiKey: NonEmptyString,
-  ): SessionStatusReader =>
+  (sessionClient: Client<"ApiKeyAuth">): SessionStatusReader =>
   (fiscalCode): ReturnType<SessionStatusReader> =>
     pipe(
       TE.tryCatch(
         async () =>
           sessionClient.getSession({
-            ApiKeyAuth: sessionManagerApiKey,
             fiscalCode,
           }),
         () => ResponseErrorInternal("Error retrieving user session"),
