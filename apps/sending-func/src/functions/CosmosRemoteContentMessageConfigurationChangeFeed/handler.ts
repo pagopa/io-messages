@@ -1,30 +1,28 @@
 import { Context } from "@azure/functions";
-
-import * as E from "fp-ts/lib/Either";
-import { pipe } from "fp-ts/lib/function";
-import * as TE from "fp-ts/lib/TaskEither";
 import { RetrievedRCConfiguration } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
 import {
   UserRCConfiguration,
-  UserRCConfigurationModel
+  UserRCConfigurationModel,
 } from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
-import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
-import { errorsToError } from "../utils/conversions";
-import { TelemetryClient, trackException } from "../utils/appinsights";
+import { errorsToReadableMessages } from "@pagopa/ts-commons/lib/reporters";
+import { TelemetryClient } from "applicationinsights";
+import * as E from "fp-ts/lib/Either";
+import * as TE from "fp-ts/lib/TaskEither";
+import { pipe } from "fp-ts/lib/function";
 
 const logErrorAndThrow = (
   context: Context,
   telemetryClient: TelemetryClient,
-  error: Error
+  error: Error,
 ): void => {
-  trackException(telemetryClient, {
+  telemetryClient.trackException({
     exception: error,
     properties: {
       detail: error.message,
       isSuccess: "false",
-      name: "message.cqrs.changefeed.retry.failure"
+      name: "message.cqrs.changefeed.retry.failure",
     },
-    tagOverrides: { samplingEnabled: "false" }
+    tagOverrides: { samplingEnabled: "false" },
   });
   context.log.error(error.message);
   throw error;
@@ -45,19 +43,22 @@ const processRecords = async (
   context: Context,
   userRCConfigurationModel: UserRCConfigurationModel,
   telemetryClient: TelemetryClient,
-  documents: ReadonlyArray<unknown>,
-  startTimeFilter: NonNegativeInteger
+  documents: readonly unknown[],
+  startTimeFilter: number,
 ): Promise<void> => {
   for (const doc of documents) {
     // check if docs sent by change feed are valid RetrievedRCConfiguration
-    const retrievedRCConfigurationOrError = RetrievedRCConfiguration.decode(
-      doc
-    );
+    const retrievedRCConfigurationOrError =
+      RetrievedRCConfiguration.decode(doc);
     if (E.isLeft(retrievedRCConfigurationOrError)) {
       return logErrorAndThrow(
         context,
         telemetryClient,
-        errorsToError(retrievedRCConfigurationOrError.left)
+        new Error(
+          errorsToReadableMessages(retrievedRCConfigurationOrError.left).join(
+            " / ",
+          ),
+        ),
       );
     }
 
@@ -71,13 +72,15 @@ const processRecords = async (
     // make a new UserRCConfiguration and check it's valid
     const userRCConfigurationOrError = UserRCConfiguration.decode({
       id: retrievedRCConfiguration.configurationId,
-      userId: retrievedRCConfiguration.userId
+      userId: retrievedRCConfiguration.userId,
     });
     if (E.isLeft(userRCConfigurationOrError)) {
       return logErrorAndThrow(
         context,
         telemetryClient,
-        errorsToError(userRCConfigurationOrError.left)
+        new Error(
+          errorsToReadableMessages(userRCConfigurationOrError.left).join(" / "),
+        ),
       );
     }
 
@@ -86,11 +89,11 @@ const processRecords = async (
     const upsertResult = await pipe(
       userRCConfigurationModel.upsert(userRCConfiguration),
       TE.mapLeft(
-        ce =>
+        (ce) =>
           new Error(
-            `${ce.kind} | Cannot upsert the new UserRCConfiguration for configuration ${userRCConfiguration}`
-          )
-      )
+            `${ce.kind} | Cannot upsert the new UserRCConfiguration for configuration ${userRCConfiguration}`,
+          ),
+      ),
     )();
     if (E.isLeft(upsertResult)) {
       return logErrorAndThrow(context, telemetryClient, upsertResult.left);
@@ -98,17 +101,19 @@ const processRecords = async (
   }
 };
 
-export const handleRemoteContentMessageConfigurationChange = (
-  context: Context,
-  userRCConfigurationModel: UserRCConfigurationModel,
-  telemetryClient: TelemetryClient,
-  startTimeFilter: NonNegativeInteger
-) => async (documents: ReadonlyArray<unknown>): Promise<void> => {
-  await processRecords(
-    context,
-    userRCConfigurationModel,
-    telemetryClient,
-    documents,
-    startTimeFilter
-  );
-};
+export const handleRemoteContentMessageConfigurationChange =
+  (
+    context: Context,
+    userRCConfigurationModel: UserRCConfigurationModel,
+    telemetryClient: TelemetryClient,
+    startTimeFilter: number,
+  ) =>
+  async (documents: readonly unknown[]): Promise<void> => {
+    await processRecords(
+      context,
+      userRCConfigurationModel,
+      telemetryClient,
+      documents,
+      startTimeFilter,
+    );
+  };
