@@ -6,6 +6,7 @@ provider "registry.terraform.io/hashicorp/azuread" {
   constraints = "~> 3.0"
   hashes = [
     "h1:D4wPDjiMNuWQcB1cYQIbS9M68QwQ2BQ8TdcamU3ig3k=",
+    "h1:KeA9a60dssTVEFWkAuJ2lxztHyYB9bKmUfYanW2POSo=",
     "zh:035a6d6e6aa7f117969702873c27344ec4ddd88f676cebc1088316fb26d5c95a",
     "zh:11f86935174d8223699cae00b3a705ded1d75a4efb6d4723d3788f5446e1eaa5",
     "zh:16d52b5bf8eefa98cd2793122be0c5a7b41767caedbd8a08786aeefb3d0c6856",
@@ -25,6 +26,7 @@ provider "registry.terraform.io/hashicorp/azurerm" {
   version     = "4.30.0"
   constraints = ">= 3.110.0, ~> 4.0, < 5.0.0"
   hashes = [
+    "h1:aN9QLfigAA5fLNBqRwx0u7QWUMSQGKeQZQ/iiG5Umw8=",
     "h1:pT84zxcfK8qCcUeQHXOlItg0D6Juqzd9yUmKYEpWLMQ=",
     "zh:276ccec2eb5ea88287e222858202ea846d9d9c4996f83969c0f5e77f2803f1ec",
     "zh:29e077296c530b61fb55debfc611a9cf7987995736f6ca9732d741cefd4e8eac",
@@ -70,6 +72,7 @@ provider "registry.terraform.io/pagopa-dx/azure" {
   constraints = ">= 0.0.6, >= 0.0.7, < 1.0.0"
   hashes = [
     "h1:aW/npVcNAfabhX8dtg8+V1k+LlyDbykYWFRaPESPPhY=",
+    "h1:tE1KJK6j67pu4LzVKIDc6jpPdsIGNNbEmHjWTwKBHxA=",
     "zh:001c879e5926918a3f6b417608f123cb7aa01f18e4d936b189b76d0ad77c7ca8",
     "zh:055909a645b2db02197b8ae37abfc6824c2c15fc91b9228c088d694e83d60dcf",
     "zh:2108493692db75281ac15d200cbb6efe3b5bfb5624f992fb8d2d37e6876e8545",
