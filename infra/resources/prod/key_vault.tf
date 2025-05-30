@@ -6,5 +6,15 @@ module "key_valuts" {
 
   tags = local.tags
 
+  environment = {
+    prefix          = "io"
+    location        = local.location
+    name            = "com",
+    domain          = "",
+    resource_type   = "key_vault",
+    environment     = "p",
+    instance_number = 1
+  }
+
   tenant_id = data.azurerm_client_config.current.tenant_id
 }

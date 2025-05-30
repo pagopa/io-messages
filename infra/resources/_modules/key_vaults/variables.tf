@@ -13,3 +13,17 @@ variable "resource_group_name" {
 variable "tenant_id" {
   type = string
 }
+
+variable "environment" {
+  type = object({
+    prefix          = string,
+    name            = string,
+    domain          = string,
+    resource_type   = string,
+    environment     = string,
+    location        = string,
+    instance_number = number
+  })
+
+  description = "Values which are used to generate resource names and location short names. They are all mandatory except for domain, which should not be used only in the case of a resource used by multiple domains."
+}
