@@ -1,5 +1,13 @@
 resource "azurerm_key_vault" "com" {
-  name                     = "io-p-itn-com-kv"
+  name = provider::dx::resource_name({
+    prefix          = "io"
+    name            = "com",
+    domain          = "",
+    resource_type   = "key_vault",
+    environment     = "p",
+    location        = "italynorth"
+    instance_number = 1
+  })
   location                 = var.location
   resource_group_name      = var.resource_group_name
   tenant_id                = var.tenant_id
