@@ -9,20 +9,6 @@ resource "azurerm_key_vault" "com" {
 
   sku_name = "standard"
 
-  access_policy {
-    tenant_id = var.tenant_id
-    object_id = var.object_id
+  enable_rbac_authorization = true
 
-    key_permissions = [
-      "Get",
-    ]
-
-    secret_permissions = [
-      "Get",
-    ]
-
-    storage_permissions = [
-      "Get",
-    ]
-  }
 }
