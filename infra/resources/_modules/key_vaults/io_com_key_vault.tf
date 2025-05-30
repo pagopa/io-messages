@@ -1,5 +1,5 @@
 resource "azurerm_key_vault" "com" {
-  name = provider::dx::resource_name(var.environment)
+  name = provider::dx::resource_name(merge(var.environment, { resource_type = "key_vault", instance_number = 1 }))
 
   location                 = var.location
   resource_group_name      = var.resource_group_name
