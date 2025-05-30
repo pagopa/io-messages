@@ -34,6 +34,10 @@ locals {
       BACKEND_BASE_URL = "https://io-p-app-appbackendli.azurewebsites.net"
       BACKEND_TOKEN    = var.appbackendli_token
 
+      // TODO: get api key from kv
+      SESSION_MANAGER_API_KEY  = "",
+      SESSION_MANAGER_BASE_URL = var.session_manager_base_url,
+
       // INTERNAL USE PROPERTIES
       INTERNAL_USER_ID           = var.internal_user_id
       RC_CONFIGURATION_CACHE_TTL = "28800"
