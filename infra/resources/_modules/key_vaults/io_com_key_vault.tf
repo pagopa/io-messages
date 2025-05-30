@@ -1,4 +1,4 @@
-resource "azurerm_key_vault" "io_com_kv" {
+resource "azurerm_key_vault" "com" {
   name                     = "io-p-itn-com-kv"
   location                 = var.location
   resource_group_name      = var.resource_group_name
