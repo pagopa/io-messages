@@ -1,49 +1,51 @@
 locals {
-  app_settings = {
-    NODE_ENV = "production"
+  remote_content = {
+    app_settings = {
+      NODE_ENV = "production"
 
-    // IO COSMOSDB
-    COSMOSDB_NAME = "db"
-    COSMOSDB_URI  = var.cosmosdb_account_api.endpoint
+      // IO COSMOSDB
+      COSMOSDB_NAME = "db"
+      COSMOSDB_URI  = var.cosmosdb_account_api.endpoint
 
-    // REMOTE CONTENT COSMOSDB
-    REMOTE_CONTENT_COSMOSDB_NAME = "remote-content-cosmos-01"
-    REMOTE_CONTENT_COSMOSDB_URI  = var.io_com_cosmos.endpoint
+      // REMOTE CONTENT COSMOSDB
+      REMOTE_CONTENT_COSMOSDB_NAME = "remote-content-cosmos-01"
+      REMOTE_CONTENT_COSMOSDB_URI  = var.io_com_cosmos.endpoint
 
-    // BLOB STORAGE
-    MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
-    MESSAGE_CONTAINER_NAME                    = "message-content"
+      // BLOB STORAGE
+      MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
+      MESSAGE_CONTAINER_NAME                    = "message-content"
 
-    // QUEUE STORAGE
-    NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING = var.com_st_queue_uri
-    NOTIFICATION_QUEUE_NAME                      = "push-notifications"
+      // QUEUE STORAGE
+      NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING = var.com_st_queue_uri
+      NOTIFICATION_QUEUE_NAME                      = "push-notifications"
 
-    // TMP NEW NOTIFICATION QUEUE STORAGE
-    NEW_NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
-    NEW_NOTIFICATION_QUEUE_NAME                      = "push-notifications"
+      // TMP NEW NOTIFICATION QUEUE STORAGE
+      NEW_NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
+      NEW_NOTIFICATION_QUEUE_NAME                      = "push-notifications"
 
-    IO_COM_PUSH_NOTIFICATIONS_REDIRECT_PERCENTAGE = "0"
+      IO_COM_PUSH_NOTIFICATIONS_REDIRECT_PERCENTAGE = "0"
 
-    // REDIS
-    REDIS_URL      = var.redis_url      //sostituire
-    REDIS_PORT     = var.redis_port     //sostituire
-    REDIS_PASSWORD = var.redis_password //sostituire
+      // REDIS
+      REDIS_URL      = var.redis_url      //sostituire
+      REDIS_PORT     = var.redis_port     //sostituire
+      REDIS_PASSWORD = var.redis_password //sostituire
 
-    // BACKEND COMMUNICATION
-    BACKEND_BASE_URL = "https://io-p-app-appbackendli.azurewebsites.net"
-    BACKEND_TOKEN    = var.appbackendli_token
+      // BACKEND COMMUNICATION
+      BACKEND_BASE_URL = "https://io-p-app-appbackendli.azurewebsites.net"
+      BACKEND_TOKEN    = var.appbackendli_token
 
-    // INTERNAL USE PROPERTIES
-    INTERNAL_USER_ID           = var.internal_user_id
-    RC_CONFIGURATION_CACHE_TTL = "28800"
+      // INTERNAL USE PROPERTIES
+      INTERNAL_USER_ID           = var.internal_user_id
+      RC_CONFIGURATION_CACHE_TTL = "28800"
 
-    // Keepalive fields are all optionals
-    FETCH_KEEPALIVE_ENABLED             = "true"
-    FETCH_KEEPALIVE_SOCKET_ACTIVE_TTL   = "110000"
-    FETCH_KEEPALIVE_MAX_SOCKETS         = "40"
-    FETCH_KEEPALIVE_MAX_FREE_SOCKETS    = "10"
-    FETCH_KEEPALIVE_FREE_SOCKET_TIMEOUT = "30000"
-    FETCH_KEEPALIVE_TIMEOUT             = "60000"
+      // Keepalive fields are all optionals
+      FETCH_KEEPALIVE_ENABLED             = "true"
+      FETCH_KEEPALIVE_SOCKET_ACTIVE_TTL   = "110000"
+      FETCH_KEEPALIVE_MAX_SOCKETS         = "40"
+      FETCH_KEEPALIVE_MAX_FREE_SOCKETS    = "10"
+      FETCH_KEEPALIVE_FREE_SOCKET_TIMEOUT = "30000"
+      FETCH_KEEPALIVE_TIMEOUT             = "60000"
+    }
   }
 }
 
@@ -85,8 +87,8 @@ module "remote_content_func" {
     web = true
   }
 
-  app_settings      = local.app_settings
-  slot_app_settings = local.app_settings
+  app_settings      = local.remote_content.app_settings
+  slot_app_settings = local.remote_content.app_settings
 
   application_insights_connection_string   = var.application_insights.connection_string
   application_insights_sampling_percentage = var.application_insights.sampling_percentage
