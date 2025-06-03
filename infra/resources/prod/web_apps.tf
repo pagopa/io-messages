@@ -23,11 +23,12 @@ module "web_apps" {
   subnet_pep_id = data.azurerm_subnet.pep.id
 
   subnet_cidrs = {
-    etl_func        = "10.20.8.0/26"
-    citizen_func    = "10.20.8.64/26"
-    ops_func        = "10.20.10.0/26"
-    push_notif_func = "10.20.10.64/26"
-    cqrs_func       = "10.20.10.128/26"
+    etl_func            = "10.20.8.0/26"
+    citizen_func        = "10.20.8.64/26"
+    ops_func            = "10.20.10.0/26"
+    push_notif_func     = "10.20.10.64/26"
+    cqrs_func           = "10.20.10.128/26"
+    remote_content_func = "10.20.1.0/24"
   }
 
   nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
@@ -72,4 +73,12 @@ module "web_apps" {
   com_st_connectiostring = module.storage_api_weu.com_st_connectiostring
 
   cqrs_func_ehns_enabled = true
+
+  appbackendli_token = data.azurerm_key_vault_secret.appbackendli_token.value
+
+  internal_user_id = data.azurerm_key_vault_secret.internal_user.value
+
+  redis_url      = module.redis_messages.hostname
+  redis_port     = module.redis_messages.ssl_port
+  redis_password = module.redis_messages.primary_access_key
 }

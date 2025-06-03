@@ -37,11 +37,12 @@ variable "subnet_pep_id" {
 
 variable "subnet_cidrs" {
   type = object({
-    citizen_func    = string
-    etl_func        = string
-    ops_func        = string
-    push_notif_func = string
-    cqrs_func       = string
+    citizen_func        = string
+    etl_func            = string
+    ops_func            = string
+    push_notif_func     = string
+    cqrs_func           = string
+    remote_content_func = string
   })
 }
 
@@ -65,6 +66,16 @@ variable "eventhub_namespace" {
     id   = string
     name = string
   })
+}
+
+variable "appbackendli_token" {
+  type        = string
+  description = "Token to access appbackendli"
+}
+
+variable "internal_user_id" {
+  type        = string
+  description = "Internal user to bypass"
 }
 
 variable "messages_content_container" {
@@ -147,6 +158,21 @@ variable "redis_cache" {
     port       = string
     access_key = string
   })
+}
+
+variable "redis_url" {
+  type        = string
+  description = "Redis url"
+}
+
+variable "redis_port" {
+  type        = string
+  description = "Redis port"
+}
+
+variable "redis_password" {
+  type        = string
+  description = "Redis password"
 }
 
 variable "nat_gateway_id" {
