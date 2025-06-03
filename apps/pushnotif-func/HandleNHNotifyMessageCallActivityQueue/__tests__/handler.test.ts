@@ -4,13 +4,12 @@ import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { envConfig } from "../../__mocks__/env-config.mock";
+import { nhPartitionFactory } from "../../__mocks__/notification-hub";
 import {
   KindEnum,
   NotifyMessage,
 } from "../../generated/notifications/NotifyMessage";
 import { toSHA256 } from "../../utils/conversions";
-import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
-import * as NSP from "../../utils/notificationhubServicePartition";
 import { handle } from "../handler";
 
 const aFiscalCodeHash =
@@ -26,32 +25,9 @@ const aNotifyMessage: NotifyMessage = {
   },
 };
 
-const aNHConfig = {
-  AZURE_NH_ENDPOINT: envConfig.AZURE_NH_ENDPOINT,
-  AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME,
-} as NotificationHubConfig;
-
-const legacyNotificationHubConfig: NotificationHubConfig = {
-  AZURE_NH_ENDPOINT: "foo" as NonEmptyString,
-  AZURE_NH_HUB_NAME: "bar" as NonEmptyString,
-};
-
 const mockTelemetryClient = {
   trackEvent: vi.fn(() => {}),
 } as unknown as TelemetryClient;
-
-const sendNotificationMock = vi.fn();
-const getInstallationMock = vi.fn();
-
-const mockNotificationHubService = {
-  getInstallation: getInstallationMock,
-  sendNotification: sendNotificationMock,
-};
-const buildNHClient = vi
-  .spyOn(NSP, "buildNHClient")
-  .mockImplementation(
-    () => mockNotificationHubService as unknown as NotificationHubsClient,
-  );
 
 const aNotifyMessageToBlacklistedUser: NotifyMessage = {
   ...aNotifyMessage,
@@ -60,18 +36,23 @@ const aNotifyMessageToBlacklistedUser: NotifyMessage = {
   ) as NonEmptyString,
 };
 
+vi.spyOn(nhPartitionFactory, "getPartition");
+
 describe("HandleNHNotifyMessageCallActivityQueue", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should call notificationhubServicePartion.buildNHClient to get the right notificationService to call", async () => {
-    getInstallationMock.mockReturnValueOnce(
-      Promise.resolve({
-        platform: "apns",
-      }),
-    );
-    sendNotificationMock.mockReturnValueOnce(Promise.resolve({}));
+  it("should get the right notification partition to call", async () => {
+    vi.spyOn(
+      NotificationHubsClient.prototype,
+      "sendNotification",
+    ).mockResolvedValueOnce({
+      failureCount: 0,
+      results: [],
+      state: "Completed",
+      successCount: 1,
+    });
 
     const input = Buffer.from(
       JSON.stringify({
@@ -84,24 +65,42 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
 
     const res = await handle(
       input,
-      legacyNotificationHubConfig,
-      () => aNHConfig,
       envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
       mockTelemetryClient,
+      nhPartitionFactory,
     );
     expect(res.kind).toEqual("SUCCESS");
 
-    expect(sendNotificationMock).toHaveBeenCalledTimes(1);
-    expect(buildNHClient).toBeCalledWith(aNHConfig);
-  });
-
-  it("should call notificationhubServicePartion.buildNHClient to get the legacy notificationService to call", async () => {
-    getInstallationMock.mockReturnValueOnce(
-      Promise.resolve({
-        platform: "apns",
+    expect(nhPartitionFactory.getPartition).toHaveReturnedWith(
+      expect.objectContaining({
+        _client: expect.objectContaining({
+          hubName: "nh4",
+        }),
       }),
     );
-    sendNotificationMock.mockReturnValueOnce(Promise.resolve({}));
+    expect(
+      NotificationHubsClient.prototype.sendNotification,
+    ).toHaveBeenCalledTimes(1);
+  });
+
+  it("should call getPartition to get the legacy NH", async () => {
+    vi.spyOn(
+      NotificationHubsClient.prototype,
+      "getInstallation",
+    ).mockResolvedValueOnce({
+      installationId: aFiscalCodeHash,
+      platform: "apns",
+      pushChannel: "channel",
+    });
+    vi.spyOn(
+      NotificationHubsClient.prototype,
+      "sendNotification",
+    ).mockResolvedValueOnce({
+      failureCount: 0,
+      results: [],
+      state: "Completed",
+      successCount: 1,
+    });
 
     const input = Buffer.from(
       JSON.stringify({
@@ -110,30 +109,46 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
       }),
     ).toString("base64");
 
-    expect.assertions(3);
+    expect.assertions(4);
 
     const res = await handle(
       input,
-      legacyNotificationHubConfig,
-      () => aNHConfig,
       envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
       mockTelemetryClient,
+      nhPartitionFactory,
     );
     expect(res.kind).toEqual("SUCCESS");
 
-    expect(sendNotificationMock).toHaveBeenCalledTimes(1);
-    expect(buildNHClient).toBeCalledWith(legacyNotificationHubConfig);
+    expect(
+      NotificationHubsClient.prototype.sendNotification,
+    ).toHaveBeenCalledTimes(1);
+
+    expect(nhPartitionFactory.getPartition).toHaveBeenCalledWith(
+      aFiscalCodeHash,
+    );
+    expect(nhPartitionFactory.getPartition).toHaveReturnedWith(
+      expect.objectContaining({
+        _client: expect.objectContaining({
+          hubName: "nh4",
+        }),
+      }),
+    );
   });
 
   it("should trigger a retry if notify fails", async () => {
-    getInstallationMock.mockReturnValueOnce(
-      Promise.resolve({
-        platform: "apns",
-      }),
-    );
-    sendNotificationMock.mockImplementation((_, __, ___, cb) =>
-      cb(new Error("send error")),
-    );
+    vi.spyOn(
+      NotificationHubsClient.prototype,
+      "getInstallation",
+    ).mockResolvedValueOnce({
+      installationId: aFiscalCodeHash,
+      platform: "apns",
+      pushChannel: "channel",
+    });
+
+    vi.spyOn(
+      NotificationHubsClient.prototype,
+      "sendNotification",
+    ).mockRejectedValueOnce({});
 
     const input = Buffer.from(
       JSON.stringify({
@@ -145,13 +160,14 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
     await expect(
       handle(
         input,
-        legacyNotificationHubConfig,
-        () => aNHConfig,
         envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
         mockTelemetryClient,
+        nhPartitionFactory,
       ),
     ).rejects.toEqual(expect.objectContaining({ kind: "TRANSIENT" }));
-    expect(sendNotificationMock).toHaveBeenCalledTimes(1);
+    expect(
+      NotificationHubsClient.prototype.sendNotification,
+    ).toHaveBeenCalledTimes(1);
     expect(mockTelemetryClient.trackEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         properties: expect.objectContaining({ isSuccess: "false" }),
@@ -160,7 +176,15 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
   });
 
   it("should not call notificationhubServicePartion.buildNHClient when using a blacklisted user", async () => {
-    sendNotificationMock.mockImplementation((_1, _2, _3, cb) => cb());
+    vi.spyOn(
+      NotificationHubsClient.prototype,
+      "sendNotification",
+    ).mockResolvedValueOnce({
+      failureCount: 0,
+      results: [],
+      state: "Completed",
+      successCount: 1,
+    });
 
     const input = Buffer.from(
       JSON.stringify({
@@ -169,19 +193,19 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
       }),
     ).toString("base64");
 
-    expect.assertions(3);
+    expect.assertions(4);
 
     const res = await handle(
       input,
-      legacyNotificationHubConfig,
-      () => aNHConfig,
       envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
       mockTelemetryClient,
+      nhPartitionFactory,
     );
 
     expect(res.kind).toEqual("SUCCESS");
     expect(res).toHaveProperty("skipped", true);
 
-    expect(sendNotificationMock).not.toBeCalled();
+    expect(NotificationHubsClient.prototype.sendNotification).not.toBeCalled();
+    expect(nhPartitionFactory.getPartition).not.toHaveBeenCalled();
   });
 });

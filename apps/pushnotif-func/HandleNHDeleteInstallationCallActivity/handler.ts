@@ -1,4 +1,3 @@
-import { NotificationHubsClient } from "@azure/notification-hubs";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
 import * as TE from "fp-ts/lib/TaskEither";
@@ -12,7 +11,10 @@ import {
   failActivity,
 } from "../utils/durable/activities";
 import { deleteInstallation } from "../utils/notification";
-import { NotificationHubConfig } from "../utils/notificationhubServicePartition";
+import {
+  NotificationHubConfig,
+  NotificationHubPartitionFactory,
+} from "../utils/notificationhubServicePartition";
 
 // Activity name for df
 export const ActivityName = "HandleNHDeleteInstallationCallActivity";
@@ -33,13 +35,13 @@ export { ActivityResultSuccess } from "../utils/durable/activities";
 
 export const getActivityBody =
   (
-    buildNHClient: (nhConfig: NotificationHubConfig) => NotificationHubsClient,
+    nhPartitionFactory: NotificationHubPartitionFactory,
     telemetryClient: TelemetryClient,
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBody<ActivityInput, ActivityResultSuccess> =>
   ({ input, logger }) => {
     logger.info(`INSTALLATION_ID=${input.installationId}`);
-    const nhClient = buildNHClient(input.notificationHubConfig);
+    const nhClient = nhPartitionFactory.getPartition(input.installationId);
 
     return pipe(
       deleteInstallation(nhClient, input.installationId),

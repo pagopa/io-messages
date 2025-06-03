@@ -4,14 +4,13 @@ import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { context as contextMock } from "../../__mocks__/durable-functions";
-import { envConfig } from "../../__mocks__/env-config.mock";
+import { nhPartitionFactory } from "../../__mocks__/notification-hub";
 import {
   CreateOrUpdateInstallationMessage,
   KindEnum,
 } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
 import { PlatformEnum } from "../../generated/notifications/Platform";
 import { createActivity } from "../../utils/durable/activities";
-import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
 import {
   ActivityInput,
   ActivityResultSuccess,
@@ -33,23 +32,7 @@ const aCreateOrUpdateInstallationMessage: CreateOrUpdateInstallationMessage = {
   tags: [aFiscalCodeHash],
 };
 
-const aNHConfig = {
-  AZURE_NH_ENDPOINT: envConfig.AZURE_NH_ENDPOINT,
-  AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME,
-} as NotificationHubConfig;
-
-const createOrUpdateInstallationMock = vi.fn();
-const getInstallationMock = vi.fn();
-
-const mockNotificationHubService = {
-  createOrUpdateInstallation: createOrUpdateInstallationMock,
-  getInstallation: getInstallationMock,
-};
-const mockBuildNHClient = vi
-  .fn()
-  .mockImplementation(
-    () => mockNotificationHubService as unknown as NotificationHubsClient,
-  );
+vi.spyOn(nhPartitionFactory, "getPartition");
 
 const mockTelemetryClient = {
   trackEvent: vi.fn(() => {}),
@@ -59,7 +42,7 @@ const handler = createActivity(
   activityName,
   ActivityInput,
   ActivityResultSuccess,
-  getActivityBody(mockBuildNHClient, mockTelemetryClient),
+  getActivityBody(nhPartitionFactory, mockTelemetryClient),
 );
 
 describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
@@ -67,44 +50,40 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
     vi.clearAllMocks();
   });
 
-  it("should call notificationhubServicePartion.buildNHClient to get the right notificationService to call", async () => {
-    getInstallationMock.mockImplementation(() =>
-      Promise.resolve({
-        platform: "apns",
-      }),
-    );
-    createOrUpdateInstallationMock.mockReturnValueOnce(Promise.resolve());
+  it("should call a createOrUpdateInstallation using the right notification hub partition ending with a success", async () => {
+    vi.spyOn(
+      NotificationHubsClient.prototype,
+      "createOrUpdateInstallation",
+    ).mockResolvedValueOnce({});
 
     const input = ActivityInput.encode({
       installationId: aCreateOrUpdateInstallationMessage.installationId,
-      notificationHubConfig: aNHConfig,
       platform: aCreateOrUpdateInstallationMessage.platform,
       pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
       tags: aCreateOrUpdateInstallationMessage.tags,
     });
 
-    expect.assertions(3);
+    expect.assertions(2);
 
     const res = await handler(contextMock, input);
     expect(ActivityResultSuccess.is(res)).toBeTruthy();
-
-    expect(mockBuildNHClient).toHaveBeenCalledTimes(1);
-    expect(mockBuildNHClient).toBeCalledWith(aNHConfig);
+    expect(nhPartitionFactory.getPartition).toHaveReturnedWith(
+      expect.objectContaining({
+        _client: expect.objectContaining({
+          hubName: "nh4",
+        }),
+      }),
+    );
   });
 
   it("should trigger a retry if CreateOrUpdateInstallation fails", async () => {
-    getInstallationMock.mockImplementation(() =>
-      Promise.resolve({
-        platform: "apns",
-      }),
-    );
-    createOrUpdateInstallationMock.mockImplementationOnce(() =>
-      Promise.reject({}),
-    );
+    vi.spyOn(
+      NotificationHubsClient.prototype,
+      "createOrUpdateInstallation",
+    ).mockRejectedValueOnce({});
 
     const input = ActivityInput.encode({
       installationId: aCreateOrUpdateInstallationMessage.installationId,
-      notificationHubConfig: aNHConfig,
       platform: aCreateOrUpdateInstallationMessage.platform,
       pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
       tags: aCreateOrUpdateInstallationMessage.tags,
@@ -116,7 +95,7 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
       await handler(contextMock, input);
     } catch (e) {
       expect(
-        mockNotificationHubService.createOrUpdateInstallation,
+        NotificationHubsClient.prototype.createOrUpdateInstallation,
       ).toHaveBeenCalledTimes(1);
       expect(e).toBeInstanceOf(Error);
     }
