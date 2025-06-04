@@ -30,16 +30,10 @@ const notifyMessage = (
   message: NotifyMessage,
 ): Promise<string> =>
   pipe(
-    ["current", "legacy"],
-    t.array(NhTarget).encode,
-    AR.map(T.of),
-    AR.map(
-      flow(
-        T.map((target) => NhNotifyMessageRequest.encode({ message, target })),
-        T.map((m) => Buffer.from(JSON.stringify(m)).toString("base64")),
-      ),
-    ),
-    T.sequenceArray,
+    NhTarget.encode("current"),
+    T.of,
+    T.map((target) => NhNotifyMessageRequest.encode({ message, target })),
+    T.map((m) => Buffer.from(JSON.stringify(m)).toString("base64")),
     T.map(
       (notifyMessages) => (context.bindings.notifyMessages = notifyMessages),
     ),

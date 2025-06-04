@@ -11,19 +11,15 @@ import {
   failActivity,
 } from "../utils/durable/activities";
 import { deleteInstallation } from "../utils/notification";
-import {
-  NotificationHubConfig,
-  NotificationHubPartitionFactory,
-} from "../utils/notificationhubServicePartition";
+import { NotificationHubPartitionFactory } from "../utils/notificationhubServicePartition";
 
 // Activity name for df
 export const ActivityName = "HandleNHDeleteInstallationCallActivity";
 
 // Activity input
 export type ActivityInput = t.TypeOf<typeof ActivityInput>;
-export const ActivityInput = t.interface({
+export const ActivityInput = t.type({
   installationId: NonEmptyString,
-  notificationHubConfig: NotificationHubConfig,
 });
 
 // Activity Result
@@ -32,7 +28,6 @@ export { ActivityResultSuccess } from "../utils/durable/activities";
 /**
  * For each Notification Hub Message of type "Delete" calls related Notification Hub service
  */
-
 export const getActivityBody =
   (
     nhPartitionFactory: NotificationHubPartitionFactory,
@@ -52,8 +47,6 @@ export const getActivityBody =
             properties: {
               installationId: input.installationId,
               isSuccess: "false",
-              notificationHubName:
-                input.notificationHubConfig.AZURE_NH_HUB_NAME,
               reason: e.message,
             },
             tagOverrides: { samplingEnabled: "false" },
@@ -66,8 +59,6 @@ export const getActivityBody =
             properties: {
               installationId: input.installationId,
               isSuccess: "true",
-              notificationHubName:
-                input.notificationHubConfig.AZURE_NH_HUB_NAME,
             },
             tagOverrides: { samplingEnabled: "false" },
           });
