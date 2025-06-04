@@ -8,7 +8,7 @@ import { InstallationId } from "../generated/notifications/InstallationId";
 import { IConfig } from "./config";
 import { DisjoitedNotificationHubPartitionArray } from "./types";
 
-export const NotificationHubConfig = t.interface({
+export const NotificationHubConfig = t.type({
   AZURE_NH_ENDPOINT: NonEmptyString,
   AZURE_NH_HUB_NAME: NonEmptyString,
 });
@@ -71,30 +71,19 @@ export const buildNHClient = ({
 
 export class NotificationHubPartitionFactory {
   #notificationHubPartitions: DisjoitedNotificationHubPartitionArray;
-  #partitionFour: NotificationHubsClient;
-  #partitionOne: NotificationHubsClient;
-  #partitionThree: NotificationHubsClient;
-  #partitionTwo: NotificationHubsClient;
+  #partitionClientsRecord: Record<number, NotificationHubsClient>;
 
   constructor(
     notificationHubPartitions: DisjoitedNotificationHubPartitionArray,
   ) {
     this.#notificationHubPartitions = notificationHubPartitions;
-    this.#partitionOne = new NotificationHubsClient(
-      this.#notificationHubPartitions[0].endpoint,
-      this.#notificationHubPartitions[0].name,
-    );
-    this.#partitionTwo = new NotificationHubsClient(
-      this.#notificationHubPartitions[1].endpoint,
-      this.#notificationHubPartitions[1].name,
-    );
-    this.#partitionThree = new NotificationHubsClient(
-      this.#notificationHubPartitions[2].endpoint,
-      this.#notificationHubPartitions[2].name,
-    );
-    this.#partitionFour = new NotificationHubsClient(
-      this.#notificationHubPartitions[3].endpoint,
-      this.#notificationHubPartitions[3].name,
+    this.#partitionClientsRecord = {};
+    this.#notificationHubPartitions.forEach(
+      (p, i) =>
+        (this.#partitionClientsRecord[i] = new NotificationHubsClient(
+          p.endpoint,
+          p.name,
+        )),
     );
   }
 
@@ -110,13 +99,13 @@ export class NotificationHubPartitionFactory {
 
     switch (nhPartition.name) {
       case this.#notificationHubPartitions[0].name:
-        return this.#partitionOne;
+        return this.#partitionClientsRecord[0];
       case this.#notificationHubPartitions[1].name:
-        return this.#partitionTwo;
+        return this.#partitionClientsRecord[1];
       case this.#notificationHubPartitions[2].name:
-        return this.#partitionThree;
+        return this.#partitionClientsRecord[2];
       case this.#notificationHubPartitions[3].name:
-        return this.#partitionFour;
+        return this.#partitionClientsRecord[3];
       default:
         throw new Error(
           `Cannot find the correct NH partition for installationId: ${installationId}`,
