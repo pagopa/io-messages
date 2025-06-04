@@ -51,7 +51,7 @@ resource "azurerm_redis_cache" "com" {
     prefix          = local.prefix
     name            = "redis",
     domain          = local.domain,
-    resource_type   = "redis",
+    resource_type   = "redis_cache",
     environment     = local.env_short,
     location        = local.location
     instance_number = 1
@@ -85,7 +85,7 @@ resource "azurerm_private_endpoint" "redis_cache_com" {
     prefix          = local.prefix
     name            = "redis",
     domain          = local.domain,
-    resource_type   = "pep",
+    resource_type   = "private_endpoint",
     environment     = local.env_short,
     location        = local.location
     instance_number = 1
