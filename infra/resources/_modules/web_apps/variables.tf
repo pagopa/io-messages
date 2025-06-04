@@ -160,21 +160,6 @@ variable "redis_cache" {
   })
 }
 
-variable "redis_url" {
-  type        = string
-  description = "Redis url"
-}
-
-variable "redis_port" {
-  type        = string
-  description = "Redis port"
-}
-
-variable "redis_password" {
-  type        = string
-  description = "Redis password"
-}
-
 variable "nat_gateway_id" {
   type        = string
   description = "The ID of the NAT Gateway"
