@@ -6,11 +6,10 @@ module "key_vaults" {
   tags = local.tags
 
   environment = {
-    prefix      = "io"
+    prefix      = local.prefix
     location    = local.location
-    name        = "com",
-    domain      = "",
-    environment = "p",
+    name        = local.domain,
+    environment = local.env_short,
   }
 
   tenant_id = data.azurerm_client_config.current.tenant_id
