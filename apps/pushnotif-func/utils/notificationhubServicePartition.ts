@@ -7,6 +7,8 @@ import * as t from "io-ts";
 import { InstallationId } from "../generated/notifications/InstallationId";
 import { IConfig } from "./config";
 import { DisjoitedNotificationHubPartitionArray } from "./types";
+import { string } from "fp-ts";
+import assert = require("node:assert");
 
 export const NotificationHubConfig = t.type({
   AZURE_NH_ENDPOINT: NonEmptyString,
@@ -70,46 +72,39 @@ export const buildNHClient = ({
   new NotificationHubsClient(AZURE_NH_ENDPOINT, AZURE_NH_HUB_NAME);
 
 export class NotificationHubPartitionFactory {
-  #notificationHubPartitions: DisjoitedNotificationHubPartitionArray;
-  #partitionClientsRecord: Record<number, NotificationHubsClient>;
+  #m: Map<string, NotificationHubsClient>;
+  #hash: (installationId: NonEmptyString) => string | undefined;
 
-  constructor(
-    notificationHubPartitions: DisjoitedNotificationHubPartitionArray,
-  ) {
-    this.#notificationHubPartitions = notificationHubPartitions;
-    this.#partitionClientsRecord = {};
-    this.#notificationHubPartitions.forEach(
-      (p, i) =>
-        (this.#partitionClientsRecord[i] = new NotificationHubsClient(
-          p.endpoint,
-          p.name,
-        )),
+  constructor(partitions: DisjoitedNotificationHubPartitionArray) {
+    this.#m = new Map(
+      partitions.map((p) => [
+        p.name,
+        new NotificationHubsClient(p.endpoint, p.name),
+      ]),
     );
+
+    this.#hash = (installationId: NonEmptyString) => {
+      const partition = partitions.find((p) =>
+        testShaForPartitionRegex(p.partitionRegex, installationId),
+      );
+
+      return partition?.name;
+    };
   }
 
   getPartition(installationId: NonEmptyString): NotificationHubsClient {
-    const nhPartition = this.#notificationHubPartitions.find((p) =>
-      testShaForPartitionRegex(p.partitionRegex, installationId),
+    const partitionName = this.#hash(installationId);
+    assert(
+      partitionName,
+      `Unable to find notification hub partition for installationId ${installationId}`,
     );
-    if (nhPartition === undefined) {
-      throw new Error(
-        `Unable to find Notification Hub partition for ${installationId}`,
-      );
-    }
 
-    switch (nhPartition.name) {
-      case this.#notificationHubPartitions[0].name:
-        return this.#partitionClientsRecord[0];
-      case this.#notificationHubPartitions[1].name:
-        return this.#partitionClientsRecord[1];
-      case this.#notificationHubPartitions[2].name:
-        return this.#partitionClientsRecord[2];
-      case this.#notificationHubPartitions[3].name:
-        return this.#partitionClientsRecord[3];
-      default:
-        throw new Error(
-          `Cannot find the correct NH partition for installationId: ${installationId}`,
-        );
-    }
+    const client = this.#m.get(partitionName);
+    assert(
+      client,
+      `Cannot find the correct NH partition for installationId: ${installationId}`,
+    );
+
+    return client;
   }
 }
