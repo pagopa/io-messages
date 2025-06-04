@@ -64,7 +64,7 @@ module "remote_content_func" {
     env_short       = var.environment.env_short
     location        = var.environment.location
     domain          = var.environment.domain
-    app_name        = "remote-content"
+    app_name        = "rmt-cntnt"
     instance_number = "01"
   }
 
