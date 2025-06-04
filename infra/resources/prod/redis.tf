@@ -96,13 +96,13 @@ resource "azurerm_private_endpoint" "redis_cache_com" {
   subnet_id           = data.azurerm_subnet.pep.id
 
   private_dns_zone_group {
-    name                 = "${azurerm_redis_cache.com_redis_messages.name}-private-dns-zone-group"
+    name                 = "${azurerm_redis_cache.com.name}-private-dns-zone-group"
     private_dns_zone_ids = [data.azurerm_private_dns_zone.privatelink_redis_cache.id]
   }
 
   private_service_connection {
-    name                           = "${azurerm_redis_cache.com_redis_messages.name}-private-service-connection"
-    private_connection_resource_id = azurerm_redis_cache.com_redis_messages.id
+    name                           = "${azurerm_redis_cache.com.name}-private-service-connection"
+    private_connection_resource_id = azurerm_redis_cache.com.id
     is_manual_connection           = false
     subresource_names              = ["redisCache"]
   }
