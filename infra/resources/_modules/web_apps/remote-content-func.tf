@@ -51,8 +51,18 @@ locals {
 
 
 data "azurerm_nat_gateway" "nat_gateway" {
-  name                = "io-p-itn-ng-01"
-  resource_group_name = "io-p-itn-common-rg-01"
+
+  name = provider::dx::resource_name({
+    prefix          = var.environment.prefix
+    name            = "rmt-cntnt",
+    domain          = var.environment.domain,
+    resource_type   = "nat_gateway",
+    environment     = var.environment.env_short,
+    location        = var.environment.location
+    instance_number = 1
+  })
+
+  resource_group_name = var.resource_group_name
 }
 
 module "remote_content_func" {
