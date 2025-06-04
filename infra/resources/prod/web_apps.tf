@@ -77,8 +77,4 @@ module "web_apps" {
   appbackendli_token = data.azurerm_key_vault_secret.appbackendli_token.value
 
   internal_user_id = data.azurerm_key_vault_secret.internal_user.value
-
-  redis_url      = module.redis_messages.hostname
-  redis_port     = module.redis_messages.ssl_port
-  redis_password = module.redis_messages.primary_access_key
 }

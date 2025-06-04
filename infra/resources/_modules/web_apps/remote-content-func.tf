@@ -26,9 +26,9 @@ locals {
       IO_COM_PUSH_NOTIFICATIONS_REDIRECT_PERCENTAGE = "0"
 
       // REDIS
-      REDIS_URL      = var.redis_url      //sostituire
-      REDIS_PORT     = var.redis_port     //sostituire
-      REDIS_PASSWORD = var.redis_password //sostituire
+      REDIS_URL      = var.redis_cache.hostname
+      REDIS_PORT     = var.redis_cache.port
+      REDIS_PASSWORD = var.redis_cache.access_key
 
       // BACKEND COMMUNICATION
       BACKEND_BASE_URL = "https://io-p-app-appbackendli.azurewebsites.net"
