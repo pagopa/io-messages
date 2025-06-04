@@ -12,7 +12,6 @@ module "redis_messages" {
   enable_authentication = true
   zones                 = [1, 2]
 
-  // when azure can apply patch?
   patch_schedules = [{
     day_of_week    = "Sunday"
     start_hour_utc = 23
@@ -46,8 +45,17 @@ module "redis_messages" {
 }
 
 
-resource "azurerm_redis_cache" "com_redis_messages" {
-  name = "${local.project}-${local.domain}-redis-01"
+resource "azurerm_redis_cache" "com" {
+
+  name = provider::dx::resource_name({
+    prefix          = local.prefix
+    name            = "redis",
+    domain          = local.domain,
+    resource_type   = "redis",
+    environment     = local.env_short,
+    location        = local.location
+    instance_number = 1
+  })
 
   resource_group_name = azurerm_resource_group.itn_com.name
   location            = azurerm_resource_group.itn_com.location
@@ -71,9 +79,18 @@ resource "azurerm_redis_cache" "com_redis_messages" {
   tags = local.tags
 }
 
-resource "azurerm_private_endpoint" "this" {
+resource "azurerm_private_endpoint" "redis_cache_com" {
 
-  name                = "${azurerm_redis_cache.com_redis_messages.name}-private-endpoint"
+  name = provider::dx::resource_name({
+    prefix          = local.prefix
+    name            = "redis",
+    domain          = local.domain,
+    resource_type   = "pep",
+    environment     = local.env_short,
+    location        = local.location
+    instance_number = 1
+  })
+
   location            = azurerm_resource_group.itn_com.location
   resource_group_name = azurerm_resource_group.itn_com.name
   subnet_id           = data.azurerm_subnet.pep.id
