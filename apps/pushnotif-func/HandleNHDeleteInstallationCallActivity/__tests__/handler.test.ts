@@ -4,13 +4,11 @@ import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { context as contextMock } from "../../__mocks__/durable-functions";
-import { envConfig } from "../../__mocks__/env-config.mock";
 import { nhPartitionFactory } from "../../__mocks__/notification-hub";
 import {
   ActivityResultFailure,
   createActivity,
 } from "../../utils/durable/activities";
-import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
 import {
   ActivityInput,
   ActivityResultSuccess,
@@ -21,11 +19,6 @@ const aFiscalCodeHash =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
 
 const anInstallationId = aFiscalCodeHash;
-
-const aNHConfig = {
-  AZURE_NH_ENDPOINT: envConfig.AZURE_NH_ENDPOINT,
-  AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME,
-} as NotificationHubConfig;
 
 const mockTelemetryClient = {
   trackEvent: vi.fn().mockImplementation(() => {}),
@@ -52,7 +45,6 @@ describe("HandleNHDeleteInstallationCallActivity", () => {
 
     const input = ActivityInput.encode({
       installationId: anInstallationId,
-      notificationHubConfig: aNHConfig,
     });
     const res = await handler(contextMock, input);
     expect(
@@ -81,7 +73,6 @@ describe("HandleNHDeleteInstallationCallActivity", () => {
 
     const input = ActivityInput.encode({
       installationId: anInstallationId,
-      notificationHubConfig: aNHConfig,
     });
     const res = await handler(contextMock, input);
     expect(

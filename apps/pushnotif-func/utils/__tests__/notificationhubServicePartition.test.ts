@@ -1,27 +1,9 @@
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as E from "fp-ts/lib/Either";
 import { describe, expect, it } from "vitest";
 
-import { envConfig } from "../../__mocks__/env-config.mock";
 import { InstallationId } from "../../generated/notifications/InstallationId";
 import { NHClientError } from "../notification";
-import {
-  getNHLegacyConfig,
-  getNotificationHubPartitionConfig,
-  testShaForPartitionRegex,
-} from "../notificationhubServicePartition";
-
-const aFiscalCodeHash =
-  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
-
-describe("NotificationHubServicepartition", () => {
-  it("should return always NH0 Configuration", () => {
-    const nhConfig = getNHLegacyConfig(envConfig);
-
-    expect(nhConfig.AZURE_NH_ENDPOINT).toBe(envConfig.AZURE_NH_ENDPOINT);
-    expect(nhConfig.AZURE_NH_HUB_NAME).toBe(envConfig.AZURE_NH_HUB_NAME);
-  });
-});
+import { testShaForPartitionRegex } from "../notificationhubServicePartition";
 
 describe("NHClientError", () => {
   it("should decode a 404 as right", () => {
@@ -113,23 +95,5 @@ describe("Partition Regex", () => {
     expect(
       testShaForPartitionRegex(partition1Regex, invalidInstallationId),
     ).toBe(false);
-  });
-
-  it("should return right Notification Hub partition", () => {
-    const NH = getNotificationHubPartitionConfig(envConfig)(aFiscalCodeHash);
-
-    expect(NH.AZURE_NH_HUB_NAME).toBe(
-      envConfig.AZURE_NOTIFICATION_HUB_PARTITIONS[3].name,
-    );
-  });
-
-  it("should throw exception if no Notification Hub partition has been found", () => {
-    const fakeInstallationId = "hhhhhh" as InstallationId;
-
-    expect(() => {
-      getNotificationHubPartitionConfig(envConfig)(fakeInstallationId);
-    }).toThrowError(
-      `Unable to find Notification Hub partition for ${fakeInstallationId}`,
-    );
   });
 });

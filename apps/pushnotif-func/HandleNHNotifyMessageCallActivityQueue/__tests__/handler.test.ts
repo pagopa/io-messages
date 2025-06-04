@@ -138,15 +138,6 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
   it("should trigger a retry if notify fails", async () => {
     vi.spyOn(
       NotificationHubsClient.prototype,
-      "getInstallation",
-    ).mockResolvedValueOnce({
-      installationId: aFiscalCodeHash,
-      platform: "apns",
-      pushChannel: "channel",
-    });
-
-    vi.spyOn(
-      NotificationHubsClient.prototype,
       "sendNotification",
     ).mockRejectedValueOnce({});
 
