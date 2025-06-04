@@ -14,7 +14,6 @@ variable "environment" {
   type = object({
     prefix      = string,
     name        = string,
-    domain      = string,
     environment = string,
     location    = string,
   })
