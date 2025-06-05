@@ -133,3 +133,7 @@ variable "com_st_connectiostring" {
 variable "session_manager_base_url" {
   type = string
 }
+
+variable "com_kv_name" {
+  type = string
+}
