@@ -7,7 +7,6 @@
     "NODE_ENV": "development",
     "RC_CONFIGURATION_CACHE_TTL": "28800",
     "INTERNAL_USER_ID": "local",
-    "SESSION_MANAGER_TOKEN": "mock-secret",
     "SESSION_MANAGER_BASE_URL": "http://localhost:8004/session-manager",
     "SESSION_MANAGER_API_KEY": "apiKey",
     "COSMOSDB_URI": "https://io-d-itn-common-cosno-01.documents.azure.com:443/",
