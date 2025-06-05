@@ -73,8 +73,6 @@ resource "azurerm_redis_cache" "com" {
     start_hour_utc = 23
   }
 
-  zones = [1, 2]
-
   tags = local.tags
 }
 
