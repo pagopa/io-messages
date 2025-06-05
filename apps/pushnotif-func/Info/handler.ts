@@ -7,6 +7,7 @@ import {
   ResponseErrorInternal,
   ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as express from "express";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
@@ -15,6 +16,7 @@ import * as t from "io-ts";
 import * as packageJson from "../package.json";
 import { IConfig, envConfig } from "../utils/config";
 import { checkAzureNotificationHub } from "../utils/healthcheck";
+import { NotificationHubPartitionFactory } from "../utils/notificationhubServicePartition";
 
 interface IInfo {
   readonly name: string;
@@ -56,15 +58,16 @@ export function Info(): express.RequestHandler {
         healthcheck.checkAzureStorageHealth(
           c.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
         ),
-      (c) =>
-        checkAzureNotificationHub(c.AZURE_NH_ENDPOINT, c.AZURE_NH_HUB_NAME),
-      ...[0, 1, 2, 3].map(
-        (i) => (c: t.TypeOf<typeof IConfig>) =>
-          checkAzureNotificationHub(
-            c.AZURE_NOTIFICATION_HUB_PARTITIONS[i].endpoint,
-            c.AZURE_NOTIFICATION_HUB_PARTITIONS[i].name,
-          ),
-      ),
+      //check all partitions using ids to match all partitions regex
+      ...["0", "4", "8", "c"].map((i) => (c: t.TypeOf<typeof IConfig>) => {
+        const nhPartitionFactory = new NotificationHubPartitionFactory(
+          c.AZURE_NOTIFICATION_HUB_PARTITIONS,
+        );
+        return checkAzureNotificationHub(
+          nhPartitionFactory,
+          i as NonEmptyString,
+        );
+      }),
     ]),
   );
 

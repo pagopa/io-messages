@@ -1,4 +1,3 @@
-import { NotificationHubsClient } from "@azure/notification-hubs";
 import { TelemetryClient } from "applicationinsights";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
@@ -13,12 +12,11 @@ import {
   retryActivity,
 } from "../utils/durable/activities";
 import { createOrUpdateInstallation } from "../utils/notification";
-import { NotificationHubConfig } from "../utils/notificationhubServicePartition";
+import { NotificationHubPartitionFactory } from "../utils/notificationhubServicePartition";
 
 export type ActivityInput = t.TypeOf<typeof ActivityInput>;
-export const ActivityInput = t.interface({
+export const ActivityInput = t.type({
   installationId: InstallationId,
-  notificationHubConfig: NotificationHubConfig,
   platform: Platform,
   pushChannel: t.string,
   tags: t.readonlyArray(t.string, "array of string"),
@@ -37,16 +35,15 @@ const getPlatformFromPlatformEnum = (
 
 export const getActivityBody =
   (
-    buildNHClient: (nhConfig: NotificationHubConfig) => NotificationHubsClient,
+    nhPartitionFactory: NotificationHubPartitionFactory,
     telemetryClient: TelemetryClient,
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBodyImpl =>
   ({ input, logger }) => {
     logger.info(`INSTALLATION_ID=${input.installationId}`);
-    const nhClient = buildNHClient(input.notificationHubConfig);
     return pipe(
       createOrUpdateInstallation(
-        nhClient,
+        nhPartitionFactory.getPartition(input.installationId),
         input.installationId,
         getPlatformFromPlatformEnum(input.platform),
         input.pushChannel,
@@ -59,8 +56,6 @@ export const getActivityBody =
             properties: {
               installationId: input.installationId,
               isSuccess: "false",
-              notificationHubName:
-                input.notificationHubConfig.AZURE_NH_HUB_NAME,
               platform: input.platform,
               reason: e.message,
             },
@@ -74,8 +69,6 @@ export const getActivityBody =
             properties: {
               installationId: input.installationId,
               isSuccess: "true",
-              notificationHubName:
-                input.notificationHubConfig.AZURE_NH_HUB_NAME,
               platform: input.platform,
             },
             tagOverrides: { samplingEnabled: "false" },

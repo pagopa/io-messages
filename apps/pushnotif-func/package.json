@@ -1,6 +1,6 @@
 {
   "name": "pushnotif-func",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "scripts": {
     "clean": "tsc --build --clean",

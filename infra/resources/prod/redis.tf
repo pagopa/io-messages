@@ -49,8 +49,7 @@ resource "azurerm_redis_cache" "com" {
 
   name = provider::dx::resource_name({
     prefix          = local.prefix
-    name            = "msgs",
-    domain          = local.domain,
+    name            = "com",
     resource_type   = "redis_cache",
     environment     = local.env_short,
     location        = local.location
