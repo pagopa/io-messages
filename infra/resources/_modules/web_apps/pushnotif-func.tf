@@ -175,10 +175,10 @@ module "push_notif_function" {
     }
   )
 
-  # sticky_app_setting_names = [
-  #   "AzureWebJobs.HandleNHNotificationCall.Disabled",
-  #   "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled"
-  # ]
+  sticky_app_setting_names = [
+    "AzureWebJobs.HandleNHNotificationCall.Disabled",
+    "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled"
+  ]
 
   slot_app_settings = merge(
     local.function_push_notif.app_settings_common, {
