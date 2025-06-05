@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.11.3
+
+### Patch Changes
+
+- 005bcc6: Use session-manager to resolve session in Notify function
+
 ## 1.11.2
 
 ### Patch Changes
