@@ -1,17 +1,92 @@
 {
-  "container_apps.com_cae": "97f9c6f79adc987c1d8b607a99fcc6ecc65a6a76cada97f1d7731e343b560c63",
-  "container_apps.reminder_ca_itn_01": "fe43248dd23002563d235d734432e2d2a8fb80dad45a840e503f6d6fc4f40b42",
-  "cosmos.io_com_cosmos_account": "398ffd2c1fb90f2228a5d42e7f90e6601162c2e90e23daeee726e1f1f02aa322",
-  "eventhubs.etl": "ec7e3d9527cdeb8f9a575b487f7c907825efc04b3bb107933d5a46acf37e70bd",
-  "functions_messages_sending.function_app_messages_sending": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
-  "storage_api_weu.com_st": "c073e41130034acebff0c22a7cffc22a1533ef46b64752789d472116abc21eee",
-  "storage_api_weu.com_st.naming_convention": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4",
-  "web_apps.citizen_func": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
-  "web_apps.citizen_func_autoscaler": "0ce217941a45b1d47e10fd2c908ee084a98370b5ca797d57e314afc2fc7a07a3",
-  "web_apps.etl_func": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
-  "web_apps.etl_func_autoscaler": "0ce217941a45b1d47e10fd2c908ee084a98370b5ca797d57e314afc2fc7a07a3",
-  "web_apps.ops_func": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
-  "web_apps.push_notif_function": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
-  "web_apps.cqrs_func": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
-  "web_apps.cqrs_func_autoscaler": "0ce217941a45b1d47e10fd2c908ee084a98370b5ca797d57e314afc2fc7a07a3"
+  "container_apps.com_cae": {
+    "hash": "97f9c6f79adc987c1d8b607a99fcc6ecc65a6a76cada97f1d7731e343b560c63",
+    "version": "1.0.2",
+    "name": "azure_container_app_environment",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app-environment/azurerm/1.0.2"
+  },
+  "container_apps.reminder_ca_itn_01": {
+    "hash": "fe43248dd23002563d235d734432e2d2a8fb80dad45a840e503f6d6fc4f40b42",
+    "version": "1.0.2",
+    "name": "azure_container_app",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app/azurerm/1.0.2"
+  },
+  "cosmos.io_com_cosmos_account": {
+    "hash": "398ffd2c1fb90f2228a5d42e7f90e6601162c2e90e23daeee726e1f1f02aa322",
+    "version": "0.1.0",
+    "name": "azure_cosmos_account",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-cosmos-account/azurerm/0.1.0"
+  },
+  "eventhubs.etl": {
+    "hash": "ec7e3d9527cdeb8f9a575b487f7c907825efc04b3bb107933d5a46acf37e70bd",
+    "version": "0.0.11",
+    "name": "azure_event_hub",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-event-hub/azurerm/0.0.11"
+  },
+  "functions_messages_sending.function_app_messages_sending": {
+    "hash": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
+    "version": "0.3.1",
+    "name": "azure_function_app",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/0.3.1"
+  },
+  "storage_api_weu.com_st": {
+    "hash": "c073e41130034acebff0c22a7cffc22a1533ef46b64752789d472116abc21eee",
+    "version": "0.0.9",
+    "name": "azure_storage_account",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-storage-account/azurerm/0.0.9"
+  },
+  "storage_api_weu.com_st.naming_convention": {
+    "hash": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4",
+    "version": "0.0.5",
+    "name": "azure_naming_convention",
+    "source": "https://registry.terraform.io/modules/pagopa/dx-azure-naming-convention/azurerm/0.0.5"
+  },
+  "web_apps.citizen_func": {
+    "hash": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
+    "version": "0.3.1",
+    "name": "azure_function_app",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/0.3.1"
+  },
+  "web_apps.citizen_func_autoscaler": {
+    "hash": "0ce217941a45b1d47e10fd2c908ee084a98370b5ca797d57e314afc2fc7a07a3",
+    "version": "1.1.3",
+    "name": "azure_app_service_plan_autoscaler",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-app-service-plan-autoscaler/azurerm/1.1.3"
+  },
+  "web_apps.etl_func": {
+    "hash": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
+    "version": "0.3.1",
+    "name": "azure_function_app",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/0.3.1"
+  },
+  "web_apps.etl_func_autoscaler": {
+    "hash": "0ce217941a45b1d47e10fd2c908ee084a98370b5ca797d57e314afc2fc7a07a3",
+    "version": "1.1.3",
+    "name": "azure_app_service_plan_autoscaler",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-app-service-plan-autoscaler/azurerm/1.1.3"
+  },
+  "web_apps.ops_func": {
+    "hash": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
+    "version": "0.3.1",
+    "name": "azure_function_app",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/0.3.1"
+  },
+  "web_apps.push_notif_function": {
+    "hash": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
+    "version": "0.3.1",
+    "name": "azure_function_app",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/0.3.1"
+  },
+  "web_apps.cqrs_func": {
+    "hash": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
+    "version": "0.3.1",
+    "name": "azure_function_app",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/0.3.1"
+  },
+  "web_apps.cqrs_func_autoscaler": {
+    "hash": "0ce217941a45b1d47e10fd2c908ee084a98370b5ca797d57e314afc2fc7a07a3",
+    "version": "1.1.3",
+    "name": "azure_app_service_plan_autoscaler",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-app-service-plan-autoscaler/azurerm/1.1.3"
+  }
 }

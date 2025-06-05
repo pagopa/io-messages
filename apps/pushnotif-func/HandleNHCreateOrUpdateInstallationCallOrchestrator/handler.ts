@@ -3,15 +3,10 @@ import { Task } from "durable-functions/lib/src/classes";
 import * as t from "io-ts";
 
 import { getCallableActivity as getCreateOrUpdateCallableActivity } from "../HandleNHCreateOrUpdateInstallationCallActivity";
-import { getCallableActivity as getDeleteInstallationCallableActivity } from "../HandleNHDeleteInstallationCallActivity";
 import { CreateOrUpdateInstallationMessage } from "../generated/notifications/CreateOrUpdateInstallationMessage";
 import { toString } from "../utils/conversions";
 import * as o from "../utils/durable/orchestrators";
 import { failureUnhandled } from "../utils/durable/orchestrators";
-import {
-  NotificationHubConfig,
-  getNotificationHubPartitionConfig,
-} from "../utils/notificationhubServicePartition";
 
 export const OrchestratorName =
   "HandleNHCreateOrUpdateInstallationCallOrchestrator";
@@ -19,7 +14,7 @@ export const OrchestratorName =
 /**
  * Carries information about Notification Hub Message payload
  */
-export const NhCreateOrUpdateInstallationOrchestratorCallInput = t.interface({
+export const NhCreateOrUpdateInstallationOrchestratorCallInput = t.type({
   message: CreateOrUpdateInstallationMessage,
 });
 
@@ -31,22 +26,10 @@ interface IHandlerParams {
   readonly createOrUpdateActivity: ReturnType<
     typeof getCreateOrUpdateCallableActivity
   >;
-  readonly deleteInstallationActivity: ReturnType<
-    typeof getDeleteInstallationCallableActivity
-  >;
-  readonly legacyNotificationHubConfig: NotificationHubConfig;
-  readonly notificationHubConfigPartitionChooser: ReturnType<
-    typeof getNotificationHubPartitionConfig
-  >;
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const getHandler = ({
-  createOrUpdateActivity,
-  deleteInstallationActivity,
-  legacyNotificationHubConfig,
-  notificationHubConfigPartitionChooser,
-}: IHandlerParams) =>
+export const getHandler = ({ createOrUpdateActivity }: IHandlerParams) =>
   o.createOrchestrator(
     OrchestratorName,
     NhCreateOrUpdateInstallationOrchestratorCallInput,
@@ -57,13 +40,9 @@ export const getHandler = ({
       },
       logger,
     }): Generator<Task, void, Task> {
-      const notificationHubConfigPartition =
-        notificationHubConfigPartitionChooser(installationId);
-
       try {
         yield* createOrUpdateActivity(context, {
           installationId,
-          notificationHubConfig: notificationHubConfigPartition,
           platform,
           pushChannel,
           tags,
@@ -78,7 +57,6 @@ export const getHandler = ({
 
         yield* createOrUpdateActivity(context, {
           installationId,
-          notificationHubConfig: legacyNotificationHubConfig,
           platform,
           pushChannel,
           tags,
@@ -86,11 +64,5 @@ export const getHandler = ({
 
         throw err;
       }
-
-      // Always delete installation from legacy Notification Hub
-      yield* deleteInstallationActivity(context, {
-        installationId,
-        notificationHubConfig: legacyNotificationHubConfig,
-      });
     },
   );

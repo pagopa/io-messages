@@ -4,12 +4,11 @@ import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { context as contextMock } from "../../__mocks__/durable-functions";
-import { envConfig } from "../../__mocks__/env-config.mock";
+import { nhPartitionFactory } from "../../__mocks__/notification-hub";
 import {
   ActivityResultFailure,
   createActivity,
 } from "../../utils/durable/activities";
-import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
 import {
   ActivityInput,
   ActivityResultSuccess,
@@ -21,29 +20,17 @@ const aFiscalCodeHash =
 
 const anInstallationId = aFiscalCodeHash;
 
-const aNHConfig = {
-  AZURE_NH_ENDPOINT: envConfig.AZURE_NH_ENDPOINT,
-  AZURE_NH_HUB_NAME: envConfig.AZURE_NH_HUB_NAME,
-} as NotificationHubConfig;
-
-const mockNotificationHubService = {
-  deleteInstallation: vi.fn(),
-};
-const mockBuildNHClient = vi
-  .fn()
-  .mockImplementation(
-    () => mockNotificationHubService as unknown as NotificationHubsClient,
-  );
-
 const mockTelemetryClient = {
   trackEvent: vi.fn().mockImplementation(() => {}),
 } as unknown as TelemetryClient;
+
+vi.spyOn(nhPartitionFactory, "getPartition");
 
 const handler = createActivity(
   "HandleNHDeleteInstallationCallActivity",
   ActivityInput,
   ActivityResultSuccess,
-  getActivityBody(mockBuildNHClient, mockTelemetryClient),
+  getActivityBody(nhPartitionFactory, mockTelemetryClient),
 );
 
 describe("HandleNHDeleteInstallationCallActivity", () => {
@@ -52,38 +39,45 @@ describe("HandleNHDeleteInstallationCallActivity", () => {
   });
   it("should call deleteInstallation with right NH parameters", async () => {
     vi.spyOn(
-      mockNotificationHubService,
+      NotificationHubsClient.prototype,
       "deleteInstallation",
     ).mockImplementation(() => Promise.resolve({}));
 
     const input = ActivityInput.encode({
       installationId: anInstallationId,
-      notificationHubConfig: aNHConfig,
     });
     const res = await handler(contextMock, input);
-    expect(mockNotificationHubService.deleteInstallation).toHaveBeenCalledTimes(
-      1,
+    expect(
+      NotificationHubsClient.prototype.deleteInstallation,
+    ).toHaveBeenCalledTimes(1);
+
+    expect(nhPartitionFactory.getPartition).toHaveBeenCalledExactlyOnceWith(
+      anInstallationId,
     );
 
-    expect(mockBuildNHClient).toHaveBeenCalledWith(aNHConfig);
-
+    expect(nhPartitionFactory.getPartition).toHaveReturnedWith(
+      expect.objectContaining({
+        _client: expect.objectContaining({
+          hubName: "nh4",
+        }),
+      }),
+    );
     expect(ActivityResultSuccess.is(res)).toBeTruthy();
   });
 
   it("should NOT trigger a retry if deleteInstallation fails", async () => {
     vi.spyOn(
-      mockNotificationHubService,
+      NotificationHubsClient.prototype,
       "deleteInstallation",
-    ).mockImplementation((_, cb) => cb(new Error("deleteInstallation error")));
+    ).mockRejectedValue(new Error("deleteInstallation error"));
 
     const input = ActivityInput.encode({
       installationId: anInstallationId,
-      notificationHubConfig: aNHConfig,
     });
     const res = await handler(contextMock, input);
-    expect(mockNotificationHubService.deleteInstallation).toHaveBeenCalledTimes(
-      1,
-    );
+    expect(
+      NotificationHubsClient.prototype.deleteInstallation,
+    ).toHaveBeenCalledTimes(1);
     expect(ActivityResultFailure.is(res)).toBeTruthy();
   });
 });

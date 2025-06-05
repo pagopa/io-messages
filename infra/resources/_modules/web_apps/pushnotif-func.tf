@@ -142,11 +142,12 @@ locals {
 module "push_notif_function" {
 
   source  = "pagopa-dx/azure-function-app/azurerm"
-  version = "~>0.0"
+  version = "~> 0.0"
+
+  count = 1
 
   application_insights_key = var.application_insights.instrumentation_key
 
-  count                 = 1
   resource_group_name   = var.resource_group_name
   health_check_path     = "/api/v1/info"
   has_durable_functions = true
@@ -167,7 +168,6 @@ module "push_notif_function" {
   subnet_cidr   = var.subnet_cidrs.push_notif_func
   tags          = var.tags
 
-
   app_settings = merge(
     local.function_push_notif.app_settings_common, {
       "AzureWebJobs.HandleNHNotificationCall.Disabled"               = "0",
@@ -175,10 +175,10 @@ module "push_notif_function" {
     }
   )
 
-  # sticky_app_setting_names = [
-  #   "AzureWebJobs.HandleNHNotificationCall.Disabled",
-  #   "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled"
-  # ]
+  sticky_app_setting_names = [
+    "AzureWebJobs.HandleNHNotificationCall.Disabled",
+    "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled"
+  ]
 
   slot_app_settings = merge(
     local.function_push_notif.app_settings_common, {
@@ -188,111 +188,56 @@ module "push_notif_function" {
   )
 
   action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id
-
 }
 
-resource "azurerm_monitor_autoscale_setting" "push_notif_function" {
-  count               = 1
-  name                = replace(module.push_notif_function[0].function_app.function_app.name, "func", "as")
-  resource_group_name = var.resource_group_name
+module "push_notif_autoscaler" {
+  source  = "pagopa-dx/azure-app-service-plan-autoscaler/azurerm"
+  version = "~> 1.0"
+
+  app_service_plan_id = module.push_notif_function[0].function_app.plan.id
   location            = var.environment.location
-  target_resource_id  = module.push_notif_function[0].function_app.plan.id
 
-  profile {
-    name = "default"
+  resource_group_name = module.push_notif_function[0].function_app.resource_group_name
 
-    capacity {
-      default = 3
-      minimum = 2
-      maximum = 8
-    }
-
-    rule {
-      metric_trigger {
-        metric_name              = "Requests"
-        metric_resource_id       = module.push_notif_function[0].function_app.function_app.id
-        metric_namespace         = "microsoft.web/sites"
-        time_grain               = "PT1M"
-        statistic                = "Max"
-        time_window              = "PT1M"
-        time_aggregation         = "Maximum"
-        operator                 = "GreaterThan"
-        threshold                = 3000
-        divide_by_instance_count = true
-      }
-
-      scale_action {
-        direction = "Increase"
-        type      = "ChangeCount"
-        value     = "2"
-        cooldown  = "PT1M"
-      }
-    }
-
-    rule {
-      metric_trigger {
-        metric_name              = "CpuPercentage"
-        metric_resource_id       = module.push_notif_function[0].function_app.plan.id
-        metric_namespace         = "microsoft.web/serverfarms"
-        time_grain               = "PT1M"
-        statistic                = "Max"
-        time_window              = "PT1M"
-        time_aggregation         = "Maximum"
-        operator                 = "GreaterThan"
-        threshold                = 40
-        divide_by_instance_count = false
-      }
-
-      scale_action {
-        direction = "Increase"
-        type      = "ChangeCount"
-        value     = "3"
-        cooldown  = "PT2M"
-      }
-    }
-
-    rule {
-      metric_trigger {
-        metric_name              = "Requests"
-        metric_resource_id       = module.push_notif_function[0].function_app.function_app.id
-        metric_namespace         = "microsoft.web/sites"
-        time_grain               = "PT1M"
-        statistic                = "Average"
-        time_window              = "PT5M"
-        time_aggregation         = "Average"
-        operator                 = "LessThan"
-        threshold                = 300
-        divide_by_instance_count = true
-      }
-
-      scale_action {
-        direction = "Decrease"
-        type      = "ChangeCount"
-        value     = "1"
-        cooldown  = "PT1M"
-      }
-    }
-
-    rule {
-      metric_trigger {
-        metric_name              = "CpuPercentage"
-        metric_resource_id       = module.push_notif_function[0].function_app.plan.id
-        metric_namespace         = "microsoft.web/serverfarms"
-        time_grain               = "PT1M"
-        statistic                = "Average"
-        time_window              = "PT5M"
-        time_aggregation         = "Average"
-        operator                 = "LessThan"
-        threshold                = 15
-        divide_by_instance_count = false
-      }
-
-      scale_action {
-        direction = "Decrease"
-        type      = "ChangeCount"
-        value     = "1"
-        cooldown  = "PT1M"
-      }
+  target_service = {
+    function_app = {
+      name = module.push_notif_function[0].function_app.function_app.name
     }
   }
+
+  scheduler = {
+    high_load = {
+      name = "high_load_profile"
+      start = {
+        hour    = 11
+        minutes = 00
+      }
+      end = {
+        hour    = 14
+        minutes = 59
+      }
+      default = 12
+      minimum = 4
+    }
+    low_load = {
+      name = "low_load_profile"
+      start = {
+        hour    = 23
+        minutes = 00
+      }
+      end = {
+        hour    = 06
+        minutes = 59
+      }
+      default = 10
+      minimum = 2
+    }
+    normal_load = {
+      default = 11
+      minimum = 3
+    }
+    maximum = 30
+  }
+
+  tags = var.tags
 }
