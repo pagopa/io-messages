@@ -39,6 +39,8 @@ module "functions_messages_sending" {
   domain              = "msgs"
   resource_group_name = data.azurerm_resource_group.itn_messages.name
 
+  com_kv_name = module.key_vaults.kv_name
+
   cidr_subnet_messages_sending_func    = "10.20.1.0/24"
   private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
   private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
@@ -57,7 +59,8 @@ module "functions_messages_sending" {
   redis_port     = module.redis_messages.ssl_port
   redis_password = module.redis_messages.primary_access_key
 
-  appbackendli_token = data.azurerm_key_vault_secret.appbackendli_token.value
+  appbackendli_token       = data.azurerm_key_vault_secret.appbackendli_token.value
+  session_manager_base_url = "https://${data.azurerm_linux_function_app.session_manager_internal.default_hostname}"
 
   message_storage_account_blob_connection_string       = data.azurerm_storage_account.storage_api.primary_connection_string
   notification_storage_account_queue_connection_string = data.azurerm_storage_account.storage_push_notifications.primary_connection_string
