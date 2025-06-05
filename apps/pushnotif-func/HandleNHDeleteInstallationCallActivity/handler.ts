@@ -1,4 +1,3 @@
-import { NotificationHubsClient } from "@azure/notification-hubs";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
 import * as TE from "fp-ts/lib/TaskEither";
@@ -12,16 +11,15 @@ import {
   failActivity,
 } from "../utils/durable/activities";
 import { deleteInstallation } from "../utils/notification";
-import { NotificationHubConfig } from "../utils/notificationhubServicePartition";
+import { NotificationHubPartitionFactory } from "../utils/notificationhubServicePartition";
 
 // Activity name for df
 export const ActivityName = "HandleNHDeleteInstallationCallActivity";
 
 // Activity input
 export type ActivityInput = t.TypeOf<typeof ActivityInput>;
-export const ActivityInput = t.interface({
+export const ActivityInput = t.type({
   installationId: NonEmptyString,
-  notificationHubConfig: NotificationHubConfig,
 });
 
 // Activity Result
@@ -30,16 +28,15 @@ export { ActivityResultSuccess } from "../utils/durable/activities";
 /**
  * For each Notification Hub Message of type "Delete" calls related Notification Hub service
  */
-
 export const getActivityBody =
   (
-    buildNHClient: (nhConfig: NotificationHubConfig) => NotificationHubsClient,
+    nhPartitionFactory: NotificationHubPartitionFactory,
     telemetryClient: TelemetryClient,
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBody<ActivityInput, ActivityResultSuccess> =>
   ({ input, logger }) => {
     logger.info(`INSTALLATION_ID=${input.installationId}`);
-    const nhClient = buildNHClient(input.notificationHubConfig);
+    const nhClient = nhPartitionFactory.getPartition(input.installationId);
 
     return pipe(
       deleteInstallation(nhClient, input.installationId),
@@ -50,8 +47,6 @@ export const getActivityBody =
             properties: {
               installationId: input.installationId,
               isSuccess: "false",
-              notificationHubName:
-                input.notificationHubConfig.AZURE_NH_HUB_NAME,
               reason: e.message,
             },
             tagOverrides: { samplingEnabled: "false" },
@@ -64,8 +59,6 @@ export const getActivityBody =
             properties: {
               installationId: input.installationId,
               isSuccess: "true",
-              notificationHubName:
-                input.notificationHubConfig.AZURE_NH_HUB_NAME,
             },
             tagOverrides: { samplingEnabled: "false" },
           });

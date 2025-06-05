@@ -14,11 +14,7 @@ import {
   toTransientFailure,
 } from "../utils/errors";
 import { notify } from "../utils/notification";
-import {
-  NotificationHubConfig,
-  buildNHClient,
-  getNotificationHubPartitionConfig,
-} from "../utils/notificationhubServicePartition";
+import { NotificationHubPartitionFactory } from "../utils/notificationhubServicePartition";
 import { NhNotifyMessageRequest } from "../utils/types";
 
 const errorsToError = (errors: t.Errors): Error =>
@@ -30,12 +26,9 @@ export type NhNotifyMessageResponse = Promise<
 
 export const handle = (
   inputRequest: unknown,
-  legacyNotificationHubConfig: NotificationHubConfig,
-  notificationHubConfigPartitionChooser: ReturnType<
-    typeof getNotificationHubPartitionConfig
-  >,
   fiscalCodeNotificationBlacklist: readonly FiscalCode[],
   telemetryClient: TelemetryClient,
+  nhPartitionFactory: NotificationHubPartitionFactory,
 ): NhNotifyMessageResponse =>
   pipe(
     inputRequest,
@@ -48,21 +41,7 @@ export const handle = (
     E.mapLeft(flow(errorsToError, toPermanentFailure)),
     TE.fromEither,
     TE.bindTo("request"),
-    TE.bind(
-      "nhConfig",
-      ({
-        request: {
-          message: { installationId },
-          target,
-        },
-      }) =>
-        TE.of(
-          target === "legacy"
-            ? legacyNotificationHubConfig
-            : notificationHubConfigPartitionChooser(installationId),
-        ),
-    ),
-    TE.chain(({ nhConfig, request: { message } }) =>
+    TE.chain(({ request: { message } }) =>
       pipe(
         { kind: "SUCCESS", skipped: true },
         TE.fromPredicate(
@@ -75,7 +54,7 @@ export const handle = (
         TE.orElseW(() =>
           pipe(
             notify(
-              buildNHClient(nhConfig),
+              nhPartitionFactory.getPartition(message.installationId),
               message.payload,
               message.installationId,
               telemetryClient,
@@ -91,7 +70,6 @@ export const handle = (
               installationId: message.installationId,
               isSuccess: "false",
               messageId: message.payload.message_id,
-              notificationHub: nhConfig.AZURE_NH_HUB_NAME,
               reason: error.reason,
             },
             tagOverrides: { samplingEnabled: "false" },
@@ -107,7 +85,6 @@ export const handle = (
               installationId: message.installationId,
               isSuccess: "true",
               messageId: message.payload.message_id,
-              notificationHub: nhConfig.AZURE_NH_HUB_NAME,
             },
             tagOverrides: { samplingEnabled: "false" },
           });
