@@ -1,26 +1,24 @@
+import { NotificationHubsClient } from "@azure/notification-hubs";
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import { describe, expect, it, vi } from "vitest";
 
-import { envConfig } from "../../__mocks__/env-config.mock";
+import { nhPartitionFactory } from "../../__mocks__/notification-hub";
 import { checkAzureNotificationHub } from "../healthcheck";
-import * as nhService from "../notificationhubServicePartition"; // Module containing buildNHClient
 
-vi.mock("../notificationhubServicePartition", () => ({
-  buildNHClient: vi.fn(() => ({
-    deleteInstallation: vi.fn(() => Promise.resolve({})), // Mock `deleteInstallation` to resolve successfully
-  })),
-}));
+vi.spyOn(
+  NotificationHubsClient.prototype,
+  "deleteInstallation",
+).mockResolvedValue({});
 
-const buildNHClientMock = vi.spyOn(nhService, "buildNHClient");
+const aFiscalCodeHash =
+  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
 
 describe("healthcheck - notification hub", () => {
   it("should not throw exception", async () => {
     await pipe(
-      checkAzureNotificationHub(
-        envConfig.AZURE_NH_ENDPOINT,
-        envConfig.AZURE_NH_HUB_NAME,
-      ),
+      checkAzureNotificationHub(nhPartitionFactory, aFiscalCodeHash),
       TE.map(() => {
         expect(true).toBe(true);
       }),
@@ -30,13 +28,12 @@ describe("healthcheck - notification hub", () => {
   });
 
   it("should throw exception", async () => {
-    buildNHClientMock.mockRejectedValue(true);
+    vi.spyOn(nhPartitionFactory, "getPartition").mockImplementationOnce(() => {
+      throw new Error("Error obtaining the partition");
+    });
 
     await pipe(
-      checkAzureNotificationHub(
-        envConfig.AZURE_NH_ENDPOINT,
-        envConfig.AZURE_NH_HUB_NAME,
-      ),
+      checkAzureNotificationHub(nhPartitionFactory, aFiscalCodeHash),
       TE.mapLeft((err) => {
         expect(err.length).toBe(1);
         expect(true).toBe(true);
