@@ -207,11 +207,37 @@ module "push_notif_autoscaler" {
   }
 
   scheduler = {
-    maximum = 4
+    high_load = {
+      name = "high_load_profile"
+      start = {
+        hour    = 11
+        minutes = 00
+      }
+      end = {
+        hour    = 14
+        minutes = 59
+      }
+      default = 12
+      minimum = 4
+    }
+    low_load = {
+      name = "low_load_profile"
+      start = {
+        hour    = 23
+        minutes = 00
+      }
+      end = {
+        hour    = 06
+        minutes = 59
+      }
+      default = 10
+      minimum = 2
+    }
     normal_load = {
-      default = 6
+      default = 11
       minimum = 3
     }
+    maximum = 30
   }
 
   tags = var.tags
