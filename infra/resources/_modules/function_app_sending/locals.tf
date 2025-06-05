@@ -23,7 +23,7 @@ locals {
       NEW_NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
       NEW_NOTIFICATION_QUEUE_NAME                      = "push-notifications"
 
-      IO_COM_PUSH_NOTIFICATIONS_REDIRECT_PERCENTAGE = "0"
+      IO_COM_PUSH_NOTIFICATIONS_REDIRECT_PERCENTAGE = "1"
 
       // REDIS
       REDIS_URL      = var.redis_url
