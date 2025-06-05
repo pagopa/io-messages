@@ -144,6 +144,8 @@ module "push_notif_function" {
   source  = "pagopa-dx/azure-function-app/azurerm"
   version = "~> 0.0"
 
+  count = 1
+
   application_insights_key = var.application_insights.instrumentation_key
 
   resource_group_name   = var.resource_group_name
@@ -192,14 +194,14 @@ module "push_notif_autoscaler" {
   source  = "pagopa-dx/azure-app-service-plan-autoscaler/azurerm"
   version = "~> 1.0"
 
-  app_service_plan_id = module.push_notif_function.function_app.plan.id
+  app_service_plan_id = module.push_notif_function[0].function_app.plan.id
   location            = var.environment.location
 
-  resource_group_name = module.push_notif_function.function_app.resource_group_name
+  resource_group_name = module.push_notif_function[0].function_app.resource_group_name
 
   target_service = {
     function_app = {
-      name = module.push_notif_function.function_app.function_app.name
+      name = module.push_notif_function[0].function_app.function_app.name
     }
   }
 
