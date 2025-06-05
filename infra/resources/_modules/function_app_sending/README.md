@@ -37,6 +37,7 @@ No requirements.
 | <a name="input_ai_sampling_percentage"></a> [ai\_sampling\_percentage](#input\_ai\_sampling\_percentage) | The sampling percentage for application insights | `string` | n/a | yes |
 | <a name="input_appbackendli_token"></a> [appbackendli\_token](#input\_appbackendli\_token) | Token to access appbackendli | `string` | n/a | yes |
 | <a name="input_cidr_subnet_messages_sending_func"></a> [cidr\_subnet\_messages\_sending\_func](#input\_cidr\_subnet\_messages\_sending\_func) | CIDR block for messages sending function app subnet | `string` | n/a | yes |
+| <a name="input_com_kv_name"></a> [com\_kv\_name](#input\_com\_kv\_name) | n/a | `string` | n/a | yes |
 | <a name="input_com_st_connectiostring"></a> [com\_st\_connectiostring](#input\_com\_st\_connectiostring) | COM storage account connection string | `string` | n/a | yes |
 | <a name="input_cosmosdb_api"></a> [cosmosdb\_api](#input\_cosmosdb\_api) | REPO DEFINED VARIABLES | <pre>object({<br/>    id                  = string<br/>    name                = string<br/>    endpoint            = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |
 | <a name="input_cosmosdb_com"></a> [cosmosdb\_com](#input\_cosmosdb\_com) | n/a | <pre>object({<br/>    id                  = string<br/>    name                = string<br/>    endpoint            = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |
@@ -54,6 +55,7 @@ No requirements.
 | <a name="input_redis_port"></a> [redis\_port](#input\_redis\_port) | Redis port | `string` | n/a | yes |
 | <a name="input_redis_url"></a> [redis\_url](#input\_redis\_url) | Redis url | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Name of the resource group where resources will be created | `string` | n/a | yes |
+| <a name="input_session_manager_base_url"></a> [session\_manager\_base\_url](#input\_session\_manager\_base\_url) | n/a | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Resource tags | `map(any)` | n/a | yes |
 | <a name="input_virtual_network"></a> [virtual\_network](#input\_virtual\_network) | Virtual network to create subnet in | <pre>object({<br/>    name                = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |
 

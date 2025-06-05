@@ -22,7 +22,8 @@ No requirements.
 | <a name="module_etl_func"></a> [etl\_func](#module\_etl\_func) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
 | <a name="module_etl_func_autoscaler"></a> [etl\_func\_autoscaler](#module\_etl\_func\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
 | <a name="module_ops_func"></a> [ops\_func](#module\_ops\_func) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
-| <a name="module_push_notif_function"></a> [push\_notif\_function](#module\_push\_notif\_function) | pagopa-dx/azure-function-app/azurerm | ~>0.0 |
+| <a name="module_push_notif_autoscaler"></a> [push\_notif\_autoscaler](#module\_push\_notif\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
+| <a name="module_push_notif_function"></a> [push\_notif\_function](#module\_push\_notif\_function) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
 
 ## Resources
 
@@ -36,7 +37,6 @@ No requirements.
 | [azurerm_cosmosdb_sql_role_assignment.ops_func](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_cosmosdb_sql_role_assignment.ops_func_slot](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_key_vault_access_policy.etl_func_kv_access_policy](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_access_policy) | resource |
-| [azurerm_monitor_autoscale_setting.push_notif_function](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_autoscale_setting) | resource |
 | [azurerm_redis_cache_access_policy_assignment.etl_func_redis_access_policy](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/redis_cache_access_policy_assignment) | resource |
 | [azurerm_role_assignment.citizen_func_cosmosdb_account_api](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.citizen_func_io_com_cosmos](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |

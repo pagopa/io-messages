@@ -1,5 +1,5 @@
+import { createClient } from "@/generated/session-manager/client";
 import { ErrorResponse } from "@azure/cosmos";
-import { createClient } from "@pagopa/io-backend-session-sdk/client";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
 import { BlobService } from "azure-storage";
@@ -53,8 +53,13 @@ const getSessionMock = vi
   );
 
 const sessionClientMock: ReturnType<typeof createClient> = {
+  authLock: vi.fn(),
+  deleteUserSession: vi.fn(),
   getSession: getSessionMock,
+  getUserSessionState: vi.fn(),
+  info: vi.fn(),
   lockUserSession: vi.fn(),
+  releaseAuthLock: vi.fn(),
   unlockUserSession: vi.fn(),
 };
 

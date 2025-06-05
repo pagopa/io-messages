@@ -4,10 +4,6 @@ import * as t from "io-ts";
 import { getCallableActivity as getDeleteInstallationCallableActivity } from "../HandleNHDeleteInstallationCallActivity";
 import { DeleteInstallationMessage } from "../generated/notifications/DeleteInstallationMessage";
 import * as o from "../utils/durable/orchestrators";
-import {
-  NotificationHubConfig,
-  getNotificationHubPartitionConfig,
-} from "../utils/notificationhubServicePartition";
 
 export const OrchestratorName = "HandleNHDeleteInstallationCallOrchestrator";
 
@@ -15,7 +11,7 @@ export const OrchestratorName = "HandleNHDeleteInstallationCallOrchestrator";
  * Carries information about Notification Hub Message payload
  */
 export type OrchestratorCallInput = t.TypeOf<typeof OrchestratorCallInput>;
-export const OrchestratorCallInput = t.interface({
+export const OrchestratorCallInput = t.type({
   message: DeleteInstallationMessage,
 });
 
@@ -23,18 +19,10 @@ interface IHandlerParams {
   readonly deleteInstallationActivity: ReturnType<
     typeof getDeleteInstallationCallableActivity
   >;
-  readonly legacyNotificationHubConfig: NotificationHubConfig;
-  readonly notificationHubConfigPartitionChooser: ReturnType<
-    typeof getNotificationHubPartitionConfig
-  >;
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const getHandler = ({
-  deleteInstallationActivity,
-  legacyNotificationHubConfig,
-  notificationHubConfigPartitionChooser,
-}: IHandlerParams) =>
+export const getHandler = ({ deleteInstallationActivity }: IHandlerParams) =>
   o.createOrchestrator(
     OrchestratorName,
     OrchestratorCallInput,
@@ -45,21 +33,10 @@ export const getHandler = ({
       },
       logger,
     }): Generator<Task, void, Task> {
-      yield* deleteInstallationActivity(context, {
-        installationId,
-        notificationHubConfig: legacyNotificationHubConfig,
-      });
-
-      const notificationHubConfigPartition =
-        notificationHubConfigPartitionChooser(installationId);
-
-      logger.info(
-        `Deleting user ${installationId} from Notification Hub ${notificationHubConfigPartition.AZURE_NH_HUB_NAME}`,
-      );
+      logger.info(`Deleting user ${installationId} from Notification Hub`);
 
       yield* deleteInstallationActivity(context, {
         installationId,
-        notificationHubConfig: notificationHubConfigPartition,
       });
     },
   );

@@ -129,3 +129,11 @@ variable "com_st_connectiostring" {
   type        = string
   description = "COM storage account connection string"
 }
+
+variable "session_manager_base_url" {
+  type = string
+}
+
+variable "com_kv_name" {
+  type = string
+}

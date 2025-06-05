@@ -3,7 +3,7 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 
-import { buildNHClient } from "./notificationhubServicePartition";
+import { NotificationHubPartitionFactory } from "./notificationhubServicePartition";
 
 /**
  * Check connections to Notification Hubs
@@ -11,16 +11,15 @@ import { buildNHClient } from "./notificationhubServicePartition";
  * @returns either true or an array of error messages
  */
 export const checkAzureNotificationHub = (
-  AZURE_NH_ENDPOINT: NonEmptyString,
-  AZURE_NH_HUB_NAME: NonEmptyString,
+  nhPartitionFactory: NotificationHubPartitionFactory,
+  installationId: NonEmptyString,
 ): healthcheck.HealthCheck<"AzureNotificationHub"> =>
   pipe(
     TE.tryCatch(
       () =>
-        buildNHClient({
-          AZURE_NH_ENDPOINT,
-          AZURE_NH_HUB_NAME,
-        }).deleteInstallation("aFakeInstallation"),
+        nhPartitionFactory
+          .getPartition(installationId)
+          .deleteInstallation(installationId),
       healthcheck.toHealthProblems("AzureNotificationHub" as const),
     ),
     TE.map(() => true),

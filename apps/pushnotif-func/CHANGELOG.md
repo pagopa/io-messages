@@ -1,5 +1,12 @@
 ### Changelog
 
+## 1.0.2
+
+### Patch Changes
+
+- 137f94d: - Use NH client factory to avoid building a new client on every function execution
+  - Remove calls to legacy NH
+
 ## 1.0.1
 
 ### Patch Changes
