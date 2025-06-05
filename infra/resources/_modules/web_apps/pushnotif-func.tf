@@ -142,11 +142,10 @@ locals {
 module "push_notif_function" {
 
   source  = "pagopa-dx/azure-function-app/azurerm"
-  version = "~>0.0"
+  version = "~> 0.0"
 
   application_insights_key = var.application_insights.instrumentation_key
 
-  count                 = 1
   resource_group_name   = var.resource_group_name
   health_check_path     = "/api/v1/info"
   has_durable_functions = true
@@ -166,7 +165,6 @@ module "push_notif_function" {
   subnet_pep_id = var.subnet_pep_id
   subnet_cidr   = var.subnet_cidrs.push_notif_func
   tags          = var.tags
-
 
   app_settings = merge(
     local.function_push_notif.app_settings_common, {
@@ -188,7 +186,6 @@ module "push_notif_function" {
   )
 
   action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id
-
 }
 
 module "push_notif_autoscaler" {
