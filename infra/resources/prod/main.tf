@@ -17,6 +17,10 @@ terraform {
       source  = "hashicorp/azuread"
       version = "~> 3.0"
     }
+    dx = {
+      source  = "pagopa-dx/azure"
+      version = ">= 0.0.6, < 1.0.0"
+    }
   }
 }
 
