@@ -23,6 +23,7 @@ No requirements.
 |------|------|
 | [azurerm_cosmosdb_sql_role_assignment.cosmosdb_api](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_cosmosdb_sql_role_assignment.cosmosdb_com](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
+| [azurerm_role_assignment.key_vault_sending_func_secrets_user](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.sending_cosmosdb_api](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.sending_cosmosdb_com](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_subnet_nat_gateway_association.net_gateway_association_subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_nat_gateway_association) | resource |
@@ -37,7 +38,7 @@ No requirements.
 | <a name="input_ai_sampling_percentage"></a> [ai\_sampling\_percentage](#input\_ai\_sampling\_percentage) | The sampling percentage for application insights | `string` | n/a | yes |
 | <a name="input_appbackendli_token"></a> [appbackendli\_token](#input\_appbackendli\_token) | Token to access appbackendli | `string` | n/a | yes |
 | <a name="input_cidr_subnet_messages_sending_func"></a> [cidr\_subnet\_messages\_sending\_func](#input\_cidr\_subnet\_messages\_sending\_func) | CIDR block for messages sending function app subnet | `string` | n/a | yes |
-| <a name="input_com_kv_name"></a> [com\_kv\_name](#input\_com\_kv\_name) | n/a | `string` | n/a | yes |
+| <a name="input_com_kv"></a> [com\_kv](#input\_com\_kv) | n/a | <pre>object({<br/>    name = string<br/>    id   = string<br/>  })</pre> | n/a | yes |
 | <a name="input_com_st_connectiostring"></a> [com\_st\_connectiostring](#input\_com\_st\_connectiostring) | COM storage account connection string | `string` | n/a | yes |
 | <a name="input_cosmosdb_api"></a> [cosmosdb\_api](#input\_cosmosdb\_api) | REPO DEFINED VARIABLES | <pre>object({<br/>    id                  = string<br/>    name                = string<br/>    endpoint            = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |
 | <a name="input_cosmosdb_com"></a> [cosmosdb\_com](#input\_cosmosdb\_com) | n/a | <pre>object({<br/>    id                  = string<br/>    name                = string<br/>    endpoint            = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |

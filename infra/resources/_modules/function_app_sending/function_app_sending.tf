@@ -51,6 +51,12 @@ resource "azurerm_subnet_nat_gateway_association" "net_gateway_association_subne
   subnet_id      = module.function_app_messages_sending.subnet.id
 }
 
+resource "azurerm_role_assignment" "key_vault_sending_func_secrets_user" {
+  scope                = var.com_kv.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.function_app_messages_sending.function_app.function_app.principal_id
+}
+
 resource "azurerm_role_assignment" "sending_cosmosdb_api" {
   for_each = toset([
     module.function_app_messages_sending.function_app.function_app.principal_id,

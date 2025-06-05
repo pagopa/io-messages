@@ -39,7 +39,7 @@ module "functions_messages_sending" {
   domain              = "msgs"
   resource_group_name = data.azurerm_resource_group.itn_messages.name
 
-  com_kv_name = module.key_vaults.kv_name
+  com_kv = module.key_vaults.com
 
   cidr_subnet_messages_sending_func    = "10.20.1.0/24"
   private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
