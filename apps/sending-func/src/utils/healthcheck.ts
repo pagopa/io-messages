@@ -89,10 +89,7 @@ export const checkAzureStorageHealth = (
 
   // try to instantiate a client for each product of azure storage
   return pipe(
-    [
-      createBlobService,
-      createQueueService,
-    ]
+    [createBlobService, createQueueService]
       // for each, create a task that wraps getServiceProperties
       .map((createService) =>
         TE.tryCatch(
