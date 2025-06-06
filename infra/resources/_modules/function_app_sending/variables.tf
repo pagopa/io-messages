@@ -134,7 +134,7 @@ variable "session_manager_base_url" {
   type = string
 }
 
-variable "com_kv" {
+variable "key_vault" {
   type = object({
     name = string
     id   = string
