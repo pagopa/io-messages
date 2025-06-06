@@ -13,4 +13,4 @@ export const makeEventHubProducerClient = (
         config.eventHubName,
         credential,
       )
-    : new EventHubProducerClient(config.connectionString);
+    : new EventHubProducerClient(config.connectionString, config.eventHubName);
