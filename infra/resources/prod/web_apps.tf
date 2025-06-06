@@ -13,8 +13,9 @@ module "web_apps" {
 
   tags = local.tags
 
-  # networking
+  key_vault = module.key_vaults.com
 
+  # networking
   virtual_network = {
     resource_group_name = data.azurerm_virtual_network.vnet_common_itn.resource_group_name
     name                = data.azurerm_virtual_network.vnet_common_itn.name

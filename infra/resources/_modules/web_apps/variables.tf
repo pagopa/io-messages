@@ -173,3 +173,10 @@ variable "cqrs_func_ehns_enabled" {
   type        = bool
   description = "Enable the Event Hub Namespace for the CQRS function"
 }
+
+variable "key_vault" {
+  type = object({
+    name = string
+    id   = string
+  })
+}
