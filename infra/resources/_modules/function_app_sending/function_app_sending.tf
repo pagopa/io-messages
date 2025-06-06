@@ -60,7 +60,7 @@ resource "azurerm_role_assignment" "key_vault_sending_func_secrets_user" {
 resource "azurerm_role_assignment" "key_vault_sending_func_slot_secrets_user" {
   scope                = var.key_vault.id
   role_definition_name = "Key Vault Secrets User"
-  principal_id         = module.function_app_messages_sending.function_app.slot.principal_id
+  principal_id         = module.function_app_messages_sending.function_app.function_app.slot.principal_id
 }
 
 resource "azurerm_role_assignment" "sending_cosmosdb_api" {
