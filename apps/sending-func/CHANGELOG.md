@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.11.5
+
+### Patch Changes
+
+- db2d7e1: Remove azure-files and table from healthcheck
+
 ## 1.11.4
 
 ### Patch Changes

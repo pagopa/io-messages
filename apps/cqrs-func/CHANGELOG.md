@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 1.0.2
+
+### Patch Changes
+
+- db2d7e1: Remove azure-files and table from healthcheck
+
 ## 1.0.1
 
 ### Patch Changes
