@@ -3,9 +3,7 @@ import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import {
   common as azurestorageCommon,
   createBlobService,
-  createFileService,
   createQueueService,
-  createTableService
 } from "azure-storage";
 
 import * as A from "fp-ts/lib/Array";
@@ -107,9 +105,7 @@ export const checkAzureStorageHealth = (
   return pipe(
     [
       createBlobService,
-      createFileService,
       createQueueService,
-      createTableService
     ]
       // for each, create a task that wraps getServiceProperties
       .map(createService =>
