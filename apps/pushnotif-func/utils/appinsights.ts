@@ -10,7 +10,6 @@ export const initTelemetryClient = (
   ai.defaultClient
     ? ai.defaultClient
     : initAppInsights(env.APPINSIGHTS_INSTRUMENTATIONKEY, {
-        disableAppInsights: env.APPINSIGHTS_DISABLE === "true",
         samplingPercentage: env.APPINSIGHTS_SAMPLING_PERCENTAGE,
       });
 
