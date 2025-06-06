@@ -108,6 +108,10 @@ variable "com_st_connectiostring" {
   type = string
 }
 
+variable "session_manager_base_url" {
+  type = string
+}
+
 variable "cosmosdb_account_api" {
   type = object({
     id                  = string
