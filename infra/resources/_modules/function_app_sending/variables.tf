@@ -129,3 +129,14 @@ variable "com_st_connectiostring" {
   type        = string
   description = "COM storage account connection string"
 }
+
+variable "session_manager_base_url" {
+  type = string
+}
+
+variable "key_vault" {
+  type = object({
+    name = string
+    id   = string
+  })
+}

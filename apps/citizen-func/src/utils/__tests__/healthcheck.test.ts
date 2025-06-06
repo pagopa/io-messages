@@ -29,9 +29,7 @@ const blobServiceOk: BlobService = {
 
 const storageMocks = vi.hoisted(() => ({
   createBlobService: vi.fn(() => blobServiceOk),
-  createFileService: vi.fn(() => blobServiceOk),
   createQueueService: vi.fn(() => blobServiceOk),
-  createTableService: vi.fn(() => blobServiceOk),
 }));
 
 vi.mock("azure-storage", async (importOriginal) => {
@@ -39,9 +37,7 @@ vi.mock("azure-storage", async (importOriginal) => {
   return {
     ...actual,
     createBlobService: storageMocks.createBlobService,
-    createFileService: storageMocks.createFileService,
     createQueueService: storageMocks.createQueueService,
-    createTableService: storageMocks.createTableService,
   };
 });
 

@@ -34,5 +34,7 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_com"></a> [com](#output\_com) | n/a |
 <!-- END_TF_DOCS -->
