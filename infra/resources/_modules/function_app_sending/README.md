@@ -23,6 +23,7 @@ No requirements.
 |------|------|
 | [azurerm_cosmosdb_sql_role_assignment.cosmosdb_api](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_cosmosdb_sql_role_assignment.cosmosdb_com](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
+| [azurerm_role_assignment.key_vault_sending_func_secrets_user](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.sending_cosmosdb_api](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.sending_cosmosdb_com](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_subnet_nat_gateway_association.net_gateway_association_subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_nat_gateway_association) | resource |
@@ -37,13 +38,13 @@ No requirements.
 | <a name="input_ai_sampling_percentage"></a> [ai\_sampling\_percentage](#input\_ai\_sampling\_percentage) | The sampling percentage for application insights | `string` | n/a | yes |
 | <a name="input_appbackendli_token"></a> [appbackendli\_token](#input\_appbackendli\_token) | Token to access appbackendli | `string` | n/a | yes |
 | <a name="input_cidr_subnet_messages_sending_func"></a> [cidr\_subnet\_messages\_sending\_func](#input\_cidr\_subnet\_messages\_sending\_func) | CIDR block for messages sending function app subnet | `string` | n/a | yes |
-| <a name="input_com_kv_name"></a> [com\_kv\_name](#input\_com\_kv\_name) | n/a | `string` | n/a | yes |
 | <a name="input_com_st_connectiostring"></a> [com\_st\_connectiostring](#input\_com\_st\_connectiostring) | COM storage account connection string | `string` | n/a | yes |
 | <a name="input_cosmosdb_api"></a> [cosmosdb\_api](#input\_cosmosdb\_api) | REPO DEFINED VARIABLES | <pre>object({<br/>    id                  = string<br/>    name                = string<br/>    endpoint            = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |
 | <a name="input_cosmosdb_com"></a> [cosmosdb\_com](#input\_cosmosdb\_com) | n/a | <pre>object({<br/>    id                  = string<br/>    name                = string<br/>    endpoint            = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |
 | <a name="input_domain"></a> [domain](#input\_domain) | Domain | `string` | n/a | yes |
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | Short environment | `string` | n/a | yes |
 | <a name="input_internal_user_id"></a> [internal\_user\_id](#input\_internal\_user\_id) | Internal user to bypass | `string` | n/a | yes |
+| <a name="input_key_vault"></a> [key\_vault](#input\_key\_vault) | n/a | <pre>object({<br/>    name = string<br/>    id   = string<br/>  })</pre> | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | Azure region | `string` | n/a | yes |
 | <a name="input_message_storage_account_blob_connection_string"></a> [message\_storage\_account\_blob\_connection\_string](#input\_message\_storage\_account\_blob\_connection\_string) | Connection string to connect to message storage account | `string` | n/a | yes |
 | <a name="input_notification_storage_account_queue_connection_string"></a> [notification\_storage\_account\_queue\_connection\_string](#input\_notification\_storage\_account\_queue\_connection\_string) | Connection string to connect to notification storage account | `string` | n/a | yes |

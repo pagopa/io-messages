@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.0.3
+
+### Patch Changes
+
+- 5c3250c: Remove appinsights_disable variable
+
 ## 1.0.2
 
 ### Patch Changes

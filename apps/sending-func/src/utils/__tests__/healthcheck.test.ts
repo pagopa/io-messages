@@ -26,9 +26,7 @@ const blobServiceOk: BlobService = {
 
 const storageMocks = vi.hoisted(() => ({
   createBlobService: vi.fn(() => blobServiceOk),
-  createFileService: vi.fn(() => blobServiceOk),
   createQueueService: vi.fn(() => blobServiceOk),
-  createTableService: vi.fn(() => blobServiceOk),
 }));
 
 vi.mock("azure-storage", async (importOriginal) => {
@@ -36,9 +34,7 @@ vi.mock("azure-storage", async (importOriginal) => {
   return {
     ...actual,
     createBlobService: storageMocks.createBlobService,
-    createFileService: storageMocks.createFileService,
     createQueueService: storageMocks.createQueueService,
-    createTableService: storageMocks.createTableService,
   };
 });
 
@@ -77,7 +73,6 @@ const cosmosdbClient = {
 describe("healthcheck - storage account", () => {
   beforeAll(() => {
     vi.clearAllMocks();
-    //mockAzureStorageFunctions();
   });
 
   it("should not throw exception", async () => {
@@ -92,13 +87,7 @@ describe("healthcheck - storage account", () => {
       name: "createBlobService",
     },
     {
-      name: "createFileService",
-    },
-    {
       name: "createQueueService",
-    },
-    {
-      name: "createTableService",
     },
   ];
   test.each(testcases)("should throw exception %s", async ({ name }) => {
@@ -149,8 +138,6 @@ describe("checkApplicationHealth - multiple errors -", () => {
     vi.spyOn(config, "getConfig").mockReturnValue(
       right(envConfig as config.IConfig),
     );
-
-    //mockAzureStorageFunctions();
   });
 
   it("should return multiple errors from different checks", async () => {

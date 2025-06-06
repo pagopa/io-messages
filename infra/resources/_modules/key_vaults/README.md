@@ -36,5 +36,5 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_kv_name"></a> [kv\_name](#output\_kv\_name) | n/a |
+| <a name="output_com"></a> [com](#output\_com) | n/a |
 <!-- END_TF_DOCS -->

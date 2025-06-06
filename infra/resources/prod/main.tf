@@ -39,7 +39,7 @@ module "functions_messages_sending" {
   domain              = "msgs"
   resource_group_name = data.azurerm_resource_group.itn_messages.name
 
-  com_kv_name = module.key_vaults.kv_name
+  key_vault = module.key_vaults.com
 
   cidr_subnet_messages_sending_func    = "10.20.1.0/24"
   private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
@@ -55,9 +55,9 @@ module "functions_messages_sending" {
   cosmosdb_api = data.azurerm_cosmosdb_account.cosmos_api
   cosmosdb_com = data.azurerm_cosmosdb_account.io_com_cosmos
 
-  redis_url      = module.redis_messages.hostname
-  redis_port     = module.redis_messages.ssl_port
-  redis_password = module.redis_messages.primary_access_key
+  redis_url      = azurerm_redis_cache.com.hostname
+  redis_port     = azurerm_redis_cache.com.ssl_port
+  redis_password = azurerm_redis_cache.com.primary_access_key
 
   appbackendli_token       = data.azurerm_key_vault_secret.appbackendli_token.value
   session_manager_base_url = "https://${data.azurerm_linux_function_app.session_manager_internal.default_hostname}"

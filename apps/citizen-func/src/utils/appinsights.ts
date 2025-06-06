@@ -19,7 +19,6 @@ export const initTelemetryClient = (env = process.env) =>
         NonEmptyString.decode,
         E.map((k) =>
           initAppInsights(k, {
-            disableAppInsights: env.APPINSIGHTS_DISABLE === "true",
             samplingPercentage: pipe(
               env.APPINSIGHTS_SAMPLING_PERCENTAGE,
               IntegerFromString.decode,

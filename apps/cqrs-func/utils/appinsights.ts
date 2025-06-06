@@ -23,7 +23,6 @@ export const initTelemetryClient = (
   ai.defaultClient
     ? ai.defaultClient
     : initAppInsights(intrumentationKey, {
-        disableAppInsights: env.APPINSIGHTS_DISABLE === "true",
         samplingPercentage: pipe(
           IntegerFromString.decode(env.APPINSIGHTS_SAMPLING_PERCENTAGE),
           E.getOrElse(() => DEFAULT_SAMPLING_PERCENTAGE)
