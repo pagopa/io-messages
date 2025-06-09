@@ -45,11 +45,13 @@ export const sendNotification =
         },
       },
       (notifyMessage: NotifyMessage) =>
-        TE.tryCatch(() => {
-          return notificationQueueClient.sendMessage(
-            base64EncodeObject(notifyMessage),
-          );
-        }, E.toError),
+        TE.tryCatch(
+          () =>
+            notificationQueueClient.sendMessage(
+              base64EncodeObject(notifyMessage),
+            ),
+          E.toError,
+        ),
       TE.mapLeft((err) =>
         Error(
           `Error while sending notify message to the queue [${err.message}]`,
