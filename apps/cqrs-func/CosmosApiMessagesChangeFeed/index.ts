@@ -41,7 +41,7 @@ const kafkaClient = fromSas(
 );
 
 const errorStorage = new QueueClient(
-  config.INTERNAL_STORAGE_CONNECTION_STRING,
+  config.COM_STORAGE_CONNECTION_STRING,
   config.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME
 );
 
