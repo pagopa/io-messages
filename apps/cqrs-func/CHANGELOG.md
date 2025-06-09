@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 1.0.3
+
+### Patch Changes
+
+- 7c68436: Use all functions in host.json
+
 ## 1.0.2
 
 ### Patch Changes
