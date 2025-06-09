@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 1.0.4
+
+### Patch Changes
+
+- 81eb598: Fix cqrs deploy workflow
+
 ## 1.0.3
 
 ### Patch Changes
