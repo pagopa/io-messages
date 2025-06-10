@@ -22,7 +22,7 @@
     },
     "ghcr.io/pagopa/devcontainer-features/azure-functions-core-tools:1": {},
     "ghcr.io/devcontainers/features/java:1": {
-      "version": "21",
+      "version": "17",
       "installMaven": true,
       "mavenVersion": "3.9.10"
     }
