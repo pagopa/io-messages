@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 1.0.5
+
+### Patch Changes
+
+- bf434f8: fix app insights init
+
 ## 1.0.4
 
 ### Patch Changes
