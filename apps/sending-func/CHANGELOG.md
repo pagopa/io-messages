@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.11.6
+
+### Patch Changes
+
+- 0915212: Remove tmp push notifications rollout logic
+
 ## 1.11.5
 
 ### Patch Changes
