@@ -159,7 +159,7 @@ module "cqrs_func" {
 
   tags = var.tags
 
-  application_insights_key                 = var.application_insights.instrumentation_key
+  application_insights_connection_string   = var.application_insights.connection_string
   application_insights_sampling_percentage = 5
 
   action_group_id = var.action_group_id
