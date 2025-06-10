@@ -141,10 +141,10 @@ module "cqrs_func" {
   app_settings = merge(
     local.cqrs_func.app_settings, {
       // disable listeners on production slot
-      "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled"       = "1"
-      "AzureWebJobs.CosmosApiMessagesChangeFeed.Disabled"                       = "1"
-      "AzureWebJobs.HandleMessageChangeFeedPublishFailures.Disabled"            = "1"
-      "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "1"
+      "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled"       = "0"
+      "AzureWebJobs.CosmosApiMessagesChangeFeed.Disabled"                       = "0"
+      "AzureWebJobs.HandleMessageChangeFeedPublishFailures.Disabled"            = "0"
+      "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "0"
     }
   )
   slot_app_settings = merge(
