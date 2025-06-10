@@ -5,7 +5,7 @@
       "direction": "in",
       "name": "messagepublishfailure",
       "queueName": "%MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME%",
-      "connection":"INTERNAL_STORAGE_CONNECTION_STRING"
+      "connection":"COM_STORAGE_CONNECTION_STRING"
     }
   ],
   "retry": {

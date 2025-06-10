@@ -109,11 +109,6 @@ app.post(
         config.NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING,
         config.NOTIFICATION_QUEUE_NAME,
       ),
-      new QueueClient(
-        config.NEW_NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING,
-        config.NEW_NOTIFICATION_QUEUE_NAME,
-      ),
-      config.IO_COM_PUSH_NOTIFICATIONS_REDIRECT_PERCENTAGE,
     ),
     telemetryClient,
   ),
