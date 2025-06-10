@@ -51,6 +51,7 @@
         "bruno-api-client.bruno",
         "vitest.explorer",
         "redhat.vscode-yaml",
+        "redhat.vscode-xml",
         "dbaeumer.vscode-eslint",
         "github.copilot",
         "github.copilot-chat"
