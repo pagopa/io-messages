@@ -95,6 +95,7 @@ locals {
       TARGETKAFKA_idempotent      = "true"
       TARGETKAFKA_transactionalId = "IO_MESSAGES_CQRS"
       TARGETKAFKA_topic           = "messages"
+      KAFKA_SSL_ACTIVE            = true
 
       APIM_BASE_URL         = "https://api-app.internal.io.pagopa.it"
       APIM_SUBSCRIPTION_KEY = data.azurerm_key_vault_secret.apim_services_subscription_key.value
@@ -107,6 +108,8 @@ locals {
       FETCH_KEEPALIVE_MAX_FREE_SOCKETS    = "10"
       FETCH_KEEPALIVE_FREE_SOCKET_TIMEOUT = "30000"
       FETCH_KEEPALIVE_TIMEOUT             = "60000"
+
+      COM_STORAGE_CONNECTION_STRING  = var.com_st_connectiostring
     }
   }
 }
