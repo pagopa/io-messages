@@ -7,7 +7,7 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  citizen_func_deploy:
+  cqrs_func_deploy:
     uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@1a293db2ffa9121e95250a6ad7382b7608b41f05
     secrets: inherit
     with:
