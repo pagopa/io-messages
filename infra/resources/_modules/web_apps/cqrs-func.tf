@@ -138,15 +138,8 @@ module "cqrs_func" {
     resource_group_name = var.virtual_network.resource_group_name
   }
 
-  app_settings = merge(
-    local.cqrs_func.app_settings, {
-      // disable listeners on production slot
-      "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled"       = "1"
-      "AzureWebJobs.CosmosApiMessagesChangeFeed.Disabled"                       = "1"
-      "AzureWebJobs.HandleMessageChangeFeedPublishFailures.Disabled"            = "1"
-      "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "1"
-    }
-  )
+  app_settings = local.cqrs_func.app_settings
+
   slot_app_settings = merge(
     local.cqrs_func.app_settings, {
       // disable listeners on staging slot
