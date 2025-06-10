@@ -3,6 +3,7 @@ package it.ioapp.com.reminder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import it.ioapp.com.reminder.controller.ReminderController;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -16,31 +17,26 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import it.ioapp.com.reminder.controller.ReminderController;
-
-@SpringBootTest(classes = Application.class,webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    classes = Application.class,
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 public class MockControllerTest extends AbstractMock {
-	@Autowired
-	private MockMvc mvc;
+  @Autowired private MockMvc mvc;
 
-	@InjectMocks
-	ReminderController reminderController;
+  @InjectMocks ReminderController reminderController;
 
-    @Test
-    public void getHealth() throws Exception {
+  @Test
+  public void getHealth() throws Exception {
 
-        // when
-        MockHttpServletResponse response = mvc.perform(
-                get("/health")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andReturn().getResponse();
+    // when
+    MockHttpServletResponse response =
+        mvc.perform(get("/health").accept(MediaType.APPLICATION_JSON)).andReturn().getResponse();
 
-        // then
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getContentAsString()).isEqualTo("Reminder Dev");
-    }
-
+    // then
+    assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+    assertThat(response.getContentAsString()).isEqualTo("Reminder Dev");
+  }
 }

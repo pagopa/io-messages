@@ -1,29 +1,28 @@
 package it.ioapp.com.reminder.service;
 
+import it.ioapp.com.reminder.model.Reminder;
 import java.util.List;
 import java.util.Optional;
 
-import it.ioapp.com.reminder.model.Reminder;
-
 public interface ReminderService {
 
-	Optional<Reminder> findById(String id);
+  Optional<Reminder> findById(String id);
 
-	void save(Reminder reminder);
+  void save(Reminder reminder);
 
-	void updateReminder(String reminderId);
+  void updateReminder(String reminderId);
 
-	String healthCheck();
+  String healthCheck();
 
-	void getMessageToNotify(String shard);
+  void getMessageToNotify(String shard);
 
-	void deleteMessage();
+  void deleteMessage();
 
-	List<Reminder> getPaymentsByRptid(String rptId);
+  List<Reminder> getPaymentsByRptid(String rptId);
 
-	int countById(String shard, String id);
+  int countById(String shard, String id);
 
-	void sendReminderNotification(Reminder reminder);
+  void sendReminderNotification(Reminder reminder);
 
-	void updateCounter(Reminder reminder);
+  void updateCounter(Reminder reminder);
 }

@@ -1,7 +1,6 @@
 package it.ioapp.com.reminder.dto;
 
 import java.time.LocalDate;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ProxyResponse {
 
-	private boolean isPaid;
-	private LocalDate dueDate;
+  private boolean isPaid;
+  private LocalDate dueDate;
 }
