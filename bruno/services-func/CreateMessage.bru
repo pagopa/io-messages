@@ -1,0 +1,32 @@
+meta {
+  name: CreateMessage
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{services_func_url}}/api/v1/messages/{{fiscal_code}}
+  body: json
+  auth: none
+}
+
+headers {
+  x-user-groups: ApiMessageWrite, ApiLimitedMessageWrite
+  x-user-email: example@domain.com
+  x-forwarded-for: 192.168.1.89
+  x-subscription-id: 01JR0QRJ8MX1PD06DE6X5FWXS5
+  x-user-id: 01JR0QRJ8MX1PD06DE6X5FWXS5-0000000000000000
+}
+
+body:json {
+  {
+    "content": {
+      "subject": "Subject of a test message",
+      "markdown": "Body of a test message, this should be at least 80 chars long, otherwise you will obtain 400"
+    }
+  }
+}
+
+vars:pre-request {
+  fiscal_code: RMLGNN97R06F158N
+}
