@@ -20,7 +20,6 @@ type InfoHandler = () => Promise<
 >;
 
 export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   return () =>
     pipe(
       healthCheck,
