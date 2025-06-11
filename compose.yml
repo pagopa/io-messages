@@ -3,7 +3,6 @@ services:
     build: .devcontainer
     volumes:
       - ".:/workspace:cached"
-    network_mode: host
 
   redis:
     image: "redis/redis-stack:6.2.6-v19@sha256:93b5454f383821d7279373ff97fcaa48960cc543c53afe1471e2e2a97efee6df"
@@ -19,6 +18,8 @@ services:
       - "10000:10000"
       - "10001:10001"
       - "10002:10002"
+    environment:
+      AZURITE_ACCOUNTS: "localst01:bG9jYWw="
 
   eventhubs:
     image: "mcr.microsoft.com/azure-messaging/eventhubs-emulator:latest@sha256:25ec4141efb69933a0c82e6a787fa147a3895519e7d236d4c41ba568e03100eb"
@@ -61,3 +62,22 @@ services:
       - "8004:3000"
     volumes:
       - "./mockoon.json:/data:readonly"
+
+  mysql:
+    image: "mysql:8.0.42@sha256:4890b3247d48a6dc1f3ac1e979330af4e543d06f194322f3879b27e6c7052585"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "local"
+      MYSQL_DATABASE: "reminder"
+
+  phpmyadmin:
+    image: "phpmyadmin:5.2.2-apache@sha256:73467128842bc4406372310f068bc9ccb6727a82c7b5dc9c4f3d815ead33eab8"
+    depends_on:
+      - "mysql"
+    ports:
+      - "8003:80"
+    environment:
+      PMA_HOST: "mysql"
+      PMA_USER: "root"
+      PMA_PASSWORD: "local"

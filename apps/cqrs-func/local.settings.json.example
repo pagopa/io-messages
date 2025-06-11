@@ -1,7 +1,7 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=http;AccountName=localst01;AccountKey=bG9jYWw=;BlobEndpoint=http://azurite:10000/localst01;QueueEndpoint=http://azurite:10001/localst01;",
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "FUNCTIONS_V2_COMPATIBILITY_MODE": false,
     "TARGETKAFKA_clientId": "",
