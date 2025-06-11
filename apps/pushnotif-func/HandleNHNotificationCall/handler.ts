@@ -1,9 +1,8 @@
 import { Context } from "@azure/functions";
 import * as df from "durable-functions";
 import { DurableOrchestrationClient } from "durable-functions/lib/src/durableorchestrationclient";
-import * as AR from "fp-ts/Array";
 import * as T from "fp-ts/Task";
-import { flow, pipe } from "fp-ts/lib/function";
+import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
 import { OrchestratorName as CreateOrUpdateInstallationOrchestrator } from "../HandleNHCreateOrUpdateInstallationCallOrchestrator/handler";
@@ -30,16 +29,10 @@ const notifyMessage = (
   message: NotifyMessage,
 ): Promise<string> =>
   pipe(
-    ["current", "legacy"],
-    t.array(NhTarget).encode,
-    AR.map(T.of),
-    AR.map(
-      flow(
-        T.map((target) => NhNotifyMessageRequest.encode({ message, target })),
-        T.map((m) => Buffer.from(JSON.stringify(m)).toString("base64")),
-      ),
-    ),
-    T.sequenceArray,
+    NhTarget.encode("current"),
+    T.of,
+    T.map((target) => NhNotifyMessageRequest.encode({ message, target })),
+    T.map((m) => Buffer.from(JSON.stringify(m)).toString("base64")),
     T.map(
       (notifyMessages) => (context.bindings.notifyMessages = notifyMessages),
     ),

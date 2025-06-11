@@ -4,14 +4,12 @@
  * Single point of access for the application confguration. Handles validation on required environment variables.
  * The configuration is evaluate eagerly at the first access to the module. The module exposes convenient methods to access such value.
  */
-import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
 import {
   IntegerFromString,
   NonNegativeIntegerFromString,
 } from "@pagopa/ts-commons/lib/numbers";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { withDefault } from "@pagopa/ts-commons/lib/types";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/function";
@@ -33,32 +31,28 @@ export type RedisParams = t.TypeOf<typeof RedisParams>;
 // global app configuration
 export const IConfig = t.intersection([
   t.type({
-    APPINSIGHTS_DISABLE: withDefault(BooleanFromString, false),
     APPINSIGHTS_SAMPLING_PERCENTAGE: IntegerFromString,
     /* eslint-disable sort-keys */
     APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
-    BACKEND_BASE_URL: NonEmptyString,
-    BACKEND_TOKEN: NonEmptyString,
-
     COSMOSDB_NAME: NonEmptyString,
 
     COSMOSDB_URI: NonEmptyString,
+
     INTERNAL_USER_ID: NonEmptyString,
 
-    IO_COM_PUSH_NOTIFICATIONS_REDIRECT_PERCENTAGE: NonEmptyString,
     MESSAGE_CONTAINER_NAME: NonEmptyString,
-
     MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
-    NEW_NOTIFICATION_QUEUE_NAME: NonEmptyString,
-    NEW_NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: NonEmptyString,
+
     NOTIFICATION_QUEUE_NAME: NonEmptyString,
     NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: NonEmptyString,
-
     RC_CONFIGURATION_CACHE_TTL: NonNegativeIntegerFromString,
-    REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
 
+    REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
     REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
+
+    SESSION_MANAGER_API_KEY: NonEmptyString,
+    SESSION_MANAGER_BASE_URL: NonEmptyString,
 
     isProduction: t.boolean,
     /* eslint-enable sort-keys */

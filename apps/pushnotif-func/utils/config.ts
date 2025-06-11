@@ -93,7 +93,6 @@ const BaseConfig = t.intersection([
     t.interface({
       NH_PARTITION_FEATURE_FLAG: NHPartitionFeatureFlag,
     }),
-    t.partial({ APPINSIGHTS_DISABLE: t.string }),
   ]),
 ]);
 

@@ -4,7 +4,7 @@ import { initTelemetryClient } from "../utils/appinsights";
 import { getConfigOrThrow } from "../utils/config";
 import { createActivity } from "../utils/durable/activities";
 import * as o from "../utils/durable/orchestrators";
-import { buildNHClient } from "../utils/notificationhubServicePartition";
+import { NotificationHubPartitionFactory } from "../utils/notificationhubServicePartition";
 import {
   ActivityInput,
   ActivityResultSuccess,
@@ -18,6 +18,10 @@ export const activityName = "HandleNHCreateOrUpdateInstallationCallActivity";
 const config = getConfigOrThrow();
 
 const telemetryClient = initTelemetryClient(config);
+
+const nhPatitionFactory = new NotificationHubPartitionFactory(
+  config.AZURE_NOTIFICATION_HUB_PARTITIONS,
+);
 
 /**
  * Build a `CreateOrUpdateActivity` to be called by an Orchestrator
@@ -38,7 +42,7 @@ const activityFunctionHandler = createActivity(
   activityName,
   ActivityInput,
   ActivityResultSuccess,
-  getActivityBody(buildNHClient, telemetryClient),
+  getActivityBody(nhPatitionFactory, telemetryClient),
 );
 
 export default activityFunctionHandler;

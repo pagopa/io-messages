@@ -15,7 +15,6 @@ import {
   success as orchestratorSuccess,
 } from "../../utils/durable/orchestrators";
 import { consumeGenerator } from "../../utils/durable/utils";
-import { NotificationHubConfig } from "../../utils/notificationhubServicePartition";
 import { OrchestratorCallInput, getHandler } from "../handler";
 
 const aFiscalCodeHash =
@@ -30,15 +29,6 @@ const aDeleteNotificationHubMessage: DeleteInstallationMessage = {
 const nhCallOrchestratorInput = OrchestratorCallInput.encode({
   message: aDeleteNotificationHubMessage,
 });
-
-const legacyNotificationHubConfig: NotificationHubConfig = {
-  AZURE_NH_ENDPOINT: "foo" as NonEmptyString,
-  AZURE_NH_HUB_NAME: "bar" as NonEmptyString,
-};
-const newNotificationHubConfig: NotificationHubConfig = {
-  AZURE_NH_ENDPOINT: "foo2" as NonEmptyString,
-  AZURE_NH_HUB_NAME: "bar2" as NonEmptyString,
-};
 
 const mockDeleteInstallationActivitySuccess =
   getMockDeleteInstallationActivity(success());
@@ -60,8 +50,6 @@ describe("HandleNHDeleteInstallationCallOrchestrator", () => {
   it("should start the activities with the right inputs", async () => {
     const orchestratorHandler = getHandler({
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
-      legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
     })(contextMockWithDf);
 
     consumeGenerator(orchestratorHandler);
@@ -70,7 +58,6 @@ describe("HandleNHDeleteInstallationCallOrchestrator", () => {
       expect.any(Object),
       expect.objectContaining({
         installationId: aDeleteNotificationHubMessage.installationId,
-        notificationHubConfig: legacyNotificationHubConfig,
       }),
     );
   });
@@ -78,39 +65,11 @@ describe("HandleNHDeleteInstallationCallOrchestrator", () => {
   it("should end the activity with SUCCESS", async () => {
     const orchestratorHandler = getHandler({
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
-      legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
     })(contextMockWithDf);
 
     const result = consumeGenerator(orchestratorHandler);
 
     expect(result).toEqual(orchestratorSuccess());
-  });
-
-  it("should always call DeleteInstallation activity twice with both legacy and new parameters", async () => {
-    const orchestratorHandler = getHandler({
-      deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
-      legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
-    })(contextMockWithDf);
-
-    consumeGenerator(orchestratorHandler);
-
-    expect(mockDeleteInstallationActivitySuccess).toHaveBeenCalledTimes(2);
-    expect(mockDeleteInstallationActivitySuccess).toHaveBeenCalledWith(
-      expect.any(Object),
-      expect.objectContaining({
-        installationId: aDeleteNotificationHubMessage.installationId,
-        notificationHubConfig: legacyNotificationHubConfig,
-      }),
-    );
-    expect(mockDeleteInstallationActivitySuccess).toHaveBeenCalledWith(
-      expect.any(Object),
-      expect.objectContaining({
-        installationId: aDeleteNotificationHubMessage.installationId,
-        notificationHubConfig: newNotificationHubConfig,
-      }),
-    );
   });
 
   it("should not start activity with wrong inputs", async () => {
@@ -122,8 +81,6 @@ describe("HandleNHDeleteInstallationCallOrchestrator", () => {
 
     const orchestratorHandler = getHandler({
       deleteInstallationActivity: mockDeleteInstallationActivitySuccess,
-      legacyNotificationHubConfig: legacyNotificationHubConfig,
-      notificationHubConfigPartitionChooser: () => newNotificationHubConfig,
     })(contextMockWithDf);
 
     expect.assertions(2);

@@ -16,14 +16,8 @@ locals {
       MESSAGE_CONTAINER_NAME                    = "message-content"
 
       // QUEUE STORAGE
-      NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING = var.notification_storage_account_queue_connection_string
+      NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
       NOTIFICATION_QUEUE_NAME                      = "push-notifications"
-
-      // TMP NEW NOTIFICATION QUEUE STORAGE
-      NEW_NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
-      NEW_NOTIFICATION_QUEUE_NAME                      = "push-notifications"
-
-      IO_COM_PUSH_NOTIFICATIONS_REDIRECT_PERCENTAGE = "0"
 
       // REDIS
       REDIS_URL      = var.redis_url
@@ -33,6 +27,9 @@ locals {
       // BACKEND COMMUNICATION
       BACKEND_BASE_URL = "https://io-p-app-appbackendli.azurewebsites.net"
       BACKEND_TOKEN    = var.appbackendli_token
+
+      SESSION_MANAGER_API_KEY  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=session-manager-api-key)",
+      SESSION_MANAGER_BASE_URL = var.session_manager_base_url,
 
       // INTERNAL USE PROPERTIES
       INTERNAL_USER_ID           = var.internal_user_id
