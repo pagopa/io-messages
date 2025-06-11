@@ -1,0 +1,38 @@
+meta {
+  name: CreatePremiumMessage
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{services_func_url}}/api/v1/messages/{{fiscal_code}}
+  body: json
+  auth: none
+}
+
+headers {
+  x-user-groups: {{user_groups}}
+  x-user-email: {{sender_email}}
+  x-forwarded-for: {{receipt_ip}}
+  x-subscription-id: {{subscription_id}}
+  x-user-id: {{sender_user_id}}
+}
+
+body:json {
+  {
+    "content": {
+      "subject": "Subject of a test message",
+      "markdown": "Body of a test message, this should be at least 80 chars long, otherwise you will obtain 400"
+    },
+    "feature_level_type": "ADVANCED"
+  }
+}
+
+vars:pre-request {
+  fiscal_code: RMLGNN97R06F158N
+  user_groups: ApiMessageWrite,ApiMessageWriteAdvanced
+  sender_email: esample@domain.com
+  receipt_ip: 192.168.1.89
+  subscription_id: 01JR0QRJ8MX1PD06DE6X5FWXS5
+  sender_user_id: 01JR0QRJ8MX1PD06DE6X5FWXS5
+}

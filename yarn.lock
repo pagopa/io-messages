@@ -6180,6 +6180,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"date-fns@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "date-fns@npm:4.1.0"
+  checksum: 10c0/b79ff32830e6b7faa009590af6ae0fb8c3fd9ffad46d930548fbb5acf473773b4712ae887e156ba91a7b3dc30591ce0f517d69fd83bd9c38650fdc03b4e0bac8
+  languageName: node
+  linkType: hard
+
 "dateformat@npm:^3.0.0":
   version: 3.0.3
   resolution: "dateformat@npm:3.0.3"
@@ -7965,6 +7972,16 @@ __metadata:
   version: 4.1.0
   resolution: "faker@npm:4.1.0"
   checksum: 10c0/eaa96a7db715451128c4641c6df148b53ac80b863a64a16e9d7d416dd7b1fac53b5d02a300a3d36168467edb8a4ce2a169af2d820df7915ed0732044d997a50a
+  languageName: node
+  linkType: hard
+
+"fast-check@npm:^1.16.0":
+  version: 1.26.0
+  resolution: "fast-check@npm:1.26.0"
+  dependencies:
+    pure-rand: "npm:^2.0.0"
+    tslib: "npm:^2.0.0"
+  checksum: 10c0/78e70181660367763fcec7e2c6d29eca58e27e9a53042bc075266f5a658d5f63e9473d1119e28330f04b8c0a6bb4c9ba3db94b9d80867b03ff06e0dd80704ba6
   languageName: node
   linkType: hard
 
@@ -13400,6 +13417,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pure-rand@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "pure-rand@npm:2.0.0"
+  checksum: 10c0/0bba0193798d56402c6b0cb1d7f2f7b912965ddee9c75f9e4e936e442af975f1437262bd942421e9b65abfd9ee9d06f770cf5b9e5fb3810ceddd6ad16391aa86
+  languageName: node
+  linkType: hard
+
 "pushnotif-func@workspace:apps/pushnotif-func":
   version: 0.0.0-use.local
   resolution: "pushnotif-func@workspace:apps/pushnotif-func"
@@ -14558,6 +14582,45 @@ __metadata:
   checksum: 10c0/528fff6f5e12d0c5a391229ad893910709bc51b5705962b09404a1d813857578149b8815f35d3ee5752f44cd378d0f31669d4b1d7e2d11f41e08283d5134bd1f
   languageName: node
   linkType: hard
+
+"services-func@workspace:apps/services-func":
+  version: 0.0.0-use.local
+  resolution: "services-func@workspace:apps/services-func"
+  dependencies:
+    "@azure/cosmos": "npm:^4.0.0"
+    "@azure/functions": "npm:^3.2.0"
+    "@azure/identity": "npm:^4.5.0"
+    "@azure/storage-queue": "npm:^12.4.0"
+    "@pagopa/eslint-config": "npm:^4.0.3"
+    "@pagopa/express-azure-functions": "npm:^2.1.1"
+    "@pagopa/io-functions-commons": "npm:^29.3.0"
+    "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
+    "@pagopa/ts-commons": "npm:^12.5.0"
+    "@types/express": "npm:^4.17.11"
+    "@types/node": "npm:^20.17.30"
+    "@types/node-fetch": "npm:^2.5.7"
+    "@vitest/coverage-v8": "npm:^3.1.2"
+    abort-controller: "npm:^3.0.0"
+    applicationinsights: "npm:^1.8.10"
+    azure-storage: "npm:^2.10.3"
+    date-fns: "npm:^4.1.0"
+    eslint: "npm:8.57.1"
+    express: "npm:^4.15.3"
+    fast-check: "npm:^1.16.0"
+    fp-ts: "npm:^2.10.5"
+    io-ts: "npm:^2.2.16"
+    node-fetch: "npm:^2.6.7"
+    prettier: "npm:3.2.5"
+    redis: "npm:^4.6.13"
+    rimraf: "npm:^6.0.1"
+    shx: "npm:^0.3.4"
+    ts-pattern: "npm:^4.0.5"
+    typescript: "npm:^5.8.3"
+    vite: "npm:^6.3.2"
+    vitest: "npm:^3.1.2"
+    winston: "npm:^3.2.1"
+  languageName: unknown
+  linkType: soft
 
 "set-blocking@npm:^2.0.0":
   version: 2.0.0
@@ -15838,7 +15901,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.2.0, tslib@npm:^2.4.0, tslib@npm:^2.6.0, tslib@npm:^2.6.1, tslib@npm:^2.6.2, tslib@npm:^2.6.3, tslib@npm:^2.7.0, tslib@npm:^2.8.1":
+"tslib@npm:^2.0.0, tslib@npm:^2.2.0, tslib@npm:^2.4.0, tslib@npm:^2.6.0, tslib@npm:^2.6.1, tslib@npm:^2.6.2, tslib@npm:^2.6.3, tslib@npm:^2.7.0, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62
