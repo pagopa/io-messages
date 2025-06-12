@@ -1,3 +1,5 @@
+name: "io-com"
+
 services:
   devcontainer:
     build: .devcontainer
