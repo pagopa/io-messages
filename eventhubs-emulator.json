@@ -23,6 +23,42 @@
                 "Name": "Default"
               }
             ]
+          },
+          {
+            "Name": "reminder-messages",
+            "PartitionCount": 2,
+            "ConsumerGroups": [
+              {
+                "Name": "Default"
+              }
+            ]
+          },
+          {
+            "Name": "reminder-message-status",
+            "PartitionCount": 2,
+            "ConsumerGroups": [
+              {
+                "Name": "Default"
+              }
+            ]
+          },
+          {
+            "Name": "payment-updates",
+            "PartitionCount": 2,
+            "ConsumerGroups": [
+              {
+                "Name": "Default"
+              }
+            ]
+          },
+          {
+            "Name": "message-reminder-send",
+            "PartitionCount": 2,
+            "ConsumerGroups": [
+              {
+                "Name": "Default"
+              }
+            ]
           }
         ]
       }
