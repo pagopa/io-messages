@@ -26,7 +26,7 @@ const messageContentBlobService = createBlobService(
 );
 
 const telemetryClient = initTelemetryClient(
-  config.APPINSIGHTS_INSTRUMENTATIONKEY
+  config.APPLICATIONINSIGHTS_CONNECTION_STRING
 );
 
 const kafkaClient = fromSas(

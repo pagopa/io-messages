@@ -95,11 +95,6 @@ variable "message_storage_account_blob_connection_string" {
   description = "Connection string to connect to message storage account"
 }
 
-variable "notification_storage_account_queue_connection_string" {
-  type        = string
-  description = "Connection string to connect to notification storage account"
-}
-
 variable "internal_user_id" {
   type        = string
   description = "Internal user to bypass"

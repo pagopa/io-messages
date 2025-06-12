@@ -154,9 +154,6 @@ export const checkApplicationHealth = (
         checkAzureStorageHealth(
           config.NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING,
         ),
-        checkAzureStorageHealth(
-          config.NEW_NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING,
-        ),
       ),
     ),
     TE.map(() => true),

@@ -32,14 +32,12 @@ export const IConfig = t.intersection([
   t.type({
     APIM_BASE_URL: NonEmptyString,
     APIM_SUBSCRIPTION_KEY: NonEmptyString,
-    APPINSIGHTS_INSTRUMENTATIONKEY: NonEmptyString,
-
-    AzureWebJobsStorage: NonEmptyString,
+    APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
     COSMOSDB_NAME: NonEmptyString,
     COSMOSDB__accountEndpoint: NonEmptyString,
 
-    INTERNAL_STORAGE_CONNECTION_STRING: NonEmptyString,
+    COM_STORAGE_CONNECTION_STRING: NonEmptyString,
 
     MESSAGES_TOPIC_CONNECTION_STRING: AzureEventhubSasFromString,
     MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: NonNegativeInteger,
