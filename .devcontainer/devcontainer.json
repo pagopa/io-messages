@@ -33,6 +33,11 @@
     "set-workspace-as-safe-dir": "git config --global --add safe.directory ${containerWorkspaceFolder}",
     "install-yarn-and-deps": "yarn install"
   },
+  "containerEnv": {
+    "NODE_ENV": "development",
+    "SPRING_PROFILES_ACTIVE": "dev",
+    "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0"
+  },
   "customizations": {
     "vscode": {
       "extensions": [
