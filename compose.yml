@@ -82,3 +82,24 @@ services:
       PMA_HOST: "mysql"
       PMA_USER: "root"
       PMA_PASSWORD: "local"
+
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: local
+      MONGO_INITDB_DATABASE: "reminder"
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8005:8081
+    depends_on:
+      - mongo
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: local
+      ME_CONFIG_BASICAUTH: false
