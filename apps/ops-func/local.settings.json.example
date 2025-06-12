@@ -2,7 +2,7 @@
   "IsEncrypted": false,
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "node",
-    "AzureWebJobsStorage": "DefaultEndpointsProtocol=http;AccountName=localst01;AccountKey=bG9jYWw=;BlobEndpoint=http://azurite:10000/localst01;QueueEndpoint=http://azurite:10001/localst01;",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "COSMOS_URI":"https://io-d-itn-common-cosno-01.documents.azure.com:443/",
     "COSMOS_DATABASE_NAME": "io-messages",
     "COMMON_STORAGE_ACCOUNT_URL":"https://testgiovannist.blob.core.windows.net/",
