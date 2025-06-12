@@ -29,7 +29,7 @@
             "PartitionCount": 2,
             "ConsumerGroups": [
               {
-                "Name": "Default"
+                "Name": "reminder-message"
               }
             ]
           },
@@ -38,16 +38,7 @@
             "PartitionCount": 2,
             "ConsumerGroups": [
               {
-                "Name": "Default"
-              }
-            ]
-          },
-          {
-            "Name": "payment-updates",
-            "PartitionCount": 2,
-            "ConsumerGroups": [
-              {
-                "Name": "Default"
+                "Name": "message-status-reminder"
               }
             ]
           },
@@ -56,7 +47,16 @@
             "PartitionCount": 2,
             "ConsumerGroups": [
               {
-                "Name": "Default"
+                "Name": "reminder-message-send"
+              }
+            ]
+          },
+          {
+            "Name": "payment-updates",
+            "PartitionCount": 2,
+            "ConsumerGroups": [
+              {
+                "Name": "payment-updates-shared"
               }
             ]
           }
