@@ -250,6 +250,11 @@
       <version>3.5.2</version>
     </dependency>
     <dependency>
+      <groupId>com.microsoft.azure</groupId>
+      <artifactId>applicationinsights-runtime-attach</artifactId>
+      <version>3.7.1</version>
+    </dependency>
+    <dependency>
       <groupId>tech.allegro.schema.json2avro</groupId>
       <artifactId>converter</artifactId>
       <version>0.2.14</version>
