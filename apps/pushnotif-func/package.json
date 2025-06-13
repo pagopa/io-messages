@@ -5,14 +5,14 @@
   "scripts": {
     "build": "yarn generate && tsc",
     "start": "func start",
-    "test": "vitest run --hook-timeout=0",
+    "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "generate": "yarn generate:backend-notification-hub",
     "generate:backend-notification-hub": "shx rm -rf src/generated/notifications && shx mkdir -p src/generated/notifications && gen-api-models --strict 0 --api-spec https://raw.githubusercontent.com/pagopa/io-backend/v7.15.5/notification_queue_messages.yaml --out-dir ./src/generated/notifications",
     "dist:modules": "modclean -r -n default:safe && yarn install --production",
     "predeploy": "npm-run-all build dist:*",
-    "lint": "eslint --fix .",
-    "lint:check": "eslint .",
+    "lint": "eslint --fix src",
+    "lint:check": "eslint src",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit"
