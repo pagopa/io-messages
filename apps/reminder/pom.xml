@@ -389,12 +389,12 @@
               <target>
                 <!-- download file -->
                 <get
-                  src="https://raw.githubusercontent.com/pagopa/io-functions-messages-cqrs/master/avro/message.json"
+                  src="https://raw.githubusercontent.com/pagopa/io-messages/refs/heads/main/apps/cqrs-func/avro/message.json"
                   dest="${project.basedir}/src/main/resources/avro"
                   verbose="false"
                   usetimestamp="true" />
                 <get
-                  src="https://raw.githubusercontent.com/pagopa/io-functions-messages-cqrs/master/avro/message-status.json"
+                  src="https://raw.githubusercontent.com/pagopa/io-messages/refs/heads/main/apps/cqrs-func/avro/message-status.json"
                   dest="${project.basedir}/src/main/resources/avro"
                   verbose="false"
                   usetimestamp="true" />
@@ -406,7 +406,7 @@
                   usetimestamp="true" />
                 <!-- download swagger service messages-->
                 <get
-                  src="https://raw.githubusercontent.com/pagopa/io-functions-services-messages/master/openapi/index.yaml"
+                  src="https://raw.githubusercontent.com/pagopa/io-messages/refs/heads/main/apps/sending-func/openapi/index.yaml"
                   dest="${project.basedir}/src/main/resources/openapi/service-messages.yaml"
                   verbose="false"
                   usetimestamp="true" />
