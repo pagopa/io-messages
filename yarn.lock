@@ -13898,6 +13898,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"reminder@workspace:apps/reminder":
+  version: 0.0.0-use.local
+  resolution: "reminder@workspace:apps/reminder"
+  languageName: unknown
+  linkType: soft
+
 "repeat-string@npm:^1.5.4":
   version: 1.6.1
   resolution: "repeat-string@npm:1.6.1"

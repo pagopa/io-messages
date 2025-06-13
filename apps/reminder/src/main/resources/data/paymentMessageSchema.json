@@ -1,0 +1,30 @@
+{
+  "type" : "object",
+  "id" : "urn:jsonschema:it:gov:pagopa:reminder:dto:PaymentMessage",
+  "properties" : {
+	"messageId" : {
+      "type" : "string"
+    },
+    "noticeNumber" : {
+      "type" : "string"
+    },
+    "payeeFiscalCode" : {
+      "type" : "string"
+    },
+    "paid" : {
+      "type" : "boolean"
+    },
+    "dueDate" : {
+      "type" : "any"
+    },
+    "amount" : {
+      "type" : "number"
+    },
+    "source" : {
+      "type" : "string"
+    },
+    "fiscalCode" : {
+      "type" : "string"
+    }
+  }
+}

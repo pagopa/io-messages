@@ -1,0 +1,28 @@
+name: Deploy (reminder)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - refactors/add-reminder
+
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+  attestations: write
+
+jobs:
+  release:
+    uses: pagopa/dx/.github/workflows/release-azure-containerapp-v1.yaml@main
+    name: Deploy
+    secrets: inherit
+    with:
+      dockerfile_path: ./apps/reminder/Dockerfile
+      dockerfile_context: ./apps/reminder
+      docker_image_name: pagopa/io-com-reminder
+      docker_image_description: "Payment Reminder Service for IO App"
+      container_app: io-p-itn-com-reminder-ca-01
+      resource_group_name: io-p-itn-com-rg-01
+      environment: app-prod

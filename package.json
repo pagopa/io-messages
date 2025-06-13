@@ -14,7 +14,7 @@
     "format": "turbo run format",
     "lint": "turbo run lint",
     "test:coverage": "vitest run --coverage",
-    "version": "changeset version && yarn install --mode update-lockfile && turbo run openapi:bundle",
+    "version": "changeset version && yarn install --mode update-lockfile && turbo run version",
     "release": "changeset tag"
   },
   "devDependencies": {
