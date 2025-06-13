@@ -80,10 +80,8 @@ locals {
       SASL_MECHANISM_REMINDER          = "PLAIN",
       SECURITY_PROTOCOL_SHARED         = "SASL_SSL",
       SASL_MECHANISM_SHARED            = "PLAIN",
-      BOOTSTRAP_SERVER_MESSAGESEND     = "io-p-messages-weu-prod01-evh-ns.servicebus.windows.net:9093", # internal queue for send message to notify
+      BOOTSTRAP_SERVER_REMINDER        = "io-p-messages-weu-prod01-evh-ns.servicebus.windows.net:9093", # internal queue for send message to notify
       BOOTSTRAP_SERVER_SHARED          = "io-p-payments-weu-prod01-evh-ns.servicebus.windows.net:9093", # queue messageUpdates from payment updater
-      BOOTSTRAP_SERVER_MESSAGESTATUS   = "io-p-messages-weu-prod01-evh-ns.servicebus.windows.net:9093", # change message status receved from IO
-      BOOTSTRAP_SERVER_MESSAGE         = "io-p-messages-weu-prod01-evh-ns.servicebus.windows.net:9093", # message receved from IO
       MONGO_DATABASE                   = "db",
       IO_NOTIFY_ENDPOINT               = "https://api-internal.io.italia.it/api/v1/messages-sending/internal", #endpoint notify service
       PAYMENTUPDATER_ENDPOINT          = "https://api-app.internal.io.pagopa.it",                              #endpoint payment updater - implemented for call proxy by the payment updater, now not used. do not fill
