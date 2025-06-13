@@ -49,7 +49,7 @@ module "reminder_ca_itn_01" {
 locals {
   reminder_ca = {
     app_settings = {
-      WEBSITE_SITE_NAME                = "io-p-weuprod01-reminder-ms", # required to show cloud role name in application insights
+      WEBSITE_SITE_NAME                = "io-p-itn-com-reminder", # required to show cloud role name in application insights
       REMINDER_DAY                     = "3",
       PAYMENT_DAY                      = "3",
       TEST_ACTIVE                      = "false",
