@@ -10,6 +10,6 @@
     "start": "mvn spring-boot:run",
     "format": "mvn fmt:format",
     "format:check": "mvn fmt:check",
-    "version": "mvn versions:set -DnewVersion=$npm_package_version && git add pom.xml"
+    "version": "mvn versions:set -DnewVersion=$npm_package_version"
   }
 }
