@@ -2,6 +2,7 @@
   "name": "pushnotif-func",
   "version": "1.0.3",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "build": "yarn generate && tsc",
     "start": "func start",
