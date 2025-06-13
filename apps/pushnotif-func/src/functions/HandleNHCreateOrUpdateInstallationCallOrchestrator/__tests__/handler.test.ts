@@ -6,7 +6,6 @@ import { pipe } from "fp-ts/lib/function";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { context as contextMockBase } from "../../../__mocks__/durable-functions";
-import { ActivityInput as CreateOrUpdateActivityInput } from "../../HandleNHCreateOrUpdateInstallationCallActivity";
 import {
   CreateOrUpdateInstallationMessage,
   KindEnum as CreateOrUpdateKind,
@@ -22,6 +21,7 @@ import {
   failureActivity,
 } from "../../../utils/durable/orchestrators";
 import { consumeGenerator } from "../../../utils/durable/utils";
+import { ActivityInput as CreateOrUpdateActivityInput } from "../../HandleNHCreateOrUpdateInstallationCallActivity";
 import {
   NhCreateOrUpdateInstallationOrchestratorCallInput,
   getHandler,

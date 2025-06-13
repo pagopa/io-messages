@@ -5,8 +5,6 @@ import * as T from "fp-ts/Task";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
-import { OrchestratorName as CreateOrUpdateInstallationOrchestrator } from "../HandleNHCreateOrUpdateInstallationCallOrchestrator/handler";
-import { OrchestratorName as DeleteInstallationOrchestratorName } from "../HandleNHDeleteInstallationCallOrchestrator/handler";
 import { CreateOrUpdateInstallationMessage } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
 import { KindEnum as CreateOrUpdateKind } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
 import { DeleteInstallationMessage } from "../../generated/notifications/DeleteInstallationMessage";
@@ -15,6 +13,8 @@ import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
 import { KindEnum as NotifyKind } from "../../generated/notifications/NotifyMessage";
 import { toString } from "../../utils/conversions";
 import { NhNotifyMessageRequest, NhTarget } from "../../utils/types";
+import { OrchestratorName as CreateOrUpdateInstallationOrchestrator } from "../HandleNHCreateOrUpdateInstallationCallOrchestrator/handler";
+import { OrchestratorName as DeleteInstallationOrchestratorName } from "../HandleNHDeleteInstallationCallOrchestrator/handler";
 
 export const NotificationMessage = t.union([
   NotifyMessage,

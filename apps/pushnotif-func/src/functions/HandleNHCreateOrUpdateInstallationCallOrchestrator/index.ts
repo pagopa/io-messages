@@ -1,7 +1,7 @@
 import * as df from "durable-functions";
 
-import { getCallableActivity as getCreateOrUpdateCallableActivity } from "../HandleNHCreateOrUpdateInstallationCallActivity";
 import { getConfigOrThrow } from "../../utils/config";
+import { getCallableActivity as getCreateOrUpdateCallableActivity } from "../HandleNHCreateOrUpdateInstallationCallActivity";
 import { getHandler } from "./handler";
 
 const config = getConfigOrThrow();

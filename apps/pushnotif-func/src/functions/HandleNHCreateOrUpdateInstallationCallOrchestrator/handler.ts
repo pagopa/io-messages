@@ -2,11 +2,11 @@
 import { Task } from "durable-functions/lib/src/classes";
 import * as t from "io-ts";
 
-import { getCallableActivity as getCreateOrUpdateCallableActivity } from "../HandleNHCreateOrUpdateInstallationCallActivity";
 import { CreateOrUpdateInstallationMessage } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
 import { toString } from "../../utils/conversions";
 import * as o from "../../utils/durable/orchestrators";
 import { failureUnhandled } from "../../utils/durable/orchestrators";
+import { getCallableActivity as getCreateOrUpdateCallableActivity } from "../HandleNHCreateOrUpdateInstallationCallActivity";
 
 export const OrchestratorName =
   "HandleNHCreateOrUpdateInstallationCallOrchestrator";
