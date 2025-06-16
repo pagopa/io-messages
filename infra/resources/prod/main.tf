@@ -68,6 +68,6 @@ module "functions_messages_sending" {
 
   tags = local.tags
 
-  action_group_id        = module.monitoring.action_group.io_com_error_id
+  action_group_id        = module.monitoring.action_group.io_com_error.id
   com_st_connectiostring = module.storage_api_weu.com_st_connectiostring
 }
