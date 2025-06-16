@@ -17,10 +17,13 @@ No requirements.
 |------|--------|---------|
 | <a name="module_citizen_func"></a> [citizen\_func](#module\_citizen\_func) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
 | <a name="module_citizen_func_autoscaler"></a> [citizen\_func\_autoscaler](#module\_citizen\_func\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
+| <a name="module_cqrs_func"></a> [cqrs\_func](#module\_cqrs\_func) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
+| <a name="module_cqrs_func_autoscaler"></a> [cqrs\_func\_autoscaler](#module\_cqrs\_func\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
 | <a name="module_etl_func"></a> [etl\_func](#module\_etl\_func) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
 | <a name="module_etl_func_autoscaler"></a> [etl\_func\_autoscaler](#module\_etl\_func\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
 | <a name="module_ops_func"></a> [ops\_func](#module\_ops\_func) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
-| <a name="module_push_notif_function"></a> [push\_notif\_function](#module\_push\_notif\_function) | pagopa-dx/azure-function-app/azurerm | ~>0.0 |
+| <a name="module_push_notif_autoscaler"></a> [push\_notif\_autoscaler](#module\_push\_notif\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
+| <a name="module_push_notif_function"></a> [push\_notif\_function](#module\_push\_notif\_function) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
 
 ## Resources
 
@@ -28,12 +31,12 @@ No requirements.
 |------|------|
 | [azurerm_cosmosdb_sql_role_assignment.citizen_func_api](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_cosmosdb_sql_role_assignment.citizen_func_com](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
+| [azurerm_cosmosdb_sql_role_assignment.cosmos_api_cqrs_func](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_cosmosdb_sql_role_assignment.etl_func](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_cosmosdb_sql_role_assignment.io_com_cosmos_etl_func](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_cosmosdb_sql_role_assignment.ops_func](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_cosmosdb_sql_role_assignment.ops_func_slot](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_key_vault_access_policy.etl_func_kv_access_policy](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_access_policy) | resource |
-| [azurerm_monitor_autoscale_setting.push_notif_function](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_autoscale_setting) | resource |
 | [azurerm_redis_cache_access_policy_assignment.etl_func_redis_access_policy](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/redis_cache_access_policy_assignment) | resource |
 | [azurerm_role_assignment.citizen_func_cosmosdb_account_api](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.citizen_func_io_com_cosmos](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
@@ -48,8 +51,13 @@ No requirements.
 | [azurerm_role_assignment.ops_func](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.ops_func_slot](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_subnet_nat_gateway_association.functions_messages_citizen_subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_nat_gateway_association) | resource |
-| [azurerm_application_insights.application_insights](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/application_insights) | data source |
+| [azurerm_eventhub_authorization_rule.evh_ns_io_auth_cdc](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/eventhub_authorization_rule) | data source |
+| [azurerm_eventhub_authorization_rule.evh_ns_io_auth_messages](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/eventhub_authorization_rule) | data source |
+| [azurerm_eventhub_authorization_rule.io-p-messages-weu-prod01-evh-ns_message-status_io-fn-messages-cqrs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/eventhub_authorization_rule) | data source |
+| [azurerm_eventhub_authorization_rule.io-p-messages-weu-prod01-evh-ns_messages_io-fn-messages-cqrs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/eventhub_authorization_rule) | data source |
+| [azurerm_eventhub_authorization_rule.io-p-payments-weu-prod01-evh-ns_payment-updates_io-fn-messages-cqrs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/eventhub_authorization_rule) | data source |
 | [azurerm_key_vault.common](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault) | data source |
+| [azurerm_key_vault_secret.apim_services_subscription_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.azure_nh_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.azure_nh_partition1_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.azure_nh_partition2_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
@@ -58,6 +66,8 @@ No requirements.
 | [azurerm_monitor_action_group.io_com_action_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/monitor_action_group) | data source |
 | [azurerm_notification_hub.common](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/notification_hub) | data source |
 | [azurerm_notification_hub.common_partition](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/notification_hub) | data source |
+| [azurerm_subnet.cqrs_func](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subnet) | data source |
+| [azurerm_virtual_network.vnet_common](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/virtual_network) | data source |
 
 ## Inputs
 
@@ -65,14 +75,14 @@ No requirements.
 |------|-------------|------|---------|:--------:|
 | <a name="input_action_group_id"></a> [action\_group\_id](#input\_action\_group\_id) | The ID of the action group | `string` | n/a | yes |
 | <a name="input_app_settings"></a> [app\_settings](#input\_app\_settings) | n/a | <pre>object({<br/>    message_error_table_storage_uri = string,<br/>    eventhub_connection_uri         = string,<br/>  })</pre> | n/a | yes |
-| <a name="input_application_insights"></a> [application\_insights](#input\_application\_insights) | n/a | <pre>object({<br/>    connection_string   = string<br/>    instrumentation_key = string<br/>  })</pre> | n/a | yes |
-| <a name="input_application_insights_sampling_percentage"></a> [application\_insights\_sampling\_percentage](#input\_application\_insights\_sampling\_percentage) | The sampling percentage of logs of application insight | `number` | n/a | yes |
+| <a name="input_application_insights"></a> [application\_insights](#input\_application\_insights) | n/a | <pre>object({<br/>    connection_string   = string<br/>    instrumentation_key = string<br/>    sampling_percentage = number<br/>  })</pre> | n/a | yes |
 | <a name="input_com_st_connectiostring"></a> [com\_st\_connectiostring](#input\_com\_st\_connectiostring) | n/a | `string` | n/a | yes |
 | <a name="input_com_st_id"></a> [com\_st\_id](#input\_com\_st\_id) | n/a | `string` | n/a | yes |
 | <a name="input_com_st_queue_uri"></a> [com\_st\_queue\_uri](#input\_com\_st\_queue\_uri) | n/a | `string` | n/a | yes |
 | <a name="input_com_st_uri"></a> [com\_st\_uri](#input\_com\_st\_uri) | n/a | `string` | n/a | yes |
 | <a name="input_common_key_vault"></a> [common\_key\_vault](#input\_common\_key\_vault) | n/a | <pre>object({<br/>    id   = string<br/>    name = string<br/>  })</pre> | n/a | yes |
 | <a name="input_cosmosdb_account_api"></a> [cosmosdb\_account\_api](#input\_cosmosdb\_account\_api) | n/a | <pre>object({<br/>    id                  = string<br/>    name                = string<br/>    endpoint            = string<br/>    primary_key         = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |
+| <a name="input_cqrs_func_ehns_enabled"></a> [cqrs\_func\_ehns\_enabled](#input\_cqrs\_func\_ehns\_enabled) | Enable the Event Hub Namespace for the CQRS function | `bool` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | Values which are used to generate resource names and location short names. They are all mandatory except for domain, which should not be used only in the case of a resource used by multiple domains. | <pre>object({<br/>    prefix    = string<br/>    env_short = string<br/>    location  = string<br/>    domain    = string<br/>  })</pre> | n/a | yes |
 | <a name="input_eventhub_namespace"></a> [eventhub\_namespace](#input\_eventhub\_namespace) | n/a | <pre>object({<br/>    id   = string<br/>    name = string<br/>  })</pre> | n/a | yes |
 | <a name="input_io_com_cosmos"></a> [io\_com\_cosmos](#input\_io\_com\_cosmos) | n/a | <pre>object({<br/>    id                  = string<br/>    name                = string<br/>    endpoint            = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |
@@ -83,7 +93,7 @@ No requirements.
 | <a name="input_private_dns_zone_resource_group_name"></a> [private\_dns\_zone\_resource\_group\_name](#input\_private\_dns\_zone\_resource\_group\_name) | Resource group name of the private DNS zone to use for private endpoints | `string` | n/a | yes |
 | <a name="input_redis_cache"></a> [redis\_cache](#input\_redis\_cache) | n/a | <pre>object({<br/>    id         = string<br/>    hostname   = string<br/>    port       = string<br/>    access_key = string<br/>  })</pre> | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Resource group to deploy resources to | `string` | n/a | yes |
-| <a name="input_subnet_cidrs"></a> [subnet\_cidrs](#input\_subnet\_cidrs) | n/a | <pre>object({<br/>    citizen_func    = string<br/>    etl_func        = string<br/>    ops_func        = string<br/>    push_notif_func = string<br/>  })</pre> | n/a | yes |
+| <a name="input_subnet_cidrs"></a> [subnet\_cidrs](#input\_subnet\_cidrs) | n/a | <pre>object({<br/>    citizen_func    = string<br/>    etl_func        = string<br/>    ops_func        = string<br/>    push_notif_func = string<br/>    cqrs_func       = string<br/>  })</pre> | n/a | yes |
 | <a name="input_subnet_pep_id"></a> [subnet\_pep\_id](#input\_subnet\_pep\_id) | n/a | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Resources tags | `map(any)` | n/a | yes |
 | <a name="input_tenant_id"></a> [tenant\_id](#input\_tenant\_id) | n/a | `string` | n/a | yes |

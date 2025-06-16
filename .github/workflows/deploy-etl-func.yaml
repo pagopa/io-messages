@@ -1,11 +1,14 @@
 name: Deploy (etl-func)
+permissions:
+  id-token: write
+  contents: read
 
 on:
   workflow_dispatch: {}
 
 jobs:
   etl_func_deploy:
-    uses: pagopa/dx/.github/workflows/web_app_deploy.yaml@53825edbcf12f0556a2391d716875dd928a97c69
+    uses: pagopa/dx/.github/workflows/web_app_deploy.yaml@1a293db2ffa9121e95250a6ad7382b7608b41f05
     name: Deploy
     secrets: inherit
     with:

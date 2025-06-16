@@ -22,3 +22,8 @@ variable "domain" {
   type        = string
   description = "location used to create resource naming"
 }
+
+variable "appi_id" {
+  type        = string
+  description = "Application Insights resource Id"
+}

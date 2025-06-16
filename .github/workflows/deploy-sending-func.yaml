@@ -1,4 +1,7 @@
 name: Deploy (sending-func)
+permissions:
+  id-token: write
+  contents: read
 
 on:
   workflow_dispatch: {}
@@ -6,7 +9,7 @@ on:
 jobs:
   deploy:
     name: Deploy
-    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@b51b47419e13a066df3915e130c8b3bf75874195
+    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@1a293db2ffa9121e95250a6ad7382b7608b41f05
     secrets: inherit
     with:
       workspace_name: sending-func

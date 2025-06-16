@@ -1,5 +1,47 @@
 ### Changelog
 
+## 1.11.6
+
+### Patch Changes
+
+- 0915212: Remove tmp push notifications rollout logic
+
+## 1.11.5
+
+### Patch Changes
+
+- db2d7e1: Remove azure-files and table from healthcheck
+
+## 1.11.4
+
+### Patch Changes
+
+- 5c3250c: Remove appinsights_disable variable
+
+## 1.11.3
+
+### Patch Changes
+
+- 005bcc6: Use session-manager to resolve session in Notify function
+
+## 1.11.2
+
+### Patch Changes
+
+- 91e4273: Use config to initialize the telemetry client
+
+## 1.11.1
+
+### Patch Changes
+
+- a4db226: Add a temporary new push notification rollout logic
+
+## 1.11.0
+
+### Minor Changes
+
+- b7e00f2: Enable MESSAGE notification
+
 ## 1.10.14
 
 ### Patch Changes

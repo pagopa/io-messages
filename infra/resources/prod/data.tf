@@ -1,3 +1,8 @@
+data "azurerm_linux_function_app" "session_manager_internal" {
+  name                = format("io-p-weu-auth-sm-int-func-01")
+  resource_group_name = format("io-p-itn-auth-main-rg-01")
+}
+
 data "azurerm_client_config" "current" {}
 
 data "azurerm_resource_group" "weu_common" {
@@ -54,6 +59,11 @@ data "azurerm_private_dns_zone" "privatelink_redis_cache" {
 
 data "azurerm_application_insights" "common" {
   name                = "${local.project_legacy}-ai-common"
+  resource_group_name = data.azurerm_resource_group.weu_common.name
+}
+
+data "azurerm_log_analytics_workspace" "common" {
+  name                = "${local.project_legacy}-law-common"
   resource_group_name = data.azurerm_resource_group.weu_common.name
 }
 

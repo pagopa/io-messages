@@ -54,6 +54,11 @@ resource "azurerm_storage_queue" "push_notif_notifymessage" {
   storage_account_name = module.com_st.name
 }
 
+resource "azurerm_storage_queue" "message_paymentupdater_failures" {
+  name                 = "message-paymentupdater-failures"
+  storage_account_name = module.com_st.name
+}
+
 resource "azurerm_storage_queue" "push_notif_notifymessage_poison" {
   name                 = "${azurerm_storage_queue.push_notif_notifymessage.name}-poison"
   storage_account_name = module.com_st.name
@@ -61,10 +66,5 @@ resource "azurerm_storage_queue" "push_notif_notifymessage_poison" {
 
 resource "azurerm_storage_queue" "push_notifications_poison" {
   name                 = "push-notifications-poison"
-  storage_account_name = module.com_st.name
-}
-
-resource "azurerm_storage_table" "push_notif_betausertests" {
-  name                 = "notificationhub"
   storage_account_name = module.com_st.name
 }

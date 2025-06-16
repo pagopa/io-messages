@@ -24,7 +24,7 @@ module "ops_func" {
   })
 
   application_insights_connection_string   = var.application_insights.connection_string
-  application_insights_sampling_percentage = var.application_insights_sampling_percentage
+  application_insights_sampling_percentage = var.application_insights.sampling_percentage
 
   tier = "m"
 

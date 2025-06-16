@@ -27,6 +27,7 @@ module "web_apps" {
     citizen_func    = "10.20.8.64/26"
     ops_func        = "10.20.10.0/26"
     push_notif_func = "10.20.10.64/26"
+    cqrs_func       = "10.20.10.128/26"
   }
 
   nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
@@ -42,15 +43,17 @@ module "web_apps" {
   }
 
   redis_cache = {
-    id         = module.redis_messages.id
-    hostname   = module.redis_messages.hostname
-    port       = module.redis_messages.ssl_port
-    access_key = module.redis_messages.primary_access_key
+    id         = azurerm_redis_cache.com.id
+    hostname   = azurerm_redis_cache.com.hostname
+    port       = azurerm_redis_cache.com.ssl_port
+    access_key = azurerm_redis_cache.com.primary_access_key
   }
 
-  application_insights = data.azurerm_application_insights.common
-
-  application_insights_sampling_percentage = 5
+  application_insights = {
+    connection_string   = data.azurerm_application_insights.common.connection_string
+    instrumentation_key = data.azurerm_application_insights.common.instrumentation_key
+    sampling_percentage = 5
+  }
 
   common_key_vault = data.azurerm_key_vault.weu_common
 
@@ -68,4 +71,5 @@ module "web_apps" {
   action_group_id        = module.monitoring.action_group.id
   com_st_connectiostring = module.storage_api_weu.com_st_connectiostring
 
+  cqrs_func_ehns_enabled = true
 }

@@ -17,6 +17,10 @@ terraform {
       source  = "hashicorp/azuread"
       version = "~> 3.0"
     }
+    dx = {
+      source  = "pagopa-dx/azure"
+      version = ">= 0.0.6, < 1.0.0"
+    }
   }
 }
 
@@ -35,6 +39,8 @@ module "functions_messages_sending" {
   domain              = "msgs"
   resource_group_name = local.legacy_itn_rg_name
 
+  key_vault = module.key_vaults.com
+
   cidr_subnet_messages_sending_func    = "10.20.1.0/24"
   private_endpoint_subnet_id           = data.azurerm_subnet.pep.id
   private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
@@ -49,18 +55,19 @@ module "functions_messages_sending" {
   cosmosdb_api = data.azurerm_cosmosdb_account.cosmos_api
   cosmosdb_com = module.cosmos.io_com_cosmos_account
 
-  redis_url      = module.redis_messages.hostname
-  redis_port     = module.redis_messages.ssl_port
-  redis_password = module.redis_messages.primary_access_key
+  redis_url      = azurerm_redis_cache.com.hostname
+  redis_port     = azurerm_redis_cache.com.ssl_port
+  redis_password = azurerm_redis_cache.com.primary_access_key
 
-  appbackendli_token = data.azurerm_key_vault_secret.appbackendli_token.value
+  appbackendli_token       = data.azurerm_key_vault_secret.appbackendli_token.value
+  session_manager_base_url = "https://${data.azurerm_linux_function_app.session_manager_internal.default_hostname}"
 
-  message_storage_account_blob_connection_string       = data.azurerm_storage_account.storage_api.primary_connection_string
-  notification_storage_account_queue_connection_string = data.azurerm_storage_account.storage_push_notifications.primary_connection_string
+  message_storage_account_blob_connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
 
   internal_user_id = data.azurerm_key_vault_secret.internal_user.value
 
   tags = local.tags
 
-  action_group_id = module.monitoring.action_group.id
+  action_group_id        = module.monitoring.action_group.io_com_error_id
+  com_st_connectiostring = module.storage_api_weu.com_st_connectiostring
 }
