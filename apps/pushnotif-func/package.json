@@ -1,22 +1,22 @@
 {
   "name": "pushnotif-func",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "license": "MIT",
+  "type": "module",
   "scripts": {
-    "clean": "tsc --build --clean",
-    "build": "shx rm -rf dist && yarn generate && tsc",
-    "watch": "tsc -w",
+    "build": "yarn generate && tsc",
     "start": "func start",
-    "predev": "npm-run-all build",
-    "dev": "npm-run-all --parallel start watch",
-    "test": "vitest run --hook-timeout=0",
+    "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "generate": "shx rm -rf generated && yarn generate:backend-notification-hub",
-    "generate:backend-notification-hub": "shx rm -rf generated/notifications && shx mkdir -p generated/notifications && gen-api-models --strict 0 --api-spec https://raw.githubusercontent.com/pagopa/io-backend/v7.15.5/notification_queue_messages.yaml --out-dir generated/notifications",
+    "generate": "yarn generate:backend-notification-hub",
+    "generate:backend-notification-hub": "shx rm -rf src/generated/notifications && shx mkdir -p src/generated/notifications && gen-api-models --strict 0 --api-spec https://raw.githubusercontent.com/pagopa/io-backend/v7.15.5/notification_queue_messages.yaml --out-dir ./src/generated/notifications",
     "dist:modules": "modclean -r -n default:safe && yarn install --production",
     "predeploy": "npm-run-all build dist:*",
-    "lint": "eslint --fix .",
-    "lint:check": "eslint ."
+    "lint": "eslint --fix src",
+    "lint:check": "eslint src",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@azure/notification-hubs": "^1.2.3",
@@ -51,7 +51,7 @@
     "modclean": "^3.0.0-beta.1",
     "npm-run-all": "^4.1.5",
     "oval": "^1.0.0",
-    "prettier": "^1.18.2",
+    "prettier": "3.2.5",
     "shx": "^0.3.2",
     "typescript": "^5.8.3",
     "vitest": "^3.1.2"

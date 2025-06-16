@@ -4,7 +4,7 @@
   "service": "devcontainer",
   "workspaceFolder": "/workspace",
   "features": {
-    "ghcr.io/devcontainers-contrib/features/pre-commit:2": {},
+    "ghcr.io/devcontainers-extra/features/pre-commit:2": {},
     "ghcr.io/devcontainers/features/azure-cli:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/pagopa/devcontainer-features/plantuml:1": {},

@@ -9,6 +9,5 @@ export const initTelemetryClient = (config: IConfig): ai.TelemetryClient =>
   ai.defaultClient
     ? ai.defaultClient
     : initAppInsights(config.APPLICATIONINSIGHTS_CONNECTION_STRING, {
-        disableAppInsights: config.APPINSIGHTS_DISABLE,
         samplingPercentage: config.APPINSIGHTS_SAMPLING_PERCENTAGE,
       });
