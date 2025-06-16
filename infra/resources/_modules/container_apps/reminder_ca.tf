@@ -36,7 +36,7 @@ module "reminder_ca_itn_01" {
 
   secrets = local.reminder_ca.secrets
 
-  tier          = "xs"
+  tier          = "s"
   revision_mode = "Single"
 
   target_port = 9090
