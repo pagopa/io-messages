@@ -2,10 +2,6 @@ name: Deploy (reminder)
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - refactors/add-reminder
 
 permissions:
   contents: read
