@@ -49,6 +49,7 @@ export const IConfig = t.intersection([
     RC_CONFIGURATION_CACHE_TTL: NonNegativeIntegerFromString,
 
     REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
+
     REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
 
     SESSION_MANAGER_API_KEY: NonEmptyString,

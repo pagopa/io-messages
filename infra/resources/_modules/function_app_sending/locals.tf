@@ -8,8 +8,9 @@ locals {
       COSMOSDB_URI  = var.cosmosdb_api.endpoint
 
       // REMOTE CONTENT COSMOSDB
-      REMOTE_CONTENT_COSMOSDB_NAME = "remote-content-cosmos-01"
-      REMOTE_CONTENT_COSMOSDB_URI  = var.cosmosdb_com.endpoint
+      REMOTE_CONTENT_COSMOSDB_NAME             = "remote-content-cosmos-01"
+      REMOTE_CONTENT_COSMOSDB__accountEndpoint = var.cosmosdb_com.endpoint
+      REMOTE_CONTENT_COSMOSDB_URI              = var.cosmosdb_com.endpoint
 
       // BLOB STORAGE
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_storage_account_blob_connection_string

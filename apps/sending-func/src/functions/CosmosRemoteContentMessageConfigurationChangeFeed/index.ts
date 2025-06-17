@@ -1,35 +1,33 @@
 import { Context } from "@azure/functions";
-
 import {
+  USER_RC_CONFIGURATIONS_COLLECTION_NAME,
   UserRCConfigurationModel,
-  USER_RC_CONFIGURATIONS_COLLECTION_NAME
 } from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
-import { remoteContentCosmosDbInstance } from "../utils/cosmosdb";
-import { getConfigOrThrow } from "../utils/config";
-import { initTelemetryClient } from "../utils/appinsights";
+
+import { initTelemetryClient } from "../../utils/appinsights";
+import { getConfigOrThrow } from "../../utils/config";
+import { remoteContentCosmosDbInstance } from "../../utils/cosmosdb";
 import { handleRemoteContentMessageConfigurationChange } from "./handler";
 
 const config = getConfigOrThrow();
 
-const telemetryClient = initTelemetryClient(
-  config.APPLICATIONINSIGHTS_CONNECTION_STRING
-);
+const telemetryClient = initTelemetryClient(config);
 
 const userRCConfigurationModel = new UserRCConfigurationModel(
   remoteContentCosmosDbInstance.container(
-    USER_RC_CONFIGURATIONS_COLLECTION_NAME
-  )
+    USER_RC_CONFIGURATIONS_COLLECTION_NAME,
+  ),
 );
 
 const run = async (
   context: Context,
-  documents: ReadonlyArray<unknown>
+  documents: readonly unknown[],
 ): Promise<void> => {
   await handleRemoteContentMessageConfigurationChange(
     context,
     userRCConfigurationModel,
     telemetryClient,
-    config.MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME
+    0,
   )(documents);
 };
 
