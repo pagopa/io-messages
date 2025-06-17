@@ -1,6 +1,6 @@
 module "reminder_ca_itn_01" {
   source  = "pagopa-dx/azure-container-app/azurerm"
-  version = "~> 1.0"
+  version = "~> 3.0"
 
   container_app_environment_id = module.com_cae.id
   user_assigned_identity_id    = module.com_cae.user_assigned_identity.id
@@ -18,7 +18,7 @@ module "reminder_ca_itn_01" {
 
   container_app_templates = [
     {
-      image        = "iopcommonacr.azurecr.io/io-premium-reminder-ms:0.16.0"
+      image        = "ghcr.io/pagopa/io-com-reminder:latest"
       app_settings = local.reminder_ca.app_settings
 
       liveness_probe = {
@@ -36,9 +36,7 @@ module "reminder_ca_itn_01" {
 
   secrets = local.reminder_ca.secrets
 
-  acr_registry = "iopcommonacr.azurecr.io"
-
-  tier          = "xs"
+  tier          = "s"
   revision_mode = "Single"
 
   target_port = 9090
