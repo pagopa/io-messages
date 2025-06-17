@@ -34,7 +34,6 @@ export const toEnrichedMessageWithContent =
     item: RetrievedMessageView,
     hasPrecondition: boolean,
   ): EnrichedMessageWithContent => ({
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     category: toCategory(categoryFetcher)(item),
     created_at: item.createdAt,
     fiscal_code: item.fiscalCode,
