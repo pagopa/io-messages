@@ -278,4 +278,16 @@ import {
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apiremindernotify/users/iopremiumreminderuser"
 }
 
+#APIM SUBSCRIPTIONS
+import {
+  to = module.apim.azurerm_api_management_subscription.payment_updater_reminder_itn
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/subscriptions/990380b9-322d-42ae-97ee-c01ca7e239ef"
+}
+
+import {
+  to = module.apim.azurerm_key_vault_secret.reminder_payment_api_subscription_primary_key_itn
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-messages-sec-rg/providers/Microsoft.KeyVault/vaults/io-p-messages-kv/secrets/io-p-reminder-payment-api-subscription-key-itn"
+}
+
+
 
