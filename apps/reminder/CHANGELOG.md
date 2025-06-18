@@ -1,5 +1,11 @@
 # reminder
 
+## 0.16.2
+
+### Patch Changes
+
+- 7a5502b: Replace the Application Insights programmatic API with agent
+
 ## 0.16.1
 
 ### Patch Changes
