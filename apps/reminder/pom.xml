@@ -26,7 +26,19 @@
     <maven-compiler-plugin-version>3.8.1</maven-compiler-plugin-version>
     <openapi-generator-maven-plugin-version>5.1.0</openapi-generator-maven-plugin-version>
     <flyway-version>8.5.13</flyway-version>
+    <applicationinsights.agent.version>3.7.1</applicationinsights.agent.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.microsoft.azure</groupId>
+        <artifactId>applicationinsights-agent</artifactId>
+        <version>${applicationinsights.agent.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
 
   <dependencies>
     <!-- https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-retry -->
@@ -250,11 +262,6 @@
       <version>3.5.2</version>
     </dependency>
     <dependency>
-      <groupId>com.microsoft.azure</groupId>
-      <artifactId>applicationinsights-runtime-attach</artifactId>
-      <version>3.7.1</version>
-    </dependency>
-    <dependency>
       <groupId>tech.allegro.schema.json2avro</groupId>
       <artifactId>converter</artifactId>
       <version>0.2.14</version>
@@ -327,6 +334,30 @@
               <artifactId>lombok</artifactId>
             </exclude>
           </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.8.1</version>
+        <executions>
+          <execution>
+            <id>copy-agent</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <artifactItems>
+            <artifactItem>
+              <groupId>com.microsoft.azure</groupId>
+              <artifactId>applicationinsights-agent</artifactId>
+              <version>${applicationinsights.agent.version}</version>
+              <outputDirectory>${project.build.directory}/agent</outputDirectory>
+              <destFileName>applicationinsights-agent.jar</destFileName>
+            </artifactItem>
+          </artifactItems>
         </configuration>
       </plugin>
       <plugin>
