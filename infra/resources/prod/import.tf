@@ -237,7 +237,7 @@ import {
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apipaymentread"
 }
 
-#APIM PRODUCTS
+#APIM NOTIFICATIONS PRODUCT
 
 import {
   to = module.apim.azurerm_api_management_product.apim_itn_product_notifications
@@ -250,7 +250,7 @@ import {
 }
 
 
-#APIM API
+#APIM NOTIFICATIONS API
 
 import {
   to = module.apim.azurerm_api_management_api.io_backend_notification_itn_api_v1
@@ -267,8 +267,15 @@ import {
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-notifications-api/apis/io-p-io-backend-notification-api"
 }
 
+#APIM USERS
 
-
-
+import {
+  to = module.apim.azurerm_api_management_user.reminder_user_itn
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/users/iopremiumreminderuser"
+}
+import {
+  to = module.apim.azurerm_api_management_group_user.reminder_group_itn
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apiremindernotify/users/iopremiumreminderuser"
+}
 
 
