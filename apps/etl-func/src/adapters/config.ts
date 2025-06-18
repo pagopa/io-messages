@@ -34,10 +34,12 @@ export const configSchema = common.and(
   z.discriminatedUnion("environment", [
     z.object({
       environment: z.literal("production"),
+      messageStatusEventHub: eventhubConfigSchema,
       messagesEventHub: eventhubConfigSchema,
     }),
     z.object({
       environment: z.literal("development"),
+      messageStatusEventHub: eventhubConfigSchema,
       messagesEventHub: eventhubConfigSchema,
     }),
   ]),
@@ -56,6 +58,19 @@ const mapEnvironmentVariablesToConfig = (env: Env) => {
       : {
           authStrategy: "ConnectionString",
           connectionString: env.EVENTHUB_CONNECTION_STRING,
+          eventHubName: env.MESSAGE_EVENTHUB_NAME,
+        };
+  const messageStatusEventHub =
+    env.NODE_ENV === "production"
+      ? {
+          authStrategy: "Identity",
+          connectionUri: env.EVENTHUB_CONNECTION_URI,
+          eventHubName: env.MESSAGE_STATUS_EVENTHUB_NAME,
+        }
+      : {
+          authStrategy: "ConnectionString",
+          connectionString: env.EVENTHUB_CONNECTION_STRING,
+          eventHubName: env.MESSAGE_STATUS_EVENTHUB_NAME,
         };
   return {
     appInsights: {
@@ -87,6 +102,7 @@ const mapEnvironmentVariablesToConfig = (env: Env) => {
       connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
       tableName: env.MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME,
     },
+    messageStatusEventHub,
     messagesEventHub,
     messagesRedis: {
       password: env.REDIS_PASSWORD,
