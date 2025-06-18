@@ -2,10 +2,10 @@
   "version": "2.0",
   "logging": {
     "logLevel": {
-      "default": "Information",
+      "default": "Warning",
+      "Function": "Information",
       "Function.GetLimitedProfile": "Warning",
-      "Function.GetLimitedProfileByPOST": "Warning",
-      "Function.GetMessage": "Warning"
+      "Function.GetLimitedProfileByPOST": "Warning"
     },
     "applicationInsights": {
       "samplingSettings": {

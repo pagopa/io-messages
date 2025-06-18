@@ -2684,6 +2684,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pagopa/io-functions-admin-sdk@npm:^1.10.1":
+  version: 1.10.1
+  resolution: "@pagopa/io-functions-admin-sdk@npm:1.10.1"
+  dependencies:
+    "@pagopa/ts-commons": "npm:^10.0.0"
+    fp-ts: "npm:^2.10.5"
+    io-ts: "npm:^2.2.16"
+  checksum: 10c0/a5a9e2d931e933a6c4b013e1f61c6b1d1e64e3e01d86c56f3592e6ffb3b6cdbe5f1a4d69f17995235435359146e72c0caa4e9e08868346486b2d3ce96ae47fa7
+  languageName: node
+  linkType: hard
+
 "@pagopa/io-functions-commons@npm:^28.0.0":
   version: 28.22.0
   resolution: "@pagopa/io-functions-commons@npm:28.22.0"
@@ -2815,7 +2826,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagopa/ts-commons@npm:^10.15.0, @pagopa/ts-commons@npm:^10.3.0, @pagopa/ts-commons@npm:^10.5.1":
+"@pagopa/ts-commons@npm:^10.0.0, @pagopa/ts-commons@npm:^10.15.0, @pagopa/ts-commons@npm:^10.3.0, @pagopa/ts-commons@npm:^10.5.1":
   version: 10.15.0
   resolution: "@pagopa/ts-commons@npm:10.15.0"
   dependencies:
@@ -3411,6 +3422,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sinonjs/commons@npm:^1.7.0":
+  version: 1.8.6
+  resolution: "@sinonjs/commons@npm:1.8.6"
+  dependencies:
+    type-detect: "npm:4.0.8"
+  checksum: 10c0/93b4d4e27e93652b83467869c2fe09cbd8f37cd5582327f0e081fbf9b93899e2d267db7b668c96810c63dc229867614ced825e5512b47db96ca6f87cb3ec0f61
+  languageName: node
+  linkType: hard
+
 "@tootallnate/once@npm:2":
   version: 2.0.0
   resolution: "@tootallnate/once@npm:2.0.0"
@@ -3533,6 +3553,13 @@ __metadata:
   version: 4.17.16
   resolution: "@types/lodash@npm:4.17.16"
   checksum: 10c0/cf017901b8ab1d7aabc86d5189d9288f4f99f19a75caf020c0e2c77b8d4cead4db0d0b842d009b029339f92399f49f34377dd7c2721053388f251778b4c23534
+  languageName: node
+  linkType: hard
+
+"@types/lolex@npm:^5.1.6":
+  version: 5.1.6
+  resolution: "@types/lolex@npm:5.1.6"
+  checksum: 10c0/dd6da31cdff9637e57697323c81b96d384b60a9685f8787337067b33ae4e34ed8e0d7388412670a233ac8c49f432a0b192a623a33d9fc3151cac7786d7efd1f9
   languageName: node
   linkType: hard
 
@@ -9469,6 +9496,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"io-ts-types@npm:^0.5.19":
+  version: 0.5.19
+  resolution: "io-ts-types@npm:0.5.19"
+  peerDependencies:
+    fp-ts: ^2.0.0
+    io-ts: ^2.0.0
+    monocle-ts: ^2.0.0
+    newtype-ts: ^0.3.2
+  checksum: 10c0/f7c451f6444660707f02de2dbf9c3c4bca4e9ed3b2f46e10f19ea5dcaa6acef9936d3b24025598d9f59e0647ea704263ba580506a2db3d64cc6d0c7b2b0fcf35
+  languageName: node
+  linkType: hard
+
 "io-ts@npm:^2.2.16":
   version: 2.2.22
   resolution: "io-ts@npm:2.2.22"
@@ -11097,6 +11136,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lolex@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "lolex@npm:6.0.0"
+  dependencies:
+    "@sinonjs/commons": "npm:^1.7.0"
+  checksum: 10c0/4a99a39024c61e8d08a3dff20d5f144a578cea48703f1d165d1a60a70a34810fcb1954d793e92eb0d67c24496e9941a9f91065cde2196aaeb4d72c9fd6c9672e
+  languageName: node
+  linkType: hard
+
 "long@npm:^4.0.0":
   version: 4.0.0
   resolution: "long@npm:4.0.0"
@@ -11749,6 +11797,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"monocle-ts@npm:^2.3.13":
+  version: 2.3.13
+  resolution: "monocle-ts@npm:2.3.13"
+  peerDependencies:
+    fp-ts: ^2.5.0
+  checksum: 10c0/8f1673abb7def3225a33f962423ba592202afaac9fe6b18d0af6b84083d18c0e0939f59677bff5a1aa86ca3f6381220dc800b36823fd22fa69283f3cd3f7b4e2
+  languageName: node
+  linkType: hard
+
 "mri@npm:^1.2.0":
   version: 1.2.0
   resolution: "mri@npm:1.2.0"
@@ -11846,6 +11903,16 @@ __metadata:
   version: 1.0.0
   resolution: "nerf-dart@npm:1.0.0"
   checksum: 10c0/e19e17d7bd91dfcb1acd07cbdd8df1f0613f3408227538fe91793c6dfcf58e95b5f18b88b4a13e9b31587e89a119fd76d6df4b8d8c65564dd2c409d787819583
+  languageName: node
+  linkType: hard
+
+"newtype-ts@npm:^0.3.5":
+  version: 0.3.5
+  resolution: "newtype-ts@npm:0.3.5"
+  peerDependencies:
+    fp-ts: ^2.0.0
+    monocle-ts: ^2.0.0
+  checksum: 10c0/4bd164d33f4569f7245ed3e656796adb4bf15f11160ff755e3a5c0ef85dde13699ae80b94c38d0ff43d1f3625d698897afb6a74a7c65b90bd9786d3958423edf
   languageName: node
   linkType: hard
 
@@ -14593,10 +14660,12 @@ __metadata:
     "@azure/storage-queue": "npm:^12.4.0"
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@pagopa/express-azure-functions": "npm:^2.1.1"
+    "@pagopa/io-functions-admin-sdk": "npm:^1.10.1"
     "@pagopa/io-functions-commons": "npm:^29.3.0"
     "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
     "@pagopa/ts-commons": "npm:^12.5.0"
     "@types/express": "npm:^4.17.11"
+    "@types/lolex": "npm:^5.1.6"
     "@types/node": "npm:^20.17.30"
     "@types/node-fetch": "npm:^2.5.7"
     "@vitest/coverage-v8": "npm:^3.1.2"
@@ -14609,6 +14678,10 @@ __metadata:
     fast-check: "npm:^1.16.0"
     fp-ts: "npm:^2.10.5"
     io-ts: "npm:^2.2.16"
+    io-ts-types: "npm:^0.5.19"
+    lolex: "npm:^6.0.0"
+    monocle-ts: "npm:^2.3.13"
+    newtype-ts: "npm:^0.3.5"
     node-fetch: "npm:^2.6.7"
     prettier: "npm:3.2.5"
     redis: "npm:^4.6.13"
@@ -16012,6 +16085,13 @@ __metadata:
   dependencies:
     prelude-ls: "npm:^1.2.1"
   checksum: 10c0/7b3fd0ed43891e2080bf0c5c504b418fbb3e5c7b9708d3d015037ba2e6323a28152ec163bcb65212741fa5d2022e3075ac3c76440dbd344c9035f818e8ecee58
+  languageName: node
+  linkType: hard
+
+"type-detect@npm:4.0.8":
+  version: 4.0.8
+  resolution: "type-detect@npm:4.0.8"
+  checksum: 10c0/8fb9a51d3f365a7de84ab7f73b653534b61b622aa6800aecdb0f1095a4a646d3f5eb295322127b6573db7982afcd40ab492d038cf825a42093a58b1e1353e0bd
   languageName: node
   linkType: hard
 
