@@ -286,8 +286,9 @@ import {
 
 import {
   to = module.apim.azurerm_key_vault_secret.reminder_payment_api_subscription_primary_key_itn
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-messages-sec-rg/providers/Microsoft.KeyVault/vaults/io-p-messages-kv/secrets/io-p-reminder-payment-api-subscription-key-itn"
+  id = "https://io-p-messages-kv.vault.azure.net/secrets/io-p-reminder-payment-api-subscription-key-itn"
 }
+
 
 
 
