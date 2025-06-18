@@ -13,5 +13,6 @@ USER spring:spring
 COPY --chown=spring:spring --from=builder target/dependency/BOOT-INF/lib /app/lib
 COPY --chown=spring:spring --from=builder target/dependency/META-INF /app/META-INF
 COPY --chown=spring:spring --from=builder target/dependency/BOOT-INF/classes /app
+COPY --chown=spring:spring --from=builder target/agent/applicationinsights-agent.jar /app
 
-ENTRYPOINT ["java","-cp","app:app/lib/*","it.ioapp.com.reminder.Application"]
+ENTRYPOINT ["java","-javaagent:app/applicationinsights-agent.jar", "-cp","app:app/lib/*","it.ioapp.com.reminder.Application"]

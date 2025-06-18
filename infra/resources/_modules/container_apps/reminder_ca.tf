@@ -47,7 +47,7 @@ module "reminder_ca_itn_01" {
 locals {
   reminder_ca = {
     app_settings = {
-      APPLICATIONINSIGHTS_ROLE_NAME    = "io-p-itn-com-reminder", # required to show cloud role name in application insights
+      APPLICATIONINSIGHTS_ROLE_NAME    = "io-p-itn-com-reminder-01",
       REMINDER_DAY                     = "3",
       PAYMENT_DAY                      = "3",
       TEST_ACTIVE                      = "false",
