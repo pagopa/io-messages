@@ -236,10 +236,14 @@ import {
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apipaymentread"
 }
 
+import {
+  to = module.apim.azurerm_api_management_product.apim_itn_product_notifications
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-notifications-api"
+}
 
 import {
-  to = module.apim.azurerm_api_management_group.apim_itn_product_notifications
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-notifications-api"
+  to = module.apim.azurerm_api_management_product_policy.apim_itn_product_notifications_policy
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-notifications-api/policies/policy"
 }
 
 
