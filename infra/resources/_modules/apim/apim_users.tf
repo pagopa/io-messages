@@ -14,3 +14,10 @@ resource "azurerm_api_management_group_user" "reminder_group_itn" {
   resource_group_name = azurerm_api_management_user.reminder_user_itn.resource_group_name
   api_management_name = azurerm_api_management_user.reminder_user_itn.api_management_name
 }
+
+resource "azurerm_api_management_group_user" "payment_group_itn" {
+  user_id             = azurerm_api_management_user.reminder_user_itn.user_id
+  group_name          = azurerm_api_management_group.apipaymentupdater_itn.name
+  resource_group_name = azurerm_api_management_user.reminder_user_itn.resource_group_name
+  api_management_name = azurerm_api_management_user.reminder_user_itn.api_management_name
+}

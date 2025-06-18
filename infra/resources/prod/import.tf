@@ -277,6 +277,10 @@ import {
   to = module.apim.azurerm_api_management_group_user.reminder_group_itn
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apiremindernotify/users/iopremiumreminderuser"
 }
+import {
+  to = module.apim.azurerm_api_management_group_user.payment_group_itn
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apipaymentread/users/iopremiumreminderuser"
+}
 
 #APIM SUBSCRIPTIONS
 import {
