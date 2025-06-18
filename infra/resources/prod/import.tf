@@ -199,8 +199,9 @@ import {
 }
 
 
-####APIM####
+####ITN APIM CONFIG IMPORTS####
 
+#APIM GROUPS
 import {
   to = module.apim.azurerm_api_management_group.apiremotecontentconfigurationwrite_itn
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apiremotecontentconfigurationwrite"
@@ -236,6 +237,8 @@ import {
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apipaymentread"
 }
 
+#APIM PRODUCTS
+
 import {
   to = module.apim.azurerm_api_management_product.apim_itn_product_notifications
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-notifications-api"
@@ -247,8 +250,22 @@ import {
 }
 
 
+#APIM API
 
+import {
+  to = module.apim.azurerm_api_management_api.io_backend_notification_itn_api_v1
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/apis/io-p-io-backend-notification-api"
+}
 
+import {
+  to = module.apim.azurerm_api_management_api_policy.io_backend_notification_itn_api_v1_policy
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/apis/io-p-io-backend-notification-api"
+}
+
+import {
+  to = module.apim.azurerm_api_management_product_api.io_backend_notification_itn_api_v1_product_api
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-notifications-api/apis/io-p-io-backend-notification-api"
+}
 
 
 
