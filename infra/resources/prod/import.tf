@@ -197,3 +197,11 @@ import {
   to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_partition_1_pns_errors
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NH1] Push Notification Service errors"
 }
+
+
+####APIM####
+
+import {
+  to = module.apim.azurerm_api_management_group.apiremotecontentconfigurationwrite_itn
+  id = "apiremotecontentconfigurationwrite"
+}
