@@ -205,3 +205,44 @@ import {
   to = module.apim.azurerm_api_management_group.apiremotecontentconfigurationwrite_itn
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apiremotecontentconfigurationwrite"
 }
+
+import {
+  to = module.apim.azurerm_api_management_group.apithirdpartymessagewrite_itn
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apithirdpartymessagewrite"
+}
+
+import {
+  to = module.apim.azurerm_api_management_group.apimessagewriteadvanced_itn
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apimessagewriteadvanced"
+}
+
+import {
+  to = module.apim.azurerm_api_management_group.apimessagereadadvanced_itn
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apimessagereadadvanced"
+}
+
+import {
+  to = module.apim.azurerm_api_management_group.apinewmessagenotify_itn
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apinewmessagenotify"
+}
+
+import {
+  to = module.apim.azurerm_api_management_group.apiremindernotify_itn
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apiremindernotify"
+}
+
+import {
+  to = module.apim.azurerm_api_management_group.apipaymentupdater_itn
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apipaymentread"
+}
+
+
+
+
+
+
+
+
+
+
+
