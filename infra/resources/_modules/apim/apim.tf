@@ -53,3 +53,26 @@ resource "azurerm_api_management_group" "apipaymentupdater_itn" {
   display_name        = "ApiPaymentRead"
   description         = "A group that enables to read payment status related to a message"
 }
+
+resource "azurerm_api_management_product" "apim_itn_product_notifications" {
+  product_id   = "io-notifications-api"
+  display_name = "IO NOTIFICATIONS API"
+  description  = "Product for IO notifications"
+
+  api_management_name = data.azurerm_api_management.apim_itn_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
+
+  subscription_required = true
+  approval_required     = false
+  published             = true
+}
+
+resource "azurerm_api_management_product_policy" "this" {
+  product_id          = azurerm_api_management_product.apim_itn_product_notifications.product_id
+  api_management_name = data.azurerm_api_management.apim_itn_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
+
+  xml_content = file("./api_product/messages/_base_policy.xml")
+
+
+}
