@@ -1,0 +1,41 @@
+swagger: '2.0'
+info:
+  title: Microservice JAVA API
+  description: Microservice JAVA API
+  version: '2.6.13'
+host: localhost
+basePath: /api/v1
+schemes:
+  - https
+tags:
+  - name: ping
+    description: Ping
+paths:
+  /ping:
+    get:
+      tags:
+        - ping
+      summary: Ping Request
+      operationId: sendPingRequest
+      responses:
+        200:
+          description: Ping OK
+          schema:
+            $ref: '#/definitions/PingState'
+definitions:
+  PingState:
+    type: string
+consumes:
+  - application/json
+produces:
+  - application/json
+responses:
+  InvalidRequest:
+    description: Bad request
+    #content: {} #TODO
+  Forbidden:
+    description: Forbidden
+    #content: {} #TODO
+  NotFound:
+    description: Not found
+    #content: {} #TODO
