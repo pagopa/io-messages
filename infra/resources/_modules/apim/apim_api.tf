@@ -40,7 +40,7 @@ resource "azurerm_api_management_product_api" "io_backend_notification_itn_api_v
 #SENDING FUNC API
 
 resource "azurerm_api_management_api" "messages_sending_external_api_v1" {
-  name                = format("%s-%s-messages-sending-external-api-01", local.product, var.location_short)
+  name                = format("%s-%s-messages-sending-external-api-01", local.product, var.legacy_location_short)
   api_management_name = data.azurerm_api_management.apim_itn_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
   revision            = "1"
@@ -73,4 +73,3 @@ resource "azurerm_api_management_product_api" "messages_sending_external_api_v1_
   api_management_name = data.azurerm_api_management.apim_itn_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
 }
-
