@@ -352,7 +352,7 @@
               <target>
                 <!-- download file avro message-->
                 <get
-                  src="https://raw.githubusercontent.com/pagopa/io-functions-messages-cqrs/master/avro/message.json"
+                  src="https://raw.githubusercontent.com/pagopa/io-messages/refs/heads/main/apps/cqrs-func/avro/message.json"
                   dest="${project.basedir}/src/main/resources/avro"
                   verbose="false"
                   usetimestamp="true" />
