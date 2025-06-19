@@ -283,7 +283,7 @@
               <goal>generate</goal>
             </goals>
             <configuration>
-              <inputSpec>${project.basedir}/openapi/openapi_V1.yaml</inputSpec>
+              <inputSpec>${project.basedir}/openapi.yaml</inputSpec>
               <output>${project.build.directory}/generated-sources</output>
 
               <generatorName>spring</generatorName>
