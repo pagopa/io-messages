@@ -250,8 +250,9 @@ import {
 }
 
 
-#APIM NOTIFICATIONS API
+##APIM NOTIFICATIONS API
 
+#backend notification API
 import {
   to = module.apim.azurerm_api_management_api.io_backend_notification_itn_api_v1
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/apis/io-p-io-backend-notification-api"
@@ -265,6 +266,22 @@ import {
 import {
   to = module.apim.azurerm_api_management_product_api.io_backend_notification_itn_api_v1_product_api
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-notifications-api/apis/io-p-io-backend-notification-api"
+}
+
+#sending external API
+import {
+  to = module.apim.azurerm_api_management_api.messages_sending_external_api_v1
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/apis/io-p-weu-messages-sending-external-api-01"
+}
+
+import {
+  to = module.apim.azurerm_api_management_api_policy.messages_sending_external_api_v1_policy
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/apis/io-p-weu-messages-sending-external-api-01"
+}
+
+import {
+  to = module.apim.azurerm_api_management_product_api.messages_sending_external_api_v1_product_api
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-services-api/apis/io-p-weu-messages-sending-external-api-01"
 }
 
 #APIM USERS
