@@ -153,3 +153,44 @@ resource "azurerm_api_management_product_api" "service_messages_manage_api_v1_pr
   api_management_name = data.azurerm_api_management.apim_itn_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
 }
+
+
+# SERVICE MESSSAGE API - INTERNAL
+
+resource "azurerm_api_management_api" "service_messages_internal_api_v1" {
+  name                = format("%s-service-messages-internal-api", local.product)
+  api_management_name = data.azurerm_api_management.apim_itn_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
+  revision            = "1"
+
+  description  = "IO Service Messages - Internal - API"
+  display_name = "IO Service Messages - Internal - API"
+
+  path                  = "service-messages/api/v1"
+  protocols             = ["https"]
+  subscription_required = true
+  service_url           = null
+
+  import {
+    content_format = "openapi"
+    content_value  = file("../_modules/apim/api/service-messages/_index_internal.yaml")
+  }
+
+}
+
+resource "azurerm_api_management_api_policy" "service_messages_internal_api_v1_policy" {
+
+  api_name            = azurerm_api_management_api.service_messages_internal_api_v1.name
+  api_management_name = data.azurerm_api_management.apim_itn_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
+
+  xml_content = file("../_modules/apim/api/service-messages/v1/_base_policy.xml")
+}
+
+resource "azurerm_api_management_product_api" "service_messages_internal_api_v1_product_api" {
+  product_id          = azurerm_api_management_product.apim_itn_product_notifications.product_id
+  api_name            = azurerm_api_management_api.service_messages_internal_api_v1.name
+  api_management_name = data.azurerm_api_management.apim_itn_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
+}
+
