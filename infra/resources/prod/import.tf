@@ -357,6 +357,12 @@ import {
   to = module.apim.azurerm_api_management_subscription.reminder_itn
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/subscriptions/a3e037a9-b250-41e8-8395-39cfb22f98a5"
 }
+import {
+  to = module.apim.azurerm_api_management_subscription.messages_backend_itn
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/subscriptions/fbc43782-b607-47fc-ae32-571d3043df45"
+}
+
+
 
 #APIM SECRETS AND VALUES
 import {
