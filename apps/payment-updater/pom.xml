@@ -170,16 +170,6 @@
       <artifactId>avro-maven-plugin</artifactId>
       <version>1.8.2</version>
     </dependency>
-    <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-messaging-eventhubs</artifactId>
-      <version>5.11.2</version>
-    </dependency>
-    <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-messaging-eventhubs-checkpointstore-blob</artifactId>
-      <version>1.6.0</version>
-    </dependency>
     <!-- https://mvnrepository.com/artifact/org.apache.avro/avro -->
     <dependency>
       <groupId>org.apache.avro</groupId>
