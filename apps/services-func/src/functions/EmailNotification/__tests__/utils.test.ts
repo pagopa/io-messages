@@ -1,4 +1,11 @@
-import { describe, test, vi, expect } from "vitest";
+import * as E from "fp-ts/Either";
+import { describe, expect, test, vi } from "vitest";
+
+import {
+  aCreatedMessageEventSenderMetadata,
+  aMessageContent,
+  anError,
+} from "../../../__mocks__/mocks";
 import {
   contentToHtml,
   invalidateClickableLinks,
@@ -6,12 +13,6 @@ import {
   removeLinks,
   truncateMarkdown,
 } from "../utils";
-import * as E from "fp-ts/Either";
-import {
-  aCreatedMessageEventSenderMetadata,
-  aMessageContent,
-  anError,
-} from "../../../__mocks__/mocks";
 
 describe("contentToHtml", () => {
   test("GIVEN a simple content WHEN is converterd to html using the default processor THEN return an either containing the simple content", async () => {
@@ -103,7 +104,7 @@ describe("removeLinks", () => {
     );
   });
 
-  test("should return the string without the url if an url with query params and # is contained ", () => {
+  test("should return the string without the url if an url with query params and # is contained", () => {
     const simpleLink = "https://asimplelink.com/?qp1=value#header";
     const baseText = `A simple text`;
     expect(removeLinks(`${baseText} ${simpleLink}`)).toBe(

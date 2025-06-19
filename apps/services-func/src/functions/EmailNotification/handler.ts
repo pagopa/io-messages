@@ -47,7 +47,7 @@ export const EmailNotificationResult = t.union([
   t.type({
     kind: t.literal("SUCCESS"),
     // eslint-disable-next-line sort-keys
-    result: t.keyof({ OK: null, EXPIRED: null }),
+    result: t.keyof({ EXPIRED: null, OK: null }),
   }),
   t.type({
     kind: t.literal("FAILURE"),
@@ -75,7 +75,7 @@ export const getEmailNotificationHandler = (
         retrieveProcessingMessageData,
         async (
           context,
-          { message, content, notificationId, senderMetadata },
+          { content, message, notificationId, senderMetadata },
         ): Promise<EmailNotificationResult> => {
           const logPrefix = `${context.executionContext.functionName}|MESSAGE_ID=${message.id}|NOTIFICATION_ID=${notificationId}`;
 

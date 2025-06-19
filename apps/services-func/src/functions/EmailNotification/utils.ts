@@ -143,8 +143,8 @@ export const messageReducedToHtml =
       // strip leading zeroes
       TE.map((bodyHtml) =>
         apply(bodyHtml, content.subject, {
-          serviceName: senderMetadata.serviceName,
           organizationName: senderMetadata.organizationName,
+          serviceName: senderMetadata.serviceName,
         }),
       ),
     );

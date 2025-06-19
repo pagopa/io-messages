@@ -91,8 +91,8 @@ export const getCreateNotificationHandler = (
   lNotificationModel: NotificationModel,
   lDefaultWebhookUrl: HttpsUrl,
   lSandboxFiscalCode: FiscalCode,
-  lEmailNotificationServiceBlackList: ReadonlyArray<ServiceId>,
-  lWebhookNotificationServiceBlackList: ReadonlyArray<ServiceId>,
+  lEmailNotificationServiceBlackList: readonly ServiceId[],
+  lWebhookNotificationServiceBlackList: readonly ServiceId[],
   retrieveProcessingMessageData: DataFetcher<CommonMessageData>,
   // eslint-disable-next-line max-params
 ) =>
@@ -106,11 +106,11 @@ export const getCreateNotificationHandler = (
         async (
           context,
           {
+            blockedInboxOrChannels,
+            content: newMessageContent,
             message: newMessageWithoutContent,
             messageId,
-            content: newMessageContent,
             profile,
-            blockedInboxOrChannels,
             senderMetadata,
           },
         ) => {

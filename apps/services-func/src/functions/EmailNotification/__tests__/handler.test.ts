@@ -1,29 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable sonarjs/no-duplicate-string */
-/* eslint-disable sonar/sonar-max-lines-per-function */
-/* eslint-disable sonarjs/no-identical-functions */
 
-import { beforeEach, vi, expect, describe, it } from "vitest";
-import {
-  NonEmptyString,
-  OrganizationFiscalCode,
-} from "@pagopa/ts-commons/lib/strings";
-
-import {
-  EmailNotificationInput,
-  getEmailNotificationHandler,
-} from "../handler";
-
-import * as TE from "fp-ts/lib/TaskEither";
-import * as O from "fp-ts/lib/Option";
-
+import { apply } from "@pagopa/io-app-email-templates/MessagePreview/index";
+import { StandardServiceCategoryEnum } from "@pagopa/io-functions-admin-sdk/StandardServiceCategory";
 import { EmailAddress } from "@pagopa/io-functions-commons/dist/generated/definitions/EmailAddress";
 import { MessageBodyMarkdown } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageBodyMarkdown";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
 import { MessageSubject } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageSubject";
-import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
-
 import { NotificationChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/NotificationChannel";
+import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
 import * as mail from "@pagopa/io-functions-commons/dist/src/mailer/transports";
 import { CreatedMessageEventSenderMetadata } from "@pagopa/io-functions-commons/dist/src/models/created_message_sender_metadata";
 import {
@@ -32,11 +16,21 @@ import {
   NotificationModel,
   RetrievedNotification,
 } from "@pagopa/io-functions-commons/dist/src/models/notification";
-import { StandardServiceCategoryEnum } from "@pagopa/io-functions-admin-sdk/StandardServiceCategory";
 import { markdownToHtml } from "@pagopa/io-functions-commons/dist/src/utils/markdown";
+import {
+  NonEmptyString,
+  OrganizationFiscalCode,
+} from "@pagopa/ts-commons/lib/strings";
+import * as O from "fp-ts/lib/Option";
+import * as TE from "fp-ts/lib/TaskEither";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { aFiscalCode } from "../../../__mocks__/mocks";
+import {
+  EmailNotificationInput,
+  getEmailNotificationHandler,
+} from "../handler";
 import { prepareBody } from "../utils";
-import { apply } from "@pagopa/io-app-email-templates/MessagePreview/index";
 
 beforeEach(() => vi.clearAllMocks());
 
@@ -99,7 +93,7 @@ const aMessage = {
   fiscalCode: aFiscalCode,
   id: aMessageId,
   indexedId: aMessageId,
-  kind: "INewMessageWithoutContent" as "INewMessageWithoutContent",
+  kind: "INewMessageWithoutContent" as const,
   senderServiceId: "s123" as NonEmptyString,
   senderUserId: "u123" as NonEmptyString,
   timeToLiveSeconds: 3600 as TimeToLiveSeconds,
@@ -197,7 +191,7 @@ describe("getEmailNotificationActivityHandler", () => {
   });
 
   it("should respond with 'ERROR' if the mail is not sent", async () => {
-    const errorMessage: string = "Test Error";
+    const errorMessage = "Test Error";
 
     vi.spyOn(mail, "sendMail").mockReturnValueOnce(
       TE.left(new Error(errorMessage)),

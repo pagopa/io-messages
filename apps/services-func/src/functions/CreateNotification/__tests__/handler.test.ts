@@ -1,22 +1,22 @@
-import { vi, it, describe, expect } from "vitest";
-import * as TE from "fp-ts/TaskEither";
-import * as E from "fp-ts/Either";
-import * as O from "fp-ts/Option";
-import { NotificationModel } from "@pagopa/io-functions-commons/dist/src/models/notification";
-
-import { getCreateNotificationHandler } from "../handler";
+import { Context } from "@azure/functions";
 import { HttpsUrl } from "@pagopa/io-functions-commons/dist/generated/definitions/HttpsUrl";
-import { pipe } from "fp-ts/lib/function";
+import { NotificationModel } from "@pagopa/io-functions-commons/dist/src/models/notification";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
-import { Context } from "@azure/functions";
+import * as E from "fp-ts/Either";
+import * as O from "fp-ts/Option";
+import * as TE from "fp-ts/TaskEither";
+import { pipe } from "fp-ts/lib/function";
+import { describe, expect, it, vi } from "vitest";
+
 import {
+  aCreatedMessageEventSenderMetadata,
   aMessageContent,
   aNewMessageWithoutContent,
-  aCreatedMessageEventSenderMetadata,
   aRetrievedProfile,
 } from "../../../__mocks__/mocks";
 import { NotificationCreatedEvent } from "../../../utils/events/message";
+import { getCreateNotificationHandler } from "../handler";
 
 const mockNotificationCreate = vi
   .fn()
