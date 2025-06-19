@@ -1,21 +1,19 @@
 package it.ioapp.com.paymentupdater.service;
 
-import java.util.List;
-
-import org.springframework.data.domain.Page;
-
 import it.ioapp.com.paymentupdater.model.PaymentRetry;
+import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface PaymentRetryService {
 
-	List<PaymentRetry> findAll();
+  List<PaymentRetry> findAll();
 
-	PaymentRetry save(PaymentRetry retry);
+  PaymentRetry save(PaymentRetry retry);
 
-	List<PaymentRetry> getPaymentRetryByNoticeNumberAndFiscalCode(String noticeNumber, String fiscalCode);
+  List<PaymentRetry> getPaymentRetryByNoticeNumberAndFiscalCode(
+      String noticeNumber, String fiscalCode);
 
-	void delete(PaymentRetry retry);
+  void delete(PaymentRetry retry);
 
-	Page<PaymentRetry> findTopElements(int size);
-
+  Page<PaymentRetry> findTopElements(int size);
 }

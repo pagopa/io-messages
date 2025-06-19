@@ -2,13 +2,16 @@ package it.ioapp.com.paymentupdater.controller;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.annotations.Api;
+import it.ioapp.com.paymentupdater.dto.ProxyResponse;
+import it.ioapp.com.paymentupdater.model.ApiPaymentMessage;
+import it.ioapp.com.paymentupdater.model.Payment;
+import it.ioapp.com.paymentupdater.service.PaymentService;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import it.ioapp.com.paymentupdater.dto.ProxyResponse;
-import it.ioapp.com.paymentupdater.model.Payment;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,30 +22,29 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import io.swagger.annotations.Api;
-import it.ioapp.com.paymentupdater.model.ApiPaymentMessage;
-import it.ioapp.com.paymentupdater.service.PaymentService;
-import lombok.RequiredArgsConstructor;
 
 @Api(tags = "API  Payment")
 @RestController
 @Validated
-@RequestMapping(value = "api/v1/payment", produces = APPLICATION_JSON_VALUE, consumes = {
-  MediaType.APPLICATION_JSON_VALUE, MediaType.ALL_VALUE}, method = RequestMethod.OPTIONS)
+@RequestMapping(
+    value = "api/v1/payment",
+    produces = APPLICATION_JSON_VALUE,
+    consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.ALL_VALUE},
+    method = RequestMethod.OPTIONS)
 @RequiredArgsConstructor
 public class PaymentController {
 
-  @Autowired
-  PaymentService paymentService;
+  @Autowired PaymentService paymentService;
 
   @GetMapping(value = "/check/messages/{messageId}")
-  public ResponseEntity<ApiPaymentMessage> getMessagePayment(@PathVariable String messageId) throws ExecutionException, JsonProcessingException, InterruptedException {
+  public ResponseEntity<ApiPaymentMessage> getMessagePayment(@PathVariable String messageId)
+      throws ExecutionException, JsonProcessingException, InterruptedException {
     Payment payment = paymentService.findById(messageId).orElse(null);
-    if (payment == null)
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    if (payment == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
     if (!payment.isPaidFlag()) {
-      // FIX: sometimes we miss a payment event so if this payment is not paid we try to call paymentService
+      // FIX: sometimes we miss a payment event so if this payment is not paid we try to call
+      // paymentService
       if (paymentService != null) {
         ProxyResponse proxyResponse = paymentService.checkPayment(payment);
         if (proxyResponse != null) {
@@ -52,18 +54,19 @@ public class PaymentController {
       }
     }
 
-    ApiPaymentMessage apiPaymentMessage = ApiPaymentMessage.builder()
-      .messageId(payment.getId())
-      .dueDate(Optional.ofNullable(payment.getDueDate())
-        .map(LocalDateTime::toLocalDate)
-        .orElse(null))
-      .paid(payment.isPaidFlag())
-      .amount(payment.getContent_paymentData_amount())
-      .fiscalCode(payment.getFiscalCode())
-      .noticeNumber(payment.getContent_paymentData_noticeNumber())
-      .build();
+    ApiPaymentMessage apiPaymentMessage =
+        ApiPaymentMessage.builder()
+            .messageId(payment.getId())
+            .dueDate(
+                Optional.ofNullable(payment.getDueDate())
+                    .map(LocalDateTime::toLocalDate)
+                    .orElse(null))
+            .paid(payment.isPaidFlag())
+            .amount(payment.getContent_paymentData_amount())
+            .fiscalCode(payment.getFiscalCode())
+            .noticeNumber(payment.getContent_paymentData_noticeNumber())
+            .build();
 
     return new ResponseEntity<>(apiPaymentMessage, HttpStatus.OK);
   }
-
 }
