@@ -21,6 +21,4 @@ locals {
   # ITN
   apim_itn_name                = "${local.product}-itn-apim-01"
   apim_itn_resource_group_name = "${local.product}-itn-common-rg-01"
-
-  apim_defult_api_type = "http"
 }
