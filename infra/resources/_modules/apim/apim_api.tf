@@ -101,11 +101,11 @@ resource "azurerm_api_management_api" "messages_sending_internal_api_v1" {
 }
 
 resource "azurerm_api_management_api_policy" "messages_sending_internal_api_v1_policy" {
-  api_name            = azurerm_api_management_api.this.name
+  api_name            = azurerm_api_management_api.messages_sending_internal_api_v1.name
   api_management_name = data.azurerm_api_management.apim_itn_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
 
-  xml_content = file("./api/messages-sending/v1/_base_policy_internal.xml")
+  xml_content = file("../_modules/apim/api/messages-sending/v1/_base_policy_internal.xml")
 }
 
 resource "azurerm_api_management_product_api" "messages_sending_internal_api_v1_product_api" {
