@@ -1,3 +1,5 @@
+
+# BACKEND NOTIFICAZTION API
 resource "azurerm_api_management_api" "io_backend_notification_itn_api_v1" {
   name                = format("%s-io-backend-notification-api", local.product)
   resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
@@ -33,3 +35,42 @@ resource "azurerm_api_management_product_api" "io_backend_notification_itn_api_v
   api_management_name = azurerm_api_management_api.io_backend_notification_itn_api_v1.api_management_name
   resource_group_name = azurerm_api_management_api.io_backend_notification_itn_api_v1.resource_group_name
 }
+
+
+#SENDING FUNC API
+
+resource "azurerm_api_management_api" "messages_sending_external_api_v1" {
+  name                = format("%s-%s-messages-sending-external-api-01", local.product, var.location_short)
+  api_management_name = data.azurerm_api_management.apim_itn_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
+  revision            = "1"
+  description         = "IO Messages Sending - External - API"
+  display_name        = "IO Messages Sending - External - API"
+
+  path                  = "api/v1/messages-sending"
+  protocols             = ["https"]
+  service_url           = null
+  subscription_required = true
+
+  import {
+    content_format = "openapi"
+    content_value  = file("../_modules/apim/api/messages-sending/v1/_index_external.yaml")
+  }
+}
+
+resource "azurerm_api_management_api_policy" "messages_sending_external_api_v1_policy" {
+  api_name            = azurerm_api_management_api.messages_sending_external_api_v1.name
+  api_management_name = data.azurerm_api_management.apim_itn_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
+
+  xml_content = file("../_modules/apim/api/messages-sending/v1/_base_policy_external.xml")
+}
+
+resource "azurerm_api_management_product_api" "messages_sending_external_api_v1_product_api" {
+
+  product_id          = data.azurerm_api_management_product.apim_itn_product_services.product_id
+  api_name            = azurerm_api_management_api.messages_sending_external_api_v1.name
+  api_management_name = data.azurerm_api_management.apim_itn_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
+}
+

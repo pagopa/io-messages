@@ -18,3 +18,9 @@ data "azurerm_key_vault_secret" "io_p_messages_sending_func_key" {
   name         = "io-p-messages-sending-func-key"
   key_vault_id = data.azurerm_key_vault.messages_key_vault.id
 }
+
+data "azurerm_api_management_product" "apim_itn_product_services" {
+  product_id          = "io-services-api"
+  api_management_name = data.azurerm_api_management.apim_itn_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
+}
