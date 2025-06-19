@@ -43,7 +43,7 @@ const createContext = () =>
   ({
     bindings: {},
     executionContext: { functionName: "funcname" },
-    log: { ...console, verbose: console.log },
+    log: { ...console, verbose: vi.fn() },
   }) as unknown as Context;
 
 const aProfileWithWebhookEnabled = {

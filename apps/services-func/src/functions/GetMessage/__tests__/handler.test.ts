@@ -86,13 +86,13 @@ describe("GetMessageHandler", () => {
   const mockContext = {
     log: {
       // eslint-disable-next-line no-console
-      error: console.error,
+      error: vi.fn(),
       // eslint-disable-next-line no-console
-      info: console.log,
+      info: vi.fn(),
       // eslint-disable-next-line no-console
-      verbose: console.log,
+      verbose: vi.fn(),
       // eslint-disable-next-line no-console
-      warn: console.warn,
+      warn: vi.fn(),
     },
   } as any;
 
