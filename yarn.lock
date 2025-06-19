@@ -2684,6 +2684,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pagopa/io-backend-notifications-sdk@npm:^9.7.0":
+  version: 9.7.0
+  resolution: "@pagopa/io-backend-notifications-sdk@npm:9.7.0"
+  dependencies:
+    "@pagopa/ts-commons": "npm:^10.0.0"
+    fp-ts: "npm:^2.10.5"
+    io-ts: "npm:^2.2.16"
+  checksum: 10c0/9c56885ae199b2a935286507d3484628876b1a355d4c52265406f1b9fe47385340cdb97c7c6390e2fe3657b52490a207c49f88d4cae86e50317893df9ed9a61d
+  languageName: node
+  linkType: hard
+
 "@pagopa/io-functions-admin-sdk@npm:^1.10.1":
   version: 1.10.1
   resolution: "@pagopa/io-functions-admin-sdk@npm:1.10.1"
@@ -3464,6 +3475,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/documentdb@npm:^1.10.13":
+  version: 1.10.13
+  resolution: "@types/documentdb@npm:1.10.13"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/312a8385b3f74b8dd9fd3a56748e88b6549b1eb92cd54ea10c399fb1c884568d81851ee2d2f5d2f877f474b9fb2d3ff4bb57ea1a6685db0a3063cc9d51d2c734
+  languageName: node
+  linkType: hard
+
 "@types/estree@npm:1.0.7":
   version: 1.0.7
   resolution: "@types/estree@npm:1.0.7"
@@ -3681,6 +3701,13 @@ __metadata:
     "@types/tough-cookie": "npm:*"
     form-data: "npm:^2.5.0"
   checksum: 10c0/dd3d03d68af95b1e1961dc51efc63023543a91a74afd481dafb441521a31baa58c42f80d3bdd0d5d4633aa777e31b17f7ff7bed5606ad3f5eb175a65148adbce
+  languageName: node
+  linkType: hard
+
+"@types/semver@npm:^7":
+  version: 7.7.0
+  resolution: "@types/semver@npm:7.7.0"
+  checksum: 10c0/6b5f65f647474338abbd6ee91a6bbab434662ddb8fe39464edcbcfc96484d388baad9eb506dff217b6fc1727a88894930eb1f308617161ac0f376fe06be4e1ee
   languageName: node
   linkType: hard
 
@@ -5016,6 +5043,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"big-integer@npm:^1.6.25":
+  version: 1.6.52
+  resolution: "big-integer@npm:1.6.52"
+  checksum: 10c0/9604224b4c2ab3c43c075d92da15863077a9f59e5d4205f4e7e76acd0cd47e8d469ec5e5dba8d9b32aa233951893b29329ca56ac80c20ce094b4a647a66abae0
+  languageName: node
+  linkType: hard
+
 "bin-links@npm:^3.0.3":
   version: 3.0.3
   resolution: "bin-links@npm:3.0.3"
@@ -5034,6 +5068,13 @@ __metadata:
   version: 2.3.0
   resolution: "binary-extensions@npm:2.3.0"
   checksum: 10c0/75a59cafc10fb12a11d510e77110c6c7ae3f4ca22463d52487709ca7f18f69d886aa387557cc9864fbdb10153d0bdb4caacabf11541f55e89ed6e18d12ece2b5
+  languageName: node
+  linkType: hard
+
+"binary-search-bounds@npm:2.0.3":
+  version: 2.0.3
+  resolution: "binary-search-bounds@npm:2.0.3"
+  checksum: 10c0/12768733ce23d114f814a5c5df3022fbe506a3c97fa58a6d4807b67896df03049285ebe0d2ae2383f73f3ae3d7fd642303e11a890af519e2c382c70738daed6d
   languageName: node
   linkType: hard
 
@@ -6260,7 +6301,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:^4.0.1, debug@npm:^4.3.7":
+"debug@npm:^4.0.1, debug@npm:^4.1.0, debug@npm:^4.3.7":
   version: 4.4.1
   resolution: "debug@npm:4.4.1"
   dependencies:
@@ -6576,6 +6617,22 @@ __metadata:
   dependencies:
     esutils: "npm:^2.0.2"
   checksum: 10c0/c96bdccabe9d62ab6fea9399fdff04a66e6563c1d6fb3a3a063e8d53c3bb136ba63e84250bbf63d00086a769ad53aef92d2bd483f03f837fc97b71cbee6b2520
+  languageName: node
+  linkType: hard
+
+"documentdb@npm:^1.15.3":
+  version: 1.15.3
+  resolution: "documentdb@npm:1.15.3"
+  dependencies:
+    big-integer: "npm:^1.6.25"
+    binary-search-bounds: "npm:2.0.3"
+    debug: "npm:^4.1.0"
+    int64-buffer: "npm:^0.1.9"
+    priorityqueuejs: "npm:1.0.0"
+    semaphore: "npm:1.0.5"
+    tunnel: "npm:0.0.5"
+    underscore: "npm:1.8.3"
+  checksum: 10c0/1f4ee266c7984260aa9d2ab7ae77369d58555baa1fd603e6a8e62f23b2cf904a5d011c24b3a047b36f15cdf6c2c024ff5b9dc7d0ed920cba85fd81b0b03770c0
   languageName: node
   linkType: hard
 
@@ -8387,7 +8444,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fp-ts@npm:^2.10.5, fp-ts@npm:^2.11.0":
+"fp-ts@npm:^2.10.5, fp-ts@npm:^2.11.0, fp-ts@npm:^2.16.5":
   version: 2.16.10
   resolution: "fp-ts@npm:2.16.10"
   checksum: 10c0/20f75db2cecf332d7555efa6fc2774e5c2e8bde281c55e7818bfea8381c7397f7b2f0742da22593ea63d302b9be22db0670d9a37a77122c6625b954e84fd8148
@@ -9436,6 +9493,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"int64-buffer@npm:^0.1.9":
+  version: 0.1.10
+  resolution: "int64-buffer@npm:0.1.10"
+  checksum: 10c0/22688f6d1f4db11eaacbf8e7f0b80a23690c29d023987302c367f8c071a53b84fa1cef6f8db0a347e9326f94ff76aa3529e8e9964e99d37fc675f5dcd835ee50
+  languageName: node
+  linkType: hard
+
 "internal-slot@npm:^1.1.0":
   version: 1.1.0
   resolution: "internal-slot@npm:1.1.0"
@@ -9508,7 +9572,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"io-ts@npm:^2.2.16":
+"io-ts@npm:^2.2.16, io-ts@npm:^2.2.21":
   version: 2.2.22
   resolution: "io-ts@npm:2.2.22"
   peerDependencies:
@@ -13327,7 +13391,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"priorityqueuejs@npm:^1.0.0":
+"priorityqueuejs@npm:1.0.0, priorityqueuejs@npm:^1.0.0":
   version: 1.0.0
   resolution: "priorityqueuejs@npm:1.0.0"
   checksum: 10c0/4cccd0389d7597e13a61a058e048ef0ade3f8eb17e5dbf1a965db3a5c6aa94c9a60f40cd3aaf88e657813e211debcfcd2eea4cf7e740c8e3c33eebb1919863f5
@@ -14512,6 +14576,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"semaphore@npm:1.0.5":
+  version: 1.0.5
+  resolution: "semaphore@npm:1.0.5"
+  checksum: 10c0/37994058271ba084580dee0cdd41caa8b2af1425de0dea84dae8862cb9855e89eb0f116af3084d07c7a2ec4b1e31806685539f56d303ae0109fc9d2098f82be3
+  languageName: node
+  linkType: hard
+
 "semaphore@npm:^1.0.5, semaphore@npm:^1.1.0":
   version: 1.1.0
   resolution: "semaphore@npm:1.1.0"
@@ -14562,7 +14633,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:^7.0.0, semver@npm:^7.1.1, semver@npm:^7.1.2, semver@npm:^7.2.1, semver@npm:^7.3.2, semver@npm:^7.3.4":
+"semver@npm:^7.0.0, semver@npm:^7.1.1, semver@npm:^7.1.2, semver@npm:^7.2.1, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.7.2":
   version: 7.7.2
   resolution: "semver@npm:7.7.2"
   bin:
@@ -14660,24 +14731,28 @@ __metadata:
     "@azure/storage-queue": "npm:^12.4.0"
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@pagopa/express-azure-functions": "npm:^2.1.1"
+    "@pagopa/io-backend-notifications-sdk": "npm:^9.7.0"
     "@pagopa/io-functions-admin-sdk": "npm:^1.10.1"
     "@pagopa/io-functions-commons": "npm:^29.3.0"
     "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
     "@pagopa/ts-commons": "npm:^12.5.0"
+    "@types/documentdb": "npm:^1.10.13"
     "@types/express": "npm:^4.17.11"
     "@types/lolex": "npm:^5.1.6"
     "@types/node": "npm:^20.17.30"
     "@types/node-fetch": "npm:^2.5.7"
+    "@types/semver": "npm:^7"
     "@vitest/coverage-v8": "npm:^3.1.2"
     abort-controller: "npm:^3.0.0"
     applicationinsights: "npm:^1.8.10"
     azure-storage: "npm:^2.10.3"
     date-fns: "npm:^4.1.0"
+    documentdb: "npm:^1.15.3"
     eslint: "npm:8.57.1"
     express: "npm:^4.15.3"
     fast-check: "npm:^1.16.0"
-    fp-ts: "npm:^2.10.5"
-    io-ts: "npm:^2.2.16"
+    fp-ts: "npm:^2.16.5"
+    io-ts: "npm:^2.2.21"
     io-ts-types: "npm:^0.5.19"
     lolex: "npm:^6.0.0"
     monocle-ts: "npm:^2.3.13"
@@ -14686,6 +14761,7 @@ __metadata:
     prettier: "npm:3.2.5"
     redis: "npm:^4.6.13"
     rimraf: "npm:^6.0.1"
+    semver: "npm:^7.7.2"
     shx: "npm:^0.3.4"
     ts-pattern: "npm:^4.0.5"
     typescript: "npm:^5.8.3"
@@ -16001,6 +16077,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tunnel@npm:0.0.5":
+  version: 0.0.5
+  resolution: "tunnel@npm:0.0.5"
+  checksum: 10c0/c0889a8e3af0268c9cf3df541dbdf3562f6cf091c3adb1ecde9b487ef831e0e2b7c2bac0c1e174c48ffd8dd5835e5ae0b77b0866800cc702fb8650a20936a7c2
+  languageName: node
+  linkType: hard
+
 "turbo-darwin-64@npm:2.5.0":
   version: 2.5.0
   resolution: "turbo-darwin-64@npm:2.5.0"
@@ -16345,6 +16428,13 @@ __metadata:
   version: 0.1.2
   resolution: "unc-path-regex@npm:0.1.2"
   checksum: 10c0/bf9c781c4e2f38e6613ea17a51072e4b416840fbe6eeb244597ce9b028fac2fb6cfd3dde1f14111b02c245e665dc461aab8168ecc30b14364d02caa37f812996
+  languageName: node
+  linkType: hard
+
+"underscore@npm:1.8.3":
+  version: 1.8.3
+  resolution: "underscore@npm:1.8.3"
+  checksum: 10c0/b9f8c5756252e01c057859c4b0932dc0bea73122121bbe465f1e1fa975ca6c3b6a3c8b967b7918d374686f9f1beb96c0d5c5d52788fc1328992bff02dba3599c
   languageName: node
   linkType: hard
 
