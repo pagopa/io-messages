@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutionException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.gov.pagopa.paymentupdater.dto.ProxyResponse;
 import it.gov.pagopa.paymentupdater.model.Payment;
-import it.gov.pagopa.paymentupdater.service.PaymentServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,9 +35,6 @@ public class PaymentController {
   @Autowired
   PaymentService paymentService;
 
-  @Autowired
-  PaymentServiceImpl paymentServiceImpl;
-
   @GetMapping(value = "/check/messages/{messageId}")
   public ResponseEntity<ApiPaymentMessage> getMessagePayment(@PathVariable String messageId) throws ExecutionException, JsonProcessingException, InterruptedException {
     Payment payment = paymentService.findById(messageId).orElse(null);
@@ -47,8 +43,8 @@ public class PaymentController {
 
     if (!payment.isPaidFlag()) {
       // FIX: sometimes we miss a payment event so if this payment is not paid we try to call paymentService
-      if (paymentServiceImpl != null) {
-        ProxyResponse proxyResponse = paymentServiceImpl.checkPayment(payment);
+      if (paymentService != null) {
+        ProxyResponse proxyResponse = paymentService.checkPayment(payment);
         if (proxyResponse != null) {
           payment.setPaidFlag(proxyResponse.isPaid());
           paymentService.save(payment);

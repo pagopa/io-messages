@@ -38,7 +38,6 @@ import it.gov.pagopa.paymentupdater.dto.payments.PaymentInfo;
 import it.gov.pagopa.paymentupdater.dto.payments.PaymentRoot;
 import it.gov.pagopa.paymentupdater.dto.payments.Psp;
 import it.gov.pagopa.paymentupdater.dto.payments.Transfer;
-import it.gov.pagopa.paymentupdater.dto.request.ProxyPaymentResponse;
 import it.gov.pagopa.paymentupdater.model.Payment;
 import it.gov.pagopa.paymentupdater.model.PaymentRetry;
 import it.gov.pagopa.paymentupdater.repository.PaymentRepository;
@@ -47,6 +46,13 @@ import it.gov.pagopa.paymentupdater.restclient.proxy.api.DefaultApi;
 import it.gov.pagopa.paymentupdater.restclient.proxy.model.PaymentRequestsGetResponse;
 import it.gov.pagopa.paymentupdater.service.PaymentRetryServiceImpl;
 import it.gov.pagopa.paymentupdater.service.PaymentServiceImpl;
+
+
+import it.gov.pagopa.paymentupdater.restclient.proxy.model.PaymentStatusFaultPaymentProblemJson;
+
+/**
+ * Abstract class for setting up common mock objects and methods used in tests.
+ */
 
 public abstract class AbstractMock {
 
@@ -119,23 +125,28 @@ public abstract class AbstractMock {
 	}
 
 	public void mockGetPaymentInfoIsPaidTrue() throws JsonProcessingException {
-		HttpServerErrorException errorResponse = new HttpServerErrorException(HttpStatus.CONFLICT, "",
-				mapper.writeValueAsString(getProxyResponse()).getBytes(), Charset.defaultCharset());
+		PaymentStatusFaultPaymentProblemJson problem = new PaymentStatusFaultPaymentProblemJson();
+
+    problem.setDetailV2("PAA_PAGAMENTO_DUPLICATO");
+
+    HttpServerErrorException errorResponse = new HttpServerErrorException(HttpStatus.CONFLICT, "",
+				mapper.writeValueAsString(problem).getBytes(), Charset.defaultCharset());
 
 		Mockito.when(mockDefaultApi.getPaymentInfo(Mockito.anyString())).thenThrow(errorResponse);
 	}
 
 	public void mockGetPaymentInfoIsNotPaid(String responseDetail) throws JsonProcessingException {
-		ProxyPaymentResponse proxyResponse = getProxyResponse();
-		proxyResponse.setDetailV2(responseDetail);
+    PaymentStatusFaultPaymentProblemJson problem = new PaymentStatusFaultPaymentProblemJson();
+    problem.setDetailV2(responseDetail);
+
 		HttpServerErrorException errorResponse = new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "",
-				mapper.writeValueAsString(proxyResponse).getBytes(), Charset.defaultCharset());
+				mapper.writeValueAsString(problem).getBytes(), Charset.defaultCharset());
 
 		Mockito.when(mockDefaultApi.getPaymentInfo(Mockito.anyString())).thenThrow(errorResponse);
 	}
 
 	public void mockGetPaymentInfoError() throws JsonProcessingException {
-		ProxyPaymentResponse proxyResponse = getProxyResponse();
+		PaymentStatusFaultPaymentProblemJson proxyResponse = getProxyResponse();
 		proxyResponse.setDetailV2(null);
 		HttpServerErrorException errorResponse = new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "",
 				mapper.writeValueAsString(proxyResponse).getBytes(), Charset.defaultCharset());
@@ -186,6 +197,8 @@ public abstract class AbstractMock {
 		return returnReminder1;
 	}
 
+  // https://oauth.io.pagopa.it/authorize?client_id=01JWWZJQ9N6PMMZ0XBCK8XHYM0&scope=openid%20profile%20lollipop&response_type=code&redirect_uri=https%3A%2F%2Fapi-app.io.pagopa.it%2Fapi%2Fcdc%2Fv1%2Ffcb&nonce=F4Ozm46nf5KfxQ1cRhwRZKTc2YSuMjJEcE5xU1ljNXc&state=OS-kEC4EsW83ggeywapEYsfaiUJ0_BpTFIZ7sUi9BBs
+
 	protected String selectPaymentMessageObject(String type, String messageId, String noticeNumber,
 			String payeeFiscalCode, boolean paid, LocalDateTime dueDate, double amount, String source,
 			String fiscalCode, LocalDateTime paymentDateTime) throws JsonProcessingException {
@@ -195,8 +208,8 @@ public abstract class AbstractMock {
 		return mapper.writeValueAsString(paymentMessage);
 	}
 
-	protected ProxyPaymentResponse getProxyResponse() {
-		ProxyPaymentResponse paymentResponse = new ProxyPaymentResponse();
+	protected PaymentStatusFaultPaymentProblemJson getProxyResponse() {
+		PaymentStatusFaultPaymentProblemJson paymentResponse = new PaymentStatusFaultPaymentProblemJson();
 		paymentResponse.setDetailV2("PPT_RPT_DUPLICATA");
 		paymentResponse.setDetail("");
 		paymentResponse.setInstance("");

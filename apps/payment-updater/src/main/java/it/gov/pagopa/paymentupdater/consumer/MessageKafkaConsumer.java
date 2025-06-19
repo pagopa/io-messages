@@ -15,7 +15,6 @@ import dto.MessageContentType;
 import it.gov.pagopa.paymentupdater.dto.ProxyResponse;
 import it.gov.pagopa.paymentupdater.model.Payment;
 import it.gov.pagopa.paymentupdater.service.PaymentService;
-import it.gov.pagopa.paymentupdater.service.PaymentServiceImpl;
 import it.gov.pagopa.paymentupdater.util.PaymentUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,9 +23,6 @@ public class MessageKafkaConsumer {
 
   @Autowired
   PaymentService paymentService;
-
-  @Autowired
-  PaymentServiceImpl paymentServiceImpl;
 
   private CountDownLatch latch = new CountDownLatch(1);
   private String payload = null;
@@ -47,7 +43,7 @@ public class MessageKafkaConsumer {
         String rptId = paymentMessage.getContent_paymentData_payeeFiscalCode()
           .concat(paymentMessage.getContent_paymentData_noticeNumber());
         paymentMessage.setRptId(rptId);
-        ProxyResponse proxyResponse = paymentServiceImpl.checkPayment(paymentMessage);
+        ProxyResponse proxyResponse = paymentService.checkPayment(paymentMessage);
         if (proxyResponse.isPaid()) {
           paymentMessage.setPaidFlag(true);
         } else {
