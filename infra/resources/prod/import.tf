@@ -237,7 +237,7 @@ import {
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/groups/apipaymentread"
 }
 
-#APIM NOTIFICATIONS PRODUCT
+#APIM NOTIFICATIONS PRODUCT API
 
 import {
   to = module.apim.azurerm_api_management_product.apim_itn_product_notifications
@@ -358,8 +358,6 @@ import {
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/subscriptions/a3e037a9-b250-41e8-8395-39cfb22f98a5"
 }
 
-
-
 #APIM SECRETS AND VALUES
 import {
   to = module.apim.azurerm_key_vault_secret.reminder_payment_api_subscription_primary_key_itn
@@ -370,6 +368,19 @@ import {
   to = module.apim.azurerm_api_management_named_value.io_p_messages_sending_func_key_itn
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/namedValues/io-p-messages-sending-func-key"
 }
+
+#APIM MESSAGES BACKEND PRODUCT API
+
+import {
+  to = module.apim.azurerm_api_management_product.apim_itn_product_messages_backend
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-messages-backend-api"
+}
+
+import {
+  to = module.apim.azurerm_api_management_product_policy.apim_itn_product_messages_backend_policy
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-messages-backend-api"
+}
+
 
 
 
