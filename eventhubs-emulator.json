@@ -59,6 +59,24 @@
                 "Name": "payment-updates-shared"
               }
             ]
+          },
+          {
+            "Name": "messages-payments",
+            "PartitionCount": 2,
+            "ConsumerGroups": [
+              {
+                "Name": "consumer-message"
+              }
+            ]
+          },
+          {
+            "Name": "nodo-dei-pagamenti-biz-evt",
+            "PartitionCount": 2,
+            "ConsumerGroups": [
+              {
+                "Name": "consumer-Payment"
+              }
+            ]
           }
         ]
       }

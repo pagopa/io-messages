@@ -13018,6 +13018,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"payment-updater@workspace:apps/payment-updater":
+  version: 0.0.0-use.local
+  resolution: "payment-updater@workspace:apps/payment-updater"
+  languageName: unknown
+  linkType: soft
+
 "performance-now@npm:^2.1.0":
   version: 2.1.0
   resolution: "performance-now@npm:2.1.0"
