@@ -10,7 +10,7 @@ module "payment_updater_ca_itn_01" {
     env_short       = var.environment.env_short
     location        = var.environment.location
     domain          = var.environment.domain
-    app_name        = "payment-updater"
+    app_name        = "paymentup"
     instance_number = "01"
   }
 
