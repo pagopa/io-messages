@@ -25,3 +25,7 @@ data "azurerm_api_management_product" "apim_itn_product_services" {
   resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
 }
 
+data "azurerm_key_vault_secret" "io_messages_backend_func_key" {
+  name         = "io-p-messages-backend-func-key"
+  key_vault_id = data.azurerm_key_vault.messages_key_vault.id
+}
