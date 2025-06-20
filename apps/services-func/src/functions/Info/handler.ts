@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import * as healthcheck from "@pagopa/io-functions-commons/dist/src/utils/healthcheck";
-import * as T from "fp-ts/lib/Task"
 import { toHealthProblems } from "@pagopa/io-functions-commons/dist/src/utils/healthcheck";
 import { wrapRequestHandler } from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import {
@@ -9,15 +8,16 @@ import {
   ResponseErrorInternal,
   ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
+import { common, createBlobService, createQueueService } from "azure-storage";
 import * as express from "express";
+import * as A from "fp-ts/lib/Array";
+import * as RA from "fp-ts/lib/ReadonlyArray";
+import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
-import * as RA from "fp-ts/lib/ReadonlyArray"
-import * as A from "fp-ts/lib/Array"
 import { pipe } from "fp-ts/lib/function";
 
 import * as packageJson from "../../../package.json";
 import { IConfig, envConfig } from "../../utils/config";
-import { common, createBlobService, createQueueService } from "azure-storage";
 
 export const checkAzureStorageHealth = (
   connStr: string,
@@ -91,13 +91,8 @@ export function Info(): express.RequestHandler {
       (c) =>
         healthcheck.checkAzureCosmosDbHealth(c.COSMOSDB_URI, c.COSMOSDB_KEY),
       (c) =>
-        checkAzureStorageHealth(
-          c.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
-        ),
-      (c) =>
-        checkAzureStorageHealth(
-          c.INTERNAL_STORAGE_CONNECTION_STRING,
-        ),
+        checkAzureStorageHealth(c.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING),
+      (c) => checkAzureStorageHealth(c.INTERNAL_STORAGE_CONNECTION_STRING),
       (c) =>
         pipe(
           TE.tryCatch(

@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 1.0.6
+
+### Patch Changes
+
+- ede399d: Move cosmos trigger Function from cqrs to sending
+
 ## 1.0.5
 
 ### Patch Changes

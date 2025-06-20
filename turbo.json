@@ -49,6 +49,7 @@
       "inputs": ["apps/**/src/**/*.ts", "packages/**/src/**/*.ts"],
       "outputs": ["coverage"],
       "outputLogs": "errors-only"
-    }
+    },
+    "version": {}
   }
 }
