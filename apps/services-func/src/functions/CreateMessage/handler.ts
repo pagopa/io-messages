@@ -77,7 +77,6 @@ import { TaskEither } from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
-import { Client } from "../../generated/remote-content/client";
 import {
   CommonMessageData,
   CreatedMessageEvent,
@@ -90,6 +89,7 @@ import {
   ApiNewThirdPartyMessage,
 } from "./types";
 import { makeUpsertBlobFromObject } from "./utils";
+import { RemoteContentClient } from "@/clients/remote-content";
 
 /**
  * Type of a CreateMessage handler.
@@ -314,7 +314,7 @@ export const parseOwnerIdFullPath = (
 // eslint-disable-next-line max-params, max-lines-per-function
 export function CreateMessageHandler(
   telemetryClient: ReturnType<typeof initAppInsights>,
-  remoteContentClient: Client<"ApiKeyAuth">,
+  remoteContentClient: RemoteContentClient,
   messageModel: MessageModel,
   generateObjectId: ObjectIdGenerator,
   saveProcessingMessage: ReturnType<typeof makeUpsertBlobFromObject>,
@@ -373,9 +373,6 @@ export function CreateMessageHandler(
         await remoteContentClient.getRCConfiguration({
           configurationId:
             messagePayload.content.third_party_data?.configuration_id,
-          "x-subscription-id": auth.subscriptionId,
-          "x-user-groups": "ApiRemoteContentConfigurationWrite",
-          "x-user-id": auth.userId,
         });
 
       if (E.isLeft(getRCConfigurationResponseOrError)) {
@@ -582,7 +579,7 @@ export function CreateMessageHandler(
 // eslint-disable-next-line max-params
 export function CreateMessage(
   telemetryClient: ReturnType<typeof initAppInsights>,
-  remoteContentClient: Client<"ApiKeyAuth">,
+  remoteContentClient: RemoteContentClient,
   serviceModel: ServiceModel,
   messageModel: MessageModel,
   saveProcessingMessage: ReturnType<typeof makeUpsertBlobFromObject>,

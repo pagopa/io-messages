@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { RemoteContentClient } from "@/clients/remote-content";
 import { Context } from "@azure/functions";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
@@ -27,7 +28,6 @@ import {
   aRCConfigurationResponse,
   aRCConfigurationResponse as anOwnedRCConfiguration,
 } from "../../../__mocks__/remote-content";
-import { createClient } from "../../../generated/remote-content/client";
 import {
   alphaStringArb,
   featureLevelTypeArb,
@@ -71,15 +71,31 @@ const anOtherRCConfiguration = {
   user_id: "09876543210",
 };
 
-const remoteContentClient = createClient<"ApiKeyAuth">({
-  baseUrl: "http://baseurl.com",
-  fetchApi: fetch,
-  withDefaults: (op) => (params) =>
-    op({
-      ...params,
-      ApiKeyAuth: "mockApiKey",
-    }),
-});
+const mockGetRCConfiguration = vi
+  .fn()
+  .mockImplementation(async (input: Record<"configurationId", string>) => {
+    if (input.configurationId === anOwnedRCConfiguration.configuration_id) {
+      return E.right({
+        status: 200,
+        value: anOwnedRCConfiguration,
+      });
+    }
+
+    if (input.configurationId === anOtherRCConfiguration.configuration_id) {
+      return E.right({
+        status: 200,
+        value: anOtherRCConfiguration,
+      });
+    }
+
+    return E.right({
+      status: 404,
+    });
+  });
+
+const remoteContentClient: RemoteContentClient = {
+  getRCConfiguration: mockGetRCConfiguration,
+} as unknown as RemoteContentClient;
 
 describe("canWriteMessage", () => {
   it("should respond with ResponseErrorForbiddenNotAuthorizedForProduction when service is in no group", () => {

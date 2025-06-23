@@ -1,3 +1,4 @@
+import { remoteContentClient } from "../../clients/remote-content";
 import { Context } from "@azure/functions";
 import createAzureFunctionHandler from "@pagopa/express-azure-functions/dist/src/createAzureFunctionsHandler";
 import {
@@ -11,17 +12,9 @@ import {
 import { withAppInsightsContext } from "@pagopa/io-functions-commons/dist/src/utils/application_insights";
 import { secureExpressApp } from "@pagopa/io-functions-commons/dist/src/utils/express";
 import { setAppContext } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
-import {
-  AbortableFetch,
-  setFetchTimeout,
-  toFetch,
-} from "@pagopa/ts-commons/lib/fetch";
-import { Millisecond } from "@pagopa/ts-commons/lib/units";
 import { createBlobService } from "azure-storage";
 import * as express from "express";
-import { pipe } from "fp-ts/lib/function";
 
-import { createClient } from "../../generated/remote-content/client.js";
 import { initTelemetryClient } from "../../utils/appinsights.js";
 import { getConfigOrThrow } from "../../utils/config.js";
 import { cosmosdbInstance } from "../../utils/cosmosdb.js";
@@ -48,26 +41,6 @@ const blobService = createBlobService(
 );
 
 const telemetryClient = initTelemetryClient(config);
-
-const DEFAULT_REQUEST_TIMEOUT_MS = 10000 as Millisecond;
-
-const httpOrHttpsApiFetch = pipe(
-  AbortableFetch(fetch),
-  (abortableFetch) =>
-    setFetchTimeout(DEFAULT_REQUEST_TIMEOUT_MS, abortableFetch),
-  (fetchWithTimeout) => toFetch(fetchWithTimeout),
-);
-
-//TODO: check auth method
-const remoteContentClient = createClient<"ApiKeyAuth">({
-  baseUrl: config.SENDING_FUNC_API_URL,
-  fetchApi: httpOrHttpsApiFetch,
-  withDefaults: (op) => (params) =>
-    op({
-      ...params,
-      ApiKeyAuth: config.SENDING_FUNC_API_KEY,
-    }),
-});
 
 app.post(
   "/api/v1/messages/:fiscalcode?",
