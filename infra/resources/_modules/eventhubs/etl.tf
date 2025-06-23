@@ -120,7 +120,7 @@ module "etl" {
       consumers = []
     },
     {
-      name                   = "reminder-message-send"
+      name                   = "reminder-message-send-evh"
       partitions             = 5
       message_retention_days = 7
       keys = [
