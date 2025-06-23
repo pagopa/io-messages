@@ -14,12 +14,10 @@ import * as HtmlToText from "html-to-text";
 import * as t from "io-ts";
 import * as NodeMailer from "nodemailer";
 
-import { BetaUsers } from "../../utils/config";
 import {
   CommonMessageData,
   NotificationCreatedEvent,
 } from "../../utils/events/message";
-import { FeatureFlag } from "../../utils/featureFlag";
 import { withDecodedInput } from "../../utils/with-decoded-input";
 import {
   DataFetcher,
@@ -27,12 +25,6 @@ import {
 } from "../../utils/with-expanded-input";
 import { withJsonInput } from "../../utils/with-json-input";
 import { messageReducedToHtml } from "./utils";
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type FfTemplateEmail = {
-  readonly BETA_USERS: BetaUsers;
-  readonly FF_TEMPLATE_EMAIL: FeatureFlag;
-};
 
 export interface INotificationDefaults {
   readonly HTML_TO_TEXT_OPTIONS: HtmlToTextOptions;

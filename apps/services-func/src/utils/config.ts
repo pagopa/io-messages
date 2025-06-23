@@ -28,7 +28,6 @@ import { flow, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
 import { CommaSeparatedListOf } from "./comma-separated-list";
-import { FeatureFlag, FeatureFlagEnum } from "./featureFlag";
 
 export type HttpUrl = t.TypeOf<typeof HttpsUrl>;
 export const HttpUrl = PatternString("^http://[a-zA-Z0-9.-]+(:[0-9]+)?$");
@@ -56,12 +55,6 @@ const MessageContentStorageAccount = t.type({
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
 });
 
-// used to read and write subscription feed entries on table storage
-const SubscriptionFeedStorageAccount = t.type({
-  SUBSCRIPTION_FEED_STORAGE_CONNECTION_STRING: NonEmptyString,
-  SUBSCRIPTIONS_FEED_TABLE: NonEmptyString,
-});
-
 // global app configuration
 export type IConfig = t.TypeOf<typeof IConfig>;
 export const IConfig = t.intersection([
@@ -71,31 +64,20 @@ export const IConfig = t.intersection([
 
     APPINSIGHTS_INSTRUMENTATIONKEY: NonEmptyString,
 
-    BETA_USERS: BetaUsersFromString,
-
     COSMOSDB_KEY: NonEmptyString,
     COSMOSDB_NAME: NonEmptyString,
     COSMOSDB_URI: NonEmptyString,
 
-    DEFAULT_SUBSCRIPTION_PRODUCT_NAME: NonEmptyString,
-
     EMAIL_NOTIFICATION_SERVICE_BLACKLIST: CommaSeparatedListOf(ServiceId),
-
-    FEATURE_FLAG: withDefault(FeatureFlag, FeatureFlagEnum.NONE),
 
     // eslint-disable-next-line sort-keys
     FF_DISABLE_INCOMPLETE_SERVICES: t.boolean,
-    FF_DISABLE_WEBHOOK_MESSAGE_CONTENT: t.boolean,
     FF_INCOMPLETE_SERVICE_WHITELIST: CommaSeparatedListOf(ServiceId),
 
     FF_OPT_IN_EMAIL_ENABLED: t.boolean,
 
     FF_PAYMENT_STATUS_ENABLED: withDefault(BooleanFromString, false),
-    FF_TEMPLATE_EMAIL: withDefault(FeatureFlag, FeatureFlagEnum.NONE),
 
-    // eslint-disable-next-line sort-keys
-    IO_FUNCTIONS_ADMIN_API_TOKEN: NonEmptyString,
-    IO_FUNCTIONS_ADMIN_BASE_URL: NonEmptyString,
     // eslint-disable-next-line sort-keys
     MIN_APP_VERSION_WITH_READ_AUTH: Semver,
 
@@ -104,7 +86,6 @@ export const IConfig = t.intersection([
     PAGOPA_ECOMMERCE_API_KEY: NonEmptyString,
     PAGOPA_ECOMMERCE_BASE_URL: NonEmptyString,
     PENDING_ACTIVATION_GRACE_PERIOD_SECONDS: t.number,
-    PN_SERVICE_ID: NonEmptyString,
     SANDBOX_FISCAL_CODE: NonEmptyString,
     SENDING_FUNC_API_KEY: NonEmptyString,
 
@@ -119,7 +100,6 @@ export const IConfig = t.intersection([
     isProduction: t.boolean,
   }),
   MessageContentStorageAccount,
-  SubscriptionFeedStorageAccount,
   InternalStorageAccount,
   MailerConfig,
 ]);
@@ -136,11 +116,6 @@ export const envConfig = {
 
   FF_DISABLE_INCOMPLETE_SERVICES: pipe(
     O.fromNullable(process.env.FF_DISABLE_INCOMPLETE_SERVICES),
-    O.map((_) => _.toLowerCase() === "true"),
-    O.getOrElse(() => false),
-  ),
-  FF_DISABLE_WEBHOOK_MESSAGE_CONTENT: pipe(
-    O.fromNullable(process.env.FF_DISABLE_WEBHOOK_MESSAGE_CONTENT),
     O.map((_) => _.toLowerCase() === "true"),
     O.getOrElse(() => false),
   ),
