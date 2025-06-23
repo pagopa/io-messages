@@ -359,8 +359,7 @@ import {
 }
 
 
-
-#APIM SECRETS AND NAMED VALUES
+#APIM SECRETS
 import {
   to = module.apim.azurerm_key_vault_secret.reminder_payment_api_subscription_primary_key_itn
   id = "https://io-p-messages-kv.vault.azure.net/secrets/io-p-reminder-payment-api-subscription-key-itn/325879ffaa2a419a8a09a00814e087ed"
@@ -376,6 +375,7 @@ import {
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/namedValues/io-messages-backend-key"
 }
 
+
 #APIM PAYMENT UPDATE PRODUCT API
 
 import {
@@ -388,6 +388,20 @@ import {
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-payments-api"
 }
 
+#payment updater API
+import {
+  to = module.apim.azurerm_api_management_api.payments_updater_api_v1
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/apis/io-p-payments-updater-api"
+}
 
+import {
+  to = module.apim.azurerm_api_management_api_policy.payments_updater_api_v1_policy
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/apis/io-p-payments-updater-api"
+}
+
+import {
+  to = module.apim.azurerm_api_management_product_api.payments_updater_api_v1_product_api
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-payments-api/apis/io-p-payments-updater-api"
+}
 
 
