@@ -12,7 +12,7 @@ module "mysql" {
   common_resource_group_name = data.azurerm_resource_group.weu_common.name
 
   subnet_cidrs = {
-    com = "10.0.155.16/28"
+    com = "10.20.155.16/28"
   }
 
   virtual_network = {
