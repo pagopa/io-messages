@@ -6,10 +6,10 @@
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app-environment/azurerm/1.0.2"
   },
   "container_apps.reminder_ca_itn_01": {
-    "hash": "fe43248dd23002563d235d734432e2d2a8fb80dad45a840e503f6d6fc4f40b42",
-    "version": "1.0.2",
+    "hash": "f40ba13e4318b7b6a4ca8da9104573e699a138b55ad750f48bce7c14687c6edd",
+    "version": "3.0.1",
     "name": "azure_container_app",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app/azurerm/1.0.2"
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app/azurerm/3.0.1"
   },
   "cosmos.io_com_cosmos_account": {
     "hash": "398ffd2c1fb90f2228a5d42e7f90e6601162c2e90e23daeee726e1f1f02aa322",
@@ -94,5 +94,11 @@
     "version": "0.3.1",
     "name": "azure_function_app",
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/0.3.1"
+  },
+  "container_apps.payment_updater_ca_itn_01": {
+    "hash": "f40ba13e4318b7b6a4ca8da9104573e699a138b55ad750f48bce7c14687c6edd",
+    "version": "3.0.1",
+    "name": "azure_container_app",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app/azurerm/3.0.1"
   }
 }
