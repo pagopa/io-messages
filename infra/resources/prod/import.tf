@@ -357,10 +357,6 @@ import {
   to = module.apim.azurerm_api_management_subscription.reminder_itn
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/subscriptions/a3e037a9-b250-41e8-8395-39cfb22f98a5"
 }
-import {
-  to = module.apim.azurerm_api_management_subscription.messages_backend_itn
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/subscriptions/fbc43782-b607-47fc-ae32-571d3043df45"
-}
 
 
 
@@ -380,16 +376,16 @@ import {
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/namedValues/io-messages-backend-key"
 }
 
-#APIM MESSAGES BACKEND PRODUCT API
+#APIM PAYMENT UPDATE PRODUCT API
 
 import {
-  to = module.apim.azurerm_api_management_product.apim_itn_product_messages_backend
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-messages-backend-api"
+  to = module.apim.azurerm_api_management_product.apim_itn_product_payments
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-payments-api"
 }
 
 import {
-  to = module.apim.azurerm_api_management_product_policy.apim_itn_product_messages_backend_policy
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-messages-backend-api"
+  to = module.apim.azurerm_api_management_product_policy.apim_itn_product_payments_policy
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/products/io-payments-api"
 }
 
 
