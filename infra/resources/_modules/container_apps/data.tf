@@ -66,3 +66,23 @@ data "azurerm_key_vault_secret" "senders_to_use" {
   name         = "reminder-senders-to-use"
   key_vault_id = var.key_vault_id
 }
+
+data "azurerm_key_vault_secret" "payments_mongo_database_uri" {
+  name         = "io-p-payments-mongodb-account-connection-string"
+  key_vault_id = var.key_vault_id
+}
+
+data "azurerm_key_vault_secret" "payment_updates_kafka_url_message" {
+  name         = "messages-io-p-messages-weu-prod01-evh-jaas-connection-string"
+  key_vault_id = var.key_vault_id
+}
+
+data "azurerm_key_vault_secret" "payment_updates_kafka_url_payment" {
+  name         = "nodo-dei-pagamenti-biz-evt-pagopa-p-evh-ns03-evh-jaas-connection-string"
+  key_vault_id = var.key_vault_id
+}
+
+data "azurerm_key_vault_secret" "payment_updates_kafka_url_paymentupdates" {
+  name         = "payment-updates-io-payment-updater-weu-prod01-evh-jaas-connection-string"
+  key_vault_id = var.key_vault_id
+}
