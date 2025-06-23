@@ -16,7 +16,8 @@ No requirements.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_com_cae"></a> [com\_cae](#module\_com\_cae) | pagopa-dx/azure-container-app-environment/azurerm | ~> 1.0 |
-| <a name="module_reminder_ca_itn_01"></a> [reminder\_ca\_itn\_01](#module\_reminder\_ca\_itn\_01) | pagopa-dx/azure-container-app/azurerm | ~> 1.0 |
+| <a name="module_payment_updater_ca_itn_01"></a> [payment\_updater\_ca\_itn\_01](#module\_payment\_updater\_ca\_itn\_01) | pagopa-dx/azure-container-app/azurerm | ~> 3.0 |
+| <a name="module_reminder_ca_itn_01"></a> [reminder\_ca\_itn\_01](#module\_reminder\_ca\_itn\_01) | pagopa-dx/azure-container-app/azurerm | ~> 3.0 |
 
 ## Resources
 
@@ -35,6 +36,10 @@ No requirements.
 | [azurerm_key_vault_secret.mysql_url](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.mysql_user](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.notify_endpoint_subscription_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.payment_updates_kafka_url_message](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.payment_updates_kafka_url_payment](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.payment_updates_kafka_url_paymentupdates](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.payments_mongo_database_uri](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.paymentupdater_endpoint_subscription_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.proxy_endpoint_subscription_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.senders_to_skip](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
