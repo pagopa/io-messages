@@ -76,7 +76,7 @@ resource "azurerm_mysql_flexible_server_configuration" "max_connections" {
 }
 
 resource "azurerm_key_vault_secret" "reminder_mysql_db_server_url" {
-  name = "mysql-url"
+  name = "mysql-reminder-db-url"
   value = format("jdbc:mysql://%s:%s/%s",
     trimsuffix(azurerm_mysql_flexible_server.com.fqdn, "."),
   "3306", azurerm_mysql_flexible_database.reminder.name)
