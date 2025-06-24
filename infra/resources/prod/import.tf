@@ -326,18 +326,12 @@ import {
 
 #APIM SECRETS
 import {
-  to = module.apim.azurerm_key_vault_secret.reminder_payment_api_subscription_primary_key_itn
+  to = module.apim.azurerm_key_vault_secret.reminder_subscription_primary_key_itn
   id = "https://io-p-messages-kv.vault.azure.net/secrets/io-p-reminder-payment-api-subscription-key-itn/325879ffaa2a419a8a09a00814e087ed"
 }
-
 import {
-  to = module.apim.azurerm_api_management_named_value.io_p_messages_sending_func_key_itn
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/namedValues/io-p-messages-sending-func-key"
-}
-
-import {
-  to = module.apim.azurerm_api_management_named_value.io_messages_backend_key_itn
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/namedValues/io-messages-backend-key"
+  to = module.apim.azurerm_key_vault_secret.reminder_payment_api_subscription_primary_key_itn
+  id = "https://io-p-messages-kv.vault.azure.net/secrets/io-p-reminder-payment-api-subscription-key-itn/7a0c56f927244b94a9a0b4abe50af030"
 }
 
 

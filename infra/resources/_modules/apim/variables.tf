@@ -44,3 +44,10 @@ variable "legacy_location_short" {
   type        = string
   description = "legacy_location_short"
 }
+
+variable "key_vault" {
+  type = object({
+    name = string
+    id   = string
+  })
+}
