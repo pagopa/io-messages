@@ -38,7 +38,7 @@ module "payment_updater_ca_itn_01" {
 
   container_app_templates = [
     {
-      image        = "ghcr.io/pagopa/io-com-payment-updater:latest"
+      image        = "ghcr.io/pagopa/io-com-payment-updater:sha-3aa09fa"
       app_settings = local.payment_updater_ca.app_settings
 
       liveness_probe = {
