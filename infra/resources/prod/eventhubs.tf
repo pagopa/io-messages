@@ -40,5 +40,8 @@ resource "azurerm_private_endpoint" "pagopa_core_evhns" {
     private_connection_resource_id = "/subscriptions/b9fc9419-6097-45fe-9f74-ba0641c91912/resourceGroups/pagopa-p-msg-rg/providers/Microsoft.EventHub/namespaces/pagopa-p-weu-core-evh-ns03"
     is_manual_connection           = true
     request_message                = "Payment Updater service"
+    subresource_names              = ["namespace"]
   }
+
+  tags = local.tags
 }
