@@ -24,6 +24,8 @@ No requirements.
 | <a name="module_ops_func"></a> [ops\_func](#module\_ops\_func) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
 | <a name="module_push_notif_autoscaler"></a> [push\_notif\_autoscaler](#module\_push\_notif\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
 | <a name="module_push_notif_function"></a> [push\_notif\_function](#module\_push\_notif\_function) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
+| <a name="module_services_func"></a> [services\_func](#module\_services\_func) | pagopa-dx/azure-function-app/azurerm | ~> 1.0 |
+| <a name="module_services_func_autoscaler"></a> [services\_func\_autoscaler](#module\_services\_func\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
 
 ## Resources
 
@@ -36,6 +38,7 @@ No requirements.
 | [azurerm_cosmosdb_sql_role_assignment.io_com_cosmos_etl_func](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_cosmosdb_sql_role_assignment.ops_func](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_cosmosdb_sql_role_assignment.ops_func_slot](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
+| [azurerm_cosmosdb_sql_role_assignment.services_func](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_key_vault_access_policy.etl_func_kv_access_policy](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_access_policy) | resource |
 | [azurerm_redis_cache_access_policy_assignment.etl_func_redis_access_policy](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/redis_cache_access_policy_assignment) | resource |
 | [azurerm_role_assignment.citizen_func_cosmosdb_account_api](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
@@ -50,6 +53,12 @@ No requirements.
 | [azurerm_role_assignment.message_content_container_read](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.ops_func](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.ops_func_slot](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.services_func_com_st_blob](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.services_func_com_st_blob_slot](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.services_func_com_st_queue](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.services_func_com_st_queue_slot](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.services_func_stapi_container_read](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.services_func_stapi_container_read_slot](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_subnet_nat_gateway_association.functions_messages_citizen_subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_nat_gateway_association) | resource |
 | [azurerm_eventhub_authorization_rule.evh_ns_io_auth_cdc](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/eventhub_authorization_rule) | data source |
 | [azurerm_eventhub_authorization_rule.evh_ns_io_auth_messages](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/eventhub_authorization_rule) | data source |
@@ -63,6 +72,14 @@ No requirements.
 | [azurerm_key_vault_secret.azure_nh_partition2_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.azure_nh_partition3_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.azure_nh_partition4_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.fn_services_email_service_blacklist_id](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.fn_services_io_service_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.fn_services_notification_service_blacklist_id](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.fn_services_pagopa_ecommerce_api_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.fn_services_sandbox_fiscal_code](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.fn_services_webhook_channel_url](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.sending_func_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.sending_func_url](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_monitor_action_group.io_com_action_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/monitor_action_group) | data source |
 | [azurerm_notification_hub.common](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/notification_hub) | data source |
 | [azurerm_notification_hub.common_partition](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/notification_hub) | data source |
@@ -93,7 +110,7 @@ No requirements.
 | <a name="input_private_dns_zone_resource_group_name"></a> [private\_dns\_zone\_resource\_group\_name](#input\_private\_dns\_zone\_resource\_group\_name) | Resource group name of the private DNS zone to use for private endpoints | `string` | n/a | yes |
 | <a name="input_redis_cache"></a> [redis\_cache](#input\_redis\_cache) | n/a | <pre>object({<br/>    id         = string<br/>    hostname   = string<br/>    port       = string<br/>    access_key = string<br/>  })</pre> | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Resource group to deploy resources to | `string` | n/a | yes |
-| <a name="input_subnet_cidrs"></a> [subnet\_cidrs](#input\_subnet\_cidrs) | n/a | <pre>object({<br/>    citizen_func    = string<br/>    etl_func        = string<br/>    ops_func        = string<br/>    push_notif_func = string<br/>    cqrs_func       = string<br/>  })</pre> | n/a | yes |
+| <a name="input_subnet_cidrs"></a> [subnet\_cidrs](#input\_subnet\_cidrs) | n/a | <pre>object({<br/>    citizen_func    = string<br/>    etl_func        = string<br/>    ops_func        = string<br/>    push_notif_func = string<br/>    cqrs_func       = string<br/>    services_func   = string<br/>  })</pre> | n/a | yes |
 | <a name="input_subnet_pep_id"></a> [subnet\_pep\_id](#input\_subnet\_pep\_id) | n/a | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Resources tags | `map(any)` | n/a | yes |
 | <a name="input_tenant_id"></a> [tenant\_id](#input\_tenant\_id) | n/a | `string` | n/a | yes |

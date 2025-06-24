@@ -28,6 +28,7 @@ module "web_apps" {
     ops_func        = "10.20.10.0/26"
     push_notif_func = "10.20.10.64/26"
     cqrs_func       = "10.20.10.128/26"
+    services_func   = "10.20.12.0/26"
   }
 
   nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
