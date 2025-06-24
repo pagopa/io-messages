@@ -59,12 +59,9 @@ module "functions_messages_sending" {
   redis_port     = azurerm_redis_cache.com.ssl_port
   redis_password = azurerm_redis_cache.com.primary_access_key
 
-  appbackendli_token       = data.azurerm_key_vault_secret.appbackendli_token.value
   session_manager_base_url = "https://${data.azurerm_linux_function_app.session_manager_internal.default_hostname}"
 
   message_storage_account_blob_connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
-
-  internal_user_id = data.azurerm_key_vault_secret.internal_user.value
 
   tags = local.tags
 
