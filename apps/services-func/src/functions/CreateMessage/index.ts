@@ -1,4 +1,3 @@
-import { remoteContentClient } from "../../clients/remote-content";
 import { Context } from "@azure/functions";
 import createAzureFunctionHandler from "@pagopa/express-azure-functions/dist/src/createAzureFunctionsHandler";
 import {
@@ -15,6 +14,7 @@ import { setAppContext } from "@pagopa/io-functions-commons/dist/src/utils/middl
 import { createBlobService } from "azure-storage";
 import * as express from "express";
 
+import { remoteContentClient } from "../../clients/remote-content";
 import { initTelemetryClient } from "../../utils/appinsights.js";
 import { getConfigOrThrow } from "../../utils/config.js";
 import { cosmosdbInstance } from "../../utils/cosmosdb.js";

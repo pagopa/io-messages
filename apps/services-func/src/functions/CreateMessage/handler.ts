@@ -1,6 +1,7 @@
 /*
  * Implements the API handlers for the Message resource.
  */
+import { RemoteContentClient } from "@/clients/remote-content";
 import { Context } from "@azure/functions";
 import { EUCovidCert } from "@pagopa/io-functions-commons/dist/generated/definitions/EUCovidCert";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
@@ -89,7 +90,6 @@ import {
   ApiNewThirdPartyMessage,
 } from "./types";
 import { makeUpsertBlobFromObject } from "./utils";
-import { RemoteContentClient } from "@/clients/remote-content";
 
 /**
  * Type of a CreateMessage handler.
