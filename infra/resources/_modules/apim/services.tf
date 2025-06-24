@@ -62,7 +62,7 @@ resource "azurerm_api_management_api" "service_messages_manage_api_v1" {
 
   import {
     content_format = "openapi"
-    content_value  = file("../_modules/apim/api/service-messages/_index_external.yaml")
+    content_value  = file("../../../apps/sending-func/openapi/index_external.yaml")
   }
 
 }
