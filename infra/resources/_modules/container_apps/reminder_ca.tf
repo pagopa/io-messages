@@ -78,7 +78,7 @@ module "reminder_ca_itn_01" {
 
   container_app_templates = [
     {
-      image        = "ghcr.io/pagopa/io-com-reminder:latest"
+      image        = "ghcr.io/pagopa/io-com-reminder:sha-3cfdfae"
       app_settings = local.reminder_ca.app_settings
 
       liveness_probe = {
