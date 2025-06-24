@@ -21,3 +21,9 @@ module "com_cae" {
 
   tags = var.tags
 }
+
+resource "azurerm_role_assignment" "key_vault_com_cae_secrets_user" {
+  scope                = var.key_vault_id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.com_cae.user_assigned_identity.principal_id
+}
