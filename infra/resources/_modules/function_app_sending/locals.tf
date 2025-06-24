@@ -25,15 +25,11 @@ locals {
       REDIS_PORT     = var.redis_port
       REDIS_PASSWORD = var.redis_password
 
-      // BACKEND COMMUNICATION
-      BACKEND_BASE_URL = "https://io-p-app-appbackendli.azurewebsites.net"
-      BACKEND_TOKEN    = var.appbackendli_token
-
       SESSION_MANAGER_API_KEY  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=session-manager-api-key)",
       SESSION_MANAGER_BASE_URL = var.session_manager_base_url,
 
       // INTERNAL USE PROPERTIES
-      INTERNAL_USER_ID           = var.internal_user_id
+      INTERNAL_USER_ID           = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=apim-internal-user-id)",
       RC_CONFIGURATION_CACHE_TTL = "28800"
 
       // Keepalive fields are all optionals
