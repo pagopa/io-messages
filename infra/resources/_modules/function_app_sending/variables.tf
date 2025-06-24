@@ -85,19 +85,9 @@ variable "cosmosdb_com" {
   })
 }
 
-variable "appbackendli_token" {
-  type        = string
-  description = "Token to access appbackendli"
-}
-
 variable "message_storage_account_blob_connection_string" {
   type        = string
   description = "Connection string to connect to message storage account"
-}
-
-variable "internal_user_id" {
-  type        = string
-  description = "Internal user to bypass"
 }
 
 variable "redis_url" {

@@ -31,11 +31,6 @@ data "azurerm_key_vault" "weu_common" {
   resource_group_name = data.azurerm_resource_group.weu_common.name
 }
 
-data "azurerm_key_vault" "weu_messages" {
-  name                = "${local.project_legacy}-messages-kv"
-  resource_group_name = data.azurerm_resource_group.weu_messages_sec.name
-}
-
 data "azurerm_virtual_network" "vnet_common_itn" {
   name                = "${local.project}-common-vnet-01"
   resource_group_name = data.azurerm_resource_group.itn_common_01.name
@@ -65,21 +60,6 @@ data "azurerm_application_insights" "common" {
 data "azurerm_log_analytics_workspace" "common" {
   name                = "${local.project_legacy}-law-common"
   resource_group_name = data.azurerm_resource_group.weu_common.name
-}
-
-data "azurerm_key_vault_secret" "appbackendli_token" {
-  name         = "appbackendli-token"
-  key_vault_id = data.azurerm_key_vault.weu_messages.id
-}
-
-data "azurerm_key_vault_secret" "io_com_slack_email" {
-  name         = "alert-slack-channel-email"
-  key_vault_id = data.azurerm_key_vault.weu_messages.id
-}
-
-data "azurerm_key_vault_secret" "internal_user" {
-  name         = "internal-user-id-to-skip"
-  key_vault_id = data.azurerm_key_vault.weu_messages.id
 }
 
 data "azurerm_cosmosdb_account" "cosmos_api" {
