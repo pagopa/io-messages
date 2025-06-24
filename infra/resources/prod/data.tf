@@ -9,6 +9,10 @@ data "azurerm_resource_group" "weu_common" {
   name = "${local.project_legacy}-rg-common"
 }
 
+data "azurerm_resource_group" "weu_evt" {
+  name = "${local.project_legacy}-evt-rg"
+}
+
 data "azurerm_resource_group" "itn_common_01" {
   name = "${local.project}-common-rg-01"
 }
@@ -50,6 +54,11 @@ data "azurerm_nat_gateway" "itn_ng" {
 data "azurerm_private_dns_zone" "privatelink_redis_cache" {
   name                = "privatelink.redis.cache.windows.net"
   resource_group_name = data.azurerm_resource_group.weu_common.name
+}
+
+data "azurerm_private_dns_zone" "privatelink_servicebus" {
+  name                = "privatelink.servicebus.windows.net"
+  resource_group_name = data.azurerm_resource_group.weu_evt.name
 }
 
 data "azurerm_application_insights" "common" {
