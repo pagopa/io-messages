@@ -17,16 +17,11 @@ locals {
     prefix          = local.environment.prefix
     domain          = local.environment.domain,
     name            = "pagopa-core-evhns"
-    resource_type   = "private_endpoint",
+    resource_type   = "eventhub_private_endpoint",
     environment     = local.environment.env_short,
     location        = local.environment.location
     instance_number = 1
   })
-}
-
-data "azurerm_private_dns_zone" "privatelink_servicebus" {
-  name                = "privatelink.servicebus.windows.net"
-  resource_group_name = data.azurerm_resource_group.weu_evt.name
 }
 
 resource "azurerm_private_endpoint" "pagopa_core_evhns" {
