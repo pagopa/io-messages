@@ -56,6 +56,11 @@ data "azurerm_private_dns_zone" "privatelink_redis_cache" {
   resource_group_name = data.azurerm_resource_group.weu_common.name
 }
 
+data "azurerm_private_dns_zone" "privatelink_servicebus" {
+  name                = "privatelink.servicebus.windows.net"
+  resource_group_name = data.azurerm_resource_group.weu_evt.name
+}
+
 data "azurerm_application_insights" "common" {
   name                = "${local.project_legacy}-ai-common"
   resource_group_name = data.azurerm_resource_group.weu_common.name
