@@ -9,6 +9,10 @@ data "azurerm_resource_group" "weu_common" {
   name = "${local.project_legacy}-rg-common"
 }
 
+data "azurerm_resource_group" "weu_evt" {
+  name = "${local.project_legacy}-evt-rg"
+}
+
 data "azurerm_resource_group" "itn_common_01" {
   name = "${local.project}-common-rg-01"
 }
