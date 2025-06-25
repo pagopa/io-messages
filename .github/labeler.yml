@@ -18,6 +18,10 @@ pushnotif-func:
   - changed-files:
       - any-glob-to-any-file: ["apps/pushnotif-func/**"]
 
+services-func:
+  - changed-files:
+      - any-glob-to-any-file: ["apps/services-func/**"]
+
 external-interface-changes:
   - changed-files:
       - any-glob-to-any-file: ["apps/**/openapi.yaml", "apps/**/openapi/*.yaml"]
