@@ -297,6 +297,12 @@
       <version>${flyway-version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>2.2.20</version>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -486,6 +492,39 @@
               <sourceDirectory>${project.basedir}/src/main/resources/avro</sourceDirectory>
               <outputDirectory>${project.basedir}/target/generated-sources/src/main/java</outputDirectory>
               <stringType>String</stringType>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>io.swagger.codegen.v3</groupId>
+        <artifactId>swagger-codegen-maven-plugin</artifactId>
+        <version>3.0.69</version>
+        <executions>
+          <execution>
+            <id>generate-ecommerce</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${basedir}/src/main/resources/openapi/api-pagopa-ecommerce.json</inputSpec>
+              <language>java</language>
+              <library>resttemplate</library>
+              <output>${project.basedir}/target/generated-sources/</output>
+
+              <apiPackage>it.ioapp.com.reminder.restclient.pagopaecommerce.api</apiPackage>
+              <modelPackage>it.ioapp.com.reminder.restclient.pagopaecommerce.model</modelPackage>
+              <invokerPackage>it.ioapp.com.reminder.restclient.pagopaecommerce</invokerPackage>
+
+              <generateApiTests>false</generateApiTests>
+              <generateModelTests>false</generateModelTests>
+              <generateApiDocumentation>false</generateApiDocumentation>
+              <generateModelDocumentation>false</generateModelDocumentation>
+              <configOptions>
+                <dateLibrary>java8</dateLibrary>
+                <useSwaggerAnnotations>false</useSwaggerAnnotations>
+              </configOptions>
             </configuration>
           </execution>
         </executions>
