@@ -4,5 +4,9 @@ terraform {
     azurerm = {
       source = "hashicorp/azurerm"
     }
+    http = {
+      source  = "hashicorp/http"
+      version = "3.5.0"
+    }
   }
 }
