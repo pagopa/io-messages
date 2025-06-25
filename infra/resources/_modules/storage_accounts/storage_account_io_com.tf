@@ -68,3 +68,43 @@ resource "azurerm_storage_queue" "push_notifications_poison" {
   name                 = "push-notifications-poison"
   storage_account_name = module.com_st.name
 }
+
+resource "azurerm_storage_queue" "message_created" {
+  name                 = "message-created"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "message_created_poison" {
+  name                 = "message-created-poison"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "message_processed" {
+  name                 = "message-processed"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "message_processed_poison" {
+  name                 = "message-processed-poison"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "notification_created" {
+  name                 = "notification-created"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "notification_created_poison" {
+  name                 = "notification-created-poison"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "webhook_notification" {
+  name                 = "webhook-notification"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "webhook_notification_poison" {
+  name                 = "webhook-notification-poison"
+  storage_account_name = module.com_st.name
+}
