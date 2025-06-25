@@ -16,7 +16,7 @@ resource "azurerm_api_management_product_policy" "apim_itn_product_notifications
   api_management_name = data.azurerm_api_management.apim_itn_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
 
-  xml_content = file("../_modules/apim/api_product/messages/_base_policy.xml")
+  xml_content = file("../_modules/apim/api_product/policy.xml")
 }
 
 
