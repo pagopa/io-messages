@@ -1,10 +1,10 @@
 swagger: '2.0'
 info:
   version: 1.11.7
-  title: IO Messages Sending - Internal - API
+  title: IO Messages Sending - External - API
   x-logo:
     url: https://io.italia.it/assets/img/io-logo-blue.svg
-  description: IO Messages Sending - Internal - API
+  description: IO Messages Sending - External - API
 host: api.io.pagopa.it
 basePath: /api/v1/messages-sending
 schemes:
