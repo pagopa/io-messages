@@ -1,15 +1,10 @@
 swagger: '2.0'
 info:
   version: 1.4.0
-  title: IO internal API for messages sending functions
-  contact:
-    name: PagoPA
-    url: https://forum.italia.it/c/progetto-io
+  title: IO Messages Sending - Internal - API
   x-logo:
     url: https://io.italia.it/assets/img/io-logo-blue.svg
-  description: >
-    # Warning Experimental API
-    These apis are experimental and for internal use.
+  description: IO Messages Sending - Internal - API
 host: api-app.internal.io.pagopa.it
 basePath: /api/v1/messages-sending/internal
 schemes:
@@ -245,7 +240,7 @@ definitions:
   NotificationInfo:
     type: object
     properties:
-      notification_type: 
+      notification_type:
         $ref: "#/definitions/NotificationType"
       fiscal_code:
         $ref: "#/definitions/FiscalCode"
