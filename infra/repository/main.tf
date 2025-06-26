@@ -99,6 +99,14 @@ data "azurerm_resource_group" "linux" {
   name = "io-p-rg-linux"
 }
 
+data "azurerm_resource_group" "messages_data" {
+  name = "io-p-messages-data-rg"
+}
+
+data "azurerm_resource_group" "payments_data" {
+  name = "io-p-payments-data-rg"
+}
+
 data "azurerm_resource_group" "dashboards" {
   name = "dashboards"
 }
@@ -131,7 +139,9 @@ module "repo" {
     data.azurerm_resource_group.linux.id,
     data.azurerm_resource_group.internal.id,
     data.azurerm_resource_group.common.id,
-    data.azurerm_resource_group.notifications.id
+    data.azurerm_resource_group.notifications.id,
+    data.azurerm_resource_group.messages_data.id,
+    data.azurerm_resource_group.payments_data.id,
   ]
 
   subscription_id = data.azurerm_subscription.current.id
