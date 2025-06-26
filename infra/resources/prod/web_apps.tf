@@ -75,7 +75,6 @@ module "web_apps" {
 
   cqrs_func_ehns_enabled = true
 
-  appbackendli_token       = data.azurerm_key_vault_secret.appbackendli_token.value
   session_manager_base_url = "https://${data.azurerm_linux_function_app.session_manager_internal.default_hostname}"
 
   internal_user_id = data.azurerm_key_vault_secret.internal_user.value

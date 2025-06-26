@@ -68,11 +68,6 @@ variable "eventhub_namespace" {
   })
 }
 
-variable "appbackendli_token" {
-  type        = string
-  description = "Token to access appbackendli"
-}
-
 variable "internal_user_id" {
   type        = string
   description = "Internal user to bypass"

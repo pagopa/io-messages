@@ -24,10 +24,6 @@ locals {
       REDIS_PORT     = var.redis_cache.port
       REDIS_PASSWORD = var.redis_cache.access_key
 
-      // BACKEND COMMUNICATION
-      BACKEND_BASE_URL = "https://io-p-app-appbackendli.azurewebsites.net"
-      BACKEND_TOKEN    = var.appbackendli_token
-
       SESSION_MANAGER_API_KEY  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=session-manager-api-key)",
       SESSION_MANAGER_BASE_URL = var.session_manager_base_url,
 
