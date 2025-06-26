@@ -28,7 +28,7 @@ locals {
       SESSION_MANAGER_BASE_URL = var.session_manager_base_url,
 
       // INTERNAL USE PROPERTIES
-      INTERNAL_USER_ID           = var.internal_user_id
+      INTERNAL_USER_ID           = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=apim-internal-user-id)",
       RC_CONFIGURATION_CACHE_TTL = "28800"
 
       // Keepalive fields are all optionals

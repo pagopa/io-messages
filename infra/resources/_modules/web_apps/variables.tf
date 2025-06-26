@@ -68,10 +68,6 @@ variable "eventhub_namespace" {
   })
 }
 
-variable "internal_user_id" {
-  type        = string
-  description = "Internal user to bypass"
-}
 
 variable "messages_content_container" {
   type = object({
