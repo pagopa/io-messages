@@ -37,7 +37,7 @@ module "functions_messages_sending" {
   location            = local.location
   project             = local.project
   domain              = "msgs"
-  resource_group_name = data.azurerm_resource_group.itn_messages.name
+  resource_group_name = local.legacy_itn_rg_name
 
   key_vault = module.key_vaults.com
 
@@ -53,21 +53,18 @@ module "functions_messages_sending" {
   ai_sampling_percentage = 5
 
   cosmosdb_api = data.azurerm_cosmosdb_account.cosmos_api
-  cosmosdb_com = data.azurerm_cosmosdb_account.io_com_cosmos
+  cosmosdb_com = module.cosmos.io_com_cosmos_account
 
   redis_url      = azurerm_redis_cache.com.hostname
   redis_port     = azurerm_redis_cache.com.ssl_port
   redis_password = azurerm_redis_cache.com.primary_access_key
 
-  appbackendli_token       = data.azurerm_key_vault_secret.appbackendli_token.value
   session_manager_base_url = "https://${data.azurerm_linux_function_app.session_manager_internal.default_hostname}"
 
   message_storage_account_blob_connection_string = data.azurerm_storage_account.storage_api.primary_connection_string
 
-  internal_user_id = data.azurerm_key_vault_secret.internal_user.value
-
   tags = local.tags
 
-  action_group_id        = module.monitoring.action_group.io_com_error_id
-  com_st_connectiostring = data.azurerm_storage_account.storage_api_com.primary_connection_string
+  action_group_id        = module.monitoring.action_group.id
+  com_st_connectiostring = module.storage_api_weu.com_st_connectiostring
 }

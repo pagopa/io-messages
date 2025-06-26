@@ -109,7 +109,7 @@ locals {
       FETCH_KEEPALIVE_FREE_SOCKET_TIMEOUT = "30000"
       FETCH_KEEPALIVE_TIMEOUT             = "60000"
 
-      COM_STORAGE_CONNECTION_STRING  = var.com_st_connectiostring
+      COM_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
     }
   }
 }

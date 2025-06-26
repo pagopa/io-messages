@@ -24,7 +24,7 @@ module "storage_api_weu" {
   legacy_resource_group_name = data.azurerm_resource_group.internal_rg.name
   resource_group_name        = azurerm_resource_group.itn_com.name
 
-  error_action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id
+  error_action_group_id = module.monitoring.action_group.id
 
   tags = local.tags
 }
@@ -42,7 +42,7 @@ module "notification_hubs_weu" {
 
   key_vault_common_id = data.azurerm_key_vault.weu_common.id
 
-  action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id
+  action_group_id = module.monitoring.action_group.id
 
   adgroup_com_devs_id = data.azuread_group.adgroup_com_devs.object_id
 

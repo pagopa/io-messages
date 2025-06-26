@@ -128,7 +128,6 @@ variable "io_com_cosmos" {
     name                = string
     endpoint            = string
     resource_group_name = string
-    primary_key         = string
   })
 }
 

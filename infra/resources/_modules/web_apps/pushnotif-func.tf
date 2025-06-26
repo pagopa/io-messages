@@ -1,7 +1,3 @@
-data "azurerm_resource_group" "notifications_rg" {
-  name = "io-p-weu-messages-notifications-rg"
-}
-
 ## Notification Hub
 data "azurerm_notification_hub" "common" {
   name                = format("%s-common", local.nh_name_prefix)

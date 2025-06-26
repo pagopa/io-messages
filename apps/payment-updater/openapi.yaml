@@ -1,0 +1,122 @@
+openapi: 3.0.0
+info:
+  title: Payment Updater
+  description: Payment Updater API
+  version: 2.6.13
+servers:
+  - url: http://localhost:9090/api/v1/payment
+    description: DEV
+tags:
+  - name: API  Payment
+    description: API  Payment
+paths:
+  /check/messages/{messageId}:
+    get:
+      tags:
+        - API  Payment
+      summary: Check payment by messageId
+      operationId: getMessagePayment
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: payment's messageId
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiPaymentMessage"
+          description: "check if the message has been paid"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "503":
+          $ref: "#/components/responses/503ServiceUnavailable"
+components:
+  schemas:
+    ApiPaymentMessage:
+      type: object
+      properties:
+        messageId:
+          type: string
+          minLength: 1
+        paid:
+          type: boolean
+          default: false
+        dueDate:
+          type: string
+          format: date
+        amount:
+          type: number
+          format: double
+        fiscalCode:
+          type: string
+          minLength: 1
+        noticeNumber:
+          type: string
+          minLength: 1
+      required:
+        - messageId
+        - paid
+        - fiscalCode
+        - noticeNumber
+    Problem:
+      properties:
+        timestamp:
+          description: |
+            timestamp of the error
+          type: number
+        status:
+          description: |
+            Status code description.
+          type: string
+        error:
+          description: |
+            error description.
+          type: string
+        path:
+          description: |
+            An absolute URI that identifies the specific occurrence of the problem.
+            It may or may not yield further information if dereferenced.
+          type: string
+          format: uri
+      type: object
+  responses:
+    500InternalServerError:
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+      description: Internal Server Error
+    400BadRequest:
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+      description: Bad Request
+    404NotFound:
+      description: Not Found
+    429TooManyRequests:
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+      description: Too many requests
+    503ServiceUnavailable:
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+      description: Service Unavailable
+    401Unauthorized:
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+      description: Unauthorized
