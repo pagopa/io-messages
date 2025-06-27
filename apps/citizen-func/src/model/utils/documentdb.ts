@@ -8,7 +8,6 @@ import * as t from "io-ts";
  * Pass the partitionKey field / values if it differs from the modelId
  * to avoid multi-partition queries.
  */
-// eslint-disable-next-line max-params
 export function findAllVersionsByModelIdIn<TR>(
   container: Container,
   retrievedItemType: t.Type<TR, unknown, unknown>,

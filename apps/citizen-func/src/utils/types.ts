@@ -6,13 +6,12 @@ import * as t from "io-ts";
  * @param decoder a io-ts decoder
  * @returns either a decode error or the array of decoded items
  */
-export const CommaSeparatedListOf = (
-  decoder: t.Mixed,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): t.Type<readonly any[], string, unknown> =>
-  new t.Type<readonly t.TypeOf<typeof decoder>[], string, unknown>(
+export const CommaSeparatedListOf = <A, O>(
+  decoder: t.Type<A, O, unknown>,
+): t.Type<readonly A[], string, unknown> =>
+  new t.Type<readonly A[], string, unknown>(
     `CommaSeparatedListOf<${decoder.name}>`,
-    (value: unknown): value is readonly t.TypeOf<typeof decoder>[] =>
+    (value: unknown): value is readonly A[] =>
       Array.isArray(value) && value.every((e) => decoder.is(e)),
     (input) =>
       t.readonlyArray(decoder).decode(
@@ -22,8 +21,8 @@ export const CommaSeparatedListOf = (
               .map((e) => e.trim())
               .filter(Boolean)
           : !input
-            ? [] // fallback to empty array in case of empty input
-            : input, // it should not happen, but in case we let the decoder fail
+            ? []
+            : input,
       ),
-    String,
+    (a) => a.map((item) => decoder.encode(item)).join(","),
   );
