@@ -1,14 +1,14 @@
 data "azurerm_eventhub_authorization_rule" "cqrs_message_evh" {
-  name                = "cqrs-func"
+  name                = "cqrs"
   namespace_name      = var.eventhub_namespace.name
-  eventhub_name       = "cqrs-message-evh"
+  eventhub_name       = "io-p-itn-com-etl-cqrs-message-evh-01"
   resource_group_name = var.resource_group_name
 }
 
 data "azurerm_eventhub_authorization_rule" "cqrs_message_status_evh" {
-  name                = "cqrs-func"
+  name                = "cqrs"
   namespace_name      = var.eventhub_namespace.name
-  eventhub_name       = "cqrs-message-status-evh"
+  eventhub_name       = "io-p-itn-com-etl-cqrs-message-status-evh-01"
   resource_group_name = var.resource_group_name
 }
 
