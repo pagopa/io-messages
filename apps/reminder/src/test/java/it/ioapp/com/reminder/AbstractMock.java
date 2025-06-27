@@ -6,12 +6,14 @@ import dto.MessageContentType;
 import dto.message;
 import dto.messageStatus;
 import it.ioapp.com.reminder.dto.PaymentMessage;
-import it.ioapp.com.reminder.dto.request.ProxyPaymentResponse;
 import it.ioapp.com.reminder.model.Reminder;
 import it.ioapp.com.reminder.producer.ReminderProducer;
 import it.ioapp.com.reminder.repository.ReminderRepository;
-import it.ioapp.com.reminder.restclient.pagopaproxy.api.DefaultApi;
-import it.ioapp.com.reminder.restclient.pagopaproxy.model.PaymentRequestsGetResponse;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.api.PaymentRequestsApi;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFault;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFaultPaymentProblemJson;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFaultPaymentProblemJson.FaultCodeCategoryEnum;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentRequestsGetResponse;
 import it.ioapp.com.reminder.service.ReminderServiceImpl;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
@@ -45,7 +47,7 @@ public class AbstractMock {
 
   @MockBean protected RestTemplate restTemplate;
 
-  @MockBean protected DefaultApi mockDefaultApi;
+  @MockBean protected PaymentRequestsApi mockPaymentApi;
 
   @MockBean protected ReminderRepository mockRepository;
 
@@ -81,38 +83,29 @@ public class AbstractMock {
         .thenReturn(listReminder);
   }
 
-  protected void proxyKo(String detail) throws JsonProcessingException {
-    ProxyPaymentResponse dto = new ProxyPaymentResponse();
-    dto.setDetail_v2(detail);
-    dto.setCodiceContestoPagamento("32");
-    dto.setImportoSingoloVersamento("30");
-    dto.setCodiceContestoPagamento("abc");
-    dto.setDetail("abc");
-    dto.setInstance("");
-    dto.setStatus(500);
-    dto.setTitle("");
+  protected void pagoPAEcommerce409() throws JsonProcessingException {
+    PaymentDuplicatedStatusFaultPaymentProblemJson dto =
+        new PaymentDuplicatedStatusFaultPaymentProblemJson();
+    dto.setFaultCodeCategory(FaultCodeCategoryEnum.PAYMENT_DUPLICATED);
+    dto.setFaultCodeDetail(PaymentDuplicatedStatusFault.PPT_PAGAMENTO_DUPLICATO);
+    dto.setTitle("title");
     HttpServerErrorException errorResponse =
         new HttpServerErrorException(
             HttpStatus.INTERNAL_SERVER_ERROR,
             "",
             mapper.writeValueAsString(dto).getBytes(),
             Charset.defaultCharset());
-    Mockito.when(
-            mockDefaultApi.getPaymentInfo(
-                ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
+    Mockito.when(mockPaymentApi.getPaymentRequestInfo(ArgumentMatchers.anyString()))
         .thenThrow(errorResponse);
   }
 
-  protected void proxy(boolean dueDateIsNull) throws JsonProcessingException {
+  protected void pagoPAEcommerce(boolean dueDateIsNull) throws JsonProcessingException {
     PaymentRequestsGetResponse mockPaymentRequestsGetResponse = new PaymentRequestsGetResponse();
     if (dueDateIsNull) {
       mockPaymentRequestsGetResponse.setDueDate("2022-05-16");
     }
-    mockPaymentRequestsGetResponse.setIbanAccredito("IT39939410293855");
-    mockPaymentRequestsGetResponse.setImportoSingoloVersamento(80);
-    Mockito.when(
-            mockDefaultApi.getPaymentInfo(
-                ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
+    mockPaymentRequestsGetResponse.setAmount(80);
+    Mockito.when(mockPaymentApi.getPaymentRequestInfo(ArgumentMatchers.anyString()))
         .thenReturn(mockPaymentRequestsGetResponse);
   }
 

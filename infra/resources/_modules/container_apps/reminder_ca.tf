@@ -133,8 +133,7 @@ locals {
       IS_ACTIVE_MESSAGESTATUS_CONSUMER      = "true",
       IS_ACTIVE_PAYMENT_CONSUMER            = "true",
       IS_ACTIVE_MESSAGESEND_CONSUMER        = "true",
-      PROXY_ERROR_STATUSCODE                = "PAA_PAGAMENTO_DUPLICATO,PPT_RPT_DUPLICATA,PPT_PAGAMENTO_DUPLICATO",
-      PROXY_ENDPOINT                        = "https://api.platform.pagopa.it/checkout/auth/payments/v1",
+      PAGOPA_ECOMMERCE_ENDPOINT             = "https://api.platform.pagopa.it/ecommerce/payment-requests-service/v1",
       SECURITY_PROTOCOL_REMINDER            = "SASL_SSL",
       SASL_MECHANISM_REMINDER               = "PLAIN",
       SECURITY_PROTOCOL_SHARED              = "SASL_SSL",
@@ -175,8 +174,8 @@ locals {
         key_vault_secret_id = data.azurerm_key_vault_secret.reminder_payment_updates_jaas_connection_string.versionless_id
       },
       {
-        name                = "PROXY_ENDPOINT_SUBSCRIPTION_KEY"
-        key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_proxy_subscription_key.versionless_id
+        name                = "PAGOPA_ECOMMERCE_KEY"
+        key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_ecommerce_key.versionless_id
       },
       {
         name                = "PAYMENTUPDATER_ENDPOINT_SUBSCRIPTION_KEY"

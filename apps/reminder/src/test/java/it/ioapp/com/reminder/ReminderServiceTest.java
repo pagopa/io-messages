@@ -10,7 +10,6 @@ import it.ioapp.com.reminder.producer.ReminderProducer;
 import it.ioapp.com.reminder.restclient.servicemessages.model.NotificationInfo;
 import it.ioapp.com.reminder.restclient.servicemessages.model.NotificationType;
 import it.ioapp.com.reminder.service.ReminderService;
-import it.ioapp.com.reminder.util.Constants;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,12 +82,11 @@ public class ReminderServiceTest extends AbstractMock {
     reminders.add(rem);
     mockGetReadMessageToNotifyWithResponse(reminders);
     mockGetPaidMessageToNotifyWithResponse(new ArrayList<>());
-    proxyKo(null);
+    pagoPAEcommerce409();
     reminderService.getMessageToNotify("0");
     String expectedRptId = rem.getRptId();
     Assertions.assertThrows(
-        HttpServerErrorException.class,
-        () -> mockDefaultApi.getPaymentInfo(expectedRptId, Constants.X_CLIENT_ID));
+        HttpServerErrorException.class, () -> mockPaymentApi.getPaymentRequestInfo(expectedRptId));
   }
 
   @Test
