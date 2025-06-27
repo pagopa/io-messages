@@ -1,5 +1,17 @@
 ### Changelog
 
+## 5.5.8
+
+### Patch Changes
+
+- db2d7e1: Remove azure-files and table from healthcheck
+
+## 5.5.7
+
+### Patch Changes
+
+- 5c3250c: Remove appinsights_disable variable
+
 ## 5.5.6
 
 ### Patch Changes

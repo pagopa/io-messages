@@ -6,6 +6,6 @@
       "direction": "in"
     }
   ],
-  "scriptFile": "../dist/HandleNHCreateOrUpdateInstallationCallActivity/index.js",
+  "scriptFile": "../dist/functions/HandleNHCreateOrUpdateInstallationCallActivity/index.js",
   "entryPoint": "default"
 }

@@ -1,0 +1,15 @@
+{
+  "name": "reminder",
+  "license": "UNLICENSED",
+  "version": "0.16.2",
+  "type": "module",
+  "scripts": {
+    "build": "mvn clean package",
+    "test": "mvn test",
+    "test:coverage": "mvn test jacoco:report",
+    "start": "mvn spring-boot:run",
+    "format": "mvn fmt:format",
+    "format:check": "mvn fmt:check",
+    "version": "mvn versions:set -DnewVersion=$npm_package_version"
+  }
+}

@@ -1,5 +1,18 @@
 ### Changelog
 
+## 1.0.3
+
+### Patch Changes
+
+- 5c3250c: Remove appinsights_disable variable
+
+## 1.0.2
+
+### Patch Changes
+
+- 137f94d: - Use NH client factory to avoid building a new client on every function execution
+  - Remove calls to legacy NH
+
 ## 1.0.1
 
 ### Patch Changes

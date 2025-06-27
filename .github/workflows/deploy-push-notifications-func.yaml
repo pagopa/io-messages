@@ -8,7 +8,7 @@ on:
 
 jobs:
   push_notifications_func_deploy:
-    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@7df96fe88497a60b297ab70537ee2d5ae1be01a2
+    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@1a293db2ffa9121e95250a6ad7382b7608b41f05
     name: Deploy
     secrets: inherit
     with:

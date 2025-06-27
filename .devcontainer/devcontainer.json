@@ -1,10 +1,10 @@
 {
-  "name": "io-messages",
+  "name": "io-com",
   "dockerComposeFile": "../compose.yml",
   "service": "devcontainer",
   "workspaceFolder": "/workspace",
   "features": {
-    "ghcr.io/devcontainers-contrib/features/pre-commit:2": {},
+    "ghcr.io/devcontainers-extra/features/pre-commit:2": {},
     "ghcr.io/devcontainers/features/azure-cli:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/pagopa/devcontainer-features/plantuml:1": {},
@@ -20,17 +20,28 @@
       "pnpmVersion": "none",
       "nvmInstallPath": "/opt/nvm"
     },
-    "ghcr.io/pagopa/devcontainer-features/azure-functions-core-tools:1": {}
+    "ghcr.io/pagopa/devcontainer-features/azure-functions-core-tools:1": {},
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "17",
+      "jdkDistro": "tem",
+      "installMaven": true,
+      "mavenVersion": "3.9.10"
+    },
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
   },
   "shutdownAction": "stopCompose",
   "postStartCommand": {
     "set-workspace-as-safe-dir": "git config --global --add safe.directory ${containerWorkspaceFolder}",
     "install-yarn-and-deps": "yarn install"
   },
+  "containerEnv": {
+    "NODE_ENV": "development",
+    "SPRING_PROFILES_ACTIVE": "dev",
+    "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0"
+  },
   "customizations": {
     "vscode": {
       "extensions": [
-        "-vscjava.vscode-java-pack",
         "-ms-dotnettools.csharp",
         "-ms-azuretools.vscode-azureterraform",
         "ms-azuretools.vscode-azurestorage",
@@ -47,6 +58,7 @@
         "bruno-api-client.bruno",
         "vitest.explorer",
         "redhat.vscode-yaml",
+        "redhat.vscode-xml",
         "dbaeumer.vscode-eslint",
         "github.copilot",
         "github.copilot-chat"

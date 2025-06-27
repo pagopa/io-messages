@@ -395,7 +395,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/functions@npm:^3.2.0, @azure/functions@npm:^3.5.0":
+"@azure/functions@npm:^3.2.0":
   version: 3.5.1
   resolution: "@azure/functions@npm:3.5.1"
   dependencies:
@@ -2684,17 +2684,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagopa/io-backend-session-sdk@npm:^9.7.0":
-  version: 9.13.0
-  resolution: "@pagopa/io-backend-session-sdk@npm:9.13.0"
-  dependencies:
-    "@pagopa/ts-commons": "npm:^10.0.0"
-    fp-ts: "npm:^2.10.5"
-    io-ts: "npm:^2.2.16"
-  checksum: 10c0/3e0e8dbcd35a7970ce6463e8739fc904b6ace5897ebfae293e51c4d74946687ffa6742494396f882accb19518abbf8ee21b948942c45744c9ff379c9979c16ce
-  languageName: node
-  linkType: hard
-
 "@pagopa/io-functions-commons@npm:^28.0.0":
   version: 28.22.0
   resolution: "@pagopa/io-functions-commons@npm:28.22.0"
@@ -2826,7 +2815,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagopa/ts-commons@npm:^10.0.0, @pagopa/ts-commons@npm:^10.15.0, @pagopa/ts-commons@npm:^10.3.0, @pagopa/ts-commons@npm:^10.5.1":
+"@pagopa/ts-commons@npm:^10.15.0, @pagopa/ts-commons@npm:^10.3.0, @pagopa/ts-commons@npm:^10.5.1":
   version: 10.15.0
   resolution: "@pagopa/ts-commons@npm:10.15.0"
   dependencies:
@@ -5978,7 +5967,7 @@ __metadata:
   resolution: "cqrs-func@workspace:apps/cqrs-func"
   dependencies:
     "@azure/cosmos": "npm:^4.0.0"
-    "@azure/functions": "npm:^3.5.0"
+    "@azure/functions": "npm:^3.2.0"
     "@azure/identity": "npm:^4.5.0"
     "@azure/storage-queue": "npm:^12.8.0"
     "@chasdevs/avro-to-typescript": "npm:^1.4.0"
@@ -13029,6 +13018,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"payment-updater@workspace:apps/payment-updater":
+  version: 0.0.0-use.local
+  resolution: "payment-updater@workspace:apps/payment-updater"
+  languageName: unknown
+  linkType: soft
+
 "performance-now@npm:^2.1.0":
   version: 2.1.0
   resolution: "performance-now@npm:2.1.0"
@@ -13439,7 +13434,7 @@ __metadata:
     node-fetch: "npm:^2.6.1"
     npm-run-all: "npm:^4.1.5"
     oval: "npm:^1.0.0"
-    prettier: "npm:^1.18.2"
+    prettier: "npm:3.2.5"
     shx: "npm:^0.3.2"
     typescript: "npm:^5.8.3"
     vitest: "npm:^3.1.2"
@@ -13908,6 +13903,12 @@ __metadata:
   checksum: 10c0/3e2802491b038a5af480eeb8a822c3697e178baba1206908aef8bf5a58e8d7820e5d3dfdaaa296567cf00a487bcd88950cff56cc0fc0adc038374ba899a8b3df
   languageName: node
   linkType: hard
+
+"reminder@workspace:apps/reminder":
+  version: 0.0.0-use.local
+  resolution: "reminder@workspace:apps/reminder"
+  languageName: unknown
+  linkType: soft
 
 "repeat-string@npm:^1.5.4":
   version: 1.6.1
@@ -14531,7 +14532,6 @@ __metadata:
     "@azure/storage-queue": "npm:^12.4.0"
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@pagopa/express-azure-functions": "npm:^2.1.1"
-    "@pagopa/io-backend-session-sdk": "npm:^9.7.0"
     "@pagopa/io-functions-commons": "npm:^29.3.0"
     "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
     "@pagopa/ts-commons": "npm:^12.5.0"

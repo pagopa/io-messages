@@ -1,0 +1,15 @@
+{
+  "name": "payment-updater",
+  "license": "UNLICENSED",
+  "version": "2.6.14",
+  "type": "module",
+  "scripts": {
+    "build": "mvn clean package",
+    "test": "mvn test",
+    "test:coverage": "mvn test jacoco:report",
+    "start": "mvn spring-boot:run",
+    "format": "mvn fmt:format",
+    "format:check": "mvn fmt:check",
+    "version": "mvn versions:set -DnewVersion=$npm_package_version"
+  }
+}

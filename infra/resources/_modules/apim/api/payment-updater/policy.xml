@@ -1,0 +1,16 @@
+<policies>
+  <inbound>
+    <base />
+    <set-backend-service base-url="https://weuprod01.payments.internal.io.pagopa.it/api/v1/payment" />
+
+  </inbound>
+  <outbound>
+    <base />
+  </outbound>
+  <backend>
+    <base />
+  </backend>
+  <on-error>
+    <base />
+  </on-error>
+</policies>

@@ -1,7 +1,6 @@
 import { AzureFunction, Context } from "@azure/functions";
 import { QueueClient } from "@azure/storage-queue";
 import createAzureFunctionHandler from "@pagopa/express-azure-functions/dist/src/createAzureFunctionsHandler";
-import { createClient } from "@pagopa/io-backend-session-sdk/client";
 import {
   MESSAGE_COLLECTION_NAME,
   MessageModel,
@@ -30,6 +29,7 @@ import { pipe } from "fp-ts/lib/function";
 import nodeFetch from "node-fetch";
 import * as winston from "winston";
 
+import { createClient } from "../../generated/session-manager/client";
 import { initTelemetryClient } from "../../utils/appinsights";
 import { getConfigOrThrow } from "../../utils/config";
 import { cosmosdbInstance } from "../../utils/cosmosdb";
@@ -86,12 +86,14 @@ const profileModel = new ProfileModel(
   cosmosdbInstance.container(PROFILE_COLLECTION_NAME),
 );
 
-const sessionClient = createClient<"token">({
-  baseUrl: config.BACKEND_BASE_URL,
+const sessionManagerClient = createClient<"ApiKeyAuth">({
+  baseUrl: config.SESSION_MANAGER_BASE_URL,
   fetchApi: httpOrHttpsApiFetch,
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   withDefaults: (op) => (params) =>
-    op({ ...params, token: config.BACKEND_TOKEN }),
+    op({
+      ...params,
+      ApiKeyAuth: config.SESSION_MANAGER_API_KEY,
+    }),
 });
 
 // Add express route
@@ -99,7 +101,7 @@ app.post(
   "/api/v1/notify",
   Notify(
     getUserProfileReader(profileModel),
-    getUserSessionStatusReader(sessionClient),
+    getUserSessionStatusReader(sessionManagerClient),
     getMessageWithContent(messageModel, blobService),
     getService(serviceModel),
     sendNotification(
@@ -107,11 +109,6 @@ app.post(
         config.NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING,
         config.NOTIFICATION_QUEUE_NAME,
       ),
-      new QueueClient(
-        config.NEW_NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING,
-        config.NEW_NOTIFICATION_QUEUE_NAME,
-      ),
-      config.IO_COM_PUSH_NOTIFICATIONS_REDIRECT_PERCENTAGE,
     ),
     telemetryClient,
   ),

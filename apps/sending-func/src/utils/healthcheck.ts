@@ -3,9 +3,7 @@ import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import {
   common as azurestorageCommon,
   createBlobService,
-  createFileService,
   createQueueService,
-  createTableService,
 } from "azure-storage";
 import { sequenceT } from "fp-ts/lib/Apply";
 import * as A from "fp-ts/lib/Array";
@@ -91,12 +89,7 @@ export const checkAzureStorageHealth = (
 
   // try to instantiate a client for each product of azure storage
   return pipe(
-    [
-      createBlobService,
-      createFileService,
-      createQueueService,
-      createTableService,
-    ]
+    [createBlobService, createQueueService]
       // for each, create a task that wraps getServiceProperties
       .map((createService) =>
         TE.tryCatch(
@@ -160,9 +153,6 @@ export const checkApplicationHealth = (
         ),
         checkAzureStorageHealth(
           config.NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING,
-        ),
-        checkAzureStorageHealth(
-          config.NEW_NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING,
         ),
       ),
     ),

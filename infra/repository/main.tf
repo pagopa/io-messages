@@ -71,6 +71,34 @@ data "azurerm_resource_group" "com_itn_01" {
   name = "io-p-itn-com-rg-01"
 }
 
+data "azurerm_resource_group" "common" {
+  name = "io-p-rg-common"
+}
+
+data "azurerm_resource_group" "services_1" {
+  name = "io-p-services-rg-1"
+}
+
+data "azurerm_resource_group" "services_2" {
+  name = "io-p-services-rg-2"
+}
+
+data "azurerm_resource_group" "elt" {
+  name = "io-p-elt-rg"
+}
+
+data "azurerm_resource_group" "internal" {
+  name = "io-p-rg-internal"
+}
+
+data "azurerm_resource_group" "notifications" {
+  name = "io-p-rg-notifications"
+}
+
+data "azurerm_resource_group" "linux" {
+  name = "io-p-rg-linux"
+}
+
 data "azurerm_resource_group" "dashboards" {
   name = "dashboards"
 }
@@ -85,7 +113,7 @@ data "azuread_group" "developers" {
 
 module "repo" {
   source  = "pagopa-dx/azure-github-environment-bootstrap/azurerm"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   environment = {
     prefix          = local.prefix
@@ -96,7 +124,14 @@ module "repo" {
   }
 
   additional_resource_group_ids = [
-    data.azurerm_resource_group.com_itn_01.id
+    data.azurerm_resource_group.com_itn_01.id,
+    data.azurerm_resource_group.services_1.id,
+    data.azurerm_resource_group.services_2.id,
+    data.azurerm_resource_group.elt.id,
+    data.azurerm_resource_group.linux.id,
+    data.azurerm_resource_group.internal.id,
+    data.azurerm_resource_group.common.id,
+    data.azurerm_resource_group.notifications.id
   ]
 
   subscription_id = data.azurerm_subscription.current.id
@@ -121,6 +156,7 @@ module "repo" {
     infra_cd_policy_branches = local.repository.infra_cd_policy_branches
     opex_cd_policy_branches  = local.repository.opex_cd_policy_branches
     app_cd_policy_branches   = local.repository.app_cd_policy_branches
+    jira_boards_ids          = ["IOCOM"]
   }
 
   github_private_runner = {
