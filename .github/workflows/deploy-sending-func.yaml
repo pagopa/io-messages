@@ -1,4 +1,4 @@
-name: Deploy (sending-func)
+name: Deploy (remote-content-func)
 permissions:
   id-token: write
   contents: read
@@ -12,8 +12,8 @@ jobs:
     uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@1a293db2ffa9121e95250a6ad7382b7608b41f05
     secrets: inherit
     with:
-      workspace_name: sending-func
+      workspace_name: remote-content-func
       environment: app-prod
-      resource_group_name: io-p-itn-msgs-rg-01
-      function_app_name: io-p-itn-msgs-sending-func-01
+      resource_group_name: io-p-itn-com-rg-01
+      function_app_name: io-p-itn-com-rc-func-01
       use_staging_slot: true

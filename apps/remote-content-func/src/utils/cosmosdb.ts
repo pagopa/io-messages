@@ -4,7 +4,7 @@
 import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
 
-import { getConfigOrThrow } from "../utils/config";
+import { getConfigOrThrow } from "./config";
 
 const config = getConfigOrThrow();
 
