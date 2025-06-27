@@ -122,10 +122,10 @@ locals {
       QUARTZ_SCHEDULER_TIMER_DELETE         = "0 * * ? * *",
       SCHEDULER_REMINDER_NOTIFY_ACTIVE      = "true",
       SCHEDULER_REMINDER_DELETE_ACTIVE      = "false",
-      KAFKA_MESSAGE                         = "messages",
-      KAFKA_STATUS                          = "message-status",
-      KAFKA_PAYMENT                         = "payment-updates",
-      KAFKA_SEND                            = "message-reminder-send",
+      KAFKA_MESSAGE                         = "io-p-itn-com-etl-cqrs-message-evh-01",
+      KAFKA_STATUS                          = "io-p-itn-com-etl-cqrs-message-status-evh-01",
+      KAFKA_PAYMENT                         = "io-p-itn-com-etl-payment-updates-evh-01",
+      KAFKA_SEND                            = "io-p-itn-com-etl-reminder-message-send-evh-01",
       RESTCALL_INTERVAL_FUNCTION            = "10000",
       RESTCALL_MAX_ATTEMPTS                 = "3",
       ENABLE_REST_KEY                       = "true",
@@ -139,8 +139,8 @@ locals {
       SASL_MECHANISM_REMINDER               = "PLAIN",
       SECURITY_PROTOCOL_SHARED              = "SASL_SSL",
       SASL_MECHANISM_SHARED                 = "PLAIN",
-      BOOTSTRAP_SERVER_REMINDER             = "io-p-messages-weu-prod01-evh-ns.servicebus.windows.net:9093", # internal queue for send message to notify
-      BOOTSTRAP_SERVER_SHARED               = "io-p-payments-weu-prod01-evh-ns.servicebus.windows.net:9093", # queue messageUpdates from payment updater
+      BOOTSTRAP_SERVER_REMINDER             = "io-p-itn-com-etl-evhns-01.servicebus.windows.net:9093", # internal queue for send message to notify
+      BOOTSTRAP_SERVER_SHARED               = "io-p-itn-com-etl-evhns-01.servicebus.windows.net:9093", # queue messageUpdates from payment updater
       MONGO_DATABASE                        = "db",
       IO_NOTIFY_ENDPOINT                    = "https://api-internal.io.italia.it/api/v1/messages-sending/internal", #endpoint notify service
       PAYMENTUPDATER_ENDPOINT               = "https://api-app.internal.io.pagopa.it",                              #endpoint payment updater - implemented for call proxy by the payment updater, now not used. do not fill
