@@ -105,12 +105,6 @@ module "etl" {
           manage = false
         },
         {
-          name   = "cqrs"
-          listen = true
-          send   = false
-          manage = false
-        },
-        {
           name   = "reminder"
           listen = true
           send   = false

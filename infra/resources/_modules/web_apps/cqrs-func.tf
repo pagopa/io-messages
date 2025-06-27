@@ -1,107 +1,41 @@
-data "azurerm_eventhub_authorization_rule" "evh_ns_io_auth_messages" {
-  name                = "${var.environment.prefix}-messages"
-  namespace_name      = "${var.environment.prefix}-${var.environment.env_short}-evh-ns"
-  eventhub_name       = "${var.environment.prefix}-cosmosdb-message-status-for-view"
-  resource_group_name = "${var.environment.prefix}-${var.environment.env_short}-evt-rg"
+data "azurerm_eventhub_authorization_rule" "cqrs_message_evh" {
+  name                = "cqrs"
+  namespace_name      = var.eventhub_namespace.name
+  eventhub_name       = "io-p-itn-com-etl-cqrs-message-evh-01"
+  resource_group_name = var.resource_group_name
 }
 
-data "azurerm_eventhub_authorization_rule" "evh_ns_io_auth_cdc" {
-  name                = "${var.environment.prefix}-cdc"
-  namespace_name      = "${var.environment.prefix}-${var.environment.env_short}-evh-ns"
-  eventhub_name       = "${var.environment.prefix}-cosmosdb-message-status-for-view"
-  resource_group_name = "${var.environment.prefix}-${var.environment.env_short}-evt-rg"
-}
-
-data "azurerm_eventhub_authorization_rule" "io-p-payments-weu-prod01-evh-ns_payment-updates_io-fn-messages-cqrs" {
-  name                = "${var.environment.prefix}-fn-messages-cqrs"
-  namespace_name      = "${var.environment.prefix}-${var.environment.env_short}-payments-weu-prod01-evh-ns"
-  eventhub_name       = "payment-updates"
-  resource_group_name = "${var.environment.prefix}-${var.environment.env_short}-payments-weu-prod01-evt-rg"
-}
-
-data "azurerm_eventhub_authorization_rule" "io-p-messages-weu-prod01-evh-ns_messages_io-fn-messages-cqrs" {
-  name                = "${var.environment.prefix}-fn-messages-cqrs"
-  namespace_name      = "${var.environment.prefix}-${var.environment.env_short}-messages-weu-prod01-evh-ns"
-  eventhub_name       = "messages"
-  resource_group_name = "${var.environment.prefix}-${var.environment.env_short}-messages-weu-prod01-evt-rg"
-}
-
-data "azurerm_eventhub_authorization_rule" "io-p-messages-weu-prod01-evh-ns_message-status_io-fn-messages-cqrs" {
-  name                = "${var.environment.prefix}-fn-messages-cqrs"
-  namespace_name      = "${var.environment.prefix}-${var.environment.env_short}-messages-weu-prod01-evh-ns"
-  eventhub_name       = "message-status"
-  resource_group_name = "${var.environment.prefix}-${var.environment.env_short}-messages-weu-prod01-evt-rg"
-}
-
-data "azurerm_key_vault_secret" "apim_services_subscription_key" {
-  name         = "apim-IO-SERVICE-KEY"
-  key_vault_id = var.common_key_vault.id
-}
-
-data "azurerm_virtual_network" "vnet_common" {
-  name                = "${var.environment.prefix}-${var.environment.env_short}-vnet-common"
-  resource_group_name = "${var.environment.prefix}-${var.environment.env_short}-rg-common"
-}
-
-data "azurerm_subnet" "cqrs_func" {
-  name                 = "${var.environment.prefix}-${var.environment.env_short}-fn-messages-cqrs-snet"
-  virtual_network_name = data.azurerm_virtual_network.vnet_common.name
-  resource_group_name  = data.azurerm_virtual_network.vnet_common.resource_group_name
+data "azurerm_eventhub_authorization_rule" "cqrs_message_status_evh" {
+  name                = "cqrs"
+  namespace_name      = var.eventhub_namespace.name
+  eventhub_name       = "io-p-itn-com-etl-cqrs-message-status-evh-01"
+  resource_group_name = var.resource_group_name
 }
 
 locals {
   cqrs_func = {
-    ehns_enabled = true
     app_settings = {
-      FUNCTIONS_WORKER_RUNTIME       = "node"
-      WEBSITE_RUN_FROM_PACKAGE       = "1"
-      WEBSITE_DNS_SERVER             = "168.63.129.16"
-      FUNCTIONS_WORKER_PROCESS_COUNT = 4
-      NODE_ENV                       = "production"
+      NODE_ENV = "production"
 
       COSMOSDB_NAME             = "db"
       COSMOSDB__accountEndpoint = var.cosmosdb_account_api.endpoint
 
-      REMOTE_CONTENT_COSMOSDB_URI  = var.io_com_cosmos.endpoint
-      REMOTE_CONTENT_COSMOSDB_NAME = "remote-content"
-
-      MESSAGE_CONFIGURATION_CHANGE_FEED_LEASE_PREFIX = "RemoteContentMessageConfigurationChangeFeed-00"
-      MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME   = "0"
-
-      LEASE_COLLECTION_PREFIX = "bulk-status-update-00"
-
       MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME = "message-paymentupdater-failures"
-      MESSAGE_CONTAINER_NAME                     = "message-content"
-      MESSAGE_CONTENT_STORAGE_CONNECTION         = var.message_content_storage.connection_string
-      QueueStorageConnection                     = var.message_content_storage.connection_string
+
+      MESSAGE_CONTENT_STORAGE_CONNECTION = var.message_content_storage.connection_string
+      QueueStorageConnection             = var.message_content_storage.connection_string
 
       MESSAGE_CHANGE_FEED_LEASE_PREFIX = "CosmosApiMessageChangeFeed-00"
-      // This must be expressed as a Timestamp
-      // Saturday 1 July 2023 00:00:00
-      MESSAGE_CHANGE_FEED_START_TIME = 1688169600000
+      MESSAGE_CHANGE_FEED_START_TIME   = 1688169600000 # Saturday 1 July 2023 00:00:00
 
-      MESSAGES_TOPIC_CONNECTION_STRING = var.cqrs_func_ehns_enabled ? data.azurerm_eventhub_authorization_rule.io-p-messages-weu-prod01-evh-ns_messages_io-fn-messages-cqrs.primary_connection_string : ""
-      MESSAGES_TOPIC_NAME              = "messages"
+      MESSAGES_TOPIC_CONNECTION_STRING                             = data.azurerm_eventhub_authorization_rule.cqrs_message_evh.primary_connection_string
+      MESSAGE_STATUS_FOR_REMINDER_TOPIC_PRODUCER_CONNECTION_STRING = data.azurerm_eventhub_authorization_rule.cqrs_message_status_evh.primary_connection_string
 
-      MESSAGE_STATUS_FOR_REMINDER_TOPIC_PRODUCER_CONNECTION_STRING = var.cqrs_func_ehns_enabled ? data.azurerm_eventhub_authorization_rule.io-p-messages-weu-prod01-evh-ns_message-status_io-fn-messages-cqrs.primary_connection_string : ""
-      MESSAGE_STATUS_FOR_REMINDER_TOPIC_NAME                       = "message-status"
-
-      TARGETKAFKA_clientId        = "IO_FUNCTIONS_MESSAGES_CQRS"
-      TARGETKAFKA_brokers         = "${var.environment.prefix}-${var.environment.env_short}-messages-weu-prod01-evh-ns.servicebus.windows.net:9093"
-      TARGETKAFKA_ssl             = "true"
-      TARGETKAFKA_sasl_mechanism  = "plain"
-      TARGETKAFKA_sasl_username   = "$ConnectionString"
-      TARGETKAFKA_sasl_password   = var.cqrs_func_ehns_enabled ? data.azurerm_eventhub_authorization_rule.io-p-messages-weu-prod01-evh-ns_messages_io-fn-messages-cqrs.primary_connection_string : ""
-      TARGETKAFKA_idempotent      = "true"
-      TARGETKAFKA_transactionalId = "IO_MESSAGES_CQRS"
-      TARGETKAFKA_topic           = "messages"
-      KAFKA_SSL_ACTIVE            = true
-
-      APIM_BASE_URL         = "https://api-app.internal.io.pagopa.it"
-      APIM_SUBSCRIPTION_KEY = data.azurerm_key_vault_secret.apim_services_subscription_key.value
+      KAFKA_SSL_ACTIVE = true
 
       PN_SERVICE_ID = "01G40DWQGKY5GRWSNM4303VNRP"
-      // Keepalive fields are all optionals
+
+      # Keepalive fields are all optionals
       FETCH_KEEPALIVE_ENABLED             = "true"
       FETCH_KEEPALIVE_SOCKET_ACTIVE_TTL   = "110000"
       FETCH_KEEPALIVE_MAX_SOCKETS         = "40"
@@ -116,7 +50,7 @@ locals {
 
 module "cqrs_func" {
   source  = "pagopa-dx/azure-function-app/azurerm"
-  version = "~> 0.0"
+  version = "~> 1.0"
 
   environment = merge(var.environment, {
     app_name        = "cqrs"
@@ -174,7 +108,7 @@ module "cqrs_func_autoscaler" {
   }
 
   scale_metrics = {
-    cpu : {
+    cpu = {
       time_aggregation_increase = "Maximum"
       time_aggregation_decrease = "Average"
       increase_by               = 3
@@ -184,7 +118,7 @@ module "cqrs_func_autoscaler" {
       upper_threshold           = 40
       lower_threshold           = 15
     },
-    requests : {
+    requests = {
       time_aggregation_increase = "Maximum"
       time_aggregation_decrease = "Average"
       increase_by               = 3

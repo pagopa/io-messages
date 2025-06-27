@@ -57,7 +57,8 @@ module "web_apps" {
 
   common_key_vault = data.azurerm_key_vault.weu_common
 
-  eventhub_namespace         = module.eventhubs.namespace
+  eventhub_namespace = module.eventhubs.namespace
+
   messages_content_container = data.azurerm_storage_container.messages_content_container
   messages_storage_account   = data.azurerm_storage_account.storage_api
   cosmosdb_account_api       = data.azurerm_cosmosdb_account.cosmos_api
