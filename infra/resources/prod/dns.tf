@@ -14,7 +14,7 @@ resource "azurerm_subnet" "dns_resolver" {
     resource_type = "subnet",
   }))
   virtual_network_name = data.azurerm_virtual_network.vnet_common_itn.name
-  resource_group_name  = azurerm_resource_group.itn_com.name
+  resource_group_name  = data.azurerm_virtual_network.vnet_common_itn.resource_group_name
   address_prefixes     = ["10.20.4.112/28"]
 
   delegation {
@@ -54,4 +54,10 @@ resource "azurerm_private_dns_resolver_dns_forwarding_ruleset" "com" {
   location                                   = azurerm_private_dns_resolver_outbound_endpoint.com.location
   private_dns_resolver_outbound_endpoint_ids = [azurerm_private_dns_resolver_outbound_endpoint.com.id]
   tags                                       = local.tags
+}
+
+resource "azurerm_private_dns_resolver_virtual_network_link" "com_vnet_common_itn" {
+  name                      = data.azurerm_virtual_network.vnet_common_itn.name
+  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.com.id
+  virtual_network_id        = data.azurerm_virtual_network.vnet_common_itn.id
 }
