@@ -8,6 +8,7 @@ import it.ioapp.com.paymentupdater.dto.PaymentInfoResponse;
 import it.ioapp.com.paymentupdater.model.Payment;
 import it.ioapp.com.paymentupdater.service.PaymentService;
 import it.ioapp.com.paymentupdater.util.PaymentUtil;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -30,7 +31,7 @@ public class MessageKafkaConsumer {
       containerFactory = "kafkaListenerContainerFactory",
       autoStartup = "${message.auto.start}")
   public void messageKafkaListener(Payment paymentMessage)
-      throws JsonProcessingException, InterruptedException, ExecutionException {
+      throws JsonProcessingException, InterruptedException, ExecutionException, IOException {
     log.debug(
         "Processing messageId="
             + paymentMessage.getId()

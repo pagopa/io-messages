@@ -4,6 +4,7 @@ import static it.ioapp.com.reminder.util.ReminderUtil.calculateShard;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.MessageContentType;
 import io.github.resilience4j.core.IntervalFunction;
@@ -14,11 +15,15 @@ import it.ioapp.com.reminder.model.Reminder;
 import it.ioapp.com.reminder.producer.ReminderProducer;
 import it.ioapp.com.reminder.repository.ReminderRepository;
 import it.ioapp.com.reminder.restclient.pagopaecommerce.model.InlineResponse409;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentCanceledStatusFaultPaymentProblemJson;
 import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFaultPaymentProblemJson;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentExpiredStatusFaultPaymentProblemJson;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentOngoingStatusFaultPaymentProblemJson;
 import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentRequestsGetResponse;
 import it.ioapp.com.reminder.restclient.servicemessages.model.NotificationInfo;
 import it.ioapp.com.reminder.restclient.servicemessages.model.NotificationType;
 import it.ioapp.com.reminder.util.ReminderUtil;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -312,7 +317,7 @@ public class ReminderServiceImpl implements ReminderService {
         String rawResponse = errorException.getResponseBodyAsString();
         log.error("Received error from pagoPa Ecommerce api: {}", rawResponse);
         if (errorException.getStatusCode().value() == 409) {
-          InlineResponse409 errorResponse = mapper.readValue(rawResponse, InlineResponse409.class);
+          InlineResponse409 errorResponse = parseInlineResponse409(rawResponse);
           if (errorResponse instanceof PaymentDuplicatedStatusFaultPaymentProblemJson) {
             info.setPaid(true);
             return info;
@@ -325,9 +330,33 @@ public class ReminderServiceImpl implements ReminderService {
         log.error(e.getMessage());
       } catch (JsonProcessingException e) {
         log.error(e.getMessage());
+      } catch (IOException e) {
+        log.error(e.getMessage());
       }
 
       return info;
+    }
+  }
+
+  private InlineResponse409 parseInlineResponse409(String rawResponse) throws IOException {
+    JsonNode root = new ObjectMapper().readTree(rawResponse);
+
+    String status = root.path("faultCodeCategory").asText();
+    switch (status) {
+      case "PAYMENT_DUPLICATED":
+        return new ObjectMapper()
+            .treeToValue(root, PaymentDuplicatedStatusFaultPaymentProblemJson.class);
+      case "PAYMENT_EXPIRED":
+        return new ObjectMapper()
+            .treeToValue(root, PaymentExpiredStatusFaultPaymentProblemJson.class);
+      case "PAYMENT_ONGOING":
+        return new ObjectMapper()
+            .treeToValue(root, PaymentOngoingStatusFaultPaymentProblemJson.class);
+      case "PAYMENT_CANCELED":
+        return new ObjectMapper()
+            .treeToValue(root, PaymentCanceledStatusFaultPaymentProblemJson.class);
+      default:
+        throw new IllegalArgumentException("Unknown InlineResponse409 type: " + status);
     }
   }
 
