@@ -9,6 +9,4 @@ module "apim" {
   domain                = local.domain
 
   key_vault = module.key_vaults.com
-
-  payment_updater_url = module.container_apps.paymentup.url
 }
