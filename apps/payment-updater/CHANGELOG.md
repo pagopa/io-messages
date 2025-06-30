@@ -1,5 +1,11 @@
 # payment-updater
 
+## 2.7.0
+
+### Minor Changes
+
+- d167b65: Replace proxy with new ecommerce api
+
 ## 2.6.14
 
 ### Patch Changes
