@@ -43,7 +43,7 @@ resource "azurerm_api_management_api" "payments_updater_api_v1" {
   }
 }
 
-resource "azurerm_api_management_named_value" "example" {
+resource "azurerm_api_management_named_value" "paymentup_base_url" {
   name                = "paymentup-base-url"
   api_management_name = data.azurerm_api_management.apim_itn_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
