@@ -78,7 +78,8 @@ public class PaymentServiceImpl implements PaymentService {
       if (errorException.getStatusCode().value() > 500) {
         throw errorException;
       }
-      if (errorException.getStatusCode().value() == 409 && isPaymentDuplicatedResponse(rawResponse)) {
+      if (errorException.getStatusCode().value() == 409
+          && isPaymentDuplicatedResponse(rawResponse)) {
         // the payment message is already paid
         List<Payment> payments = paymentRepository.getPaymentByRptId(payment.getRptId());
         payments.add(payment);
