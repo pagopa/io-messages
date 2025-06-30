@@ -8,11 +8,6 @@ import it.ioapp.com.paymentupdater.model.Payment;
 import it.ioapp.com.paymentupdater.producer.PaymentProducer;
 import it.ioapp.com.paymentupdater.repository.PaymentRepository;
 import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.api.PaymentRequestsApi;
-import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.InlineResponse409;
-import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentCanceledStatusFaultPaymentProblemJson;
-import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFaultPaymentProblemJson;
-import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentExpiredStatusFaultPaymentProblemJson;
-import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentOngoingStatusFaultPaymentProblemJson;
 import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentRequestsGetResponse;
 import it.ioapp.com.paymentupdater.util.PaymentUtil;
 import java.io.IOException;
@@ -81,9 +76,9 @@ public class PaymentServiceImpl implements PaymentService {
       String rawResponse = errorException.getResponseBodyAsString();
       log.error("Received error from pagoPa Ecommerce api: {}", rawResponse);
       if (errorException.getStatusCode().value() == 409) {
-        InlineResponse409 errorResponse = parseInlineResponse409(rawResponse);
+        boolean isPaymentDuplicated = isPaymentDuplicatedResponse(rawResponse);
 
-        if (errorResponse instanceof PaymentDuplicatedStatusFaultPaymentProblemJson) {
+        if (isPaymentDuplicated) {
           // the payment message is already paid
           List<Payment> payments = paymentRepository.getPaymentByRptId(payment.getRptId());
           payments.add(payment);
@@ -113,26 +108,10 @@ public class PaymentServiceImpl implements PaymentService {
     }
   }
 
-  public InlineResponse409 parseInlineResponse409(String rawResponse) throws IOException {
+  private boolean isPaymentDuplicatedResponse(String rawResponse) throws IOException {
     JsonNode root = new ObjectMapper().readTree(rawResponse);
-
-    String status = root.path("faultCodeCategory").asText();
-    switch (status) {
-      case "PAYMENT_DUPLICATED":
-        return new ObjectMapper()
-            .treeToValue(root, PaymentDuplicatedStatusFaultPaymentProblemJson.class);
-      case "PAYMENT_EXPIRED":
-        return new ObjectMapper()
-            .treeToValue(root, PaymentExpiredStatusFaultPaymentProblemJson.class);
-      case "PAYMENT_ONGOING":
-        return new ObjectMapper()
-            .treeToValue(root, PaymentOngoingStatusFaultPaymentProblemJson.class);
-      case "PAYMENT_CANCELED":
-        return new ObjectMapper()
-            .treeToValue(root, PaymentCanceledStatusFaultPaymentProblemJson.class);
-      default:
-        throw new IllegalArgumentException("Unknown InlineResponse409 type: " + status);
-    }
+    String faultCodeCategory = root.path("faultCodeCategory").asText();
+    return "PAYMENT_DUPLICATED".equals(faultCodeCategory);
   }
 
   @Override

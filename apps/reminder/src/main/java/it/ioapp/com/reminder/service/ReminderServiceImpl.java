@@ -14,11 +14,6 @@ import it.ioapp.com.reminder.dto.PaymentInfo;
 import it.ioapp.com.reminder.model.Reminder;
 import it.ioapp.com.reminder.producer.ReminderProducer;
 import it.ioapp.com.reminder.repository.ReminderRepository;
-import it.ioapp.com.reminder.restclient.pagopaecommerce.model.InlineResponse409;
-import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentCanceledStatusFaultPaymentProblemJson;
-import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFaultPaymentProblemJson;
-import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentExpiredStatusFaultPaymentProblemJson;
-import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentOngoingStatusFaultPaymentProblemJson;
 import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentRequestsGetResponse;
 import it.ioapp.com.reminder.restclient.servicemessages.model.NotificationInfo;
 import it.ioapp.com.reminder.restclient.servicemessages.model.NotificationType;
@@ -317,8 +312,8 @@ public class ReminderServiceImpl implements ReminderService {
         String rawResponse = errorException.getResponseBodyAsString();
         log.error("Received error from pagoPa Ecommerce api: {}", rawResponse);
         if (errorException.getStatusCode().value() == 409) {
-          InlineResponse409 errorResponse = parseInlineResponse409(rawResponse);
-          if (errorResponse instanceof PaymentDuplicatedStatusFaultPaymentProblemJson) {
+          boolean isPaymentDuplicated = isPaymentDuplicatedResponse(rawResponse);
+          if (isPaymentDuplicated) {
             info.setPaid(true);
             return info;
           }
@@ -338,26 +333,10 @@ public class ReminderServiceImpl implements ReminderService {
     }
   }
 
-  private InlineResponse409 parseInlineResponse409(String rawResponse) throws IOException {
+  private boolean isPaymentDuplicatedResponse(String rawResponse) throws IOException {
     JsonNode root = new ObjectMapper().readTree(rawResponse);
-
-    String status = root.path("faultCodeCategory").asText();
-    switch (status) {
-      case "PAYMENT_DUPLICATED":
-        return new ObjectMapper()
-            .treeToValue(root, PaymentDuplicatedStatusFaultPaymentProblemJson.class);
-      case "PAYMENT_EXPIRED":
-        return new ObjectMapper()
-            .treeToValue(root, PaymentExpiredStatusFaultPaymentProblemJson.class);
-      case "PAYMENT_ONGOING":
-        return new ObjectMapper()
-            .treeToValue(root, PaymentOngoingStatusFaultPaymentProblemJson.class);
-      case "PAYMENT_CANCELED":
-        return new ObjectMapper()
-            .treeToValue(root, PaymentCanceledStatusFaultPaymentProblemJson.class);
-      default:
-        throw new IllegalArgumentException("Unknown InlineResponse409 type: " + status);
-    }
+    String faultCodeCategory = root.path("faultCodeCategory").asText();
+    return "PAYMENT_DUPLICATED".equals(faultCodeCategory);
   }
 
   private void sendNotificationWithRetry(Reminder reminder) {
