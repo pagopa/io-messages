@@ -118,6 +118,10 @@ locals {
       {
         name                = "PAGOPA_ECOMMERCE_KEY",
         key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_ecommerce_key.versionless_id
+      },
+      {
+        name                = "PROXY_ENDPOINT_SUBSCRIPTION_KEY",
+        key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_proxy_subscription_key.versionless_id
       }
     ]
   }
