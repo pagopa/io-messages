@@ -1,7 +1,7 @@
 package it.ioapp.com.paymentupdater.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import it.ioapp.com.paymentupdater.dto.ProxyResponse;
+import it.ioapp.com.paymentupdater.dto.PaymentInfoResponse;
 import it.ioapp.com.paymentupdater.model.Payment;
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +11,7 @@ public interface PaymentService {
 
   void save(Payment reminder);
 
-  ProxyResponse checkPayment(Payment payment)
+  PaymentInfoResponse checkPayment(Payment payment)
       throws JsonProcessingException, InterruptedException, ExecutionException;
 
   Optional<Payment> findById(String messageId);

@@ -86,7 +86,7 @@ locals {
       MONGO_COLLECTION_NAME                 = "payment-sharded"
       MONGO_DATABASE                        = "db"
       MONGO_RETRY_COLLECTION_NAME           = "payment-retry"
-      PROXY_ENDPOINT                        = "https://not-used-anymore"
+      PAGOPA_ECOMMERCE_ENDPOINT             = "https://api.platform.pagopa.it/ecommerce/payment-requests-service/v1",
       QUARTZ_SCHEDULER_TIMER_NOTIFY         = "0 /3 * ? * *"
       RESTCALL_INTERVAL_FUNCTION            = 10000
       RESTCALL_MAX_ATTEMPTS                 = 3
@@ -116,8 +116,8 @@ locals {
         key_vault_secret_id = data.azurerm_key_vault_secret.paymentup_nodo_dei_pagamenti_biz_evt_jaas_connection_string.versionless_id
       },
       {
-        name                = "PROXY_ENDPOINT_SUBSCRIPTION_KEY",
-        key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_proxy_subscription_key.versionless_id
+        name                = "PAGOPA_ECOMMERCE_KEY",
+        key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_ecommerce_key.versionless_id
       }
     ]
   }

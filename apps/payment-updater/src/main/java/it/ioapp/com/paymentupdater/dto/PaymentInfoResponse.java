@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProxyResponse {
+public class PaymentInfoResponse {
 
   private boolean isPaid;
   private LocalDate dueDate;

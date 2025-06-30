@@ -243,6 +243,11 @@
       <artifactId>avro-compiler</artifactId>
       <version>1.8.2</version>
     </dependency>
+     <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>2.2.20</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -380,12 +385,6 @@
                   dest="${project.basedir}/src/main/resources/avro"
                   verbose="false"
                   usetimestamp="true" />
-                <!-- download swagger proxy pagopa-->
-                <get
-                  src="https://raw.githubusercontent.com/pagopa/io-pagopa-proxy/main/api-spec/api-auth-v2.yaml"
-                  dest="${project.basedir}/src/main/resources"
-                  verbose="false"
-                  usetimestamp="true" />
               </target>
             </configuration>
           </execution>
@@ -436,28 +435,25 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>io.swagger</groupId>
+        <groupId>io.swagger.codegen.v3</groupId>
         <artifactId>swagger-codegen-maven-plugin</artifactId>
-        <version>2.4.7</version>
+        <version>3.0.69</version>
         <executions>
           <execution>
+            <id>generate-ecommerce</id>
+            <phase>generate-sources</phase>
             <goals>
               <goal>generate</goal>
             </goals>
             <configuration>
-              <inputSpec>${basedir}/src/main/resources/api-auth-v2.yaml
-              </inputSpec>
+              <inputSpec>${basedir}/src/main/resources/api-pagopa-ecommerce.json</inputSpec>
               <language>java</language>
               <library>resttemplate</library>
               <output>${project.basedir}/target/generated-sources/</output>
 
-              <apiPackage>it.ioapp.com.paymentupdater.restclient.proxy.api
-              </apiPackage>
-              <modelPackage>
-                it.ioapp.com.paymentupdater.restclient.proxy.model
-              </modelPackage>
-              <invokerPackage>it.ioapp.com.paymentupdater.restclient.proxy
-              </invokerPackage>
+              <apiPackage>it.ioapp.com.paymentupdater.restclient.pagopaecommerce.api</apiPackage>
+              <modelPackage>it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model</modelPackage>
+              <invokerPackage>it.ioapp.com.paymentupdater.restclient.pagopaecommerce</invokerPackage>
 
               <generateApiTests>false</generateApiTests>
               <generateModelTests>false</generateModelTests>
@@ -465,7 +461,7 @@
               <generateModelDocumentation>false</generateModelDocumentation>
               <configOptions>
                 <dateLibrary>java8</dateLibrary>
-
+                <useSwaggerAnnotations>false</useSwaggerAnnotations>
               </configOptions>
             </configuration>
           </execution>

@@ -169,7 +169,7 @@ public class MessageKafkaConsumerTest extends AbstractMock {
       mockSaveWithResponse(payment);
     }
 
-    mockGetPaymentInfoIsNotPaid("UNKNOWN");
+    mockGetPaymentInfo();
 
     messageKafkaConsumer.messageKafkaListener(paymentMessage);
     Assertions.assertTrue(messageKafkaConsumer.getPayload().contains("paidFlag=false"));

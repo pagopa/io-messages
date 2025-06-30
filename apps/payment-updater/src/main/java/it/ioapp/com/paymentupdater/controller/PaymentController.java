@@ -4,7 +4,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
-import it.ioapp.com.paymentupdater.dto.ProxyResponse;
+import it.ioapp.com.paymentupdater.dto.PaymentInfoResponse;
 import it.ioapp.com.paymentupdater.model.ApiPaymentMessage;
 import it.ioapp.com.paymentupdater.model.Payment;
 import it.ioapp.com.paymentupdater.service.PaymentService;
@@ -46,9 +46,9 @@ public class PaymentController {
       // FIX: sometimes we miss a payment event so if this payment is not paid we try to call
       // paymentService
       if (paymentService != null) {
-        ProxyResponse proxyResponse = paymentService.checkPayment(payment);
-        if (proxyResponse != null) {
-          payment.setPaidFlag(proxyResponse.isPaid());
+        PaymentInfoResponse paymentInfo = paymentService.checkPayment(payment);
+        if (paymentInfo != null) {
+          payment.setPaidFlag(paymentInfo.isPaid());
           paymentService.save(payment);
         }
       }
