@@ -75,36 +75,34 @@ public class PaymentServiceImpl implements PaymentService {
     } catch (HttpStatusCodeException errorException) {
       String rawResponse = errorException.getResponseBodyAsString();
       log.error("Received error from pagoPa Ecommerce api: {}", rawResponse);
-      if (errorException.getStatusCode().value() == 409) {
-        boolean isPaymentDuplicated = isPaymentDuplicatedResponse(rawResponse);
-
-        if (isPaymentDuplicated) {
-          // the payment message is already paid
-          List<Payment> payments = paymentRepository.getPaymentByRptId(payment.getRptId());
-          payments.add(payment);
-          for (Payment pay : payments) {
-            pay.setPaidFlag(true);
-            paymentRepository.save(pay);
-
-            PaymentMessage message = new PaymentMessage();
-            message.setMessageId(pay.getId());
-            message.setFiscalCode(pay.getFiscalCode());
-            message.setNoticeNumber(payment.getContent_paymentData_noticeNumber());
-            message.setPayeeFiscalCode(payment.getContent_paymentData_payeeFiscalCode());
-            message.setSource("payments");
-            producer.sendPaymentUpdate(
-                mapper.writeValueAsString(message), kafkaTemplatePayments, topic);
-          }
-          paymentInfo.setPaid(true);
-          paymentInfo.setDueDate(paymentDueDate);
-          return paymentInfo;
-        }
-        paymentInfo.setPaid(false);
-        paymentInfo.setDueDate(paymentDueDate);
-        return paymentInfo;
-      } else {
+      if (errorException.getStatusCode().value() > 500) {
         throw errorException;
       }
+      if (errorException.getStatusCode().value() == 409
+          && isPaymentDuplicatedResponse(rawResponse)) {
+        // the payment message is already paid
+        List<Payment> payments = paymentRepository.getPaymentByRptId(payment.getRptId());
+        payments.add(payment);
+        for (Payment pay : payments) {
+          pay.setPaidFlag(true);
+          paymentRepository.save(pay);
+
+          PaymentMessage message = new PaymentMessage();
+          message.setMessageId(pay.getId());
+          message.setFiscalCode(pay.getFiscalCode());
+          message.setNoticeNumber(payment.getContent_paymentData_noticeNumber());
+          message.setPayeeFiscalCode(payment.getContent_paymentData_payeeFiscalCode());
+          message.setSource("payments");
+          producer.sendPaymentUpdate(
+              mapper.writeValueAsString(message), kafkaTemplatePayments, topic);
+        }
+        paymentInfo.setPaid(true);
+        paymentInfo.setDueDate(paymentDueDate);
+        return paymentInfo;
+      }
+      paymentInfo.setPaid(false);
+      paymentInfo.setDueDate(paymentDueDate);
+      return paymentInfo;
     }
   }
 
