@@ -4,7 +4,7 @@ import static it.ioapp.com.paymentupdater.util.PaymentUtil.checkNullInMessage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import dto.MessageContentType;
-import it.ioapp.com.paymentupdater.dto.ProxyResponse;
+import it.ioapp.com.paymentupdater.dto.PaymentInfoResponse;
 import it.ioapp.com.paymentupdater.model.Payment;
 import it.ioapp.com.paymentupdater.service.PaymentService;
 import it.ioapp.com.paymentupdater.util.PaymentUtil;
@@ -51,11 +51,11 @@ public class MessageKafkaConsumer {
                 .getContent_paymentData_payeeFiscalCode()
                 .concat(paymentMessage.getContent_paymentData_noticeNumber());
         paymentMessage.setRptId(rptId);
-        ProxyResponse proxyResponse = paymentService.checkPayment(paymentMessage);
-        if (proxyResponse.isPaid()) {
+        PaymentInfoResponse paymentInfo = paymentService.checkPayment(paymentMessage);
+        if (paymentInfo.isPaid()) {
           paymentMessage.setPaidFlag(true);
         } else {
-          PaymentUtil.checkDueDateForPayment(proxyResponse.getDueDate(), paymentMessage);
+          PaymentUtil.checkDueDateForPayment(paymentInfo.getDueDate(), paymentMessage);
         }
         paymentService.save(paymentMessage);
       }

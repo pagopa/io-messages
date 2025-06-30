@@ -20,9 +20,13 @@ import it.ioapp.com.paymentupdater.model.Payment;
 import it.ioapp.com.paymentupdater.model.PaymentRetry;
 import it.ioapp.com.paymentupdater.repository.PaymentRepository;
 import it.ioapp.com.paymentupdater.repository.PaymentRetryRepository;
-import it.ioapp.com.paymentupdater.restclient.proxy.api.DefaultApi;
-import it.ioapp.com.paymentupdater.restclient.proxy.model.PaymentRequestsGetResponse;
-import it.ioapp.com.paymentupdater.restclient.proxy.model.PaymentStatusFaultPaymentProblemJson;
+import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.api.PaymentRequestsApi;
+import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFault;
+import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFaultPaymentProblemJson;
+import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFaultPaymentProblemJson.FaultCodeCategoryEnum;
+import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentRequestsGetResponse;
+import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.ValidationFaultPaymentUnavailable;
+import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.ValidationFaultPaymentUnavailableProblemJson;
 import it.ioapp.com.paymentupdater.service.PaymentRetryServiceImpl;
 import it.ioapp.com.paymentupdater.service.PaymentServiceImpl;
 import java.nio.charset.Charset;
@@ -69,7 +73,7 @@ public abstract class AbstractMock {
 
   @Mock PaymentServiceImpl paymentServiceImpl;
 
-  @MockBean protected DefaultApi mockDefaultApi;
+  @MockBean protected PaymentRequestsApi mockPaymentApi;
 
   protected void mockSaveWithResponse(Payment returnReminder) {
     Mockito.when(mockRepository.save(Mockito.any(Payment.class))).thenReturn(returnReminder);
@@ -107,14 +111,16 @@ public abstract class AbstractMock {
   public void mockGetPaymentInfo() {
     PaymentRequestsGetResponse paymentRequest = new PaymentRequestsGetResponse();
     paymentRequest.setDueDate("2022-05-15");
-    paymentRequest.setIbanAccredito("IT12345");
-    Mockito.when(mockDefaultApi.getPaymentInfo(Mockito.anyString())).thenReturn(paymentRequest);
+    Mockito.when(mockPaymentApi.getPaymentRequestInfo(Mockito.anyString()))
+        .thenReturn(paymentRequest);
   }
 
   public void mockGetPaymentInfoIsPaidTrue() throws JsonProcessingException {
-    PaymentStatusFaultPaymentProblemJson problem = new PaymentStatusFaultPaymentProblemJson();
+    PaymentDuplicatedStatusFaultPaymentProblemJson problem =
+        new PaymentDuplicatedStatusFaultPaymentProblemJson();
 
-    problem.setDetailV2("PAA_PAGAMENTO_DUPLICATO");
+    problem.setFaultCodeDetail(PaymentDuplicatedStatusFault.PAA_PAGAMENTO_DUPLICATO);
+    problem.setFaultCodeCategory(FaultCodeCategoryEnum.PAYMENT_DUPLICATED);
 
     HttpServerErrorException errorResponse =
         new HttpServerErrorException(
@@ -123,34 +129,23 @@ public abstract class AbstractMock {
             mapper.writeValueAsString(problem).getBytes(),
             Charset.defaultCharset());
 
-    Mockito.when(mockDefaultApi.getPaymentInfo(Mockito.anyString())).thenThrow(errorResponse);
-  }
-
-  public void mockGetPaymentInfoIsNotPaid(String responseDetail) throws JsonProcessingException {
-    PaymentStatusFaultPaymentProblemJson problem = new PaymentStatusFaultPaymentProblemJson();
-    problem.setDetailV2(responseDetail);
-
-    HttpServerErrorException errorResponse =
-        new HttpServerErrorException(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            "",
-            mapper.writeValueAsString(problem).getBytes(),
-            Charset.defaultCharset());
-
-    Mockito.when(mockDefaultApi.getPaymentInfo(Mockito.anyString())).thenThrow(errorResponse);
+    Mockito.when(mockPaymentApi.getPaymentRequestInfo(Mockito.anyString()))
+        .thenThrow(errorResponse);
   }
 
   public void mockGetPaymentInfoError() throws JsonProcessingException {
-    PaymentStatusFaultPaymentProblemJson proxyResponse = getProxyResponse();
-    proxyResponse.setDetailV2(null);
+    ValidationFaultPaymentUnavailableProblemJson ecommerceResponse =
+        new ValidationFaultPaymentUnavailableProblemJson();
+    ecommerceResponse.setFaultCodeDetail(ValidationFaultPaymentUnavailable.PPT_AUTENTICAZIONE);
     HttpServerErrorException errorResponse =
         new HttpServerErrorException(
             HttpStatus.INTERNAL_SERVER_ERROR,
             "",
-            mapper.writeValueAsString(proxyResponse).getBytes(),
+            mapper.writeValueAsString(ecommerceResponse).getBytes(),
             Charset.defaultCharset());
 
-    Mockito.when(mockDefaultApi.getPaymentInfo(Mockito.anyString())).thenThrow(errorResponse);
+    Mockito.when(mockPaymentApi.getPaymentRequestInfo(Mockito.anyString()))
+        .thenThrow(errorResponse);
   }
 
   protected Payment selectReminderMockObject(
@@ -231,18 +226,6 @@ public abstract class AbstractMock {
             fiscalCode,
             paymentDateTime);
     return mapper.writeValueAsString(paymentMessage);
-  }
-
-  protected PaymentStatusFaultPaymentProblemJson getProxyResponse() {
-    PaymentStatusFaultPaymentProblemJson paymentResponse =
-        new PaymentStatusFaultPaymentProblemJson();
-    paymentResponse.setDetailV2("PPT_RPT_DUPLICATA");
-    paymentResponse.setDetail("");
-    paymentResponse.setInstance("");
-    paymentResponse.setStatus(500);
-    paymentResponse.setType("");
-    paymentResponse.setTitle("");
-    return paymentResponse;
   }
 
   protected PaymentRetry getPaymentRetry() {
