@@ -49,8 +49,3 @@ variable "key_vault" {
     id   = string
   })
 }
-
-variable "payment_updater_url" {
-  type        = string
-  description = "Payment Updater URL"
-}

@@ -48,7 +48,7 @@ resource "azurerm_api_management_named_value" "paymentup_base_url" {
   api_management_name = data.azurerm_api_management.apim_itn_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
   display_name        = "paymentup-base-url"
-  value               = "${var.payment_updater_url}${azurerm_api_management_api.payments_updater_api_v1.path}"
+  value               = "https://io-p-itn-com-paymentup-ca-01.bluesand-bdc6dc22.italynorth.azurecontainerapps.io/${azurerm_api_management_api.payments_updater_api_v1.path}"
 }
 
 resource "azurerm_api_management_api_policy" "payments_updater_api_v1_policy" {

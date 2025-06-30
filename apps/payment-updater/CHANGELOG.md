@@ -1,5 +1,11 @@
 # payment-updater
 
+## 2.7.1
+
+### Patch Changes
+
+- cda9240: fix ecommerce api response management
+
 ## 2.7.0
 
 ### Minor Changes

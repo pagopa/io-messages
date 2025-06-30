@@ -37,7 +37,7 @@ No modules.
 | [azurerm_api_management_group.apithirdpartymessagewrite_itn](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_group) | resource |
 | [azurerm_api_management_group_user.payment_group_itn](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_group_user) | resource |
 | [azurerm_api_management_group_user.reminder_group_itn](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_group_user) | resource |
-| [azurerm_api_management_named_value.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_named_value) | resource |
+| [azurerm_api_management_named_value.paymentup_base_url](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_named_value) | resource |
 | [azurerm_api_management_product.apim_itn_product_notifications](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_product) | resource |
 | [azurerm_api_management_product.apim_itn_product_payments](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_product) | resource |
 | [azurerm_api_management_product_api.messages_sending_external_api_v1_product_api](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_product_api) | resource |
@@ -66,7 +66,6 @@ No modules.
 | <a name="input_legacy_location_short"></a> [legacy\_location\_short](#input\_legacy\_location\_short) | legacy\_location\_short | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | One of westeurope, northeurope | `string` | n/a | yes |
 | <a name="input_location_short"></a> [location\_short](#input\_location\_short) | location\_short | `string` | n/a | yes |
-| <a name="input_payment_updater_url"></a> [payment\_updater\_url](#input\_payment\_updater\_url) | Payment Updater URL | `string` | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | n/a | `string` | n/a | yes |
 
 ## Outputs

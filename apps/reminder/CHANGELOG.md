@@ -1,5 +1,11 @@
 # reminder
 
+## 0.17.1
+
+### Patch Changes
+
+- cda9240: fix ecommerce api response management
+
 ## 0.17.0
 
 ### Minor Changes
