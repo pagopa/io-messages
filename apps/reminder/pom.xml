@@ -297,6 +297,12 @@
       <version>${flyway-version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>2.2.20</version>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -434,12 +440,6 @@
                   dest="${project.basedir}/src/main/resources/avro"
                   verbose="false"
                   usetimestamp="true" />
-                <!-- download swagger proxy pagopa-->
-                <get
-                  src="https://raw.githubusercontent.com/pagopa/io-pagopa-proxy/main/api-spec/api-pagopa-proxy.yaml"
-                  dest="${project.basedir}/src/main/resources/openapi/"
-                  verbose="false"
-                  usetimestamp="true" />
                 <!-- download swagger service messages-->
                 <get
                   src="https://raw.githubusercontent.com/pagopa/io-messages/refs/heads/main/apps/sending-func/openapi/index.yaml"
@@ -491,24 +491,25 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>io.swagger</groupId>
+        <groupId>io.swagger.codegen.v3</groupId>
         <artifactId>swagger-codegen-maven-plugin</artifactId>
-        <version>2.4.7</version>
+        <version>3.0.69</version>
         <executions>
           <execution>
-            <id>1</id>
+            <id>generate-ecommerce</id>
+            <phase>generate-sources</phase>
             <goals>
               <goal>generate</goal>
             </goals>
             <configuration>
-              <inputSpec>${basedir}/src/main/resources/openapi/api-pagopa-proxy.yaml</inputSpec>
+              <inputSpec>${basedir}/src/main/resources/openapi/api-pagopa-ecommerce.json</inputSpec>
               <language>java</language>
               <library>resttemplate</library>
               <output>${project.basedir}/target/generated-sources/</output>
 
-              <apiPackage>it.ioapp.com.reminder.restclient.pagopaproxy.api</apiPackage>
-              <modelPackage>it.ioapp.com.reminder.restclient.pagopaproxy.model</modelPackage>
-              <invokerPackage>it.ioapp.com.reminder.restclient.pagopaproxy</invokerPackage>
+              <apiPackage>it.ioapp.com.reminder.restclient.pagopaecommerce.api</apiPackage>
+              <modelPackage>it.ioapp.com.reminder.restclient.pagopaecommerce.model</modelPackage>
+              <invokerPackage>it.ioapp.com.reminder.restclient.pagopaecommerce</invokerPackage>
 
               <generateApiTests>false</generateApiTests>
               <generateModelTests>false</generateModelTests>
@@ -516,10 +517,17 @@
               <generateModelDocumentation>false</generateModelDocumentation>
               <configOptions>
                 <dateLibrary>java8</dateLibrary>
-
+                <useSwaggerAnnotations>false</useSwaggerAnnotations>
               </configOptions>
             </configuration>
           </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-codegen-maven-plugin</artifactId>
+        <version>2.4.7</version>
+        <executions>
           <execution>
             <id>2</id>
             <goals>
