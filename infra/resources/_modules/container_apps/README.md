@@ -65,5 +65,8 @@ No requirements.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_paymentup"></a> [paymentup](#output\_paymentup) | n/a |
+| <a name="output_reminder"></a> [reminder](#output\_reminder) | n/a |
 <!-- END_TF_DOCS -->

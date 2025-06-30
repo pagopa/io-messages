@@ -1,5 +1,3 @@
-# general
-
 variable "prefix" {
   type = string
   validation {
@@ -50,4 +48,9 @@ variable "key_vault" {
     name = string
     id   = string
   })
+}
+
+variable "payment_updater_url" {
+  type        = string
+  description = "Payment Updater URL"
 }
