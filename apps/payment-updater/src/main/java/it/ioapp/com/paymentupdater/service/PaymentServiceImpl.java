@@ -74,12 +74,9 @@ public class PaymentServiceImpl implements PaymentService {
       return paymentInfo;
     } catch (HttpStatusCodeException errorException) {
       String rawResponse = errorException.getResponseBodyAsString();
-      log.error("Received error from pagoPa Ecommerce api: {}", rawResponse);
-      if (errorException.getStatusCode().value() > 500) {
-        throw errorException;
-      }
-      if (errorException.getStatusCode().value() == 409
-          && isPaymentDuplicatedResponse(rawResponse)) {
+      int status = errorException.getStatusCode().value();
+      log.error("Received status  from pagoPa Ecommerce api: {}", rawResponse);
+      if (status == 409 && isPaymentDuplicatedResponse(rawResponse)) {
         // the payment message is already paid
         List<Payment> payments = paymentRepository.getPaymentByRptId(payment.getRptId());
         payments.add(payment);
