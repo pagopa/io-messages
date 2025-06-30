@@ -65,13 +65,16 @@ module "payment_updater_ca_itn_01" {
 }
 
 locals {
+
+  pagopa_core_evhns_hostname = "pagopa-p-weu-core-evh-ns03.servicebus.windows.net"
+
   payment_updater_ca = {
     app_settings = {
       APPLICATIONINSIGHTS_ROLE_NAME         = "io-p-itn-com-payment-updater-01",
       APPLICATIONINSIGHTS_CONNECTION_STRING = var.application_insights.connection_string
       BOOTSTRAP_SERVER_MESSAGE              = "io-p-messages-weu-prod01-evh-ns.servicebus.windows.net:9093"
       KAFKA_MESSAGE                         = "messages"
-      BOOTSTRAP_SERVER_PAYMENT              = "pagopa-p-weu-core-evh-ns03.servicebus.windows.net:9093"
+      BOOTSTRAP_SERVER_PAYMENT              = "${local.pagopa_core_evhns_hostname}:9093"
       KAFKA_PAYMENTS                        = "nodo-dei-pagamenti-biz-evt"
       BOOTSTRAP_SERVER_PAYMENTUPDATES       = "io-p-payments-weu-prod01-evh-ns.servicebus.windows.net:9093"
       KAFKA_PAYMENT_UPDATES                 = "payment-updates"
@@ -117,5 +120,18 @@ locals {
         key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_ecommerce_key.versionless_id
       }
     ]
+  }
+}
+
+# We need to create a DNS Forwarding Rule for the paymentup CA to resolve the pagopa-core-evhns hostname,
+# as it is not an internal resource and is not resolvable by the default Azure DNS Resolver.
+resource "azurerm_private_dns_resolver_forwarding_rule" "pagopa-core-evhns" {
+  name                      = "pagopa-core-evhns"
+  dns_forwarding_ruleset_id = var.dns_forwarding_ruleset_id
+  domain_name               = "${local.pagopa_core_evhns_hostname}."
+  enabled                   = true
+  target_dns_servers {
+    ip_address = "208.67.222.222" # OpenDNS
+    port       = 53
   }
 }

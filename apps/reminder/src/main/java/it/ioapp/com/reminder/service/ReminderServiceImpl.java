@@ -9,21 +9,20 @@ import dto.MessageContentType;
 import io.github.resilience4j.core.IntervalFunction;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
-import it.ioapp.com.reminder.dto.ProxyResponse;
-import it.ioapp.com.reminder.dto.request.ProxyPaymentResponse;
+import it.ioapp.com.reminder.dto.PaymentInfo;
 import it.ioapp.com.reminder.model.Reminder;
 import it.ioapp.com.reminder.producer.ReminderProducer;
 import it.ioapp.com.reminder.repository.ReminderRepository;
-import it.ioapp.com.reminder.restclient.pagopaproxy.model.PaymentRequestsGetResponse;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.model.InlineResponse409;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFaultPaymentProblemJson;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentRequestsGetResponse;
 import it.ioapp.com.reminder.restclient.servicemessages.model.NotificationInfo;
 import it.ioapp.com.reminder.restclient.servicemessages.model.NotificationType;
-import it.ioapp.com.reminder.util.Constants;
 import it.ioapp.com.reminder.util.ReminderUtil;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -50,8 +49,8 @@ public class ReminderServiceImpl implements ReminderService {
   @Autowired ReminderRepository reminderRepository;
   @Autowired ObjectMapper mapper;
   @Autowired RestTemplate restTemplate;
-  @Autowired it.ioapp.com.reminder.restclient.pagopaproxy.api.DefaultApi defaultApi;
-  @Autowired it.ioapp.com.reminder.restclient.pagopaproxy.ApiClient apiClient;
+  @Autowired it.ioapp.com.reminder.restclient.pagopaecommerce.api.PaymentRequestsApi paymentApi;
+  @Autowired it.ioapp.com.reminder.restclient.pagopaecommerce.ApiClient apiClient;
 
   @Autowired
   it.ioapp.com.reminder.restclient.servicemessages.api.DefaultApi defaultServiceMessagesApi;
@@ -88,17 +87,11 @@ public class ReminderServiceImpl implements ReminderService {
   @Value("${paymentupdater.url}")
   private String urlPayment;
 
-  @Value("${payment.request}")
-  private String urlProxy;
+  @Value("${pagopa_ecommerce.url}")
+  private String ecommerceUrl;
 
-  @Value("${enable_rest_key}")
-  private boolean enableRestKey;
-
-  @Value("${proxy_endpoint_subscription_key}")
-  private String proxyEndpointKey;
-
-  @Value("#{'${error_statuscode.values}'.split(',')}")
-  private String[] errorStatusCodeValues;
+  @Value("${pagopa_ecommerce.key}")
+  private String ecommerceAuthKey;
 
   @Value("${test.active}")
   private boolean isTest;
@@ -225,18 +218,18 @@ public class ReminderServiceImpl implements ReminderService {
   }
 
   private String callPaymentCheck(Reminder reminder) {
-    log.warn("Calling proxy to check payment with rptId: {}", reminder.getRptId());
-    ProxyResponse proxyResp = callProxyCheck(reminder.getRptId());
+    log.warn("Calling PagoPA Ecommerce api to check payment with rptId: {}", reminder.getRptId());
+    PaymentInfo paymentInfo = getPaymentInfo(reminder.getRptId());
 
-    LocalDate localDateProxyDueDate = proxyResp.getDueDate();
+    LocalDate paymentDueDate = paymentInfo.getDueDate();
     LocalDate reminderDueDate =
         reminder.getDueDate() == null ? null : reminder.getDueDate().toLocalDate();
     List<Reminder> reminders =
         reminderRepository.getPaymentByRptId(
             calculateShard(reminder.getFiscalCode()), reminder.getRptId());
 
-    if (localDateProxyDueDate != null && localDateProxyDueDate.equals(reminderDueDate)) {
-      if (proxyResp.isPaid()) {
+    if (paymentDueDate != null && paymentDueDate.equals(reminderDueDate)) {
+      if (paymentInfo.isPaid()) {
         reminders.forEach(rem -> rem.setPaidFlag(true));
       } else {
         try {
@@ -255,7 +248,7 @@ public class ReminderServiceImpl implements ReminderService {
     } else {
       reminders.forEach(
           reminderToUpdate ->
-              reminderToUpdate.setDueDate(ReminderUtil.getLocalDateTime(localDateProxyDueDate)));
+              reminderToUpdate.setDueDate(ReminderUtil.getLocalDateTime(paymentDueDate)));
     }
 
     for (Reminder reminderToUpdate : reminders) {
@@ -299,55 +292,42 @@ public class ReminderServiceImpl implements ReminderService {
     }
   }
 
-  private ProxyResponse callProxyCheck(String rptId) {
+  private PaymentInfo getPaymentInfo(String rptId) {
 
-    ProxyResponse proxyResp = new ProxyResponse();
+    PaymentInfo info = new PaymentInfo();
     try {
-      if (enableRestKey) {
-        apiClient.addDefaultHeader("Ocp-Apim-Subscription-Key", proxyEndpointKey);
-      }
-      apiClient.setBasePath(urlProxy);
+      apiClient.addDefaultHeader("Ocp-Apim-Subscription-Key", ecommerceAuthKey);
+      apiClient.setBasePath(ecommerceUrl);
 
-      defaultApi.setApiClient(apiClient);
-      PaymentRequestsGetResponse resp = defaultApi.getPaymentInfo(rptId, Constants.X_CLIENT_ID);
+      paymentApi.setApiClient(apiClient);
+      PaymentRequestsGetResponse resp = paymentApi.getPaymentRequestInfo(rptId);
 
       LocalDate dueDate = ReminderUtil.getLocalDateFromString(resp.getDueDate());
-      proxyResp.setDueDate(dueDate);
-      log.warn("Received response from proxy for rptId: {}", rptId);
-      return proxyResp;
+      info.setDueDate(dueDate);
+      log.warn("Received payment info for rptId: {}", rptId);
+      return info;
 
     } catch (HttpServerErrorException errorException) {
-      ProxyPaymentResponse res;
       try {
-        res =
-            mapper.readValue(errorException.getResponseBodyAsString(), ProxyPaymentResponse.class);
-        log.error("Received error from proxy: {}", res);
-
-        if (res.getDetail_v2() != null) {
-          int code = errorException.getStatusCode().value();
-
-          if ((code == 400 || code == 404 || code == 409)
-              && Arrays.asList(errorStatusCodeValues).contains(res.getDetail_v2())) {
-
-            LocalDate dueDate = ReminderUtil.getLocalDateFromString(res.getDuedate());
-            proxyResp.setPaid(true);
-            proxyResp.setDueDate(dueDate);
-            return proxyResp;
+        String rawResponse = errorException.getResponseBodyAsString();
+        log.error("Received error from pagoPa Ecommerce api: {}", rawResponse);
+        if (errorException.getStatusCode().value() == 409) {
+          InlineResponse409 errorResponse = mapper.readValue(rawResponse, InlineResponse409.class);
+          if (errorResponse instanceof PaymentDuplicatedStatusFaultPaymentProblemJson) {
+            info.setPaid(true);
+            return info;
           }
-
-          proxyResp.setPaid(false);
-
-        } else {
-          throw errorException;
         }
-        log.warn("Received response from proxy for rptId: {}", rptId);
+
+        info.setPaid(false);
+        return info;
       } catch (JsonMappingException e) {
         log.error(e.getMessage());
       } catch (JsonProcessingException e) {
         log.error(e.getMessage());
       }
 
-      return proxyResp;
+      return info;
     }
   }
 
