@@ -1,5 +1,11 @@
 # payment-updater
 
+## 2.7.3
+
+### Patch Changes
+
+- b285ab8: fix ecommerce api management
+
 ## 2.7.2
 
 ### Patch Changes
