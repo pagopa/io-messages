@@ -4,6 +4,7 @@ import static it.ioapp.com.reminder.util.ReminderUtil.calculateShard;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.MessageContentType;
 import io.github.resilience4j.core.IntervalFunction;
@@ -13,12 +14,11 @@ import it.ioapp.com.reminder.dto.PaymentInfo;
 import it.ioapp.com.reminder.model.Reminder;
 import it.ioapp.com.reminder.producer.ReminderProducer;
 import it.ioapp.com.reminder.repository.ReminderRepository;
-import it.ioapp.com.reminder.restclient.pagopaecommerce.model.InlineResponse409;
-import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFaultPaymentProblemJson;
 import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentRequestsGetResponse;
 import it.ioapp.com.reminder.restclient.servicemessages.model.NotificationInfo;
 import it.ioapp.com.reminder.restclient.servicemessages.model.NotificationType;
 import it.ioapp.com.reminder.util.ReminderUtil;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -312,8 +312,8 @@ public class ReminderServiceImpl implements ReminderService {
         String rawResponse = errorException.getResponseBodyAsString();
         log.error("Received error from pagoPa Ecommerce api: {}", rawResponse);
         if (errorException.getStatusCode().value() == 409) {
-          InlineResponse409 errorResponse = mapper.readValue(rawResponse, InlineResponse409.class);
-          if (errorResponse instanceof PaymentDuplicatedStatusFaultPaymentProblemJson) {
+          boolean isPaymentDuplicated = isPaymentDuplicatedResponse(rawResponse);
+          if (isPaymentDuplicated) {
             info.setPaid(true);
             return info;
           }
@@ -325,10 +325,18 @@ public class ReminderServiceImpl implements ReminderService {
         log.error(e.getMessage());
       } catch (JsonProcessingException e) {
         log.error(e.getMessage());
+      } catch (IOException e) {
+        log.error(e.getMessage());
       }
 
       return info;
     }
+  }
+
+  private boolean isPaymentDuplicatedResponse(String rawResponse) throws IOException {
+    JsonNode root = new ObjectMapper().readTree(rawResponse);
+    String faultCodeCategory = root.path("faultCodeCategory").asText();
+    return "PAYMENT_DUPLICATED".equals(faultCodeCategory);
   }
 
   private void sendNotificationWithRetry(Reminder reminder) {

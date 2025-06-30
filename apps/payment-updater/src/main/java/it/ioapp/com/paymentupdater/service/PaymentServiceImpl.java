@@ -1,6 +1,6 @@
 package it.ioapp.com.paymentupdater.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.ioapp.com.paymentupdater.dto.PaymentInfoResponse;
 import it.ioapp.com.paymentupdater.dto.PaymentMessage;
@@ -8,10 +8,9 @@ import it.ioapp.com.paymentupdater.model.Payment;
 import it.ioapp.com.paymentupdater.producer.PaymentProducer;
 import it.ioapp.com.paymentupdater.repository.PaymentRepository;
 import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.api.PaymentRequestsApi;
-import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.InlineResponse409;
-import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFaultPaymentProblemJson;
 import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentRequestsGetResponse;
 import it.ioapp.com.paymentupdater.util.PaymentUtil;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +38,6 @@ public class PaymentServiceImpl implements PaymentService {
   @Value("${kafka.paymentupdates}")
   private String topic;
 
-  @Value("${enable_rest_key}")
-  private boolean enableRestKey;
-
   @Value("${pagopa_ecommerce.url}")
   private String ecommerceUrl;
 
@@ -63,7 +59,7 @@ public class PaymentServiceImpl implements PaymentService {
 
   @Override
   public PaymentInfoResponse checkPayment(Payment payment)
-      throws JsonProcessingException, InterruptedException, ExecutionException {
+      throws InterruptedException, ExecutionException, IOException {
     LocalDate paymentDueDate =
         payment.getDueDate() != null ? payment.getDueDate().toLocalDate() : null;
     PaymentInfoResponse paymentInfo = new PaymentInfoResponse();
@@ -80,9 +76,9 @@ public class PaymentServiceImpl implements PaymentService {
       String rawResponse = errorException.getResponseBodyAsString();
       log.error("Received error from pagoPa Ecommerce api: {}", rawResponse);
       if (errorException.getStatusCode().value() == 409) {
-        InlineResponse409 errorResponse = mapper.readValue(rawResponse, InlineResponse409.class);
+        boolean isPaymentDuplicated = isPaymentDuplicatedResponse(rawResponse);
 
-        if (errorResponse instanceof PaymentDuplicatedStatusFaultPaymentProblemJson) {
+        if (isPaymentDuplicated) {
           // the payment message is already paid
           List<Payment> payments = paymentRepository.getPaymentByRptId(payment.getRptId());
           payments.add(payment);
@@ -110,6 +106,12 @@ public class PaymentServiceImpl implements PaymentService {
         throw errorException;
       }
     }
+  }
+
+  private boolean isPaymentDuplicatedResponse(String rawResponse) throws IOException {
+    JsonNode root = new ObjectMapper().readTree(rawResponse);
+    String faultCodeCategory = root.path("faultCodeCategory").asText();
+    return "PAYMENT_DUPLICATED".equals(faultCodeCategory);
   }
 
   @Override
