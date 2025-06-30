@@ -72,12 +72,12 @@ locals {
     app_settings = {
       APPLICATIONINSIGHTS_ROLE_NAME         = "io-p-itn-com-payment-updater-01",
       APPLICATIONINSIGHTS_CONNECTION_STRING = var.application_insights.connection_string
-      BOOTSTRAP_SERVER_MESSAGE              = "io-p-messages-weu-prod01-evh-ns.servicebus.windows.net:9093"
-      KAFKA_MESSAGE                         = "messages"
+      BOOTSTRAP_SERVER_MESSAGE              = "io-p-itn-com-etl-evhns-01.servicebus.windows.net:9093"
+      KAFKA_MESSAGE                         = "io-p-itn-com-etl-cqrs-message-evh-01"
       BOOTSTRAP_SERVER_PAYMENT              = "${local.pagopa_core_evhns_hostname}:9093"
       KAFKA_PAYMENTS                        = "nodo-dei-pagamenti-biz-evt"
-      BOOTSTRAP_SERVER_PAYMENTUPDATES       = "io-p-payments-weu-prod01-evh-ns.servicebus.windows.net:9093"
-      KAFKA_PAYMENT_UPDATES                 = "payment-updates"
+      BOOTSTRAP_SERVER_PAYMENTUPDATES       = "io-p-itn-com-etl-evhns-01.servicebus.windows.net:9093"
+      KAFKA_PAYMENT_UPDATES                 = "io-p-itn-com-etl-payment-updates-evh-01"
       CHECKPOINT_SIZE                       = 10
       ENABLE_REST_KEY                       = "true"
       IS_ACTIVE_MESSAGE_CONSUMER            = "true"
@@ -118,10 +118,6 @@ locals {
       {
         name                = "PAGOPA_ECOMMERCE_KEY",
         key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_ecommerce_key.versionless_id
-      },
-      {
-        name                = "PROXY_ENDPOINT_SUBSCRIPTION_KEY",
-        key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_proxy_subscription_key.versionless_id
       }
     ]
   }
