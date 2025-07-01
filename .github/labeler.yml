@@ -2,6 +2,10 @@ infra:
   - changed-files:
       - any-glob-to-any-file: ["infra/**"]
 
+citizen-func:
+  - changed-files:
+      - any-glob-to-any-file: ["apps/citizen-func/**"]
+
 msgs-sending-func:
   - changed-files:
       - any-glob-to-any-file: ["apps/msgs-sending-func/**"]
