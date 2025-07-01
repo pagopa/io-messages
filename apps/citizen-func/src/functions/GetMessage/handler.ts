@@ -197,7 +197,6 @@ export function GetMessageHandler(
   serviceToRCConfigurationMap: ReadonlyMap<string, string>,
   categoryFetcher: ThirdPartyDataWithCategoryFetcher,
 ): IGetMessageHandler {
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   return async (context, fiscalCode, messageId, maybePublicMessage) => {
     const returnPublicMessage = O.getOrElse(() => false)(maybePublicMessage);
 

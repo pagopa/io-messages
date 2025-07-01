@@ -62,13 +62,11 @@ export const createGetMessagesFunctionSelection = (
   canaryTestUserRegex: NonEmptyString,
   fallbackSetup: Parameters<typeof getMessagesFromFallback>,
   viewSetup: Parameters<typeof getMessagesFromView>,
-  // eslint-disable-next-line max-params
 ): IGetMessagesFunctionSelector => ({
   select: (params: ISelectionParameters): IGetMessagesFunction => {
     if (switchToFallback) {
       return getMessagesFromFallback(...fallbackSetup);
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       const isCanaryTestUser = getIsUserACanaryTestUser(canaryTestUserRegex);
 
       switch (featureFlagType) {

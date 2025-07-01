@@ -75,10 +75,7 @@ type IUpsertMessageStatusHandler = (
  * Handles requests for getting a single message for a recipient.
  */
 export const UpsertMessageStatusHandler =
-  (
-    messageStatusModel: MessageStatusModel,
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  ): IUpsertMessageStatusHandler =>
+  (messageStatusModel: MessageStatusModel): IUpsertMessageStatusHandler =>
   async (_context, fiscalCode, messageId, change) =>
     pipe(
       messageStatusModel.findLastVersionByModelId([messageId]),
