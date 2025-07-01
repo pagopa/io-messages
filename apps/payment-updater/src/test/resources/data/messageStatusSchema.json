@@ -1,0 +1,70 @@
+{
+  "name": "messageStatus",
+  "type": "record",
+  "namespace": "it.gov.pagopa.reminder.dto",
+  "doc": "Kafka JS schema for cosmos api container 'message-status'",
+  "fields": [
+    {
+      "name": "op",
+      "type": {
+        "type": "enum",
+        "name": "MessageStatusCrudOperation",
+        "symbols": [
+          "CREATE",
+          "UPDATE",
+          "DELETE"
+        ]
+      }
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "default": "undefined"
+    },
+    {
+      "name": "messageId",
+      "type": "string",
+      "default": "undefined"
+    },
+    {
+      "name": "version",
+      "type": "int",
+      "default": 0
+    },
+    {
+      "name": "status",
+      "type": {
+        "type": "enum",
+        "name": "MessageStatusDescription",
+        "symbols": [
+          "ACCEPTED",
+          "THROTTLED",
+          "FAILED",
+          "PROCESSED",
+          "REJECTED"
+        ]
+      }
+    },
+    {
+      "name": "isRead",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "isPaid",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "isArchived",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "timestamp",
+      "type": "long",
+      "logicalType": "timestamp-millis",
+      "default": 0
+    }
+  ]
+}

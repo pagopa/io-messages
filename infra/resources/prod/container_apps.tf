@@ -11,8 +11,9 @@ module "container_apps" {
 
   log_analytics_workspace_id = data.azurerm_log_analytics_workspace.common.id
 
-  key_vault_id = data.azurerm_key_vault.weu_messages.id
-  acr_id       = data.azurerm_container_registry.acr.id
+  key_vault_id = module.key_vaults.com.id
+
+  application_insights = data.azurerm_application_insights.common
 
   tenant_id = data.azurerm_client_config.current.tenant_id
 
@@ -21,6 +22,8 @@ module "container_apps" {
     data.azuread_group.adgroup_com_devs.object_id,
     data.azuread_group.adgroup_io_admins.object_id,
   ]
+
+  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.com.id
 
   tags = local.tags
 }

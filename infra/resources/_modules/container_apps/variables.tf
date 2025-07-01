@@ -21,6 +21,7 @@ variable "resource_group_name" {
 
 variable "virtual_network" {
   type = object({
+    id                  = string
     name                = string
     resource_group_name = string
   })
@@ -57,7 +58,13 @@ variable "entra_id_admin_ids" {
   description = "Id of Entra ID groups that should be admins of the Container App Environment"
 }
 
-variable "acr_id" {
+variable "application_insights" {
+  type = object({
+    connection_string = string
+  })
+}
+
+variable "dns_forwarding_ruleset_id" {
   type        = string
-  description = "The Id of the ACR to pull images from"
+  description = "Id of the DNS Forwarding Ruleset to use for the Container App Environment"
 }

@@ -33,7 +33,7 @@ module "web_apps" {
   nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
 
   app_settings = {
-    message_error_table_storage_uri = data.azurerm_storage_account.storage_api_com.primary_table_endpoint
+    message_error_table_storage_uri = "https://${module.storage_api_weu.com_st_name}.table.core.windows.net/"
     eventhub_connection_uri         = "${module.eventhubs.namespace.name}.servicebus.windows.net"
   }
 
@@ -57,18 +57,19 @@ module "web_apps" {
 
   common_key_vault = data.azurerm_key_vault.weu_common
 
-  eventhub_namespace         = module.eventhubs.namespace
+  eventhub_namespace = module.eventhubs.namespace
+
   messages_content_container = data.azurerm_storage_container.messages_content_container
   messages_storage_account   = data.azurerm_storage_account.storage_api
   cosmosdb_account_api       = data.azurerm_cosmosdb_account.cosmos_api
-  io_com_cosmos              = data.azurerm_cosmosdb_account.io_com_cosmos
+  io_com_cosmos              = module.cosmos.io_com_cosmos_account
   com_st_id                  = module.storage_api_weu.com_st_id
-  com_st_uri                 = data.azurerm_storage_account.storage_api_com.primary_blob_endpoint
-  com_st_queue_uri           = data.azurerm_storage_account.storage_api_com.primary_queue_endpoint
+  com_st_uri                 = "https://${module.storage_api_weu.com_st_name}.blob.core.windows.net/"
+  com_st_queue_uri           = "https://${module.storage_api_weu.com_st_name}.queue.core.windows.net/"
 
   tenant_id = data.azurerm_client_config.current.tenant_id
 
-  action_group_id        = module.monitoring.action_group.io_com_error_id
+  action_group_id        = module.monitoring.action_group.id
   com_st_connectiostring = module.storage_api_weu.com_st_connectiostring
 
   cqrs_func_ehns_enabled = true

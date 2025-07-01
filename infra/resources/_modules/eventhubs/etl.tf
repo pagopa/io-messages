@@ -46,7 +46,87 @@ module "etl" {
           manage = false
       }]
       consumers = []
-    }
+    },
+    {
+      name                   = "cqrs-message-evh"
+      partitions             = 5
+      message_retention_days = 7
+      keys = [
+        {
+          name   = "cqrs"
+          listen = false
+          send   = true
+          manage = false
+        },
+        {
+          name   = "paymentup"
+          listen = true
+          send   = false
+          manage = false
+        },
+        {
+          name   = "reminder"
+          listen = true
+          send   = false
+          manage = false
+        }
+      ],
+      consumers = []
+    },
+    {
+      name                   = "cqrs-message-status-evh"
+      partitions             = 5
+      message_retention_days = 7
+      keys = [
+        {
+          name   = "cqrs"
+          listen = false
+          send   = true
+          manage = false
+        },
+        {
+          name   = "reminder"
+          listen = true
+          send   = false
+          manage = false
+        }
+      ],
+      consumers = []
+    },
+    {
+      name                   = "payment-updates-evh"
+      partitions             = 5
+      message_retention_days = 7
+      keys = [
+        {
+          name   = "payment-updater"
+          listen = false
+          send   = true
+          manage = false
+        },
+        {
+          name   = "reminder"
+          listen = true
+          send   = false
+          manage = false
+        },
+      ],
+      consumers = []
+    },
+    {
+      name                   = "reminder-message-send-evh"
+      partitions             = 5
+      message_retention_days = 7
+      keys = [
+        {
+          name   = "reminder"
+          listen = true
+          send   = true
+          manage = false
+        }
+      ],
+      consumers = []
+    },
   ]
 
   private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name

@@ -8,8 +8,9 @@ locals {
       COSMOSDB_URI  = var.cosmosdb_api.endpoint
 
       // REMOTE CONTENT COSMOSDB
-      REMOTE_CONTENT_COSMOSDB_NAME = "remote-content-cosmos-01"
-      REMOTE_CONTENT_COSMOSDB_URI  = var.cosmosdb_com.endpoint
+      REMOTE_CONTENT_COSMOSDB_NAME             = "remote-content-cosmos-01"
+      REMOTE_CONTENT_COSMOSDB__accountEndpoint = var.cosmosdb_com.endpoint
+      REMOTE_CONTENT_COSMOSDB_URI              = var.cosmosdb_com.endpoint
 
       // BLOB STORAGE
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_storage_account_blob_connection_string
@@ -24,15 +25,11 @@ locals {
       REDIS_PORT     = var.redis_port
       REDIS_PASSWORD = var.redis_password
 
-      // BACKEND COMMUNICATION
-      BACKEND_BASE_URL = "https://io-p-app-appbackendli.azurewebsites.net"
-      BACKEND_TOKEN    = var.appbackendli_token
-
       SESSION_MANAGER_API_KEY  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=session-manager-api-key)",
       SESSION_MANAGER_BASE_URL = var.session_manager_base_url,
 
       // INTERNAL USE PROPERTIES
-      INTERNAL_USER_ID           = var.internal_user_id
+      INTERNAL_USER_ID           = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=apim-internal-user-id)",
       RC_CONFIGURATION_CACHE_TTL = "28800"
 
       // Keepalive fields are all optionals
