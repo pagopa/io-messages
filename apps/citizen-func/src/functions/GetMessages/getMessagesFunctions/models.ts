@@ -1,4 +1,3 @@
-/* eslint-disable sort-keys */
 import { MessageCategoryBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
 import { MessageCategoryPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
 import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";

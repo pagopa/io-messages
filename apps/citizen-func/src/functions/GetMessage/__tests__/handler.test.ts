@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, max-lines-per-function */
-
+import { Container } from "@azure/cosmos";
 import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
 import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
@@ -14,10 +13,15 @@ import { PaymentNoticeNumber } from "@pagopa/io-functions-commons/dist/generated
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
 import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
 import {
+  MessageModel,
   NewMessageWithoutContent,
   RetrievedMessageWithoutContent,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
-import { Service } from "@pagopa/io-functions-commons/dist/src/models/service";
+import { MessageStatusModel } from "@pagopa/io-functions-commons/dist/src/models/message_status";
+import {
+  Service,
+  ServiceModel,
+} from "@pagopa/io-functions-commons/dist/src/models/service";
 import { toCosmosErrorResponse } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import {
@@ -25,6 +29,7 @@ import {
   NonEmptyString,
   OrganizationFiscalCode,
 } from "@pagopa/ts-commons/lib/strings";
+import { BlobService } from "azure-storage";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -41,6 +46,7 @@ import {
   aServiceId,
 } from "../../../__mocks__/mocks.service_preference";
 import * as msgUtil from "../../../utils/messages";
+import { RedisClientFactory } from "../../../utils/redis";
 import { GetMessageHandler } from "../handler";
 
 const aFiscalCode = "FRLFRC74E04B157I" as FiscalCode;
@@ -101,7 +107,8 @@ const anEnrichedMessageResponse: EnrichedMessage = {
   service_name: aSenderService.serviceName,
 };
 
-const mockServiceModel = {};
+const mockServiceModel = new ServiceModel({} as Container);
+const mockBlobServiceModel = new BlobService("UseDevelopmentStorage=true");
 
 const findMessageForRecipientMock = vi
   .fn()
@@ -110,17 +117,35 @@ const findMessageForRecipientMock = vi
 const getContentFromBlobMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aMessageContent)));
-const mockMessageModel = {
-  findMessageForRecipient: findMessageForRecipientMock,
-  getContentFromBlob: getContentFromBlobMock,
-};
+
+class MockMessageModel extends MessageModel {
+  findMessageForRecipient = findMessageForRecipientMock;
+  getContentFromBlob = getContentFromBlobMock;
+  constructor() {
+    super({} as Container, "mock-container" as NonEmptyString);
+  }
+}
+
+const mockMessageModel = new MockMessageModel();
 
 const findLastVersionByModelIdMessageStatusMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aMessageStatus)));
-const mockMessageStatusModel = {
-  findLastVersionByModelId: findLastVersionByModelIdMessageStatusMock,
-};
+
+class MockMessageStatusModel extends MessageStatusModel {
+  findLastVersionByModelId = findLastVersionByModelIdMessageStatusMock;
+  constructor() {
+    super({} as Container);
+  }
+}
+const mockMessageStatusModel = new MockMessageStatusModel();
+
+export class MockRedisClientFactory extends RedisClientFactory {
+  public readonly getInstance = vi.fn().mockResolvedValue({});
+}
+
+const mockRedisFactoryMock = new MockRedisClientFactory(envConfig);
+const redisClientMock = mockRedisFactoryMock.getInstance();
 
 const aServiceCacheTTL = 3600 as NonNegativeInteger;
 
@@ -137,6 +162,7 @@ const dummyThirdPartyDataWithCategoryFetcher: msgUtil.ThirdPartyDataWithCategory
     category: TagEnumBase.GENERIC,
   }));
 
+/* eslint-disable max-lines-per-function*/
 describe("GetMessageHandler", () => {
   afterEach(() => {
     vi.clearAllMocks();
@@ -145,18 +171,18 @@ describe("GetMessageHandler", () => {
     getContentFromBlobMock.mockImplementationOnce(() => TE.left(new Error()));
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as any,
-      mockMessageStatusModel as any,
-      {} as any,
-      mockServiceModel as any,
-      {} as any,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
       O.none,
@@ -180,18 +206,18 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as any,
-      mockMessageStatusModel as any,
-      {} as any,
-      mockServiceModel as any,
-      {} as any,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
       O.some(true),
@@ -213,18 +239,18 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as any,
-      mockMessageStatusModel as any,
-      {} as any,
-      mockServiceModel as any,
-      {} as any,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
       O.some(true),
@@ -247,18 +273,18 @@ describe("GetMessageHandler", () => {
       ),
     );
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as any,
-      mockMessageStatusModel as any,
-      {} as any,
-      mockServiceModel as any,
-      {} as any,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
       O.some(true),
@@ -310,18 +336,18 @@ describe("GetMessageHandler", () => {
       ),
     );
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as any,
-      mockMessageStatusModel as any,
-      {} as any,
-      mockServiceModel as any,
-      {} as any,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       thirdPartyFetcherForAServiceId,
     );
 
     const result = await getMessageHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
       O.some(true),
@@ -359,18 +385,18 @@ describe("GetMessageHandler", () => {
 
   it("should respond with a message", async () => {
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as any,
-      mockMessageStatusModel as any,
-      {} as any,
-      mockServiceModel as any,
-      {} as any,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
       O.none,
@@ -415,18 +441,18 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as any,
-      mockMessageStatusModel as any,
-      {} as any,
-      mockServiceModel as any,
-      {} as any,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aRetrievedMessageWithEuCovidCert.id,
       O.none,
@@ -453,18 +479,18 @@ describe("GetMessageHandler", () => {
     findMessageForRecipientMock.mockImplementationOnce(() => TE.of(O.none));
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as any,
-      mockMessageStatusModel as any,
-      {} as any,
-      mockServiceModel as any,
-      {} as any,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
       O.none,
@@ -486,18 +512,18 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as any,
-      mockMessageStatusModel as any,
-      {} as any,
-      mockServiceModel as any,
-      {} as any,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
       O.none,
@@ -541,18 +567,18 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as any,
-      mockMessageStatusModel as any,
-      {} as any,
-      mockServiceModel as any,
-      {} as any,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
       O.none,
@@ -579,18 +605,18 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      mockMessageModel as any,
-      mockMessageStatusModel as any,
-      {} as any,
-      mockServiceModel as any,
-      {} as any,
+      mockMessageModel,
+      mockMessageStatusModel,
+      mockBlobServiceModel,
+      mockServiceModel,
+      redisClientMock,
       aServiceCacheTTL,
       envConfig.SERVICE_TO_RC_CONFIGURATION_MAP,
       dummyThirdPartyDataWithCategoryFetcher,
     );
 
     const result = await getMessageHandler(
-      contextMock as any,
+      contextMock,
       aFiscalCode,
       aRetrievedMessageWithoutContent.id,
       O.none,
