@@ -4,10 +4,11 @@ import static it.ioapp.com.paymentupdater.util.PaymentUtil.checkNullInMessage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import dto.MessageContentType;
-import it.ioapp.com.paymentupdater.dto.ProxyResponse;
+import it.ioapp.com.paymentupdater.dto.PaymentInfoResponse;
 import it.ioapp.com.paymentupdater.model.Payment;
 import it.ioapp.com.paymentupdater.service.PaymentService;
 import it.ioapp.com.paymentupdater.util.PaymentUtil;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -30,7 +31,7 @@ public class MessageKafkaConsumer {
       containerFactory = "kafkaListenerContainerFactory",
       autoStartup = "${message.auto.start}")
   public void messageKafkaListener(Payment paymentMessage)
-      throws JsonProcessingException, InterruptedException, ExecutionException {
+      throws JsonProcessingException, InterruptedException, ExecutionException, IOException {
     log.debug(
         "Processing messageId="
             + paymentMessage.getId()
@@ -51,11 +52,11 @@ public class MessageKafkaConsumer {
                 .getContent_paymentData_payeeFiscalCode()
                 .concat(paymentMessage.getContent_paymentData_noticeNumber());
         paymentMessage.setRptId(rptId);
-        ProxyResponse proxyResponse = paymentService.checkPayment(paymentMessage);
-        if (proxyResponse.isPaid()) {
+        PaymentInfoResponse paymentInfo = paymentService.checkPayment(paymentMessage);
+        if (paymentInfo.isPaid()) {
           paymentMessage.setPaidFlag(true);
         } else {
-          PaymentUtil.checkDueDateForPayment(proxyResponse.getDueDate(), paymentMessage);
+          PaymentUtil.checkDueDateForPayment(paymentInfo.getDueDate(), paymentMessage);
         }
         paymentService.save(paymentMessage);
       }

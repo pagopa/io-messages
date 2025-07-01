@@ -1,5 +1,17 @@
 # reminder
 
+## 0.17.1
+
+### Patch Changes
+
+- cda9240: fix ecommerce api response management
+
+## 0.17.0
+
+### Minor Changes
+
+- 708b306: replace proxy api with pagopa ecommerce
+
 ## 0.16.2
 
 ### Patch Changes

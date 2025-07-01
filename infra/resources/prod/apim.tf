@@ -7,5 +7,6 @@ module "apim" {
   location_short        = local.location_short
   legacy_location_short = local.legacy_location_short
   domain                = local.domain
-  key_vault             = module.key_vaults.com
+
+  key_vault = module.key_vaults.com
 }

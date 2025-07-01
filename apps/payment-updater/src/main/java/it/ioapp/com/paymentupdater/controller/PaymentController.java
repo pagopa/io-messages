@@ -2,12 +2,12 @@ package it.ioapp.com.paymentupdater.controller;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
-import it.ioapp.com.paymentupdater.dto.ProxyResponse;
+import it.ioapp.com.paymentupdater.dto.PaymentInfoResponse;
 import it.ioapp.com.paymentupdater.model.ApiPaymentMessage;
 import it.ioapp.com.paymentupdater.model.Payment;
 import it.ioapp.com.paymentupdater.service.PaymentService;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -38,7 +38,7 @@ public class PaymentController {
 
   @GetMapping(value = "/check/messages/{messageId}")
   public ResponseEntity<ApiPaymentMessage> getMessagePayment(@PathVariable String messageId)
-      throws ExecutionException, JsonProcessingException, InterruptedException {
+      throws ExecutionException, InterruptedException, IOException {
     Payment payment = paymentService.findById(messageId).orElse(null);
     if (payment == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
@@ -46,9 +46,9 @@ public class PaymentController {
       // FIX: sometimes we miss a payment event so if this payment is not paid we try to call
       // paymentService
       if (paymentService != null) {
-        ProxyResponse proxyResponse = paymentService.checkPayment(payment);
-        if (proxyResponse != null) {
-          payment.setPaidFlag(proxyResponse.isPaid());
+        PaymentInfoResponse paymentInfo = paymentService.checkPayment(payment);
+        if (paymentInfo != null) {
+          payment.setPaidFlag(paymentInfo.isPaid());
           paymentService.save(payment);
         }
       }
