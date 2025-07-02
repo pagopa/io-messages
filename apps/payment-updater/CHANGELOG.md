@@ -1,5 +1,11 @@
 # payment-updater
 
+## 2.7.5
+
+### Patch Changes
+
+- 8200e27: remove rptId from logs
+
 ## 2.7.4
 
 ### Patch Changes
