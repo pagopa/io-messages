@@ -21,9 +21,7 @@ locals {
   legacy_location       = "westeurope"
   legacy_location_short = "weu"
 
-  legacy_itn_rg_name    = "io-p-itn-msgs-rg-01"
-  notifications_rg_name = "io-p-weu-messages-notifications-rg"
-  evt_rg_name           = "io-p-evt-rg"
+  legacy_itn_rg_name = "io-p-itn-msgs-rg-01"
 
   environment = {
     prefix    = local.prefix
