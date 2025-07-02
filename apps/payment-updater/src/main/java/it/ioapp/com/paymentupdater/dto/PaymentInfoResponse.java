@@ -1,4 +1,4 @@
-package it.ioapp.com.reminder.dto;
+package it.ioapp.com.paymentupdater.dto;
 
 import java.time.LocalDate;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProxyResponse {
+public class PaymentInfoResponse {
 
   private boolean isPaid;
   private LocalDate dueDate;

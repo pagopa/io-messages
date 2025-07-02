@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, max-lines-per-function, no-useless-escape */
 import { Context } from "@azure/functions";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
 import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
@@ -43,6 +42,7 @@ import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { envConfig } from "../../../__mocks__/env-config.mock";
 import {
   aCosmosResourceMetadata,
   aPnThirdPartyData,
@@ -61,6 +61,7 @@ import { HasPreconditionEnum } from "../../../generated/definitions/HasPrecondit
 import { MessageStatusExtendedQueryModel } from "../../../model/message_status_query";
 import { MessageViewExtendedQueryModel } from "../../../model/message_view_query";
 import { IConfig } from "../../../utils/config";
+import { RedisClientFactory } from "../../../utils/redis";
 import * as redis from "../../../utils/redis_storage";
 import RCConfigurationUtility from "../../../utils/remoteContentConfig";
 import { createGetMessagesFunctionSelection } from "../getMessagesFunctions/getMessages.selector";
@@ -275,7 +276,12 @@ const getTaskMock = vi.fn(
 );
 vi.spyOn(redis, "getTask").mockImplementation(getTaskMock);
 
-const redisClientMock = {} as any;
+export class MockRedisClientFactory extends RedisClientFactory {
+  public readonly getInstance = vi.fn().mockResolvedValue({});
+}
+
+const mockRedisFactoryMock = new MockRedisClientFactory(envConfig);
+const redisClientMock = mockRedisFactoryMock.getInstance();
 
 const dummyThirdPartyDataWithCategoryFetcher = vi
   .fn()
@@ -326,6 +332,7 @@ const getCreateGetMessagesFunctionSelection = (
 // Tests
 // ---------------------
 
+/* eslint-disable max-lines-per-function*/
 describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
   const aSimpleList = [
     aRetrievedMessageWithoutContent,
@@ -624,7 +631,7 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
     expect(functionsContextMock.log.error).not.toHaveBeenCalled();
   });
 });
-
+/* eslint-disable max-lines-per-function*/
 describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
   const aSimpleList = [
     {
@@ -1176,7 +1183,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     };
     const getMessagesFunctionSelector = getCreateGetMessagesFunctionSelection(
       messageStatusModelMock,
-      messageModelMock as any,
+      messageModelMock as unknown as MessageModel,
     );
 
     const getMessagesHandler = GetMessagesHandler(
@@ -1255,7 +1262,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     );
   });
 });
-
+/* eslint-disable max-lines-per-function*/
 describe("GetMessagesHandler |> Message View", () => {
   const aSimpleList = [
     {
@@ -1660,7 +1667,7 @@ describe("GetMessagesHandler |> Message View", () => {
     );
     expect(result.kind).toBe("IResponseErrorQuery");
     expect(functionsContextMock.log.error).toHaveBeenCalledWith(
-      `getMessagesFromView|Error retrieving page data from cosmos|{\"error\":{},\"kind\":\"COSMOS_ERROR_RESPONSE\"}`,
+      `getMessagesFromView|Error retrieving page data from cosmos|{"error":{},"kind":"COSMOS_ERROR_RESPONSE"}`,
     );
   });
 });

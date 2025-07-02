@@ -1,4 +1,3 @@
-// eslint-disable @typescript-eslint/no-explicit-any, sonarjs/no-duplicate-string, sonar/sonar-max-lines-per-function
 import * as O from "fp-ts/Option";
 import * as TE from "fp-ts/TaskEither";
 import { afterEach, describe, expect, it, vi } from "vitest";
