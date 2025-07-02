@@ -296,10 +296,9 @@ public class ReminderServiceImpl implements ReminderService {
 
     PaymentInfo info = new PaymentInfo();
     try {
-      apiClient.addDefaultHeader("Ocp-Apim-Subscription-Key", ecommerceAuthKey);
-      apiClient.setBasePath(ecommerceUrl);
+      paymentApi.getApiClient().setApiKey(ecommerceAuthKey);
+      paymentApi.getApiClient().setBasePath(ecommerceUrl);
 
-      paymentApi.setApiClient(apiClient);
       PaymentRequestsGetResponse resp = paymentApi.getPaymentRequestInfo(rptId);
 
       LocalDate dueDate = ReminderUtil.getLocalDateFromString(resp.getDueDate());
