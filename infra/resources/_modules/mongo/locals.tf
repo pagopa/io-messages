@@ -1,3 +1,3 @@
 locals {
-  location = "westeurope"
+  project_legacy = "${var.environment.prefix}-${var.environment.environment}"
 }

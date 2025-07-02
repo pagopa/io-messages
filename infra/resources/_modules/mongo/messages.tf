@@ -1,31 +1,30 @@
-module "cosmosdb_account_mongodb_reminder" {
+module "reminder_cosmos_account" {
   source = "github.com/pagopa/terraform-azurerm-v4//cosmosdb_account?ref=v7.13.0"
 
-  name                 = "${var.project_legacy}-messages-reminder-mongodb-account"
-  domain               = "messages"
-  location             = local.location
-  resource_group_name  = var.resource_group_name
-  offer_type           = "Standard"
-  enable_free_tier     = false
+  name                = "${local.project_legacy}-messages-reminder-mongodb-account"
+  domain              = "messages"
+  location            = "westeurope"
+  resource_group_name = var.resource_group_name
+
+  offer_type       = "Standard"
+  enable_free_tier = false
+
   kind                 = "MongoDB"
   capabilities         = ["EnableMongo"]
   mongo_server_version = "4.0"
 
-  public_network_access_enabled         = false
-  private_endpoint_enabled              = true
-  subnet_id                             = data.azurerm_subnet.private_endpoints_subnet.id
-  private_dns_zone_mongo_ids            = [data.azurerm_private_dns_zone.privatelink_mongo_cosmos_azure_com.id]
-  private_service_connection_mongo_name = "${var.project_legacy}-messages-reminder-mongodb-account-private-endpoint"
-  private_endpoint_mongo_name           = "${var.project_legacy}-messages-reminder-mongodb-account-private-endpoint"
-  is_virtual_network_filter_enabled     = false
+  public_network_access_enabled     = false
+  private_endpoint_enabled          = false
+  is_virtual_network_filter_enabled = false
 
-  main_geo_location_location       = local.location
+  main_geo_location_location       = var.environment.location
   main_geo_location_zone_redundant = false
   additional_geo_locations = [{
-    location          = "italynorth"
+    location          = var.secondary_geo_location
     failover_priority = 1
-    zone_redundant    = true
+    zone_redundant    = false
   }]
+
   consistency_policy = {
     consistency_level       = "Session"
     max_interval_in_seconds = null
@@ -35,10 +34,34 @@ module "cosmosdb_account_mongodb_reminder" {
   tags = var.tags
 }
 
+locals {
+  reminder_cosmos_account_pep_name = provider::dx::resource_name(merge(var.environment,
+    {
+      name            = "reminder",
+      resource_type   = "cosmos_private_endpoint",
+      instance_number = 1
+    })
+  )
+}
+
+resource "azurerm_private_endpoint" "reminder_cosmos_account" {
+  name                = local.reminder_cosmos_account_pep_name
+  location            = var.environment.location
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.subnet_pep_id
+
+  private_service_connection {
+    name                           = local.reminder_cosmos_account_pep_name
+    private_connection_resource_id = module.reminder_cosmos_account.id
+    is_manual_connection           = false
+    subresource_names              = ["MongoDB"]
+  }
+}
+
 resource "azurerm_cosmosdb_mongo_database" "db_reminder" {
   name                = "db"
   resource_group_name = var.resource_group_name
-  account_name        = module.cosmosdb_account_mongodb_reminder.name
+  account_name        = module.reminder_cosmos_account.name
 
   autoscale_settings {
     max_throughput = 4000
@@ -51,7 +74,7 @@ module "mongdb_collection_reminder_sharded" {
   name                = "reminder-sharded-new"
   resource_group_name = var.resource_group_name
 
-  cosmosdb_mongo_account_name  = module.cosmosdb_account_mongodb_reminder.name
+  cosmosdb_mongo_account_name  = module.reminder_cosmos_account.name
   cosmosdb_mongo_database_name = azurerm_cosmosdb_mongo_database.db_reminder.name
 
   shard_key = "shard"
@@ -115,6 +138,6 @@ module "mongdb_collection_reminder_sharded" {
 #tfsec:ignore:AZU023
 resource "azurerm_key_vault_secret" "mongodb_reminder_connection_string" {
   name         = "reminder-mongo-connection-string"
-  value        = module.cosmosdb_account_mongodb_reminder.primary_connection_strings
+  value        = module.reminder_cosmos_account.primary_connection_strings
   key_vault_id = var.key_vault_id
 }

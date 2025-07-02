@@ -1,6 +1,6 @@
 
 import {
-  to = module.mongo.module.cosmosdb_account_mongodb_reminder.azurerm_cosmosdb_account.this
+  to = module.mongo.module.reminder_cosmos_account.azurerm_cosmosdb_account.this
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-com-rg-01/providers/Microsoft.DocumentDB/databaseAccounts/io-p-messages-reminder-mongodb-account"
 }
 
@@ -25,7 +25,7 @@ import {
 }
 
 import {
-  to = module.mongo.module.cosmosdb_account_mongodb_payments.azurerm_cosmosdb_account.this
+  to = module.mongo.module.payments_cosmos_account.azurerm_cosmosdb_account.this
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-com-rg-01/providers/Microsoft.DocumentDB/databaseAccounts/io-p-payments-mongodb-account"
 }
 
