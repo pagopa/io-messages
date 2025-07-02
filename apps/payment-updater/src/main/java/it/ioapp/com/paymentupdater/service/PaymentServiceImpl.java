@@ -64,13 +64,10 @@ public class PaymentServiceImpl implements PaymentService {
         payment.getDueDate() != null ? payment.getDueDate().toLocalDate() : null;
     PaymentInfoResponse paymentInfo = new PaymentInfoResponse();
     String rptId = payment.getRptId();
-    String rptId = payment.getRptId();
     try {
-      paymentApi.getApiClient().setApiKey(ecommerceAuthKey);
       paymentApi.getApiClient().setApiKey(ecommerceAuthKey);
       paymentApi.getApiClient().setBasePath(ecommerceUrl);
 
-      PaymentRequestsGetResponse resp = paymentApi.getPaymentRequestInfo(rptId);
       PaymentRequestsGetResponse resp = paymentApi.getPaymentRequestInfo(rptId);
       LocalDate dueDate = PaymentUtil.getLocalDateFromString(resp.getDueDate());
       paymentInfo.setPaid(false);
