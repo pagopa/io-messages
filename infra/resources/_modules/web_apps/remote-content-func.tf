@@ -96,6 +96,62 @@ resource "azurerm_subnet_nat_gateway_association" "net_gateway_association_subne
   subnet_id      = module.remote_content_func.subnet.id
 }
 
+resource "azurerm_role_assignment" "remote_content_key_vault_secrets_user" {
+  scope                = var.key_vault.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.remote_content_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_role_assignment" "remote_content_slot_key_vault_secrets_user" {
+  scope                = var.key_vault.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.remote_content_func.function_app.function_app.slot.principal_id
+}
+
+resource "azurerm_role_assignment" "remote_content_cosmosdb_account_api" {
+  for_each = toset([
+    module.remote_content_func.function_app.function_app.principal_id,
+    module.remote_content_func.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.cosmosdb_account_api.id
+  role_definition_name = "SQL DB Contributor"
+  principal_id         = each.value
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "cosmosdb_account_api" {
+  for_each = toset([
+    module.remote_content_func.function_app.function_app.principal_id,
+    module.remote_content_func.function_app.function_app.slot.principal_id
+  ])
+  resource_group_name = var.cosmosdb_account_api.resource_group_name
+  account_name        = var.cosmosdb_account_api.name
+  scope               = var.cosmosdb_account_api.id
+  role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = each.value
+}
+
+resource "azurerm_role_assignment" "remote_content_io_com_cosmos" {
+  for_each = toset([
+    module.remote_content_func.function_app.function_app.principal_id,
+    module.remote_content_func.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.io_com_cosmos.id
+  role_definition_name = "SQL DB Contributor"
+  principal_id         = each.value
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "io_com_cosmos" {
+  for_each = toset([
+    module.remote_content_func.function_app.function_app.principal_id,
+    module.remote_content_func.function_app.function_app.slot.principal_id
+  ])
+  resource_group_name = var.io_com_cosmos.resource_group_name
+  account_name        = var.io_com_cosmos.name
+  scope               = var.io_com_cosmos.id
+  role_definition_id  = "${var.io_com_cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = each.value
+}
+
 output "remote_content_func" {
   value = {
     id                   = module.remote_content_func.function_app.function_app.id
