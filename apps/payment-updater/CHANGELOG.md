@@ -1,5 +1,11 @@
 # payment-updater
 
+## 2.7.4
+
+### Patch Changes
+
+- a345e5f: fix ecommerce api key management
+
 ## 2.7.3
 
 ### Patch Changes
