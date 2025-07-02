@@ -117,8 +117,3 @@ data "azuread_group" "adgroup_com_admins" {
 data "azuread_group" "adgroup_com_devs" {
   display_name = "${local.project_legacy}-adgroup-com-developers"
 }
-
-data "azurerm_container_registry" "acr" {
-  name                = "iopcommonacr"
-  resource_group_name = "io-p-container-registry-rg"
-}

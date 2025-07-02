@@ -1,4 +1,3 @@
-/* eslint-disable no-invalid-this */
 import {
   RCConfigurationModel,
   RetrievedRCConfiguration,

@@ -1,5 +1,11 @@
 # reminder
 
+## 0.17.2
+
+### Patch Changes
+
+- a345e5f: fix ecommerce api key management
+
 ## 0.17.1
 
 ### Patch Changes
