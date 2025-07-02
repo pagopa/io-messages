@@ -63,11 +63,12 @@ public class PaymentServiceImpl implements PaymentService {
     LocalDate paymentDueDate =
         payment.getDueDate() != null ? payment.getDueDate().toLocalDate() : null;
     PaymentInfoResponse paymentInfo = new PaymentInfoResponse();
+    String rptId = payment.getRptId();
     try {
-      paymentApi.getApiClient().addDefaultHeader("Ocp-Apim-Subscription-Key", ecommerceAuthKey);
+      paymentApi.getApiClient().setApiKey(ecommerceAuthKey);
       paymentApi.getApiClient().setBasePath(ecommerceUrl);
 
-      PaymentRequestsGetResponse resp = paymentApi.getPaymentRequestInfo(payment.getRptId());
+      PaymentRequestsGetResponse resp = paymentApi.getPaymentRequestInfo(rptId);
       LocalDate dueDate = PaymentUtil.getLocalDateFromString(resp.getDueDate());
       paymentInfo.setPaid(false);
       paymentInfo.setDueDate(dueDate);
@@ -75,10 +76,14 @@ public class PaymentServiceImpl implements PaymentService {
     } catch (HttpStatusCodeException errorException) {
       String rawResponse = errorException.getResponseBodyAsString();
       int status = errorException.getStatusCode().value();
-      log.error("Received status  from pagoPa Ecommerce api: {}", rawResponse);
+      log.error(
+          "Received status {} from pagoPa Ecommerce api: {} for rptId {}",
+          status,
+          rawResponse,
+          rptId);
       if (status == 409 && isPaymentDuplicatedResponse(rawResponse)) {
         // the payment message is already paid
-        List<Payment> payments = paymentRepository.getPaymentByRptId(payment.getRptId());
+        List<Payment> payments = paymentRepository.getPaymentByRptId(rptId);
         payments.add(payment);
         for (Payment pay : payments) {
           pay.setPaidFlag(true);
