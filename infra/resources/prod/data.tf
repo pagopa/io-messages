@@ -21,10 +21,6 @@ data "azurerm_resource_group" "operations_weu" {
   name = "${local.project_legacy}-rg-operations"
 }
 
-data "azurerm_resource_group" "weu_messages_sec" {
-  name = "${local.project_legacy}-messages-sec-rg"
-}
-
 data "azurerm_resource_group" "internal_rg" {
   name = format("%s-rg-internal", local.project_legacy)
 }
