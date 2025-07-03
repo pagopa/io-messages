@@ -64,7 +64,7 @@ resource "azurerm_cosmosdb_mongo_database" "db_reminder" {
   account_name        = module.reminder_cosmos_account.name
 
   autoscale_settings {
-    max_throughput = 4000
+    max_throughput = 20000
   }
 }
 
@@ -76,8 +76,6 @@ module "mongdb_collection_reminder_sharded" {
 
   cosmosdb_mongo_account_name  = module.reminder_cosmos_account.name
   cosmosdb_mongo_database_name = azurerm_cosmosdb_mongo_database.db_reminder.name
-
-  shard_key = "shard"
 
   indexes = [
     {
@@ -132,6 +130,14 @@ module "mongdb_collection_reminder_sharded" {
       keys   = ["content_paymentData_dueDate"]
       unique = false
     },
+    {
+      keys   = ["shard", "rptId"],
+      unique = false
+    },
+    {
+      keys   = ["fiscalCode"],
+      unique = false
+    }
   ]
 }
 
