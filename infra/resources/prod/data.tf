@@ -86,11 +86,6 @@ data "azurerm_storage_container" "messages_content_container" {
   storage_account_name = data.azurerm_storage_account.storage_api.name
 }
 
-data "azurerm_storage_account" "storage_push_notifications" {
-  name                = replace(format("%s-weu-messages-notifst", local.project_legacy), "-", "")
-  resource_group_name = local.notifications_rg_name
-}
-
 data "azurerm_user_assigned_identity" "infra_ci_01" {
   name                = "${local.project}-msgs-infra-github-ci-id-01"
   resource_group_name = local.legacy_itn_rg_name
