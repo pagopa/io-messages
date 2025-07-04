@@ -21,10 +21,6 @@ data "azurerm_resource_group" "operations_weu" {
   name = "${local.project_legacy}-rg-operations"
 }
 
-data "azurerm_resource_group" "weu_messages_sec" {
-  name = "${local.project_legacy}-messages-sec-rg"
-}
-
 data "azurerm_resource_group" "internal_rg" {
   name = format("%s-rg-internal", local.project_legacy)
 }
@@ -84,11 +80,6 @@ data "azurerm_storage_account" "storage_api" {
 data "azurerm_storage_container" "messages_content_container" {
   name                 = "message-content"
   storage_account_name = data.azurerm_storage_account.storage_api.name
-}
-
-data "azurerm_storage_account" "storage_push_notifications" {
-  name                = replace(format("%s-weu-messages-notifst", local.project_legacy), "-", "")
-  resource_group_name = local.notifications_rg_name
 }
 
 data "azurerm_user_assigned_identity" "infra_ci_01" {
