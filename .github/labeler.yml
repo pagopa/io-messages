@@ -10,6 +10,10 @@ sending-func:
   - changed-files:
       - any-glob-to-any-file: ["apps/sending-func/**"]
 
+rc-func:
+  - changed-files:
+      - any-glob-to-any-file: ["apps/rc-func/**"]
+
 etl-func:
   - changed-files:
       - any-glob-to-any-file: ["apps/etl-func/**"]

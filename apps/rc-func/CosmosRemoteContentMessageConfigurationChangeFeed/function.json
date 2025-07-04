@@ -1,0 +1,23 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "cosmosDBTrigger",
+      "name": "cosmosRemoteContentMessageConfigurationTrigger",
+      "direction": "in",
+      "connection": "REMOTE_CONTENT_COSMOSDB",
+      "databaseName": "remote-content-cosmos-01",
+      "containerName": "message-configuration",
+      "leaseContainerName": "remote-content-leases",
+      "leaseContainerPrefix": "RemoteContentMessageConfigurationChangeFeed-00",
+      "createLeaseContainerIfNotExists": false,
+      "startFromBeginning": true
+    }
+  ],
+  "retry": {
+    "strategy": "fixedDelay",
+    "maxRetryCount": -1,
+    "delayInterval": "00:00:10"
+  },
+  "scriptFile": "../dist/functions/CosmosRemoteContentMessageConfigurationChangeFeed/index.js"
+}
