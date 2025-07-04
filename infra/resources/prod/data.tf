@@ -9,20 +9,12 @@ data "azurerm_resource_group" "weu_common" {
   name = "${local.project_legacy}-rg-common"
 }
 
-data "azurerm_resource_group" "weu_evt" {
-  name = "${local.project_legacy}-evt-rg"
-}
-
 data "azurerm_resource_group" "itn_common_01" {
   name = "${local.project}-common-rg-01"
 }
 
 data "azurerm_resource_group" "operations_weu" {
   name = "${local.project_legacy}-rg-operations"
-}
-
-data "azurerm_resource_group" "weu_messages_sec" {
-  name = "${local.project_legacy}-messages-sec-rg"
 }
 
 data "azurerm_resource_group" "internal_rg" {
@@ -56,11 +48,6 @@ data "azurerm_private_dns_zone" "privatelink_redis_cache" {
   resource_group_name = data.azurerm_resource_group.weu_common.name
 }
 
-data "azurerm_private_dns_zone" "privatelink_servicebus" {
-  name                = "privatelink.servicebus.windows.net"
-  resource_group_name = data.azurerm_resource_group.weu_evt.name
-}
-
 data "azurerm_application_insights" "common" {
   name                = "${local.project_legacy}-ai-common"
   resource_group_name = data.azurerm_resource_group.weu_common.name
@@ -84,16 +71,6 @@ data "azurerm_storage_account" "storage_api" {
 data "azurerm_storage_container" "messages_content_container" {
   name                 = "message-content"
   storage_account_name = data.azurerm_storage_account.storage_api.name
-}
-
-data "azurerm_storage_account" "storage_push_notifications" {
-  name                = replace(format("%s-weu-messages-notifst", local.project_legacy), "-", "")
-  resource_group_name = local.notifications_rg_name
-}
-
-data "azurerm_user_assigned_identity" "infra_ci_01" {
-  name                = "${local.project}-msgs-infra-github-ci-id-01"
-  resource_group_name = local.legacy_itn_rg_name
 }
 
 data "azurerm_user_assigned_identity" "infra_cd_01" {
