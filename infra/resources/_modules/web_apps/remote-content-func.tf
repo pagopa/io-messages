@@ -1,7 +1,8 @@
 locals {
   remote_content = {
     app_settings = {
-      NODE_ENV = "production"
+      "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "1"
+      NODE_ENV                                                                  = "production"
 
       // IO COSMOSDB
       COSMOSDB_NAME = "db"
