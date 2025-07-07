@@ -1,15 +1,17 @@
 locals {
   remote_content = {
     app_settings = {
-      NODE_ENV = "production"
+      "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "1"
+      NODE_ENV                                                                  = "production"
 
       // IO COSMOSDB
       COSMOSDB_NAME = "db"
       COSMOSDB_URI  = var.cosmosdb_account_api.endpoint
 
       // REMOTE CONTENT COSMOSDB
-      REMOTE_CONTENT_COSMOSDB_NAME = "remote-content-cosmos-01"
-      REMOTE_CONTENT_COSMOSDB_URI  = var.io_com_cosmos.endpoint
+      REMOTE_CONTENT_COSMOSDB_NAME             = "remote-content-cosmos-01"
+      REMOTE_CONTENT_COSMOSDB_URI              = var.io_com_cosmos.endpoint
+      REMOTE_CONTENT_COSMOSDB__accountEndpoint = var.io_com_cosmos.endpoint
 
       // BLOB STORAGE
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
