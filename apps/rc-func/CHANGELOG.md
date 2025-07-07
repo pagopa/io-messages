@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.11.8
+
+### Patch Changes
+
+- ee3a3cf: Rename sending-func into rc-func
+
 ## 1.11.7
 
 ### Patch Changes
