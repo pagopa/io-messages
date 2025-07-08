@@ -1,5 +1,11 @@
 # etl-func
 
+## 1.0.3
+
+### Patch Changes
+
+- 5805804: Enable message status ingestion trigger
+
 ## 1.0.2
 
 ### Patch Changes
