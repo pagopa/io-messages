@@ -195,8 +195,7 @@ const main = async (config: Config) => {
       },
       strategy: "exponentialBackoff",
     },
-    //we need to start the ingestion from this date
-    startFromTime: "2023/01/01T00:00:00Z",
+    startFromTime: "2025/07/07T00:00:00Z",
   });
 };
 
