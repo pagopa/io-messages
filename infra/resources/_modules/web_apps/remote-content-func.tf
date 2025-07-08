@@ -93,6 +93,32 @@ module "remote_content_func" {
   action_group_id = var.action_group_id
 }
 
+module "remote_content_func_autoscaler" {
+  source  = "pagopa-dx/azure-app-service-plan-autoscaler/azurerm"
+  version = "~> 1.0"
+
+  app_service_plan_id = module.remote_content_func.function_app.plan.id
+  location            = var.environment.location
+
+  resource_group_name = module.remote_content_func.function_app.resource_group_name
+
+  target_service = {
+    function_app = {
+      name = module.remote_content_func.function_app.function_app.name
+    }
+  }
+
+  scheduler = {
+    maximum = 3
+    normal_load = {
+      default = 3
+      minimum = 1
+    }
+  }
+
+  tags = var.tags
+}
+
 resource "azurerm_subnet_nat_gateway_association" "net_gateway_association_subnet" {
   nat_gateway_id = data.azurerm_nat_gateway.nat_gateway.id
   subnet_id      = module.remote_content_func.subnet.id
