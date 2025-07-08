@@ -2,9 +2,17 @@ infra:
   - changed-files:
       - any-glob-to-any-file: ["infra/**"]
 
-msgs-sending-func:
+citizen-func:
   - changed-files:
-      - any-glob-to-any-file: ["apps/msgs-sending-func/**"]
+      - any-glob-to-any-file: ["apps/citizen-func/**"]
+
+sending-func:
+  - changed-files:
+      - any-glob-to-any-file: ["apps/sending-func/**"]
+
+rc-func:
+  - changed-files:
+      - any-glob-to-any-file: ["apps/rc-func/**"]
 
 etl-func:
   - changed-files:

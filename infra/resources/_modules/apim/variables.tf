@@ -1,5 +1,3 @@
-# general
-
 variable "prefix" {
   type = string
   validation {

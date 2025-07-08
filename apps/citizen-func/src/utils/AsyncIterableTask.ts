@@ -24,8 +24,8 @@ const mapAsyncIterable2 = <T, V>(
   const iter = source[Symbol.asyncIterator]();
   const iterMapped = mapAsyncIterator(iter, f);
   return {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [Symbol.asyncIterator]: (): AsyncIterator<V, any, undefined> => iterMapped,
+    [Symbol.asyncIterator]: (): AsyncIterator<V, undefined, undefined> =>
+      iterMapped,
   };
 };
 
@@ -37,8 +37,7 @@ const mapAsyncIterable2 = <T, V>(
  */
 export const map: <A, B>(
   f: (a: A) => B | Promise<B>,
-) => // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-(fa: AsyncIterableTask<A>) => AsyncIterableTask<B> = (f) => (fa) =>
+) => (fa: AsyncIterableTask<A>) => AsyncIterableTask<B> = (f) => (fa) =>
   pipe(
     fa,
     T.map((_) => mapAsyncIterable2(_, f)),
@@ -66,7 +65,6 @@ export const fromAsyncIterator = <A>(
 export const fold = <A>(fa: AsyncIterableTask<A>): T.Task<readonly A[]> =>
   pipe(
     fa,
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define, @typescript-eslint/explicit-function-return-type
     T.chain((_) => foldIterableArray<A>(_)),
   );
 
@@ -79,7 +77,6 @@ export const foldTaskEither =
     pipe(
       fa,
       TE.fromTask,
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       TE.chain((_) => TE.tryCatch(() => foldIterableArray<A>(_)(), onError)),
     );
 
@@ -99,18 +96,6 @@ const foldIterableArray =
     return array;
   };
 
-export const run = <A>(fa: AsyncIterableTask<A>): T.Task<void> =>
-  pipe(
-    fa,
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    T.chain((asyncIterable) => async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      for await (const _ of asyncIterable) {
-        // nothing to do: this is done to resolve the async iterator
-      }
-    }),
-  );
-
 /**
  * Process an AsyncIterableTask that can fail and return either an error or an array of results
  */
@@ -125,11 +110,7 @@ export const reduceTaskEither =
       fa,
       TE.fromTask,
       TE.chain((_) =>
-        TE.tryCatch(
-          // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          reduceIterableArray(initialValue, reducer)(_),
-          onError,
-        ),
+        TE.tryCatch(reduceIterableArray(initialValue, reducer)(_), onError),
       ),
     );
 

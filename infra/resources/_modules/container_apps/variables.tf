@@ -21,6 +21,7 @@ variable "resource_group_name" {
 
 variable "virtual_network" {
   type = object({
+    id                  = string
     name                = string
     resource_group_name = string
   })
@@ -61,4 +62,9 @@ variable "application_insights" {
   type = object({
     connection_string = string
   })
+}
+
+variable "dns_forwarding_ruleset_id" {
+  type        = string
+  description = "Id of the DNS Forwarding Ruleset to use for the Container App Environment"
 }
