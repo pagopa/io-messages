@@ -1,8 +1,7 @@
 locals {
   remote_content = {
     app_settings = {
-      "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "1"
-      NODE_ENV                                                                  = "production"
+      NODE_ENV = "production"
 
       // IO COSMOSDB
       COSMOSDB_NAME = "db"
@@ -82,8 +81,11 @@ module "remote_content_func" {
     web = true
   }
 
-  app_settings      = local.remote_content.app_settings
-  slot_app_settings = local.remote_content.app_settings
+  app_settings             = local.remote_content.app_settings
+  sticky_app_setting_names = ["AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled"]
+  slot_app_settings = merge(local.remote_content.app_settings, {
+    "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "1"
+  })
 
   application_insights_connection_string   = var.application_insights.connection_string
   application_insights_sampling_percentage = var.application_insights.sampling_percentage
