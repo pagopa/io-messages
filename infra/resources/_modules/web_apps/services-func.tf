@@ -90,13 +90,15 @@ module "services_func" {
   slot_app_settings = merge(
     local.services_func.app_settings,
     {
-      "AzureWebJobs.CreateNotification.Disabled"     = "0"
-      "AzureWebJobs.EmailNotification.Disabled"      = "0"
-      "AzureWebJobs.OnFailedProcessMessage.Disabled" = "0"
-      "AzureWebJobs.ProcessMessage.Disabled"         = "0"
-      "AzureWebJobs.WebhookNotification.Disabled"    = "0"
+      "AzureWebJobs.CreateNotification.Disabled"     = "1"
+      "AzureWebJobs.EmailNotification.Disabled"      = "1"
+      "AzureWebJobs.OnFailedProcessMessage.Disabled" = "1"
+      "AzureWebJobs.ProcessMessage.Disabled"         = "1"
+      "AzureWebJobs.WebhookNotification.Disabled"    = "1"
     }
   )
+
+  sticky_app_setting_names = ["AzureWebJobs.CreateNotification.Disabled", "AzureWebJobs.EmailNotification.Disabled", "AzureWebJobs.OnFailedProcessMessage.Disabled", "AzureWebJobs.ProcessMessage.Disabled", "AzureWebJobs.WebhookNotification.Disabled"]
 
   tags = var.tags
 
@@ -109,6 +111,18 @@ module "services_func" {
 resource "azurerm_subnet_nat_gateway_association" "services_func_subnet" {
   subnet_id      = module.services_func.subnet.id
   nat_gateway_id = var.nat_gateway_id
+}
+
+resource "azurerm_role_assignment" "services_key_vault_secrets_user" {
+  scope                = var.key_vault.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.services_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_role_assignment" "services_slot_key_vault_secrets_user" {
+  scope                = var.key_vault.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.services_func.function_app.function_app.slot.principal_id
 }
 
 resource "azurerm_role_assignment" "services_func_stapi_container_read" {
@@ -154,4 +168,14 @@ resource "azurerm_cosmosdb_sql_role_assignment" "services_func" {
   role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = module.services_func.function_app.function_app.principal_id
   scope               = var.cosmosdb_account_api.id
+}
+
+resource "azurerm_role_assignment" "services_cosmosdb_account_api" {
+  for_each = toset([
+    module.services_func.function_app.function_app.principal_id,
+    module.services_func.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.cosmosdb_account_api.id
+  role_definition_name = "SQL DB Contributor"
+  principal_id         = each.value
 }
