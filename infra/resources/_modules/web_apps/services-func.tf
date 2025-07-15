@@ -90,13 +90,15 @@ module "services_func" {
   slot_app_settings = merge(
     local.services_func.app_settings,
     {
-      "AzureWebJobs.CreateNotification.Disabled"     = "0"
-      "AzureWebJobs.EmailNotification.Disabled"      = "0"
-      "AzureWebJobs.OnFailedProcessMessage.Disabled" = "0"
-      "AzureWebJobs.ProcessMessage.Disabled"         = "0"
-      "AzureWebJobs.WebhookNotification.Disabled"    = "0"
+      "AzureWebJobs.CreateNotification.Disabled"     = "1"
+      "AzureWebJobs.EmailNotification.Disabled"      = "1"
+      "AzureWebJobs.OnFailedProcessMessage.Disabled" = "1"
+      "AzureWebJobs.ProcessMessage.Disabled"         = "1"
+      "AzureWebJobs.WebhookNotification.Disabled"    = "1"
     }
   )
+
+  sticky_app_setting_names = ["AzureWebJobs.CreateNotification.Disabled", "AzureWebJobs.EmailNotification.Disabled", "AzureWebJobs.OnFailedProcessMessage.Disabled", "AzureWebJobs.ProcessMessage.Disabled", "AzureWebJobs.WebhookNotification.Disabled"]
 
   tags = var.tags
 
