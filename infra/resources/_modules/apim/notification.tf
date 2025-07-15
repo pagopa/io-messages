@@ -20,7 +20,7 @@ resource "azurerm_api_management_product_policy" "apim_itn_product_notifications
 }
 
 data "http" "pushnotif_internal_openapi" {
-  url = "https://raw.githubusercontent.com/pagopa/io-messages/refs/heads/main/apps/sending-func/openapi/index.yaml"
+  url = "https://raw.githubusercontent.com/pagopa/io-messages/refs/heads/main/apps/rc-func/openapi/index.yaml"
 }
 
 resource "azurerm_api_management_api" "messages_sending_internal_api_v1" {
