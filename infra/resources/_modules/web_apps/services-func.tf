@@ -111,6 +111,18 @@ resource "azurerm_subnet_nat_gateway_association" "services_func_subnet" {
   nat_gateway_id = var.nat_gateway_id
 }
 
+resource "azurerm_role_assignment" "services_key_vault_secrets_user" {
+  scope                = var.key_vault.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.services_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_role_assignment" "services_slot_key_vault_secrets_user" {
+  scope                = var.key_vault.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.services_func.function_app.function_app.slot.principal_id
+}
+
 resource "azurerm_role_assignment" "services_func_stapi_container_read" {
   scope                = "${var.messages_storage_account.id}/blobServices/default/containers/${var.messages_content_container.name}"
   role_definition_name = "Storage Blob Data Reader"
@@ -154,4 +166,14 @@ resource "azurerm_cosmosdb_sql_role_assignment" "services_func" {
   role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = module.services_func.function_app.function_app.principal_id
   scope               = var.cosmosdb_account_api.id
+}
+
+resource "azurerm_role_assignment" "services_cosmosdb_account_api" {
+  for_each = toset([
+    module.services_func.function_app.function_app.principal_id,
+    module.services_func.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.cosmosdb_account_api.id
+  role_definition_name = "SQL DB Contributor"
+  principal_id         = each.value
 }
