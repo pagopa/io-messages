@@ -29,9 +29,6 @@ const sandboxFiscalCode = pipe(
 const emailNotificationServiceBlackList =
   config.EMAIL_NOTIFICATION_SERVICE_BLACKLIST;
 
-const webhookNotificationServiceBlackList =
-  config.WEBHOOK_NOTIFICATION_SERVICE_BLACKLIST;
-
 const notificationModel = new NotificationModel(
   cosmosdbInstance.container(NOTIFICATION_COLLECTION_NAME),
 );
@@ -60,7 +57,6 @@ const functionHandler: AzureFunction = getCreateNotificationHandler(
   defaultWebhookUrl,
   sandboxFiscalCode,
   emailNotificationServiceBlackList,
-  webhookNotificationServiceBlackList,
   retrieveProcessingMessageData,
 );
 

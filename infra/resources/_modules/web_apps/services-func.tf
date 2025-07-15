@@ -1,42 +1,3 @@
-data "azurerm_key_vault_secret" "fn_services_pagopa_ecommerce_api_key" {
-  name         = "fnservices-PAGOPA-ECOMMERCE-API-KEY-PROD"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-
-data "azurerm_key_vault_secret" "sending_func_url" {
-  name         = "fnservices-SENDING-FUNC-API-URL"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-
-data "azurerm_key_vault_secret" "sending_func_key" {
-  name         = "fnservices-SENDING-FUNC-API-KEY"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-data "azurerm_key_vault_secret" "fn_services_io_service_key" {
-  name         = "apim-IO-SERVICE-KEY"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-
-data "azurerm_key_vault_secret" "fn_services_notification_service_blacklist_id" {
-  name         = "io-NOTIFICATION-SERVICE-BLACKLIST-ID"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-
-data "azurerm_key_vault_secret" "fn_services_email_service_blacklist_id" {
-  name         = "io-EMAIL-SERVICE-BLACKLIST-ID"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-
-data "azurerm_key_vault_secret" "fn_services_webhook_channel_url" {
-  name         = "appbackend-WEBHOOK-CHANNEL-URL"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-
-data "azurerm_key_vault_secret" "fn_services_sandbox_fiscal_code" {
-  name         = "io-SANDBOX-FISCAL-CODE"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-
 locals {
   services_func = {
     app_settings = {
@@ -91,14 +52,13 @@ locals {
       #########################
       # Secrets
       #########################
-      WEBHOOK_CHANNEL_URL                    = data.azurerm_key_vault_secret.fn_services_webhook_channel_url.value
-      SANDBOX_FISCAL_CODE                    = data.azurerm_key_vault_secret.fn_services_sandbox_fiscal_code.value
-      EMAIL_NOTIFICATION_SERVICE_BLACKLIST   = data.azurerm_key_vault_secret.fn_services_email_service_blacklist_id.value
-      WEBHOOK_NOTIFICATION_SERVICE_BLACKLIST = data.azurerm_key_vault_secret.fn_services_notification_service_blacklist_id.value
-      APIM_SUBSCRIPTION_KEY                  = data.azurerm_key_vault_secret.fn_services_io_service_key.value
-      PAGOPA_ECOMMERCE_API_KEY               = data.azurerm_key_vault_secret.fn_services_pagopa_ecommerce_api_key.value
-      SENDING_FUNC_API_KEY                   = data.azurerm_key_vault_secret.sending_func_key.value
-      SENDING_FUNC_API_URL                   = data.azurerm_key_vault_secret.sending_func_url.value
+      WEBHOOK_CHANNEL_URL                  = "https://${module.remote_content_func.function_app.function_app.default_hostname}/api/v1/notify"
+      SANDBOX_FISCAL_CODE                  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=services-sandbox-fiscalcode)"
+      EMAIL_NOTIFICATION_SERVICE_BLACKLIST = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=services-email-blacklist-service-id)"
+      APIM_SUBSCRIPTION_KEY                = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=services-apim-subscription-key)"
+      PAGOPA_ECOMMERCE_API_KEY             = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=services-pagopa-ecommerce-prod-api-key)",
+      SENDING_FUNC_API_KEY                 = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=rc-func-key)"
+      SENDING_FUNC_API_URL                 = "https://${module.remote_content_func.function_app.function_app.default_hostname}"
     }
   }
 }

@@ -76,7 +76,6 @@ describe("getCreateNotificationHandler", () => {
       aDefaultWebhookUrl,
       aSandboxFiscalCode,
       [],
-      [],
       mockRetrieveProcessingMessageData,
     );
 
@@ -106,7 +105,6 @@ describe("getCreateNotificationHandler", () => {
       mockNotificaionModel,
       aDefaultWebhookUrl,
       aSandboxFiscalCode,
-      [],
       [],
       mockRetrieveProcessingMessageData,
     );

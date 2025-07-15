@@ -92,7 +92,6 @@ export const getCreateNotificationHandler = (
   lDefaultWebhookUrl: HttpsUrl,
   lSandboxFiscalCode: FiscalCode,
   lEmailNotificationServiceBlackList: readonly ServiceId[],
-  lWebhookNotificationServiceBlackList: readonly ServiceId[],
   retrieveProcessingMessageData: DataFetcher<CommonMessageData>,
   // eslint-disable-next-line max-params
 ) =>
@@ -206,12 +205,6 @@ export const getCreateNotificationHandler = (
             blockedInboxOrChannels.indexOf(BlockedInboxOrChannelEnum.WEBHOOK) >=
             0;
 
-          // wether the service is in our blacklist for sending push notifications
-          const isWebhookDisabledForService =
-            lWebhookNotificationServiceBlackList.includes(
-              newMessageWithoutContent.senderServiceId,
-            );
-
           // finally we decide whether we should send the webhook notification or not -
           // we send a webhook notification when all the following conditions are met:
           //
@@ -220,9 +213,7 @@ export const getCreateNotificationHandler = (
           // * webhook notifications are not blacklisted for the sender service (!isWebhookDisabledForService)
           //
           const maybeWebhookNotificationUrl =
-            isWebhookEnabledInProfile &&
-            !isWebhookBlockedForService &&
-            !isWebhookDisabledForService
+            isWebhookEnabledInProfile && !isWebhookBlockedForService
               ? O.some({
                   url: lDefaultWebhookUrl,
                 })

@@ -95,8 +95,6 @@ export const IConfig = t.intersection([
 
     WEBHOOK_CHANNEL_URL: NonEmptyString,
 
-    WEBHOOK_NOTIFICATION_SERVICE_BLACKLIST: CommaSeparatedListOf(ServiceId),
-
     isProduction: t.boolean,
   }),
   MessageContentStorageAccount,
