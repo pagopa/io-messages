@@ -29,6 +29,7 @@ module "web_apps" {
     ops_func            = "10.20.10.0/26"
     push_notif_func     = "10.20.10.64/26"
     cqrs_func           = "10.20.10.128/26"
+    services_func       = "10.20.12.64/26"
     remote_content_func = "10.20.4.128/26"
   }
 

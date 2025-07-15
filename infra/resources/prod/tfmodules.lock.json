@@ -101,6 +101,12 @@
     "name": "azure_container_app",
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app/azurerm/3.0.1"
   },
+  "web_apps.services_func": {
+    "hash": "20d1bf568efdf78dc97cf5dac105c7f30caf710e7a49a3edf7acab1ea78a4699",
+    "version": "1.0.1",
+    "name": "azure_function_app",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/1.0.1"
+  },
   "web_apps.remote_content_func": {
     "hash": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
     "version": "0.3.1",

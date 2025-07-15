@@ -1,0 +1,18 @@
+name: Deploy (services-func)
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  services_func_deploy:
+    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@763c7a410ae0ede3c259b57666b047aaf27cf7cc
+    secrets: inherit
+    with:
+      workspace_name: services-func
+      environment: app-prod
+      resource_group_name: io-p-itn-com-rg-01
+      function_app_name: io-p-itn-com-services-func-01
+      use_staging_slot: true
