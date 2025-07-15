@@ -146,6 +146,11 @@ module "services_func" {
   action_group_id = var.action_group_id
 }
 
+resource "azurerm_subnet_nat_gateway_association" "services_func_subnet" {
+  subnet_id      = module.services_func.subnet.id
+  nat_gateway_id = var.nat_gateway_id
+}
+
 resource "azurerm_role_assignment" "services_func_stapi_container_read" {
   scope                = "${var.messages_storage_account.id}/blobServices/default/containers/${var.messages_content_container.name}"
   role_definition_name = "Storage Blob Data Reader"
