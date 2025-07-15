@@ -37,12 +37,13 @@ variable "subnet_pep_id" {
 
 variable "subnet_cidrs" {
   type = object({
-    citizen_func    = string
-    etl_func        = string
-    ops_func        = string
-    push_notif_func = string
-    cqrs_func       = string
-    services_func   = string
+    citizen_func        = string
+    etl_func            = string
+    ops_func            = string
+    push_notif_func     = string
+    cqrs_func           = string
+    services_func       = string
+    remote_content_func = string
   })
 }
 
@@ -67,6 +68,7 @@ variable "eventhub_namespace" {
     name = string
   })
 }
+
 
 variable "messages_content_container" {
   type = object({
@@ -95,6 +97,10 @@ variable "com_st_queue_uri" {
 }
 
 variable "com_st_connectiostring" {
+  type = string
+}
+
+variable "session_manager_base_url" {
   type = string
 }
 
@@ -157,4 +163,11 @@ variable "nat_gateway_id" {
 variable "cqrs_func_ehns_enabled" {
   type        = bool
   description = "Enable the Event Hub Namespace for the CQRS function"
+}
+
+variable "key_vault" {
+  type = object({
+    name = string
+    id   = string
+  })
 }

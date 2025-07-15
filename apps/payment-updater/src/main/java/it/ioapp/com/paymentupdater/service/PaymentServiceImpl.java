@@ -1,19 +1,18 @@
 package it.ioapp.com.paymentupdater.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.ioapp.com.paymentupdater.dto.PaymentInfoResponse;
 import it.ioapp.com.paymentupdater.dto.PaymentMessage;
-import it.ioapp.com.paymentupdater.dto.ProxyResponse;
 import it.ioapp.com.paymentupdater.model.Payment;
 import it.ioapp.com.paymentupdater.producer.PaymentProducer;
 import it.ioapp.com.paymentupdater.repository.PaymentRepository;
-import it.ioapp.com.paymentupdater.restclient.proxy.api.DefaultApi;
-import it.ioapp.com.paymentupdater.restclient.proxy.model.PaymentRequestsGetResponse;
-import it.ioapp.com.paymentupdater.restclient.proxy.model.PaymentStatusFaultPaymentProblemJson;
+import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.api.PaymentRequestsApi;
+import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentRequestsGetResponse;
 import it.ioapp.com.paymentupdater.util.PaymentUtil;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -21,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,14 +38,14 @@ public class PaymentServiceImpl implements PaymentService {
   @Value("${kafka.paymentupdates}")
   private String topic;
 
-  @Value("${enable_rest_key}")
-  private boolean enableRestKey;
+  @Value("${pagopa_ecommerce.url}")
+  private String ecommerceUrl;
 
-  @Value("${proxy_endpoint_subscription_key}")
-  private String proxyEndpointKey;
+  @Value("${pagopa_ecommerce.key}")
+  private String ecommerceAuthKey;
 
   @Autowired PaymentProducer producer;
-  @Autowired DefaultApi defaultApi;
+  @Autowired PaymentRequestsApi paymentApi;
 
   @Autowired
   @Qualifier("kafkaTemplatePayments")
@@ -60,56 +58,56 @@ public class PaymentServiceImpl implements PaymentService {
   }
 
   @Override
-  public ProxyResponse checkPayment(Payment payment)
-      throws JsonProcessingException, InterruptedException, ExecutionException {
+  public PaymentInfoResponse checkPayment(Payment payment)
+      throws InterruptedException, ExecutionException, IOException {
     LocalDate paymentDueDate =
         payment.getDueDate() != null ? payment.getDueDate().toLocalDate() : null;
-    ProxyResponse proxyResp = new ProxyResponse();
+    PaymentInfoResponse paymentInfo = new PaymentInfoResponse();
+    String rptId = payment.getRptId();
     try {
-      if (enableRestKey) {
-        defaultApi.getApiClient().addDefaultHeader("Ocp-Apim-Subscription-Key", proxyEndpointKey);
-      }
-      PaymentRequestsGetResponse resp = defaultApi.getPaymentInfo(payment.getRptId());
-      LocalDate dueDate = PaymentUtil.getLocalDateFromString(resp.getDueDate());
-      proxyResp.setDueDate(dueDate);
-      return proxyResp;
-    } catch (HttpStatusCodeException errorException) {
-      PaymentStatusFaultPaymentProblemJson res =
-          mapper.readValue(
-              errorException.getResponseBodyAsString(), PaymentStatusFaultPaymentProblemJson.class);
-      if (res.getDetailV2() != null) {
-        if (Arrays.asList(HttpStatus.CONFLICT, HttpStatus.INTERNAL_SERVER_ERROR)
-                .contains(errorException.getStatusCode())
-            && Arrays.asList(
-                    "PAA_PAGAMENTO_DUPLICATO", "PPT_RPT_DUPLICATA", "PPT_PAGAMENTO_DUPLICATO")
-                .contains(res.getDetailV2())) {
-          // the payment message is already paid
-          List<Payment> payments = paymentRepository.getPaymentByRptId(payment.getRptId());
-          payments.add(payment);
-          for (Payment pay : payments) {
-            pay.setPaidFlag(true);
-            paymentRepository.save(pay);
+      paymentApi.getApiClient().setApiKey(ecommerceAuthKey);
+      paymentApi.getApiClient().setBasePath(ecommerceUrl);
 
-            PaymentMessage message = new PaymentMessage();
-            message.setMessageId(pay.getId());
-            message.setFiscalCode(pay.getFiscalCode());
-            message.setNoticeNumber(payment.getContent_paymentData_noticeNumber());
-            message.setPayeeFiscalCode(payment.getContent_paymentData_payeeFiscalCode());
-            message.setSource("payments");
-            producer.sendPaymentUpdate(
-                mapper.writeValueAsString(message), kafkaTemplatePayments, topic);
-          }
-          proxyResp.setPaid(true);
-          proxyResp.setDueDate(paymentDueDate);
-          return proxyResp;
+      PaymentRequestsGetResponse resp = paymentApi.getPaymentRequestInfo(rptId);
+      LocalDate dueDate = PaymentUtil.getLocalDateFromString(resp.getDueDate());
+      paymentInfo.setPaid(false);
+      paymentInfo.setDueDate(dueDate);
+      return paymentInfo;
+    } catch (HttpStatusCodeException errorException) {
+      String rawResponse = errorException.getResponseBodyAsString();
+      int status = errorException.getStatusCode().value();
+      log.error("Received status {} from pagoPa Ecommerce api: {}", status, rawResponse);
+      if (status == 409 && isPaymentDuplicatedResponse(rawResponse)) {
+        // the payment message is already paid
+        List<Payment> payments = paymentRepository.getPaymentByRptId(rptId);
+        payments.add(payment);
+        for (Payment pay : payments) {
+          pay.setPaidFlag(true);
+          paymentRepository.save(pay);
+
+          PaymentMessage message = new PaymentMessage();
+          message.setMessageId(pay.getId());
+          message.setFiscalCode(pay.getFiscalCode());
+          message.setNoticeNumber(payment.getContent_paymentData_noticeNumber());
+          message.setPayeeFiscalCode(payment.getContent_paymentData_payeeFiscalCode());
+          message.setSource("payments");
+          producer.sendPaymentUpdate(
+              mapper.writeValueAsString(message), kafkaTemplatePayments, topic);
         }
-        proxyResp.setPaid(false);
-        proxyResp.setDueDate(paymentDueDate);
-        return proxyResp;
-      } else {
-        throw errorException;
+        paymentInfo.setPaid(true);
+        paymentInfo.setDueDate(paymentDueDate);
+        return paymentInfo;
       }
+      paymentInfo.setPaid(false);
+      paymentInfo.setDueDate(paymentDueDate);
+      return paymentInfo;
     }
+  }
+
+  private boolean isPaymentDuplicatedResponse(String rawResponse) throws IOException {
+    JsonNode root = new ObjectMapper().readTree(rawResponse);
+    String faultCodeCategory = root.path("faultCodeCategory").asText();
+    return "PAYMENT_DUPLICATED".equals(faultCodeCategory);
   }
 
   @Override

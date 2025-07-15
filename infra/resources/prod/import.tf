@@ -1,199 +1,50 @@
+
 import {
-  to = azurerm_resource_group.notifications
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-notifications"
+  to = module.mongo.module.reminder_cosmos_account.azurerm_cosmosdb_account.this
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-com-rg-01/providers/Microsoft.DocumentDB/databaseAccounts/io-p-messages-reminder-mongodb-account"
 }
 
 import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_namespace.sandbox_partition_1
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-notifications/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-sandbox-partition-1"
+  to = module.mongo.azurerm_cosmosdb_mongo_database.db_reminder
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-com-rg-01/providers/Microsoft.DocumentDB/databaseAccounts/io-p-messages-reminder-mongodb-account/mongodbDatabases/db"
 }
 
 import {
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-notifications/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-sandbox"
-  to = module.notification_hubs_weu.azurerm_notification_hub_namespace.sandbox
+  to = module.mongo.module.mongdb_collection_reminder_sharded.azurerm_cosmosdb_mongo_collection.this
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-com-rg-01/providers/Microsoft.DocumentDB/databaseAccounts/io-p-messages-reminder-mongodb-account/mongodbDatabases/db/collections/reminder-sharded-new"
 }
 
 import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_namespace.common_partition_4
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-4"
+  to = module.mongo.azurerm_key_vault_secret.mongodb_reminder_connection_string
+  id = "https://io-p-itn-com-kv-01.vault.azure.net/secrets/reminder-mongo-connection-string/f54d9211e926470fa3a19e241d665634"
 }
 
 import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_namespace.common_partition_3
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-3"
+  to = module.mongo.azurerm_key_vault_secret.mongodb_payments_connection_string
+  id = "https://io-p-itn-com-kv-01.vault.azure.net/secrets/paymentup-mongo-connection-string/6ff42f4d5f0a4dc5a2f0684c178f3537"
 }
 
 import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_namespace.common_partition_2
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-2"
+  to = module.mongo.module.payments_cosmos_account.azurerm_cosmosdb_account.this
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-com-rg-01/providers/Microsoft.DocumentDB/databaseAccounts/io-p-payments-mongodb-account"
 }
 
 import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_namespace.common_partition_1
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-1"
+  to = module.mongo.azurerm_cosmosdb_mongo_database.db_payments
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-com-rg-01/providers/Microsoft.DocumentDB/databaseAccounts/io-p-payments-mongodb-account/mongodbDatabases/db"
 }
 
 import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_namespace.common
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common"
+  to = module.mongo.module.mongdb_collection_payment_sharded.azurerm_cosmosdb_mongo_collection.this
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-com-rg-01/providers/Microsoft.DocumentDB/databaseAccounts/io-p-payments-mongodb-account/mongodbDatabases/db/collections/payment-sharded"
 }
 
 import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.sandbox_partition_1_default_listen
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-notifications/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-sandbox-partition-1/notificationHubs/io-p-ntf-sandbox-partition-1/authorizationRules/DefaultListenSharedAccessSignature"
+  to = module.mongo.module.mongdb_collection_payment_retry.azurerm_cosmosdb_mongo_collection.this
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-com-rg-01/providers/Microsoft.DocumentDB/databaseAccounts/io-p-payments-mongodb-account/mongodbDatabases/db/collections/payment-retry"
 }
 
 import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.sandbox_partition_1_default_full
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-notifications/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-sandbox-partition-1/notificationHubs/io-p-ntf-sandbox-partition-1/authorizationRules/DefaultFullSharedAccessSignature"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.sandbox_default_listen
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-notifications/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-sandbox/notificationHubs/io-p-ntf-sandbox/authorizationRules/DefaultListenSharedAccessSignature"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.sandbox_default_full
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-notifications/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-sandbox/notificationHubs/io-p-ntf-sandbox/authorizationRules/DefaultFullSharedAccessSignature"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.common_partition_4_default_listen
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-4/notificationHubs/io-p-ntf-common-partition-4/authorizationRules/DefaultListenSharedAccessSignature"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.common_partition_4_default_full
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-4/notificationHubs/io-p-ntf-common-partition-4/authorizationRules/DefaultFullSharedAccessSignature"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.common_partition_3_default_listen
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-3/notificationHubs/io-p-ntf-common-partition-3/authorizationRules/DefaultListenSharedAccessSignature"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.common_partition_3_default_full
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-3/notificationHubs/io-p-ntf-common-partition-3/authorizationRules/DefaultFullSharedAccessSignature"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.common_partition_2_default_listen
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-2/notificationHubs/io-p-ntf-common-partition-2/authorizationRules/DefaultListenSharedAccessSignature"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.common_partition_2_default_full
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-2/notificationHubs/io-p-ntf-common-partition-2/authorizationRules/DefaultFullSharedAccessSignature"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.common_partition_1_default_listen
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-1/notificationHubs/io-p-ntf-common-partition-1/authorizationRules/DefaultListenSharedAccessSignature"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.common_partition_1_default_full
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-1/notificationHubs/io-p-ntf-common-partition-1/authorizationRules/DefaultFullSharedAccessSignature"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.common_default_listen
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common/notificationHubs/io-p-ntf-common/authorizationRules/DefaultListenSharedAccessSignature"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub_authorization_rule.common_default_full
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common/notificationHubs/io-p-ntf-common/authorizationRules/DefaultFullSharedAccessSignature"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub.sandbox_partition_1
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-notifications/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-sandbox-partition-1/notificationHubs/io-p-ntf-sandbox-partition-1"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub.sandbox
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-notifications/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-sandbox/notificationHubs/io-p-ntf-sandbox"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub.common_partition_4
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-4/notificationHubs/io-p-ntf-common-partition-4"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub.common_partition_3
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-3/notificationHubs/io-p-ntf-common-partition-3"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub.common_partition_2
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-2/notificationHubs/io-p-ntf-common-partition-2"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub.common_partition_1
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common-partition-1/notificationHubs/io-p-ntf-common-partition-1"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub.common01
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common/notificationHubs/io-p-ntf-common01"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_notification_hub.common
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.NotificationHubs/namespaces/io-p-ntfns-common/notificationHubs/io-p-ntf-common"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_pns_errors
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NHLegacy] Push Notification Service errors"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_partition_4_pns_errors
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NH4] Push Notification Service errors"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_partition_4_anomalous_pns_success_volume
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NH4] Push Notification Service anomalous success volume"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_partition_3_pns_errors
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NH3] Push Notification Service errors"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_partition_3_anomalous_pns_success_volume
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NH3] Push Notification Service anomalous success volume"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_partition_2_pns_errors
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NH2] Push Notification Service errors"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_partition_2_anomalous_pns_success_volume
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NH2] Push Notification Service anomalous success volume"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_anomalous_pns_success_volume
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NHLegacy] Push Notification Service anomalous success volume"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_partition_1_anomalous_pns_success_volume
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NH1] Push Notification Service anomalous success volume"
-}
-
-import {
-  to = module.notification_hubs_weu.azurerm_monitor_metric_alert.alert_nh_common_partition_1_pns_errors
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-rg-common/providers/Microsoft.Insights/metricAlerts/[IOCOM|NH1] Push Notification Service errors"
+  to = module.apim.azurerm_api_management_named_value.io_p_messages_sending_func_key_itn
+  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/namedValues/io-p-messages-sending-func-key"
 }

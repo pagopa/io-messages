@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: Microservice JAVA API
-  description: Microservice JAVA API
+  title: Payment Updater
+  description: Payment Updater API
   version: 2.6.13
 servers:
   - url: http://localhost:9090/api/v1/payment
@@ -28,16 +28,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiPaymentMessage'
-          description: 'check if the message has been paid'
-        '404':
-          $ref: '#/components/responses/404NotFound'
-        '400':
-          $ref: '#/components/responses/400BadRequest'
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '503':
-          $ref: '#/components/responses/503ServiceUnavailable'
+                $ref: "#/components/schemas/ApiPaymentMessage"
+          description: "check if the message has been paid"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "503":
+          $ref: "#/components/responses/503ServiceUnavailable"
 components:
   schemas:
     ApiPaymentMessage:
@@ -92,13 +92,13 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/Problem'
+            $ref: "#/components/schemas/Problem"
       description: Internal Server Error
     400BadRequest:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/Problem'
+            $ref: "#/components/schemas/Problem"
       description: Bad Request
     404NotFound:
       description: Not Found
@@ -106,17 +106,17 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/Problem'
+            $ref: "#/components/schemas/Problem"
       description: Too many requests
     503ServiceUnavailable:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/Problem'
+            $ref: "#/components/schemas/Problem"
       description: Service Unavailable
     401Unauthorized:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/Problem'
+            $ref: "#/components/schemas/Problem"
       description: Unauthorized

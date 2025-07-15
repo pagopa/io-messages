@@ -122,10 +122,10 @@ locals {
       QUARTZ_SCHEDULER_TIMER_DELETE         = "0 * * ? * *",
       SCHEDULER_REMINDER_NOTIFY_ACTIVE      = "true",
       SCHEDULER_REMINDER_DELETE_ACTIVE      = "false",
-      KAFKA_MESSAGE                         = "messages",
-      KAFKA_STATUS                          = "message-status",
-      KAFKA_PAYMENT                         = "payment-updates",
-      KAFKA_SEND                            = "message-reminder-send",
+      KAFKA_MESSAGE                         = "io-p-itn-com-etl-cqrs-message-evh-01",
+      KAFKA_STATUS                          = "io-p-itn-com-etl-cqrs-message-status-evh-01",
+      KAFKA_PAYMENT                         = "io-p-itn-com-etl-payment-updates-evh-01",
+      KAFKA_SEND                            = "io-p-itn-com-etl-reminder-message-send-evh-01",
       RESTCALL_INTERVAL_FUNCTION            = "10000",
       RESTCALL_MAX_ATTEMPTS                 = "3",
       ENABLE_REST_KEY                       = "true",
@@ -133,14 +133,13 @@ locals {
       IS_ACTIVE_MESSAGESTATUS_CONSUMER      = "true",
       IS_ACTIVE_PAYMENT_CONSUMER            = "true",
       IS_ACTIVE_MESSAGESEND_CONSUMER        = "true",
-      PROXY_ERROR_STATUSCODE                = "PAA_PAGAMENTO_DUPLICATO,PPT_RPT_DUPLICATA,PPT_PAGAMENTO_DUPLICATO",
-      PROXY_ENDPOINT                        = "https://api.platform.pagopa.it/checkout/auth/payments/v1",
+      PAGOPA_ECOMMERCE_ENDPOINT             = "https://api.platform.pagopa.it/ecommerce/payment-requests-service/v1",
       SECURITY_PROTOCOL_REMINDER            = "SASL_SSL",
       SASL_MECHANISM_REMINDER               = "PLAIN",
       SECURITY_PROTOCOL_SHARED              = "SASL_SSL",
       SASL_MECHANISM_SHARED                 = "PLAIN",
-      BOOTSTRAP_SERVER_REMINDER             = "io-p-messages-weu-prod01-evh-ns.servicebus.windows.net:9093", # internal queue for send message to notify
-      BOOTSTRAP_SERVER_SHARED               = "io-p-payments-weu-prod01-evh-ns.servicebus.windows.net:9093", # queue messageUpdates from payment updater
+      BOOTSTRAP_SERVER_REMINDER             = "io-p-itn-com-etl-evhns-01.servicebus.windows.net:9093", # internal queue for send message to notify
+      BOOTSTRAP_SERVER_SHARED               = "io-p-itn-com-etl-evhns-01.servicebus.windows.net:9093", # queue messageUpdates from payment updater
       MONGO_DATABASE                        = "db",
       IO_NOTIFY_ENDPOINT                    = "https://api-internal.io.italia.it/api/v1/messages-sending/internal", #endpoint notify service
       PAYMENTUPDATER_ENDPOINT               = "https://api-app.internal.io.pagopa.it",                              #endpoint payment updater - implemented for call proxy by the payment updater, now not used. do not fill
@@ -175,8 +174,8 @@ locals {
         key_vault_secret_id = data.azurerm_key_vault_secret.reminder_payment_updates_jaas_connection_string.versionless_id
       },
       {
-        name                = "PROXY_ENDPOINT_SUBSCRIPTION_KEY"
-        key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_proxy_subscription_key.versionless_id
+        name                = "PAGOPA_ECOMMERCE_KEY"
+        key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_ecommerce_key.versionless_id
       },
       {
         name                = "PAYMENTUPDATER_ENDPOINT_SUBSCRIPTION_KEY"

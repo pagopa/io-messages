@@ -13862,6 +13862,43 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rc-func@workspace:apps/rc-func":
+  version: 0.0.0-use.local
+  resolution: "rc-func@workspace:apps/rc-func"
+  dependencies:
+    "@azure/cosmos": "npm:^4.0.0"
+    "@azure/functions": "npm:^3.2.0"
+    "@azure/identity": "npm:^4.5.0"
+    "@azure/storage-queue": "npm:^12.4.0"
+    "@pagopa/eslint-config": "npm:^4.0.3"
+    "@pagopa/express-azure-functions": "npm:^2.1.1"
+    "@pagopa/io-functions-commons": "npm:^29.3.0"
+    "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
+    "@pagopa/ts-commons": "npm:^12.5.0"
+    "@types/express": "npm:^4.17.11"
+    "@types/node": "npm:^20.17.30"
+    "@types/node-fetch": "npm:^2.5.7"
+    "@vitest/coverage-v8": "npm:^3.1.2"
+    abort-controller: "npm:^3.0.0"
+    applicationinsights: "npm:^1.8.10"
+    azure-storage: "npm:^2.10.3"
+    eslint: "npm:8.57.1"
+    express: "npm:^4.15.3"
+    fp-ts: "npm:^2.10.5"
+    io-ts: "npm:^2.2.16"
+    node-fetch: "npm:^2.6.7"
+    prettier: "npm:3.2.5"
+    redis: "npm:^4.6.13"
+    rimraf: "npm:^6.0.1"
+    shx: "npm:^0.3.4"
+    ts-pattern: "npm:^4.0.5"
+    typescript: "npm:^5.8.3"
+    vite: "npm:^6.3.2"
+    vitest: "npm:^3.1.2"
+    winston: "npm:^3.2.1"
+  languageName: unknown
+  linkType: soft
+
 "rc@npm:^1.2.8":
   version: 1.2.8
   resolution: "rc@npm:1.2.8"

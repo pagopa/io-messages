@@ -13,8 +13,9 @@ module "web_apps" {
 
   tags = local.tags
 
-  # networking
+  key_vault = module.key_vaults.com
 
+  # networking
   virtual_network = {
     resource_group_name = data.azurerm_virtual_network.vnet_common_itn.resource_group_name
     name                = data.azurerm_virtual_network.vnet_common_itn.name
@@ -23,12 +24,13 @@ module "web_apps" {
   subnet_pep_id = data.azurerm_subnet.pep.id
 
   subnet_cidrs = {
-    etl_func        = "10.20.8.0/26"
-    citizen_func    = "10.20.8.64/26"
-    ops_func        = "10.20.10.0/26"
-    push_notif_func = "10.20.10.64/26"
-    cqrs_func       = "10.20.10.128/26"
-    services_func   = "10.20.12.0/26"
+    etl_func            = "10.20.8.0/26"
+    citizen_func        = "10.20.8.64/26"
+    ops_func            = "10.20.10.0/26"
+    push_notif_func     = "10.20.10.64/26"
+    cqrs_func           = "10.20.10.128/26"
+    services_func       = "10.20.12.0/26"
+    remote_content_func = "10.20.4.128/26"
   }
 
   nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
@@ -58,7 +60,8 @@ module "web_apps" {
 
   common_key_vault = data.azurerm_key_vault.weu_common
 
-  eventhub_namespace         = module.eventhubs.namespace
+  eventhub_namespace = module.eventhubs.namespace
+
   messages_content_container = data.azurerm_storage_container.messages_content_container
   messages_storage_account   = data.azurerm_storage_account.storage_api
   cosmosdb_account_api       = data.azurerm_cosmosdb_account.cosmos_api
@@ -73,4 +76,6 @@ module "web_apps" {
   com_st_connectiostring = module.storage_api_weu.com_st_connectiostring
 
   cqrs_func_ehns_enabled = true
+
+  session_manager_base_url = "https://${data.azurerm_linux_function_app.session_manager_internal.default_hostname}"
 }

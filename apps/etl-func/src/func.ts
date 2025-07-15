@@ -11,17 +11,19 @@ import {
   TelemetryEventService,
   initNoSamplingClient,
 } from "./adapters/appinsights/appinsights.js";
-import { messageSchema } from "./adapters/avro.js";
+import { messageSchema, messageStatusAvroSchema } from "./adapters/avro.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
 import { EventHubEventProducer } from "./adapters/eventhub/event.js";
 import { makeEventHubProducerClient } from "./adapters/eventhub/index.js";
+import messageStatusIngestionHandler from "./adapters/functions/message-status-ingestion.js";
 import messagesIngestionHandler from "./adapters/functions/messages-ingestion.js";
 import { MessageAdapter } from "./adapters/message.js";
 import RedisRecipientRepository from "./adapters/redis/recipient.js";
 import { EventErrorTableStorage } from "./adapters/table-storage/event-error-table-storage.js";
 import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
 import { IngestMessageUseCase } from "./domain/use-cases/ingest-message.js";
+import { IngestMessageStatusUseCase } from "./domain/use-cases/ingest-message-status.js";
 
 const main = async (config: Config) => {
   const logger = pino({
@@ -96,30 +98,29 @@ const main = async (config: Config) => {
     messageEventProducer,
   );
 
-  // const messageStatusProducerClient = new EventHubProducerClient(
-  //   config.messageStatusEventHub.connectionUri,
-  //   config.messageStatusEventHub.eventHubName,
-  //   azureCredentials,
-  // );
+  const messageStatusProducerClient = makeEventHubProducerClient(
+    config.messageStatusEventHub,
+    azureCredentials,
+  );
 
-  // const messageStatusEventProducer = new EventHubEventProducer(
-  //   messageStatusProducerClient,
-  //   messageStatusAvroSchema,
-  // );
+  const messageStatusEventProducer = new EventHubEventProducer(
+    messageStatusProducerClient,
+    messageStatusAvroSchema,
+  );
 
-  // const messageStatusErrorTableClient = new TableClient(
-  //   `${config.messageStatusErrorTable.connectionUri}${config.messageStatusErrorTable.tableName}`,
-  //   config.messageStatusErrorTable.tableName,
-  //   azureCredentials,
-  // );
+  const messageStatusErrorTableClient = new TableClient(
+    `${config.messageStatusErrorTable.connectionUri}${config.messageStatusErrorTable.tableName}`,
+    config.messageStatusErrorTable.tableName,
+    azureCredentials,
+  );
 
-  // const messageStatusErrorRepository = new EventErrorTableStorage(
-  //   messageStatusErrorTableClient,
-  // );
+  const messageStatusErrorRepository = new EventErrorTableStorage(
+    messageStatusErrorTableClient,
+  );
 
-  // const ingestMessageStatusUseCase = new IngestMessageStatusUseCase(
-  //   messageStatusEventProducer,
-  // );
+  const ingestMessageStatusUseCase = new IngestMessageStatusUseCase(
+    messageStatusEventProducer,
+  );
 
   app.http("Health", {
     authLevel: "anonymous",
@@ -171,33 +172,31 @@ const main = async (config: Config) => {
     startFromTime: "2023/01/01T00:00:00Z",
   });
 
-  // NOTE: we don't want to start the ingestion yet
-  //
-  // app.cosmosDB("IngestMessageStatus", {
-  //   connection: "COSMOS",
-  //   containerName: config.cosmos.messageStatusContainerName,
-  //   createLeaseContainerIfNotExists: false,
-  //   databaseName: config.cosmos.databaseName,
-  //   handler: messageStatusIngestionHandler(
-  //     ingestMessageStatusUseCase,
-  //     messageStatusErrorRepository,
-  //     telemetryService
-  //   ),
-  //   leaseContainerName: `message-status-ingestion-lease`,
-  //   maxItemsPerInvocation: 50,
-  //   retry: {
-  //     maxRetryCount: 5,
-  //     maximumInterval: {
-  //       minutes: 1,
-  //     },
-  //     minimumInterval: {
-  //       seconds: 5,
-  //     },
-  //     strategy: "exponentialBackoff",
-  //   },
-  //   //TODO: insert the correct date
-  //   // startFromTime: "2023/01/01T00:00:00Z",
-  // });
+  app.cosmosDB("IngestMessageStatus", {
+    connection: "COMMON_COSMOS",
+    containerName: config.common_cosmos.messageStatusContainerName,
+    createLeaseContainerIfNotExists: false,
+    databaseName: config.common_cosmos.databaseName,
+    handler: messageStatusIngestionHandler(
+      ingestMessageStatusUseCase,
+      messageStatusErrorRepository,
+      telemetryService,
+    ),
+    leaseContainerName: "dataplan-ingestion-lease",
+    leaseContainerPrefix: "message-status",
+    maxItemsPerInvocation: 50,
+    retry: {
+      maxRetryCount: 5,
+      maximumInterval: {
+        minutes: 30,
+      },
+      minimumInterval: {
+        minutes: 1,
+      },
+      strategy: "exponentialBackoff",
+    },
+    startFromTime: "2025/07/07T00:00:00Z",
+  });
 };
 
 await loadConfigFromEnvironment(main, configFromEnvironment);

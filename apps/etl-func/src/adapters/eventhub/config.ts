@@ -11,6 +11,7 @@ export const eventhubConfigSchema = z.discriminatedUnion("authStrategy", [
   z.object({
     authStrategy: z.literal("ConnectionString"),
     connectionString: z.string().min(1),
+    eventHubName: z.string().min(1),
   }),
 ]);
 

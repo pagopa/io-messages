@@ -15,23 +15,17 @@ import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
 
 import { AzureEventhubSasFromString } from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import { withDefault } from "@pagopa/ts-commons/lib/types";
-import {
-  NonNegativeInteger,
-  NonNegativeIntegerFromString,
-  NumberFromString
-} from "@pagopa/ts-commons/lib/numbers";
+import { NumberFromString } from "@pagopa/ts-commons/lib/numbers";
 
 export const MessageChangeFeedConfig = t.type({
   MESSAGE_CHANGE_FEED_LEASE_PREFIX: NonEmptyString,
-  MESSAGE_CHANGE_FEED_START_TIME: withDefault(NumberFromString, 0)
+  MESSAGE_CHANGE_FEED_START_TIME: withDefault(NumberFromString, 0),
 });
 export type MessageChangeFeedConfig = t.TypeOf<typeof MessageChangeFeedConfig>;
 // global app configuration
 export type IConfig = t.TypeOf<typeof IConfig>;
 export const IConfig = t.intersection([
   t.type({
-    APIM_BASE_URL: NonEmptyString,
-    APIM_SUBSCRIPTION_KEY: NonEmptyString,
     APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
     COSMOSDB_NAME: NonEmptyString,
@@ -40,40 +34,23 @@ export const IConfig = t.intersection([
     COM_STORAGE_CONNECTION_STRING: NonEmptyString,
 
     MESSAGES_TOPIC_CONNECTION_STRING: AzureEventhubSasFromString,
-    MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: NonNegativeInteger,
+    MESSAGE_STATUS_FOR_REMINDER_TOPIC_PRODUCER_CONNECTION_STRING:
+      AzureEventhubSasFromString,
+
     MESSAGE_CONTENT_STORAGE_CONNECTION: NonEmptyString,
     MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME: NonEmptyString,
-
-    MESSAGE_STATUS_FOR_REMINDER_TOPIC_PRODUCER_CONNECTION_STRING: AzureEventhubSasFromString,
 
     KAFKA_SSL_ACTIVE: BooleanFromString,
 
     PN_SERVICE_ID: NonEmptyString,
 
     QueueStorageConnection: NonEmptyString,
-
-    REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
-    REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
-
-    isProduction: t.boolean
   }),
-  MessageChangeFeedConfig
+  MessageChangeFeedConfig,
 ]);
 
-export const envConfig = {
-  ...process.env,
-
-  MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME: pipe(
-    process.env.MESSAGE_CONFIGURATION_CHANGE_FEED_START_TIME,
-    NonNegativeIntegerFromString.decode,
-    E.getOrElse(() => 0 as NonNegativeInteger)
-  ),
-
-  isProduction: process.env.NODE_ENV === "production"
-};
-
 // No need to re-evaluate this object for each call
-const errorOrConfig: t.Validation<IConfig> = IConfig.decode(envConfig);
+const errorOrConfig: t.Validation<IConfig> = IConfig.decode(process.env);
 
 /**
  * Read the application configuration and check for invalid values.
@@ -95,5 +72,5 @@ export const getConfigOrThrow = (): IConfig =>
     errorOrConfig,
     E.getOrElseW((errors: ReadonlyArray<t.ValidationError>) => {
       throw new Error(`Invalid configuration: ${readableReport(errors)}`);
-    })
+    }),
   );
