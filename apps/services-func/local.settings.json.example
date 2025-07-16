@@ -3,7 +3,7 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=myaccount;AccountKey=mykey;EndpointSuffix=core.windows.net",
-    "APPINSIGHTS_INSTRUMENTATIONKEY": "aKey",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "aKey",
     "MESSAGE_CONTAINER_NAME": "messages",
     "COSMOSDB_NAME": "io-messages",
     "COSMOSDB_KEY": "cosmosDBKey",

@@ -50,7 +50,7 @@ export const IConfig = t.intersection([
     APIM_BASE_URL: NonEmptyString,
     APIM_SUBSCRIPTION_KEY: NonEmptyString,
 
-    APPINSIGHTS_INSTRUMENTATIONKEY: NonEmptyString,
+    APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
     COSMOSDB_KEY: NonEmptyString,
     COSMOSDB_NAME: NonEmptyString,
