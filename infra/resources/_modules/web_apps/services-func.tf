@@ -76,7 +76,7 @@ module "services_func" {
   })
 
   resource_group_name = var.resource_group_name
-  health_check_path   = "/api/v1/info"
+  health_check_path   = "/api/info"
   node_version        = 20
 
   tier = "xl"
