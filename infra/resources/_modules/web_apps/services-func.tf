@@ -17,7 +17,7 @@ locals {
       FETCH_KEEPALIVE_FREE_SOCKET_TIMEOUT = "30000"
       FETCH_KEEPALIVE_TIMEOUT             = "60000"
 
-      PROCESSING_MESSAGE_CONTAINER_NAME       = "processing-messages"
+      PROCESSING_MESSAGE_CONTAINER_NAME       = "processing-message"
       MESSAGE_CREATED_QUEUE_NAME              = "message-created"
       MESSAGE_PROCESSED_QUEUE_NAME            = "message-processed"
       NOTIFICATION_CREATED_EMAIL_QUEUE_NAME   = "notification-created-email"
