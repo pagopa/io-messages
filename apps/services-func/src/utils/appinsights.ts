@@ -8,6 +8,6 @@ import { IConfig } from "./config";
 export const initTelemetryClient = (config: IConfig): ai.TelemetryClient =>
   ai.defaultClient
     ? ai.defaultClient
-    : initAppInsights(config.APPINSIGHTS_INSTRUMENTATIONKEY, {
+    : initAppInsights(config.APPLICATIONINSIGHTS_CONNECTION_STRING, {
         samplingPercentage: 5,
       });

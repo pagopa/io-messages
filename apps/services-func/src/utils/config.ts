@@ -37,18 +37,6 @@ export type BetaUsers = t.TypeOf<typeof BetaUsers>;
 
 export const BetaUsersFromString = withDefault(BetaUsers, []).pipe(BetaUsers);
 
-// used for internal job dispatch, temporary files, etc...
-const InternalStorageAccount = t.type({
-  INTERNAL_STORAGE_CONNECTION_STRING: NonEmptyString,
-  // queues for handling message processing jobs
-  MESSAGE_CREATED_QUEUE_NAME: NonEmptyString,
-  MESSAGE_PROCESSED_QUEUE_NAME: NonEmptyString,
-  NOTIFICATION_CREATED_EMAIL_QUEUE_NAME: NonEmptyString,
-  NOTIFICATION_CREATED_WEBHOOK_QUEUE_NAME: NonEmptyString,
-  // a blob container to keep temporary message processing data
-  PROCESSING_MESSAGE_CONTAINER_NAME: NonEmptyString,
-});
-
 // used to read and write message content on blob storage
 const MessageContentStorageAccount = t.type({
   MESSAGE_CONTAINER_NAME: NonEmptyString,
@@ -62,7 +50,7 @@ export const IConfig = t.intersection([
     APIM_BASE_URL: NonEmptyString,
     APIM_SUBSCRIPTION_KEY: NonEmptyString,
 
-    APPINSIGHTS_INSTRUMENTATIONKEY: NonEmptyString,
+    APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
     COSMOSDB_KEY: NonEmptyString,
     COSMOSDB_NAME: NonEmptyString,
@@ -78,27 +66,35 @@ export const IConfig = t.intersection([
 
     FF_PAYMENT_STATUS_ENABLED: withDefault(BooleanFromString, false),
 
+    IO_COM_STORAGE_CONNECTION_STRING: NonEmptyString,
+
+    // queues for handling message processing jobs
+    MESSAGE_CREATED_QUEUE_NAME: NonEmptyString,
+
+    MESSAGE_PROCESSED_QUEUE_NAME: NonEmptyString,
     // eslint-disable-next-line sort-keys
     MIN_APP_VERSION_WITH_READ_AUTH: Semver,
-
+    NOTIFICATION_CREATED_EMAIL_QUEUE_NAME: NonEmptyString,
+    NOTIFICATION_CREATED_WEBHOOK_QUEUE_NAME: NonEmptyString,
     OPT_OUT_EMAIL_SWITCH_DATE: DateFromTimestamp,
 
     PAGOPA_ECOMMERCE_API_KEY: NonEmptyString,
+
     PAGOPA_ECOMMERCE_BASE_URL: NonEmptyString,
+
     PENDING_ACTIVATION_GRACE_PERIOD_SECONDS: t.number,
+
+    // a blob container to keep temporary message processing data
+    PROCESSING_MESSAGE_CONTAINER_NAME: NonEmptyString,
+
     SANDBOX_FISCAL_CODE: NonEmptyString,
     SENDING_FUNC_API_KEY: NonEmptyString,
-
     SENDING_FUNC_API_URL: t.union([HttpsUrl, HttpUrl]),
-
     TTL_FOR_USER_NOT_FOUND: NonNegativeIntegerFromString,
-
     WEBHOOK_CHANNEL_URL: NonEmptyString,
-
     isProduction: t.boolean,
   }),
   MessageContentStorageAccount,
-  InternalStorageAccount,
   MailerConfig,
 ]);
 

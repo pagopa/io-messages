@@ -2,7 +2,7 @@
   "bindings": [
     {
       "queueName": "%NOTIFICATION_CREATED_EMAIL_QUEUE_NAME%",
-      "connection": "INTERNAL_STORAGE_CONNECTION_STRING",
+      "connection": "IO_COM_STORAGE_CONNECTION_STRING",
       "name": "norificationCreatedEmail",
       "type": "queueTrigger",
       "direction": "in"

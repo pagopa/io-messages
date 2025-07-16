@@ -42,9 +42,7 @@ const defaultWebhookUrl = pipe(
   }),
 );
 
-const blobService = createBlobService(
-  config.INTERNAL_STORAGE_CONNECTION_STRING,
-);
+const blobService = createBlobService(config.IO_COM_STORAGE_CONNECTION_STRING);
 
 const retrieveProcessingMessageData = makeRetrieveExpandedDataFromBlob(
   CommonMessageData,

@@ -16,16 +16,6 @@
       }
     }
   },
-  "extensions": {
-    "storageProvider": {
-      "connectionStringName": "INTERNAL_STORAGE_CONNECTION_STRING",
-      "partitionCount": 4
-    },
-    "tracing": {
-      "traceInputsAndOutputs": false,
-      "traceReplayEvents": false
-    }
-  },
   "extensionBundle": {
     "id": "Microsoft.Azure.Functions.ExtensionBundle",
     "version": "[3.3.0, 4.0.0)"
