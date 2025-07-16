@@ -41,7 +41,7 @@ import {
   getUserProfileReader,
   getUserSessionStatusReader,
 } from "./readers";
-import { cosmosdbInstance } from "@/utils/cosmosdb";
+import { cosmosdbInstance } from "../../utils/cosmosdb";
 
 const DEFAULT_REQUEST_TIMEOUT_MS = 10000 as Millisecond;
 
