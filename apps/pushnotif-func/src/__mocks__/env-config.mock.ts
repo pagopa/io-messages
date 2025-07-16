@@ -6,6 +6,17 @@ import { IConfig } from "../utils/config";
 const aBlacklistedFiscalCode = "AAAAAA00A00H501I" as FiscalCode;
 
 export const envConfig: IConfig = {
+  MESSAGE_CONTAINER_NAME: "MessageContainerNane" as NonEmptyString,
+  MESSAGE_CONTENT_STORAGE_CONNECTION_STRING:
+    "MessageContentStorageConnectionString" as NonEmptyString,
+
+  SESSION_MANAGER_API_KEY: "SessionManagerAPIKey" as NonEmptyString,
+  SESSION_MANAGER_BASE_URL: "SessionManageBaseUrl" as NonEmptyString,
+
+  COSMOSDB_NAME: "CosmosDBName" as NonEmptyString,
+  COSMOSDB_URI: "CosmosDBUri" as NonEmptyString,
+  REMOTE_CONTENT_COSMOSDB_URI: "RemoteContentCosmosDBUri" as NonEmptyString,
+  REMOTE_CONTENT_COSMOSDB_NAME: "RemoteContentCosmosDBName" as NonEmptyString,
   APPINSIGHTS_INSTRUMENTATIONKEY: "Idontknow" as NonEmptyString,
   APPINSIGHTS_SAMPLING_PERCENTAGE: "20" as unknown as IntegerFromString,
   AZURE_NH_ENDPOINT:
