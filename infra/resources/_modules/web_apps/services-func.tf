@@ -7,6 +7,9 @@ locals {
       FUNCTIONS_WORKER_PROCESS_COUNT = 4
       NODE_ENV                       = "production"
 
+      MAILUP_USERNAME = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=mailup-username)",
+      MAILUP_SECRET   = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=mailup-secret)",
+
       FETCH_KEEPALIVE_ENABLED             = "true"
       FETCH_KEEPALIVE_SOCKET_ACTIVE_TTL   = "110000"
       FETCH_KEEPALIVE_MAX_SOCKETS         = "40"
