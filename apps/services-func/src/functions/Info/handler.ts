@@ -92,7 +92,7 @@ export function Info(): express.RequestHandler {
         healthcheck.checkAzureCosmosDbHealth(c.COSMOSDB_URI, c.COSMOSDB_KEY),
       (c) =>
         checkAzureStorageHealth(c.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING),
-      (c) => checkAzureStorageHealth(c.INTERNAL_STORAGE_CONNECTION_STRING),
+      (c) => checkAzureStorageHealth(c.IO_COM_STORAGE_CONNECTION_STRING),
       (c) =>
         pipe(
           TE.tryCatch(

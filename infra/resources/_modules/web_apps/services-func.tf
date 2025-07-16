@@ -26,6 +26,7 @@ locals {
       COSMOSDB_KEY  = var.cosmosdb_account_api.primary_key
 
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
+      IO_COM_STORAGE_CONNECTION_STRING          = var.com_st_connectiostring
 
       MAIL_FROM = "IO - l'app dei servizi pubblici <no-reply@io.italia.it>"
       // we keep this while we wait for new app version to be deployed

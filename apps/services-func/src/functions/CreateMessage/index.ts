@@ -36,9 +36,7 @@ const serviceModel = new ServiceModel(
   cosmosdbInstance.container(SERVICE_COLLECTION_NAME),
 );
 
-const blobService = createBlobService(
-  config.INTERNAL_STORAGE_CONNECTION_STRING,
-);
+const blobService = createBlobService(config.IO_COM_STORAGE_CONNECTION_STRING);
 
 const telemetryClient = initTelemetryClient(config);
 

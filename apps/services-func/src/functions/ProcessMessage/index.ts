@@ -45,7 +45,7 @@ const blobServiceForMessageContent = createBlobService(
 );
 
 const blobServiceForTemporaryProcessingMessage = createBlobService(
-  config.INTERNAL_STORAGE_CONNECTION_STRING,
+  config.IO_COM_STORAGE_CONNECTION_STRING,
 );
 
 const servicePreferencesModel = new ServicesPreferencesModel(
