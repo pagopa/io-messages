@@ -255,8 +255,8 @@ module "push_notif_autoscaler" {
 
 resource "azurerm_role_assignment" "pushnotif_rc_cosmosdb_account_api_contributor" {
   for_each = toset([
-    module.push_notif_function[0].function_app.principal_id,
-    module.push_notif_function[0].function_app.slot.principal_id
+    module.push_notif_function[0].function_app.function_app.principal_id,
+    module.push_notif_function[0].function_app.function_app.slot.principal_id
   ])
   scope                = var.cosmosdb_account_api.id
   role_definition_name = "SQL DB Contributor"
@@ -265,8 +265,8 @@ resource "azurerm_role_assignment" "pushnotif_rc_cosmosdb_account_api_contributo
 
 resource "azurerm_cosmosdb_sql_role_assignment" "pushnotif_rc_cosmosdb_account_api" {
   for_each = toset([
-    module.push_notif_function[0].function_app.principal_id,
-    module.push_notif_function[0].function_app.slot.principal_id
+    module.push_notif_function[0].function_app.function_app.principal_id,
+    module.push_notif_function[0].function_app.function_app.slot.principal_id
   ])
   resource_group_name = var.cosmosdb_account_api.resource_group_name
   account_name        = var.cosmosdb_account_api.name
@@ -277,8 +277,8 @@ resource "azurerm_cosmosdb_sql_role_assignment" "pushnotif_rc_cosmosdb_account_a
 
 resource "azurerm_role_assignment" "pushnotif_rc_io_com_cosmos_contributor" {
   for_each = toset([
-    module.push_notif_function[0].function_app.principal_id,
-    module.push_notif_function[0].function_app.slot.principal_id
+    module.push_notif_function[0].function_app.function_app.principal_id,
+    module.push_notif_function[0].function_app.function_app.slot.principal_id
   ])
   scope                = var.io_com_cosmos.id
   role_definition_name = "SQL DB Contributor"
@@ -287,8 +287,8 @@ resource "azurerm_role_assignment" "pushnotif_rc_io_com_cosmos_contributor" {
 
 resource "azurerm_cosmosdb_sql_role_assignment" "pushnotif_rc_io_com_cosmos" {
   for_each = toset([
-    module.push_notif_function[0].function_app.principal_id,
-    module.push_notif_function[0].function_app.slot.principal_id
+    module.push_notif_function[0].function_app.function_app.principal_id,
+    module.push_notif_function[0].function_app.function_app.slot.principal_id
   ])
   resource_group_name = var.io_com_cosmos.resource_group_name
   account_name        = var.io_com_cosmos.name
