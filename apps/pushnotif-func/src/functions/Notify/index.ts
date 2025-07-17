@@ -32,7 +32,7 @@ import * as winston from "winston";
 import { createClient } from "../../generated/session-manager/client";
 import { initTelemetryClient } from "../../utils/appinsights";
 import { getConfigOrThrow } from "../../utils/config";
-
+import { cosmosdbInstance } from "../../utils/cosmosdb";
 import { Notify } from "./handler";
 import { sendNotification } from "./notification";
 import {
@@ -41,7 +41,6 @@ import {
   getUserProfileReader,
   getUserSessionStatusReader,
 } from "./readers";
-import { cosmosdbInstance } from "../../utils/cosmosdb";
 
 const DEFAULT_REQUEST_TIMEOUT_MS = 10000 as Millisecond;
 
