@@ -34,6 +34,11 @@ resource "azurerm_storage_container_immutability_policy" "deleted_messages_logs"
   protected_append_writes_enabled       = true
 }
 
+resource "azurerm_storage_container" "processing_message" {
+  name               = "processing-message"
+  storage_account_id = module.com_st.id
+}
+
 resource "azurerm_storage_table" "messages_ingestion_error" {
   name                 = "MessagesDataplanIngestionErrors"
   storage_account_name = module.com_st.name
@@ -66,5 +71,45 @@ resource "azurerm_storage_queue" "push_notif_notifymessage_poison" {
 
 resource "azurerm_storage_queue" "push_notifications_poison" {
   name                 = "push-notifications-poison"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "message_created" {
+  name                 = "message-created"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "message_created_poison" {
+  name                 = "message-created-poison"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "message_processed" {
+  name                 = "message-processed"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "message_processed_poison" {
+  name                 = "message-processed-poison"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "notification_created" {
+  name                 = "notification-created"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "notification_created_poison" {
+  name                 = "notification-created-poison"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "webhook_notification" {
+  name                 = "webhook-notification"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "webhook_notification_poison" {
+  name                 = "webhook-notification-poison"
   storage_account_name = module.com_st.name
 }

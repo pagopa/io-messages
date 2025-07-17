@@ -1,0 +1,25 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "name": "req",
+      "type": "httpTrigger",
+      "direction": "in",
+      "route": "v1/messages/{fiscalcode?}",
+      "methods": ["post"]
+    },
+    {
+      "name": "res",
+      "type": "http",
+      "direction": "out"
+    },
+    {
+      "queueName": "%MESSAGE_CREATED_QUEUE_NAME%",
+      "connection": "IO_COM_STORAGE_CONNECTION_STRING",
+      "name": "createdMessage",
+      "type": "queue",
+      "direction": "out"
+    }
+  ],
+  "scriptFile": "../dist/functions/CreateMessage/index.js"
+}

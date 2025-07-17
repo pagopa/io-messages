@@ -1,0 +1,12 @@
+{
+  "bindings": [
+    {
+      "queueName": "%MESSAGE_CREATED_QUEUE_NAME%-poison",
+      "connection": "IO_COM_STORAGE_CONNECTION_STRING",
+      "name": "failedMessage",
+      "type": "queueTrigger",
+      "direction": "in"
+    }
+  ],
+  "scriptFile": "../dist/functions/OnFailedProcessMessage/index.js"
+}

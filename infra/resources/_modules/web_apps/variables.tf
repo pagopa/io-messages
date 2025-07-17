@@ -42,6 +42,7 @@ variable "subnet_cidrs" {
     ops_func            = string
     push_notif_func     = string
     cqrs_func           = string
+    services_func       = string
     remote_content_func = string
   })
 }
