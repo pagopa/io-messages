@@ -125,6 +125,20 @@ locals {
       # Possible values : "none" | "all" | "beta" | "canary"
       NH_PARTITION_FEATURE_FLAG = "all"
 
+
+      MESSAGE_CONTAINER_NAME                    = "message-content"
+      MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
+
+      SESSION_MANAGER_API_KEY  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=session-manager-api-key)",
+      SESSION_MANAGER_BASE_URL = var.session_manager_base_url,
+
+      COSMOSDB_NAME = "db"
+      COSMOSDB_URI  = var.cosmosdb_account_api.endpoint
+
+      REMOTE_CONTENT_COSMOSDB_NAME             = "remote-content-cosmos-01"
+      REMOTE_CONTENT_COSMOSDB_URI              = var.io_com_cosmos.endpoint
+      REMOTE_CONTENT_COSMOSDB__accountEndpoint = var.io_com_cosmos.endpoint
+
       AzureFunctionsJobHost__extensions__durableTask__storageProvider__partitionCount = "8"
     }
     app_settings_1 = {
@@ -237,3 +251,49 @@ module "push_notif_autoscaler" {
 
   tags = var.tags
 }
+
+
+resource "azurerm_role_assignment" "pushnotif_rc_cosmosdb_account_api_contributor" {
+  for_each = toset([
+    module.push_notif_function[0].function_app.principal_id,
+    module.push_notif_function[0].function_app.slot.principal_id
+  ])
+  scope                = var.cosmosdb_account_api.id
+  role_definition_name = "SQL DB Contributor"
+  principal_id         = each.value
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "pushnotif_rc_cosmosdb_account_api" {
+  for_each = toset([
+    module.push_notif_function[0].function_app.principal_id,
+    module.push_notif_function[0].function_app.slot.principal_id
+  ])
+  resource_group_name = var.cosmosdb_account_api.resource_group_name
+  account_name        = var.cosmosdb_account_api.name
+  scope               = var.cosmosdb_account_api.id
+  role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = each.value
+}
+
+resource "azurerm_role_assignment" "pushnotif_rc_io_com_cosmos_contributor" {
+  for_each = toset([
+    module.push_notif_function[0].function_app.principal_id,
+    module.push_notif_function[0].function_app.slot.principal_id
+  ])
+  scope                = var.io_com_cosmos.id
+  role_definition_name = "SQL DB Contributor"
+  principal_id         = each.value
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "pushnotif_rc_io_com_cosmos" {
+  for_each = toset([
+    module.push_notif_function[0].function_app.principal_id,
+    module.push_notif_function[0].function_app.slot.principal_id
+  ])
+  resource_group_name = var.io_com_cosmos.resource_group_name
+  account_name        = var.io_com_cosmos.name
+  scope               = var.io_com_cosmos.id
+  role_definition_id  = "${var.io_com_cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = each.value
+}
+
