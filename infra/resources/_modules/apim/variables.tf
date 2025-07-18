@@ -49,3 +49,8 @@ variable "key_vault" {
     id   = string
   })
 }
+
+variable "resource_group_name" {
+  type        = string
+  description = "Resource group to deploy resources to"
+}

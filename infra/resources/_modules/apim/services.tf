@@ -41,3 +41,40 @@ resource "azurerm_api_management_product_api" "messages_sending_external_api_v1_
   api_management_name = data.azurerm_api_management.apim_itn_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
 }
+
+resource "azurerm_api_management_api" "messages_api_v1" {
+  name                = format("%s-%s-messages-api-01", local.product, var.location_short)
+  api_management_name = data.azurerm_api_management.apim_itn_api.name
+  resource_group_name = var.resource_group_name
+  revision            = "1"
+
+  description  = "IO Messages - API"
+  display_name = "IO Messages - API"
+
+  path      = "api/v1/messages"
+  protocols = ["https"]
+
+  subscription_required = true
+  service_url           = null
+
+  import {
+    content_format = "openapi-link"
+    //TODO: update the commit id once the PR is merged
+    content_value = "https://raw.githubusercontent.com/pagopa/io-messages/68a8b247b06206c14c11383089cce4e87d202c15/apps/services-func/openapi/index.yaml"
+  }
+}
+
+resource "azurerm_api_management_api_policy" "messages_api_v1" {
+  api_name            = azurerm_api_management_api.messages_api_v1.name
+  api_management_name = data.azurerm_api_management.apim_itn_api.name
+  resource_group_name = var.resource_group_name
+
+  xml_content = file("../_modules/apim/api/messages/policy.xml")
+}
+
+resource "azurerm_api_management_product_api" "messages_api_v1" {
+  product_id          = data.azurerm_api_management_product.apim_itn_product_services.product_id
+  api_name            = azurerm_api_management_api.messages_api_v1.name
+  api_management_name = data.azurerm_api_management.apim_itn_api.name
+  resource_group_name = var.resource_group_name
+}
