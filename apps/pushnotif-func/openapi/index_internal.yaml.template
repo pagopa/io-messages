@@ -1,0 +1,263 @@
+swagger: '2.0'
+info:
+  version: 1.4.0
+  title: IO Messages Sending - Internal - API
+  x-logo:
+    url: https://io.italia.it/assets/img/io-logo-blue.svg
+  description: IO Messages Sending - Internal - API
+host: api-app.internal.io.pagopa.it
+basePath: /api/v1/messages-sending/internal
+schemes:
+  - https
+security:
+  - SubscriptionKey: []
+paths:
+  /notify:
+    post:
+      operationId: notify
+      summary: Notify a user
+      description: Post the notification to the user using a push notification.
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/NotificationInfo'
+      responses:
+        '204':
+          description: Success.
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ProblemJson'
+        '401':
+          description: Token null or invalid.
+        '403':
+          description: Request not authorized.
+        '404':
+          description: Resource not found.
+        '500':
+          description: >-
+            There was an error in forwarding the notification.
+          schema:
+            $ref: '#/definitions/ProblemJson'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /remote-contents/configurations:
+    post:
+      operationId: createRCConfiguration
+      summary: Create a new remote-content configuration
+      description: Create a new remote-content configuration using the provided payload
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/NewRCConfigurationPublic'
+        - in: header
+          name: x-user-id
+          type: string
+          required: true
+      responses:
+        '201':
+          description: Configuration created
+          schema:
+            $ref: '#/definitions/RCConfigurationPublic'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ProblemJson'
+        '500':
+          description: >-
+            There was an error creating the configuration.
+          schema:
+            $ref: '#/definitions/ProblemJson'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+    get:
+      operationId: listRCConfiguration
+      summary: Get all the remote-content configurations associated to the userId
+      description: Get all the remote-content configurations associated to the userId retrieved from the header
+      parameters:
+        - in: header
+          name: x-user-id
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Return the configurations
+          schema:
+            $ref: '#/definitions/RCConfigurationListResponse'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ProblemJson'
+        '403':
+          description: Request not authorized.
+        '404':
+          description: Resource not found.
+        '500':
+          description: >-
+            There was an error trying to get the configurations.
+          schema:
+            $ref: '#/definitions/ProblemJson'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /remote-contents/configurations/{configurationId}:
+    get:
+      operationId: getRCConfiguration
+      summary: Get the remote-content configuration identified by the configurationId
+      description: Get the remote-content configuration using the provided configurationId passed as path param
+      parameters:
+        - in: path
+          name: configurationId
+          required: true
+          type: string
+          description: Ulid string.
+          format: Ulid
+          x-import: '@pagopa/ts-commons/lib/strings'
+        - in: header
+          name: x-user-id
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Return the configuration
+          schema:
+            $ref: '#/definitions/RCConfigurationResponse'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ProblemJson'
+        '403':
+          description: Request not authorized.
+        '404':
+          description: Resource not found.
+        '500':
+          description: >-
+            There was an error trying to get the configuration.
+          schema:
+            $ref: '#/definitions/ProblemJson'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+    put:
+      operationId: updateRCConfiguration
+      summary: Update an existing remote-content configuration
+      description: Update an existing remote-content configuration using the provided payload
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/NewRCConfigurationPublic'
+        - in: path
+          name: configurationId
+          required: true
+          type: string
+          description: Ulid string.
+          format: Ulid
+          x-import: '@pagopa/ts-commons/lib/strings'
+        - in: header
+          name: x-user-id
+          type: string
+          required: true
+      responses:
+        '204':
+          description: Configuration updated
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ProblemJson'
+        '403':
+          description: Request not authorized.
+        '404':
+          description: Resource not found.
+        '500':
+          description: >-
+            There was an error updating the configuration.
+          schema:
+            $ref: '#/definitions/ProblemJson'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+
+definitions:
+  RCConfigurationId:
+    $ref: "./commons-definitions.yaml#/Ulid"
+  RCConfigurationPublic:
+    $ref: "./commons-definitions.yaml#/RCConfigurationPublic"
+  NewRCConfigurationBase:
+    $ref: "./commons-definitions.yaml#/NewRCConfigurationBase"
+  NewRCConfigurationPublic:
+    $ref: "./commons-definitions.yaml#/NewRCConfigurationPublic"
+  RCConfigurationBase:
+    $ref: "./commons-definitions.yaml#/RCConfigurationBase"
+  RCConfigurationEnvironment:
+    $ref: "./commons-definitions.yaml#/RCConfigurationEnvironment"
+  RCConfigurationProdEnvironment:
+    $ref: "./commons-definitions.yaml#/RCConfigurationProdEnvironment"
+  RCAuthenticationConfig:
+    $ref: "./commons-definitions.yaml#/RCAuthenticationConfig"
+  RCClientCert:
+    $ref: "./commons-definitions.yaml#/RCClientCert"
+  RCConfigurationTestEnvironment:
+    $ref: "./commons-definitions.yaml#/RCConfigurationTestEnvironment"
+  HasPrecondition:
+    $ref: "./commons-definitions.yaml#/HasPrecondition"
+  RCConfigurationListResponse:
+    type: object
+    properties:
+      rcConfigList:
+        type: array
+        items:
+          $ref: "#/definitions/RCConfigurationResponse"
+  RCConfigurationResponse:
+    allOf:
+      - $ref: "#/definitions/RCConfigurationPublic"
+      - type: object
+        properties:
+          user_id:
+            type: string
+            minLength: 1
+        required:
+          - user_id
+  NotificationType:
+    type: string
+    enum:
+     - MESSAGE
+     - REMINDER_READ
+     - REMINDER_PAYMENT
+     - REMINDER_PAYMENT_LAST
+  NotificationInfo:
+    type: object
+    properties:
+      notification_type:
+        $ref: "#/definitions/NotificationType"
+      fiscal_code:
+        $ref: "#/definitions/FiscalCode"
+      message_id:
+        type: string
+        minLength: 1
+    required:
+      - notification_type
+      - fiscal_code
+      - message_id
+  ProblemJson:
+    $ref: "./commons-definitions.yaml#/ProblemJson"
+  FiscalCode:
+    $ref: "./commons-definitions.yaml#/FiscalCode"
+securityDefinitions:
+  SubscriptionKey:
+    type: apiKey
+    name: Ocp-Apim-Subscription-Key
+    in: header
+    description: The API key obtained through the developer portal.

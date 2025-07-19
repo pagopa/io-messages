@@ -1,0 +1,30 @@
+meta {
+  name: Notify
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{rc_func_url}}/api/v1/notify
+  body: json
+  auth: none
+}
+
+headers {
+  X-User-Groups: {{user_groups}}
+}
+
+body:json {
+  {
+    "notification_type": {{notification_type}},
+    "message_id": {{message_id}},
+    "fiscal_code": {{fiscal_code}}
+  }
+}
+
+vars:pre-request {
+  notification_type: "MESSAGE"
+  message_id: "01JV4TJ98WFS8MQ1V32K9JHXHP"
+  fiscal_code: "LVTEST00A00A199X"
+  user_groups: ApiNewMessageNotify
+}
