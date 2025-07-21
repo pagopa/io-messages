@@ -28,11 +28,6 @@ variable "domain" {
   }
 }
 
-variable "location" {
-  type        = string
-  description = "One of westeurope, northeurope"
-}
-
 variable "location_short" {
   type        = string
   description = "location_short"
@@ -48,9 +43,4 @@ variable "key_vault" {
     name = string
     id   = string
   })
-}
-
-variable "resource_group_name" {
-  type        = string
-  description = "Resource group to deploy resources to"
 }
