@@ -8,7 +8,7 @@
                 </return-response>
             </when>
         </choose>
-        <set-backend-service base-url="https://io-p-itn-com-services-func-01.azurewebsites.net/api/v1" />
+        <set-backend-service base-url="https://io-p-itn-com-services-func-01.azurewebsites.net/api/v1/messages" />
         <set-header name="x-functions-key" exists-action="override">
             <value>{{io-p-itn-com-services-func-key}}</value>
         </set-header>
