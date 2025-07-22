@@ -1,4 +1,4 @@
-swagger: '2.0'
+swagger: "2.0"
 info:
   version: 1.0.1
   title: IO API for manage messages
@@ -9,11 +9,11 @@ info:
     url: https://io.italia.it/assets/img/io-logo-blue.svg
   description: Api for managing messages in IO App
 host: api.io.pagopa.it
-basePath: /api/v1
+basePath: /api/v1/messages
 schemes:
   - https
 paths:
-  /messages:
+  /:
     post:
       operationId: submitMessageforUserWithFiscalCodeInBody
       summary: Submit a Message passing the user fiscal_code in the request body
@@ -36,7 +36,7 @@ paths:
         - name: message
           in: body
           schema:
-            $ref: '#/definitions/NewMessage'
+            $ref: "#/definitions/NewMessage"
           x-examples:
             application/json:
               time_to_live: 3600
@@ -55,10 +55,10 @@ paths:
                   felis id, sodales euismod velit. Lorem ipsum dolor sit amet,
                   consectetur adipiscing elit.
       responses:
-        '201':
+        "201":
           description: Message created.
           schema:
-            $ref: '#/definitions/CreatedMessage'
+            $ref: "#/definitions/CreatedMessage"
           headers:
             Location:
               type: string
@@ -70,22 +70,22 @@ paths:
           examples:
             application/json:
               id: 01BX9NSMKVXXS5PSP2FATZMYYY
-        '400':
+        "400":
           description: Invalid payload.
           schema:
-            $ref: '#/definitions/ProblemJson'
+            $ref: "#/definitions/ProblemJson"
           examples: {}
-        '401':
+        "401":
           description: Unauthorized
-        '403':
+        "403":
           description: Forbidden.
-        '429':
+        "429":
           description: Too many requests
-        '500':
+        "500":
           description: The message cannot be delivered.
           schema:
-            $ref: '#/definitions/ProblemJson'
-  /messages/{fiscal_code}:
+            $ref: "#/definitions/ProblemJson"
+  /{fiscal_code}:
     post:
       operationId: submitMessageforUser
       summary: Submit a Message passing the user fiscal_code as path parameter
@@ -99,11 +99,11 @@ paths:
       security:
         - SubscriptionKey: []
       parameters:
-        - $ref: '#/parameters/FiscalCode'
+        - $ref: "#/parameters/FiscalCode"
         - name: message
           in: body
           schema:
-            $ref: '#/definitions/NewMessage'
+            $ref: "#/definitions/NewMessage"
           x-examples:
             application/json:
               time_to_live: 3600
@@ -122,7 +122,7 @@ paths:
                   felis id, sodales euismod velit. Lorem ipsum dolor sit amet,
                   consectetur adipiscing elit.
       responses:
-        '201':
+        "201":
           description: Message created.
           schema:
             type: object
@@ -141,22 +141,22 @@ paths:
           examples:
             application/json:
               id: 01BX9NSMKVXXS5PSP2FATZMYYY
-        '400':
+        "400":
           description: Invalid payload.
           schema:
-            $ref: '#/definitions/ProblemJson'
+            $ref: "#/definitions/ProblemJson"
           examples: {}
-        '401':
+        "401":
           description: Unauthorized
-        '403':
+        "403":
           description: Forbidden.
-        '429':
+        "429":
           description: Too many requests
-        '500':
+        "500":
           description: The message cannot be delivered.
           schema:
-            $ref: '#/definitions/ProblemJson'
-  /messages/{fiscal_code}/{id}:
+            $ref: "#/definitions/ProblemJson"
+  /{fiscal_code}/{id}:
     get:
       operationId: getMessage
       summary: Get Message
@@ -168,17 +168,17 @@ paths:
       security:
         - SubscriptionKey: []
       parameters:
-        - $ref: '#/parameters/FiscalCode'
+        - $ref: "#/parameters/FiscalCode"
         - name: id
           in: path
           type: string
           required: true
           description: The ID of the message.
       responses:
-        '200':
+        "200":
           description: Message found.
           schema:
-            $ref: '#/definitions/ExternalMessageResponseWithContent'
+            $ref: "#/definitions/ExternalMessageResponseWithContent"
           examples:
             application/json:
               status: PROCESSED
@@ -206,28 +206,28 @@ paths:
                 sender_service_id: 01BX9NSMKVXXS5PSP2FATZM6QX
               notification:
                 email: QUEUED
-        '401':
+        "401":
           description: Unauthorized
-        '403':
+        "403":
           description: Forbidden.
-        '404':
+        "404":
           description: No message found for the provided ID.
           schema:
-            $ref: '#/definitions/ProblemJson'
-        '429':
+            $ref: "#/definitions/ProblemJson"
+        "429":
           description: Too many requests
 definitions:
   ExternalMessageResponseWithContent:
     type: object
     properties:
       message:
-        $ref: '#/definitions/ExternalCreatedMessageWithContent'
+        $ref: "#/definitions/ExternalCreatedMessageWithContent"
       notification:
-        $ref: '#/definitions/MessageResponseNotificationStatus'
+        $ref: "#/definitions/MessageResponseNotificationStatus"
       status:
-        $ref: '#/definitions/MessageStatusValue'
+        $ref: "#/definitions/MessageStatusValue"
       read_status:
-        $ref: '#/definitions/ReadStatus'
+        $ref: "#/definitions/ReadStatus"
         description: >-
           Describes whether a user has read the message or not
 
@@ -236,7 +236,7 @@ definitions:
           NOTE 2: `UNAVAILABLE` will be returned if user revoked the permission
           to access to read status
       payment_status:
-        $ref: '#/definitions/PaymentStatus'
+        $ref: "#/definitions/PaymentStatus"
         description: |-
           Describes the state of the related payment notice
           NOTE: This value is only available for ADVANCED payment messages
@@ -244,11 +244,11 @@ definitions:
       - message
   ExternalCreatedMessageWithContent:
     allOf:
-      - $ref: '#/definitions/CreatedMessageWithContent'
+      - $ref: "#/definitions/CreatedMessageWithContent"
       - type: object
         properties:
           feature_level_type:
-            $ref: '#/definitions/FeatureLevelType'
+            $ref: "#/definitions/FeatureLevelType"
         required:
           - feature_level_type
   CreatedMessageWithContent:
@@ -257,15 +257,15 @@ definitions:
       id:
         type: string
       fiscal_code:
-        $ref: '#/definitions/FiscalCode'
+        $ref: "#/definitions/FiscalCode"
       time_to_live:
-        $ref: '#/definitions/TimeToLiveSeconds'
+        $ref: "#/definitions/TimeToLiveSeconds"
       created_at:
-        $ref: '#/definitions/Timestamp'
+        $ref: "#/definitions/Timestamp"
       content:
-        $ref: '#/definitions/NewMessageContent'
+        $ref: "#/definitions/NewMessageContent"
       sender_service_id:
-        $ref: '#/definitions/ServiceId'
+        $ref: "#/definitions/ServiceId"
     required:
       - id
       - fiscal_code
@@ -338,9 +338,9 @@ definitions:
     type: object
     properties:
       email:
-        $ref: '#/definitions/NotificationChannelStatusValue'
+        $ref: "#/definitions/NotificationChannelStatusValue"
       webhook:
-        $ref: '#/definitions/NotificationChannelStatusValue'
+        $ref: "#/definitions/NotificationChannelStatusValue"
   RejectedMessageStatusValue:
     type: string
     x-extensible-enum:
@@ -355,8 +355,8 @@ definitions:
   MessageStatusValue:
     x-one-of: true
     allOf:
-      - $ref: '#/definitions/RejectedMessageStatusValue'
-      - $ref: '#/definitions/NotRejectedMessageStatusValue'
+      - $ref: "#/definitions/RejectedMessageStatusValue"
+      - $ref: "#/definitions/NotRejectedMessageStatusValue"
     description: >-
       The processing status of a message.
 
@@ -399,7 +399,7 @@ definitions:
         description: Either a ServiceId or a simple string representing the sender name
         minLength: 1
       original_receipt_date:
-        $ref: '#/definitions/Timestamp'
+        $ref: "#/definitions/Timestamp"
       has_attachments:
         type: boolean
         default: false
@@ -407,7 +407,7 @@ definitions:
         type: boolean
         default: false
       has_precondition:
-        $ref: '#/definitions/HasPrecondition'
+        $ref: "#/definitions/HasPrecondition"
       summary:
         type: string
         minLength: 1
@@ -415,7 +415,7 @@ definitions:
         type: string
         description: Ulid string.
         format: Ulid
-        x-import: '@pagopa/ts-commons/lib/strings'
+        x-import: "@pagopa/ts-commons/lib/strings"
         example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
     required:
       - id
@@ -423,20 +423,20 @@ definitions:
     type: string
     description: Organization fiscal code.
     format: OrganizationFiscalCode
-    x-import: '@pagopa/ts-commons/lib/strings'
-    example: '12345678901'
+    x-import: "@pagopa/ts-commons/lib/strings"
+    example: "12345678901"
   FiscalCode:
     type: string
     description: User's fiscal code.
     format: FiscalCode
-    x-import: '@pagopa/ts-commons/lib/strings'
+    x-import: "@pagopa/ts-commons/lib/strings"
     example: SPNDNL80R13C555X
   Timestamp:
     type: string
     format: UTCISODateFromString
     description: A date-time field in ISO-8601 format and UTC timezone.
-    x-import: '@pagopa/ts-commons/lib/dates'
-    example: '2018-10-13T00:00:00.000Z'
+    x-import: "@pagopa/ts-commons/lib/dates"
+    example: "2018-10-13T00:00:00.000Z"
   TimeToLiveSeconds:
     type: integer
     default: 3600
@@ -451,11 +451,11 @@ definitions:
     description: Metadata needed to process medical prescriptions.
     properties:
       nre:
-        $ref: '#/definitions/PrescriptionNRE'
+        $ref: "#/definitions/PrescriptionNRE"
       iup:
-        $ref: '#/definitions/PrescriptionIUP'
+        $ref: "#/definitions/PrescriptionIUP"
       prescriber_fiscal_code:
-        $ref: '#/definitions/PrescriberFiscalCode'
+        $ref: "#/definitions/PrescriberFiscalCode"
     required:
       - nre
   PrescriptionNRE:
@@ -476,7 +476,7 @@ definitions:
     type: string
     description: Fiscal code of the Doctor that made the prescription.
     format: FiscalCode
-    x-import: '@pagopa/ts-commons/lib/strings'
+    x-import: "@pagopa/ts-commons/lib/strings"
     example: TCNZRO80R13C555Y
   MessageContentBase:
     type: object
@@ -518,45 +518,45 @@ definitions:
       - markdown
   MessageContent:
     allOf:
-      - $ref: '#/definitions/MessageContentBase'
+      - $ref: "#/definitions/MessageContentBase"
       - type: object
         properties:
           payment_data:
-            $ref: '#/definitions/PaymentData'
+            $ref: "#/definitions/PaymentData"
           prescription_data:
-            $ref: '#/definitions/PrescriptionData'
+            $ref: "#/definitions/PrescriptionData"
           legal_data:
-            $ref: '#/definitions/LegalData'
+            $ref: "#/definitions/LegalData"
           eu_covid_cert:
-            $ref: '#/definitions/EUCovidCert'
+            $ref: "#/definitions/EUCovidCert"
           third_party_data:
-            $ref: '#/definitions/ThirdPartyData'
+            $ref: "#/definitions/ThirdPartyData"
           due_date:
-            $ref: '#/definitions/Timestamp'
+            $ref: "#/definitions/Timestamp"
   NewMessageContent:
     allOf:
-      - $ref: '#/definitions/MessageContentBase'
+      - $ref: "#/definitions/MessageContentBase"
       - type: object
         properties:
           payment_data:
-            $ref: '#/definitions/PaymentDataWithRequiredPayee'
+            $ref: "#/definitions/PaymentDataWithRequiredPayee"
           due_date:
-            $ref: '#/definitions/Timestamp'
+            $ref: "#/definitions/Timestamp"
           prescription_data:
-            $ref: '#/definitions/PrescriptionData'
+            $ref: "#/definitions/PrescriptionData"
           eu_covid_cert:
-            $ref: '#/definitions/EUCovidCert'
+            $ref: "#/definitions/EUCovidCert"
           third_party_data:
-            $ref: '#/definitions/ThirdPartyData'
+            $ref: "#/definitions/ThirdPartyData"
           legal_data:
-            $ref: '#/definitions/LegalData'
+            $ref: "#/definitions/LegalData"
   NewMessage:
     type: object
     properties:
       time_to_live:
-        $ref: '#/definitions/TimeToLiveSeconds'
+        $ref: "#/definitions/TimeToLiveSeconds"
       content:
-        $ref: '#/definitions/MessageContent'
+        $ref: "#/definitions/MessageContent"
       default_addresses:
         type: object
         description: |-
@@ -568,9 +568,9 @@ definitions:
             format: email
             example: foobar@example.com
       fiscal_code:
-        $ref: '#/definitions/FiscalCode'
+        $ref: "#/definitions/FiscalCode"
       feature_level_type:
-        $ref: '#/definitions/FeatureLevelType'
+        $ref: "#/definitions/FeatureLevelType"
     required:
       - content
   FeatureLevelType:
@@ -635,26 +635,26 @@ definitions:
       - notice_number
   PaymentData:
     allOf:
-      - $ref: '#/definitions/PaymentDataBase'
+      - $ref: "#/definitions/PaymentDataBase"
       - type: object
         properties:
           payee:
-            $ref: '#/definitions/Payee'
+            $ref: "#/definitions/Payee"
   Payee:
     type: object
     description: Metadata needed to explicit payment's payee.
     properties:
       fiscal_code:
-        $ref: '#/definitions/OrganizationFiscalCode'
+        $ref: "#/definitions/OrganizationFiscalCode"
     required:
       - fiscal_code
   PaymentDataWithRequiredPayee:
     allOf:
-      - $ref: '#/definitions/PaymentDataBase'
+      - $ref: "#/definitions/PaymentDataBase"
       - type: object
         properties:
           payee:
-            $ref: '#/definitions/Payee'
+            $ref: "#/definitions/Payee"
         required:
           - payee
   LegalData:
@@ -673,7 +673,7 @@ definitions:
         type: string
         minLength: 1
       pec_server_service_id:
-        $ref: '#/definitions/ServiceId'
+        $ref: "#/definitions/ServiceId"
     required:
       - sender_mail_from
       - has_attachment
@@ -714,8 +714,8 @@ parameters:
     minLength: 10
     required: true
     description: A date in the format YYYY-MM-DD.
-    pattern: '[0-9]{4}-[0-9]{2}-[0-9]{2}'
-    x-example: '2019-09-15'
+    pattern: "[0-9]{4}-[0-9]{2}-[0-9]{2}"
+    x-example: "2019-09-15"
   OrganizationFiscalCode:
     name: organization_fiscal_code
     in: path

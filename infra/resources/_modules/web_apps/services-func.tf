@@ -112,6 +112,45 @@ module "services_func" {
   action_group_id = var.action_group_id
 }
 
+module "services_func_autoscaler" {
+  source  = "pagopa-dx/azure-app-service-plan-autoscaler/azurerm"
+  version = "~> 1.0"
+
+  resource_group_name = module.services_func.function_app.resource_group_name
+  location            = var.environment.location
+
+  app_service_plan_id = module.services_func.function_app.plan.id
+
+  target_service = {
+    function_app = {
+      name = module.services_func.function_app.function_app.name
+    }
+  }
+
+  scheduler = {
+    normal_load = {
+      default = 11,
+      minimum = 6
+    },
+    low_load = {
+      minimum = 2,
+      name    = "low_load_profile",
+      default = 10,
+      start = {
+        hour    = 22,
+        minutes = 0
+      }
+      end = {
+        hour    = 7,
+        minutes = 0
+      },
+    },
+    maximum = 30,
+  }
+
+  tags = var.tags
+}
+
 resource "azurerm_subnet_nat_gateway_association" "services_func_subnet" {
   subnet_id      = module.services_func.subnet.id
   nat_gateway_id = var.nat_gateway_id

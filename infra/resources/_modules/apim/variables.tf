@@ -28,11 +28,6 @@ variable "domain" {
   }
 }
 
-variable "location" {
-  type        = string
-  description = "One of westeurope, northeurope"
-}
-
 variable "location_short" {
   type        = string
   description = "location_short"
