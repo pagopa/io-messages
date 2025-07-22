@@ -1,0 +1,16 @@
+meta {
+  name: Info
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{pushnotif_func_url}}/api/v1/info
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.name: eq sending-func
+}

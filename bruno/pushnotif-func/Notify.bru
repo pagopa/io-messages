@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{rc_func_url}}/api/v1/notify
+  url: {{pushnotif_func_url}}/api/v1/notify
   body: json
   auth: none
 }
@@ -24,7 +24,7 @@ body:json {
 
 vars:pre-request {
   notification_type: "MESSAGE"
-  message_id: "01JV4TJ98WFS8MQ1V32K9JHXHP"
+  message_id: "01JR0PKGGWANACX7834M8D4NNW"
   fiscal_code: "LVTEST00A00A199X"
   user_groups: ApiNewMessageNotify
 }
