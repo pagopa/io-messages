@@ -63,8 +63,6 @@ const BaseConfig = t.intersection([
     MESSAGE_CONTAINER_NAME: NonEmptyString,
     MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
 
-    REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
-    REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
     SESSION_MANAGER_API_KEY: NonEmptyString,
     SESSION_MANAGER_BASE_URL: NonEmptyString,
   }),

@@ -39,9 +39,7 @@ export const envConfig = {
     "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar",
 
   NOTIFY_MESSAGE_QUEUE_NAME: "notify-queue-name",
-  REMOTE_CONTENT_COSMOSDB_NAME: "RemoteContentCosmosDBName",
 
-  REMOTE_CONTENT_COSMOSDB_URI: "RemoteContentCosmosDBUri",
   RETRY_ATTEMPT_NUMBER: "1",
   SESSION_MANAGER_API_KEY: "SessionManagerAPIKey",
   SESSION_MANAGER_BASE_URL: "SessionManageBaseUrl",

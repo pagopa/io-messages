@@ -49,8 +49,7 @@ export const envConfig: IConfig = {
     "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar" as NonEmptyString,
 
   NOTIFY_MESSAGE_QUEUE_NAME: "notify-queue-name" as NonEmptyString,
-  REMOTE_CONTENT_COSMOSDB_NAME: "RemoteContentCosmosDBName" as NonEmptyString,
-  REMOTE_CONTENT_COSMOSDB_URI: "RemoteContentCosmosDBUri" as NonEmptyString,
+
   RETRY_ATTEMPT_NUMBER: "1" as unknown as IntegerFromString,
   SESSION_MANAGER_API_KEY: "SessionManagerAPIKey" as NonEmptyString,
   SESSION_MANAGER_BASE_URL: "SessionManageBaseUrl" as NonEmptyString,
