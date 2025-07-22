@@ -4,12 +4,13 @@ import { secureExpressApp } from "@pagopa/io-functions-commons/dist/src/utils/ex
 import { setAppContext } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import * as express from "express";
 
+import { cosmosdbClient } from "../../utils/cosmosdb";
 import { Info } from "./handler";
 
 const app = express();
 secureExpressApp(app);
 
-app.get("/api/v1/info", Info());
+app.get("/api/v1/info", Info(cosmosdbClient));
 
 const azureFunctionHandler = createAzureFunctionHandler(app);
 
