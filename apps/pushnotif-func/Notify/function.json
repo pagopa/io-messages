@@ -5,8 +5,10 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "route": "v1/notify",
-      "methods": ["post"]
+      "route": "api/v1/notify",
+      "methods": [
+        "post"
+      ]
     },
     {
       "type": "http",
