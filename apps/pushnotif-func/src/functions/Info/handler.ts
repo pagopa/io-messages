@@ -41,27 +41,3 @@ export function Info(cosmosClient: CosmosClient): express.RequestHandler {
 
   return wrapRequestHandler(handler);
 }
-
-// export function Info(cosmosDbClient: CosmosClient): express.RequestHandler {
-//   const handler = InfoHandler(
-//     checkApplicationHealth(IConfig, [
-//       (c) => checkAzureStorageHealth(c.NOTIFICATIONS_STORAGE_CONNECTION_STRING),
-//       (c) =>
-//         checkAzureStorageHealth(c.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING),
-//       // () => checkAzureCosmosDbHealth(cosmosDbClient),
-//       //check all partitions using ids to match all partitions regex
-
-//       ...["0", "4", "8", "c"].map((i) => (c: t.TypeOf<typeof IConfig>) => {
-//         const nhPartitionFactory = new NotificationHubPartitionFactory(
-//           c.AZURE_NOTIFICATION_HUB_PARTITIONS,
-//         );
-//         return checkAzureNotificationHub(
-//           nhPartitionFactory,
-//           i as NonEmptyString,
-//         );
-//       }),
-//     ]),
-//   );
-
-//   return wrapRequestHandler(handler);
-// }
