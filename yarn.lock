@@ -241,22 +241,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/core-rest-pipeline@npm:^1.2.0":
-  version: 1.19.1
-  resolution: "@azure/core-rest-pipeline@npm:1.19.1"
-  dependencies:
-    "@azure/abort-controller": "npm:^2.0.0"
-    "@azure/core-auth": "npm:^1.8.0"
-    "@azure/core-tracing": "npm:^1.0.1"
-    "@azure/core-util": "npm:^1.11.0"
-    "@azure/logger": "npm:^1.0.0"
-    http-proxy-agent: "npm:^7.0.0"
-    https-proxy-agent: "npm:^7.0.0"
-    tslib: "npm:^2.6.2"
-  checksum: 10c0/23f2cb9d08e9535bcdca3123aa89bcfe8c5b9d37d6e9c0f87fa8009a089989bebfa11f5bc6fd96ceb6acee210b00b754ec7e02f3f7ee8916e8593e9ef0d610b8
-  languageName: node
-  linkType: hard
-
 "@azure/core-rest-pipeline@npm:^1.20.0, @azure/core-rest-pipeline@npm:^1.8.0, @azure/core-rest-pipeline@npm:^1.8.1":
   version: 1.20.0
   resolution: "@azure/core-rest-pipeline@npm:1.20.0"
@@ -309,27 +293,6 @@ __metadata:
     fast-xml-parser: "npm:^5.0.7"
     tslib: "npm:^2.8.1"
   checksum: 10c0/2c62106376ebc3f6959d833c41b91e3be5793a217ee83ed286cc0ad34971c20d294ebfafdc906975e92c65071e410b4bce2e81a65ea3c8966a1042718a207c91
-  languageName: node
-  linkType: hard
-
-"@azure/cosmos@npm:^3.17.1":
-  version: 3.17.3
-  resolution: "@azure/cosmos@npm:3.17.3"
-  dependencies:
-    "@azure/abort-controller": "npm:^1.0.0"
-    "@azure/core-auth": "npm:^1.3.0"
-    "@azure/core-rest-pipeline": "npm:^1.2.0"
-    "@azure/core-tracing": "npm:^1.0.0"
-    debug: "npm:^4.1.1"
-    fast-json-stable-stringify: "npm:^2.1.0"
-    jsbi: "npm:^3.1.3"
-    node-abort-controller: "npm:^3.0.0"
-    priorityqueuejs: "npm:^1.0.0"
-    semaphore: "npm:^1.0.5"
-    tslib: "npm:^2.2.0"
-    universal-user-agent: "npm:^6.0.0"
-    uuid: "npm:^8.3.0"
-  checksum: 10c0/1afd2a8643553b7fd87a7c8e9da8f8650f3a5221acd9d06247ff7f45927a3e836484aa17fcc7daaba31c297b1822dbc63e7b1680c7b815f88c821e9243fe4c29
   languageName: node
   linkType: hard
 
@@ -2718,39 +2681,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagopa/io-functions-commons@npm:^28.0.0":
-  version: 28.22.0
-  resolution: "@pagopa/io-functions-commons@npm:28.22.0"
-  dependencies:
-    "@azure/cosmos": "npm:^3.17.1"
-    "@azure/data-tables": "npm:^13.2.2"
-    "@pagopa/ts-commons": "npm:^12.6.0"
-    applicationinsights: "npm:^2.9.5"
-    azure-storage: "npm:^2.10.5"
-    cidr-matcher: "npm:^2.1.1"
-    helmet: "npm:^4.6.0"
-    helmet-csp: "npm:^2.5.1"
-    node-fetch: "npm:^2.6.1"
-    nodemailer: "npm:^6.9.13"
-    nodemailer-sendgrid: "npm:^1.0.3"
-    referrer-policy: "npm:^1.1.0"
-    rehype-stringify: "npm:^3.0.0"
-    remark-frontmatter: "npm:^2.0.0"
-    remark-parse: "npm:^5.0.0"
-    remark-rehype: "npm:^3.0.0"
-    request-ip: "npm:^3.3.0"
-    ulid: "npm:^2.3.0"
-    unified: "npm:^9.2.2"
-    winston: "npm:^3.1.0"
-  peerDependencies:
-    "@azure/functions": ^3.2.0
-    express: ^4.15.3
-    fp-ts: ^2.16.5
-    io-ts: ^2.2.21
-  checksum: 10c0/99dd5b89d239c30a9a2206eb11e437f21863436dc25ffe5ff2e7e957b404a41fdee18e592173225dff4546d2140c1670b389288af355d2730de007b7ec76d4a7
-  languageName: node
-  linkType: hard
-
 "@pagopa/io-functions-commons@npm:^29.0.4, @pagopa/io-functions-commons@npm:^29.3.0":
   version: 29.3.0
   resolution: "@pagopa/io-functions-commons@npm:29.3.0"
@@ -2781,26 +2711,6 @@ __metadata:
     fp-ts: ^2.16.5
     io-ts: ^2.2.21
   checksum: 10c0/530469426afcf671d47d44310dd04c65efeb66ca067dd80e61f67f349ac60e18764c1be2d6e009f551df7fd29eb10c236ea7fef78ae3c3847fa6073f377a38fb
-  languageName: node
-  linkType: hard
-
-"@pagopa/openapi-codegen-ts@npm:^10.0.5":
-  version: 10.1.0
-  resolution: "@pagopa/openapi-codegen-ts@npm:10.1.0"
-  dependencies:
-    "@pagopa/ts-commons": "npm:^10.3.0"
-    fs-extra: "npm:^6.0.0"
-    nunjucks: "npm:^3.2.3"
-    prettier: "npm:^1.12.1"
-    safe-identifier: "npm:^0.4.2"
-    swagger-parser: "npm:^7.0.0"
-    write-yaml-file: "npm:^4.1.3"
-    yargs: "npm:^15.0.1"
-  bin:
-    bundle-api-spec: dist/commands/bundle-api-spec/cli.js
-    gen-api-models: dist/commands/gen-api-models/cli.js
-    gen-api-sdk: dist/commands/gen-api-sdk/cli.js
-  checksum: 10c0/f4e717d0c7e6a0f630f36ec90728403e090a580ff3b55df39370b07aed5b88379c0c3dbf5d945a8e9a11ac6c9d61f454f6e97b83f4c819d972937f1f7b26ae32
   languageName: node
   linkType: hard
 
@@ -2885,7 +2795,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagopa/ts-commons@npm:^12.5.0, @pagopa/ts-commons@npm:^12.6.0":
+"@pagopa/ts-commons@npm:^12.5.0":
   version: 12.6.0
   resolution: "@pagopa/ts-commons@npm:12.6.0"
   dependencies:
@@ -10401,13 +10311,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsbi@npm:^3.1.3":
-  version: 3.2.5
-  resolution: "jsbi@npm:3.2.5"
-  checksum: 10c0/74d4725f76f169d7848f3f2f88a8dd252d995421c1fefdaed8116daf4a1897c514ce8336ebb68303a2cf8d659e4fbc16791a1d232420b52cec3cf1f12ad760ed
-  languageName: node
-  linkType: hard
-
 "jsbi@npm:^4.3.0":
   version: 4.3.2
   resolution: "jsbi@npm:4.3.2"
@@ -10513,17 +10416,6 @@ __metadata:
     js-yaml: "npm:^3.12.1"
     ono: "npm:^4.0.11"
   checksum: 10c0/0814fb564b0e5f6ddeee4b91283febf572ebd19cf3dfbea0f447125046cb60a88fdef70a482179486bde10941f9b65fa640547d75186f390f6022056c8765628
-  languageName: node
-  linkType: hard
-
-"json-schema-ref-parser@npm:^7.1.0":
-  version: 7.1.4
-  resolution: "json-schema-ref-parser@npm:7.1.4"
-  dependencies:
-    call-me-maybe: "npm:^1.0.1"
-    js-yaml: "npm:^3.13.1"
-    ono: "npm:^6.0.0"
-  checksum: 10c0/de17a3639f130008b1c405e69814dc2310f92b3a0bdfc7ac76826a83339c8134b0336a49f142f144eb11e953c8c601ecd0d8a1017f066abc69e326146e218436
   languageName: node
   linkType: hard
 
@@ -10660,20 +10552,6 @@ __metadata:
   version: 5.0.1
   resolution: "jsonpointer@npm:5.0.1"
   checksum: 10c0/89929e58b400fcb96928c0504fcf4fc3f919d81e9543ceb055df125538470ee25290bb4984251e172e6ef8fcc55761eb998c118da763a82051ad89d4cb073fe7
-  languageName: node
-  linkType: hard
-
-"jsonschema-draft4@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "jsonschema-draft4@npm:1.0.0"
-  checksum: 10c0/28b37b673132627a20ecd49833d62a766174e40747c0c169678dfb5294c57d09abe192b828bec93f1d4145c1c94645240f466f68956cbcda14d25eb71dc81ca9
-  languageName: node
-  linkType: hard
-
-"jsonschema@npm:1.2.4":
-  version: 1.2.4
-  resolution: "jsonschema@npm:1.2.4"
-  checksum: 10c0/8ed1f3dc50650014ba06f45ea49035636e76c7f3cf792497e4037a8ff62e3137e5d1f53993302955cf813b31bb8b2af2273486490f9f48db6370c5f4f11c3f06
   languageName: node
   linkType: hard
 
@@ -12125,13 +12003,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-abort-controller@npm:^3.0.0":
-  version: 3.1.1
-  resolution: "node-abort-controller@npm:3.1.1"
-  checksum: 10c0/f7ad0e7a8e33809d4f3a0d1d65036a711c39e9d23e0319d80ebe076b9a3b4432b4d6b86a7fab65521de3f6872ffed36fc35d1327487c48eb88c517803403eda3
-  languageName: node
-  linkType: hard
-
 "node-cleanup@npm:^2.1.2":
   version: 2.1.2
   resolution: "node-cleanup@npm:2.1.2"
@@ -12721,20 +12592,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ono@npm:^5.0.1":
-  version: 5.1.0
-  resolution: "ono@npm:5.1.0"
-  checksum: 10c0/e0d42734059071b08196d851e6a7263c6f485066eabe0b0105457611ac435dbb8ba9d556f5463b4cfd7fe7733ada75446a5a1c0e1db138acff9ae3039ff2ccfe
-  languageName: node
-  linkType: hard
-
-"ono@npm:^6.0.0":
-  version: 6.0.1
-  resolution: "ono@npm:6.0.1"
-  checksum: 10c0/d57dd319fea28b2d716b175c0368d39378bc20a196feb6d956dbd3dec58bfa950e61e92dedd8ecb092bec5483384cf412e48712f30cb7366ebdb261a8094d01f
-  languageName: node
-  linkType: hard
-
 "open@npm:^10.1.0":
   version: 10.1.2
   resolution: "open@npm:10.1.2"
@@ -12744,24 +12601,6 @@ __metadata:
     is-inside-container: "npm:^1.0.0"
     is-wsl: "npm:^3.1.0"
   checksum: 10c0/1bee796f06e549ce764f693272100323fbc04da8fa3c5b0402d6c2d11b3d76fa0aac0be7535e710015ff035326638e3b9a563f3b0e7ac3266473ed5663caae6d
-  languageName: node
-  linkType: hard
-
-"openapi-schema-validation@npm:^0.4.2":
-  version: 0.4.2
-  resolution: "openapi-schema-validation@npm:0.4.2"
-  dependencies:
-    jsonschema: "npm:1.2.4"
-    jsonschema-draft4: "npm:^1.0.0"
-    swagger-schema-official: "npm:2.0.0-bab6bed"
-  checksum: 10c0/0aa8f01b51f0679848eb23fc2f02fcd8623678721e799281bbd207a803f4462443db11d7b982837d006d8b19547681cd7d27b0ecdc9c76a3e3564454ab341d8d
-  languageName: node
-  linkType: hard
-
-"openapi-types@npm:^1.3.5":
-  version: 1.3.5
-  resolution: "openapi-types@npm:1.3.5"
-  checksum: 10c0/cd6818170e5fe383e0a5847355d231da1d020af129939595cfa9a360189e8f62d3f5a2135609990587d86555b9fb21045a650474d41b31c859e0a9e84f8b9cb1
   languageName: node
   linkType: hard
 
@@ -13545,7 +13384,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"priorityqueuejs@npm:1.0.0, priorityqueuejs@npm:^1.0.0":
+"priorityqueuejs@npm:1.0.0":
   version: 1.0.0
   resolution: "priorityqueuejs@npm:1.0.0"
   checksum: 10c0/4cccd0389d7597e13a61a058e048ef0ade3f8eb17e5dbf1a965db3a5c6aa94c9a60f40cd3aaf88e657813e211debcfcd2eea4cf7e740c8e3c33eebb1919863f5
@@ -13713,13 +13552,16 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "pushnotif-func@workspace:apps/pushnotif-func"
   dependencies:
+    "@azure/cosmos": "npm:^4.0.0"
     "@azure/functions": "npm:^3.2.0"
+    "@azure/identity": "npm:^4.5.0"
     "@azure/notification-hubs": "npm:^1.2.3"
     "@azure/service-bus": "npm:^7.9.4"
+    "@azure/storage-queue": "npm:^12.4.0"
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@pagopa/express-azure-functions": "npm:^2.0.0"
-    "@pagopa/io-functions-commons": "npm:^28.0.0"
-    "@pagopa/openapi-codegen-ts": "npm:^10.0.5"
+    "@pagopa/io-functions-commons": "npm:^29.3.0"
+    "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
     "@pagopa/ts-commons": "npm:^11.0.0"
     "@types/express": "npm:^4.17.9"
     "@types/node": "npm:^20.17.30"
@@ -13739,6 +13581,7 @@ __metadata:
     oval: "npm:^1.0.0"
     prettier: "npm:3.2.5"
     shx: "npm:^0.3.2"
+    ts-pattern: "npm:^4.0.5"
     typescript: "npm:^5.8.3"
     vitest: "npm:^3.1.2"
     winston: "npm:^3.2.1"
@@ -14787,7 +14630,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semaphore@npm:^1.0.5, semaphore@npm:^1.1.0":
+"semaphore@npm:^1.1.0":
   version: 1.1.0
   resolution: "semaphore@npm:1.1.0"
   checksum: 10c0/1eeb146c1ffe1283951573c356ba3a9b18a8513b18959ecbc0e3ba3a99e5da46edc509a9a5f0cb9d5d28895dcd828bdd6c29162c8e41a311ee79efaf3456a723
@@ -15825,35 +15668,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"swagger-methods@npm:^2.0.0":
-  version: 2.0.2
-  resolution: "swagger-methods@npm:2.0.2"
-  checksum: 10c0/ed7249cbc96b978538da1a56914692e93d6b0f71217ea2063d1417b64a5e1f806397e6dc7e9c555528eb30ef094381f9c7f5bb7b9d04c4d23d47a04943a61e8c
-  languageName: node
-  linkType: hard
-
 "swagger-parser@npm:^10.0.3":
   version: 10.0.3
   resolution: "swagger-parser@npm:10.0.3"
   dependencies:
     "@apidevtools/swagger-parser": "npm:10.0.3"
   checksum: 10c0/d1a5c05f651f21a23508a36416071630b83e91dfffd52a6d44b06ca2cd1b86304c0dd2f4c04526c999b70062fa89bde3f5d54a1436626f4350590b6c6265a098
-  languageName: node
-  linkType: hard
-
-"swagger-parser@npm:^7.0.0":
-  version: 7.0.1
-  resolution: "swagger-parser@npm:7.0.1"
-  dependencies:
-    call-me-maybe: "npm:^1.0.1"
-    json-schema-ref-parser: "npm:^7.1.0"
-    ono: "npm:^5.0.1"
-    openapi-schema-validation: "npm:^0.4.2"
-    openapi-types: "npm:^1.3.5"
-    swagger-methods: "npm:^2.0.0"
-    swagger-schema-official: "npm:2.0.0-bab6bed"
-    z-schema: "npm:^4.1.0"
-  checksum: 10c0/f7125c7469728a506a56bc09436c89d6d92f67ab8a4c0e0cbad84ea53085478105c3c8a82fc5e7626c1adef82ad417b07df095040b4be33dc4b647e28f698805
   languageName: node
   linkType: hard
 
@@ -16973,7 +16793,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"validator@npm:^13.6.0, validator@npm:^13.7.0":
+"validator@npm:^13.7.0":
   version: 13.15.0
   resolution: "validator@npm:13.15.0"
   checksum: 10c0/0f13fd7031ac575e8d7828431da8ef5859bac6a38ee65e1d7fdd367dbf1c3d94d95182aecc3183f7fa7a30ff4474bf864d1aff54707620227a2cdbfd36d894c2
@@ -17765,23 +17585,6 @@ __metadata:
   bin:
     z-schema: ./bin/z-schema
   checksum: 10c0/df6c0f211a4a85d0ce35b717e05bc636ad6368ed492a7567efabaa47b1d25d967cb19cf55e88ae6af3787517aafe6a8da85d076419680b530f5aa9b58c7a1a62
-  languageName: node
-  linkType: hard
-
-"z-schema@npm:^4.1.0":
-  version: 4.2.4
-  resolution: "z-schema@npm:4.2.4"
-  dependencies:
-    commander: "npm:^2.7.1"
-    lodash.get: "npm:^4.4.2"
-    lodash.isequal: "npm:^4.5.0"
-    validator: "npm:^13.6.0"
-  dependenciesMeta:
-    commander:
-      optional: true
-  bin:
-    z-schema: bin/z-schema
-  checksum: 10c0/6354bf5a1e81d1336f87447d48d227bc1e89bbc3427a9589e75eb8e24d4432025d44bc053f32de83baa138576401bdf5c924567e4966d82fa0779c774abc706d
   languageName: node
   linkType: hard
 
