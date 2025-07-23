@@ -252,6 +252,17 @@ module "push_notif_autoscaler" {
   tags = var.tags
 }
 
+resource "azurerm_role_assignment" "pushnotif_key_vault_secrets_user" {
+  scope                = var.key_vault.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.push_notif_function[0].function_app.function_app.principal_id
+}
+
+resource "azurerm_role_assignment" "pushnotif_slot_key_vault_secrets_user" {
+  scope                = var.key_vault.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.push_notif_function[0].function_app.function_app.slot.principal_id
+}
 
 resource "azurerm_role_assignment" "pushnotif_cosmosdb_account_api_contributor" {
   for_each = toset([
