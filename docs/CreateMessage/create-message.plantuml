@@ -6,7 +6,7 @@ title Create Message
 actor sender as "Sender"
 control fn as "CreateMessage"
 database db as "messages"
-participant sendingfn as "sending-func"
+participant rcfn as "rc-func"
 collections st as "processing-message"
 participant ai as "ai-common"
 queue q as "message-created"
