@@ -135,10 +135,6 @@ locals {
       COSMOSDB_NAME = "db"
       COSMOSDB_URI  = var.cosmosdb_account_api.endpoint
 
-      REMOTE_CONTENT_COSMOSDB_NAME             = "remote-content-cosmos-01"
-      REMOTE_CONTENT_COSMOSDB_URI              = var.io_com_cosmos.endpoint
-      REMOTE_CONTENT_COSMOSDB__accountEndpoint = var.io_com_cosmos.endpoint
-
       AzureFunctionsJobHost__extensions__durableTask__storageProvider__partitionCount = "8"
     }
     app_settings_1 = {
