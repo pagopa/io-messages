@@ -1,5 +1,11 @@
 # services-func
 
+## 1.0.2
+
+### Patch Changes
+
+- 0617324: Fix ai logs
+
 ## 1.0.1
 
 ### Patch Changes
