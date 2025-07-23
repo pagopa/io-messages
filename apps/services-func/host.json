@@ -4,8 +4,8 @@
     "logLevel": {
       "default": "Warning",
       "Function": "Information",
-      "Function.GetLimitedProfile": "Warning",
-      "Function.GetLimitedProfileByPOST": "Warning"
+      "Host.Results": "Information",
+      "Host.Aggregator": "Information"
     },
     "applicationInsights": {
       "samplingSettings": {
