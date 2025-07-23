@@ -41,19 +41,10 @@
             {
               "target": "params",
               "modifier": "fiscalCode",
-              "value": "LVTEST00A00A19[5-9]X",
-              "invert": false,
-              "operator": "regex"
-            },
-            {
-              "target": "query",
-              "modifier": "token",
-              "value": "mock-secret",
-              "invert": false,
-              "operator": "equals"
+              "value": "RMLGNN97R06F158N",
+              "invert": false
             }
           ],
-          "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
           "default": false,
@@ -71,15 +62,7 @@
           "filePath": "",
           "databucketID": "",
           "sendFileAsBody": false,
-          "rules": [
-            {
-              "target": "query",
-              "modifier": "token",
-              "value": "mock-secret",
-              "invert": false,
-              "operator": "equals"
-            }
-          ],
+          "rules": [],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
