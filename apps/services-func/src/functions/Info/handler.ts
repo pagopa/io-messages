@@ -96,7 +96,7 @@ export function Info(): express.RequestHandler {
       (c) =>
         pipe(
           TE.tryCatch(
-            () => fetch(`${c.SENDING_FUNC_API_URL}/api/v1/info`),
+            () => fetch(`${c.NOTIFY_API_URL}/api/v1/info`),
             toHealthProblems<"Url">("Url"),
           ),
           TE.map(() => true),
