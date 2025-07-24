@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.1.0
+
+### Minor Changes
+
+- 197a7cb: Add notify route
+
 ## 1.0.3
 
 ### Patch Changes

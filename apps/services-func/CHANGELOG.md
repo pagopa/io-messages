@@ -1,5 +1,11 @@
 # services-func
 
+## 1.0.3
+
+### Patch Changes
+
+- 5ceb01a: change env vars name
+
 ## 1.0.2
 
 ### Patch Changes

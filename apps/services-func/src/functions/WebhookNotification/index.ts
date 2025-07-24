@@ -36,7 +36,7 @@ const fetchWithTimeout = setFetchTimeout(
 );
 const notifyApiCall = getNotifyClient(
   toFetch(fetchWithTimeout),
-  config.SENDING_FUNC_API_KEY,
+  config.NOTIFY_API_KEY,
 );
 
 const blobService = createBlobService(config.IO_COM_STORAGE_CONNECTION_STRING);
@@ -51,5 +51,5 @@ export default getWebhookNotificationHandler(
   notificationModel,
   notifyApiCall,
   retrieveProcessingMessageData,
-  `${config.SENDING_FUNC_API_URL}/api/v1/notify` as HttpsUrl,
+  `${config.NOTIFY_API_URL}/api/v1/notify` as HttpsUrl,
 );

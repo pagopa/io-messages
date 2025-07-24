@@ -1,0 +1,57 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Printer - Template - { printer: { silentPushPrinter: [Function silentPushPrinter], verbosePushPrinter: [Function verbosePushPrinter] }, test: 'MESSAGE' } > should print a silent notification 1`] = `
+{
+  "body": "Entra nell'app per leggerlo",
+  "title": "Hai un nuovo messaggio",
+}
+`;
+
+exports[`Printer - Template - { printer: { silentPushPrinter: [Function silentPushPrinter], verbosePushPrinter: [Function verbosePushPrinter] }, test: 'MESSAGE' } > should print a verbose notification 1`] = `
+{
+  "body": "TEST OBJECT",
+  "title": "TEST ORG",
+}
+`;
+
+exports[`Printer - Template - { printer: { silentPushPrinter: [Function silentPushPrinter], verbosePushPrinter: [Function verbosePushPrinter] }, test: 'REMINDER_PAYMENT' } > should print a silent notification 1`] = `
+{
+  "body": "Entra nell'app per pagarlo",
+  "title": "Hai un avviso da pagare",
+}
+`;
+
+exports[`Printer - Template - { printer: { silentPushPrinter: [Function silentPushPrinter], verbosePushPrinter: [Function verbosePushPrinter] }, test: 'REMINDER_PAYMENT' } > should print a verbose notification 1`] = `
+{
+  "body": "Entra nell’app e paga l’avviso emesso da TEST ORG",
+  "title": "Hai un avviso da pagare",
+}
+`;
+
+exports[`Printer - Template - { printer: { silentPushPrinter: [Function silentPushPrinter], verbosePushPrinter: [Function verbosePushPrinter] }, test: 'REMINDER_PAYMENT_LAST' } > should print a silent notification 1`] = `
+{
+  "body": "Entra nell'app per pagarlo",
+  "title": "Hai un avviso che scade domani",
+}
+`;
+
+exports[`Printer - Template - { printer: { silentPushPrinter: [Function silentPushPrinter], verbosePushPrinter: [Function verbosePushPrinter] }, test: 'REMINDER_PAYMENT_LAST' } > should print a verbose notification 1`] = `
+{
+  "body": "Entra nell’app e paga l’avviso emesso da TEST ORG",
+  "title": "Hai un avviso che scade domani",
+}
+`;
+
+exports[`Printer - Template - { printer: { silentPushPrinter: [Function silentPushPrinter], verbosePushPrinter: [Function verbosePushPrinter] }, test: 'REMINDER_READ' } > should print a silent notification 1`] = `
+{
+  "body": "Entra nell'app per leggerlo",
+  "title": "Hai un messaggio non letto",
+}
+`;
+
+exports[`Printer - Template - { printer: { silentPushPrinter: [Function silentPushPrinter], verbosePushPrinter: [Function verbosePushPrinter] }, test: 'REMINDER_READ' } > should print a verbose notification 1`] = `
+{
+  "body": "TEST OBJECT",
+  "title": "Leggi il messaggio da TEST ORG",
+}
+`;
