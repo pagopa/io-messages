@@ -7,3 +7,8 @@ data "azurerm_key_vault_secret" "services_func_key" {
   name         = "services-func-key"
   key_vault_id = local.key_vault.id
 }
+
+data "azurerm_key_vault_secret" "pushnotif_func_key" {
+  name         = "pushnotif-func-key"
+  key_vault_id = local.key_vault.id
+}
