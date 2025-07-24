@@ -63,6 +63,10 @@ locals {
       PAGOPA_ECOMMERCE_API_KEY             = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=services-pagopa-ecommerce-prod-api-key)",
       SENDING_FUNC_API_KEY                 = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=rc-func-key)"
       SENDING_FUNC_API_URL                 = "https://${module.remote_content_func.function_app.function_app.default_hostname}"
+
+      NOTIFY_FUNC_API_URL = "https://${module.push_notif_function[0].function_app.function_app.default_hostname}"
+      NOTIFY_FUNC_API_KEY = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=notify-func-key)"
+
     }
   }
 }
