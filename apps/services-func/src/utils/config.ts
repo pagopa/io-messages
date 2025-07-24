@@ -76,6 +76,10 @@ export const IConfig = t.intersection([
     MIN_APP_VERSION_WITH_READ_AUTH: Semver,
     NOTIFICATION_CREATED_EMAIL_QUEUE_NAME: NonEmptyString,
     NOTIFICATION_CREATED_WEBHOOK_QUEUE_NAME: NonEmptyString,
+    NOTIFY_API_KEY: NonEmptyString,
+
+    NOTIFY_API_URL: t.union([HttpsUrl, HttpUrl]),
+
     OPT_OUT_EMAIL_SWITCH_DATE: DateFromTimestamp,
 
     PAGOPA_ECOMMERCE_API_KEY: NonEmptyString,
@@ -83,13 +87,9 @@ export const IConfig = t.intersection([
     PAGOPA_ECOMMERCE_BASE_URL: NonEmptyString,
 
     PENDING_ACTIVATION_GRACE_PERIOD_SECONDS: t.number,
-
     // a blob container to keep temporary message processing data
     PROCESSING_MESSAGE_CONTAINER_NAME: NonEmptyString,
-
     SANDBOX_FISCAL_CODE: NonEmptyString,
-    SENDING_FUNC_API_KEY: NonEmptyString,
-    SENDING_FUNC_API_URL: t.union([HttpsUrl, HttpUrl]),
     TTL_FOR_USER_NOT_FOUND: NonNegativeIntegerFromString,
     WEBHOOK_CHANNEL_URL: NonEmptyString,
     isProduction: t.boolean,
