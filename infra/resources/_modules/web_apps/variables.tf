@@ -44,6 +44,7 @@ variable "subnet_cidrs" {
     cqrs_func           = string
     services_func       = string
     remote_content_func = string
+    send_func           = string
   })
 }
 

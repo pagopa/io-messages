@@ -31,6 +31,7 @@ module "web_apps" {
     cqrs_func           = "10.20.10.128/26"
     services_func       = "10.20.12.64/26"
     remote_content_func = "10.20.4.128/26"
+    send_func           = "10.20.12.128/26"
   }
 
   nat_gateway_id = data.azurerm_nat_gateway.itn_ng.id
