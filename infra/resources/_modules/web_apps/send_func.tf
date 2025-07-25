@@ -1,8 +1,8 @@
 locals {
   send_func = {
     app_settings = {
-      NODE_ENV                                       = "production",
-      FUNCTIONS_WORKER_RUNTIME                       = "node",
+      NODE_ENV                 = "production",
+      FUNCTIONS_WORKER_RUNTIME = "node",
     }
   }
 }
