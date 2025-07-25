@@ -21,7 +21,7 @@ import {
   MESSAGE_CONTAINER_NAME,
   BACKEND_PORT,
   NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING,
-  NOTIFICATION_QUEUE_NAME
+  NOTIFICATION_QUEUE_NAME,
 } from "../env";
 import { getNodeFetch } from "../utils/fetch";
 import {
@@ -30,7 +30,7 @@ import {
   fillMessagesStatus,
   fillMessagesView,
   fillProfiles,
-  fillServices
+  fillServices,
 } from "../__mocks__/fixtures";
 import { createBlobs, createQueues } from "../__mocks__/utils/azure_storage";
 import { messagesList, messageStatusList } from "../__mocks__/mock.messages";
@@ -40,7 +40,7 @@ import { Server, ServerResponse } from "http";
 import {
   anAutoFiscalCodeWithReminderDisabled,
   anAutoFiscalCodeWithReminderNotDefined,
-  profiles
+  profiles,
 } from "../__mocks__/mock.profiles";
 
 console.log("ENV: ", WAIT_MS, SHOW_LOGS, BACKEND_PORT);
@@ -48,10 +48,10 @@ console.log("ENV: ", WAIT_MS, SHOW_LOGS, BACKEND_PORT);
 const MAX_ATTEMPT = 50;
 jest.setTimeout(WAIT_MS * MAX_ATTEMPT);
 
-const baseUrl = "http://sending-func:7071";
+const baseUrl = "http://rc-func:7071";
 
 const customHeaders = {
-  "x-user-groups": "ApiReminderNotify"
+  "x-user-groups": "ApiReminderNotify",
 };
 
 // ----------------
@@ -59,16 +59,16 @@ const customHeaders = {
 // ----------------
 
 const queueServiceClient = QueueServiceClient.fromConnectionString(
-  NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING
+  NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING,
 );
 
 const blobService = createBlobService(
-  MESSAGE_CONTENT_STORAGE_CONNECTION_STRING
+  MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
 );
 
 const cosmosClient = new CosmosClient({
   endpoint: COSMOSDB_URI,
-  key: COSMOSDB_KEY
+  key: COSMOSDB_KEY,
 });
 
 // eslint-disable-next-line functional/no-let
@@ -84,27 +84,27 @@ mockGetUserSession.mockImplementation((response: ServerResponse) => {
 beforeAll(async () => {
   database = await pipe(
     createCosmosDbAndCollections(cosmosClient, COSMOSDB_NAME),
-    TE.getOrElse(e => {
+    TE.getOrElse((e) => {
       throw Error("Cannot create db");
-    })
+    }),
   )();
 
   await pipe(
     createBlobs(blobService, [MESSAGE_CONTAINER_NAME]),
-    TE.chainW(_ =>
+    TE.chainW((_) =>
       pipe(
         createQueues(queueServiceClient, [NOTIFICATION_QUEUE_NAME]),
-        T.map(resQ => [RA.rights(resQ), RA.lefts(resQ)]),
+        T.map((resQ) => [RA.rights(resQ), RA.lefts(resQ)]),
         T.map(([_, leftsQ]) =>
           leftsQ.length > 0
             ? E.left(`Error creating ${leftsQ.length} queues`)
-            : E.right(void 0)
-        )
-      )
+            : E.right(void 0),
+        ),
+      ),
     ),
     TE.getOrElse(() => {
       throw Error("Cannot create azure storage");
-    })
+    }),
   )();
 
   await fillMessages(database, blobService, messagesList);
@@ -129,7 +129,7 @@ afterAll(async () => await closeServer(ioBackendServer));
 const aValidNotificationRequest: NotificationInfo = {
   fiscal_code: messagesList[0].fiscalCode,
   message_id: messagesList[0].id,
-  notification_type: NotificationTypeEnum.REMINDER_READ
+  notification_type: NotificationTypeEnum.REMINDER_READ,
 };
 
 describe("Notify |> Middleware errors", () => {
@@ -173,9 +173,9 @@ describe("Notify |> Success", () => {
         payload: {
           message_id: messagesList[0].id,
           title: expect.stringContaining("Leggi il messaggio da "),
-          message: messagesList[0].content.subject
-        }
-      })
+          message: messagesList[0].content.subject,
+        },
+      }),
     );
   });
 
@@ -204,9 +204,9 @@ describe("Notify |> Success", () => {
         payload: {
           message_id: messagesList[0].id,
           title: "Hai un messaggio non letto",
-          message: "Entra nell'app per leggerlo"
-        }
-      })
+          message: "Entra nell'app per leggerlo",
+        },
+      }),
     );
   });
 });
@@ -217,7 +217,7 @@ describe("Notify |> Errors", () => {
 
     const response = await postNotify(nodeFetch)({
       ...aValidNotificationRequest,
-      fiscal_code: anAutoFiscalCodeWithReminderDisabled
+      fiscal_code: anAutoFiscalCodeWithReminderDisabled,
     });
 
     expect(response.status).toEqual(403);
@@ -227,14 +227,14 @@ describe("Notify |> Errors", () => {
   it("should not send notification if user did not make a choice about reminder notifications", async () => {
     const nodeFetch = getNodeFetch(
       {
-        "x-user-groups": "ApiReminderNotify"
+        "x-user-groups": "ApiReminderNotify",
       },
-      SHOW_LOGS
+      SHOW_LOGS,
     );
 
     const response = await postNotify(nodeFetch)({
       ...aValidNotificationRequest,
-      fiscal_code: anAutoFiscalCodeWithReminderNotDefined
+      fiscal_code: anAutoFiscalCodeWithReminderNotDefined,
     });
 
     expect(response.status).toEqual(403);
@@ -246,13 +246,13 @@ describe("Notify |> Errors", () => {
 // Utils
 // -----------
 
-const postNotify = (nodeFetch: typeof fetch) => async body => {
+const postNotify = (nodeFetch: typeof fetch) => async (body) => {
   return await nodeFetch(`${baseUrl}/api/v1/notify`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
 };
 

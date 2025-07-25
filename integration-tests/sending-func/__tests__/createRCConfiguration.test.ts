@@ -7,25 +7,25 @@ import { getNodeFetch } from "../utils/fetch";
 import {
   REMOTE_CONTENT_COSMOSDB_KEY,
   REMOTE_CONTENT_COSMOSDB_NAME,
-  REMOTE_CONTENT_COSMOSDB_URI
+  REMOTE_CONTENT_COSMOSDB_URI,
 } from "../env";
 import {
   createRCCosmosDbAndCollections,
-  fillRCConfiguration
+  fillRCConfiguration,
 } from "../__mocks__/fixtures";
 import { Ulid } from "@pagopa/ts-commons/lib/strings";
 import {
   aNewRemoteContentConfiguration,
-  aRemoteContentConfiguration
+  aRemoteContentConfiguration,
 } from "../__mocks__/mock.remote_content";
 
-const baseUrl = "http://sending-func:7071";
+const baseUrl = "http://rc-func:7071";
 
 export const aRemoteContentConfigurationList = [aRemoteContentConfiguration];
 
 const cosmosClient = new CosmosClient({
   endpoint: REMOTE_CONTENT_COSMOSDB_URI,
-  key: REMOTE_CONTENT_COSMOSDB_KEY
+  key: REMOTE_CONTENT_COSMOSDB_KEY,
 } as CosmosClientOptions);
 
 // eslint-disable-next-line functional/no-let
@@ -36,7 +36,7 @@ beforeAll(async () => {
     createRCCosmosDbAndCollections(cosmosClient, REMOTE_CONTENT_COSMOSDB_NAME),
     TE.getOrElse(() => {
       throw Error("Cannot create db");
-    })
+    }),
   )();
   await fillRCConfiguration(database, aRemoteContentConfigurationList);
 });
@@ -47,7 +47,7 @@ describe("CreateRCConfiguration", () => {
     const body = {};
     const r = await postCreateRCConfiguration(aFetch)(
       body,
-      aRemoteContentConfiguration.userId
+      aRemoteContentConfiguration.userId,
     );
     const jsonResponse = await r.json();
 
@@ -70,7 +70,7 @@ describe("CreateRCConfiguration", () => {
     const body = aNewRemoteContentConfiguration;
     const r = await postCreateRCConfiguration(aFetch)(
       body,
-      aRemoteContentConfiguration.userId
+      aRemoteContentConfiguration.userId,
     );
     const jsonResponse = await r.json();
 
@@ -79,24 +79,22 @@ describe("CreateRCConfiguration", () => {
   });
 });
 
-const postCreateRCConfiguration = (nodeFetch: typeof fetch) => async (
-  body: unknown,
-  userId?: string
-) => {
-  const baseHeaders = {
-    "Content-Type": "application/json"
+const postCreateRCConfiguration =
+  (nodeFetch: typeof fetch) => async (body: unknown, userId?: string) => {
+    const baseHeaders = {
+      "Content-Type": "application/json",
+    };
+    const headers = userId
+      ? {
+          ...baseHeaders,
+          "x-user-id": userId,
+          "x-user-groups": "ApiRemoteContentConfigurationWrite",
+          "x-subscription-id": "MANAGE-aSubscriptionId",
+        }
+      : baseHeaders;
+    return await nodeFetch(`${baseUrl}/api/v1/remote-contents/configurations`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
   };
-  const headers = userId
-    ? {
-        ...baseHeaders,
-        "x-user-id": userId,
-        "x-user-groups": "ApiRemoteContentConfigurationWrite",
-        "x-subscription-id": "MANAGE-aSubscriptionId"
-      }
-    : baseHeaders;
-  return await nodeFetch(`${baseUrl}/api/v1/remote-contents/configurations`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body)
-  });
-};

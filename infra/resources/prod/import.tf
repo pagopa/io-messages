@@ -43,8 +43,3 @@ import {
   to = module.mongo.module.mongdb_collection_payment_retry.azurerm_cosmosdb_mongo_collection.this
   id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-com-rg-01/providers/Microsoft.DocumentDB/databaseAccounts/io-p-payments-mongodb-account/mongodbDatabases/db/collections/payment-retry"
 }
-
-import {
-  to = module.apim.azurerm_api_management_named_value.io_p_messages_sending_func_key_itn
-  id = "/subscriptions/ec285037-c673-4f58-b594-d7c480da4e8b/resourceGroups/io-p-itn-common-rg-01/providers/Microsoft.ApiManagement/service/io-p-itn-apim-01/namedValues/io-p-messages-sending-func-key"
-}

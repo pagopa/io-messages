@@ -23,12 +23,6 @@
     "name": "azure_event_hub",
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-event-hub/azurerm/0.0.11"
   },
-  "functions_messages_sending.function_app_messages_sending": {
-    "hash": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
-    "version": "0.3.1",
-    "name": "azure_function_app",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/0.3.1"
-  },
   "storage_api_weu.com_st": {
     "hash": "c073e41130034acebff0c22a7cffc22a1533ef46b64752789d472116abc21eee",
     "version": "0.0.9",

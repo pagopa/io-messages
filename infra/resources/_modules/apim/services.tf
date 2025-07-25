@@ -5,7 +5,7 @@ data "azurerm_api_management_product" "apim_itn_product_services" {
 }
 
 data "http" "remote_content_openapi" {
-  url = "https://raw.githubusercontent.com/pagopa/io-messages/refs/heads/main/apps/sending-func/openapi/index_external.yaml"
+  url = "https://raw.githubusercontent.com/pagopa/io-messages/ff8b289e2c49c60dceffc1cde57aa5eec09d648f/apps/rc-func/openapi/index_external.yaml"
 }
 
 resource "azurerm_api_management_api" "messages_sending_external_api_v1" {

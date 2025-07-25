@@ -41,21 +41,21 @@ services:
       - 10001:10001
       - 10002:10002
 
-  sending-func:
-    image: sending-func
-    container_name: sending-func
+  rc-func:
+    image: rc-func
+    container_name: rc-func
     env_file:
-      - ./environments/generated/env.sending-func
+      - ./environments/generated/env.rc-func
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://sending-func:7071/api/v1/ping"]
+      test: ["CMD", "curl", "-f", "http://rc-func:7071/api/v1/ping"]
       interval: 12s
       timeout: 15s
       retries: 5
     build:
-      context: ../apps/sending-func
-      dockerfile: ../../integration-tests/docker-files/sending-func/Dockerfile
+      context: ../apps/rc-func
+      dockerfile: ../../integration-tests/docker-files/rc-func/Dockerfile
     ports:
-      - ${MSGS_SENDING_FUNC_PORT}:7071
+      - ${MSGS_RC_FUNC_PORT}:7071
     links:
       - cosmosdb
       - redis
@@ -85,25 +85,25 @@ services:
     depends_on:
       - functions-node-20
 
-  testagent-sending-func:
-    container_name: testagent-sending-func
+  testagent-rc-func:
+    container_name: testagent-rc-func
     image: node:20.11.1-alpine@sha256:bf77dc26e48ea95fca9d1aceb5acfa69d2e546b765ec2abfb502975f1a2d4def
     working_dir: /usr/src/app
     command: tail -f /dev/null # to keep it up&running
     env_file:
-      - environments/generated/env.testagent-sending-func
+      - environments/generated/env.testagent-rc-func
     volumes:
       - "./:/usr/src/app"
-      - "../apps/sending-func/openapi:/usr/src/openapi"
+      - "../apps/rc-func/openapi:/usr/src/openapi"
     depends_on:
       cosmosdb:
         condition: service_started
       storage-account:
         condition: service_started
-      sending-func:
+      rc-func:
         condition: service_healthy
     links:
-      - sending-func
+      - rc-func
 
   testagent-citizen-func:
     container_name: testagent-citizen-func

@@ -6,24 +6,24 @@ import { getNodeFetch } from "../utils/fetch";
 import {
   REMOTE_CONTENT_COSMOSDB_KEY,
   REMOTE_CONTENT_COSMOSDB_NAME,
-  REMOTE_CONTENT_COSMOSDB_URI
+  REMOTE_CONTENT_COSMOSDB_URI,
 } from "../env";
 import {
   createRCCosmosDbAndCollections,
-  fillRCConfiguration
+  fillRCConfiguration,
 } from "../__mocks__/fixtures";
 import {
   aNewRemoteContentConfiguration,
-  aRemoteContentConfiguration
+  aRemoteContentConfiguration,
 } from "../__mocks__/mock.remote_content";
 
-const baseUrl = "http://sending-func:7071";
+const baseUrl = "http://rc-func:7071";
 
 export const aRemoteContentConfigurationList = [aRemoteContentConfiguration];
 
 const cosmosClient = new CosmosClient({
   endpoint: REMOTE_CONTENT_COSMOSDB_URI,
-  key: REMOTE_CONTENT_COSMOSDB_KEY
+  key: REMOTE_CONTENT_COSMOSDB_KEY,
 } as CosmosClientOptions);
 
 // eslint-disable-next-line functional/no-let
@@ -34,7 +34,7 @@ beforeAll(async () => {
     createRCCosmosDbAndCollections(cosmosClient, REMOTE_CONTENT_COSMOSDB_NAME),
     TE.getOrElse(() => {
       throw Error("Cannot create db");
-    })
+    }),
   )();
   await fillRCConfiguration(database, aRemoteContentConfigurationList);
 });
@@ -46,7 +46,7 @@ describe("UpdateRCConfiguration", () => {
     const r = await putCreateRCConfiguration(aFetch)(
       body,
       aRemoteContentConfiguration.configurationId,
-      aRemoteContentConfiguration.userId
+      aRemoteContentConfiguration.userId,
     );
     const jsonResponse = await r.json();
 
@@ -60,13 +60,13 @@ describe("UpdateRCConfiguration", () => {
     const r = await putCreateRCConfiguration(aFetch)(
       body,
       "invalidUlid",
-      aRemoteContentConfiguration.userId
+      aRemoteContentConfiguration.userId,
     );
     const jsonResponse = await r.json();
 
     expect(r.status).toBe(400);
     expect(jsonResponse.title).toBe(
-      'Invalid string that matches the pattern "^[0-9a-hjkmnp-tv-zA-HJKMNP-TV-Z]{26}$"'
+      'Invalid string that matches the pattern "^[0-9a-hjkmnp-tv-zA-HJKMNP-TV-Z]{26}$"',
     );
   });
 
@@ -75,7 +75,7 @@ describe("UpdateRCConfiguration", () => {
     const body = aNewRemoteContentConfiguration;
     const r = await putCreateRCConfiguration(aFetch)(
       body,
-      aRemoteContentConfiguration.configurationId
+      aRemoteContentConfiguration.configurationId,
     );
     const jsonResponse = await r.json();
 
@@ -89,7 +89,7 @@ describe("UpdateRCConfiguration", () => {
     const r = await putCreateRCConfiguration(aFetch)(
       body,
       aRemoteContentConfiguration.configurationId,
-      "invalidUserId"
+      "invalidUserId",
     );
     const jsonResponse = await r.json();
 
@@ -104,14 +104,14 @@ describe("UpdateRCConfiguration", () => {
     const r = await putCreateRCConfiguration(aFetch)(
       body,
       nonExistingConfigurationId,
-      aRemoteContentConfiguration.userId
+      aRemoteContentConfiguration.userId,
     );
     const jsonResponse = await r.json();
 
     expect(r.status).toBe(404);
     expect(jsonResponse.title).toBe("Configuration not found");
     expect(jsonResponse.detail).toBe(
-      `Cannot find any remote-content configuration`
+      `Cannot find any remote-content configuration`,
     );
   });
 
@@ -121,7 +121,7 @@ describe("UpdateRCConfiguration", () => {
     const r = await putCreateRCConfiguration(aFetch)(
       body,
       aRemoteContentConfiguration.configurationId,
-      aRemoteContentConfiguration.userId
+      aRemoteContentConfiguration.userId,
     );
 
     expect(r.status).toBe(204);
@@ -129,28 +129,26 @@ describe("UpdateRCConfiguration", () => {
   }, 30000);
 });
 
-const putCreateRCConfiguration = (nodeFetch: typeof fetch) => async (
-  body: unknown,
-  configurationId: unknown,
-  userId?: string
-) => {
-  const baseHeaders = {
-    "Content-Type": "application/json"
+const putCreateRCConfiguration =
+  (nodeFetch: typeof fetch) =>
+  async (body: unknown, configurationId: unknown, userId?: string) => {
+    const baseHeaders = {
+      "Content-Type": "application/json",
+    };
+    const headers = userId
+      ? {
+          ...baseHeaders,
+          "x-user-id": userId,
+          "x-user-groups": "ApiRemoteContentConfigurationWrite",
+          "x-subscription-id": "MANAGE-aSubscriptionId",
+        }
+      : baseHeaders;
+    return await nodeFetch(
+      `${baseUrl}/api/v1/remote-contents/configurations/${configurationId}`,
+      {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(body),
+      },
+    );
   };
-  const headers = userId
-    ? {
-        ...baseHeaders,
-        "x-user-id": userId,
-        "x-user-groups": "ApiRemoteContentConfigurationWrite",
-        "x-subscription-id": "MANAGE-aSubscriptionId"
-      }
-    : baseHeaders;
-  return await nodeFetch(
-    `${baseUrl}/api/v1/remote-contents/configurations/${configurationId}`,
-    {
-      method: "PUT",
-      headers,
-      body: JSON.stringify(body)
-    }
-  );
-};
