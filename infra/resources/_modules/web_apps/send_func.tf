@@ -9,7 +9,7 @@ locals {
 
 module "send_func" {
   source  = "pagopa-dx/azure-function-app/azurerm"
-  version = "~> 2.0"
+  version = "~> 1.0"
 
   environment = merge(var.environment, {
     app_name        = "send",
