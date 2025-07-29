@@ -126,9 +126,9 @@
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-app-service-plan-autoscaler/azurerm/1.1.3"
   },
   "web_apps.send_func": {
-    "hash": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
-    "version": "0.3.1",
+    "hash": "514188ed1f7f3775a586d045e4e6aedb635d971451648db5c33e6d4378d6e42a",
+    "version": "2.0.0",
     "name": "azure_function_app",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/0.3.1"
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/2.0.0"
   }
 }
