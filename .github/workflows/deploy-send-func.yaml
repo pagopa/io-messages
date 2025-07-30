@@ -1,0 +1,20 @@
+name: Deploy (send-func)
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  ops_func_deploy:
+    uses: pagopa/dx/.github/workflows/web_app_deploy.yaml@1a293db2ffa9121e95250a6ad7382b7608b41f05
+    name: Deploy
+    secrets: inherit
+    with:
+      workspace_name: send-func
+      environment: app-prod
+      resource_group_name: io-p-itn-com-rg-01
+      web_app_name: io-p-itn-com-send-func-01
+      use_staging_slot: true
+      use_private_agent: true
