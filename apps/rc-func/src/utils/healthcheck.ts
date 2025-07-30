@@ -143,11 +143,11 @@ export const checkApplicationHealth = (
     void 0,
     TE.of,
     TE.chain(() => checkConfigHealth()),
-    TE.chain((config) =>
+    TE.chain(() =>
       // run each taskEither and collect validation errors from each one of them, if any
       sequenceT(applicativeValidation)(
         checkAzureCosmosDbHealth(cosmosDbClient),
-        checkAzureCosmosDbHealth(remoteContentCosmosDbClient)
+        checkAzureCosmosDbHealth(remoteContentCosmosDbClient),
       ),
     ),
     TE.map(() => true),
