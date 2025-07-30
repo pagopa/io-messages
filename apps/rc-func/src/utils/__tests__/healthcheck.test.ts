@@ -131,4 +131,3 @@ describe("healthcheck - url health", () => {
     expect(isLeft(res)).toBe(true);
   });
 });
-
