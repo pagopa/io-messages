@@ -131,3 +131,17 @@ describe("healthcheck - url health", () => {
     expect(isLeft(res)).toBe(true);
   });
 });
+
+describe("checkApplicationHealth", () => {
+  beforeAll(() => {
+    vi.clearAllMocks();
+    vi.spyOn(config, "getConfig").mockReturnValue(
+      right(envConfig as config.IConfig),
+    );
+  });
+
+  it("should not return errors", async () => {
+    const res = await checkApplicationHealth(cosmosdbClient, cosmosdbClient)();
+    expect(isLeft(res)).toBe(false);
+  });
+});
