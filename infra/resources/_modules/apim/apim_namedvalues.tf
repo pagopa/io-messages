@@ -40,7 +40,7 @@ resource "azurerm_api_management_named_value" "session_manager_baseurl" {
 
 resource "azurerm_api_management_named_value" "session_manager_introspection_url" {
   name                = "session-manager-introspection-url"
-  resource_group_name = data.azurerm_resource_group.internal
+  resource_group_name = data.azurerm_resource_group.internal.name
   api_management_name = local.apim_itn_name
   display_name        = "session-manager-introspection-url"
   value               = "/api/v1/user-identity"
