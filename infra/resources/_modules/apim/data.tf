@@ -12,3 +12,12 @@ data "azurerm_key_vault_secret" "pushnotif_func_key" {
   name         = "pushnotif-func-key"
   key_vault_id = local.key_vault.id
 }
+
+data "azurerm_resource_group" "internal" {
+  name = "io-p-rg-internal"
+}
+
+data "azurerm_linux_web_app" "session_manager_app_weu" {
+  name                = "io-p-weu-session-manager-app-03"
+  resource_group_name = "io-p-weu-session-manager-rg-01"
+}
