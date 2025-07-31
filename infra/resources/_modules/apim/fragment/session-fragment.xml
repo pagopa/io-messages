@@ -1,37 +1,72 @@
 <fragment>
-  <!-- Extract the token from the Authorization Header -->
-  <set-variable name="token" value="@(context.Request.Headers.GetValueOrDefault("Authorization","").Substring(7))" />
-  <send-request mode="new" response-variable-name="introspectionResponse" timeout="10" ignore-error="false">
-    <set-url>{{session-manager-baseurl}}{{session-manager-introspection-path}}</set-url>
-    <set-method>GET</set-method>
-    <set-header name="Content-Type" exists-action="override">
-      <value>application/json</value>
-    </set-header>
-  </send-request>
-  <choose>
-    <when condition="@(context.Variables["introspectionResponse"].StatusCode == 200)">
-      <!-- Parse the introspectionResponse -->
-      <set-variable name="userData" value="@context.Variables["introspectionResponse"].Body.As<JObject>()" />
-      <!-- Remove the Authorization Header -->
-      <set-headert name="Authorization" exists-action="delete"/>
-      <!-- Set the x-user header with the user data -->
-      <set-header name="x-user" exists-action="override">
-        <value>@(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(context.Variables["userData"].ToString())))</value>
-      </set-header>
-    </when>
-    <when condition="@(context.Variables["introspectionResponse"].StatusCode == 401)">
-     <return-response response-variable-name="introspectionErrorResponse">
-       <set-status code="401" reason="Unauthorized" />
-     </return-response>
-    </when>
-    <otherwise>
-     <return-response response-variable-name="introspectionErrorResponse">
-      <set-status code="500" reason="Internal Server Error" />
-      <set-body>{"title": "Proxy Error", "status": 500, "detail": "The the token introspection-endpoint returns an error"}</set-body>
-      <set-header name="Content-Type" exists-action="override">
-        <value>application/json</value>
-      </set-header>
-     </return-response>
-    </otherwise>
-  </choose>
+	<!-- Extract the token from the Authorization Header -->
+    <set-variable name="token" value="@{
+        string[] values;
+        return context.Request.Headers.TryGetValue("Authorization", out values) ? values.FirstOrDefault() : "";
+    }" />
+
+    <choose>
+        <when condition="@(
+            string.IsNullOrEmpty((string)context.Variables["token"]) ||
+            !(((string)context.Variables["token"]).StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)) ||
+            string.IsNullOrWhiteSpace(((string)context.Variables["token"]).Substring(7))
+        )">
+            <set-header name="Content-Type" exists-action="override">
+                <value>application/json</value>
+            </set-header>
+            <return-response>
+                <set-status code="401" reason="Unauthorized" />
+                <set-body>{"title": "Proxy Error", "status": 401, "detail": "Unauthorized"}</set-body>
+            </return-response>
+        </when>
+    </choose>
+
+	<send-request mode="new" response-variable-name="introspectionResponse" timeout="10" ignore-error="false">
+		<set-url>https://io-p-weu-session-manager-app-03.azurewebsites.net/api/auth/v1/user-identity</set-url>
+		<set-method>GET</set-method>
+		<set-header name="Content-Type" exists-action="override">
+			<value>application/json</value>
+		</set-header>
+		<set-header name="Authorization" exists-action="override">
+            <value>@(((string)context.Variables["token"]))</value>
+		</set-header>
+	</send-request>
+
+	<choose>
+		<when condition="@(((IResponse)context.Variables["introspectionResponse"]).StatusCode == 200)">
+			<!-- Parse the introspectionResponse -->
+			<set-variable name="userData" value="@(((IResponse)context.Variables["introspectionResponse"]).Body.As&lt;string&gt;())" />
+			<!-- Remove the Authorization Header -->
+			<set-header name="Authorization" exists-action="delete" />
+			<!-- Set the x-user header with the user data -->
+			<set-header name="x-user" exists-action="override">
+				<value>@(
+                    Convert.ToBase64String(
+                        System.Text.Encoding.UTF8.GetBytes(((string)context.Variables["userData"]))
+                    )
+                )</value>
+			</set-header>
+		</when>
+
+		<when condition="@(((IResponse)context.Variables["introspectionResponse"]).StatusCode == 401)">
+			<return-response response-variable-name="introspectionErrorResponse">
+				<set-status code="401" reason="Unauthorized" />
+                <set-body>{"title": "Proxy Error", "status": 401, "detail": "Unauthorized"}</set-body>
+			</return-response>
+		</when>
+
+		<otherwise>
+			<set-header name="Content-Type" exists-action="override">
+				<value>application/json</value>
+			</set-header>
+			<return-response response-variable-name="introspectionErrorResponse">
+				<set-status code="500" reason="Internal Server Error" />
+                <set-body>@{
+                    var errorBody = ((IResponse)context.Variables["introspectionResponse"]).Body.As<string>().Replace("\"", "\\\"");
+                    return $"{{\"title\":\"Proxy Error\",\"status\":500,\"detail\":\"{errorBody}\"}}";
+                }
+                </set-body>
+            </return-response>
+		</otherwise>
+	</choose>
 </fragment>
