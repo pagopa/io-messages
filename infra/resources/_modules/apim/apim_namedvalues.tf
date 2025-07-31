@@ -29,19 +29,3 @@ resource "azurerm_api_management_named_value" "io-p-itn-com-pushnotif-func-key" 
   value               = data.azurerm_key_vault_secret.pushnotif_func_key.value
   secret              = "true"
 }
-
-resource "azurerm_api_management_named_value" "session_manager_baseurl" {
-  name                = "session-manager-baseurl"
-  resource_group_name = data.azurerm_resource_group.internal.name
-  api_management_name = local.apim_itn_name
-  display_name        = "session-manager-baseurl"
-  value               = data.azurerm_linux_web_app.session_manager_app_weu.default_hostname
-}
-
-resource "azurerm_api_management_named_value" "session_manager_introspection_path" {
-  name                = "session-manager-introspection-path"
-  resource_group_name = data.azurerm_resource_group.internal.name
-  api_management_name = local.apim_itn_name
-  display_name        = "session-manager-introspection-path"
-  value               = "/api/v1/user-identity"
-}
