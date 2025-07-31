@@ -38,10 +38,10 @@ resource "azurerm_api_management_named_value" "session_manager_baseurl" {
   value               = data.azurerm_linux_web_app.session_manager_app_weu.default_hostname
 }
 
-resource "azurerm_api_management_named_value" "session_manager_introspection_url" {
-  name                = "session-manager-introspection-url"
+resource "azurerm_api_management_named_value" "session_manager_introspection_path" {
+  name                = "session-manager-introspection-path"
   resource_group_name = data.azurerm_resource_group.internal.name
   api_management_name = local.apim_itn_name
-  display_name        = "session-manager-introspection-url"
+  display_name        = "session-manager-introspection-path"
   value               = "/api/v1/user-identity"
 }
