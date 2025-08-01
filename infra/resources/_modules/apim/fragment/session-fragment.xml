@@ -64,11 +64,7 @@
 			</set-header>
 			<return-response response-variable-name="introspectionErrorResponse">
 				<set-status code="500" reason="Internal Server Error" />
-          <set-body>@{
-            var errorBody = ((IResponse)context.Variables["introspectionResponse"]).Body.As<string>().Replace("\"", "\\\"");
-            return $"{{\"title\":\"Proxy Error\",\"status\":500,\"detail\":\"{errorBody}\"}}";
-          }
-          </set-body>
+          <set-body>{"title": "Proxy Error", "status": 401, "detail": "Unauthorized"}</set-body>
         </return-response>
 		</otherwise>
 	</choose>
