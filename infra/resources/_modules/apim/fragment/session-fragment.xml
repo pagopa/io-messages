@@ -1,26 +1,28 @@
 <fragment>
 	<!-- Extract the token from the Authorization Header -->
-    <set-variable name="token" value="@{
-      string[] values;
-      return context.Request.Headers.TryGetValue(\"Authorization\", out values) ? values.FirstOrDefault() : \"\";
-    }" />
+  <set-variable name="token" value='@{
+    string[] values;
+    return context.Request.Headers.TryGetValue("Authorization", out values) ? values.FirstOrDefault() : "";
+  }' />
 
-    <choose>
-      <when condition="@(
-        string.IsNullOrEmpty((string)context.Variables[\"token\"]) ||
-        !(((string)context.Variables[\"token"]).StartsWith(\"Bearer \", StringComparison.OrdinalIgnoreCase)) ||
-        string.IsNullOrWhiteSpace(((string)context.Variables[\"token\"]).Substring(7))
-      )">
-        <set-header name="Content-Type" exists-action="override">
-          <value>application/json</value>
-        </set-header>
-        <return-response>
-          <set-status code="401" reason="Unauthorized" />
-          <set-body>{"title": "Proxy Error", "status": 401, "detail": "Unauthorized"}</set-body>
-        </return-response>
-    </when>
-    </choose>
+  <!-- Check if the Authorization header is valid, if not return 401 Unauthorized -->
+  <choose>
+    <when condition='@(
+      string.IsNullOrEmpty((string)context.Variables["token"]) ||
+      !(((string)context.Variables["token"]).StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)) ||
+      string.IsNullOrWhiteSpace(((string)context.Variables["token"]).Substring(7))
+    )'>
+      <set-header name="Content-Type" exists-action="override">
+        <value>application/json</value>
+      </set-header>
+      <return-response>
+        <set-status code="401" reason="Unauthorized" />
+        <set-body>{"title": "Proxy Error", "status": 401, "detail": "Unauthorized"}</set-body>
+      </return-response>
+  </when>
+  </choose>
 
+  <!-- Call the session manager, pasing the bearer token, to get the user identity -->
 	<send-request mode="new" response-variable-name="introspectionResponse" timeout="10" ignore-error="false">
 		<set-url>https://io-p-weu-session-manager-app-03.azurewebsites.net/api/auth/v1/user-identity</set-url>
 		<set-method>GET</set-method>
@@ -33,9 +35,10 @@
 	</send-request>
 
 	<choose>
-		<when condition="@(((IResponse)context.Variables[\"introspectionResponse\"]).StatusCode == 200)">
-			<!-- Parse the introspectionResponse -->
-			<set-variable name="userData" value="@(((IResponse)context.Variables[\"introspectionResponse\"]).Body.As&lt;string&gt;())" />
+    <!-- If 200 return set the x-user header as the base64 of the response -->
+		<when condition='@(((IResponse)context.Variables["introspectionResponse"]).StatusCode == 200)'>
+			<!-- Parse the introspectionResponse as a string -->
+			<set-variable name="userData" value='@(((IResponse)context.Variables["introspectionResponse"]).Body.As&lt;string&gt;())' />
 			<!-- Remove the Authorization Header -->
 			<set-header name="Authorization" exists-action="delete" />
 			<!-- Set the x-user header with the user data -->
@@ -48,7 +51,7 @@
 			</set-header>
 		</when>
 
-		<when condition="@(((IResponse)context.Variables[\"introspectionResponse\"]).StatusCode == 401)">
+		<when condition='@(((IResponse)context.Variables["introspectionResponse"]).StatusCode == 401)'>
 			<return-response response-variable-name="introspectionErrorResponse">
 				<set-status code="401" reason="Unauthorized" />
           <set-body>{"title": "Proxy Error", "status": 401, "detail": "Unauthorized"}</set-body>
