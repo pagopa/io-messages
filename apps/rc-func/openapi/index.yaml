@@ -12,38 +12,6 @@ schemes:
 security:
   - SubscriptionKey: []
 paths:
-  /notify:
-    post:
-      operationId: notify
-      summary: Notify a user
-      description: Post the notification to the user using a push notification.
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/NotificationInfo'
-      responses:
-        '204':
-          description: Success.
-        '400':
-          description: Bad request
-          schema:
-            $ref: '#/definitions/ProblemJson'
-        '401':
-          description: Token null or invalid.
-        '403':
-          description: Request not authorized.
-        '404':
-          description: Resource not found.
-        '500':
-          description: There was an error in forwarding the notification.
-          schema:
-            $ref: '#/definitions/ProblemJson'
-      consumes:
-        - application/json
-      produces:
-        - application/json
   /remote-contents/configurations:
     post:
       operationId: createRCConfiguration
@@ -191,12 +159,6 @@ paths:
       produces:
         - application/json
 definitions:
-  RCConfigurationId:
-    type: string
-    description: Ulid string.
-    format: Ulid
-    x-import: '@pagopa/ts-commons/lib/strings'
-    example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
   RCConfigurationPublic:
     allOf:
       - $ref: '#/definitions/RCConfigurationBase'
@@ -337,27 +299,6 @@ definitions:
             minLength: 1
         required:
           - user_id
-  NotificationType:
-    type: string
-    enum:
-      - MESSAGE
-      - REMINDER_READ
-      - REMINDER_PAYMENT
-      - REMINDER_PAYMENT_LAST
-  NotificationInfo:
-    type: object
-    properties:
-      notification_type:
-        $ref: '#/definitions/NotificationType'
-      fiscal_code:
-        $ref: '#/definitions/FiscalCode'
-      message_id:
-        type: string
-        minLength: 1
-    required:
-      - notification_type
-      - fiscal_code
-      - message_id
   ProblemJson:
     type: object
     properties:

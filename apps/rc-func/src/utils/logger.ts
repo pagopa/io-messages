@@ -3,15 +3,12 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
 import * as t from "io-ts";
 
-import { NotificationType } from "../generated/definitions/NotificationType";
-
 export const NotificationInfoEvent = t.type({
   name: t.literal("send-notification.info"),
   properties: t.intersection([
     t.type({
       hashedFiscalCode: NonEmptyString,
       messageId: NonEmptyString,
-      notificationType: NotificationType,
       verbose: t.boolean,
     }),
     t.partial({

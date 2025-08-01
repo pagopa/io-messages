@@ -132,7 +132,7 @@ describe("healthcheck - url health", () => {
   });
 });
 
-describe("checkApplicationHealth - multiple errors -", () => {
+describe("checkApplicationHealth", () => {
   beforeAll(() => {
     vi.clearAllMocks();
     vi.spyOn(config, "getConfig").mockReturnValue(
@@ -140,19 +140,8 @@ describe("checkApplicationHealth - multiple errors -", () => {
     );
   });
 
-  it("should return multiple errors from different checks", async () => {
-    const blobServiceKO = getBlobServiceKO("createBlobService");
-    const queueServiceKO = getBlobServiceKO("createQueueService");
-    storageMocks.createBlobService.mockReturnValueOnce(blobServiceKO);
-    storageMocks.createQueueService.mockReturnValueOnce(queueServiceKO);
-
+  it("should not return errors", async () => {
     const res = await checkApplicationHealth(cosmosdbClient, cosmosdbClient)();
-    expect(isLeft(res)).toBe(true);
-    if (isLeft(res)) {
-      const err = res.left;
-      expect(err.length).toBe(2);
-      expect(err[0]).toBe(`AzureStorage|error - createBlobService`);
-      expect(err[1]).toBe(`AzureStorage|error - createQueueService`);
-    }
+    expect(isLeft(res)).toBe(false);
   });
 });

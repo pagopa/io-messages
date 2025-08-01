@@ -41,11 +41,6 @@ export const IConfig = t.intersection([
 
     INTERNAL_USER_ID: NonEmptyString,
 
-    MESSAGE_CONTAINER_NAME: NonEmptyString,
-    MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
-
-    NOTIFICATION_QUEUE_NAME: NonEmptyString,
-    NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING: NonEmptyString,
     RC_CONFIGURATION_CACHE_TTL: NonNegativeIntegerFromString,
 
     REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
