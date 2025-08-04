@@ -8,11 +8,7 @@ export class DeleteMessageUseCase {
   ) {}
 
   async execute(fiscalCode: string, messageId: string): Promise<void> {
-    try {
-      await this.repo.deleteMessage(fiscalCode, messageId);
-      await this.auditLogger.log(deleteMessageAuditLog(messageId));
-    } catch (error) {
-      throw new Error(`Failed to delete message`);
-    }
+    await this.repo.deleteMessage(fiscalCode, messageId);
+    await this.auditLogger.log(deleteMessageAuditLog(messageId));
   }
 }
