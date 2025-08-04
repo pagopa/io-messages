@@ -28,9 +28,9 @@ export interface IPrintersForTemplate {
   readonly verbosePushPrinter: (v: NotificationEntry) => NotificationPrinter;
 }
 
-const printersConfigurations: {
-  readonly [key in NotificationType]: IPrintersForTemplate;
-} = {
+const printersConfigurations: Readonly<
+  Record<NotificationType, IPrintersForTemplate>
+> = {
   [NotificationTypeEnum.MESSAGE]: messagePrinter,
   [NotificationTypeEnum.REMINDER_PAYMENT]: reminderPaymentPrinter,
   [NotificationTypeEnum.REMINDER_PAYMENT_LAST]: reminderPaymentLastPrinter,

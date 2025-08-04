@@ -56,7 +56,7 @@ export const UlidMapFromString = new t.Type<ReadonlyMap<string, Ulid>, string>(
         return t.failure(s, c);
       }
       return t.success(new Map(Object.entries(json)));
-    } catch (e) {
+    } catch {
       return t.failure(s, c);
     }
   },
