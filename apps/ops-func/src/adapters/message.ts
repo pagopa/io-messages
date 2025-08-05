@@ -1,7 +1,7 @@
 import { MessageRepository } from "@/domain/message.js";
 import { Container, Database, ErrorResponse } from "@azure/cosmos";
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
-import assert from "node:assert";
+import * as assert from "node:assert/strict";
 import { z } from "zod";
 
 export class MessageRepositoryAdapter implements MessageRepository {

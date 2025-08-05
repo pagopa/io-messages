@@ -27,7 +27,7 @@ export default class RedisRecipientRepository {
   async get(fiscalCode: FiscalCode) {
     try {
       return (await this.#client.get(this.#key(fiscalCode))) || undefined;
-    } catch (error) {
+    } catch {
       logger.error("Failed to retrieve recipientId from redis");
       return undefined;
     }
@@ -36,7 +36,7 @@ export default class RedisRecipientRepository {
   async upsert(fiscalCode: FiscalCode, recipientId: string) {
     try {
       await this.#client.set(this.#key(fiscalCode), recipientId);
-    } catch (error) {
+    } catch {
       logger.error("Failed writing recipientId to redis");
     }
   }
