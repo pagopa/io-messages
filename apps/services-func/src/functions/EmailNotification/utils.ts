@@ -13,7 +13,7 @@ import * as NodeMailer from "nodemailer";
 
 import { MessageContent } from "../../generated/definitions/MessageContent";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line
 const removeMd = require("remove-markdown");
 
 const defaultEmailFooterMarkdown = `**Non rispondere a questa email. Questa casella di posta è utilizzata solo per l'invio della presente mail e, non essendo monitorata, non riceveresti risposta.**

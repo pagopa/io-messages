@@ -11,7 +11,7 @@ export class DeleteMessageUseCase {
     try {
       await this.repo.deleteMessage(fiscalCode, messageId);
       await this.auditLogger.log(deleteMessageAuditLog(messageId));
-    } catch (error) {
+    } catch {
       throw new Error(`Failed to delete message`);
     }
   }

@@ -3,6 +3,7 @@ import { TableClient } from "@azure/data-tables";
 import { ulid } from "ulid";
 import { z } from "zod";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const messageErrorTableEntitySchema = z.object({
   errorType: z.string().min(1).optional(),
   event: z.string().min(1),

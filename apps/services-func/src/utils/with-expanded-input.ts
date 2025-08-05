@@ -57,7 +57,7 @@ export const makeRetrieveExpandedDataFromBlob =
  * @returns
  */
 export const withExpandedInput =
-  <I extends { [k in K]: string }, K extends keyof I, E, T = unknown>(
+  <I extends Record<K, string>, K extends keyof I, E, T = unknown>(
     referenceKey: K,
     retrieveExpandedData: DataFetcher<E>,
     handler: (

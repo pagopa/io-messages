@@ -43,7 +43,6 @@ interface ICreateRCConfigurationHandlerParameter {
 type CreateRCConfigurationHandlerReturnType = (
   parameter: IHandlerParameter,
 ) => Promise<
-  // eslint-disable-next-line @typescript-eslint/ban-types
   | IResponseErrorForbiddenNotAuthorized
   | IResponseErrorInternal
   | IResponseSuccessRedirectToResource<

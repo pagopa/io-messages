@@ -9,7 +9,7 @@ import { NotifyMessage } from "../generated/notifications/NotifyMessage";
  * Parses a string into a deserialized json
  */
 export type JSONFromString = t.TypeOf<typeof jsonFromString>;
-export const jsonFromString = new t.Type<object, string>( // eslint-disable-line @typescript-eslint/ban-types
+export const jsonFromString = new t.Type<object, string>(
   "JSONFromString",
   t.UnknownRecord.is,
   (m, c) =>
