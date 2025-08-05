@@ -12,6 +12,7 @@
     "paths": {
       "@/*": ["./src/*", "./avro/*"]
     },
-    "noEmit": true
+    "noEmit": true,
+    "skipLibCheck": true
   }
 }
