@@ -93,7 +93,7 @@ export const userPreferenceCheckerVersionWithReadAuth: (
       TE.map(O.map((pref) => pref.accessReadMessageStatus)),
       // If user did not specify a custom authorization for the service,
       // we assume it's allowed to access read status
-      TE.map(O.getOrElse(() => AccessReadMessageStatusEnum.ALLOW)),
+      TE.map(O.getOrElseW(() => AccessReadMessageStatusEnum.ALLOW)),
       TE.map((readStatus) => readStatus !== AccessReadMessageStatusEnum.DENY),
     ),
 });
