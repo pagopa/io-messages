@@ -1,5 +1,4 @@
 import { fiscalCodeSchema } from "../../..//domain/fiscal-code.js";
-
 import { assertionRefSchema } from "../definitions/assertion-ref.js";
 import { AssertionType } from "../definitions/assertion-type.js";
 import { lcParamsSchema } from "../definitions/lc-params.js";

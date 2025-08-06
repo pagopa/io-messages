@@ -1,6 +1,6 @@
-import { fiscalCodeSchema } from "../../../domain/fiscal-code.js";
 import { z } from "zod";
 
+import { fiscalCodeSchema } from "../../../domain/fiscal-code.js";
 import { AssertionType } from "./assertion-type.js";
 
 const assertionFileNameSchema = z
