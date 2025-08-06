@@ -15,6 +15,7 @@ headers {
   x-user-email: {{sender_email}}
   x-subscription-id: {{sender_subscription_id}}
   x-user-id: {{sender_user_id}}
+  x-forwarded-for: {{receipt_id}}
 }
 
 vars:pre-request {
