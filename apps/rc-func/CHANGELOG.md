@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.11.9
+
+### Patch Changes
+
+- 31598aa: Remove notify API
+
 ## 1.11.8
 
 ### Patch Changes

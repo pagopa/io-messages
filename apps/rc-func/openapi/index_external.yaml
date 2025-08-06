@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: 1.11.8
+  version: 1.11.9
   title: IO Messages Sending - External - API
   x-logo:
     url: https://io.italia.it/assets/img/io-logo-blue.svg
