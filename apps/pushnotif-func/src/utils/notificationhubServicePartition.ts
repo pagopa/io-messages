@@ -1,10 +1,9 @@
 import { NotificationHubsClient } from "@azure/notification-hubs";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { strict as assert } from "node:assert";
 
 import { InstallationId } from "../generated/notifications/InstallationId";
 import { DisjoitedNotificationHubPartitionArray } from "./types";
-
-import assert = require("node:assert");
 
 /**
  * @param sha The sha to test

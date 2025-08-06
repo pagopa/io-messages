@@ -107,7 +107,6 @@ type ICreateMessageHandler = (
   messagePayload: ApiNewMessageWithDefaults,
   maybeFiscalCode: Option<FiscalCode>,
 ) => Promise<
-  // eslint-disable-next-line @typescript-eslint/ban-types
   | IResponseErrorForbiddenAnonymousUser
   | IResponseErrorForbiddenNoAuthorizationGroups
   | IResponseErrorForbiddenNoConfigurationId
@@ -286,7 +285,7 @@ export const createMessageDocument = (
  */
 const redirectToNewMessage = (
   newMessageWithoutContent: NewMessageWithoutContent,
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line
 ): IResponseSuccessRedirectToResource<Message, {}> =>
   ResponseSuccessRedirectToResource(
     newMessageWithoutContent,

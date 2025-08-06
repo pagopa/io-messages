@@ -64,7 +64,7 @@ const messagesIngestionHandler =
             ),
           ),
         );
-      } catch (err) {
+      } catch {
         telemetryService.trackEvent(TelemetryEventName.UNEXPECTED_ERROR, {
           invocationId: context.invocationId,
         });
