@@ -46,15 +46,13 @@ describe("LollipopClient", () => {
       status: 400,
     } as Response);
 
-    try {
-      await client.generateLCParams(anAssertionRef, aSignatureInput);
-      throw new Error("Expected error to be thrown");
-    } catch (error) {
-      const typedError = error as Error;
-      expect(typedError.message).toBe(
-        `Error during generateLcParams with status ${aProblemJson.status} and body ${JSON.stringify(aProblemJson)}`,
-      );
-    }
+    await expect(
+      client.generateLCParams(anAssertionRef, aSignatureInput),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: `Error during generateLcParams with status ${aProblemJson.status} and body ${JSON.stringify(aProblemJson)}`,
+      }),
+    );
 
     expect(fetchSpy).toHaveBeenCalledWith(
       `${baseUrl}/pubKeys/${anAssertionRef}/generate`,
@@ -77,15 +75,13 @@ describe("LollipopClient", () => {
       .spyOn(globalThis, "fetch")
       .mockRejectedValueOnce(returnedError);
 
-    try {
-      await client.generateLCParams(anAssertionRef, aSignatureInput);
-      throw new Error("Expected error to be thrown");
-    } catch (error) {
-      const typedError = error as Error;
-      expect(typedError.message).toBe(
-        "Error during generatLcParams api call | Error: Network error",
-      );
-    }
+    await expect(
+      client.generateLCParams(anAssertionRef, aSignatureInput),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: "Error during generatLcParams api call | Error: Network error",
+      }),
+    );
 
     expect(fetchSpy).toHaveBeenCalledWith(
       `${baseUrl}/pubKeys/${anAssertionRef}/generate`,
