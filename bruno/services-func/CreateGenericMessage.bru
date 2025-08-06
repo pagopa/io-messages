@@ -13,8 +13,7 @@ post {
 headers {
   x-user-groups: {{user_groups}}
   x-user-email: {{sender_email}}
-  x-forwarded-for: {{receipt_ip}}
-  x-subscription-id: {{subscription_id}}
+  x-subscription-id: {{sender_subscription_id}}
   x-user-id: {{sender_user_id}}
 }
 
@@ -30,8 +29,4 @@ body:json {
 vars:pre-request {
   fiscal_code: LVTEST00A00A199X
   user_groups: ApiMessageWrite
-  sender_email: example@domain.com
-  receipt_ip: 192.168.1.89
-  subscription_id: 01JR0QRJ8MX1PD06DE6X5FWXS5
-  sender_user_id: 01JR0QRJ8MX1PD06DE6X5FWXS5
 }

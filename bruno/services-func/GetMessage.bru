@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: http://localhost:7073/api/v1/messages/{{fiscal_code}}/{{message_id}}
+  url: {{services_func_url}}/api/v1/messages/{{fiscal_code}}/{{message_id}}
   body: none
   auth: inherit
 }
@@ -13,17 +13,12 @@ get {
 headers {
   x-user-groups: {{user_groups}}
   x-user-email: {{sender_email}}
-  x-subscription-id: {{subscription_id}}
-  x-forwarded-for: {{receipt_ip}}
+  x-subscription-id: {{sender_subscription_id}}
   x-user-id: {{sender_user_id}}
 }
 
 vars:pre-request {
   fiscal_code: LVTEST00A00A199X
-  sender_email: example@domain.com
   user_groups: ApiMessageRead,ApiMessageReadAdvanced
-  message_id: 01JYH78YY315SB62092EX60DDE
-  subscription_id: 01JR0QRJ8MX1PD06DE6X5FWXS5
-  sender_user_id: 01JR0QRJ8MX1PD06DE6X5FWXS5
-  receipt_ip: 192.168.1.89
+  message_id: 01K1Z982NQB2KZ431CWGXD44CR
 }
