@@ -12,13 +12,6 @@ locals {
       REMOTE_CONTENT_COSMOSDB_URI              = var.io_com_cosmos.endpoint
       REMOTE_CONTENT_COSMOSDB__accountEndpoint = var.io_com_cosmos.endpoint
 
-      // BLOB STORAGE
-      MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
-      MESSAGE_CONTAINER_NAME                    = "message-content"
-
-      // QUEUE STORAGE
-      NOTIFICATION_QUEUE_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
-      NOTIFICATION_QUEUE_NAME                      = "push-notifications"
 
       // REDIS
       REDIS_URL      = var.redis_cache.hostname
