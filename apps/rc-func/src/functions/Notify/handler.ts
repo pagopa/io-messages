@@ -130,7 +130,7 @@ const prepareNotification =
         ),
         userSessionRetrieved: true,
       })),
-      TE.orElse(() => {
+      TE.orElseW(() => {
         logger.warning(`Error retrieving user session, switch to anonymous`);
         return TE.of({
           sendVerboseNotification: false,

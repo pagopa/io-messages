@@ -1,3 +1,4 @@
 dist
 generated
 openapi
+vitest.config.mjs*
