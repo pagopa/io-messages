@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.1.1
+
+### Patch Changes
+
+- 7c7cba2: fix typecheck errors
+
 ## 1.1.0
 
 ### Minor Changes
