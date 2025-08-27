@@ -179,11 +179,6 @@ export const messageStatusAvroSchema = avro.Type.forSchema({
     },
     {
       doc: "A timestamp that indicates when the status was created.",
-      name: "timestamp",
-      type: "long",
-    },
-    {
-      doc: "A timestamp that indicates when the status was created.",
       name: "created_at",
       type: "long",
     },

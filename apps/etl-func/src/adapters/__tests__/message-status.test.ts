@@ -17,7 +17,6 @@ describe("getMessageStatusEventFromMessage", () => {
       op: "CREATE",
       schema_version: 1,
       status: aValidMessageStatus.status,
-      timestamp: new Date(aValidMessageStatus.updatedAt).getTime(),
       version: aValidMessageStatus.version,
     });
   });
@@ -37,7 +36,6 @@ describe("getMessageStatusEventFromMessage", () => {
       op: "UPDATE",
       schema_version: 1,
       status: aValidMessageStatus.status,
-      timestamp: new Date(aValidMessageStatus.updatedAt).getTime(),
       version: 1,
     });
   });
