@@ -42,6 +42,11 @@
       }
     },
     {
+      "name": "rejection_reason",
+      "doc": "Reason in case of rejection.",
+      "type": "string"
+    },
+    {
       "name": "is_read",
       "doc": "Boolean that indicates if the message has been read.",
       "type": "boolean"

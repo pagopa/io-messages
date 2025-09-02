@@ -1,7 +1,7 @@
 import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import * as z from "zod";
 
-const rejectionReasonSchema = z
+export const rejectionReasonSchema = z
   .enum(["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"])
   .default("UNKNOWN");
 

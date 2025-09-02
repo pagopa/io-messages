@@ -70,6 +70,10 @@ describe("messageStatusIngestionHandler", () => {
         is_read: aValidMessageStatus.isRead,
         message_id: aValidMessageStatus.messageId,
         op: "CREATE",
+        rejection_reason:
+          aValidMessageStatus.status === "REJECTED"
+            ? aValidMessageStatus.rejection_reason
+            : undefined,
         schema_version: 1,
         status: aValidMessageStatus.status,
         version: aValidMessageStatus.version,

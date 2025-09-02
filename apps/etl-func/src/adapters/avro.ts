@@ -168,6 +168,11 @@ export const messageStatusAvroSchema = avro.Type.forSchema({
       },
     },
     {
+      doc: "Reason in case of message rejection.",
+      name: "rejection_reason",
+      type: "string",
+    },
+    {
       doc: "Boolean that indicates if the message has been read.",
       name: "is_read",
       type: "boolean",

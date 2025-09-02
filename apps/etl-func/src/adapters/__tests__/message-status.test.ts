@@ -39,4 +39,25 @@ describe("getMessageStatusEventFromMessage", () => {
       version: 1,
     });
   });
+
+  test("Given a rejected MessageStatus, it should return a valid MessageStatusEvent with a rejection reason", () => {
+    expect(
+      getMessageStatusEvent({
+        ...aValidMessageStatus,
+        rejection_reason: "UNKNOWN",
+        status: "REJECTED",
+      }),
+    ).toMatchObject({
+      created_at: new Date(aValidMessageStatus.updatedAt).getTime(),
+      id: aValidMessageStatus.id,
+      is_archived: aValidMessageStatus.isArchived,
+      is_read: aValidMessageStatus.isRead,
+      message_id: aValidMessageStatus.messageId,
+      op: "CREATE",
+      rejection_reason: "UNKNOWN",
+      schema_version: 1,
+      status: "REJECTED",
+      version: aValidMessageStatus.version,
+    });
+  });
 });
