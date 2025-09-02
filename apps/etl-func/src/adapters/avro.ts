@@ -168,14 +168,17 @@ export const messageStatusAvroSchema = avro.Type.forSchema({
       },
     },
     {
+      default: null,
       doc: "Reason in case of message rejection.",
       name: "rejection_reason",
-      type: {
-        name: "MessageRejectionReason",
-        symbols: ["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"],
-        type: "enum",
-      },
-      default: "UNKNOWN",
+      type: [
+        "null",
+        {
+          name: "MessageRejectionReason",
+          symbols: ["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"],
+          type: "enum",
+        },
+      ],
     },
     {
       doc: "Boolean that indicates if the message has been read.",

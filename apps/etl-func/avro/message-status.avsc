@@ -44,12 +44,15 @@
     {
       "name": "rejection_reason",
       "doc": "Reason in case of rejection.",
-      "type": {
-        "type": "enum",
-        "name": "MessageRejectionReason",
-        "symbols": ["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"]
-      },
-      "default": "UNKNOWN"
+      "type": [
+        "null",
+        {
+          "type": "enum",
+          "name": "MessageRejectionReason",
+          "symbols": ["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"]
+        }
+      ],
+      "default": null
     },
     {
       "name": "is_read",
