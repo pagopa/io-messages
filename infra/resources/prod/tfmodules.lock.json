@@ -24,16 +24,10 @@
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-event-hub/azurerm/0.0.11"
   },
   "storage_api_weu.com_st": {
-    "hash": "c073e41130034acebff0c22a7cffc22a1533ef46b64752789d472116abc21eee",
-    "version": "0.0.9",
+    "hash": "a2a257b25753f91b36acef29e080efc4d62dea59e803f56e33e813e7a343e66b",
+    "version": "1.0.1",
     "name": "azure_storage_account",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-storage-account/azurerm/0.0.9"
-  },
-  "storage_api_weu.com_st.naming_convention": {
-    "hash": "5b1d21788783dcf33e17a9842f9f7c874c8c5f736c82e70979eb9c8785a74ce4",
-    "version": "0.0.5",
-    "name": "azure_naming_convention",
-    "source": "https://registry.terraform.io/modules/pagopa/dx-azure-naming-convention/azurerm/0.0.5"
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-storage-account/azurerm/1.0.1"
   },
   "web_apps.citizen_func": {
     "hash": "367548c5df2a42f5273583c0de4181c865bd419a4d0aca3cffa2ba19a90c210a",
