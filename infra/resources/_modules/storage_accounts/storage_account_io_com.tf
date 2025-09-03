@@ -28,6 +28,12 @@ resource "azurerm_storage_container" "deleted_messages_logs" {
   container_access_type = "private"
 }
 
+resource "azurerm_storage_container" "message_content_itn" {
+  name                  = "message-content"
+  storage_account_id    = module.com_st.id
+  container_access_type = "private"
+}
+
 resource "azurerm_storage_container_immutability_policy" "deleted_messages_logs" {
   storage_container_resource_manager_id = azurerm_storage_container.deleted_messages_logs.resource_manager_id
   immutability_period_in_days           = 146000
