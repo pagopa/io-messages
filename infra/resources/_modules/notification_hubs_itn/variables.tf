@@ -19,6 +19,10 @@ variable "location_short" {
   type = string
 }
 
+variable "domain" {
+  type = string
+}
+
 variable "key_vault_common_id" {
   type = string
 }

@@ -1,5 +1,5 @@
 resource "azurerm_notification_hub_namespace" "sandbox" {
-  name                = try("${local.nonstandard[var.location_short].sandbox_ntfns}", "${var.project}-sandbox-partition-ntfns-02")
+  name                = "${var.project}-${var.location_short}-${var.domain}-nhns-sandbox"
   resource_group_name = var.resource_group_name
   location            = var.location
   namespace_type      = "NotificationHub"
@@ -9,7 +9,7 @@ resource "azurerm_notification_hub_namespace" "sandbox" {
 }
 
 resource "azurerm_notification_hub" "sandbox" {
-  name                = "${var.project}-ntf-sandbox"
+  name                = "${var.project}-${var.location_short}-${var.domain}-nh-sandbox"
   namespace_name      = azurerm_notification_hub_namespace.sandbox.name
   resource_group_name = azurerm_notification_hub_namespace.sandbox.resource_group_name
   location            = azurerm_notification_hub_namespace.sandbox.location

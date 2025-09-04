@@ -1,5 +1,5 @@
-resource "azurerm_notification_hub_namespace" "common_partition_4" {
-  name                = try("${local.nonstandard[var.location_short].ntfns}-4", "${var.project}-partition-ntfns-04")
+resource "azurerm_notification_hub_namespace" "partition_2" {
+  name                = "${var.project}-${var.location_short}-${var.domain}-nhns-02"
   resource_group_name = var.resource_group_name
   location            = var.location
   namespace_type      = "NotificationHub"
@@ -8,11 +8,11 @@ resource "azurerm_notification_hub_namespace" "common_partition_4" {
   tags = var.tags
 }
 
-resource "azurerm_notification_hub" "common_partition_4" {
-  name                = try("${local.nonstandard[var.location_short].ntf}-4", "${var.project}-partition-ntf-04")
-  namespace_name      = azurerm_notification_hub_namespace.common_partition_4.name
-  resource_group_name = azurerm_notification_hub_namespace.common_partition_4.resource_group_name
-  location            = azurerm_notification_hub_namespace.common_partition_4.location
+resource "azurerm_notification_hub" "partition_2" {
+  name                = "${var.project}-${var.location_short}-${var.domain}-nh-02"
+  namespace_name      = azurerm_notification_hub_namespace.partition_2.name
+  resource_group_name = azurerm_notification_hub_namespace.partition_2.resource_group_name
+  location            = azurerm_notification_hub_namespace.partition_2.location
 
   apns_credential {
     application_mode = local.apns_credential.application_mode
@@ -29,39 +29,39 @@ resource "azurerm_notification_hub" "common_partition_4" {
   tags = var.tags
 }
 
-resource "azurerm_role_assignment" "com_devs_notification_hub_partition_4" {
-  scope                = azurerm_notification_hub_namespace.common_partition_4.id
+resource "azurerm_role_assignment" "com_devs_notification_hub_partition_2" {
+  scope                = azurerm_notification_hub_namespace.partition_2.id
   role_definition_name = "Contributor"
   principal_id         = var.adgroup_com_devs_id
 }
 
-resource "azurerm_notification_hub_authorization_rule" "common_partition_4_default_listen" {
+resource "azurerm_notification_hub_authorization_rule" "partition_2_default_listen" {
   name                  = "DefaultListenSharedAccessSignature"
-  notification_hub_name = azurerm_notification_hub.common_partition_4.name
-  namespace_name        = azurerm_notification_hub_namespace.common_partition_4.name
-  resource_group_name   = azurerm_notification_hub_namespace.common_partition_4.resource_group_name
+  notification_hub_name = azurerm_notification_hub.partition_2.name
+  namespace_name        = azurerm_notification_hub_namespace.partition_2.name
+  resource_group_name   = azurerm_notification_hub_namespace.partition_2.resource_group_name
   manage                = false
   send                  = false
   listen                = true
 }
 
-resource "azurerm_notification_hub_authorization_rule" "common_partition_4_default_full" {
+resource "azurerm_notification_hub_authorization_rule" "partition_2_default_full" {
   name                  = "DefaultFullSharedAccessSignature"
-  notification_hub_name = azurerm_notification_hub.common_partition_4.name
-  namespace_name        = azurerm_notification_hub_namespace.common_partition_4.name
-  resource_group_name   = azurerm_notification_hub_namespace.common_partition_4.resource_group_name
+  notification_hub_name = azurerm_notification_hub.partition_2.name
+  namespace_name        = azurerm_notification_hub_namespace.partition_2.name
+  resource_group_name   = azurerm_notification_hub_namespace.partition_2.resource_group_name
   manage                = true
   send                  = true
   listen                = true
 }
 
-resource "azurerm_monitor_metric_alert" "alert_nh_common_partition_4_pns_errors" {
+resource "azurerm_monitor_metric_alert" "alert_nh_partition_2_pns_errors" {
 
-  name                = "[IOCOM|NH4] Push Notification Service errors"
+  name                = "[IOCOM|NH2] Push Notification Service errors"
   resource_group_name = var.resource_group_name
 
-  scopes        = [azurerm_notification_hub.common_partition_4.id]
-  description   = "Notification Hub Partition 4 incurred in PNS errors, please check. Runbook: not needed."
+  scopes        = [azurerm_notification_hub.partition_2.id]
+  description   = "Notification Hub Partition 2 incurred in PNS errors, please check. Runbook: not needed."
   severity      = 1
   window_size   = "PT30M"
   frequency     = "PT5M"
@@ -84,15 +84,15 @@ resource "azurerm_monitor_metric_alert" "alert_nh_common_partition_4_pns_errors"
   tags = var.tags
 }
 
-resource "azurerm_monitor_metric_alert" "alert_nh_common_partition_4_anomalous_pns_success_volume" {
+resource "azurerm_monitor_metric_alert" "alert_nh_partition_2_anomalous_pns_success_volume" {
 
-  name                = "[IOCOM|NH4] Push Notification Service anomalous success volume"
+  name                = "[IOCOM|NH2] Push Notification Service anomalous success volume"
   resource_group_name = var.resource_group_name
 
   enabled = false
 
-  scopes        = [azurerm_notification_hub.common_partition_4.id]
-  description   = "Notification Hub Partition 4 has an anomalous PNS success volume. Runbook: not needed."
+  scopes        = [azurerm_notification_hub.partition_2.id]
+  description   = "Notification Hub Partition 2 has an anomalous PNS success volume. Runbook: not needed."
   severity      = 1
   window_size   = "PT5M"
   frequency     = "PT1M"
