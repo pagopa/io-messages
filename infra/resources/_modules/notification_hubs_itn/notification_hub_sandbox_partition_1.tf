@@ -19,11 +19,11 @@ resource "azurerm_notification_hub" "sandbox" {
     bundle_id        = local.apns_credential.bundle_id
     team_id          = local.apns_credential.team_id
     key_id           = local.apns_credential.key_id
-    token            = data.azurerm_key_vault_secret.ntfns_common_ntf_common_token_sandbox.value
+    token            = data.azurerm_key_vault_secret.notification_hub_dev_token.value
   }
 
   gcm_credential {
-    api_key = data.azurerm_key_vault_secret.ntfns_common_ntf_common_api_key_sandbox.value
+    api_key = data.azurerm_key_vault_secret.notification_hub_dev_api_key.value
   }
 
   tags = var.tags
