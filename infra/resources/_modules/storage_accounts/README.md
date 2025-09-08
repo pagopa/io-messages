@@ -15,7 +15,7 @@ No requirements.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_com_st"></a> [com\_st](#module\_com\_st) | pagopa-dx/azure-storage-account/azurerm | 0.0.9 |
+| <a name="module_com_st"></a> [com\_st](#module\_com\_st) | pagopa-dx/azure-storage-account/azurerm | 1.0.1 |
 | <a name="module_storage_api"></a> [storage\_api](#module\_storage\_api) | github.com/pagopa/terraform-azurerm-v4//storage_account | v1.2.1 |
 | <a name="module_storage_api_events"></a> [storage\_api\_events](#module\_storage\_api\_events) | github.com/pagopa/terraform-azurerm-v4//storage_account | v1.2.1 |
 | <a name="module_storage_api_replica"></a> [storage\_api\_replica](#module\_storage\_api\_replica) | github.com/pagopa/terraform-azurerm-v4//storage_account | v1.2.1 |
@@ -28,6 +28,7 @@ No requirements.
 | [azurerm_storage_container.cached](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container) | resource |
 | [azurerm_storage_container.deleted_messages_logs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container) | resource |
 | [azurerm_storage_container.message_content](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container) | resource |
+| [azurerm_storage_container.message_content_itn](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container) | resource |
 | [azurerm_storage_container.operations](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container) | resource |
 | [azurerm_storage_container.processing_message](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container) | resource |
 | [azurerm_storage_container_immutability_policy.deleted_messages_logs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container_immutability_policy) | resource |
