@@ -11,7 +11,7 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.35.0 |
 | <a name="provider_http"></a> [http](#provider\_http) | 3.5.0 |
 
 ## Modules
@@ -42,8 +42,8 @@ No modules.
 | [azurerm_api_management_named_value.io-p-itn-com-pushnotif-func-key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_named_value) | resource |
 | [azurerm_api_management_named_value.io_p_itn_com_rc_func_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_named_value) | resource |
 | [azurerm_api_management_named_value.io_p_itn_com_services_func_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_named_value) | resource |
-| [azurerm_api_management_named_value.io_p_messages_sending_func_key_itn](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_named_value) | resource |
 | [azurerm_api_management_named_value.paymentup_base_url](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_named_value) | resource |
+| [azurerm_api_management_policy_fragment.auth](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_policy_fragment) | resource |
 | [azurerm_api_management_product.apim_itn_product_notifications](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_product) | resource |
 | [azurerm_api_management_product.apim_itn_product_payments](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_product) | resource |
 | [azurerm_api_management_product_api.messages_api_v1](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_product_api) | resource |
@@ -61,8 +61,9 @@ No modules.
 | [azurerm_api_management_product.apim_itn_product_services](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/api_management_product) | data source |
 | [azurerm_key_vault_secret.pushnotif_func_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.rc_func_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
-| [azurerm_key_vault_secret.sending_func_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.services_func_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_linux_web_app.session_manager_app_weu](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/linux_web_app) | data source |
+| [azurerm_resource_group.internal](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/resource_group) | data source |
 | [http_http.payment_updater_openapi](https://registry.terraform.io/providers/hashicorp/http/3.5.0/docs/data-sources/http) | data source |
 | [http_http.pushnotif_internal_openapi](https://registry.terraform.io/providers/hashicorp/http/3.5.0/docs/data-sources/http) | data source |
 | [http_http.remote_content_openapi](https://registry.terraform.io/providers/hashicorp/http/3.5.0/docs/data-sources/http) | data source |
@@ -73,7 +74,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_domain"></a> [domain](#input\_domain) | n/a | `string` | n/a | yes |
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | n/a | `string` | n/a | yes |
-| <a name="input_key_vault"></a> [key\_vault](#input\_key\_vault) | n/a | <pre>object({<br>    name = string<br>    id   = string<br>  })</pre> | n/a | yes |
+| <a name="input_key_vault"></a> [key\_vault](#input\_key\_vault) | n/a | <pre>object({<br/>    name = string<br/>    id   = string<br/>  })</pre> | n/a | yes |
 | <a name="input_legacy_location_short"></a> [legacy\_location\_short](#input\_legacy\_location\_short) | legacy\_location\_short | `string` | n/a | yes |
 | <a name="input_location_short"></a> [location\_short](#input\_location\_short) | location\_short | `string` | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | n/a | `string` | n/a | yes |
