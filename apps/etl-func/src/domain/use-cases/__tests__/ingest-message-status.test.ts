@@ -24,7 +24,6 @@ describe("ingestMessageStatusUseCase execute", () => {
         op: "CREATE",
         schema_version: 1,
         status: aValidMessageStatus.status,
-        timestamp: new Date(aValidMessageStatus.updatedAt).getTime(),
         version: aValidMessageStatus.version,
       },
     ]);
