@@ -1,6 +1,5 @@
 @startuml data-plan-system-context
 !include <C4/C4_Context>
-!include <C4/C4_Container>
 
 LAYOUT_WITH_LEGEND()
 

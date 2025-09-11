@@ -1,0 +1,14 @@
+@startuml system-context
+!include <C4/C4_Context>
+
+title System Context Diagram
+
+System(io, "IO")
+System_Ext(service, "Service", "External APIs for sending/reading messages")
+Person(user, "User", "User of IO-APP")
+
+Rel(user, io, "Reag messages", "HTTPS")
+Rel(service, io, "Get the state of a message", "HTTPS")
+Rel(service, io, "Send bulk messages", "HTTPS")
+
+@enduml
