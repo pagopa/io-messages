@@ -9,7 +9,7 @@ info:
   contact:
     name: pagoPA - Touchpoints team
 servers:
-  - url: https://production_hostname/api
+  - url: https://api-app.io.pagopa.it/api/v1/send
     description: Ambiente di produzione
 paths:
   /aar/notifications/{iun}:
