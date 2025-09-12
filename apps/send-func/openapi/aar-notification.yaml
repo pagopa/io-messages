@@ -16,10 +16,9 @@ paths:
     get:
       tags:
         - SEND AAR Notifications
-      summary: Accesso notifiche ricevute
+      summary: Accesso ai dati della notifica
       description: >-
-        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai
-        dettagli delle  notifiche ricevute.
+        Restituisce i dati di una notifica AAR SEND
       operationId: getAARNotification
       parameters:
         - $ref: "#/components/parameters/pathIun"
@@ -39,12 +38,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-  /aar/verify-qr-code:
+  /aar/qr-code-check:
     post:
       tags:
         - SEND AAR QRCode
-      description: Servizio per la verifica accesso tramite aar qr code
-      summary: servizio per la verifica del aar-qr-code
+      description: Verifica il contenuto del qrcode di un' AAR  e restituisce dati utili al recupero della notifica
+      summary: Servizio per la verifica del aar-qr-code
       operationId: aarQRCodeCheck
       parameters:
         - in: query
@@ -90,20 +89,16 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-  /aar/attachments/{attachmentUrl}:
+  /aar/attachments/{urlEncodedBase64AttachmentUrl}:
     get:
       operationId: getNotificationAttachment
       tags:
         - SEND AAR Attachments
       parameters:
+        - $ref: "#/components/parameters/urlEncodedBase64AttachmentUrl"
         - $ref: "#/components/parameters/queryMandateId"
         - $ref: "#/components/parameters/cxTaxIdAuthFleet"
         - $ref: "#/components/parameters/headerIoSource"
-        - $ref: "#/components/parameters/attachmentUrl"
-        - in: query
-          name: mandateId
-          schema:
-            type: string
         - in: query
           name: attachmentIdx
           schema:
@@ -140,8 +135,8 @@ paths:
 
 components:
   parameters:
-    attachmentUrl:
-      name: attachmentUrl
+    urlEncodedBase64AttachmentUrl:
+      name: urlEncodedBase64AttachmentUrl
       in: path
       required: true
       schema:
