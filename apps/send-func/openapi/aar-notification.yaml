@@ -127,37 +127,6 @@ components:
         minLength: 25
         maxLength: 25
         pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
-    pathAttachmentName:
-      name: attachmentName
-      in: path
-      required: true
-      schema:
-        type: string
-        minLength: 3
-        maxLength: 6
-        pattern: PAGOPA|F24
-    pathLegalFactType:
-      description: Categoria dell'atto opponibile a terzi
-      name: legalFactType
-      in: path
-      required: true
-      schema:
-        $ref: "#/components/schemas/LegalFactCategory"
-    pathLegalFactId:
-      description: Identificativo dell'atto opponibile a terzi
-      name: legalFactId
-      in: path
-      required: true
-      schema:
-        type: string
-    pathDocumentIdx:
-      name: docIdx
-      description: indice del documento nella lista partendo da 0.
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int32
     queryMandateId:
       name: mandateId
       description: Identificativo della delega
@@ -166,69 +135,6 @@ components:
       schema:
         type: string
         format: uuid
-    lollipopOriginalUrl:
-      name: x-pagopa-lollipop-original-url
-      in: header
-      description: lollipop expected lc original url
-      required: false
-      schema:
-        type: string
-    lollipopOriginalMethod:
-      name: x-pagopa-lollipop-original-method
-      in: header
-      description: lollipop expected lc original method
-      required: false
-      schema:
-        type: string
-    lollipopPublicKey:
-      name: x-pagopa-lollipop-public-key
-      in: header
-      description: lollipop public key
-      required: false
-      schema:
-        type: string
-    lollipopAssertionRef:
-      name: x-pagopa-lollipop-assertion-ref
-      in: header
-      description: lollipop assertion reference
-      required: false
-      schema:
-        type: string
-    lollipopAssertionType:
-      name: x-pagopa-lollipop-assertion-type
-      in: header
-      description: lollipop assertion type (SAML)
-      required: false
-      schema:
-        type: string
-    lollipopAuthJwt:
-      name: x-pagopa-lollipop-auth-jwt
-      in: header
-      description: lollipop authentication jwt
-      required: false
-      schema:
-        type: string
-    lollipopUserId:
-      name: x-pagopa-lollipop-user-id
-      in: header
-      description: lollipop user id
-      required: false
-      schema:
-        type: string
-    lollipopSignatureInput:
-      name: signature-input
-      in: header
-      description: lollipop signature input
-      required: false
-      schema:
-        type: string
-    lollipopSignature:
-      name: signature
-      in: header
-      description: lollipop signature
-      required: false
-      schema:
-        type: string
   schemas:
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
@@ -269,17 +175,6 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del
             documento sia disponibile per il download.
-    LegalFactCategory:
-      title: Tipi di atti opponibili a terzi
-      description: >-
-        Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a
-        disposizione dei suoi utenti.
-          - SENDER_ACK: atto di "presa in carico" di una notifica
-          - DIGITAL_DELIVERY: atto di consegna digitale
-          - ANALOG_DELIVERY: atto di consegna cartacea
-          - RECIPIENT_ACCESS: atto di consegna per avvenuto accesso alla piattaforma
-          - PEC_RECEIPT: ricevuta PEC
-      type: string
     ThirdPartyMessage:
       type: object
       properties:
