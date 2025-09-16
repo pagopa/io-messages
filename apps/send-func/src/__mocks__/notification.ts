@@ -40,50 +40,51 @@ export const anAttachmentName = "F24";
 export const aThirdPartyMessage = thirdPartyMessageSchema.parse({
   attachments: [
     {
-      id: "attachment123",
+      category: "DOCUMENT",
       content_type: "application/pdf",
+      id: "attachment123",
       name: "documento.pdf",
       url: "https://example.com/documento.pdf",
-      category: "DOCUMENT"
-    }
+    },
   ],
   details: {
-    subject: "Avviso di notifica",
+    abstract: "Notifica relativa a pagamento F24",
+    completedPayments: ["302000100000019421"],
+    isCancelled: false,
     iun: aIun,
+    notificationStatusHistory: [
+      {
+        activeFrom: "2025-09-15T10:00:00+02:00",
+        relatedTimelineElements: ["element1", "element2"],
+        status: "ACCEPTED",
+      },
+      {
+        activeFrom: "2025-09-16T09:30:00+02:00",
+        relatedTimelineElements: ["element3"],
+        status: "DELIVERED",
+      },
+    ],
     recipients: [
       {
         denomination: "Mario Rossi",
+        payment: {
+          creditorTaxId: "77777777777",
+          noticeCode: "302000100000019421",
+        },
         recipientType: "PF",
         taxId: "RSSMRA85M01H501U",
-        payment: {
-          noticeCode: "302000100000019421",
-          creditorTaxId: "77777777777"
-        }
-      }
-    ],
-    notificationStatusHistory: [
-      {
-        status: "ACCEPTED",
-        activeFrom: "2025-09-15T10:00:00+02:00",
-        relatedTimelineElements: ["element1", "element2"]
       },
-      {
-        status: "DELIVERED",
-        activeFrom: "2025-09-16T09:30:00+02:00",
-        relatedTimelineElements: ["element3"]
-      }
     ],
-    abstract: "Notifica relativa a pagamento F24",
     senderDenomination: "Comune di Esempio",
-    completedPayments: ["302000100000019421"],
-    isCancelled: false
-  }
-})
+    subject: "Avviso di notifica",
+  },
+});
 
-export const anAttchmentMetadataResponse = attachmentMetadataResponseSchema.parse({
-  filename: "documento.pdf",
-  contentType: "application/pdf",
-  contentLength: 54092,
-  sha256: "aValidSha256",
-  url: "https://example.com/download/documento.pdf"
-})
+export const anAttchmentMetadataResponse =
+  attachmentMetadataResponseSchema.parse({
+    contentLength: 54092,
+    contentType: "application/pdf",
+    filename: "documento.pdf",
+    sha256: "aValidSha256",
+    url: "https://example.com/download/documento.pdf",
+  });

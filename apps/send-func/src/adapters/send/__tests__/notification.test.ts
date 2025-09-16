@@ -3,10 +3,10 @@ import {
   aCheckQrMandateResponse,
   aDocIdx,
   aIun,
-  anAttachmentName,
-  anAttchmentMetadataResponse,
   aProblem,
   aThirdPartyMessage,
+  anAttachmentName,
+  anAttchmentMetadataResponse,
 } from "@/__mocks__/notification.js";
 import { aFiscalCode } from "io-messages-common/adapters/lollipop/__mocks__/lollipop";
 import { describe, expect, it, vi } from "vitest";
@@ -124,7 +124,8 @@ describe("NotificationClient.checkAarQrCodeIO", () => {
       client.checkAarQrCodeIO(aCheckQrMandateRequest, aLollipopHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
-        message: "Error during checkAarQrCodeIO api call | Error: Network error",
+        message:
+          "Error during checkAarQrCodeIO api call | Error: Network error",
       }),
     );
 
@@ -214,7 +215,8 @@ describe("NotificationClient.getReceivedNotification", () => {
       client.getReceivedNotification(aIun, aLollipopHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
-        message: "Error during getReceivedNotification api call | Error: Network error",
+        message:
+          "Error during getReceivedNotification api call | Error: Network error",
       }),
     );
 
@@ -270,7 +272,11 @@ describe("NotificationClient.getReceivedNotificationAttachment", () => {
     } as Response);
 
     await expect(
-      client.getReceivedNotificationAttachment(aIun, anAttachmentName, aLollipopHeaders),
+      client.getReceivedNotificationAttachment(
+        aIun,
+        anAttachmentName,
+        aLollipopHeaders,
+      ),
     ).rejects.toEqual(
       expect.objectContaining({
         body: aProblem,
@@ -301,10 +307,15 @@ describe("NotificationClient.getReceivedNotificationAttachment", () => {
       .mockRejectedValueOnce(returnedError);
 
     await expect(
-      client.getReceivedNotificationAttachment(aIun, anAttachmentName, aLollipopHeaders),
+      client.getReceivedNotificationAttachment(
+        aIun,
+        anAttachmentName,
+        aLollipopHeaders,
+      ),
     ).rejects.toEqual(
       expect.objectContaining({
-        message: "Error during getReceivedNotificationAttachment api call | Error: Network error",
+        message:
+          "Error during getReceivedNotificationAttachment api call | Error: Network error",
       }),
     );
 
@@ -394,7 +405,8 @@ describe("NotificationClient.getReceivedNgetReceivedNotificationDocumentotificat
       client.getReceivedNotificationDocument(aIun, aDocIdx, aLollipopHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
-        message: "Error during getReceivedNotificationDocument api call | Error: Network error",
+        message:
+          "Error during getReceivedNotificationDocument api call | Error: Network error",
       }),
     );
 
