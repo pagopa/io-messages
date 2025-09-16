@@ -74,7 +74,7 @@ export const thirdPartyMessageSchema = z
         .array(z.string().min(18).max(18).regex(/^\d+$/))
         .optional(),
       isCancelled: z.boolean().optional(),
-      iun: z.string(),
+      iun: iunSchema,
       notificationStatusHistory: z.array(
         z.object({
           activeFrom: z.string().datetime({ offset: true }),
@@ -105,8 +105,7 @@ export const thirdPartyMessageSchema = z
       senderDenomination: z.string().optional(),
       subject: z.string(),
     }),
-  })
-  .partial();
+  });
 
 export type ThirdPartyMessage = z.TypeOf<typeof thirdPartyMessageSchema>;
 
@@ -121,9 +120,7 @@ export type CheckQrMandateRequest = z.TypeOf<
   typeof checkQrMandateRequestSchema
 >;
 
-export const userInfoSchema = z
-  .object({ denomination: z.string(), taxId: z.string() })
-  .partial();
+export const userInfoSchema = z.object({ denomination: z.string(), taxId: z.string() });
 
 export type UserInfo = z.TypeOf<typeof userInfoSchema>;
 
