@@ -7,6 +7,7 @@ const notificationClientConfigSchema = z.object({
 
 export const configSchema = z.object({
   notificationClient: notificationClientConfigSchema,
+  notificationUatClient: notificationClientConfigSchema,
 });
 
 export const envSchema = z.object({
