@@ -3,9 +3,9 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    NOTIFICATION_CLIENT_API_KEY: "anApiKey",
-    NOTIFICATION_CLIENT_BASE_URL: "https://produrl.com",
-    NOTIFICATION_CLIENT_UAT_API_KEY: "anApiKey",
-    NOTIFICATION_CLIENT_UAT_BASE_URL: "https://uaturl.com"
+    "NOTIFICATION_CLIENT_API_KEY": "anApiKey",
+    "NOTIFICATION_CLIENT_BASE_URL": "https://produrl.com",
+    "NOTIFICATION_CLIENT_UAT_API_KEY": "anApiKey",
+    "NOTIFICATION_CLIENT_UAT_BASE_URL": "https://uaturl.com"
   }
 }
