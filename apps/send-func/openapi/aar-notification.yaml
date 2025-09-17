@@ -230,7 +230,6 @@ components:
           description: identificativo della delega
           type: string
         recipientInfo:
-          description: Informazioni anagrafiche dell'utente destinatario della notifica
           $ref: "#/components/schemas/UserInfo"
     UserInfo:
       type: object
@@ -413,9 +412,9 @@ components:
         - creditorTaxId
       properties:
         noticeCode:
-          $ref: "#/components/schemas/noticeCode"
+          $ref: "#/components/schemas/NoticeCode"
         creditorTaxId:
-          $ref: "#/components/schemas/paTaxId"
+          $ref: "#/components/schemas/PaTaxId"
     NotificationStatusHistory:
       description: elenco degli avanzamenti effettuati dal processo di notifica
       type: array
