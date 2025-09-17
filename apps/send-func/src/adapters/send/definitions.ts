@@ -81,56 +81,54 @@ export const problemSchema = z.object({
 
 export type Problem = z.TypeOf<typeof problemSchema>;
 
-export const thirdPartyMessageSchema = z
-  .object({
-    attachments: z.array(
+export const thirdPartyMessageSchema = z.object({
+  attachments: z.array(
+    z.object({
+      category: z.enum(["DOCUMENT", "F24"]),
+      content_type: z.string().min(1).optional(),
+      id: z.string().min(1),
+      name: z.string().min(1).optional(),
+      url: z.string().min(1),
+    }),
+  ),
+  details: z.object({
+    abstract: z.string().optional(),
+    completedPayments: z
+      .array(z.string().min(18).max(18).regex(/^\d+$/))
+      .optional(),
+    isCancelled: z.boolean().optional(),
+    iun: iunSchema,
+    notificationStatusHistory: z.array(
       z.object({
-        category: z.enum(["DOCUMENT", "F24"]),
-        content_type: z.string().min(1).optional(),
-        id: z.string().min(1),
-        name: z.string().min(1).optional(),
-        url: z.string().min(1),
+        activeFrom: z.string().datetime({ offset: true }),
+        relatedTimelineElements: z.array(z.string()),
+        status: z.string(),
       }),
     ),
-    details: z.object({
-      abstract: z.string().optional(),
-      completedPayments: z
-        .array(z.string().min(18).max(18).regex(/^\d+$/))
-        .optional(),
-      isCancelled: z.boolean().optional(),
-      iun: z.string(),
-      notificationStatusHistory: z.array(
-        z.object({
-          activeFrom: z.string().datetime({ offset: true }),
-          relatedTimelineElements: z.array(z.string()),
-          status: z.string(),
-        }),
-      ),
-      recipients: z.array(
-        z.object({
-          denomination: z.string().min(1).regex(/^.*$/),
-          payment: z
-            .object({
-              creditorTaxId: z.string().min(11).max(11).regex(/^\d+$/),
-              noticeCode: z.string().min(18).max(18).regex(/^\d+$/),
-            })
+    recipients: z.array(
+      z.object({
+        denomination: z.string().min(1).regex(/^.*$/),
+        payment: z
+          .object({
+            creditorTaxId: z.string().min(11).max(11).regex(/^\d+$/),
+            noticeCode: z.string().min(18).max(18).regex(/^\d+$/),
+          })
 
-            .optional(),
-          recipientType: z.string(),
-          taxId: z
-            .string()
-            .min(11)
-            .max(16)
-            .regex(
-              /^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$/,
-            ),
-        }),
-      ),
-      senderDenomination: z.string().optional(),
-      subject: z.string(),
-    }),
-  })
-  .partial();
+          .optional(),
+        recipientType: z.string(),
+        taxId: z
+          .string()
+          .min(11)
+          .max(16)
+          .regex(
+            /^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$/,
+          ),
+      }),
+    ),
+    senderDenomination: z.string().optional(),
+    subject: z.string(),
+  }),
+});
 
 export type ThirdPartyMessage = z.TypeOf<typeof thirdPartyMessageSchema>;
 
@@ -145,9 +143,10 @@ export type CheckQrMandateRequest = z.TypeOf<
   typeof checkQrMandateRequestSchema
 >;
 
-export const userInfoSchema = z
-  .object({ denomination: z.string(), taxId: z.string() })
-  .partial();
+export const userInfoSchema = z.object({
+  denomination: z.string(),
+  taxId: z.string(),
+});
 
 export type UserInfo = z.TypeOf<typeof userInfoSchema>;
 

@@ -81,7 +81,7 @@ export default class NotificationClient {
             : problemSchema.parse(responseJson);
 
         throw new NotificationClientError(
-          `HTTP ${response.status}`,
+          `The api responded with HTTP status ${response.status}`,
           response.status,
           parsedError,
         );
@@ -90,9 +90,7 @@ export default class NotificationClient {
       return checkQrMandateResponseSchema.parse(responseJson);
     } catch (error) {
       if (error instanceof NotificationClientError) throw error;
-      throw new Error(
-        `Error during getReceivedNotificationAttachment api call | ${error}`,
-      );
+      throw new Error(`Error during checkAarQrCodeIO api call | ${error}`);
     }
   }
 
@@ -127,7 +125,7 @@ export default class NotificationClient {
         const parsedError = problemSchema.parse(responseJson);
 
         throw new NotificationClientError(
-          `HTTP ${response.status}`,
+          `The api responded with HTTP status ${response.status}`,
           response.status,
           parsedError,
         );
@@ -183,7 +181,7 @@ export default class NotificationClient {
         const parsedError = problemSchema.parse(responseJson);
 
         throw new NotificationClientError(
-          `HTTP ${response.status}`,
+          `The api responded with HTTP status ${response.status}`,
           response.status,
           parsedError,
         );
@@ -229,7 +227,7 @@ export default class NotificationClient {
         const parsedError = problemSchema.parse(responseJson);
 
         throw new NotificationClientError(
-          `HTTP ${response.status}`,
+          `The api responded with HTTP status ${response.status}`,
           response.status,
           parsedError,
         );
