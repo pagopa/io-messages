@@ -1,3 +1,5 @@
+import { lollipopHeadersSchema } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
+import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import { z } from "zod";
 
 export const attachmentNameSchema = z.enum(["PAGOPA", "F24"]);
@@ -132,11 +134,14 @@ export const thirdPartyMessageSchema = z.object({
 
 export type ThirdPartyMessage = z.TypeOf<typeof thirdPartyMessageSchema>;
 
+export const aarQrCodeValueSchema = z
+  .string()
+  .max(300)
+  .regex(/^[ -~]*$/);
+export type AarQrCodeValue = z.TypeOf<typeof aarQrCodeValueSchema>;
+
 export const checkQrMandateRequestSchema = z.object({
-  aarQrCodeValue: z
-    .string()
-    .max(300)
-    .regex(/^[ -~]*$/),
+  aarQrCodeValue: aarQrCodeValueSchema,
 });
 
 export type CheckQrMandateRequest = z.TypeOf<
@@ -158,3 +163,12 @@ export const checkQrMandateResponseSchema = z.object({
 export type CheckQrMandateResponse = z.TypeOf<
   typeof checkQrMandateResponseSchema
 >;
+
+export const sendHeadersSchema = lollipopHeadersSchema.merge(
+  z.object({
+    "x-pagopa-cx-taxid": fiscalCodeSchema,
+    "x-pagopa-pn-io-src": z.string().optional(),
+  }),
+);
+
+export type SendHeaders = z.TypeOf<typeof sendHeadersSchema>;
