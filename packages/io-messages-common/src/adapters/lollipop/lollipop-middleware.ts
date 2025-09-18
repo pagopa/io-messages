@@ -21,9 +21,7 @@ import { LollipopSignatureInput } from "./definitions/signature-input.js";
 import { Thumbprint, thumbprintSchema } from "./definitions/thumbprint.js";
 import LollipopClient, { LollipopClientError } from "./lollipop-client.js";
 
-export interface ExtendedInvocationContext extends InvocationContext {
-  lollipopHeaders?: LollipopHeaders;
-}
+export const lollipopExtraInputsCtxKey = "lollipopHeaders";
 
 const algoSchemaMap: {
   algo: JwkPubKeyHashAlgorithm;
@@ -136,6 +134,6 @@ export function createLollipopMiddleware(
 ): Middleware {
   return async (req: HttpRequest, ctx: InvocationContext) => {
     const headers = await parseLollipopHeaders(req, lollipopClient);
-    (ctx as ExtendedInvocationContext).lollipopHeaders = headers;
+    ctx.extraInputs.set(lollipopExtraInputsCtxKey, headers);
   };
 }
