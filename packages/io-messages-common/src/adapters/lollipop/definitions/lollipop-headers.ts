@@ -7,7 +7,6 @@ import { lollipopRequestHeadersSchema } from "./request-headers.js";
 
 export const lollipopHeadersSchema = lollipopRequestHeadersSchema.merge(
   z.object({
-    "x-pagopa-cx-taxid": fiscalCodeSchema,
     "x-pagopa-lollipop-assertion-ref": assertionRefSchema,
     "x-pagopa-lollipop-assertion-type": assertionTypeSchema,
     "x-pagopa-lollipop-auth-jwt": z.string(),

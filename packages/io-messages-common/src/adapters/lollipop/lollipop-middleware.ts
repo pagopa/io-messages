@@ -17,12 +17,9 @@ import {
   jwkPubKeyHashAlgorithmSchema,
 } from "./definitions/pub-key-algorithm.js";
 import { lollipopRequestHeadersSchema } from "./definitions/request-headers.js";
-import {
-  LollipopSignatureInput,
-  lollipopSignatureInputSchema,
-} from "./definitions/signature-input.js";
+import { LollipopSignatureInput } from "./definitions/signature-input.js";
 import { Thumbprint, thumbprintSchema } from "./definitions/thumbprint.js";
-import LollipopClient from "./lollipop-client.js";
+import LollipopClient, { LollipopClientError } from "./lollipop-client.js";
 
 export interface ExtendedInvocationContext extends InvocationContext {
   lollipopHeaders?: LollipopHeaders;
@@ -82,32 +79,32 @@ export const parseLollipopHeaders = async (
   req: HttpRequest,
   lollipopClient: LollipopClient,
 ): Promise<LollipopHeaders> => {
-  const parsedRequestHeaders = lollipopRequestHeadersSchema.safeParse(
-    req.headers,
-  );
+  const normalizedHeaders = Object.fromEntries(req.headers.entries());
+  const parsedRequestHeaders =
+    lollipopRequestHeadersSchema.safeParse(normalizedHeaders);
   if (!parsedRequestHeaders.success)
-    throw new MiddlewareError("Missing required lollipop headers");
+    throw new MiddlewareError(`Missing required lollipop headers`);
 
   const requestHeaders = parsedRequestHeaders.data;
 
-  const parsedSignatureInput = lollipopSignatureInputSchema.safeParse(
-    requestHeaders["signature-input"],
-  );
-  if (!parsedSignatureInput.success)
-    throw new MiddlewareError("Invalid signature-input header");
+  const userHeader = req.headers.get("x-user");
+  if (!userHeader) throw new MiddlewareError("Missing x-user header");
 
-  const parsedUser = userIdentitySchema.safeParse(req.headers.get("x-user"));
-  if (!parsedUser.success) throw new Error("Invalid or missing x-user header");
+  const decodedUser = JSON.parse(
+    Buffer.from(userHeader, "base64").toString("utf-8"),
+  );
+  const parsedUser = userIdentitySchema.safeParse(decodedUser);
+  if (!parsedUser.success)
+    throw new MiddlewareError(
+      `Invalid or missing x-user header ${parsedUser.error}`,
+    );
 
   const userIdentity = parsedUser.data;
-  const signatureInput = parsedSignatureInput.data;
+  const signatureInput = requestHeaders["signature-input"];
 
   const operationId = getNonceOrUuidFromSignature(signatureInput);
   const thumbprint = getKeyThumbprintFromSignature(signatureInput);
   const assertionRef = userIdentity.assertion_ref;
-
-  if (!assertionRef)
-    throw new MiddlewareError("Missing assertion_ref in x-user header");
 
   const algo = getAlgoFromAssertionRef(assertionRef);
   if (assertionRef !== `${algo}-${thumbprint}`)
@@ -128,8 +125,9 @@ export const parseLollipopHeaders = async (
       ...requestHeaders,
     });
   } catch (err) {
-    if (err instanceof MiddlewareError) throw err;
-    throw new Error(`Unexpected error | ${err}`);
+    if (err instanceof LollipopClientError)
+      throw new MiddlewareError(err.message, err.body);
+    throw new Error(`Unexpected Middleware error | ${err}`);
   }
 };
 

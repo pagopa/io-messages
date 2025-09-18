@@ -19,11 +19,12 @@ import {
 
 export class NotificationClientError extends Error {
   body: unknown;
-  name = "NotificationClientError";
+  name: string;
   status: number;
 
   constructor(message: string, status: number, body: unknown) {
     super(message);
+    this.name = "NotificationClientError";
     this.status = status;
     this.body = body;
   }

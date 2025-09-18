@@ -1,8 +1,8 @@
 import { fiscalCodeSchema } from "../../..//domain/fiscal-code.js";
+import { problemJsonSchema } from "../../../domain/problem-json.js";
 import { assertionRefSchema } from "../definitions/assertion-ref.js";
 import { assertionTypeSchema } from "../definitions/assertion-type.js";
 import { lcParamsSchema } from "../definitions/lc-params.js";
-import { problemJsonSchema } from "../definitions/problem-json.js";
 import { pubKeyStatusSchema } from "../definitions/pub-key-status.js";
 import { lollipopSignatureInputSchema } from "../definitions/signature-input.js";
 import { thumbprintSchema } from "../definitions/thumbprint.js";
