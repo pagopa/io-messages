@@ -1,16 +1,16 @@
-import { FiscalCode } from "io-messages-common/domain/fiscal-code";
-
 import {
+  AarQrCodeValue,
   AttachmentMetadataResponse,
   AttachmentName,
-  CheckQrMandateRequest,
   CheckQrMandateResponse,
   DocIdx,
   Iun,
   MandateId,
+  SendHeaders,
   ThirdPartyMessage,
   attachmentMetadataResponseSchema,
   attachmentNameSchema,
+  checkQrMandateRequestSchema,
   checkQrMandateResponseSchema,
   iunSchema,
   problemSchema,
@@ -29,20 +29,6 @@ export class NotificationClientError extends Error {
   }
 }
 
-export interface LollipopHeaders {
-  signature?: string;
-  "signature-input"?: string;
-  "x-pagopa-cx-taxid": FiscalCode;
-  "x-pagopa-lollipop-assertion-ref"?: string;
-  "x-pagopa-lollipop-assertion-type"?: string;
-  "x-pagopa-lollipop-auth-jwt"?: string;
-  "x-pagopa-lollipop-original-method"?: string;
-  "x-pagopa-lollipop-original-url"?: string;
-  "x-pagopa-lollipop-public-key"?: string;
-  "x-pagopa-lollipop-user-id"?: string;
-  "x-pagopa-pn-io-src"?: string;
-}
-
 export default class NotificationClient {
   #apiKey: string;
   #baseUrl: string;
@@ -53,8 +39,8 @@ export default class NotificationClient {
   }
 
   async checkAarQrCodeIO(
-    body: CheckQrMandateRequest,
-    headers: LollipopHeaders,
+    aarQrCodeValue: AarQrCodeValue,
+    headers: SendHeaders,
   ): Promise<CheckQrMandateResponse> {
     try {
       const parsedHeaders = {
@@ -62,6 +48,8 @@ export default class NotificationClient {
         "content-type": "application/json",
         "x-api-key": this.#apiKey,
       };
+
+      const body = checkQrMandateRequestSchema.parse({ aarQrCodeValue });
 
       const response = await fetch(
         `${this.#baseUrl}/delivery/notifications/received/check-qr-code`,
@@ -96,7 +84,7 @@ export default class NotificationClient {
 
   async getReceivedNotification(
     iun: string,
-    headers: LollipopHeaders,
+    headers: SendHeaders,
     mandateId?: string,
   ): Promise<ThirdPartyMessage> {
     try {
@@ -143,7 +131,7 @@ export default class NotificationClient {
   async getReceivedNotificationAttachment(
     iun: string,
     attachmentName: AttachmentName,
-    headers: LollipopHeaders,
+    headers: SendHeaders,
     options?: { attachmentIdx?: number; mandateId?: string },
   ): Promise<AttachmentMetadataResponse> {
     try {
@@ -199,7 +187,7 @@ export default class NotificationClient {
   async getReceivedNotificationDocument(
     iun: Iun,
     docIdx: DocIdx,
-    headers: LollipopHeaders,
+    headers: SendHeaders,
     mandateId?: MandateId,
   ): Promise<AttachmentMetadataResponse> {
     try {
