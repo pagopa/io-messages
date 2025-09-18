@@ -1,0 +1,143 @@
+import { HttpRequest, InvocationContext } from "@azure/functions";
+import { ulid } from "ulid";
+
+import { userIdentitySchema } from "../auth/user-identity.js";
+import { Middleware, MiddlewareError } from "../middleware.js";
+import {
+  assertionRefSha256Schema,
+  assertionRefSha384Schema,
+  assertionRefSha512Schema,
+} from "./definitions/assertion-ref.js";
+import {
+  LollipopHeaders,
+  lollipopHeadersSchema,
+} from "./definitions/lollipop-headers.js";
+import {
+  JwkPubKeyHashAlgorithm,
+  jwkPubKeyHashAlgorithmSchema,
+} from "./definitions/pub-key-algorithm.js";
+import { lollipopRequestHeadersSchema } from "./definitions/request-headers.js";
+import {
+  LollipopSignatureInput,
+  lollipopSignatureInputSchema,
+} from "./definitions/signature-input.js";
+import { Thumbprint, thumbprintSchema } from "./definitions/thumbprint.js";
+import LollipopClient from "./lollipop-client.js";
+
+export interface ExtendedInvocationContext extends InvocationContext {
+  lollipopHeaders?: LollipopHeaders;
+}
+
+const algoSchemaMap: {
+  algo: JwkPubKeyHashAlgorithm;
+  schema:
+    | typeof assertionRefSha256Schema
+    | typeof assertionRefSha384Schema
+    | typeof assertionRefSha512Schema;
+}[] = [
+  {
+    algo: jwkPubKeyHashAlgorithmSchema.Enum.sha256,
+    schema: assertionRefSha256Schema,
+  },
+  {
+    algo: jwkPubKeyHashAlgorithmSchema.Enum.sha384,
+    schema: assertionRefSha384Schema,
+  },
+  {
+    algo: jwkPubKeyHashAlgorithmSchema.Enum.sha512,
+    schema: assertionRefSha512Schema,
+  },
+];
+
+const getAlgoFromAssertionRef = (
+  assertionRef: string,
+): JwkPubKeyHashAlgorithm => {
+  const found = algoSchemaMap.find(
+    ({ schema }) => schema.safeParse(assertionRef).success,
+  );
+  if (!found)
+    throw new MiddlewareError("Unknown algorithm for given AssertionRef");
+  return found.algo;
+};
+
+const getKeyThumbprintFromSignature = (
+  signatureInput: LollipopSignatureInput,
+): Thumbprint => {
+  const match = /;?keyid="([^"]+)";?/.exec(signatureInput);
+  const thumbprint = match?.[1];
+  const parsed = thumbprintSchema.safeParse(thumbprint);
+  if (!parsed.success)
+    throw new MiddlewareError("Invalid keyid in signature-input");
+  return parsed.data;
+};
+
+const getNonceOrUuidFromSignature = (
+  signatureInput: LollipopSignatureInput,
+): string => {
+  const match = /;?nonce="([^"]+)";?/.exec(signatureInput);
+  return match ? match[1] : ulid();
+};
+
+export const parseLollipopHeaders = async (
+  req: HttpRequest,
+  lollipopClient: LollipopClient,
+): Promise<LollipopHeaders> => {
+  const parsedRequestHeaders = lollipopRequestHeadersSchema.safeParse(
+    req.headers,
+  );
+  if (!parsedRequestHeaders.success)
+    throw new MiddlewareError("Missing required lollipop headers");
+
+  const requestHeaders = parsedRequestHeaders.data;
+
+  const parsedSignatureInput = lollipopSignatureInputSchema.safeParse(
+    requestHeaders["signature-input"],
+  );
+  if (!parsedSignatureInput.success)
+    throw new MiddlewareError("Invalid signature-input header");
+
+  const parsedUser = userIdentitySchema.safeParse(req.headers.get("x-user"));
+  if (!parsedUser.success) throw new Error("Invalid or missing x-user header");
+
+  const userIdentity = parsedUser.data;
+  const signatureInput = parsedSignatureInput.data;
+
+  const operationId = getNonceOrUuidFromSignature(signatureInput);
+  const thumbprint = getKeyThumbprintFromSignature(signatureInput);
+  const assertionRef = userIdentity.assertion_ref;
+
+  if (!assertionRef)
+    throw new MiddlewareError("Missing assertion_ref in x-user header");
+
+  const algo = getAlgoFromAssertionRef(assertionRef);
+  if (assertionRef !== `${algo}-${thumbprint}`)
+    throw new MiddlewareError("AssertionRef mismatch");
+
+  try {
+    const lcParams = await lollipopClient.generateLCParams(
+      assertionRef,
+      operationId,
+    );
+
+    return lollipopHeadersSchema.parse({
+      ["x-pagopa-lollipop-assertion-ref"]: lcParams.assertion_ref,
+      ["x-pagopa-lollipop-assertion-type"]: lcParams.assertion_type,
+      ["x-pagopa-lollipop-auth-jwt"]: lcParams.lc_authentication_bearer,
+      ["x-pagopa-lollipop-public-key"]: lcParams.pub_key,
+      ["x-pagopa-lollipop-user-id"]: userIdentity.fiscal_code,
+      ...requestHeaders,
+    });
+  } catch (err) {
+    if (err instanceof MiddlewareError) throw err;
+    throw new Error(`Unexpected error | ${err}`);
+  }
+};
+
+export function createLollipopMiddleware(
+  lollipopClient: LollipopClient,
+): Middleware {
+  return async (req: HttpRequest, ctx: InvocationContext) => {
+    const headers = await parseLollipopHeaders(req, lollipopClient);
+    (ctx as ExtendedInvocationContext).lollipopHeaders = headers;
+  };
+}

@@ -8,4 +8,4 @@ export const problemJsonSchema = z.object({
   type: z.string().url(),
 });
 
-export type ProblemJson = z.TypeOf<typeof problemJsonSchema>;
+export type ProblemJson = z.infer<typeof problemJsonSchema>;
