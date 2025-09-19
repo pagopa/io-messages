@@ -48,10 +48,10 @@ export function handlerWithMiddleware(
 
 function parseMiddlewareErrorResponse(
   error: unknown,
-): HttpResponse | HttpResponseInit {
+): HttpResponseInit {
   if (error instanceof MiddlewareError) {
     error.body.detail = `${error.message} | ${error.body.detail}`;
-    
+
     return {
       jsonBody: error.body,
       status: error.status,
