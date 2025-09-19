@@ -2,7 +2,6 @@ import { StatusCode } from "@/domain/status-code.js";
 import {
   HttpHandler,
   HttpRequest,
-  HttpResponse,
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
@@ -18,11 +17,13 @@ export class MiddlewareError extends Error {
     super(`MiddlewareError | ${message}`);
     this.name = "MiddlawareError";
     this.status = status;
-    this.body = body ?? problemJsonSchema.parse({
-      detail: this.message,
-      status: this.status,
-      title: "Middleware Error",
-    });
+    this.body =
+      body ??
+      problemJsonSchema.parse({
+        detail: this.message,
+        status: this.status,
+        title: "Middleware Error",
+      });
   }
 }
 
@@ -46,9 +47,7 @@ export function handlerWithMiddleware(
   };
 }
 
-function parseMiddlewareErrorResponse(
-  error: unknown,
-): HttpResponseInit {
+function parseMiddlewareErrorResponse(error: unknown): HttpResponseInit {
   if (error instanceof MiddlewareError) {
     error.body.detail = `${error.message} | ${error.body.detail}`;
 

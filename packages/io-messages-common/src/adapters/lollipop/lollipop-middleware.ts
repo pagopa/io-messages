@@ -81,7 +81,10 @@ export const parseLollipopHeaders = async (
   const parsedRequestHeaders =
     lollipopRequestHeadersSchema.safeParse(normalizedHeaders);
   if (!parsedRequestHeaders.success)
-    throw new MiddlewareError(`Missing or invalid required lollipop headers`, 403);
+    throw new MiddlewareError(
+      `Missing or invalid required lollipop headers`,
+      403,
+    );
 
   const requestHeaders = parsedRequestHeaders.data;
 
