@@ -30,16 +30,6 @@ const main = async (config: Config): Promise<void> => {
   );
   const lollipopMiddleware = createLollipopMiddleware(lollipopClient);
 
-  app.http("test", {
-    authLevel: "anonymous",
-    handler: handlerWithMiddleware(
-      lollipopMiddleware,
-      healthcheck(healthcheckUseCase),
-    ),
-    methods: ["GET"],
-    route: "test",
-  });
-
   app.http("Health", {
     authLevel: "anonymous",
     handler: healthcheck(healthcheckUseCase),
