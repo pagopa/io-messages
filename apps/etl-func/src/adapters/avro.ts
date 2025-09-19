@@ -175,7 +175,7 @@ export const messageStatusAvroSchema = avro.Type.forSchema({
         "null",
         {
           name: "MessageRejectionReason",
-          symbols: ["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"],
+          symbols: ["SERVICE_NOT_ALLOWED", "UNKNOWN"],
           type: "enum",
         },
       ],
