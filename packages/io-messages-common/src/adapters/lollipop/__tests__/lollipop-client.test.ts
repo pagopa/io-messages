@@ -29,7 +29,7 @@ describe("LollipopClient", () => {
     expect(fetchSpy).toHaveBeenCalledWith(
       `${baseUrl}/pubKeys/${anAssertionRef}/generate`,
       expect.objectContaining({
-        body: JSON.stringify({ operationId: aSignatureInput }),
+        body: JSON.stringify({ operation_id: aSignatureInput }),
         headers: expect.objectContaining({
           "X-Functions-Key": apiKey,
           "content-type": "application/json",
@@ -50,14 +50,15 @@ describe("LollipopClient", () => {
       client.generateLCParams(anAssertionRef, aSignatureInput),
     ).rejects.toEqual(
       expect.objectContaining({
-        message: `Error during generateLcParams with status ${aProblemJson.status} and body ${JSON.stringify(aProblemJson)}`,
+        body: aProblemJson,
+        message: `Error during generateLcParams with status ${aProblemJson.status}`,
       }),
     );
 
     expect(fetchSpy).toHaveBeenCalledWith(
       `${baseUrl}/pubKeys/${anAssertionRef}/generate`,
       expect.objectContaining({
-        body: JSON.stringify({ operationId: aSignatureInput }),
+        body: JSON.stringify({ operation_id: aSignatureInput }),
         headers: expect.objectContaining({
           "X-Functions-Key": apiKey,
           "content-type": "application/json",
@@ -86,7 +87,7 @@ describe("LollipopClient", () => {
     expect(fetchSpy).toHaveBeenCalledWith(
       `${baseUrl}/pubKeys/${anAssertionRef}/generate`,
       expect.objectContaining({
-        body: JSON.stringify({ operationId: aSignatureInput }),
+        body: JSON.stringify({ operation_id: aSignatureInput }),
         headers: expect.objectContaining({
           "X-Functions-Key": apiKey,
           "content-type": "application/json",

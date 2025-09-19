@@ -2,22 +2,39 @@ import {
   aCheckQrMandateRequest,
   aCheckQrMandateResponse,
   aDocIdx,
+  aFiscalCode,
   aIun,
   aProblem,
+  aSignature,
+  aSignatureInput,
   aThirdPartyMessage,
+  anAarQrCodeValue,
+  anAssertionRef,
+  anAssertionType,
   anAttachmentName,
   anAttchmentMetadataResponse,
+  anOriginalMethod,
+  anOriginalUrl,
 } from "@/__mocks__/notification.js";
-import { aFiscalCode } from "io-messages-common/adapters/lollipop/__mocks__/lollipop";
 import { describe, expect, it, vi } from "vitest";
 
-import NotificationClient, { LollipopHeaders } from "../notification.js";
+import { SendHeaders } from "../definitions.js";
+import NotificationClient from "../notification.js";
 
 const apiKey = "anApiKey";
 const baseUrl = "https://mockurl.com";
 const client = new NotificationClient(apiKey, baseUrl);
-const aLollipopHeaders: LollipopHeaders = {
+const aLollipopHeaders: SendHeaders = {
+  signature: aSignature,
+  "signature-input": aSignatureInput,
   "x-pagopa-cx-taxid": aFiscalCode,
+  "x-pagopa-lollipop-assertion-ref": anAssertionRef,
+  "x-pagopa-lollipop-assertion-type": anAssertionType,
+  "x-pagopa-lollipop-auth-jwt": "an auth jwt",
+  "x-pagopa-lollipop-original-method": anOriginalMethod,
+  "x-pagopa-lollipop-original-url": anOriginalUrl,
+  "x-pagopa-lollipop-public-key": "a public key",
+  "x-pagopa-lollipop-user-id": aFiscalCode,
 };
 
 describe("NotificationClient.checkAarQrCodeIO", () => {
@@ -29,7 +46,7 @@ describe("NotificationClient.checkAarQrCodeIO", () => {
     } as Response);
 
     const response = await client.checkAarQrCodeIO(
-      aCheckQrMandateRequest,
+      anAarQrCodeValue,
       aLollipopHeaders,
     );
 
@@ -56,7 +73,7 @@ describe("NotificationClient.checkAarQrCodeIO", () => {
     } as Response);
 
     await expect(
-      client.checkAarQrCodeIO(aCheckQrMandateRequest, aLollipopHeaders),
+      client.checkAarQrCodeIO(anAarQrCodeValue, aLollipopHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
         body: aCheckQrMandateResponse,
@@ -89,7 +106,7 @@ describe("NotificationClient.checkAarQrCodeIO", () => {
     } as Response);
 
     await expect(
-      client.checkAarQrCodeIO(aCheckQrMandateRequest, aLollipopHeaders),
+      client.checkAarQrCodeIO(anAarQrCodeValue, aLollipopHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
         body: aProblem,
@@ -121,7 +138,7 @@ describe("NotificationClient.checkAarQrCodeIO", () => {
       .mockRejectedValueOnce(returnedError);
 
     await expect(
-      client.checkAarQrCodeIO(aCheckQrMandateRequest, aLollipopHeaders),
+      client.checkAarQrCodeIO(anAarQrCodeValue, aLollipopHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
         message:

@@ -1,3 +1,5 @@
+import { lollipopHeadersSchema } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
+import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import { z } from "zod";
 
 export const attachmentNameSchema = z.enum(["PAGOPA", "F24"]);
@@ -28,6 +30,31 @@ export const attachmentMetadataResponseSchema = z.object({
 export type AttachmentMetadataResponse = z.TypeOf<
   typeof attachmentMetadataResponseSchema
 >;
+
+export const problemJsonSchema = z
+  .object({
+    detail: z.string(),
+    errors: z
+      .array(
+        z
+          .object({
+            code: z.string(),
+            detail: z.string().max(1024).optional(),
+            element: z.string().optional(),
+          })
+          .passthrough(),
+      )
+      .min(1)
+      .optional(),
+    instance: z.string().url().optional(),
+    status: z.number().int().gte(100).lt(600),
+    title: z.string().optional(),
+    traceId: z.string().optional(),
+    type: z.string().url().optional(),
+  })
+  .passthrough();
+
+export type ProblemJson = z.TypeOf<typeof problemJsonSchema>;
 
 export const problemSchema = z.object({
   detail: z
@@ -108,11 +135,14 @@ export const thirdPartyMessageSchema = z.object({
 
 export type ThirdPartyMessage = z.TypeOf<typeof thirdPartyMessageSchema>;
 
+export const aarQrCodeValueSchema = z
+  .string()
+  .max(300)
+  .regex(/^[ -~]*$/);
+export type AarQrCodeValue = z.TypeOf<typeof aarQrCodeValueSchema>;
+
 export const checkQrMandateRequestSchema = z.object({
-  aarQrCodeValue: z
-    .string()
-    .max(300)
-    .regex(/^[ -~]*$/),
+  aarQrCodeValue: aarQrCodeValueSchema,
 });
 
 export type CheckQrMandateRequest = z.TypeOf<
@@ -134,3 +164,12 @@ export const checkQrMandateResponseSchema = z.object({
 export type CheckQrMandateResponse = z.TypeOf<
   typeof checkQrMandateResponseSchema
 >;
+
+export const sendHeadersSchema = lollipopHeadersSchema.merge(
+  z.object({
+    "x-pagopa-cx-taxid": fiscalCodeSchema,
+    "x-pagopa-pn-io-src": z.string().optional(),
+  }),
+);
+
+export type SendHeaders = z.TypeOf<typeof sendHeadersSchema>;

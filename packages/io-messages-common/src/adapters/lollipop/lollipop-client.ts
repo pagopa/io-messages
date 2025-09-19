@@ -1,9 +1,17 @@
+import { ProblemJson, problemJsonSchema } from "../../domain/problem-json.js";
 import { AssertionRef } from "./definitions/assertion-ref.js";
 import { generateLcParamsPayloadSchema } from "./definitions/generate-lc-params-payload.js";
 import { LcParams, lcParamsSchema } from "./definitions/lc-params.js";
 
-class LollipopClientError extends Error {
-  name = "LollipopClientError";
+export class LollipopClientError extends Error {
+  body: ProblemJson;
+  name: string;
+
+  constructor(message: string, body: ProblemJson) {
+    super(message);
+    this.name = "LollipopClientError";
+    this.body = body;
+  }
 }
 
 export default class LollipopClient {
@@ -21,7 +29,7 @@ export default class LollipopClient {
   ): Promise<LcParams> {
     try {
       const request = generateLcParamsPayloadSchema.parse({
-        operationId: operationId,
+        operation_id: operationId,
       });
       const response = await fetch(
         `${this.#baseUrl}/pubKeys/${assertionRef}/generate`,
@@ -38,8 +46,10 @@ export default class LollipopClient {
       const responseJson = await response.json();
 
       if (!response.ok) {
+        const problemJson = problemJsonSchema.parse(responseJson);
         throw new LollipopClientError(
-          `Error during generateLcParams with status ${response.status} and body ${JSON.stringify(responseJson)}`,
+          `Error during generateLcParams with status ${response.status}`,
+          problemJson,
         );
       }
       return lcParamsSchema.parse(responseJson);
