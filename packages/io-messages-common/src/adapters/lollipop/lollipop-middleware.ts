@@ -93,10 +93,7 @@ export const parseLollipopHeaders = async (
   );
   const parsedUser = userIdentitySchema.safeParse(decodedUser);
   if (!parsedUser.success)
-    throw new MiddlewareError(
-      `Invalid x-user header ${parsedUser.error}`,
-      401,
-    );
+    throw new MiddlewareError(`Invalid x-user header ${parsedUser.error}`, 401);
 
   const userIdentity = parsedUser.data;
   const signatureInput = requestHeaders["signature-input"];
@@ -105,8 +102,7 @@ export const parseLollipopHeaders = async (
   const thumbprint = getKeyThumbprintFromSignature(signatureInput);
   const assertionRef = userIdentity.assertion_ref;
 
-  if (!assertionRef)
-    throw new MiddlewareError("AssertionRef is missing", 403);
+  if (!assertionRef) throw new MiddlewareError("AssertionRef is missing", 403);
 
   const algo = getAlgoFromAssertionRef(assertionRef);
   if (assertionRef !== `${algo}-${thumbprint}`)
