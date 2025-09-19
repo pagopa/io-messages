@@ -16,9 +16,13 @@ export class IngestMessageStatusUseCase {
   async execute(messageStatusBatch: MessageStatus[]) {
     if (messageStatusBatch.length > 0) {
       // Transform MessageStatus into MessageStatusEvent
-      const messageStatusEventBatch = messageStatusBatch.map(
-        getMessageStatusEvent,
-      );
+      const messageStatusEventBatch = messageStatusBatch
+        .filter(
+          (messageStatus) =>
+            messageStatus.status !== "REJECTED" ||
+            messageStatus.rejection_reason !== "USER_NOT_FOUND",
+        )
+        .map(getMessageStatusEvent);
       // Load valid MessageStatusEvent batch
       await this.#eventProducer.publish(messageStatusEventBatch);
     }
