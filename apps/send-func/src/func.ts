@@ -1,12 +1,15 @@
 import { app } from "@azure/functions";
-
-import { healthcheck } from "./adapters/functions/health.js";
-import { HealthUseCase } from "./domain/use-cases/health.js";
-import NotificationClient from "./adapters/send/notification.js";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
+import LollipopClient from "io-messages-common/adapters/lollipop/lollipop-client";
+import { createLollipopMiddleware } from "io-messages-common/adapters/lollipop/lollipop-middleware-real";
+import { handlerWithMiddleware } from "io-messages-common/adapters/middleware";
+
 import { Config, configFromEnvironment } from "./adapters/config.js";
+import { getNotification } from "./adapters/functions/aar-notifications.js";
 import { aarQRCodeCheck } from "./adapters/functions/aar-qrcode-check.js";
-import { getNotification } from "./adapters/functions/notifications.js";
+import { healthcheck } from "./adapters/functions/health.js";
+import NotificationClient from "./adapters/send/notification.js";
+import { HealthUseCase } from "./domain/use-cases/health.js";
 
 const main = async (config: Config): Promise<void> => {
   const healthcheckUseCase = new HealthUseCase([]);
@@ -21,6 +24,22 @@ const main = async (config: Config): Promise<void> => {
     config.notificationUatClient.baseUrl,
   );
 
+  const lollipopClient = new LollipopClient(
+    config.lollipop.apiKey,
+    config.lollipop.baseUrl,
+  );
+  const lollipopMiddleware = createLollipopMiddleware(lollipopClient);
+
+  app.http("test", {
+    authLevel: "anonymous",
+    handler: handlerWithMiddleware(
+      lollipopMiddleware,
+      healthcheck(healthcheckUseCase),
+    ),
+    methods: ["GET"],
+    route: "test",
+  });
+
   app.http("Health", {
     authLevel: "anonymous",
     handler: healthcheck(healthcheckUseCase),
@@ -29,17 +48,23 @@ const main = async (config: Config): Promise<void> => {
   });
 
   app.http("AARQrCodeCheck", {
-    methods: ["POST"],
     authLevel: "anonymous",
+    handler: handlerWithMiddleware(
+      lollipopMiddleware,
+      aarQRCodeCheck(notificationClient, uatNotificationClient),
+    ),
+    methods: ["POST"],
     route: "aar/qr-code-check",
-    handler: aarQRCodeCheck(notificationClient, uatNotificationClient),
   });
 
   app.http("GetAARNotification", {
-    methods: ["GET"],
     authLevel: "anonymous",
+    handler: handlerWithMiddleware(
+      lollipopMiddleware,
+      getNotification(notificationClient, uatNotificationClient),
+    ),
+    methods: ["GET"],
     route: "aar/notifications/{iun}",
-    handler: getNotification(notificationClient, uatNotificationClient),
   });
 };
 

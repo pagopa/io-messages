@@ -33,23 +33,24 @@ export type AttachmentMetadataResponse = z.TypeOf<
 
 export const problemJsonSchema = z
   .object({
-    type: z.string().url(),
-    title: z.string().optional(),
-    status: z.number().int().gte(100).lt(600),
-    detail: z.string().optional(),
-    instance: z.string().url().optional(),
+    detail: z.string(),
     errors: z
       .array(
         z
           .object({
             code: z.string(),
-            element: z.string().optional(),
             detail: z.string().max(1024).optional(),
+            element: z.string().optional(),
           })
           .passthrough(),
       )
-      .min(1),
+      .min(1)
+      .optional(),
+    instance: z.string().url().optional(),
+    status: z.number().int().gte(100).lt(600),
+    title: z.string().optional(),
     traceId: z.string().optional(),
+    type: z.string().url().optional(),
   })
   .passthrough();
 

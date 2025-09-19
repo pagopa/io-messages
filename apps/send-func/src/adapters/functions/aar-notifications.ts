@@ -7,7 +7,7 @@ import {
 import { lollipopExtraInputsCtxKey } from "io-messages-common/adapters/lollipop/lollipop-middleware";
 
 import {
-  checkQrMandateRequestSchema,
+  mandateIdSchema,
   problemJsonSchema,
   sendHeadersSchema,
 } from "../send/definitions.js";
@@ -15,7 +15,7 @@ import NotificationClient, {
   NotificationClientError,
 } from "../send/notification.js";
 
-export const aarQRCodeCheck =
+export const getNotification =
   (
     notificationClient: NotificationClient,
     uatNotificationClient: NotificationClient,
@@ -26,18 +26,22 @@ export const aarQRCodeCheck =
   ): Promise<HttpResponseInit> => {
     try {
       const isTest = request.query.get("isTest") === "true";
-      const client = isTest ? uatNotificationClient : notificationClient;
-
       const sendHeaders = sendHeadersSchema.parse(
         context.extraInputs.get(lollipopExtraInputsCtxKey),
       );
-      const rawBody = await request.json();
-      const parsedBody = checkQrMandateRequestSchema.parse(rawBody);
+      const iun = request.params.iun;
 
-      const response = await client.checkAarQrCodeIO(
-        parsedBody.aarQrCodeValue,
+      const client = isTest ? uatNotificationClient : notificationClient;
+      const mandateId = request.query.has("mandateId")
+        ? mandateIdSchema.parse(request.query.get("mandateId"))
+        : undefined;
+
+      const response = await client.getReceivedNotification(
+        iun,
         sendHeaders,
+        mandateId,
       );
+
       return { jsonBody: response, status: 200 };
     } catch (err) {
       if (err instanceof Error && err.name === "ZodError") {
