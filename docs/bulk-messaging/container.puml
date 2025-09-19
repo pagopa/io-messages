@@ -1,0 +1,47 @@
+@startuml container
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+LAYOUT_WITH_LEGEND()
+
+title System Container Diagram
+
+System_Ext(service, "Service", "External APIs for sending/reading messages")
+
+Boundary(io, "IO (Messages)") {
+  Boundary(servicesFunx, "services-func") {
+    Container(createBulkOperation, "CreateBulkOperation", "Azure function endpoint")
+    Container(sendBulkMessage, "SendBulkMessage", "Azure function endpoint")
+    Container(processBulkMessage, "ProcessBulkMessage", "Azure function queue trigger")
+    Container(getBulkMessages, "GetBulkMessages", "Azure function endpoint")
+    Container(createMessage, "CreateMessage", "Azure function endpoint")
+  }
+
+  Boundary(comCosmos, "io-p-itn-com-cosno-01") {
+    ContainerDb(bulkOperations, "bulk-operations", "Azure CosmosDB container")
+    ContainerDb(sendBulkOperations, "send-bulk-operations", "Azure CosmosDB container")
+    ContainerDb(bulkMessages, "bulk-messages", "Azure CosmosDB container")
+  }
+
+  Boundary(comStorage, "iopitncomst01") {
+    ContainerQueue(bulkMessagesQueue, "bulk-messages", "Azure Storage Queue")
+  }
+}
+
+Rel(service, createBulkOperation, "Create a bulk operation")
+Rel(service, sendBulkMessage, "Send messages using bulk feature")
+Rel(service, getBulkMessages, "Get bulk operation message's ids")
+
+Rel(createBulkOperation, bulkOperations, "Write BulkOperation")
+
+Rel(sendBulkMessage, bulkOperations, "Read a BulkOperation")
+Rel(sendBulkMessage, sendBulkOperations, "Write a SendBulkOperation")
+Rel(sendBulkMessage, bulkMessagesQueue, "Write a SendBulkMessage")
+
+Rel(processBulkMessage, bulkMessagesQueue, "Read a SendBulkMessage")
+Rel(processBulkMessage, bulkMessages, "Wtite a SendBulkMessage")
+Rel_R(processBulkMessage, createMessage, "Create a new message")
+
+Rel(getBulkMessages, bulkMessages, "Read bulk messages")
+
+@enduml
