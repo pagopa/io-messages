@@ -10,7 +10,7 @@ import {
 import { ProblemJson, problemJsonSchema } from "../domain/problem-json.js";
 
 export class MiddlewareError extends Error {
-  body?: ProblemJson;
+  body: ProblemJson;
   name: string;
   status: StatusCode;
 
@@ -18,9 +18,11 @@ export class MiddlewareError extends Error {
     super(`MiddlewareError | ${message}`);
     this.name = "MiddlawareError";
     this.status = status;
-    if (body) {
-      this.body = body;
-    }
+    this.body = body ?? problemJsonSchema.parse({
+      detail: this.message,
+      status: this.status,
+      title: "Middleware Error",
+    });
   }
 }
 
@@ -48,22 +50,10 @@ function parseMiddlewareErrorResponse(
   error: unknown,
 ): HttpResponse | HttpResponseInit {
   if (error instanceof MiddlewareError) {
-    if (error.body) {
-      error.body.detail = `${error.message} | ${error.body.detail}`;
-
-      return {
-        jsonBody: error.body,
-        status: error.status,
-      };
-    }
-
-    const jsonBody = problemJsonSchema.parse({
-      detail: error.message,
-      status: error.status,
-      title: "Middleware Error",
-    });
+    error.body.detail = `${error.message} | ${error.body.detail}`;
+    
     return {
-      jsonBody,
+      jsonBody: error.body,
       status: error.status,
     };
   }
