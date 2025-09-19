@@ -1,7 +1,9 @@
 import { z } from "zod";
 
-export const signatureInputSchema = z
+export const lollipopSignatureInputSchema = z
   .string()
   .regex(/^(?:sig\d+=[^,]*)(?:,\s*(?:sig\d+=[^,]*))*$/);
 
-export type SignatureInput = z.TypeOf<typeof signatureInputSchema>;
+export type LollipopSignatureInput = z.infer<
+  typeof lollipopSignatureInputSchema
+>;
