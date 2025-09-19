@@ -1,7 +1,7 @@
 import { app } from "@azure/functions";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import LollipopClient from "io-messages-common/adapters/lollipop/lollipop-client";
-import { createLollipopMiddleware } from "io-messages-common/adapters/lollipop/lollipop-middleware-real";
+import { createLollipopMiddleware } from "io-messages-common/adapters/lollipop/lollipop-middleware";
 import { handlerWithMiddleware } from "io-messages-common/adapters/middleware";
 
 import { Config, configFromEnvironment } from "./adapters/config.js";
