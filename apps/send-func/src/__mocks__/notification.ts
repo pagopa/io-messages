@@ -1,4 +1,5 @@
 import {
+  aarQrCodeValueSchema,
   attachmentMetadataResponseSchema,
   checkQrMandateRequestSchema,
   checkQrMandateResponseSchema,
@@ -7,6 +8,16 @@ import {
   problemSchema,
   thirdPartyMessageSchema,
 } from "@/adapters/send/definitions.js";
+import { assertionRefSchema } from "io-messages-common/adapters/lollipop/definitions/assertion-ref";
+import { assertionTypeSchema } from "io-messages-common/adapters/lollipop/definitions/assertion-type";
+import { lollipopMethodSchema } from "io-messages-common/adapters/lollipop/definitions/lollipop-method";
+import { lollipopOriginalURLSchema } from "io-messages-common/adapters/lollipop/definitions/lollipop-original-url";
+import { lollipopSignatureSchema } from "io-messages-common/adapters/lollipop/definitions/signature";
+import { lollipopSignatureInputSchema } from "io-messages-common/adapters/lollipop/definitions/signature-input";
+import { thumbprintSchema } from "io-messages-common/adapters/lollipop/definitions/thumbprint";
+import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
+
+export const aFiscalCode = fiscalCodeSchema.parse("RMLGNN97R06F158N");
 
 export const aCheckQrMandateResponse = checkQrMandateResponseSchema.parse({
   iun: "ABCD-EFGH-IJKL-123456-M-7",
@@ -14,8 +25,35 @@ export const aCheckQrMandateResponse = checkQrMandateResponseSchema.parse({
   recipientInfo: { denomination: "aDenomination", taxId: "aTaxId" },
 });
 
+export const anAssertionRef = assertionRefSchema.parse(
+  "sha256-6LvipIvFuhyorHpUqK3HjySC5Y6gshXHFBhU9EJ4DoM=",
+);
+export const aThumbprint = thumbprintSchema.parse(
+  "6LvipIvFuhyorHpUqK3HjySC5Y6gshXHFBhU9EJ4DoM=",
+);
+export const anotherAssertionRef = assertionRefSchema.parse(
+  "sha512-Dj51I0q8aPQ3ioaz9LMqGYujAYRbDNblAQbodDRXAMxmY6hsHqEl3F6SvhfJj5oPhcqdX1ldsgEvfMNXGUXBIw==",
+);
+export const aSignature = lollipopSignatureSchema.parse(
+  "sig1=:hNojB+wWw4A7SYF3qK1S01Y4UP5i2JZFYa2WOlMB4Np5iWmJSO0bDe2hrYRbcIWqVAFjuuCBRsB7lYQJkzbb6g==:",
+);
+export const aSignatureInput = lollipopSignatureInputSchema.parse(
+  `sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url"); created=1618884475; keyid="${aThumbprint}"`,
+);
+export const anOriginalMethod = lollipopMethodSchema.enum.POST;
+export const anOriginalUrl = lollipopOriginalURLSchema.parse(
+  "https://api.pagopa.it",
+);
+
+export const anInvalidSignatureInput = lollipopSignatureInputSchema.parse(
+  `sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url"); created=1618884475; keyid="#an-invalid-thumbprint#"`,
+);
+
+export const anAssertionType = assertionTypeSchema.enum.SAML;
+export const anAarQrCodeValue = aarQrCodeValueSchema.parse("a qr code value");
+
 export const aCheckQrMandateRequest = checkQrMandateRequestSchema.parse({
-  aarQrCodeValue: "a qr code value",
+  aarQrCodeValue: anAarQrCodeValue,
 });
 
 export const aProblem = problemSchema.parse({
