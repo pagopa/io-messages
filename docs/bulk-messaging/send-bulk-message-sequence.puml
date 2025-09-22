@@ -1,0 +1,46 @@
+@startuml send-bulk-message-sequence
+
+title SendBulkMessage sequence diagram
+
+actor sender as "Sender"
+participant fn as "SendBulkMessage"
+database db as "bullk-operations"
+queue bm as "bulk-messages"
+
+sender -> fn: POST /bulk-messages
+activate fn
+note left of fn
+  The request payload includes:
+  - bulk_operation_id
+  - recipients
+end note
+
+fn -> fn: Check request payload
+alt Invalid request payload
+  fn -[#red]x sender: 400
+end
+
+fn -> db: Get bulk-operation from id
+activate db
+alt Error from cosmos
+  db -[#red]x fn: 500
+  fn -[#red]x sender: 500
+else if Document not found
+  db -[#red]x fn: 404
+  fn -[#red]x sender: 400
+end
+db -[#green]> fn: 200
+deactivate db
+
+fn -> fn: Check if the owner_id match with the sender
+alt The owner does not match with the sender
+  fn -[#red]x sender: 403
+end
+
+loop for every recipient
+  fn -> bm: Push a SendBulkMessage
+end
+
+fn -[#green]> sender: 201
+
+@enduml
