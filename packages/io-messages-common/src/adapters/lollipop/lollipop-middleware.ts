@@ -51,7 +51,7 @@ const getAlgoFromAssertionRef = (
     ({ schema }) => schema.safeParse(assertionRef).success,
   );
   if (!found)
-    throw new MiddlewareError("Unknown algorithm for given AssertionRef");
+    throw new MiddlewareError("Unknown algorithm for given AssertionRef", 403);
   return found.algo;
 };
 
@@ -62,7 +62,7 @@ const getKeyThumbprintFromSignature = (
   const thumbprint = match?.[1];
   const parsed = thumbprintSchema.safeParse(thumbprint);
   if (!parsed.success)
-    throw new MiddlewareError("Invalid keyid in signature-input");
+    throw new MiddlewareError("Invalid keyid in signature-input", 500);
   return parsed.data;
 };
 
@@ -81,21 +81,22 @@ export const parseLollipopHeaders = async (
   const parsedRequestHeaders =
     lollipopRequestHeadersSchema.safeParse(normalizedHeaders);
   if (!parsedRequestHeaders.success)
-    throw new MiddlewareError(`Missing required lollipop headers`);
+    throw new MiddlewareError(
+      `Missing or invalid required lollipop headers`,
+      403,
+    );
 
   const requestHeaders = parsedRequestHeaders.data;
 
   const userHeader = req.headers.get("x-user");
-  if (!userHeader) throw new MiddlewareError("Missing x-user header");
+  if (!userHeader) throw new MiddlewareError("Missing x-user header", 401);
 
   const decodedUser = JSON.parse(
     Buffer.from(userHeader, "base64").toString("utf-8"),
   );
   const parsedUser = userIdentitySchema.safeParse(decodedUser);
   if (!parsedUser.success)
-    throw new MiddlewareError(
-      `Invalid or missing x-user header ${parsedUser.error}`,
-    );
+    throw new MiddlewareError(`Invalid x-user header ${parsedUser.error}`, 401);
 
   const userIdentity = parsedUser.data;
   const signatureInput = requestHeaders["signature-input"];
@@ -104,9 +105,11 @@ export const parseLollipopHeaders = async (
   const thumbprint = getKeyThumbprintFromSignature(signatureInput);
   const assertionRef = userIdentity.assertion_ref;
 
+  if (!assertionRef) throw new MiddlewareError("AssertionRef is missing", 403);
+
   const algo = getAlgoFromAssertionRef(assertionRef);
   if (assertionRef !== `${algo}-${thumbprint}`)
-    throw new MiddlewareError("AssertionRef mismatch");
+    throw new MiddlewareError("AssertionRef mismatch", 403);
 
   try {
     const lcParams = await lollipopClient.generateLCParams(
@@ -124,7 +127,7 @@ export const parseLollipopHeaders = async (
     });
   } catch (err) {
     if (err instanceof LollipopClientError)
-      throw new MiddlewareError(err.message, err.body);
+      throw new MiddlewareError(err.message, 500, err.body);
     throw new Error(`Unexpected Middleware error | ${err}`);
   }
 };

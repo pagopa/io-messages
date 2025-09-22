@@ -15,6 +15,7 @@
     }
   },
   "devDependencies": {
+    "@azure/functions": "^4.4.0",
     "@pagopa/eslint-config": "^4.0.3",
     "@types/node": "^20.17.30",
     "@vitest/coverage-v8": "^3.1.2",

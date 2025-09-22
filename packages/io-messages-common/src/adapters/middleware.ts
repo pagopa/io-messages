@@ -1,7 +1,7 @@
+import { StatusCode } from "@/domain/status-code.js";
 import {
   HttpHandler,
   HttpRequest,
-  HttpResponse,
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
@@ -9,15 +9,21 @@ import {
 import { ProblemJson, problemJsonSchema } from "../domain/problem-json.js";
 
 export class MiddlewareError extends Error {
-  body?: ProblemJson;
+  body: ProblemJson;
   name: string;
+  status: StatusCode;
 
-  constructor(message: string, body?: ProblemJson) {
+  constructor(message: string, status: StatusCode, body?: ProblemJson) {
     super(`MiddlewareError | ${message}`);
     this.name = "MiddlawareError";
-    if (body) {
-      this.body = body;
-    }
+    this.status = status;
+    this.body =
+      body ??
+      problemJsonSchema.parse({
+        detail: this.message,
+        status: this.status,
+        title: "Middleware Error",
+      });
   }
 }
 
@@ -41,28 +47,13 @@ export function handlerWithMiddleware(
   };
 }
 
-function parseMiddlewareErrorResponse(
-  error: unknown,
-): HttpResponse | HttpResponseInit {
+function parseMiddlewareErrorResponse(error: unknown): HttpResponseInit {
   if (error instanceof MiddlewareError) {
-    if (error.body) {
-      const combinedDetail = `${error.message} | ${error.body.detail}`;
-      error.body.detail = combinedDetail;
+    error.body.detail = `${error.message} | ${error.body.detail}`;
 
-      return {
-        jsonBody: error.body,
-        status: 400,
-      };
-    }
-
-    const jsonBody = problemJsonSchema.parse({
-      detail: error.message,
-      status: 400,
-      title: "Middleware Error",
-    });
     return {
-      jsonBody,
-      status: 400,
+      jsonBody: error.body,
+      status: error.status,
     };
   }
 
