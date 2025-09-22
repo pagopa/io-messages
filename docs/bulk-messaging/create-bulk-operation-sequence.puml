@@ -1,0 +1,45 @@
+@startuml create-bulk-operation-sequence
+
+title CreateBulkOperation sequence diagram
+
+actor sender as "Sender"
+participant fn as "CreateBulkOperation"
+database db as "bullk-operations"
+
+sender -> fn: POST /bulk-operations
+activate fn
+
+note right
+The request payload includes:
+- A NewMessage
+- A valid ApiKey
+end note
+
+fn -> fn: Check permissions to send the NewMessage
+
+alt Not enough permissions
+  note left of fn
+    For example te caller wants to send
+    a PREMIUM message without permissions
+  end note
+  fn -[#red]x sender: 403
+end
+
+fn -> fn: Extract apim user id
+
+fn -> fn: Generate ULID
+
+fn -> db: Save BulkOperation to cosmos
+activate db
+alt Error from cosmos
+  note left of fn: Internal server error
+  db -[#red]x fn: 500
+  fn -[#red]x sender: 500
+end
+
+db -[#green]> fn: 201
+deactivate db
+fn -[#green]> sender: 201 {bulk_operation_id: 01K5EE6SMTMC8Q9DQ1C6NTGHMT}
+deactivate fn
+
+@enduml
