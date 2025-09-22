@@ -21,7 +21,6 @@
   "dependencies": {
     "@azure/functions": "^4.4.0",
     "io-messages-common": "workspace:^",
-    "ulid": "^3.0.0",
     "zod": "^3.24.4"
   },
   "devDependencies": {
