@@ -8,6 +8,7 @@ import { lollipopExtraInputsCtxKey } from "io-messages-common/adapters/lollipop/
 
 import {
   checkQrMandateRequestSchema,
+  checkQrMandateResponseSchema,
   problemJsonSchema,
   sendHeadersSchema,
 } from "../send/definitions.js";
@@ -58,12 +59,21 @@ export const aarQRCodeCheck =
       ) {
         context.error("Notification client error:", err.message);
 
-        const problemJson = problemJsonSchema.parse(err.body);
+        if (err.status === 403) {
+          return {
+            jsonBody: {
+              detail: "Internal server error",
+              errors: checkQrMandateResponseSchema.parse(err.body),
+              status: err.status,
+            },
+            status: 500,
+          };
+        }
 
         return {
           jsonBody: {
             detail: "Internal server error",
-            errors: problemJson.errors,
+            errors: problemJsonSchema.parse(err.body).body,
             status: err.status,
           },
           status: 500,
