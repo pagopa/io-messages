@@ -7,6 +7,7 @@ import {
 import { lollipopExtraInputsCtxKey } from "io-messages-common/adapters/lollipop/lollipop-middleware";
 
 import {
+  iunSchema,
   mandateIdSchema,
   problemJsonSchema,
   sendHeadersSchema,
@@ -29,7 +30,8 @@ export const getNotification =
       const sendHeaders = sendHeadersSchema.parse(
         context.extraInputs.get(lollipopExtraInputsCtxKey),
       );
-      const iun = request.params.iun;
+
+      const iun = iunSchema.parse(request.params.iun);
 
       const client = isTest ? uatNotificationClient : notificationClient;
       const mandateId = request.query.has("mandateId")
