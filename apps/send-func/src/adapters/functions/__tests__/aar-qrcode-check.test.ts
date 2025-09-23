@@ -1,15 +1,16 @@
 import {
   aCheckQrMandateResponse,
   aFiscalCode,
+  aProblem,
+  aSignature,
+  aSignatureInput,
   anAarQrCodeValue,
   anAssertionRef,
   anAssertionType,
   anOriginalMethod,
   anOriginalUrl,
-  aProblem,
-  aSignature,
-  aSignatureInput,
 } from "@/__mocks__/notification.js";
+import { SendHeaders, sendHeadersSchema } from "@/adapters/send/definitions.js";
 import NotificationClient, {
   NotificationClientError,
 } from "@/adapters/send/notification.js";
@@ -19,19 +20,19 @@ import {
   InvocationContext,
 } from "@azure/functions";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { aarQRCodeCheck } from "../aar-qrcode-check.js";
-import { SendHeaders, sendHeadersSchema } from "@/adapters/send/definitions.js";
 
 const apiKey = "anApiKey";
 const baseUrl = "https://mockurl.com";
 const notificationClient = new NotificationClient(apiKey, baseUrl);
 const uatNotificationClient = new NotificationClient(apiKey, baseUrl);
 
-let checkAarQrCodeIOSpy = vi
+const checkAarQrCodeIOSpy = vi
   .spyOn(notificationClient, "checkAarQrCodeIO")
   .mockImplementation(() => Promise.resolve(aCheckQrMandateResponse));
 
-let uatCheckAarQrCodeIOSpy = vi
+const uatCheckAarQrCodeIOSpy = vi
   .spyOn(uatNotificationClient, "checkAarQrCodeIO")
   .mockImplementation(() => Promise.resolve(aCheckQrMandateResponse));
 
@@ -50,6 +51,11 @@ const aLollipopHeaders: SendHeaders = {
   "x-pagopa-lollipop-user-id": aFiscalCode,
 };
 
+const context = new InvocationContext();
+context.extraInputs = new Map();
+context.extraInputs.set("lollipopHeaders", aLollipopHeaders);
+vi.spyOn(context, "error").mockImplementation(() => {});
+
 describe("AARQrCodeCheck", () => {
   afterEach(() => {
     checkAarQrCodeIOSpy.mockClear();
@@ -65,10 +71,6 @@ describe("AARQrCodeCheck", () => {
     const requestBodyJson = vi
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });
-
-    const context = new InvocationContext();
-    context.extraInputs = new Map();
-    context.extraInputs.set("lollipopHeaders", aLollipopHeaders);
 
     await expect(handler(request, context)).resolves.toEqual({
       jsonBody: aCheckQrMandateResponse,
@@ -94,11 +96,6 @@ describe("AARQrCodeCheck", () => {
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });
 
-    const context = new InvocationContext();
-    context.extraInputs = new Map();
-    context.extraInputs.set("lollipopHeaders", aLollipopHeaders);
-    context.error = vi.fn();
-
     await expect(handler(request, context)).resolves.toEqual({
       jsonBody: aCheckQrMandateResponse,
       status: 200,
@@ -123,14 +120,26 @@ describe("AARQrCodeCheck", () => {
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValueBadProp: anAarQrCodeValue });
 
-    const context = new InvocationContext();
-    context.extraInputs = new Map();
-    context.extraInputs.set("lollipopHeaders", aLollipopHeaders);
-    context.error = vi.fn();
+    const result = (await handler(request, context)) as HttpResponseInit;
+    expect(result.jsonBody.detail).toBe("Malformed request");
+    expect(result.status).toBe(400);
+    expect(requestBodyJson).toHaveBeenCalledOnce();
+  });
+
+  it("returns 400 status code if the request is header are malformed", async () => {
+    const request = new HttpRequest({
+      method: "POST",
+      url: "http://localhost",
+    });
+    request.query.set("isTest", "false");
+    const requestBodyJson = vi
+      .spyOn(request, "json")
+      .mockResolvedValue({ aarQrCodeValueBadProp: anAarQrCodeValue });
 
     const result = (await handler(request, context)) as HttpResponseInit;
     expect(result.jsonBody.detail).toBe("Malformed request");
     expect(result.status).toBe(400);
+    expect(requestBodyJson).toHaveBeenCalledOnce();
   });
 
   it("returns 500 status code for all the others errors", async () => {
@@ -158,12 +167,13 @@ describe("AARQrCodeCheck", () => {
     const context = new InvocationContext();
     context.extraInputs = new Map();
     context.extraInputs.set("lollipopHeaders", aLollipopHeaders);
-    context.error = vi.fn();
+    vi.spyOn(context, "error").mockImplementation(() => {});
 
     const result = (await handler(request, context)) as HttpResponseInit;
     expect(result.jsonBody.detail).toBe("Internal server error");
     expect(result.jsonBody.status).toBe(503);
     expect(result.status).toBe(500);
+    expect(requestBodyJson).toHaveBeenCalledOnce();
     expect(checkAarQrCodeIOSpyNotfClientErr).toHaveBeenCalledOnce();
   });
 });
