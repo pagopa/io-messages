@@ -144,15 +144,13 @@ describe("GetAARNotification", () => {
     request.query.set("mandateId", mandateId);
 
     context.extraInputs.set("lollipopHeaders", malformedLollipopHeaders);
-    expect(getReceivedNotificationSpy).not.toHaveBeenCalledOnce();
-    expect(uatGetReceivedNotificationSpy).not.toHaveBeenCalledOnce();
 
     const result2 = (await handler(request, context)) as HttpResponseInit;
     expect(result2.jsonBody.detail).toBe("Malformed request");
     expect(result2.status).toBe(400);
 
-    expect(getReceivedNotificationSpy).not.toHaveBeenCalledOnce();
-    expect(uatGetReceivedNotificationSpy).not.toHaveBeenCalledOnce();
+    expect(getReceivedNotificationSpy).not.toHaveBeenCalled();
+    expect(uatGetReceivedNotificationSpy).not.toHaveBeenCalled();
   });
 
   it("returns 500 status code for all the others errors", async () => {

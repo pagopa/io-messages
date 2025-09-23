@@ -125,6 +125,8 @@ describe("AARQrCodeCheck", () => {
     expect(result.jsonBody.detail).toBe("Malformed request");
     expect(result.status).toBe(400);
     expect(requestBodyJson).toHaveBeenCalledOnce();
+    expect(checkAarQrCodeIOSpy).not.toHaveBeenCalled();
+    expect(uatCheckAarQrCodeIOSpy).not.toHaveBeenCalled();
   });
 
   it("returns 400 status code if the request is header are malformed", async () => {
@@ -155,6 +157,8 @@ describe("AARQrCodeCheck", () => {
     expect(result.jsonBody.detail).toBe("Malformed request");
     expect(result.status).toBe(400);
     expect(requestBodyJson).not.toHaveBeenCalledOnce();
+    expect(checkAarQrCodeIOSpy).not.toHaveBeenCalled();
+    expect(uatCheckAarQrCodeIOSpy).not.toHaveBeenCalled();
   });
 
   it("returns 500 status code for all the others errors", async () => {
