@@ -127,7 +127,7 @@ describe("AARQrCodeCheck", () => {
     expect(requestBodyJson).toHaveBeenCalledOnce();
   });
 
-  it.only("returns 400 status code if the request is header are malformed", async () => {
+  it("returns 400 status code if the request is header are malformed", async () => {
     const request = new HttpRequest({
       method: "POST",
       url: "http://localhost",
