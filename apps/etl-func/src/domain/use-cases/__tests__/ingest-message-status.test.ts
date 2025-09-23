@@ -40,8 +40,8 @@ describe("ingestMessageStatusUseCase execute", () => {
         {
           ...aValidMessageStatus,
           id: "01FZ8Z7G6X6Z4XG5Y6Z7Z8Z9Z0",
-          status: "REJECTED",
           rejection_reason: "USER_NOT_FOUND",
+          status: "REJECTED",
         },
       ]),
     ).resolves.toBe(undefined);
