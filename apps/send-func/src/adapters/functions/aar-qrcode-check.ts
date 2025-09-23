@@ -61,12 +61,8 @@ export const aarQRCodeCheck =
 
         if (err.status === 403) {
           return {
-            jsonBody: {
-              detail: "Internal server error",
-              errors: checkQrMandateResponseSchema.parse(err.body),
-              status: err.status,
-            },
-            status: 500,
+            jsonBody: checkQrMandateResponseSchema.parse(err.body),
+            status: 403,
           };
         }
 
