@@ -69,7 +69,7 @@ export const aarQRCodeCheck =
         return {
           jsonBody: {
             detail: "Internal server error",
-            errors: problemJsonSchema.parse(err.body).body,
+            errors: problemJsonSchema.parse(err.body).errors,
             status: err.status,
           },
           status: 500,
