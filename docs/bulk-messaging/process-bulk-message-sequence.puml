@@ -1,0 +1,58 @@
+@startuml process-bulk-message-sequence
+
+title ProcessBulkMessage sequence diagram
+
+queue bm as "bulk-messages"
+participant pbm as "ProcessBulkMessage"
+participant cm as "CreateMessage"
+queue bmp as "bulk-messages-poison"
+database db as "bulk-messages"
+
+
+pbm -> bm: Read a SendBulkMessage
+activate pbm
+
+pbm -> cm: Create a new message
+activate cm
+
+alt 400 invalid payload
+  note left of cm
+    This should never happen but we
+    handle the case using the poison
+  end note
+  cm -[#red]x pbm: 400
+  pbm -> bmp: End the execution writing the item to the poison
+else 401 unauthorized
+  note left of cm
+    This should never happen but we
+    handle the case using the poison
+  end note
+  cm -[#red]x pbm: 401
+  pbm -> bmp: End the execution writing the item to the poison
+else 403 forbidden
+  note left of cm
+    This should never happen but we
+    handle the case using the poison
+  end note
+  cm -[#red]x pbm: 403
+  pbm -> bmp: End the execution writing the item to the poison
+else 429 too many requests
+  cm -[#red]x pbm: 429
+  pbm -> bmp: End the execution writing the item to the poison
+end
+
+cm -[#green]> pbm: 201
+deactivate cm
+
+pbm-> db: Save bulk-message
+activate db
+alt Error from cosmos
+  db -[#red]x pbm: 500
+  pbm -> bmp: End the execution writing the item to the poison
+end
+
+db -[#green]>pbm: 201
+deactivate db
+deactivate pbm
+
+@enduml
