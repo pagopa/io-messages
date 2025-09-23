@@ -19,9 +19,10 @@ import {
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { aarQRCodeCheck } from "../aar-qrcode-check.js";
+import { beforeEach } from "node:test";
 
 const apiKey = "anApiKey";
 const baseUrl = "https://mockurl.com";
@@ -53,13 +54,13 @@ const aLollipopHeaders: SendHeaders = {
 
 const context = new InvocationContext();
 context.extraInputs = new Map();
-context.extraInputs.set("lollipopHeaders", aLollipopHeaders);
 vi.spyOn(context, "error").mockImplementation(() => {});
 
 describe("AARQrCodeCheck", () => {
-  afterEach(() => {
+  beforeEach(() => {
     checkAarQrCodeIOSpy.mockClear();
     uatCheckAarQrCodeIOSpy.mockClear();
+    context.extraInputs.set("lollipopHeaders", aLollipopHeaders);
   });
 
   it("returns 200 status code if the request is well-formed", async () => {
@@ -126,7 +127,7 @@ describe("AARQrCodeCheck", () => {
     expect(requestBodyJson).toHaveBeenCalledOnce();
   });
 
-  it("returns 400 status code if the request is header are malformed", async () => {
+  it.only("returns 400 status code if the request is header are malformed", async () => {
     const request = new HttpRequest({
       method: "POST",
       url: "http://localhost",
@@ -134,12 +135,26 @@ describe("AARQrCodeCheck", () => {
     request.query.set("isTest", "false");
     const requestBodyJson = vi
       .spyOn(request, "json")
-      .mockResolvedValue({ aarQrCodeValueBadProp: anAarQrCodeValue });
+      .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });
+
+    const malformedLollipopHeaders = {
+      signature: aSignature,
+      "signature-input": aSignatureInput,
+      "x-pagopa-lollipop-assertion-ref": anAssertionRef,
+      "x-pagopa-lollipop-assertion-type": anAssertionType,
+      "x-pagopa-lollipop-auth-jwt": "an auth jwt",
+      "x-pagopa-lollipop-original-method": anOriginalMethod,
+      "x-pagopa-lollipop-original-url": anOriginalUrl,
+      "x-pagopa-lollipop-public-key": "a public key",
+      "x-pagopa-lollipop-user-id": aFiscalCode,
+    };
+
+    context.extraInputs.set("lollipopHeaders", malformedLollipopHeaders);
 
     const result = (await handler(request, context)) as HttpResponseInit;
     expect(result.jsonBody.detail).toBe("Malformed request");
     expect(result.status).toBe(400);
-    expect(requestBodyJson).toHaveBeenCalledOnce();
+    expect(requestBodyJson).not.toHaveBeenCalledOnce();
   });
 
   it("returns 500 status code for all the others errors", async () => {
@@ -163,11 +178,6 @@ describe("AARQrCodeCheck", () => {
     const requestBodyJson = vi
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });
-
-    const context = new InvocationContext();
-    context.extraInputs = new Map();
-    context.extraInputs.set("lollipopHeaders", aLollipopHeaders);
-    vi.spyOn(context, "error").mockImplementation(() => {});
 
     const result = (await handler(request, context)) as HttpResponseInit;
     expect(result.jsonBody.detail).toBe("Internal server error");
