@@ -1,0 +1,33 @@
+@startuml get-bulk-message-sequence
+
+title GetBulkMessage sequence diagram
+
+actor sender as "sender"
+participant fn as "GetBulkMessage"
+database db as "bulk-messages"
+
+sender -> fn: GET /bulk-messages/{sendBulkOperationId}
+activate fn
+
+fn -> db: Get the bulk messages
+activate db
+alt Error form cosmos
+  db -[#red]x fn: 500
+  fn -[#red]x sender: 500
+else 404
+  db -[#red]x fn: 404
+  fn -[#red]x sender: 404
+end
+
+db -[#green]> fn: 200
+deactivate db
+
+fn -> fn: Check if the sender is the owner
+alt The sender is not the owner
+  fn -[#red]x sender: 403
+end
+
+fn -[#green]> sender: Return list of tuples [cf, message_id]
+deactivate fn
+
+@enduml
