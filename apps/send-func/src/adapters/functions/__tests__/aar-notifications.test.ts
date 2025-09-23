@@ -1,12 +1,10 @@
 import {
-  aCheckQrMandateResponse,
   aFiscalCode,
   aIun,
   aProblem,
   aSignature,
   aSignatureInput,
   aThirdPartyMessage,
-  anAarQrCodeValue,
   anAssertionRef,
   anAssertionType,
   anOriginalMethod,
@@ -23,7 +21,6 @@ import {
 } from "@azure/functions";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { aarQRCodeCheck } from "../aar-qrcode-check.js";
 import { getNotification } from "../aar-notifications.js";
 
 const apiKey = "anApiKey";
@@ -68,8 +65,8 @@ describe("GetAARNotification", () => {
   it("returns 200 status code if the request is well-formed", async () => {
     const request = new HttpRequest({
       method: "GET",
-      url: "http://localhost",
       params: { iun: aIun },
+      url: "http://localhost",
     });
     request.query.set("isTest", "false");
 
@@ -102,8 +99,8 @@ describe("GetAARNotification", () => {
   it("should use uatNotificationClient when isTest=true", async () => {
     const request = new HttpRequest({
       method: "GET",
-      url: "http://localhost",
       params: { iun: aIun },
+      url: "http://localhost",
     });
     request.query.set("isTest", "true");
 
@@ -124,11 +121,11 @@ describe("GetAARNotification", () => {
   it("returns 400 status code if the request is malformed", async () => {
     const request = new HttpRequest({
       method: "GET",
-      url: "http://localhost",
       params: { iun: aIun },
+      url: "http://localhost",
     });
     request.query.set("mandateId", "badMandateId");
-    let result = (await handler(request, context)) as HttpResponseInit;
+    const result = (await handler(request, context)) as HttpResponseInit;
     expect(result.jsonBody.detail).toBe("Malformed request");
     expect(result.status).toBe(400);
 
@@ -150,7 +147,7 @@ describe("GetAARNotification", () => {
     expect(getReceivedNotificationSpy).not.toHaveBeenCalledOnce();
     expect(uatGetReceivedNotificationSpy).not.toHaveBeenCalledOnce();
 
-    let result2 = (await handler(request, context)) as HttpResponseInit;
+    const result2 = (await handler(request, context)) as HttpResponseInit;
     expect(result2.jsonBody.detail).toBe("Malformed request");
     expect(result2.status).toBe(400);
 
@@ -173,8 +170,8 @@ describe("GetAARNotification", () => {
 
     const request = new HttpRequest({
       method: "GET",
-      url: "http://localhost",
       params: { iun: aIun },
+      url: "http://localhost",
     });
 
     const result = (await handler(request, context)) as HttpResponseInit;

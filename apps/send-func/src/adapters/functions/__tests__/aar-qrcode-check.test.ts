@@ -19,10 +19,10 @@ import {
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
+import { beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 
 import { aarQRCodeCheck } from "../aar-qrcode-check.js";
-import { beforeEach } from "node:test";
 
 const apiKey = "anApiKey";
 const baseUrl = "https://mockurl.com";
