@@ -14,7 +14,7 @@
         "type": "enum",
         "doc": "List of operations that can be done to a message.",
         "name": "MessageCrudOperation",
-        "symbols": ["CREATE", "UPDATE", "DELETE"]
+        "symbols": ["CREATE", "UPDATE"]
       }
     },
     {
