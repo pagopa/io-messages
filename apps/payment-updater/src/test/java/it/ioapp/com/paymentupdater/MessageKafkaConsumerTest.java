@@ -8,14 +8,18 @@ import it.ioapp.com.paymentupdater.consumer.MessageKafkaConsumer;
 import it.ioapp.com.paymentupdater.consumer.PaymentKafkaConsumer;
 import it.ioapp.com.paymentupdater.model.Payment;
 import it.ioapp.com.paymentupdater.producer.PaymentProducer;
+import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.ApiClient;
+import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.api.PaymentRequestsApi;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -42,12 +46,23 @@ public class MessageKafkaConsumerTest extends AbstractMock {
 
   @Autowired private KafkaTemplate<String, String> kafkaTemplate;
 
+  @Autowired private PaymentRequestsApi mockPaymentApi;
+
   @Autowired MessageKafkaConsumer messageKafkaConsumer;
 
   @Autowired PaymentKafkaConsumer paymentEventKafkaConsumer;
 
   @Value("${kafka.paymentupdates}")
   private String producerTopic;
+
+  @Before
+  public void setUp() {
+    ApiClient mockClient = Mockito.mock(ApiClient.class);
+    Mockito.when(mockPaymentApi.getApiClient()).thenReturn(mockClient);
+
+    Mockito.doNothing().when(mockClient).setApiKey(Mockito.anyString());
+    Mockito.when(mockClient.setBasePath(Mockito.anyString())).thenReturn(mockClient);
+  }
 
   @Test
   public void test_producerKafka_Ok()
@@ -177,7 +192,7 @@ public class MessageKafkaConsumerTest extends AbstractMock {
     Assertions.assertEquals(0L, messageKafkaConsumer.getLatch().getCount());
   }
 
-  public void test_messageEventKafkaConsumer_toThrow(Payment payment, String idPaymentMessage)
+  public void test_messageEventKafkaConsumer_toError(Payment payment, String idPaymentMessage)
       throws Throwable {
 
     Payment paymentMessage =
@@ -197,6 +212,31 @@ public class MessageKafkaConsumerTest extends AbstractMock {
     }
 
     mockGetPaymentInfoError();
+    messageKafkaConsumer.messageKafkaListener(paymentMessage);
+    Assertions.assertEquals(0L, messageKafkaConsumer.getLatch().getCount());
+    verify(mockRepository, times(1)).save(Mockito.any(Payment.class));
+  }
+
+  public void test_messageEventKafkaConsumer_toThrow(Payment payment, String idPaymentMessage)
+      throws Throwable {
+
+    Payment paymentMessage =
+        selectReminderMockObject(
+            "",
+            idPaymentMessage,
+            "PAYMENT",
+            "AAABBB77Y66A444A",
+            3,
+            "ALSDKdcoekroicjre200",
+            "ALSDKdcoek",
+            "roicjre200");
+    paymentMessage.setPaidFlag(false);
+
+    if (!payment.getId().equals(idPaymentMessage)) {
+      mockSaveWithResponse(payment);
+    }
+
+    mockGetPaymentThrowError();
     mockSaveWithResponse(payment);
 
     List<Payment> payments = new ArrayList<>();
@@ -255,6 +295,21 @@ public class MessageKafkaConsumerTest extends AbstractMock {
     messageKafkaConsumer.messageKafkaListener(payment);
     verify(mockRepository, times(0)).save(payment);
     Assertions.assertEquals(0L, messageKafkaConsumer.getLatch().getCount());
+  }
+
+  @Test
+  public void test_messageEventKafkaConsumer_Error() throws Throwable {
+    Payment payment =
+        selectReminderMockObject(
+            "",
+            "1",
+            "PAYMENT",
+            "AAABBB77Y66A444A",
+            3,
+            "ALSDKdcoekroicjre200",
+            "ALSDKdcoek",
+            "roicjre200");
+    test_messageEventKafkaConsumer_toError(payment, "2");
   }
 
   @Test
