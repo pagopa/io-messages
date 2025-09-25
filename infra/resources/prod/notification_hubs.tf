@@ -1,7 +1,7 @@
 module "notification_hubs_itn" {
   source = "../_modules/notification_hubs_itn"
 
-  project             = local.project_legacy
+  project             = local.project
   resource_group_name = azurerm_resource_group.itn_com.name
   location            = azurerm_resource_group.itn_com.location
   location_short      = local.location_short

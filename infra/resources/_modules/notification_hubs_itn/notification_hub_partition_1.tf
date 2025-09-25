@@ -1,5 +1,5 @@
 resource "azurerm_notification_hub_namespace" "partition_1" {
-  name                = "${var.project}-${var.location_short}-${var.domain}-nhns-01"
+  name                = "${var.project}-${var.domain}-nhns-01"
   resource_group_name = var.resource_group_name
   location            = var.location
   namespace_type      = "NotificationHub"
@@ -9,7 +9,7 @@ resource "azurerm_notification_hub_namespace" "partition_1" {
 }
 
 resource "azurerm_notification_hub" "partition_1" {
-  name                = "${var.project}-${var.location_short}-${var.domain}-nh-01"
+  name                = "${var.project}-${var.domain}-nh-01"
   namespace_name      = azurerm_notification_hub_namespace.partition_1.name
   resource_group_name = azurerm_notification_hub_namespace.partition_1.resource_group_name
   location            = azurerm_notification_hub_namespace.partition_1.location

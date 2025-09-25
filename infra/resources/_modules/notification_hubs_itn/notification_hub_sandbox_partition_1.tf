@@ -1,5 +1,5 @@
 resource "azurerm_notification_hub_namespace" "sandbox" {
-  name                = "${var.project}-${var.location_short}-${var.domain}-nhns-sandbox"
+  name                = "${var.project}-${var.domain}-nhns-sandbox"
   resource_group_name = var.resource_group_name
   location            = var.location
   namespace_type      = "NotificationHub"
@@ -9,7 +9,7 @@ resource "azurerm_notification_hub_namespace" "sandbox" {
 }
 
 resource "azurerm_notification_hub" "sandbox" {
-  name                = "${var.project}-${var.location_short}-${var.domain}-nh-sandbox"
+  name                = "${var.project}-${var.domain}-nh-sandbox"
   namespace_name      = azurerm_notification_hub_namespace.sandbox.name
   resource_group_name = azurerm_notification_hub_namespace.sandbox.resource_group_name
   location            = azurerm_notification_hub_namespace.sandbox.location
