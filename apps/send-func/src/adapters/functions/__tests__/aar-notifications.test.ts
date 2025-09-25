@@ -10,7 +10,7 @@ import {
   anOriginalMethod,
   anOriginalUrl,
 } from "@/__mocks__/notification.js";
-import { SendHeaders, sendHeadersSchema } from "@/adapters/send/definitions.js";
+import { sendHeadersSchema } from "@/adapters/send/definitions.js";
 import NotificationClient, {
   NotificationClientError,
 } from "@/adapters/send/notification.js";
@@ -19,6 +19,7 @@ import {
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
+import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getNotification } from "../aar-notifications.js";
@@ -38,10 +39,9 @@ const uatGetReceivedNotificationSpy = vi
 
 const handler = getNotification(notificationClient, uatNotificationClient);
 
-const aLollipopHeaders: SendHeaders = {
+const aLollipopHeaders: LollipopHeaders = {
   signature: aSignature,
   "signature-input": aSignatureInput,
-  "x-pagopa-cx-taxid": aFiscalCode,
   "x-pagopa-lollipop-assertion-ref": anAssertionRef,
   "x-pagopa-lollipop-assertion-type": anAssertionType,
   "x-pagopa-lollipop-auth-jwt": "an auth jwt",
@@ -49,6 +49,11 @@ const aLollipopHeaders: SendHeaders = {
   "x-pagopa-lollipop-original-url": anOriginalUrl,
   "x-pagopa-lollipop-public-key": "a public key",
   "x-pagopa-lollipop-user-id": aFiscalCode,
+};
+
+const sendHeaders = {
+  "x-pagopa-cx-taxid": aFiscalCode,
+  ...aLollipopHeaders,
 };
 
 const context = new InvocationContext();
@@ -69,13 +74,14 @@ describe("GetAARNotification", () => {
       url: "http://localhost",
     });
     request.query.set("isTest", "false");
+    request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
 
     await expect(handler(request, context)).resolves.toEqual({
       jsonBody: aThirdPartyMessage,
       status: 200,
     });
 
-    const parseHeaders = sendHeadersSchema.parse(aLollipopHeaders);
+    const parseHeaders = sendHeadersSchema.parse(sendHeaders);
     expect(getReceivedNotificationSpy).toHaveBeenCalledWith(
       aIun,
       parseHeaders,
@@ -103,13 +109,14 @@ describe("GetAARNotification", () => {
       url: "http://localhost",
     });
     request.query.set("isTest", "true");
+    request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
 
     await expect(handler(request, context)).resolves.toEqual({
       jsonBody: aThirdPartyMessage,
       status: 200,
     });
 
-    const parseHeaders = sendHeadersSchema.parse(aLollipopHeaders);
+    const parseHeaders = sendHeadersSchema.parse(sendHeaders);
     expect(getReceivedNotificationSpy).not.toHaveBeenCalledOnce();
     expect(uatGetReceivedNotificationSpy).toHaveBeenCalledWith(
       aIun,
@@ -125,6 +132,8 @@ describe("GetAARNotification", () => {
       url: "http://localhost",
     });
     request.query.set("mandateId", "badMandateId");
+    request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
+
     const result = (await handler(request, context)) as HttpResponseInit;
     expect(result.jsonBody.detail).toBe("Malformed request");
     expect(result.status).toBe(400);
@@ -136,9 +145,6 @@ describe("GetAARNotification", () => {
       "x-pagopa-lollipop-assertion-type": anAssertionType,
       "x-pagopa-lollipop-auth-jwt": "an auth jwt",
       "x-pagopa-lollipop-original-method": anOriginalMethod,
-      "x-pagopa-lollipop-original-url": anOriginalUrl,
-      "x-pagopa-lollipop-public-key": "a public key",
-      "x-pagopa-lollipop-user-id": aFiscalCode,
     };
     const mandateId = crypto.randomUUID();
     request.query.set("mandateId", mandateId);
@@ -146,7 +152,7 @@ describe("GetAARNotification", () => {
     context.extraInputs.set("lollipopHeaders", malformedLollipopHeaders);
 
     const result2 = (await handler(request, context)) as HttpResponseInit;
-    expect(result2.jsonBody.detail).toBe("Malformed request");
+    expect(result2.jsonBody.detail).toBe("Malformed headers");
     expect(result2.status).toBe(400);
 
     expect(getReceivedNotificationSpy).not.toHaveBeenCalled();
@@ -171,9 +177,10 @@ describe("GetAARNotification", () => {
       params: { iun: aIun },
       url: "http://localhost",
     });
+    request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
 
     const result = (await handler(request, context)) as HttpResponseInit;
-    expect(result.jsonBody.detail).toBe("Internal server error");
+    expect(result.jsonBody.detail).toBe(aProblem.detail);
     expect(result.jsonBody.status).toBe(503);
     expect(result.status).toBe(500);
     expect(getReceivedNotificationSpyNotfClientErr).toHaveBeenCalledOnce();

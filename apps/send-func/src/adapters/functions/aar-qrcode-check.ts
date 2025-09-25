@@ -4,6 +4,7 @@ import {
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
+import { lollipopHeadersSchema } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { lollipopExtraInputsCtxKey } from "io-messages-common/adapters/lollipop/lollipop-middleware";
 
 import {
@@ -29,30 +30,45 @@ export const aarQRCodeCheck =
       const isTest = request.query.get("isTest") === "true";
       const client = isTest ? uatNotificationClient : notificationClient;
 
-      const sendHeaders = sendHeadersSchema.parse(
+      const lollipopHeaders = lollipopHeadersSchema.safeParse(
         context.extraInputs.get(lollipopExtraInputsCtxKey),
       );
-      const rawBody = await request.json();
-      const parsedBody = checkQrMandateRequestSchema.parse(rawBody);
+      const sendHeaders = sendHeadersSchema.safeParse({
+        "x-pagopa-cx-taxid": request.headers.get("x-pagopa-cx-taxid"),
+        "x-pagopa-pn-io-src":
+          request.headers.get("x-pagopa-pn-io-src") || undefined,
+        ...lollipopHeaders.data,
+      });
 
-      const response = await client.checkAarQrCodeIO(
-        parsedBody.aarQrCodeValue,
-        sendHeaders,
-      );
-      return { jsonBody: response, status: 200 };
-    } catch (err) {
-      if (err instanceof Error && err.name === "ZodError") {
-        context.error("AARQrCodeCheck malformed request:", err.message);
+      if (!lollipopHeaders.success || !sendHeaders.success) {
         return {
           jsonBody: {
-            detail: "Malformed request",
-            errors: [JSON.stringify(err.message)],
+            detail: "Malformed headers",
             status: 400,
           },
           status: 400,
         };
       }
 
+      const rawBody = await request.json();
+      const parsedBody = checkQrMandateRequestSchema.safeParse(rawBody);
+      if (!parsedBody.success) {
+        return {
+          jsonBody: {
+            detail: "Malformed body",
+            status: 400,
+          },
+          status: 400,
+        };
+      }
+
+      const { aarQrCodeValue } = parsedBody.data;
+      const response = await client.checkAarQrCodeIO(
+        aarQrCodeValue,
+        sendHeaders.data,
+      );
+      return { jsonBody: response, status: 200 };
+    } catch (err) {
       if (
         err instanceof NotificationClientError &&
         err.name === "NotificationClientError"

@@ -10,7 +10,7 @@ import {
   anOriginalMethod,
   anOriginalUrl,
 } from "@/__mocks__/notification.js";
-import { SendHeaders, sendHeadersSchema } from "@/adapters/send/definitions.js";
+import { sendHeadersSchema } from "@/adapters/send/definitions.js";
 import NotificationClient, {
   NotificationClientError,
 } from "@/adapters/send/notification.js";
@@ -19,6 +19,7 @@ import {
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
+import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 
@@ -39,10 +40,9 @@ const uatCheckAarQrCodeIOSpy = vi
 
 const handler = aarQRCodeCheck(notificationClient, uatNotificationClient);
 
-const aLollipopHeaders: SendHeaders = {
+const aLollipopHeaders: LollipopHeaders = {
   signature: aSignature,
   "signature-input": aSignatureInput,
-  "x-pagopa-cx-taxid": aFiscalCode,
   "x-pagopa-lollipop-assertion-ref": anAssertionRef,
   "x-pagopa-lollipop-assertion-type": anAssertionType,
   "x-pagopa-lollipop-auth-jwt": "an auth jwt",
@@ -50,6 +50,11 @@ const aLollipopHeaders: SendHeaders = {
   "x-pagopa-lollipop-original-url": anOriginalUrl,
   "x-pagopa-lollipop-public-key": "a public key",
   "x-pagopa-lollipop-user-id": aFiscalCode,
+};
+
+const sendHeaders = {
+  "x-pagopa-cx-taxid": aFiscalCode,
+  ...aLollipopHeaders,
 };
 
 const context = new InvocationContext();
@@ -69,6 +74,8 @@ describe("AARQrCodeCheck", () => {
       url: "http://localhost",
     });
     request.query.set("isTest", "false");
+    request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
+
     const requestBodyJson = vi
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });
@@ -79,7 +86,7 @@ describe("AARQrCodeCheck", () => {
     });
     expect(requestBodyJson).toHaveBeenCalledOnce();
 
-    const parseHeaders = sendHeadersSchema.parse(aLollipopHeaders);
+    const parseHeaders = sendHeadersSchema.parse(sendHeaders);
     expect(checkAarQrCodeIOSpy).toHaveBeenCalledWith(
       anAarQrCodeValue,
       parseHeaders,
@@ -93,6 +100,8 @@ describe("AARQrCodeCheck", () => {
       url: "http://localhost",
     });
     request.query.set("isTest", "true");
+    request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
+
     const requestBodyJson = vi
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });
@@ -103,7 +112,7 @@ describe("AARQrCodeCheck", () => {
     });
     expect(requestBodyJson).toHaveBeenCalledOnce();
 
-    const parseHeaders = sendHeadersSchema.parse(aLollipopHeaders);
+    const parseHeaders = sendHeadersSchema.parse(sendHeaders);
     expect(checkAarQrCodeIOSpy).not.toHaveBeenCalledOnce();
     expect(uatCheckAarQrCodeIOSpy).toHaveBeenCalledWith(
       anAarQrCodeValue,
@@ -117,24 +126,28 @@ describe("AARQrCodeCheck", () => {
       url: "http://localhost",
     });
     request.query.set("isTest", "false");
+    request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
+
     const requestBodyJson = vi
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValueBadProp: anAarQrCodeValue });
 
     const result = (await handler(request, context)) as HttpResponseInit;
-    expect(result.jsonBody.detail).toBe("Malformed request");
+    expect(result.jsonBody.detail).toBe("Malformed body");
     expect(result.status).toBe(400);
     expect(requestBodyJson).toHaveBeenCalledOnce();
     expect(checkAarQrCodeIOSpy).not.toHaveBeenCalled();
     expect(uatCheckAarQrCodeIOSpy).not.toHaveBeenCalled();
   });
 
-  it("returns 400 status code if the request is header are malformed", async () => {
+  it("returns 400 status code if the request headers are malformed", async () => {
     const request = new HttpRequest({
       method: "POST",
       url: "http://localhost",
     });
     request.query.set("isTest", "false");
+    request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
+
     const requestBodyJson = vi
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });
@@ -147,14 +160,12 @@ describe("AARQrCodeCheck", () => {
       "x-pagopa-lollipop-auth-jwt": "an auth jwt",
       "x-pagopa-lollipop-original-method": anOriginalMethod,
       "x-pagopa-lollipop-original-url": anOriginalUrl,
-      "x-pagopa-lollipop-public-key": "a public key",
-      "x-pagopa-lollipop-user-id": aFiscalCode,
     };
 
     context.extraInputs.set("lollipopHeaders", malformedLollipopHeaders);
 
     const result = (await handler(request, context)) as HttpResponseInit;
-    expect(result.jsonBody.detail).toBe("Malformed request");
+    expect(result.jsonBody.detail).toBe("Malformed headers");
     expect(result.status).toBe(400);
     expect(requestBodyJson).not.toHaveBeenCalledOnce();
     expect(checkAarQrCodeIOSpy).not.toHaveBeenCalled();
@@ -179,6 +190,8 @@ describe("AARQrCodeCheck", () => {
       url: "http://localhost",
     });
     request.query.set("isTest", "false");
+    request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
+
     const requestBodyJson = vi
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });

@@ -4,6 +4,7 @@ import {
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
+import { lollipopHeadersSchema } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { lollipopExtraInputsCtxKey } from "io-messages-common/adapters/lollipop/lollipop-middleware";
 
 import {
@@ -27,37 +28,52 @@ export const getNotification =
   ): Promise<HttpResponseInit> => {
     try {
       const isTest = request.query.get("isTest") === "true";
-      const sendHeaders = sendHeadersSchema.parse(
+      const client = isTest ? uatNotificationClient : notificationClient;
+
+      const lollipopHeaders = lollipopHeadersSchema.safeParse(
         context.extraInputs.get(lollipopExtraInputsCtxKey),
       );
 
-      const iun = iunSchema.parse(request.params.iun);
+      const sendHeaders = sendHeadersSchema.safeParse({
+        "x-pagopa-cx-taxid": request.headers.get("x-pagopa-cx-taxid"),
+        "x-pagopa-pn-io-src":
+          request.headers.get("x-pagopa-pn-io-src") || undefined,
+        ...lollipopHeaders.data,
+      });
 
-      const client = isTest ? uatNotificationClient : notificationClient;
-      const mandateId = request.query.has("mandateId")
-        ? mandateIdSchema.parse(request.query.get("mandateId"))
-        : undefined;
-
-      const response = await client.getReceivedNotification(
-        iun,
-        sendHeaders,
-        mandateId,
-      );
-
-      return { jsonBody: response, status: 200 };
-    } catch (err) {
-      if (err instanceof Error && err.name === "ZodError") {
-        context.error("AARQrCodeCheck malformed request:", err.message);
+      if (!lollipopHeaders.success || !sendHeaders.success) {
         return {
           jsonBody: {
-            detail: "Malformed request",
-            errors: [JSON.stringify(err.message)],
+            detail: "Malformed headers",
             status: 400,
           },
           status: 400,
         };
       }
 
+      const iun = iunSchema.safeParse(request.params.iun);
+      const mandateId = request.query.has("mandateId")
+        ? mandateIdSchema.safeParse(request.query.get("mandateId"))
+        : { data: undefined, success: true };
+
+      if (!iun.success || !mandateId.success) {
+        return {
+          jsonBody: {
+            detail: "Malformed request",
+            status: 400,
+          },
+          status: 400,
+        };
+      }
+
+      const response = await client.getReceivedNotification(
+        iun.data,
+        sendHeaders.data,
+        mandateId.data,
+      );
+
+      return { jsonBody: response, status: 200 };
+    } catch (err) {
       if (
         err instanceof NotificationClientError &&
         err.name === "NotificationClientError"
@@ -67,11 +83,7 @@ export const getNotification =
         const problemJson = problemJsonSchema.parse(err.body);
 
         return {
-          jsonBody: {
-            detail: "Internal server error",
-            errors: problemJson.errors,
-            status: err.status,
-          },
+          jsonBody: problemJson,
           status: 500,
         };
       }
