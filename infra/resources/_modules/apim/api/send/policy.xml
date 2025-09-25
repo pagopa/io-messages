@@ -1,6 +1,8 @@
 <policies>
   <inbound>
-    <base /> ${session_fragment} <set-backend-service
+    <include-fragment fragment-id="io-com-app-session-fragment" />
+    <base />
+    <set-backend-service
       base-url="https://io-p-itn-com-send-func-01/api/v1" />
   </inbound>
   <outbound>
