@@ -19,11 +19,11 @@ resource "azurerm_notification_hub" "partition_4" {
     bundle_id        = local.apns_credential.bundle_id
     team_id          = local.apns_credential.team_id
     key_id           = local.apns_credential.key_id
-    token            = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=notification-hub-dev-api-key)"
+    token            = data.azurerm_key_vault_secret.ntfns_prod_token.value
   }
 
   gcm_credential {
-    api_key = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=notification-hub-prod-api-key)"
+    api_key = data.azurerm_key_vault_secret.ntfns_prod_api_key.value
   }
 
   tags = var.tags
