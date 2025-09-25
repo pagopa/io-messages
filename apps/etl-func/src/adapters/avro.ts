@@ -168,6 +168,19 @@ export const messageStatusAvroSchema = avro.Type.forSchema({
       },
     },
     {
+      default: null,
+      doc: "Reason in case of message rejection.",
+      name: "rejection_reason",
+      type: [
+        "null",
+        {
+          name: "MessageRejectionReason",
+          symbols: ["SERVICE_NOT_ALLOWED", "UNKNOWN"],
+          type: "enum",
+        },
+      ],
+    },
+    {
       doc: "Boolean that indicates if the message has been read.",
       name: "is_read",
       type: "boolean",
@@ -176,11 +189,6 @@ export const messageStatusAvroSchema = avro.Type.forSchema({
       doc: "Boolean that indicates if the message has been archived.",
       name: "is_archived",
       type: "boolean",
-    },
-    {
-      doc: "A timestamp that indicates when the status was created.",
-      name: "timestamp",
-      type: "long",
     },
     {
       doc: "A timestamp that indicates when the status was created.",

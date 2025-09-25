@@ -1,5 +1,11 @@
 # etl-func
 
+## 1.0.4
+
+### Patch Changes
+
+- 92643b1: Change message-status-event schema
+
 ## 1.0.3
 
 ### Patch Changes

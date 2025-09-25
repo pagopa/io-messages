@@ -1,0 +1,50 @@
+resource "azurerm_notification_hub_namespace" "sandbox" {
+  name                = "${var.project}-${var.domain}-nhns-sandbox"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  namespace_type      = "NotificationHub"
+  sku_name            = "Free"
+
+  tags = var.tags
+}
+
+resource "azurerm_notification_hub" "sandbox" {
+  name                = "${var.project}-${var.domain}-nh-sandbox"
+  namespace_name      = azurerm_notification_hub_namespace.sandbox.name
+  resource_group_name = azurerm_notification_hub_namespace.sandbox.resource_group_name
+  location            = azurerm_notification_hub_namespace.sandbox.location
+
+  apns_credential {
+    application_mode = local.apns_credential.application_mode
+    bundle_id        = local.apns_credential.bundle_id
+    team_id          = local.apns_credential.team_id
+    key_id           = local.apns_credential.key_id
+    token            = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=notification-hub-dev-token)"
+  }
+
+  gcm_credential {
+    api_key = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=notification-hub-prod-api-key)"
+  }
+
+  tags = var.tags
+}
+
+resource "azurerm_notification_hub_authorization_rule" "sandbox_default_listen" {
+  name                  = "DefaultListenSharedAccessSignature"
+  notification_hub_name = azurerm_notification_hub.sandbox.name
+  namespace_name        = azurerm_notification_hub_namespace.sandbox.name
+  resource_group_name   = azurerm_notification_hub_namespace.sandbox.resource_group_name
+  manage                = false
+  send                  = false
+  listen                = true
+}
+
+resource "azurerm_notification_hub_authorization_rule" "sandbox_default_full" {
+  name                  = "DefaultFullSharedAccessSignature"
+  notification_hub_name = azurerm_notification_hub.sandbox.name
+  namespace_name        = azurerm_notification_hub_namespace.sandbox.name
+  resource_group_name   = azurerm_notification_hub_namespace.sandbox.resource_group_name
+  manage                = true
+  send                  = true
+  listen                = true
+}

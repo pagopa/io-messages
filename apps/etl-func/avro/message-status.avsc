@@ -14,7 +14,7 @@
         "type": "enum",
         "doc": "List of operations that can be done to a message.",
         "name": "MessageCrudOperation",
-        "symbols": ["CREATE", "UPDATE", "DELETE"]
+        "symbols": ["CREATE", "UPDATE"]
       }
     },
     {
@@ -25,8 +25,7 @@
     {
       "name": "message_id",
       "doc": "An ULID that identifies the message inside the message collection.",
-      "type": "string",
-      "aliases": ["messageId"]
+      "type": "string"
     },
     {
       "name": "version",
@@ -43,29 +42,33 @@
       }
     },
     {
+      "name": "rejection_reason",
+      "doc": "Reason in case of rejection.",
+      "type": [
+        "null",
+        {
+          "type": "enum",
+          "name": "MessageRejectionReason",
+          "symbols": ["SERVICE_NOT_ALLOWED", "UNKNOWN"]
+        }
+      ],
+      "default": null
+    },
+    {
       "name": "is_read",
       "doc": "Boolean that indicates if the message has been read.",
-      "type": "boolean",
-      "aliases": ["isRead"]
+      "type": "boolean"
     },
     {
       "name": "is_archived",
       "doc": "Boolean that indicates if the message has been archived.",
-      "type": "boolean",
-      "aliases": ["isArchived"]
-    },
-    {
-      "name": "timestamp",
-      "doc": "A timestamp that indicates when the status was created.",
-      "type": "long",
-      "logicalType": "timestamp-millis"
+      "type": "boolean"
     },
     {
       "name": "created_at",
       "doc": "A timestamp that indicates when the status was created.",
       "type": "long",
-      "logicalType": "timestamp-millis",
-      "aliases": ["createdAt"]
+      "logicalType": "timestamp-millis"
     }
   ]
 }
