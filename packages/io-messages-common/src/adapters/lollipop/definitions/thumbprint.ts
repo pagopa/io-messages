@@ -6,4 +6,4 @@ export const thumbprintSchema = z.union([
   z.string().regex(/^([A-Za-z0-9-_=]{1,88}$)/),
 ]);
 
-export type Thumbprint = z.TypeOf<typeof thumbprintSchema>;
+export type Thumbprint = z.infer<typeof thumbprintSchema>;
