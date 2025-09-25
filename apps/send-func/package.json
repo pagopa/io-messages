@@ -9,7 +9,7 @@
   "scripts": {
     "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node20 --outdir=dist --packages=external",
     "build:watch": "yarn build --watch",
-    "start": "func start --port 7074",
+    "start": "func start",
     "format": "prettier --write .",
     "lint": "eslint --fix src",
     "lint:check": "eslint src",
