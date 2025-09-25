@@ -54,3 +54,65 @@ resource "azurerm_notification_hub_authorization_rule" "partition_2_default_full
   send                  = true
   listen                = true
 }
+
+resource "azurerm_monitor_metric_alert" "alert_nh_partition_2_pns_errors" {
+
+  name                = "[IOCOM|NH Partition 2] Push Notification Service errors"
+  resource_group_name = var.resource_group_name
+
+  scopes        = [azurerm_notification_hub.partition_2.id]
+  description   = "Notification Hub Partition 2 incurred in PNS errors, please check. Runbook: not needed."
+  severity      = 1
+  window_size   = "PT30M"
+  frequency     = "PT5M"
+  auto_mitigate = false
+
+  dynamic_criteria {
+    metric_namespace       = "Microsoft.NotificationHubs/namespaces/notificationHubs"
+    metric_name            = "outgoing.allpns.pnserror"
+    alert_sensitivity      = "Medium"
+    aggregation            = "Total"
+    operator               = "GreaterThan"
+    skip_metric_validation = false
+  }
+
+  # Action groups for alerts
+  action {
+    action_group_id = var.action_group_id
+  }
+
+  tags = var.tags
+}
+
+resource "azurerm_monitor_metric_alert" "alert_nh_partition_2_anomalous_pns_success_volume" {
+
+  name                = "[IOCOM|NH Partition 2] Push Notification Service anomalous success volume"
+  resource_group_name = var.resource_group_name
+
+  enabled = false
+
+  scopes        = [azurerm_notification_hub.partition_2.id]
+  description   = "Notification Hub Partition 2 has an anomalous PNS success volume. Runbook: not needed."
+  severity      = 1
+  window_size   = "PT5M"
+  frequency     = "PT1M"
+  auto_mitigate = false
+
+  dynamic_criteria {
+    metric_namespace         = "Microsoft.NotificationHubs/namespaces/notificationHubs"
+    metric_name              = "outgoing.allpns.success"
+    aggregation              = "Total"
+    operator                 = "GreaterThan"
+    alert_sensitivity        = "High"
+    evaluation_total_count   = 1
+    evaluation_failure_count = 1
+    skip_metric_validation   = false
+  }
+
+  # Action groups for alerts
+  action {
+    action_group_id = var.action_group_id
+  }
+
+  tags = var.tags
+}
