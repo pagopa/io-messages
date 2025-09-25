@@ -1,5 +1,3 @@
-//we need to create a new resource group for the notification hub ?
-
 module "notification_hubs_itn" {
   source = "../_modules/notification_hubs_itn"
 
@@ -8,9 +6,8 @@ module "notification_hubs_itn" {
   location            = azurerm_resource_group.itn_com.location
   location_short      = local.location_short
   domain              = local.domain
-  # resource_group_name_itn = azurerm_resource_group.itn_com.name
 
-  key_vault_common_id = module.key_vaults.com.id
+  key_vault = module.key_vaults.com
 
   action_group_id = module.monitoring.action_group.id
 

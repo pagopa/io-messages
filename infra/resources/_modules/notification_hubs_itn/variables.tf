@@ -23,8 +23,11 @@ variable "domain" {
   type = string
 }
 
-variable "key_vault_common_id" {
-  type = string
+variable "key_vault" {
+  type = object({
+    name = string
+    id   = string
+  })
 }
 
 variable "project" {
