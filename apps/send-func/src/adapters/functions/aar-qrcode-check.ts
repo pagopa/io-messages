@@ -16,6 +16,7 @@ import {
 import NotificationClient, {
   NotificationClientError,
 } from "../send/notification.js";
+import { malformedBodyResponse } from "./commons/response.js";
 
 export const aarQRCodeCheck =
   (
@@ -26,45 +27,38 @@ export const aarQRCodeCheck =
     request: HttpRequest,
     context: InvocationContext,
   ): Promise<HttpResponseInit> => {
+    const isTest = request.query.get("isTest") === "true";
+    const client = isTest ? uatNotificationClient : notificationClient;
+
+    const lollipopHeaders = lollipopHeadersSchema.safeParse(
+      context.extraInputs.get(lollipopExtraInputsCtxKey),
+    );
+    if (!lollipopHeaders.success)
+      return malformedBodyResponse("Malformed headers");
+
+    const sendHeaders = sendHeadersSchema.safeParse({
+      "x-pagopa-cx-taxid": request.headers.get("x-pagopa-cx-taxid"),
+      "x-pagopa-pn-io-src":
+        request.headers.get("x-pagopa-pn-io-src") || undefined,
+      ...lollipopHeaders.data,
+    });
+
+    if (!sendHeaders.success) return malformedBodyResponse("Malformed headers");
+
+    let rawBody;
     try {
-      const isTest = request.query.get("isTest") === "true";
-      const client = isTest ? uatNotificationClient : notificationClient;
+      rawBody = await request.json();
+    } catch {
+      return malformedBodyResponse("Invalid JSON body");
+    }
 
-      const lollipopHeaders = lollipopHeadersSchema.safeParse(
-        context.extraInputs.get(lollipopExtraInputsCtxKey),
-      );
-      const sendHeaders = sendHeadersSchema.safeParse({
-        "x-pagopa-cx-taxid": request.headers.get("x-pagopa-cx-taxid"),
-        "x-pagopa-pn-io-src":
-          request.headers.get("x-pagopa-pn-io-src") || undefined,
-        ...lollipopHeaders.data,
-      });
+    const parsedBody = checkQrMandateRequestSchema.safeParse(rawBody);
 
-      if (!lollipopHeaders.success || !sendHeaders.success) {
-        return {
-          jsonBody: {
-            detail: "Malformed headers",
-            status: 400,
-          },
-          status: 400,
-        };
-      }
+    if (!parsedBody.success) return malformedBodyResponse("Malformed body");
 
-      const rawBody = await request.json();
-      const parsedBody = checkQrMandateRequestSchema.safeParse(rawBody);
-      if (!parsedBody.success) {
-        return {
-          jsonBody: {
-            detail: "Malformed body",
-            status: 400,
-          },
-          status: 400,
-        };
-      }
-
-      const { aarQrCodeValue } = parsedBody.data;
+    try {
       const response = await client.checkAarQrCodeIO(
-        aarQrCodeValue,
+        parsedBody.data.aarQrCodeValue,
         sendHeaders.data,
       );
       return { jsonBody: response, status: 200 };
