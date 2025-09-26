@@ -31,6 +31,31 @@ export type AttachmentMetadataResponse = z.TypeOf<
   typeof attachmentMetadataResponseSchema
 >;
 
+export const problemJsonSchema = z
+  .object({
+    detail: z.string(),
+    errors: z
+      .array(
+        z
+          .object({
+            code: z.string(),
+            detail: z.string().max(1024).optional(),
+            element: z.string().optional(),
+          })
+          .passthrough(),
+      )
+      .min(1)
+      .optional(),
+    instance: z.string().url().optional(),
+    status: z.number().int().gte(100).lt(600),
+    title: z.string().optional(),
+    traceId: z.string().optional(),
+    type: z.string().url().optional(),
+  })
+  .passthrough();
+
+export type ProblemJson = z.TypeOf<typeof problemJsonSchema>;
+
 export const problemSchema = z.object({
   detail: z
     .string()
