@@ -49,9 +49,7 @@ resource "azurerm_api_management_api_policy" "send_aar_api_v1_policy" {
   api_management_name = data.azurerm_api_management.apim_itn_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
 
-  xml_content = templatefile("../_modules/apim/api/send/policy.xml", {
-    session_fragment = file("../_modules/apim/fragment/session-fragment.xml")
-  })
+  xml_content = file("../_modules/apim/api/send/policy.xml")
 }
 
 resource "azurerm_api_management_product_api" "send_aar_api_v1_product_api" {
