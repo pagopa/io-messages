@@ -55,6 +55,7 @@ const sendHeaders = {
   "x-pagopa-cx-taxid": aFiscalCode,
   ...aLollipopHeaders,
 };
+const parseHeaders = sendHeadersSchema.parse(sendHeaders);
 
 const context = new InvocationContext();
 context.extraInputs = new Map();
@@ -81,13 +82,12 @@ describe("GetAARNotification", () => {
       status: 200,
     });
 
-    const parseHeaders = sendHeadersSchema.parse(sendHeaders);
     expect(getReceivedNotificationSpy).toHaveBeenCalledWith(
       aIun,
       parseHeaders,
       undefined,
     );
-    expect(uatGetReceivedNotificationSpy).not.toHaveBeenCalledOnce();
+    expect(uatGetReceivedNotificationSpy).not.toHaveBeenCalled();
 
     const mandateId = crypto.randomUUID();
     request.query.set("mandateId", mandateId);
@@ -116,8 +116,7 @@ describe("GetAARNotification", () => {
       status: 200,
     });
 
-    const parseHeaders = sendHeadersSchema.parse(sendHeaders);
-    expect(getReceivedNotificationSpy).not.toHaveBeenCalledOnce();
+    expect(getReceivedNotificationSpy).not.toHaveBeenCalled();
     expect(uatGetReceivedNotificationSpy).toHaveBeenCalledWith(
       aIun,
       parseHeaders,

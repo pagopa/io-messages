@@ -56,6 +56,7 @@ const sendHeaders = {
   "x-pagopa-cx-taxid": aFiscalCode,
   ...aLollipopHeaders,
 };
+const parseHeaders = sendHeadersSchema.parse(sendHeaders);
 
 const context = new InvocationContext();
 context.extraInputs = new Map();
@@ -86,12 +87,11 @@ describe("AARQrCodeCheck", () => {
     });
     expect(requestBodyJson).toHaveBeenCalledOnce();
 
-    const parseHeaders = sendHeadersSchema.parse(sendHeaders);
     expect(checkAarQrCodeIOSpy).toHaveBeenCalledWith(
       anAarQrCodeValue,
       parseHeaders,
     );
-    expect(uatCheckAarQrCodeIOSpy).not.toHaveBeenCalledOnce();
+    expect(uatCheckAarQrCodeIOSpy).not.toHaveBeenCalled();
   });
 
   it("should use uatNotificationClient when isTest=true", async () => {
@@ -112,8 +112,7 @@ describe("AARQrCodeCheck", () => {
     });
     expect(requestBodyJson).toHaveBeenCalledOnce();
 
-    const parseHeaders = sendHeadersSchema.parse(sendHeaders);
-    expect(checkAarQrCodeIOSpy).not.toHaveBeenCalledOnce();
+    expect(checkAarQrCodeIOSpy).not.toHaveBeenCalled();
     expect(uatCheckAarQrCodeIOSpy).toHaveBeenCalledWith(
       anAarQrCodeValue,
       parseHeaders,
