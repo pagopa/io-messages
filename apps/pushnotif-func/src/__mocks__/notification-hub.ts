@@ -28,3 +28,30 @@ export const nhPartitionFactory = new NotificationHubPartitionFactory([
     partitionRegex: new RegExp("^[c-f]"),
   },
 ]);
+
+export const legacyNhPartitionFactory = new NotificationHubPartitionFactory([
+  {
+    endpoint:
+      "Endpoint=sb://legacyn-1.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test;" as NonEmptyString,
+    name: "legacyn1" as NonEmptyString,
+    partitionRegex: new RegExp("^[0-3]"),
+  },
+  {
+    endpoint:
+      "Endpoint=sb://legacyn-2.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test;" as NonEmptyString,
+    name: "legacyn2" as NonEmptyString,
+    partitionRegex: new RegExp("^[4-7]"),
+  },
+  {
+    endpoint:
+      "Endpoint=sb://legacyn-3.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test;" as NonEmptyString,
+    name: "legacyn3" as NonEmptyString,
+    partitionRegex: new RegExp("^[8-b]"),
+  },
+  {
+    endpoint:
+      "Endpoint=sb://legacyn-4.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test;" as NonEmptyString,
+    name: "legacyn4" as NonEmptyString,
+    partitionRegex: new RegExp("^[c-f]"),
+  },
+]);

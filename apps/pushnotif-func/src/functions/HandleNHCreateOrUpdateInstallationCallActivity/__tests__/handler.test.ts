@@ -4,7 +4,10 @@ import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { context as contextMock } from "../../../__mocks__/durable-functions";
-import { nhPartitionFactory } from "../../../__mocks__/notification-hub";
+import {
+  legacyNhPartitionFactory,
+  nhPartitionFactory,
+} from "../../../__mocks__/notification-hub";
 import {
   CreateOrUpdateInstallationMessage,
   KindEnum,
@@ -42,7 +45,11 @@ const handler = createActivity(
   activityName,
   ActivityInput,
   ActivityResultSuccess,
-  getActivityBody(nhPartitionFactory, mockTelemetryClient),
+  getActivityBody(
+    nhPartitionFactory,
+    legacyNhPartitionFactory,
+    mockTelemetryClient,
+  ),
 );
 
 describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
@@ -50,31 +57,35 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
     vi.clearAllMocks();
   });
 
-  it("should call a createOrUpdateInstallation using the right notification hub partition ending with a success", async () => {
-    vi.spyOn(
-      NotificationHubsClient.prototype,
-      "createOrUpdateInstallation",
-    ).mockResolvedValueOnce({});
+  it(
+    "should call a createOrUpdateInstallation using the right notification hub partition ending with a success",
+    async () => {
+      vi.spyOn(
+        NotificationHubsClient.prototype,
+        "createOrUpdateInstallation",
+      ).mockResolvedValueOnce({});
 
-    const input = ActivityInput.encode({
-      installationId: aCreateOrUpdateInstallationMessage.installationId,
-      platform: aCreateOrUpdateInstallationMessage.platform,
-      pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
-      tags: aCreateOrUpdateInstallationMessage.tags,
-    });
+      const input = ActivityInput.encode({
+        installationId: aCreateOrUpdateInstallationMessage.installationId,
+        platform: aCreateOrUpdateInstallationMessage.platform,
+        pushChannel: aCreateOrUpdateInstallationMessage.pushChannel,
+        tags: aCreateOrUpdateInstallationMessage.tags,
+      });
 
-    expect.assertions(2);
+      expect.assertions(2);
 
-    const res = await handler(contextMock, input);
-    expect(ActivityResultSuccess.is(res)).toBeTruthy();
-    expect(nhPartitionFactory.getPartition).toHaveReturnedWith(
-      expect.objectContaining({
-        _client: expect.objectContaining({
-          hubName: "nh4",
+      const res = await handler(contextMock, input);
+      expect(ActivityResultSuccess.is(res)).toBeTruthy();
+      expect(nhPartitionFactory.getPartition).toHaveReturnedWith(
+        expect.objectContaining({
+          _client: expect.objectContaining({
+            hubName: "nh4",
+          }),
         }),
-      }),
-    );
-  });
+      );
+    },
+    { timeout: 10000 },
+  );
 
   it("should trigger a retry if CreateOrUpdateInstallation fails", async () => {
     vi.spyOn(

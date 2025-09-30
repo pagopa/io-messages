@@ -34,6 +34,26 @@ export const envConfig = {
   NH4_NAME: "NH4",
   NH4_PARTITION_REGEX: "^[c-f]",
 
+  LEGACY_NH1_ENDPOINT:
+    "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar",
+  LEGACY_NH1_NAME: "NH1",
+  LEGACY_NH1_PARTITION_REGEX: "^[0-3]",
+
+  LEGACY_NH2_ENDPOINT:
+    "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar",
+  LEGACY_NH2_NAME: "NH2",
+  LEGACY_NH2_PARTITION_REGEX: "^[4-7]",
+
+  LEGACY_NH3_ENDPOINT:
+    "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar",
+  LEGACY_NH3_NAME: "NH3",
+  LEGACY_NH3_PARTITION_REGEX: "^[8-b]",
+
+  LEGACY_NH4_ENDPOINT:
+    "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar",
+  LEGACY_NH4_NAME: "NH4",
+  LEGACY_NH4_PARTITION_REGEX: "^[c-f]",
+
   NOTIFICATIONS_QUEUE_NAME: "notification-queue-name",
   NOTIFICATIONS_STORAGE_CONNECTION_STRING:
     "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar",
