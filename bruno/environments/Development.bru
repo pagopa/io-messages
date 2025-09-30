@@ -1,6 +1,5 @@
 vars {
   app_backend_public_url: http://localhost:8004
-  user_token: mock-secret
   citizen_func_url: http://localhost:7072
   services_func_url: http://localhost:7073
   pushnotif_func_url: http://localhost:7071
@@ -9,4 +8,9 @@ vars {
   sender_subscription_id: 01JR0QRJ8MX1PD06DE6X5FWXS5
   sender_user_id: 01JR0QRJ8MX1PD06DE6X5FWXS5
   receipt_id: 192.168.1.89
+  session_manager_uri: https://io-p-weu-session-manager-app-03.azurewebsites.net/api/auth/v1/user-identity
 }
+vars:secret [
+  user_token,
+  lollipop_signature
+]

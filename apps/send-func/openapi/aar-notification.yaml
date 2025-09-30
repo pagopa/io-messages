@@ -211,6 +211,12 @@ components:
           type: string
           description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
           maxLength: 300
+    Iun:
+      description: Identificativo Univoco Notifica
+      type: string
+      minLength: 25
+      maxLength: 25
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
     AARQRCodeCheckResponse:
       description: >-
         Le informazioni fornite in risposta alla verifica del AAR-QR-CodeValue
@@ -221,11 +227,7 @@ components:
         - recipientInfo
       properties:
         iun:
-          description: Identificativo Univoco Notifica
-          type: string
-          minLength: 25
-          maxLength: 25
-          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+          $ref: "#/components/schemas/Iun"
         mandateId:
           description: identificativo della delega
           type: string
