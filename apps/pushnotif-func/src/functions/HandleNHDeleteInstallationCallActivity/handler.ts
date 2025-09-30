@@ -31,15 +31,19 @@ export { ActivityResultSuccess } from "../../utils/durable/activities";
 export const getActivityBody =
   (
     nhPartitionFactory: NotificationHubPartitionFactory,
+    nhLegacyPartitionFactory: NotificationHubPartitionFactory,
     telemetryClient: TelemetryClient,
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBody<ActivityInput, ActivityResultSuccess> =>
   ({ input, logger }) => {
     logger.info(`INSTALLATION_ID=${input.installationId}`);
     const nhClient = nhPartitionFactory.getPartition(input.installationId);
+    const nhLegacyClient = nhLegacyPartitionFactory.getPartition(
+      input.installationId,
+    );
 
     return pipe(
-      deleteInstallation(nhClient, input.installationId),
+      deleteInstallation(nhClient, nhLegacyClient, input.installationId),
       TE.bimap(
         (e) => {
           telemetryClient.trackEvent({
@@ -62,6 +66,18 @@ export const getActivityBody =
             },
             tagOverrides: { samplingEnabled: "false" },
           });
+          const error = response.find((r) => r instanceof Error);
+          if (error) {
+            telemetryClient.trackEvent({
+              name: "api.messages.notification.deleteInstallation.failure",
+              properties: {
+                installationId: input.installationId,
+                isSuccess: "false",
+                reason: error.message,
+              },
+              tagOverrides: { samplingEnabled: "false" },
+            });
+          }
           return ActivityResultSuccess.encode({ kind: "SUCCESS", ...response });
         },
       ),

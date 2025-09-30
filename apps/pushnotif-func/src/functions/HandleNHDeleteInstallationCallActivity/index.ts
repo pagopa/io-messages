@@ -22,6 +22,10 @@ const nhPatitionFactory = new NotificationHubPartitionFactory(
   config.AZURE_NOTIFICATION_HUB_PARTITIONS,
 );
 
+const nhLegacyPartitionFactory = new NotificationHubPartitionFactory(
+  config.AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS,
+);
+
 /**
  * Build a `HandleNHDeleteInstallationCallActivity` to be called by an Orchestrator
  *
@@ -41,7 +45,7 @@ const activityFunctionHandler = createActivity<ActivityInput>(
   activityName,
   ActivityInput,
   ActivityResultSuccess,
-  getActivityBody(nhPatitionFactory, telemetryClient),
+  getActivityBody(nhPatitionFactory, nhLegacyPartitionFactory, telemetryClient),
 );
 
 export default activityFunctionHandler;

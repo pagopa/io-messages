@@ -51,6 +51,27 @@ const NotificationHubPartitionsConfig = t.interface({
   NH4_PARTITION_REGEX: RegExpFromString,
 });
 
+export type LegacyNotificationHubPartitionsConfig = t.TypeOf<
+  typeof LegacyNotificationHubPartitionsConfig
+>;
+const LegacyNotificationHubPartitionsConfig = t.interface({
+  LEGACY_NH1_ENDPOINT: NonEmptyString,
+  LEGACY_NH1_NAME: NonEmptyString,
+  LEGACY_NH1_PARTITION_REGEX: RegExpFromString,
+
+  LEGACY_NH2_ENDPOINT: NonEmptyString,
+  LEGACY_NH2_NAME: NonEmptyString,
+  LEGACY_NH2_PARTITION_REGEX: RegExpFromString,
+
+  LEGACY_NH3_ENDPOINT: NonEmptyString,
+  LEGACY_NH3_NAME: NonEmptyString,
+  LEGACY_NH3_PARTITION_REGEX: RegExpFromString,
+
+  LEGACY_NH4_ENDPOINT: NonEmptyString,
+  LEGACY_NH4_NAME: NonEmptyString,
+  LEGACY_NH4_PARTITION_REGEX: RegExpFromString,
+});
+
 /**
  * Global app configuration
  */
@@ -184,14 +205,108 @@ const WithComputedNHPartitions = new t.Type<
         }),
         {},
       ),
-    } as BaseConfig & NotificationHubPartitionsConfig; // cast needed because TS cannot understand types when we compose keys with strings
+    } as BaseConfig &
+      NotificationHubPartitionsConfig &
+      NotificationHubPartitionsConfig; // cast needed because TS cannot understand types when we compose keys with strings
   },
 );
 
-export type IConfig = t.TypeOf<typeof IConfig>;
-export const IConfig = t
+/**
+ * Extends the app base configuration
+ * by computing fixed Notification Hub partition configurations
+ * into a single array of struct named AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS.
+ */
+type WithComputedLegacyNHPartitions = {
+  readonly AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS: DisjoitedNotificationHubPartitionArray;
+} & BaseConfig;
+const WithComputedLegacyNHPartitions = new t.Type<
+  WithComputedLegacyNHPartitions,
+  BaseConfig & LegacyNotificationHubPartitionsConfig,
+  BaseConfig & LegacyNotificationHubPartitionsConfig
+>(
+  "WithComputedLegacyNHPartitions",
+  (v: unknown): v is WithComputedLegacyNHPartitions =>
+    BaseConfig.is(v) && "AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS" in v,
+  ({
+    LEGACY_NH1_ENDPOINT,
+    LEGACY_NH1_NAME,
+    LEGACY_NH1_PARTITION_REGEX,
+    LEGACY_NH2_ENDPOINT,
+    LEGACY_NH2_NAME,
+    LEGACY_NH2_PARTITION_REGEX,
+    LEGACY_NH3_ENDPOINT,
+    LEGACY_NH3_NAME,
+    LEGACY_NH3_PARTITION_REGEX,
+    LEGACY_NH4_ENDPOINT,
+    LEGACY_NH4_NAME,
+    LEGACY_NH4_PARTITION_REGEX,
+    ...baseConfig
+  }): t.Validation<WithComputedLegacyNHPartitions> =>
+    // decode the fixed array of NH partitions...
+    pipe(
+      [
+        {
+          endpoint: LEGACY_NH1_ENDPOINT,
+          name: LEGACY_NH1_NAME,
+          partitionRegex: LEGACY_NH1_PARTITION_REGEX,
+        },
+        {
+          endpoint: LEGACY_NH2_ENDPOINT,
+          name: LEGACY_NH2_NAME,
+          partitionRegex: LEGACY_NH2_PARTITION_REGEX,
+        },
+        {
+          endpoint: LEGACY_NH3_ENDPOINT,
+          name: LEGACY_NH3_NAME,
+          partitionRegex: LEGACY_NH3_PARTITION_REGEX,
+        },
+        {
+          endpoint: LEGACY_NH4_ENDPOINT,
+          name: LEGACY_NH4_NAME,
+          partitionRegex: LEGACY_NH4_PARTITION_REGEX,
+        },
+      ],
+      DisjoitedNotificationHubPartitionArray.decode,
+      // ...then add the key to the base config
+      E.map((partitions) => ({
+        ...baseConfig,
+        AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS: partitions,
+      })),
+    ),
+  (
+    v: WithComputedLegacyNHPartitions,
+  ): BaseConfig & LegacyNotificationHubPartitionsConfig => {
+    const { AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS, ...rest } = v;
+    return {
+      ...rest,
+      ...AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS.reduce(
+        (p, e, i) => ({
+          ...p,
+          // reconstruct the key set from the array
+          [`NH${i}_ENDPOINT`]: e.endpoint,
+          [`NH${i}_NAME`]: e.name,
+          [`NH${i}_PARTITION_REGEX`]: e.partitionRegex,
+        }),
+        {},
+      ),
+    } as BaseConfig &
+      LegacyNotificationHubPartitionsConfig & // cast needed because TS cannot understand types when we compose keys with strings
+      NotificationHubPartitionsConfig;
+  },
+);
+
+type IConfigLegacy = t.TypeOf<typeof IConfigLegacy>;
+const IConfigLegacy = t
+  .intersection([BaseConfig, LegacyNotificationHubPartitionsConfig])
+  .pipe(WithComputedLegacyNHPartitions);
+
+type IConfigBase = t.TypeOf<typeof IConfigBase>;
+const IConfigBase = t
   .intersection([BaseConfig, NotificationHubPartitionsConfig])
   .pipe(WithComputedNHPartitions);
+
+export type IConfig = t.TypeOf<typeof IConfig>;
+export const IConfig = t.intersection([IConfigBase, IConfigLegacy]);
 
 export const envConfig = {
   ...process.env,

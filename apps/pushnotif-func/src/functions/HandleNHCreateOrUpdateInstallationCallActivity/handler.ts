@@ -36,6 +36,7 @@ const getPlatformFromPlatformEnum = (
 export const getActivityBody =
   (
     nhPartitionFactory: NotificationHubPartitionFactory,
+    nhLegacyPartitionFactory: NotificationHubPartitionFactory,
     telemetryClient: TelemetryClient,
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBodyImpl =>
@@ -44,6 +45,7 @@ export const getActivityBody =
     return pipe(
       createOrUpdateInstallation(
         nhPartitionFactory.getPartition(input.installationId),
+        nhLegacyPartitionFactory.getPartition(input.installationId),
         input.installationId,
         getPlatformFromPlatformEnum(input.platform),
         input.pushChannel,
@@ -63,7 +65,7 @@ export const getActivityBody =
           });
           return retryActivity(logger, toString(e));
         },
-        () => {
+        (response) => {
           telemetryClient.trackEvent({
             name: "api.messages.notification.createOrUpdateInstallation.success",
             properties: {
@@ -73,6 +75,18 @@ export const getActivityBody =
             },
             tagOverrides: { samplingEnabled: "false" },
           });
+          const error = response.find((r) => r instanceof Error);
+          if (error) {
+            telemetryClient.trackEvent({
+              name: "api.messages.notification.createOrUpdateInstallation.failure",
+              properties: {
+                installationId: input.installationId,
+                isSuccess: "false",
+                reason: error.message,
+              },
+              tagOverrides: { samplingEnabled: "false" },
+            });
+          }
           return ActivityResultSuccess.encode({ kind: "SUCCESS" });
         },
       ),

@@ -120,6 +120,30 @@ locals {
 
 
       # ------------------------------------------------------------------------------
+      # Notification Hubs variables
+
+      # Endpoint for the test notification hub namespace
+      LEGACY_AZURE_NH_HUB_NAME                         = data.azurerm_notification_hub.common.name
+      "AzureWebJobs.HandleNHNotificationCall.Disabled" = "0"
+      # Endpoint for the test notification hub namespace
+      LEGACY_NH1_PARTITION_REGEX = "^[0-3]"
+      LEGACY_NH1_NAME            = data.azurerm_notification_hub.common_partition[0].name
+      LEGACY_NH2_PARTITION_REGEX = "^[4-7]"
+      LEGACY_NH2_NAME            = data.azurerm_notification_hub.common_partition[1].name
+      LEGACY_NH3_PARTITION_REGEX = "^[8-b]"
+      LEGACY_NH3_NAME            = data.azurerm_notification_hub.common_partition[2].name
+      LEGACY_NH4_PARTITION_REGEX = "^[c-f]"
+      LEGACY_NH4_NAME            = data.azurerm_notification_hub.common_partition[3].name
+
+      LEGACY_AZURE_NH_ENDPOINT = data.azurerm_key_vault_secret.azure_nh_endpoint.value
+      LEGACY_NH1_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition1_endpoint.value
+      LEGACY_NH2_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition2_endpoint.value
+      LEGACY_NH3_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition3_endpoint.value
+      LEGACY_NH4_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition4_endpoint.value
+      # ------------------------------------------------------------------------------
+
+
+      # ------------------------------------------------------------------------------
       # Variable used during transition to new NH management
 
       # Possible values : "none" | "all" | "beta" | "canary"

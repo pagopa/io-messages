@@ -133,47 +133,120 @@ export const notify = (
     }),
   );
 
+type MaybeErrorResponse = Error | NotificationHubsResponse;
+
 export const createOrUpdateInstallation = (
   notificationHubClient: NotificationHubsClient,
+  legacyNotificationHubClient: NotificationHubsClient,
   installationId: NonEmptyString,
   platform: Platform,
   pushChannel: string,
   tags: readonly string[],
-): TE.TaskEither<Error, NotificationHubsResponse> =>
-  TE.tryCatch(
-    () =>
-      notificationHubClient.createOrUpdateInstallation({
-        installationId,
-        platform,
-        pushChannel,
-        templates: {
-          template: {
-            body: platform === "apns" ? APNSTemplate : FCMV1Template,
-            headers:
-              platform === "apns"
-                ? {
-                    ["apns-priority"]: "10",
-                    ["apns-push-type"]: APNSPushType.ALERT,
-                  }
-                : {},
-            tags: [...tags],
+): TE.TaskEither<Error, MaybeErrorResponse[]> =>
+  pipe(
+    tryCatch(
+      () =>
+        legacyNotificationHubClient.createOrUpdateInstallation({
+          installationId,
+          platform,
+          pushChannel,
+          templates: {
+            template: {
+              body: platform === "apns" ? APNSTemplate : FCMV1Template,
+              headers:
+                platform === "apns"
+                  ? {
+                      ["apns-priority"]: "10",
+                      ["apns-push-type"]: APNSPushType.ALERT,
+                    }
+                  : {},
+              tags: [...tags],
+            },
           },
-        },
-      }),
-    (errs) =>
-      new Error(
-        `Error while creating or updating installation on NotificationHub [${errs}]`,
-      ),
+        }),
+      (errs) =>
+        new Error(
+          `Error while creating or updating installation on NotificationHub [${errs}]`,
+        ),
+    ),
+    TE.chain((legacyResp) => {
+      const primaryCreateOrUpdate: TE.TaskEither<
+        Error,
+        NotificationHubsResponse
+      > = tryCatch(
+        () =>
+          notificationHubClient.createOrUpdateInstallation({
+            installationId,
+            platform,
+            pushChannel,
+            templates: {
+              template: {
+                body: platform === "apns" ? APNSTemplate : FCMV1Template,
+                headers:
+                  platform === "apns"
+                    ? {
+                        ["apns-priority"]: "10",
+                        ["apns-push-type"]: APNSPushType.ALERT,
+                      }
+                    : {},
+                tags: [...tags],
+              },
+            },
+          }),
+        (errs) =>
+          new Error(
+            `Error while creating or updating installation on NotificationHub [${errs}]`,
+          ),
+      );
+
+      return pipe(
+        primaryCreateOrUpdate,
+        TE.map((primaryResp): MaybeErrorResponse[] => [
+          legacyResp,
+          primaryResp,
+        ]),
+        TE.orElseW(
+          (err): TE.TaskEither<Error, MaybeErrorResponse[]> =>
+            TE.right([legacyResp, err]),
+        ),
+      );
+    }),
   );
 
 export const deleteInstallation = (
-  notificationHubService: NotificationHubsClient,
+  notificationHubClient: NotificationHubsClient,
+  legacyNotificationHubClient: NotificationHubsClient,
   installationId: NonEmptyString,
-): TaskEither<Error, NotificationHubsResponse> =>
-  tryCatch(
-    () => notificationHubService.deleteInstallation(installationId),
-    (errs) =>
-      new Error(
-        `Error while deleting installation on NotificationHub [${installationId}] [${errs}]`,
-      ),
+): TE.TaskEither<Error, MaybeErrorResponse[]> =>
+  pipe(
+    tryCatch(
+      () => legacyNotificationHubClient.deleteInstallation(installationId),
+      (errs) =>
+        new Error(
+          `Error while deleting installation on Legacy NotificationHub [${installationId}] [${errs}]`,
+        ),
+    ),
+
+    TE.chain((legacyResp) => {
+      const primaryDelete: TE.TaskEither<Error, NotificationHubsResponse> =
+        tryCatch(
+          () => notificationHubClient.deleteInstallation(installationId),
+          (errs) =>
+            new Error(
+              `Error while deleting installation on NotificationHub [${installationId}] [${errs}]`,
+            ),
+        );
+
+      return pipe(
+        primaryDelete,
+        TE.map((primaryResp): MaybeErrorResponse[] => [
+          legacyResp,
+          primaryResp,
+        ]),
+        TE.orElseW(
+          (err): TE.TaskEither<Error, MaybeErrorResponse[]> =>
+            TE.right([legacyResp, err]),
+        ),
+      );
+    }),
   );
