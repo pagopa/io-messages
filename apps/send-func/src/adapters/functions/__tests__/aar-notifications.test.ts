@@ -37,7 +37,10 @@ const uatGetReceivedNotificationSpy = vi
   .spyOn(uatNotificationClient, "getReceivedNotification")
   .mockImplementation(() => Promise.resolve(aThirdPartyMessage));
 
-const handler = getNotification(notificationClient, uatNotificationClient);
+const getSendClientMock = (isTest: boolean) =>
+  isTest ? uatNotificationClient : notificationClient;
+
+const handler = getNotification(getSendClientMock);
 
 const aLollipopHeaders: LollipopHeaders = {
   signature: aSignature,

@@ -24,6 +24,9 @@ const main = async (config: Config): Promise<void> => {
     config.notificationUatClient.baseUrl,
   );
 
+  const getSendClient = (isTest: boolean) =>
+    isTest ? uatNotificationClient : notificationClient;
+
   const lollipopClient = new LollipopClient(
     config.lollipop.apiKey,
     config.lollipop.baseUrl,
@@ -41,7 +44,7 @@ const main = async (config: Config): Promise<void> => {
     authLevel: "anonymous",
     handler: handlerWithMiddleware(
       lollipopMiddleware,
-      aarQRCodeCheck(notificationClient, uatNotificationClient),
+      aarQRCodeCheck(getSendClient),
     ),
     methods: ["POST"],
     route: "aar/qr-code-check",
@@ -51,7 +54,7 @@ const main = async (config: Config): Promise<void> => {
     authLevel: "anonymous",
     handler: handlerWithMiddleware(
       lollipopMiddleware,
-      getNotification(notificationClient, uatNotificationClient),
+      getNotification(getSendClient),
     ),
     methods: ["GET"],
     route: "aar/notifications/{iun}",

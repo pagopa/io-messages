@@ -173,3 +173,16 @@ export const sendHeadersSchema = lollipopHeadersSchema.merge(
 );
 
 export type SendHeaders = z.TypeOf<typeof sendHeadersSchema>;
+
+export const sendAARClientResponseSchema = z.object({
+  jsonBody: z.union([
+    checkQrMandateResponseSchema,
+    problemJsonSchema,
+    thirdPartyMessageSchema,
+  ]),
+  status: z.number().int(),
+});
+
+export type SendAARClientResponse = z.TypeOf<
+  typeof sendAARClientResponseSchema
+>;

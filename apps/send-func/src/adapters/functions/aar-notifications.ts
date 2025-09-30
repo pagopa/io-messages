@@ -1,13 +1,9 @@
-import {
-  HttpHandler,
-  HttpRequest,
-  HttpResponseInit,
-  InvocationContext,
-} from "@azure/functions";
+import { HttpHandler, HttpRequest, InvocationContext } from "@azure/functions";
 import { lollipopHeadersSchema } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { lollipopExtraInputsCtxKey } from "io-messages-common/adapters/lollipop/lollipop-middleware";
 
 import {
+  SendAARClientResponse,
   iunSchema,
   mandateIdSchema,
   problemJsonSchema,
@@ -19,16 +15,13 @@ import NotificationClient, {
 import { malformedBodyResponse } from "./commons/response.js";
 
 export const getNotification =
-  (
-    notificationClient: NotificationClient,
-    uatNotificationClient: NotificationClient,
-  ): HttpHandler =>
+  (getSendClient: (isTest: boolean) => NotificationClient): HttpHandler =>
   async (
     request: HttpRequest,
     context: InvocationContext,
-  ): Promise<HttpResponseInit> => {
+  ): Promise<SendAARClientResponse> => {
     const isTest = request.query.get("isTest") === "true";
-    const client = isTest ? uatNotificationClient : notificationClient;
+    const client = getSendClient(isTest);
 
     const lollipopHeaders = lollipopHeadersSchema.safeParse(
       context.extraInputs.get(lollipopExtraInputsCtxKey),

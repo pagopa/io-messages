@@ -38,7 +38,10 @@ const uatCheckAarQrCodeIOSpy = vi
   .spyOn(uatNotificationClient, "checkAarQrCodeIO")
   .mockImplementation(() => Promise.resolve(aCheckQrMandateResponse));
 
-const handler = aarQRCodeCheck(notificationClient, uatNotificationClient);
+const getSendClientMock = (isTest: boolean) =>
+  isTest ? uatNotificationClient : notificationClient;
+
+const handler = aarQRCodeCheck(getSendClientMock);
 
 const aLollipopHeaders: LollipopHeaders = {
   signature: aSignature,
