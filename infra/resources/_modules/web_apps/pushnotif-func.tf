@@ -30,27 +30,6 @@ data "azurerm_key_vault" "common" {
   resource_group_name = format("%s-rg-common", local.product)
 }
 
-data "azurerm_key_vault_secret" "azure_nh_endpoint_itn" {
-  name         = "common-itn-AZURE-NH-ENDPOINT"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-data "azurerm_key_vault_secret" "azure_nh_partition1_endpoint_itn" {
-  name         = "common-itn-partition-1-AZURE-NH-ENDPOINT"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-data "azurerm_key_vault_secret" "azure_nh_partition2_endpoint_itn" {
-  name         = "common-itn-partition-2-AZURE-NH-ENDPOINT"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-data "azurerm_key_vault_secret" "azure_nh_partition3_endpoint_itn" {
-  name         = "common-itn-partition-3-AZURE-NH-ENDPOINT"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-data "azurerm_key_vault_secret" "azure_nh_partition4_endpoint_itn" {
-  name         = "common-itn-partition-4-AZURE-NH-ENDPOINT"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-
 data "azurerm_key_vault_secret" "azure_nh_endpoint" {
   name         = "common-AZURE-NH-ENDPOINT"
   key_vault_id = data.azurerm_key_vault.common.id
@@ -69,6 +48,27 @@ data "azurerm_key_vault_secret" "azure_nh_partition3_endpoint" {
 }
 data "azurerm_key_vault_secret" "azure_nh_partition4_endpoint" {
   name         = "common-partition-4-AZURE-NH-ENDPOINT"
+  key_vault_id = data.azurerm_key_vault.common.id
+}
+
+data "azurerm_key_vault_secret" "azure_nh_endpoint_itn" {
+  name         = "common-AZURE-NH-ENDPOINT-ITN"
+  key_vault_id = data.azurerm_key_vault.common.id
+}
+data "azurerm_key_vault_secret" "azure_nh_partition1_endpoint_itn" {
+  name         = "common-partition-1-AZURE-NH-ENDPOINT-ITN"
+  key_vault_id = data.azurerm_key_vault.common.id
+}
+data "azurerm_key_vault_secret" "azure_nh_partition2_endpoint_itn" {
+  name         = "common-partition-2-AZURE-NH-ENDPOINT-ITN"
+  key_vault_id = data.azurerm_key_vault.common.id
+}
+data "azurerm_key_vault_secret" "azure_nh_partition3_endpoint_itn" {
+  name         = "common-partition-3-AZURE-NH-ENDPOINT-ITN"
+  key_vault_id = data.azurerm_key_vault.common.id
+}
+data "azurerm_key_vault_secret" "azure_nh_partition4_endpoint_itn" {
+  name         = "common-partition-4-AZURE-NH-ENDPOINT-ITN"
   key_vault_id = data.azurerm_key_vault.common.id
 }
 
