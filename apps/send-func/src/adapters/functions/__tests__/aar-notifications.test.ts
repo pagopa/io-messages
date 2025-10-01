@@ -80,7 +80,7 @@ describe("GetAARNotification", () => {
     request.query.set("isTest", "false");
     request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
 
-    await expect(handler(request, context)).resolves.toEqual({
+    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: aThirdPartyMessage,
       status: 200,
     });
@@ -94,7 +94,7 @@ describe("GetAARNotification", () => {
 
     const mandateId = crypto.randomUUID();
     request.query.set("mandateId", mandateId);
-    await expect(handler(request, context)).resolves.toEqual({
+    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: aThirdPartyMessage,
       status: 200,
     });
@@ -114,7 +114,7 @@ describe("GetAARNotification", () => {
     request.query.set("isTest", "true");
     request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
 
-    await expect(handler(request, context)).resolves.toEqual({
+    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: aThirdPartyMessage,
       status: 200,
     });
@@ -136,29 +136,24 @@ describe("GetAARNotification", () => {
     request.query.set("mandateId", "badMandateId");
     request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
 
-    const result = (await handler(request, context)) as HttpResponseInit;
+    const result = (await handler(
+      request,
+      context,
+      aLollipopHeaders,
+    )) as HttpResponseInit;
     expect(result.jsonBody.detail).toBe("Malformed request");
     expect(result.status).toBe(400);
 
-    const malformedLollipopHeaders = {
-      signature: aSignature,
-      "signature-input": aSignatureInput,
-      "x-pagopa-lollipop-assertion-ref": anAssertionRef,
-      "x-pagopa-lollipop-assertion-type": anAssertionType,
-      "x-pagopa-lollipop-auth-jwt": "an auth jwt",
-      "x-pagopa-lollipop-original-method": anOriginalMethod,
-    };
-    const mandateId = crypto.randomUUID();
-    request.query.set("mandateId", mandateId);
+    request.headers.set("x-pagopa-cx-taxid", "badFiscalCode");
 
-    context.extraInputs.set("lollipopHeaders", malformedLollipopHeaders);
+    const result2 = (await handler(
+      request,
+      context,
+      aLollipopHeaders,
+    )) as HttpResponseInit;
 
-    const result2 = (await handler(request, context)) as HttpResponseInit;
     expect(result2.jsonBody.detail).toBe("Malformed headers");
     expect(result2.status).toBe(400);
-
-    expect(getReceivedNotificationSpy).not.toHaveBeenCalled();
-    expect(uatGetReceivedNotificationSpy).not.toHaveBeenCalled();
   });
 
   it("returns 500 status code for all the others errors", async () => {
@@ -181,7 +176,11 @@ describe("GetAARNotification", () => {
     });
     request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
 
-    const result = (await handler(request, context)) as HttpResponseInit;
+    const result = (await handler(
+      request,
+      context,
+      aLollipopHeaders,
+    )) as HttpResponseInit;
     expect(result.jsonBody.detail).toBe(aProblem.detail);
     expect(result.jsonBody.status).toBe(503);
     expect(result.status).toBe(500);

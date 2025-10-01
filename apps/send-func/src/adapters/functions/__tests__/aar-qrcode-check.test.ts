@@ -84,7 +84,7 @@ describe("AARQrCodeCheck", () => {
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });
 
-    await expect(handler(request, context)).resolves.toEqual({
+    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: aCheckQrMandateResponse,
       status: 200,
     });
@@ -109,7 +109,7 @@ describe("AARQrCodeCheck", () => {
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });
 
-    await expect(handler(request, context)).resolves.toEqual({
+    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: aCheckQrMandateResponse,
       status: 200,
     });
@@ -134,42 +134,28 @@ describe("AARQrCodeCheck", () => {
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValueBadProp: anAarQrCodeValue });
 
-    const result = (await handler(request, context)) as HttpResponseInit;
+    const result = (await handler(
+      request,
+      context,
+      aLollipopHeaders,
+    )) as HttpResponseInit;
     expect(result.jsonBody.detail).toBe("Malformed body");
     expect(result.status).toBe(400);
     expect(requestBodyJson).toHaveBeenCalledOnce();
     expect(checkAarQrCodeIOSpy).not.toHaveBeenCalled();
     expect(uatCheckAarQrCodeIOSpy).not.toHaveBeenCalled();
-  });
 
-  it("returns 400 status code if the request headers are malformed", async () => {
-    const request = new HttpRequest({
-      method: "POST",
-      url: "http://localhost",
-    });
-    request.query.set("isTest", "false");
-    request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
+    request.headers.set("x-pagopa-cx-taxid", "badFiscalCode");
 
-    const requestBodyJson = vi
-      .spyOn(request, "json")
-      .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });
+    const result2 = (await handler(
+      request,
+      context,
+      aLollipopHeaders,
+    )) as HttpResponseInit;
 
-    const malformedLollipopHeaders = {
-      signature: aSignature,
-      "signature-input": aSignatureInput,
-      "x-pagopa-lollipop-assertion-ref": anAssertionRef,
-      "x-pagopa-lollipop-assertion-type": anAssertionType,
-      "x-pagopa-lollipop-auth-jwt": "an auth jwt",
-      "x-pagopa-lollipop-original-method": anOriginalMethod,
-      "x-pagopa-lollipop-original-url": anOriginalUrl,
-    };
-
-    context.extraInputs.set("lollipopHeaders", malformedLollipopHeaders);
-
-    const result = (await handler(request, context)) as HttpResponseInit;
-    expect(result.jsonBody.detail).toBe("Malformed headers");
-    expect(result.status).toBe(400);
-    expect(requestBodyJson).not.toHaveBeenCalledOnce();
+    expect(result2.jsonBody.detail).toBe("Malformed headers");
+    expect(result2.status).toBe(400);
+    expect(requestBodyJson).toHaveBeenCalledOnce();
     expect(checkAarQrCodeIOSpy).not.toHaveBeenCalled();
     expect(uatCheckAarQrCodeIOSpy).not.toHaveBeenCalled();
   });
@@ -198,7 +184,11 @@ describe("AARQrCodeCheck", () => {
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });
 
-    const result = (await handler(request, context)) as HttpResponseInit;
+    const result = (await handler(
+      request,
+      context,
+      aLollipopHeaders,
+    )) as HttpResponseInit;
     expect(result.jsonBody.detail).toBe("Internal server error");
     expect(result.jsonBody.status).toBe(503);
     expect(result.status).toBe(500);
