@@ -1,8 +1,6 @@
-import { SendAARClientResponse } from "@/adapters/send/definitions.js";
+import { AarProblemResponse } from "@/adapters/send/definitions.js";
 
-export const malformedBodyResponse = (
-  detail: string,
-): SendAARClientResponse => ({
+export const malformedBodyResponse = (detail: string): AarProblemResponse => ({
   jsonBody: {
     detail,
     status: 400,
