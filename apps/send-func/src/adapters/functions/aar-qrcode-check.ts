@@ -1,6 +1,6 @@
-import { HttpHandler, HttpRequest, InvocationContext } from "@azure/functions";
-import { lollipopHeadersSchema } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
-import { lollipopExtraInputsCtxKey } from "io-messages-common/adapters/lollipop/lollipop-middleware";
+import { HttpRequest, InvocationContext } from "@azure/functions";
+import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
+import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
 
 import {
   AarQRCodeCheckResponse,
@@ -15,25 +15,22 @@ import NotificationClient, {
 import { malformedBodyResponse } from "./commons/response.js";
 
 export const aarQRCodeCheck =
-  (getSendClient: (isTest: boolean) => NotificationClient): HttpHandler =>
+  (
+    getSendClient: (isTest: boolean) => NotificationClient,
+  ): ExtentedHttpHandler<[LollipopHeaders]> =>
   async (
     request: HttpRequest,
     context: InvocationContext,
+    lollipopHeaders: LollipopHeaders,
   ): Promise<AarQRCodeCheckResponse> => {
     const isTest = request.query.get("isTest") === "true";
     const client = getSendClient(isTest);
-
-    const lollipopHeaders = lollipopHeadersSchema.safeParse(
-      context.extraInputs.get(lollipopExtraInputsCtxKey),
-    );
-    if (!lollipopHeaders.success)
-      return malformedBodyResponse("Malformed headers");
 
     const sendHeaders = sendHeadersSchema.safeParse({
       "x-pagopa-cx-taxid": request.headers.get("x-pagopa-cx-taxid"),
       "x-pagopa-pn-io-src":
         request.headers.get("x-pagopa-pn-io-src") || undefined,
-      ...lollipopHeaders.data,
+      ...lollipopHeaders,
     });
 
     if (!sendHeaders.success) return malformedBodyResponse("Malformed headers");
