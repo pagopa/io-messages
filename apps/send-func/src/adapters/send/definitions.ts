@@ -174,15 +174,20 @@ export const sendHeadersSchema = lollipopHeadersSchema.merge(
 
 export type SendHeaders = z.TypeOf<typeof sendHeadersSchema>;
 
-export const sendAARClientResponseSchema = z.object({
-  jsonBody: z.union([
-    checkQrMandateResponseSchema,
-    problemJsonSchema,
-    thirdPartyMessageSchema,
-  ]),
+export const aarQRCodeCheckResponseSchema = z.object({
+  jsonBody: z.union([checkQrMandateResponseSchema, problemJsonSchema]),
   status: z.number().int(),
 });
 
-export type SendAARClientResponse = z.TypeOf<
-  typeof sendAARClientResponseSchema
+export type AarQRCodeCheckResponse = z.TypeOf<
+  typeof aarQRCodeCheckResponseSchema
+>;
+
+export const aarGetNotificationResponseSchema = z.object({
+  jsonBody: z.union([problemJsonSchema, thirdPartyMessageSchema]),
+  status: z.number().int(),
+});
+
+export type AarGetNotificationResponse = z.TypeOf<
+  typeof aarGetNotificationResponseSchema
 >;

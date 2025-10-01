@@ -3,7 +3,7 @@ import { lollipopHeadersSchema } from "io-messages-common/adapters/lollipop/defi
 import { lollipopExtraInputsCtxKey } from "io-messages-common/adapters/lollipop/lollipop-middleware";
 
 import {
-  SendAARClientResponse,
+  AarGetNotificationResponse,
   iunSchema,
   mandateIdSchema,
   problemJsonSchema,
@@ -19,7 +19,7 @@ export const getNotification =
   async (
     request: HttpRequest,
     context: InvocationContext,
-  ): Promise<SendAARClientResponse> => {
+  ): Promise<AarGetNotificationResponse> => {
     const isTest = request.query.get("isTest") === "true";
     const client = getSendClient(isTest);
 
