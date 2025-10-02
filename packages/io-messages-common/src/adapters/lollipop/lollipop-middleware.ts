@@ -132,9 +132,7 @@ export const parseLollipopHeaders = async (
 
 export function createLollipopMiddleware(
   lollipopClient: LollipopClient,
-): Middleware<[LollipopHeaders]> {
-  return async (req: HttpRequest) => {
-    const headers = await parseLollipopHeaders(req, lollipopClient);
-    return [headers];
-  };
+): Middleware<LollipopHeaders> {
+  return async (req: HttpRequest) =>
+    await parseLollipopHeaders(req, lollipopClient);
 }

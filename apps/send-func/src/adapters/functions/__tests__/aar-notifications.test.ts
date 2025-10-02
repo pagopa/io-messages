@@ -10,16 +10,16 @@ import {
   anOriginalMethod,
   anOriginalUrl,
 } from "@/__mocks__/notification.js";
-import { sendHeadersSchema } from "@/adapters/send/definitions.js";
+import {
+  aarGetNotificationResponseSchema,
+  sendHeadersSchema,
+} from "@/adapters/send/definitions.js";
 import NotificationClient, {
   NotificationClientError,
 } from "@/adapters/send/notification.js";
-import {
-  HttpRequest,
-  HttpResponseInit,
-  InvocationContext,
-} from "@azure/functions";
+import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
+import { problemJsonSchema } from "io-messages-common/domain/problem-json";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getNotification } from "../aar-notifications.js";
@@ -136,24 +136,23 @@ describe("GetAARNotification", () => {
     request.query.set("mandateId", "badMandateId");
     request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
 
-    const result = (await handler(
-      request,
-      context,
-      aLollipopHeaders,
-    )) as HttpResponseInit;
-    expect(result.jsonBody.detail).toBe("Malformed request");
+    const result = aarGetNotificationResponseSchema.parse(
+      await handler(request, context, aLollipopHeaders),
+    );
     expect(result.status).toBe(400);
+
+    const body = problemJsonSchema.parse(result.jsonBody);
+    expect(body.detail).toBe("Malformed request");
 
     request.headers.set("x-pagopa-cx-taxid", "badFiscalCode");
 
-    const result2 = (await handler(
-      request,
-      context,
-      aLollipopHeaders,
-    )) as HttpResponseInit;
-
-    expect(result2.jsonBody.detail).toBe("Malformed headers");
+    const result2 = aarGetNotificationResponseSchema.parse(
+      await handler(request, context, aLollipopHeaders),
+    );
     expect(result2.status).toBe(400);
+
+    const body2 = problemJsonSchema.parse(result2.jsonBody);
+    expect(body2.detail).toBe("Malformed headers");
   });
 
   it("returns 500 status code for all the others errors", async () => {
@@ -176,14 +175,15 @@ describe("GetAARNotification", () => {
     });
     request.headers.set("x-pagopa-cx-taxid", aFiscalCode);
 
-    const result = (await handler(
-      request,
-      context,
-      aLollipopHeaders,
-    )) as HttpResponseInit;
-    expect(result.jsonBody.detail).toBe(aProblem.detail);
-    expect(result.jsonBody.status).toBe(503);
+    const result = aarGetNotificationResponseSchema.parse(
+      await handler(request, context, aLollipopHeaders),
+    );
     expect(result.status).toBe(500);
+
+    const body = problemJsonSchema.parse(result.jsonBody);
+    expect(body.detail).toBe(aProblem.detail);
+    expect(body.status).toBe(503);
+
     expect(getReceivedNotificationSpyNotfClientErr).toHaveBeenCalledOnce();
   });
 });

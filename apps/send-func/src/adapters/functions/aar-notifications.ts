@@ -17,7 +17,7 @@ import { malformedBodyResponse } from "./commons/response.js";
 export const getNotification =
   (
     getSendClient: (isTest: boolean) => NotificationClient,
-  ): ExtentedHttpHandler<[LollipopHeaders]> =>
+  ): ExtentedHttpHandler<LollipopHeaders> =>
   async (
     request: HttpRequest,
     context: InvocationContext,

@@ -28,30 +28,30 @@ export class MiddlewareError extends Error {
   }
 }
 
-export type Middleware<MiddlewareParams extends unknown[] = []> = (
+export type Middleware<MiddlewareParam = void> = (
   request: HttpRequest,
   context: InvocationContext,
-) => Promise<MiddlewareParams>;
+) => Promise<MiddlewareParam>;
 
-export type ExtentedHttpHandler<MiddlewareParams extends unknown[] = []> = (
+export type ExtentedHttpHandler<MiddlewareParam> = (
   req: HttpRequest,
   ctx: InvocationContext,
-  ...middlewareArgs: MiddlewareParams
+  middlewareParam: MiddlewareParam,
 ) => Promise<HttpResponse | HttpResponseInit>;
 
-export function handlerWithMiddleware<MiddlewareParams extends unknown[]>(
-  middleware: Middleware<MiddlewareParams>,
-  handler: ExtentedHttpHandler<MiddlewareParams> | HttpHandler,
+export function handlerWithMiddleware<MiddlewareParam>(
+  middleware: Middleware<MiddlewareParam>,
+  handler: ExtentedHttpHandler<MiddlewareParam> | HttpHandler,
 ): HttpHandler {
   return async (req, ctx) => {
-    let extraArgs: MiddlewareParams;
+    let extraArgs: MiddlewareParam;
     try {
       extraArgs = await middleware(req, ctx);
     } catch (error) {
       return parseMiddlewareErrorResponse(error);
     }
 
-    return handler(req, ctx, ...extraArgs);
+    return handler(req, ctx, extraArgs);
   };
 }
 

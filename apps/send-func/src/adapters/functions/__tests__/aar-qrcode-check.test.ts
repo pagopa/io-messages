@@ -10,15 +10,15 @@ import {
   anOriginalMethod,
   anOriginalUrl,
 } from "@/__mocks__/notification.js";
-import { sendHeadersSchema } from "@/adapters/send/definitions.js";
+import {
+  aarQRCodeCheckResponseSchema,
+  problemJsonSchema,
+  sendHeadersSchema,
+} from "@/adapters/send/definitions.js";
 import NotificationClient, {
   NotificationClientError,
 } from "@/adapters/send/notification.js";
-import {
-  HttpRequest,
-  HttpResponseInit,
-  InvocationContext,
-} from "@azure/functions";
+import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
@@ -134,27 +134,26 @@ describe("AARQrCodeCheck", () => {
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValueBadProp: anAarQrCodeValue });
 
-    const result = (await handler(
-      request,
-      context,
-      aLollipopHeaders,
-    )) as HttpResponseInit;
-    expect(result.jsonBody.detail).toBe("Malformed body");
+    const result = aarQRCodeCheckResponseSchema.parse(
+      await handler(request, context, aLollipopHeaders),
+    );
     expect(result.status).toBe(400);
+
+    const body = problemJsonSchema.parse(result.jsonBody);
+    expect(body.detail).toBe("Malformed body");
     expect(requestBodyJson).toHaveBeenCalledOnce();
     expect(checkAarQrCodeIOSpy).not.toHaveBeenCalled();
     expect(uatCheckAarQrCodeIOSpy).not.toHaveBeenCalled();
 
     request.headers.set("x-pagopa-cx-taxid", "badFiscalCode");
 
-    const result2 = (await handler(
-      request,
-      context,
-      aLollipopHeaders,
-    )) as HttpResponseInit;
-
-    expect(result2.jsonBody.detail).toBe("Malformed headers");
+    const result2 = aarQRCodeCheckResponseSchema.parse(
+      await handler(request, context, aLollipopHeaders),
+    );
     expect(result2.status).toBe(400);
+
+    const body2 = problemJsonSchema.parse(result2.jsonBody);
+    expect(body2.detail).toBe("Malformed headers");
     expect(requestBodyJson).toHaveBeenCalledOnce();
     expect(checkAarQrCodeIOSpy).not.toHaveBeenCalled();
     expect(uatCheckAarQrCodeIOSpy).not.toHaveBeenCalled();
@@ -184,14 +183,15 @@ describe("AARQrCodeCheck", () => {
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });
 
-    const result = (await handler(
-      request,
-      context,
-      aLollipopHeaders,
-    )) as HttpResponseInit;
-    expect(result.jsonBody.detail).toBe("Internal server error");
-    expect(result.jsonBody.status).toBe(503);
+    const result = aarQRCodeCheckResponseSchema.parse(
+      await handler(request, context, aLollipopHeaders),
+    );
     expect(result.status).toBe(500);
+
+    const body = problemJsonSchema.parse(result.jsonBody);
+    expect(body.detail).toBe("Internal server error");
+    expect(body.status).toBe(503);
+
     expect(requestBodyJson).toHaveBeenCalledOnce();
     expect(checkAarQrCodeIOSpyNotfClientErr).toHaveBeenCalledOnce();
   });
