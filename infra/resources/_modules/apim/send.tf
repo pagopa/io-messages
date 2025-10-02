@@ -15,7 +15,7 @@ resource "azurerm_api_management_product_policy" "apim_itn_product_send_policy" 
   api_management_name = data.azurerm_api_management.apim_itn_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
 
-  xml_content = file("../_modules/apim/product/policy.xml")
+  xml_link = "https://raw.githubusercontent.com/pagopa/io-messages/d80ef63a1ddf88eec5753ad67007cd365496b2b5/infra/resources/_modules/apim/product/policy.xml"
 }
 
 resource "azurerm_api_management_api" "send_api_v1" {
