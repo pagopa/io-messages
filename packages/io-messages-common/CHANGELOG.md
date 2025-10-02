@@ -1,5 +1,11 @@
 # io-messages-common
 
+## 1.3.0
+
+### Minor Changes
+
+- f322cb5: new send aar notifications apis and lollipop middleware improvement
+
 ## 1.2.0
 
 ### Minor Changes
