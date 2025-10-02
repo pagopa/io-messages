@@ -6,6 +6,7 @@ import {
   DocIdx,
   Iun,
   MandateId,
+  Problem,
   SendHeaders,
   ThirdPartyMessage,
   attachmentMetadataResponseSchema,
@@ -18,11 +19,15 @@ import {
 } from "./definitions.js";
 
 export class NotificationClientError extends Error {
-  body: unknown;
+  body: CheckQrMandateResponse | Problem;
   name: string;
   status: number;
 
-  constructor(message: string, status: number, body: unknown) {
+  constructor(
+    message: string,
+    status: number,
+    body: CheckQrMandateResponse | Problem,
+  ) {
     super(message);
     this.name = "NotificationClientError";
     this.status = status;

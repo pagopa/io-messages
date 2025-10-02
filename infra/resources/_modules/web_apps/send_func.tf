@@ -1,8 +1,14 @@
 locals {
   send_func = {
     app_settings = {
-      NODE_ENV                 = "production",
-      FUNCTIONS_WORKER_RUNTIME = "node",
+      NODE_ENV                         = "production",
+      FUNCTIONS_WORKER_RUNTIME         = "node",
+      NOTIFICATION_CLIENT_API_KEY      = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=send-aar-notification-prod-key)",
+      NOTIFICATION_CLIENT_BASE_URL     = "https://api-io.pn.pagopa.it",
+      NOTIFICATION_CLIENT_UAT_API_KEY  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=send-aar-notification-uat-key)",
+      NOTIFICATION_CLIENT_UAT_BASE_URL = "https://api-io.uat.pn.pagopa.it",
+      LOLLIPOP_API_BASE_URL            = "https://io-p-itn-auth-lollipop-func-02.azurewebsites.net/api/v1",
+      LOLLIPOP_FUNC_KEY                = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=lollipop-func-key)"
     }
   }
 }
@@ -42,13 +48,13 @@ module "send_func" {
 }
 
 resource "azurerm_role_assignment" "key_vault_send_func_secrets_user" {
-  scope                = var.common_key_vault.id
+  scope                = var.key_vault.id
   role_definition_name = "Key Vault Secrets User"
   principal_id         = module.send_func.function_app.function_app.principal_id
 }
 
 resource "azurerm_key_vault_access_policy" "send_func_kv_access_policy" {
-  key_vault_id = var.common_key_vault.id
+  key_vault_id = var.key_vault.id
   tenant_id    = var.tenant_id
   object_id    = module.send_func.function_app.function_app.principal_id
 

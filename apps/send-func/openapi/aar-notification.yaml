@@ -101,7 +101,7 @@ paths:
           schema:
             type: boolean
       responses:
-        200:
+        "200":
           description: Notification Details
           content:
             application/json:
@@ -113,7 +113,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/ProblemJson"
-        500:
+        "500":
           description: Unexpected Error
           content:
             application/problem+json:
