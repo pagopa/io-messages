@@ -18,7 +18,7 @@ export const configSchema = z.object({
 
 export const envSchema = z.object({
   LOLLIPOP_API_BASE_URL: z.string().url(),
-  LOLLIPOP_API_KEY: z.string().min(1),
+  LOLLIPOP_FUNC_KEY: z.string().min(1),
   NOTIFICATION_CLIENT_API_KEY: z.string().min(1),
   NOTIFICATION_CLIENT_BASE_URL: z.string().url(),
   NOTIFICATION_CLIENT_UAT_API_KEY: z.string().min(1),
@@ -31,7 +31,7 @@ type Env = z.TypeOf<typeof envSchema>;
 
 const mapEnvironmentVariablesToConfig = (env: Env) => ({
   lollipop: {
-    apiKey: env.LOLLIPOP_API_KEY,
+    apiKey: env.LOLLIPOP_FUNC_KEY,
     baseUrl: env.LOLLIPOP_API_BASE_URL,
   },
   notificationClient: {

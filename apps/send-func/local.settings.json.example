@@ -8,6 +8,6 @@
     "NOTIFICATION_CLIENT_UAT_API_KEY": "anApiKey",
     "NOTIFICATION_CLIENT_UAT_BASE_URL": "https://uaturl.com",
     "LOLLIPOP_API_BASE_URL": "https://io-p-itn-auth-lollipop-func-02.azurewebsites.net/api/v1",
-    "LOLLIPOP_API_KEY": "lollipoAPIKey"
+    "LOLLIPOP_FUNC_KEY": "lollipoAPIKey"
   }
 }

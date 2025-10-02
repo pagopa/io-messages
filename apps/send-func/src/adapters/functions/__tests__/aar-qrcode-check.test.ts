@@ -10,11 +10,7 @@ import {
   anOriginalMethod,
   anOriginalUrl,
 } from "@/__mocks__/notification.js";
-import {
-  aarQRCodeCheckResponseSchema,
-  problemJsonSchema,
-  sendHeadersSchema,
-} from "@/adapters/send/definitions.js";
+import { sendHeadersSchema } from "@/adapters/send/definitions.js";
 import NotificationClient, {
   NotificationClientError,
 } from "@/adapters/send/notification.js";
@@ -134,26 +130,28 @@ describe("AARQrCodeCheck", () => {
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValueBadProp: anAarQrCodeValue });
 
-    const result = aarQRCodeCheckResponseSchema.parse(
-      await handler(request, context, aLollipopHeaders),
-    );
-    expect(result.status).toBe(400);
+    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
+      jsonBody: {
+        detail: "Malformed body",
+        status: 400,
+      },
+      status: 400,
+    });
 
-    const body = problemJsonSchema.parse(result.jsonBody);
-    expect(body.detail).toBe("Malformed body");
     expect(requestBodyJson).toHaveBeenCalledOnce();
     expect(checkAarQrCodeIOSpy).not.toHaveBeenCalled();
     expect(uatCheckAarQrCodeIOSpy).not.toHaveBeenCalled();
 
     request.headers.set("x-pagopa-cx-taxid", "badFiscalCode");
 
-    const result2 = aarQRCodeCheckResponseSchema.parse(
-      await handler(request, context, aLollipopHeaders),
-    );
-    expect(result2.status).toBe(400);
+    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
+      jsonBody: {
+        detail: "Malformed headers",
+        status: 400,
+      },
+      status: 400,
+    });
 
-    const body2 = problemJsonSchema.parse(result2.jsonBody);
-    expect(body2.detail).toBe("Malformed headers");
     expect(requestBodyJson).toHaveBeenCalledOnce();
     expect(checkAarQrCodeIOSpy).not.toHaveBeenCalled();
     expect(uatCheckAarQrCodeIOSpy).not.toHaveBeenCalled();
@@ -183,14 +181,10 @@ describe("AARQrCodeCheck", () => {
       .spyOn(request, "json")
       .mockResolvedValue({ aarQrCodeValue: anAarQrCodeValue });
 
-    const result = aarQRCodeCheckResponseSchema.parse(
-      await handler(request, context, aLollipopHeaders),
-    );
-    expect(result.status).toBe(500);
-
-    const body = problemJsonSchema.parse(result.jsonBody);
-    expect(body.detail).toBe("Internal server error");
-    expect(body.status).toBe(503);
+    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
+      jsonBody: aProblem,
+      status: 500,
+    });
 
     expect(requestBodyJson).toHaveBeenCalledOnce();
     expect(checkAarQrCodeIOSpyNotfClientErr).toHaveBeenCalledOnce();
