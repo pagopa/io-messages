@@ -1,5 +1,16 @@
 # send-func
 
+## 1.2.0
+
+### Minor Changes
+
+- f322cb5: new send aar notifications apis and lollipop middleware improvement
+
+### Patch Changes
+
+- Updated dependencies [f322cb5]
+  - io-messages-common@1.3.0
+
 ## 1.1.0
 
 ### Minor Changes

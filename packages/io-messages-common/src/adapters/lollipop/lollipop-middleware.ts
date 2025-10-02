@@ -1,4 +1,4 @@
-import { HttpRequest, InvocationContext } from "@azure/functions";
+import { HttpRequest } from "@azure/functions";
 import { ulid } from "ulid";
 
 import { userIdentitySchema } from "../auth/user-identity.js";
@@ -20,8 +20,6 @@ import { lollipopRequestHeadersSchema } from "./definitions/request-headers.js";
 import { LollipopSignatureInput } from "./definitions/signature-input.js";
 import { Thumbprint, thumbprintSchema } from "./definitions/thumbprint.js";
 import LollipopClient, { LollipopClientError } from "./lollipop-client.js";
-
-export const lollipopExtraInputsCtxKey = "lollipopHeaders";
 
 const algoSchemaMap: {
   algo: JwkPubKeyHashAlgorithm;
@@ -134,9 +132,7 @@ export const parseLollipopHeaders = async (
 
 export function createLollipopMiddleware(
   lollipopClient: LollipopClient,
-): Middleware {
-  return async (req: HttpRequest, ctx: InvocationContext) => {
-    const headers = await parseLollipopHeaders(req, lollipopClient);
-    ctx.extraInputs.set(lollipopExtraInputsCtxKey, headers);
-  };
+): Middleware<LollipopHeaders> {
+  return async (req: HttpRequest) =>
+    await parseLollipopHeaders(req, lollipopClient);
 }
