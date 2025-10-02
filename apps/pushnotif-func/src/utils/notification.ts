@@ -141,7 +141,7 @@ export const createOrUpdateInstallation = (
   pushChannel: string,
   tags: readonly string[],
   telemetryClient: TelemetryClient,
-): TE.TaskEither<Error, NotificationHubsResponse[]> =>
+): TE.TaskEither<Error, NotificationHubsResponse> =>
   pipe(
     TE.tryCatch(
       () =>
@@ -196,10 +196,7 @@ export const createOrUpdateInstallation = (
               `Error while creating or updating installation on NotificationHub [${errs}]`,
             ),
         ),
-        TE.map((primaryResp): NotificationHubsResponse[] => [
-          legacyResp,
-          primaryResp,
-        ]),
+        TE.map(() => legacyResp),
         TE.orElseW((err: Error) => {
           telemetryClient.trackEvent({
             name: "api.messages.notification.createOrUpdateInstallation.failure",
@@ -210,7 +207,7 @@ export const createOrUpdateInstallation = (
             },
             tagOverrides: { samplingEnabled: "false" },
           });
-          return TE.right<Error, NotificationHubsResponse[]>([legacyResp]);
+          return TE.right<Error, NotificationHubsResponse>(legacyResp);
         }),
       ),
     ),
@@ -221,7 +218,7 @@ export const deleteInstallation = (
   legacyNotificationHubClient: NotificationHubsClient,
   installationId: NonEmptyString,
   telemetryClient: TelemetryClient,
-): TE.TaskEither<Error, NotificationHubsResponse[]> =>
+): TE.TaskEither<Error, NotificationHubsResponse> =>
   pipe(
     TE.tryCatch(
       () => legacyNotificationHubClient.deleteInstallation(installationId),
@@ -240,10 +237,7 @@ export const deleteInstallation = (
               `Error while deleting installation on NotificationHub [${installationId}] [${errs}]`,
             ),
         ),
-        TE.map((primaryResp): NotificationHubsResponse[] => [
-          legacyResp,
-          primaryResp,
-        ]),
+        TE.map(() => legacyResp),
         TE.orElseW((err: Error) => {
           telemetryClient.trackEvent({
             name: "api.messages.notification.deleteInstallation.failure",
@@ -254,7 +248,7 @@ export const deleteInstallation = (
             },
             tagOverrides: { samplingEnabled: "false" },
           });
-          return TE.right<Error, NotificationHubsResponse[]>([legacyResp]);
+          return TE.right<Error, NotificationHubsResponse>(legacyResp);
         }),
       ),
     ),

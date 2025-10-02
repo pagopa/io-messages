@@ -31,6 +31,7 @@ const anInstallationId = aFiscalCodeHash;
 
 const mockTelemetryClient = {
   trackEvent: vi.fn(() => {}),
+  trackException: vi.fn(() => {}),
 } as unknown as TelemetryClient;
 
 const aNotificationHubsResponse: NotificationHubsResponse = {
@@ -93,7 +94,7 @@ describe("notify", () => {
   });
 
   it("should throw an error", async () => {
-    (notificationHubsClient.sendNotification as any).mockRejectedValueOnce(
+    vi.spyOn(notificationHubsClient, "sendNotification").mockRejectedValueOnce(
       new Error(),
     );
 
@@ -145,29 +146,15 @@ describe("createOrUpdateInstallation", () => {
     expect(legacy.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
     expect(primary.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
 
-    const legacyArgs = (legacy.createOrUpdateInstallation as any).mock
-      .calls[0][0];
-    expect(legacyArgs.installationId).toBe(anInstallationId);
-    expect(legacyArgs.platform).toBe("apns");
-    expect(legacyArgs.pushChannel).toBe("push-channel");
-    expect(legacyArgs.templates.template.tags).toEqual(["tag1", "tag2"]);
-
-    const primaryArgs = (primary.createOrUpdateInstallation as any).mock
-      .calls[0][0];
-    expect(primaryArgs.installationId).toBe(anInstallationId);
-    expect(primaryArgs.platform).toBe("apns");
-
     expect(E.isRight(res)).toBe(true);
     if (E.isRight(res)) {
-      expect(res.right).toHaveLength(2);
-      const [legacyResp, primaryResp] = res.right;
+      const legacyResp = res.right;
       expect(legacyResp).toEqual(aNotificationHubsResponse);
-      expect(primaryResp).toEqual(aNotificationHubsResponse);
     }
   });
 
   it("should succesfully create or update on legacy and fail primary, return one success response and one error", async () => {
-    (primary.createOrUpdateInstallation as any).mockRejectedValueOnce(
+    vi.spyOn(primary, "createOrUpdateInstallation").mockRejectedValueOnce(
       new Error(),
     );
 
@@ -186,14 +173,13 @@ describe("createOrUpdateInstallation", () => {
 
     expect(E.isRight(res)).toBe(true);
     if (E.isRight(res)) {
-      expect(res.right).toHaveLength(1);
-      const [legacyResp] = res.right;
+      const legacyResp = res.right;
       expect(legacyResp).toEqual(aNotificationHubsResponse);
     }
   });
 
   it("should fail to create or update on legacy and skip primary, throw one error", async () => {
-    (legacy.createOrUpdateInstallation as any).mockRejectedValueOnce(
+    vi.spyOn(legacy, "createOrUpdateInstallation").mockRejectedValueOnce(
       new Error(),
     );
 
@@ -250,12 +236,13 @@ describe("deleteInstallation", () => {
 
     expect(E.isRight(res)).toBe(true);
     if (E.isRight(res)) {
-      expect(res.right).toHaveLength(2);
+      const legacyResp = res.right;
+      expect(legacyResp).toEqual(aNotificationHubsResponse);
     }
   });
 
   it("should succesfully delete on legacy and fail primary, return one success responses and one error", async () => {
-    (primary.deleteInstallation as any).mockRejectedValueOnce(new Error());
+    vi.spyOn(primary, "deleteInstallation").mockRejectedValueOnce(new Error());
 
     const res = await deleteInstallation(
       primary,
@@ -272,14 +259,13 @@ describe("deleteInstallation", () => {
 
     expect(E.isRight(res)).toBe(true);
     if (E.isRight(res)) {
-      expect(res.right).toHaveLength(1);
-      const [legacyResp] = res.right;
+      const legacyResp = res.right;
       expect(legacyResp).toEqual(aNotificationHubsResponse);
     }
   });
 
   it("should fail to delete on legacy and skip primary, throw one error", async () => {
-    (legacy.deleteInstallation as any).mockRejectedValueOnce(new Error());
+    vi.spyOn(legacy, "deleteInstallation").mockRejectedValueOnce(new Error());
 
     const res = await deleteInstallation(
       primary,

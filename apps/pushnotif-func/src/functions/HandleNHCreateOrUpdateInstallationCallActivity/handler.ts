@@ -66,7 +66,7 @@ export const getActivityBody =
           });
           return retryActivity(logger, toString(e));
         },
-        (response) => {
+        () => {
           telemetryClient.trackEvent({
             name: "api.messages.notification.createOrUpdateInstallation.success",
             properties: {
