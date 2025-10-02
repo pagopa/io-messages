@@ -132,7 +132,7 @@ describe("createOrUpdateInstallation", () => {
     );
   });
 
-  it("should succesfully create or update on legacy and primary, return two success responses", async () => {
+  it("should succesfully create or update on legacy and primary, returns legacy response", async () => {
     const res = await createOrUpdateInstallation(
       primary,
       legacy,
@@ -153,7 +153,7 @@ describe("createOrUpdateInstallation", () => {
     }
   });
 
-  it("should succesfully create or update on legacy and fail primary, return one success response and one error", async () => {
+  it("should succesfully create or update on legacy and fail primary, returns legacy response", async () => {
     vi.spyOn(primary, "createOrUpdateInstallation").mockRejectedValueOnce(
       new Error(),
     );
@@ -178,7 +178,7 @@ describe("createOrUpdateInstallation", () => {
     }
   });
 
-  it("should fail to create or update on legacy and skip primary, throw one error", async () => {
+  it("should fail to create or update on legacy and skip primary, throw an error", async () => {
     vi.spyOn(legacy, "createOrUpdateInstallation").mockRejectedValueOnce(
       new Error(),
     );
@@ -221,7 +221,7 @@ describe("deleteInstallation", () => {
     );
   });
 
-  it("should succesfully delete on legacy and primary, return two success responses", async () => {
+  it("should succesfully delete on legacy and primary, returns legacy response", async () => {
     const res = await deleteInstallation(
       primary,
       legacy,
@@ -241,7 +241,7 @@ describe("deleteInstallation", () => {
     }
   });
 
-  it("should succesfully delete on legacy and fail primary, return one success responses and one error", async () => {
+  it("should succesfully delete on legacy and fail primary, returns legacy response", async () => {
     vi.spyOn(primary, "deleteInstallation").mockRejectedValueOnce(new Error());
 
     const res = await deleteInstallation(
@@ -264,7 +264,7 @@ describe("deleteInstallation", () => {
     }
   });
 
-  it("should fail to delete on legacy and skip primary, throw one error", async () => {
+  it("should fail to delete on legacy and skip primary, throw an error", async () => {
     vi.spyOn(legacy, "deleteInstallation").mockRejectedValueOnce(new Error());
 
     const res = await deleteInstallation(
