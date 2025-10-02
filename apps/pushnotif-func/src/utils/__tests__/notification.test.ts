@@ -1,28 +1,28 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import * as E from "fp-ts/Either";
 import {
-  createTemplateNotification,
   NotificationHubsClient,
   NotificationHubsMessageResponse,
   NotificationHubsResponse,
+  createTemplateNotification,
 } from "@azure/notification-hubs";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { TelemetryClient } from "applicationinsights";
+import * as E from "fp-ts/Either";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  legacyNhPartitionFactory,
+  nhPartitionFactory,
+} from "../../__mocks__/notification-hub";
+import {
+  KindEnum,
+  NotifyMessage,
+} from "../../generated/notifications/NotifyMessage";
 import {
   createOrUpdateInstallation,
   deleteInstallation,
   notify,
   toTagExpression,
 } from "../notification";
-import {
-  nhPartitionFactory,
-  legacyNhPartitionFactory,
-} from "../../__mocks__/notification-hub";
-import {
-  NotifyMessage,
-  KindEnum,
-} from "../../generated/notifications/NotifyMessage";
-import { TelemetryClient } from "applicationinsights";
 
 const aFiscalCodeHash =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
@@ -30,9 +30,9 @@ const aFiscalCodeHash =
 const anInstallationId = aFiscalCodeHash;
 
 const aNotificationHubsResponse: NotificationHubsResponse = {
-  trackingId: "tracking-123",
   correlationId: "correlation-123",
   location: "west-europe",
+  trackingId: "tracking-123",
 };
 
 describe("notify", () => {
@@ -43,10 +43,10 @@ describe("notify", () => {
   } as unknown as TelemetryClient;
 
   const aSendNotificationResponse: NotificationHubsMessageResponse = {
-    successCount: 0,
     failureCount: 0,
     results: [],
     state: "Enqueued",
+    successCount: 0,
   };
 
   const aNotifyMessage: NotifyMessage = {
