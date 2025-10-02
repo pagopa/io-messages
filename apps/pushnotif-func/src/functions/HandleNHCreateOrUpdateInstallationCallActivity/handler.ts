@@ -50,6 +50,7 @@ export const getActivityBody =
         getPlatformFromPlatformEnum(input.platform),
         input.pushChannel,
         input.tags,
+        telemetryClient,
       ),
       TE.bimap(
         (e) => {
@@ -75,18 +76,6 @@ export const getActivityBody =
             },
             tagOverrides: { samplingEnabled: "false" },
           });
-          const error = response.find((r) => r instanceof Error);
-          if (error) {
-            telemetryClient.trackEvent({
-              name: "api.messages.notification.createOrUpdateInstallation.failure",
-              properties: {
-                installationId: input.installationId,
-                isSuccess: "false",
-                reason: error.message,
-              },
-              tagOverrides: { samplingEnabled: "false" },
-            });
-          }
           return ActivityResultSuccess.encode({ kind: "SUCCESS" });
         },
       ),

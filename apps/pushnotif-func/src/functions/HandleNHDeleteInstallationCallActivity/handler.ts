@@ -43,7 +43,12 @@ export const getActivityBody =
     );
 
     return pipe(
-      deleteInstallation(nhClient, nhLegacyClient, input.installationId),
+      deleteInstallation(
+        nhClient,
+        nhLegacyClient,
+        input.installationId,
+        telemetryClient,
+      ),
       TE.bimap(
         (e) => {
           telemetryClient.trackEvent({
@@ -66,18 +71,6 @@ export const getActivityBody =
             },
             tagOverrides: { samplingEnabled: "false" },
           });
-          const error = response.find((r) => r instanceof Error);
-          if (error) {
-            telemetryClient.trackEvent({
-              name: "api.messages.notification.deleteInstallation.failure",
-              properties: {
-                installationId: input.installationId,
-                isSuccess: "false",
-                reason: error.message,
-              },
-              tagOverrides: { samplingEnabled: "false" },
-            });
-          }
           return ActivityResultSuccess.encode({ kind: "SUCCESS", ...response });
         },
       ),

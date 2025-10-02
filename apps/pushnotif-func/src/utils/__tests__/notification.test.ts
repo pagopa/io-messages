@@ -29,6 +29,10 @@ const aFiscalCodeHash =
 
 const anInstallationId = aFiscalCodeHash;
 
+const mockTelemetryClient = {
+  trackEvent: vi.fn(() => {}),
+} as unknown as TelemetryClient;
+
 const aNotificationHubsResponse: NotificationHubsResponse = {
   correlationId: "correlation-123",
   location: "west-europe",
@@ -37,10 +41,6 @@ const aNotificationHubsResponse: NotificationHubsResponse = {
 
 describe("notify", () => {
   let notificationHubsClient: NotificationHubsClient;
-
-  const mockTelemetryClient = {
-    trackEvent: vi.fn(() => {}),
-  } as unknown as TelemetryClient;
 
   const aSendNotificationResponse: NotificationHubsMessageResponse = {
     failureCount: 0,
@@ -139,6 +139,7 @@ describe("createOrUpdateInstallation", () => {
       "apns",
       "push-channel",
       ["tag1", "tag2"],
+      mockTelemetryClient,
     )();
 
     expect(legacy.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
@@ -177,6 +178,7 @@ describe("createOrUpdateInstallation", () => {
       "apns",
       "push-channel",
       ["tag1", "tag2"],
+      mockTelemetryClient,
     )();
 
     expect(legacy.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
@@ -184,13 +186,9 @@ describe("createOrUpdateInstallation", () => {
 
     expect(E.isRight(res)).toBe(true);
     if (E.isRight(res)) {
-      expect(res.right).toHaveLength(2);
-      const [legacyResp, maybeErr] = res.right;
+      expect(res.right).toHaveLength(1);
+      const [legacyResp] = res.right;
       expect(legacyResp).toEqual(aNotificationHubsResponse);
-      expect(maybeErr).toBeInstanceOf(Error);
-      expect((maybeErr as Error).message).toContain(
-        "Error while creating or updating installation",
-      );
     }
   });
 
@@ -206,6 +204,7 @@ describe("createOrUpdateInstallation", () => {
       "apns",
       "push-channel",
       [],
+      mockTelemetryClient,
     )();
 
     expect(E.isLeft(res)).toBe(true);
@@ -237,7 +236,12 @@ describe("deleteInstallation", () => {
   });
 
   it("should succesfully delete on legacy and primary, return two success responses", async () => {
-    const res = await deleteInstallation(primary, legacy, anInstallationId)();
+    const res = await deleteInstallation(
+      primary,
+      legacy,
+      anInstallationId,
+      mockTelemetryClient,
+    )();
 
     expect(legacy.deleteInstallation).toHaveBeenCalledTimes(1);
     expect(legacy.deleteInstallation).toHaveBeenCalledWith(anInstallationId);
@@ -253,7 +257,12 @@ describe("deleteInstallation", () => {
   it("should succesfully delete on legacy and fail primary, return one success responses and one error", async () => {
     (primary.deleteInstallation as any).mockRejectedValueOnce(new Error());
 
-    const res = await deleteInstallation(primary, legacy, anInstallationId)();
+    const res = await deleteInstallation(
+      primary,
+      legacy,
+      anInstallationId,
+      mockTelemetryClient,
+    )();
 
     expect(legacy.deleteInstallation).toHaveBeenCalledTimes(1);
     expect(legacy.deleteInstallation).toHaveBeenCalledWith(anInstallationId);
@@ -263,20 +272,21 @@ describe("deleteInstallation", () => {
 
     expect(E.isRight(res)).toBe(true);
     if (E.isRight(res)) {
-      expect(res.right).toHaveLength(2);
-      const [legacyResp, maybeErr] = res.right;
+      expect(res.right).toHaveLength(1);
+      const [legacyResp] = res.right;
       expect(legacyResp).toEqual(aNotificationHubsResponse);
-      expect(maybeErr).toBeInstanceOf(Error);
-      expect((maybeErr as Error).message).toContain(
-        "Error while deleting installation",
-      );
     }
   });
 
   it("should fail to delete on legacy and skip primary, throw one error", async () => {
     (legacy.deleteInstallation as any).mockRejectedValueOnce(new Error());
 
-    const res = await deleteInstallation(primary, legacy, anInstallationId)();
+    const res = await deleteInstallation(
+      primary,
+      legacy,
+      anInstallationId,
+      mockTelemetryClient,
+    )();
 
     expect(E.isLeft(res)).toBe(true);
     if (E.isLeft(res)) {

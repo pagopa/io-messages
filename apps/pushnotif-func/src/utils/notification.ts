@@ -8,7 +8,7 @@ import {
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
 import * as TE from "fp-ts/lib/TaskEither";
-import { TaskEither, tryCatch } from "fp-ts/lib/TaskEither";
+import { TaskEither } from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
@@ -133,8 +133,6 @@ export const notify = (
     }),
   );
 
-type MaybeErrorResponse = Error | NotificationHubsResponse;
-
 export const createOrUpdateInstallation = (
   notificationHubClient: NotificationHubsClient,
   legacyNotificationHubClient: NotificationHubsClient,
@@ -142,9 +140,10 @@ export const createOrUpdateInstallation = (
   platform: Platform,
   pushChannel: string,
   tags: readonly string[],
-): TE.TaskEither<Error, MaybeErrorResponse[]> =>
+  telemetryClient: TelemetryClient,
+): TE.TaskEither<Error, NotificationHubsResponse[]> =>
   pipe(
-    tryCatch(
+    TE.tryCatch(
       () =>
         legacyNotificationHubClient.createOrUpdateInstallation({
           installationId,
@@ -169,57 +168,62 @@ export const createOrUpdateInstallation = (
           `Error while creating or updating installation on NotificationHub [${errs}]`,
         ),
     ),
-    TE.chain((legacyResp) => {
-      const primaryCreateOrUpdate: TE.TaskEither<
-        Error,
-        NotificationHubsResponse
-      > = tryCatch(
-        () =>
-          notificationHubClient.createOrUpdateInstallation({
-            installationId,
-            platform,
-            pushChannel,
-            templates: {
-              template: {
-                body: platform === "apns" ? APNSTemplate : FCMV1Template,
-                headers:
-                  platform === "apns"
-                    ? {
-                        ["apns-priority"]: "10",
-                        ["apns-push-type"]: APNSPushType.ALERT,
-                      }
-                    : {},
-                tags: [...tags],
-              },
-            },
-          }),
-        (errs) =>
-          new Error(
-            `Error while creating or updating installation on NotificationHub [${errs}]`,
-          ),
-      );
 
-      return pipe(
-        primaryCreateOrUpdate,
-        TE.map((primaryResp): MaybeErrorResponse[] => [
+    TE.chain((legacyResp) =>
+      pipe(
+        TE.tryCatch(
+          () =>
+            notificationHubClient.createOrUpdateInstallation({
+              installationId,
+              platform,
+              pushChannel,
+              templates: {
+                template: {
+                  body: platform === "apns" ? APNSTemplate : FCMV1Template,
+                  headers:
+                    platform === "apns"
+                      ? {
+                          ["apns-priority"]: "10",
+                          ["apns-push-type"]: APNSPushType.ALERT,
+                        }
+                      : {},
+                  tags: [...tags],
+                },
+              },
+            }),
+          (errs) =>
+            new Error(
+              `Error while creating or updating installation on NotificationHub [${errs}]`,
+            ),
+        ),
+        TE.map((primaryResp): NotificationHubsResponse[] => [
           legacyResp,
           primaryResp,
         ]),
-        TE.orElseW(
-          (err): TE.TaskEither<Error, MaybeErrorResponse[]> =>
-            TE.right([legacyResp, err]),
-        ),
-      );
-    }),
+        TE.orElseW((err: Error) => {
+          telemetryClient.trackEvent({
+            name: "api.messages.notification.createOrUpdateInstallation.failure",
+            properties: {
+              installationId,
+              isSuccess: "false",
+              reason: String(err),
+            },
+            tagOverrides: { samplingEnabled: "false" },
+          });
+          return TE.right<Error, NotificationHubsResponse[]>([legacyResp]);
+        }),
+      ),
+    ),
   );
 
 export const deleteInstallation = (
   notificationHubClient: NotificationHubsClient,
   legacyNotificationHubClient: NotificationHubsClient,
   installationId: NonEmptyString,
-): TE.TaskEither<Error, MaybeErrorResponse[]> =>
+  telemetryClient: TelemetryClient,
+): TE.TaskEither<Error, NotificationHubsResponse[]> =>
   pipe(
-    tryCatch(
+    TE.tryCatch(
       () => legacyNotificationHubClient.deleteInstallation(installationId),
       (errs) =>
         new Error(
@@ -227,26 +231,31 @@ export const deleteInstallation = (
         ),
     ),
 
-    TE.chain((legacyResp) => {
-      const primaryDelete: TE.TaskEither<Error, NotificationHubsResponse> =
-        tryCatch(
+    TE.chain((legacyResp) =>
+      pipe(
+        TE.tryCatch(
           () => notificationHubClient.deleteInstallation(installationId),
           (errs) =>
             new Error(
               `Error while deleting installation on NotificationHub [${installationId}] [${errs}]`,
             ),
-        );
-
-      return pipe(
-        primaryDelete,
-        TE.map((primaryResp): MaybeErrorResponse[] => [
+        ),
+        TE.map((primaryResp): NotificationHubsResponse[] => [
           legacyResp,
           primaryResp,
         ]),
-        TE.orElseW(
-          (err): TE.TaskEither<Error, MaybeErrorResponse[]> =>
-            TE.right([legacyResp, err]),
-        ),
-      );
-    }),
+        TE.orElseW((err: Error) => {
+          telemetryClient.trackEvent({
+            name: "api.messages.notification.deleteInstallation.failure",
+            properties: {
+              installationId,
+              isSuccess: "false",
+              reason: String(err),
+            },
+            tagOverrides: { samplingEnabled: "false" },
+          });
+          return TE.right<Error, NotificationHubsResponse[]>([legacyResp]);
+        }),
+      ),
+    ),
   );
