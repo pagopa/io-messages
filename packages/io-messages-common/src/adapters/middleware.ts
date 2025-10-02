@@ -2,6 +2,7 @@ import { StatusCode } from "@/domain/status-code.js";
 import {
   HttpHandler,
   HttpRequest,
+  HttpResponse,
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
@@ -27,23 +28,30 @@ export class MiddlewareError extends Error {
   }
 }
 
-export type Middleware = (
+export type Middleware<MiddlewareParam = void> = (
   request: HttpRequest,
   context: InvocationContext,
-) => Promise<void>;
+) => Promise<MiddlewareParam>;
 
-export function handlerWithMiddleware(
-  middleware: Middleware,
-  handler: HttpHandler,
+export type ExtentedHttpHandler<MiddlewareParam> = (
+  req: HttpRequest,
+  ctx: InvocationContext,
+  middlewareParam: MiddlewareParam,
+) => Promise<HttpResponse | HttpResponseInit>;
+
+export function handlerWithMiddleware<MiddlewareParam>(
+  middleware: Middleware<MiddlewareParam>,
+  handler: ExtentedHttpHandler<MiddlewareParam> | HttpHandler,
 ): HttpHandler {
   return async (req, ctx) => {
+    let extraArgs: MiddlewareParam;
     try {
-      await middleware(req, ctx);
+      extraArgs = await middleware(req, ctx);
     } catch (error) {
       return parseMiddlewareErrorResponse(error);
     }
 
-    return handler(req, ctx);
+    return handler(req, ctx, extraArgs);
   };
 }
 
