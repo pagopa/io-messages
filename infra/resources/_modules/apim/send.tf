@@ -19,7 +19,7 @@ resource "azurerm_api_management_product_policy" "apim_itn_product_send_policy" 
 }
 
 resource "azurerm_api_management_api" "send_api_v1" {
-  name                = format("%s-%s-send-aar-api-01", local.product, var.legacy_location_short)
+  name                = format("%s-%s-send-aar-api-01", local.product, var.location_short)
   api_management_name = data.azurerm_api_management.apim_itn_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_api.resource_group_name
   revision            = "1"
