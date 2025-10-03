@@ -1,15 +1,20 @@
 import {
-  aarQrCodeValueSchema,
-  attachmentMetadataResponseSchema,
   checkQrMandateRequestSchema,
-  checkQrMandateResponseSchema,
-  docIdxSchema,
-  iunSchema,
   problemSchema,
-  thirdPartyMessageSchema,
 } from "@/adapters/send/definitions.js";
+import {
+  aarQrCodeValueSchema,
+  attachmentMetadataSchema,
+  checkQrMandateResponseSchema,
+  idxSchema,
+  iunSchema,
+  sendHeadersSchema,
+  thirdPartyMessageSchema,
+} from "@/domain/notification.js";
+import { attachmentParamsSchema } from "@/domain/use-cases/get-attachment.js";
 import { assertionRefSchema } from "io-messages-common/adapters/lollipop/definitions/assertion-ref";
 import { assertionTypeSchema } from "io-messages-common/adapters/lollipop/definitions/assertion-type";
+import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { lollipopMethodSchema } from "io-messages-common/adapters/lollipop/definitions/lollipop-method";
 import { lollipopOriginalURLSchema } from "io-messages-common/adapters/lollipop/definitions/lollipop-original-url";
 import { lollipopSignatureSchema } from "io-messages-common/adapters/lollipop/definitions/signature";
@@ -71,7 +76,8 @@ export const aProblem = problemSchema.parse({
   type: "https://example.com/docs/errors#invalid-input",
 });
 
-export const aDocIdx = docIdxSchema.parse(1);
+export const aDocIdx = idxSchema.parse(1);
+export const anAttachmnetIdx = idxSchema.parse(1);
 export const aIun = iunSchema.parse("ABCD-EFGH-IJKL-123456-Z-7");
 export const anAttachmentName = "F24";
 
@@ -118,11 +124,42 @@ export const aThirdPartyMessage = thirdPartyMessageSchema.parse({
   },
 });
 
-export const anAttchmentMetadataResponse =
-  attachmentMetadataResponseSchema.parse({
-    contentLength: 54092,
-    contentType: "application/pdf",
-    filename: "documento.pdf",
-    sha256: "aValidSha256",
-    url: "https://example.com/download/documento.pdf",
-  });
+export const anAttachmentMetadata = attachmentMetadataSchema.parse({
+  contentLength: 54092,
+  contentType: "application/pdf",
+  filename: "documento.pdf",
+  sha256: "aValidSha256",
+  url: "https://example.com/download/documento.pdf",
+});
+
+export const anAttachmentUrl = `/delivery/notifications/received/${aIun}/attachments/payment/${anAttachmentName}?attachmentIdx=1`;
+
+export const aPaymentAttachmentParams = attachmentParamsSchema.parse({
+  attachmentIdx: 1,
+  attachmentName: anAttachmentName,
+  iun: aIun,
+  type: "payment",
+});
+
+export const aDocumentAttachmentParams = attachmentParamsSchema.parse({
+  docIdx: 1,
+  iun: aIun,
+  type: "document",
+});
+
+export const aLollipopHeaders: LollipopHeaders = {
+  signature: aSignature,
+  "signature-input": aSignatureInput,
+  "x-pagopa-lollipop-assertion-ref": anAssertionRef,
+  "x-pagopa-lollipop-assertion-type": anAssertionType,
+  "x-pagopa-lollipop-auth-jwt": "an auth jwt",
+  "x-pagopa-lollipop-original-method": anOriginalMethod,
+  "x-pagopa-lollipop-original-url": anOriginalUrl,
+  "x-pagopa-lollipop-public-key": "a public key",
+  "x-pagopa-lollipop-user-id": aFiscalCode,
+};
+
+export const aSendHeaders = sendHeadersSchema.parse({
+  "x-pagopa-cx-taxid": aFiscalCode,
+  ...aLollipopHeaders,
+});

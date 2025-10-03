@@ -10,10 +10,10 @@ import {
   anOriginalMethod,
   anOriginalUrl,
 } from "@/__mocks__/notification.js";
-import { sendHeadersSchema } from "@/adapters/send/definitions.js";
 import NotificationClient, {
   NotificationClientError,
 } from "@/adapters/send/notification.js";
+import { sendHeadersSchema } from "@/domain/notification.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { beforeEach, describe, expect, it, vi } from "vitest";

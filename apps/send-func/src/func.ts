@@ -5,27 +5,29 @@ import { createLollipopMiddleware } from "io-messages-common/adapters/lollipop/l
 import { handlerWithMiddleware } from "io-messages-common/adapters/middleware";
 
 import { Config, configFromEnvironment } from "./adapters/config.js";
+import { getAttachment } from "./adapters/functions/aar-attachments.js";
 import { getNotification } from "./adapters/functions/aar-notifications.js";
 import { aarQRCodeCheck } from "./adapters/functions/aar-qrcode-check.js";
 import { healthcheck } from "./adapters/functions/health.js";
-import NotificationClient from "./adapters/send/notification.js";
+import SendNotificationClient from "./adapters/send/notification.js";
+import { GetAttachmentUseCase } from "./domain/use-cases/get-attachment.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
 
 const main = async (config: Config): Promise<void> => {
   const healthcheckUseCase = new HealthUseCase([]);
 
-  const notificationClient = new NotificationClient(
-    config.notificationClient.apiKey,
-    config.notificationClient.baseUrl,
-  );
+  const getNotificationClient = (isTest: boolean): SendNotificationClient => {
+    const selectedConfig = isTest
+      ? config.notificationUatClient
+      : config.notificationClient;
 
-  const uatNotificationClient = new NotificationClient(
-    config.notificationUatClient.apiKey,
-    config.notificationUatClient.baseUrl,
-  );
+    return new SendNotificationClient(
+      selectedConfig.apiKey,
+      selectedConfig.baseUrl,
+    );
+  };
 
-  const getSendClient = (isTest: boolean) =>
-    isTest ? uatNotificationClient : notificationClient;
+  const getAttachmentUseCase = new GetAttachmentUseCase(getNotificationClient);
 
   const lollipopClient = new LollipopClient(
     config.lollipop.apiKey,
@@ -44,7 +46,7 @@ const main = async (config: Config): Promise<void> => {
     authLevel: "anonymous",
     handler: handlerWithMiddleware(
       lollipopMiddleware,
-      aarQRCodeCheck(getSendClient),
+      aarQRCodeCheck(getNotificationClient),
     ),
     methods: ["POST"],
     route: "aar/qr-code-check",
@@ -54,10 +56,20 @@ const main = async (config: Config): Promise<void> => {
     authLevel: "anonymous",
     handler: handlerWithMiddleware(
       lollipopMiddleware,
-      getNotification(getSendClient),
+      getNotification(getNotificationClient),
     ),
     methods: ["GET"],
     route: "aar/notifications/{iun}",
+  });
+
+  app.http("getNotificationAttachment", {
+    authLevel: "anonymous",
+    handler: handlerWithMiddleware(
+      lollipopMiddleware,
+      getAttachment(getAttachmentUseCase),
+    ),
+    methods: ["GET"],
+    route: "/aar/attachments/{attachmentUrl}",
   });
 };
 

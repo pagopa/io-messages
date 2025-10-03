@@ -1,13 +1,15 @@
+import {
+  iunSchema,
+  mandateIdSchema,
+  sendHeadersSchema,
+} from "@/domain/notification.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
 
 import {
   AarGetNotificationResponse,
-  iunSchema,
-  mandateIdSchema,
   problemJsonSchema,
-  sendHeadersSchema,
 } from "../send/definitions.js";
 import NotificationClient, {
   NotificationClientError,

@@ -1,33 +1,29 @@
 import {
   AarQrCodeValue,
-  AttachmentMetadataResponse,
+  AttachmentMetadata,
   AttachmentName,
   CheckQrMandateResponse,
-  DocIdx,
+  Idx,
   Iun,
   MandateId,
-  Problem,
+  NotificationClient,
   SendHeaders,
   ThirdPartyMessage,
-  attachmentMetadataResponseSchema,
+  attachmentMetadataSchema,
   attachmentNameSchema,
-  checkQrMandateRequestSchema,
   checkQrMandateResponseSchema,
   iunSchema,
-  problemSchema,
   thirdPartyMessageSchema,
-} from "./definitions.js";
+} from "@/domain/notification.js";
+
+import { checkQrMandateRequestSchema, problemSchema } from "./definitions.js";
 
 export class NotificationClientError extends Error {
-  body: CheckQrMandateResponse | Problem;
+  body: unknown;
   name: string;
   status: number;
 
-  constructor(
-    message: string,
-    status: number,
-    body: CheckQrMandateResponse | Problem,
-  ) {
+  constructor(message: string, status: number, body: unknown) {
     super(message);
     this.name = "NotificationClientError";
     this.status = status;
@@ -35,7 +31,7 @@ export class NotificationClientError extends Error {
   }
 }
 
-export default class NotificationClient {
+export default class SendNotificationClient implements NotificationClient {
   #apiKey: string;
   #baseUrl: string;
 
@@ -91,7 +87,7 @@ export default class NotificationClient {
   async getReceivedNotification(
     iun: string,
     headers: SendHeaders,
-    mandateId?: string,
+    mandateId?: MandateId,
   ): Promise<ThirdPartyMessage> {
     try {
       const parsedIun = iunSchema.parse(iun);
@@ -138,8 +134,8 @@ export default class NotificationClient {
     iun: string,
     attachmentName: AttachmentName,
     headers: SendHeaders,
-    options?: { attachmentIdx?: number; mandateId?: string },
-  ): Promise<AttachmentMetadataResponse> {
+    options?: { attachmentIdx?: number; mandateId?: MandateId },
+  ): Promise<AttachmentMetadata> {
     try {
       const parsedIun = iunSchema.parse(iun);
       const parsedAttachmentName = attachmentNameSchema.parse(attachmentName);
@@ -181,7 +177,7 @@ export default class NotificationClient {
         );
       }
 
-      return attachmentMetadataResponseSchema.parse(responseJson);
+      return attachmentMetadataSchema.parse(responseJson);
     } catch (error) {
       if (error instanceof NotificationClientError) throw error;
       throw new Error(
@@ -192,10 +188,10 @@ export default class NotificationClient {
 
   async getReceivedNotificationDocument(
     iun: Iun,
-    docIdx: DocIdx,
+    docIdx: Idx,
     headers: SendHeaders,
     mandateId?: MandateId,
-  ): Promise<AttachmentMetadataResponse> {
+  ): Promise<AttachmentMetadata> {
     try {
       const parsedHeaders = {
         ...headers,
@@ -227,7 +223,7 @@ export default class NotificationClient {
         );
       }
 
-      return attachmentMetadataResponseSchema.parse(responseJson);
+      return attachmentMetadataSchema.parse(responseJson);
     } catch (error) {
       if (error instanceof NotificationClientError) throw error;
       throw new Error(
