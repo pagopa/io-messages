@@ -1,5 +1,4 @@
 import {
-  aFiscalCode,
   aLollipopHeaders,
   aPaymentAttachmentParams,
   aProblem,
