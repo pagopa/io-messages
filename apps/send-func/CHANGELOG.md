@@ -1,5 +1,11 @@
 # send-func
 
+## 1.3.0
+
+### Minor Changes
+
+- ea0f082: Create new getAttachment API
+
 ## 1.2.0
 
 ### Minor Changes
