@@ -115,12 +115,6 @@ const BaseConfig = t.intersection([
       ),
     }),
 
-    // Legacy Notification Hub configuration
-    t.interface({
-      AZURE_NH_ENDPOINT: NonEmptyString,
-      AZURE_NH_HUB_NAME: NonEmptyString,
-    }),
-
     t.interface({
       NH_PARTITION_FEATURE_FLAG: NHPartitionFeatureFlag,
     }),
@@ -205,9 +199,7 @@ const WithComputedNHPartitions = new t.Type<
         }),
         {},
       ),
-    } as BaseConfig &
-      NotificationHubPartitionsConfig &
-      NotificationHubPartitionsConfig; // cast needed because TS cannot understand types when we compose keys with strings
+    } as BaseConfig & NotificationHubPartitionsConfig; // cast needed because TS cannot understand types when we compose keys with strings
   },
 );
 
@@ -289,9 +281,7 @@ const WithComputedLegacyNHPartitions = new t.Type<
         }),
         {},
       ),
-    } as BaseConfig &
-      LegacyNotificationHubPartitionsConfig & // cast needed because TS cannot understand types when we compose keys with strings
-      NotificationHubPartitionsConfig;
+    } as BaseConfig & LegacyNotificationHubPartitionsConfig; // cast needed because TS cannot understand types when we compose keys with strings
   },
 );
 

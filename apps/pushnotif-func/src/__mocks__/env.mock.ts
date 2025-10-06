@@ -2,11 +2,6 @@ export const envConfig = {
   APPINSIGHTS_INSTRUMENTATIONKEY: "Idontknow",
   APPINSIGHTS_SAMPLING_PERCENTAGE: "20",
 
-  AZURE_NH_ENDPOINT:
-    "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar",
-
-  AZURE_NH_HUB_NAME: "io-notification-hub-mock",
-
   COSMOSDB_NAME: "CosmosDBName",
 
   COSMOSDB_URI: "CosmosDBUri",

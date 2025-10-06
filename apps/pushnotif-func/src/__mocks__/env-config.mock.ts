@@ -31,10 +31,7 @@ export const envConfig: IConfig = {
       partitionRegex: /^[c-f]/,
     },
   ],
-  AZURE_NH_ENDPOINT:
-    "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar" as NonEmptyString,
 
-  AZURE_NH_HUB_NAME: "partition-legacy" as NonEmptyString,
   AZURE_NOTIFICATION_HUB_PARTITIONS: [
     {
       endpoint: "endpoint-partition-1" as NonEmptyString,
