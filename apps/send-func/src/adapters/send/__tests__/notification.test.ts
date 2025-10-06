@@ -5,37 +5,19 @@ import {
   aFiscalCode,
   aIun,
   aProblem,
-  aSignature,
-  aSignatureInput,
+  aSendHeaders,
   aThirdPartyMessage,
   anAarQrCodeValue,
-  anAssertionRef,
-  anAssertionType,
+  anAttachmentMetadata,
   anAttachmentName,
-  anAttchmentMetadataResponse,
-  anOriginalMethod,
-  anOriginalUrl,
 } from "@/__mocks__/notification.js";
 import { describe, expect, it, vi } from "vitest";
 
-import { SendHeaders } from "../definitions.js";
 import NotificationClient from "../notification.js";
 
 const apiKey = "anApiKey";
 const baseUrl = "https://mockurl.com";
 const client = new NotificationClient(apiKey, baseUrl);
-const aLollipopHeaders: SendHeaders = {
-  signature: aSignature,
-  "signature-input": aSignatureInput,
-  "x-pagopa-cx-taxid": aFiscalCode,
-  "x-pagopa-lollipop-assertion-ref": anAssertionRef,
-  "x-pagopa-lollipop-assertion-type": anAssertionType,
-  "x-pagopa-lollipop-auth-jwt": "an auth jwt",
-  "x-pagopa-lollipop-original-method": anOriginalMethod,
-  "x-pagopa-lollipop-original-url": anOriginalUrl,
-  "x-pagopa-lollipop-public-key": "a public key",
-  "x-pagopa-lollipop-user-id": aFiscalCode,
-};
 
 describe("NotificationClient.checkAarQrCodeIO", () => {
   it("returns a valid CheckQrMandateResponse on successful request", async () => {
@@ -47,7 +29,7 @@ describe("NotificationClient.checkAarQrCodeIO", () => {
 
     const response = await client.checkAarQrCodeIO(
       anAarQrCodeValue,
-      aLollipopHeaders,
+      aSendHeaders,
     );
 
     expect(response).toEqual(aCheckQrMandateResponse);
@@ -73,7 +55,7 @@ describe("NotificationClient.checkAarQrCodeIO", () => {
     } as Response);
 
     await expect(
-      client.checkAarQrCodeIO(anAarQrCodeValue, aLollipopHeaders),
+      client.checkAarQrCodeIO(anAarQrCodeValue, aSendHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
         body: aCheckQrMandateResponse,
@@ -106,7 +88,7 @@ describe("NotificationClient.checkAarQrCodeIO", () => {
     } as Response);
 
     await expect(
-      client.checkAarQrCodeIO(anAarQrCodeValue, aLollipopHeaders),
+      client.checkAarQrCodeIO(anAarQrCodeValue, aSendHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
         body: aProblem,
@@ -138,7 +120,7 @@ describe("NotificationClient.checkAarQrCodeIO", () => {
       .mockRejectedValueOnce(returnedError);
 
     await expect(
-      client.checkAarQrCodeIO(anAarQrCodeValue, aLollipopHeaders),
+      client.checkAarQrCodeIO(anAarQrCodeValue, aSendHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
         message:
@@ -171,10 +153,7 @@ describe("NotificationClient.getReceivedNotification", () => {
       status: 200,
     } as Response);
 
-    const response = await client.getReceivedNotification(
-      aIun,
-      aLollipopHeaders,
-    );
+    const response = await client.getReceivedNotification(aIun, aSendHeaders);
 
     expect(response).toEqual(aThirdPartyMessage);
     expect(fetchSpy).toHaveBeenCalledWith(
@@ -198,7 +177,7 @@ describe("NotificationClient.getReceivedNotification", () => {
     } as Response);
 
     await expect(
-      client.getReceivedNotification(aIun, aLollipopHeaders),
+      client.getReceivedNotification(aIun, aSendHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
         body: aProblem,
@@ -229,7 +208,7 @@ describe("NotificationClient.getReceivedNotification", () => {
       .mockRejectedValueOnce(returnedError);
 
     await expect(
-      client.getReceivedNotification(aIun, aLollipopHeaders),
+      client.getReceivedNotification(aIun, aSendHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
         message:
@@ -256,7 +235,7 @@ describe("NotificationClient.getReceivedNotification", () => {
 describe("NotificationClient.getReceivedNotificationAttachment", () => {
   it("returns a valid AttachamentMetadataResponse on successful request", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
-      json: async () => anAttchmentMetadataResponse,
+      json: async () => anAttachmentMetadata,
       ok: true,
       status: 200,
     } as Response);
@@ -264,10 +243,10 @@ describe("NotificationClient.getReceivedNotificationAttachment", () => {
     const response = await client.getReceivedNotificationAttachment(
       aIun,
       anAttachmentName,
-      aLollipopHeaders,
+      aSendHeaders,
     );
 
-    expect(response).toEqual(anAttchmentMetadataResponse);
+    expect(response).toEqual(anAttachmentMetadata);
     expect(fetchSpy).toHaveBeenCalledWith(
       `${baseUrl}/delivery/notifications/received/${aIun}/attachments/payment/${anAttachmentName}`,
       expect.objectContaining({
@@ -292,7 +271,7 @@ describe("NotificationClient.getReceivedNotificationAttachment", () => {
       client.getReceivedNotificationAttachment(
         aIun,
         anAttachmentName,
-        aLollipopHeaders,
+        aSendHeaders,
       ),
     ).rejects.toEqual(
       expect.objectContaining({
@@ -327,7 +306,7 @@ describe("NotificationClient.getReceivedNotificationAttachment", () => {
       client.getReceivedNotificationAttachment(
         aIun,
         anAttachmentName,
-        aLollipopHeaders,
+        aSendHeaders,
       ),
     ).rejects.toEqual(
       expect.objectContaining({
@@ -355,7 +334,7 @@ describe("NotificationClient.getReceivedNotificationAttachment", () => {
 describe("NotificationClient.getReceivedNgetReceivedNotificationDocumentotificationAttachment", () => {
   it("returns a valid AttachamentMetadataResponse on successful request", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
-      json: async () => anAttchmentMetadataResponse,
+      json: async () => anAttachmentMetadata,
       ok: true,
       status: 200,
     } as Response);
@@ -363,10 +342,10 @@ describe("NotificationClient.getReceivedNgetReceivedNotificationDocumentotificat
     const response = await client.getReceivedNotificationDocument(
       aIun,
       aDocIdx,
-      aLollipopHeaders,
+      aSendHeaders,
     );
 
-    expect(response).toEqual(anAttchmentMetadataResponse);
+    expect(response).toEqual(anAttachmentMetadata);
     expect(fetchSpy).toHaveBeenCalledWith(
       `${baseUrl}/delivery/notifications/received/${aIun}/attachments/documents/${aDocIdx}`,
       expect.objectContaining({
@@ -388,7 +367,7 @@ describe("NotificationClient.getReceivedNgetReceivedNotificationDocumentotificat
     } as Response);
 
     await expect(
-      client.getReceivedNotificationDocument(aIun, aDocIdx, aLollipopHeaders),
+      client.getReceivedNotificationDocument(aIun, aDocIdx, aSendHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
         body: aProblem,
@@ -419,7 +398,7 @@ describe("NotificationClient.getReceivedNgetReceivedNotificationDocumentotificat
       .mockRejectedValueOnce(returnedError);
 
     await expect(
-      client.getReceivedNotificationDocument(aIun, aDocIdx, aLollipopHeaders),
+      client.getReceivedNotificationDocument(aIun, aDocIdx, aSendHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
         message:
