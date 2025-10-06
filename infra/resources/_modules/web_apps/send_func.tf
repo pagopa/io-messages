@@ -30,7 +30,7 @@ module "send_func" {
   resource_group_name                  = var.resource_group_name
   private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name
 
-  health_check_path = "/api/health"
+  health_check_path = "/api/v1/send/health"
 
   app_settings      = local.send_func.app_settings
   slot_app_settings = local.send_func.app_settings
