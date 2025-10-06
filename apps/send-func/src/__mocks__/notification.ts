@@ -3,7 +3,6 @@ import {
   problemSchema,
 } from "@/adapters/send/definitions.js";
 import {
-  aarQrCodeValueSchema,
   attachmentMetadataSchema,
   checkQrMandateResponseSchema,
   idxSchema,
@@ -21,6 +20,7 @@ import { lollipopSignatureSchema } from "io-messages-common/adapters/lollipop/de
 import { lollipopSignatureInputSchema } from "io-messages-common/adapters/lollipop/definitions/signature-input";
 import { thumbprintSchema } from "io-messages-common/adapters/lollipop/definitions/thumbprint";
 import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
+import { Mock, vi } from "vitest";
 
 export const aFiscalCode = fiscalCodeSchema.parse("RMLGNN97R06F158N");
 
@@ -55,7 +55,8 @@ export const anInvalidSignatureInput = lollipopSignatureInputSchema.parse(
 );
 
 export const anAssertionType = assertionTypeSchema.enum.SAML;
-export const anAarQrCodeValue = aarQrCodeValueSchema.parse("a qr code value");
+export const anAarQrCodeValue = "aQrCodeValue";
+export const anInvalidAarQrCodeValue = "anInvalidQrCodeValuea£";
 
 export const aCheckQrMandateRequest = checkQrMandateRequestSchema.parse({
   aarQrCodeValue: anAarQrCodeValue,
@@ -80,6 +81,7 @@ export const aDocIdx = idxSchema.parse(1);
 export const anAttachmnetIdx = idxSchema.parse(1);
 export const aIun = iunSchema.parse("ABCD-EFGH-IJKL-123456-Z-7");
 export const anAttachmentName = "F24";
+export const anIvalidMandateId = "badMandateId";
 
 export const aThirdPartyMessage = thirdPartyMessageSchema.parse({
   attachments: [
@@ -163,3 +165,40 @@ export const aSendHeaders = sendHeadersSchema.parse({
   "x-pagopa-cx-taxid": aFiscalCode,
   ...aLollipopHeaders,
 });
+
+interface MockNotificationClient {
+  checkAarQrCodeIO: Mock;
+  getReceivedNotification: Mock;
+  getReceivedNotificationAttachment: Mock;
+  getReceivedNotificationDocument: Mock;
+}
+
+export const createMockNotificationClient = (): MockNotificationClient => ({
+  checkAarQrCodeIO: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(aCheckQrMandateResponse)),
+  getReceivedNotification: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(aThirdPartyMessage)),
+  getReceivedNotificationAttachment: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(anAttachmentMetadata)),
+  getReceivedNotificationDocument: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(anAttachmentMetadata)),
+});
+
+export const mockNotificationClient = {
+  checkAarQrCodeIO: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(aCheckQrMandateResponse)),
+  getReceivedNotification: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(aThirdPartyMessage)),
+  getReceivedNotificationAttachment: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(anAttachmentMetadata)),
+  getReceivedNotificationDocument: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(anAttachmentMetadata)),
+};

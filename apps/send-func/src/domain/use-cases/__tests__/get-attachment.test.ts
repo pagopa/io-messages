@@ -6,31 +6,15 @@ import {
   anAttachmentMetadata,
   anAttachmentName,
   anAttachmnetIdx,
+  createMockNotificationClient,
 } from "@/__mocks__/notification.js";
-import {
-  AttachmentMetadata,
-  NotificationClient,
-} from "@/domain/notification.js";
+import { NotificationClient } from "@/domain/notification.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GetAttachmentUseCase } from "../get-attachment.js";
 
-const createMockNotificationClient = (
-  attachmentResponse: AttachmentMetadata,
-): NotificationClient => ({
-  checkAarQrCodeIO: vi.fn(),
-  getReceivedNotification: vi.fn(),
-  getReceivedNotificationAttachment: vi
-    .fn()
-    .mockImplementation(() => Promise.resolve(attachmentResponse)),
-  getReceivedNotificationDocument: vi
-    .fn()
-    .mockImplementation(() => Promise.resolve(attachmentResponse)),
-});
-
-const notificationClient = createMockNotificationClient(anAttachmentMetadata);
-const uatNotificationClient =
-  createMockNotificationClient(anAttachmentMetadata);
+const notificationClient = createMockNotificationClient();
+const uatNotificationClient = createMockNotificationClient();
 
 const getNotificationClient = (isTest: boolean) =>
   isTest ? uatNotificationClient : notificationClient;

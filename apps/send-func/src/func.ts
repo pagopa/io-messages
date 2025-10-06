@@ -49,7 +49,7 @@ const main = async (config: Config): Promise<void> => {
       aarQRCodeCheck(getNotificationClient),
     ),
     methods: ["POST"],
-    route: "aar/qr-code-check",
+    route: "send/aar/qr-code-check",
   });
 
   app.http("GetAARNotification", {
@@ -59,7 +59,7 @@ const main = async (config: Config): Promise<void> => {
       getNotification(getNotificationClient),
     ),
     methods: ["GET"],
-    route: "aar/notifications/{iun}",
+    route: "send/aar/notifications/{iun}",
   });
 
   app.http("getNotificationAttachment", {
@@ -69,7 +69,7 @@ const main = async (config: Config): Promise<void> => {
       getAttachment(getAttachmentUseCase),
     ),
     methods: ["GET"],
-    route: "/aar/attachments/{attachmentUrl}",
+    route: "send/aar/attachments/{attachmentUrl}",
   });
 };
 

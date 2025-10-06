@@ -5,6 +5,8 @@ import {
   aSendHeaders,
   anAttachmentMetadata,
   anAttachmentUrl,
+  anIvalidMandateId,
+  mockNotificationClient,
 } from "@/__mocks__/notification.js";
 import { NotificationClientError } from "@/adapters/send/notification.js";
 import { GetAttachmentUseCase } from "@/domain/use-cases/get-attachment.js";
@@ -12,17 +14,6 @@ import { HttpRequest, InvocationContext } from "@azure/functions";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getAttachment } from "../aar-attachments.js";
-
-const mockNotificationClient = {
-  checkAarQrCodeIO: vi.fn(),
-  getReceivedNotification: vi.fn(),
-  getReceivedNotificationAttachment: vi
-    .fn()
-    .mockImplementation(() => Promise.resolve(anAttachmentMetadata)),
-  getReceivedNotificationDocument: vi
-    .fn()
-    .mockImplementation(() => Promise.resolve(anAttachmentMetadata)),
-};
 
 const getNotificationClientMock = vi.fn(() => mockNotificationClient);
 
@@ -92,7 +83,6 @@ describe("GetAttachment", () => {
   });
 
   it("returns 400 status code if the request is malformed", async () => {
-    const anIvalidMandateId = "badMandateId";
     const request = new HttpRequest({
       method: "GET",
       params: { attachmentUrl: anEncodedAttachmentUrl },
