@@ -1,16 +1,3 @@
-## Notification Hub
-data "azurerm_notification_hub" "common_itn" {
-  name                = format("%s-common", local.nh_name_prefix_itn)
-  namespace_name      = format("%s-common", local.nh_namespace_prefix_itn)
-  resource_group_name = local.nh_resource_group_name_itn
-}
-data "azurerm_notification_hub" "common_partition_itn" {
-  count               = local.nh_partition_count_itn
-  name                = format("%s-common-partition-%d", local.nh_name_prefix_itn, count.index + 1)
-  namespace_name      = format("%s-common-partition-%d", local.nh_namespace_prefix_itn, count.index + 1)
-  resource_group_name = local.nh_resource_group_name_itn
-}
-
 ## Legacy Notification Hub
 data "azurerm_notification_hub" "common" {
   name                = format("%s-common", local.nh_name_prefix)
@@ -51,28 +38,6 @@ data "azurerm_key_vault_secret" "azure_nh_partition4_endpoint" {
   key_vault_id = data.azurerm_key_vault.common.id
 }
 
-data "azurerm_key_vault_secret" "azure_nh_endpoint_itn" {
-  name         = "common-AZURE-NH-ENDPOINT-ITN"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-data "azurerm_key_vault_secret" "azure_nh_partition1_endpoint_itn" {
-  name         = "common-partition-1-AZURE-NH-ENDPOINT-ITN"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-data "azurerm_key_vault_secret" "azure_nh_partition2_endpoint_itn" {
-  name         = "common-partition-2-AZURE-NH-ENDPOINT-ITN"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-data "azurerm_key_vault_secret" "azure_nh_partition3_endpoint_itn" {
-  name         = "common-partition-3-AZURE-NH-ENDPOINT-ITN"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-data "azurerm_key_vault_secret" "azure_nh_partition4_endpoint_itn" {
-  name         = "common-partition-4-AZURE-NH-ENDPOINT-ITN"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-
-
 ## Application insights
 
 data "azurerm_monitor_action_group" "io_com_action_group" {
@@ -83,12 +48,6 @@ data "azurerm_monitor_action_group" "io_com_action_group" {
 locals {
 
   product = "io-p"
-
-  ## Notification Hub
-  nh_resource_group_name_itn = "io-p-rg-common"
-  nh_name_prefix_itn         = "io-p-ntf"
-  nh_namespace_prefix_itn    = "io-p-ntfns"
-  nh_partition_count_itn     = 4
 
   ## Legacy Notification Hub
   nh_resource_group_name = "io-p-rg-common"
@@ -139,33 +98,33 @@ locals {
       # Notification Hubs variables
 
       # Endpoint for the test notification hub namespace
-      AZURE_NH_HUB_NAME                                = data.azurerm_notification_hub.common_itn.name
       "AzureWebJobs.HandleNHNotificationCall.Disabled" = "0"
-      # Endpoint for the test notification hub namespace
-      NH1_PARTITION_REGEX = "^[0-3]"
-      NH1_NAME            = data.azurerm_notification_hub.common_partition_itn[0].name
-      NH2_PARTITION_REGEX = "^[4-7]"
-      NH2_NAME            = data.azurerm_notification_hub.common_partition_itn[1].name
-      NH3_PARTITION_REGEX = "^[8-b]"
-      NH3_NAME            = data.azurerm_notification_hub.common_partition_itn[2].name
-      NH4_PARTITION_REGEX = "^[c-f]"
-      NH4_NAME            = data.azurerm_notification_hub.common_partition_itn[3].name
+      # Endpoint for the itn notification hub namespace
+      NH1_ENDPOINT        = var.nh_itn_partition_1.endpoint
+      NH1_PARTITION_REGEX = var.nh_itn_partition_1.regex
+      NH1_NAME            = var.nh_itn_partition_1.name
 
-      AZURE_NH_ENDPOINT = data.azurerm_key_vault_secret.azure_nh_endpoint_itn.value
-      NH1_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition1_endpoint_itn.value
-      NH2_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition2_endpoint_itn.value
-      NH3_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition3_endpoint_itn.value
-      NH4_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition4_endpoint_itn.value
+      NH2_ENDPOINT        = var.nh_itn_partition_2.endpoint
+      NH2_PARTITION_REGEX = var.nh_itn_partition_2.regex
+      NH2_NAME            = var.nh_itn_partition_2.name
+
+      NH3_ENDPOINT        = var.nh_itn_partition_3.endpoint
+      NH3_PARTITION_REGEX = var.nh_itn_partition_3.regex
+      NH3_NAME            = var.nh_itn_partition_3.name
+
+      NH4_ENDPOINT        = var.nh_itn_partition_4.endpoint
+      NH4_PARTITION_REGEX = var.nh_itn_partition_4.regex
+      NH4_NAME            = var.nh_itn_partition_4.name
       # ------------------------------------------------------------------------------
 
 
       # ------------------------------------------------------------------------------
       # Notification Hubs variables
 
-      # Endpoint for the test notification hub namespace
+      # Endpoint for the weu notification hub namespace
       LEGACY_AZURE_NH_HUB_NAME                         = data.azurerm_notification_hub.common.name
       "AzureWebJobs.HandleNHNotificationCall.Disabled" = "0"
-      # Endpoint for the test notification hub namespace
+      # Endpoint for the weu notification hub namespace
       LEGACY_NH1_PARTITION_REGEX = "^[0-3]"
       LEGACY_NH1_NAME            = data.azurerm_notification_hub.common_partition[0].name
       LEGACY_NH2_PARTITION_REGEX = "^[4-7]"
