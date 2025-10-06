@@ -94,8 +94,8 @@ describe("GetAARNotification", () => {
     await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: {
         detail: `Malformed mandateId ${anIvalidMandateId}`,
-        title: "Bad Request",
         status: 400,
+        title: "Bad Request",
       },
       status: 400,
     });
