@@ -59,10 +59,7 @@ export const getNotification =
 
       return { jsonBody: response, status: 200 };
     } catch (err) {
-      if (
-        err instanceof NotificationClientError &&
-        err.name === "NotificationClientError"
-      ) {
+      if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
 
         return {

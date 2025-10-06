@@ -68,10 +68,7 @@ export const getAttachment =
       );
       return { jsonBody: response, status: 200 };
     } catch (err) {
-      if (
-        err instanceof NotificationClientError &&
-        err.name === "NotificationClientError"
-      ) {
+      if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
 
         const problemJson = problemJsonSchema.parse(err.body);
