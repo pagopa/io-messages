@@ -24,6 +24,10 @@ paths:
         - $ref: "#/components/parameters/pathIun"
         - $ref: "#/components/parameters/queryMandateId"
         - $ref: "#/components/parameters/headerIoSource"
+        - in: query
+          name: isTest
+          schema:
+            type: boolean
       responses:
         "200":
           description: OK
