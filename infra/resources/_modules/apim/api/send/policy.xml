@@ -3,7 +3,7 @@
     <include-fragment fragment-id="io-com-app-session-fragment" />
     <base />
     <set-backend-service
-      base-url="https://io-p-itn-com-send-func-01.azurewebsites.net/api/v1/send" />
+      base-url="https://io-p-itn-com-send-func-01.azurewebsites.net/api/v1/send/aar" />
   </inbound>
   <outbound>
     <base />

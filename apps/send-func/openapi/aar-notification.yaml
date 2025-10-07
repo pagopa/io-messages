@@ -47,8 +47,8 @@ paths:
     post:
       tags:
         - SEND AAR QRCode
-      description: Verifica il contenuto del qrcode di un' AAR  e restituisce dati utili al recupero della notifica
-      summary: Servizio per la verifica del aar-qr-code
+      description: Verifica il contenuto del qrcode di un' AAR SEND e restituisce dati utili al recupero della notifica
+      summary: Verifica QRCcode di un' AAR
       operationId: aarQRCodeCheck
       parameters:
         - in: query
@@ -92,6 +92,8 @@ paths:
       operationId: getNotificationAttachment
       tags:
         - SEND AAR Attachments
+      description: Restituisce i documenti relativi ad una AAR SEND
+      summary: Documenti relativi ad una AAR
       parameters:
         - $ref: "#/components/parameters/urlEncodedBase64AttachmentUrl"
         - $ref: "#/components/parameters/queryMandateId"
