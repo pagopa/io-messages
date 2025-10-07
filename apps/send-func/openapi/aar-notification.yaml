@@ -48,7 +48,7 @@ paths:
       tags:
         - SEND AAR QRCode
       description: Verifica il contenuto del qrcode di un' AAR SEND e restituisce dati utili al recupero della notifica
-      summary: Verifica QRCcode di un' AAR
+      summary: Verifica QRCcode di una AAR
       operationId: aarQRCodeCheck
       parameters:
         - in: query
