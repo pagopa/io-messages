@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { context as contextMock } from "../../../__mocks__/durable-functions";
 import {
-  legacyNhPartitionFactory,
+  newNhPartitionFactory,
   nhPartitionFactory,
 } from "../../../__mocks__/notification-hub";
 import {
@@ -35,7 +35,7 @@ const handler = createActivity(
   ActivityResultSuccess,
   getActivityBody(
     nhPartitionFactory,
-    legacyNhPartitionFactory,
+    newNhPartitionFactory,
     mockTelemetryClient,
   ),
 );

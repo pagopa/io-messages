@@ -10,7 +10,7 @@ import * as E from "fp-ts/Either";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  legacyNhPartitionFactory,
+  newNhPartitionFactory,
   nhPartitionFactory,
 } from "../../__mocks__/notification-hub";
 import {
@@ -117,25 +117,25 @@ describe("notify", () => {
 });
 
 describe("createOrUpdateInstallation", () => {
-  let primary: NotificationHubsClient;
-  let legacy: NotificationHubsClient;
+  let primaryNh: NotificationHubsClient;
+  let newNh: NotificationHubsClient;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    primary = nhPartitionFactory.getPartition(aFiscalCodeHash);
-    legacy = legacyNhPartitionFactory.getPartition(aFiscalCodeHash);
-    vi.spyOn(legacy, "createOrUpdateInstallation").mockResolvedValue(
+    primaryNh = nhPartitionFactory.getPartition(aFiscalCodeHash);
+    newNh = newNhPartitionFactory.getPartition(aFiscalCodeHash);
+    vi.spyOn(newNh, "createOrUpdateInstallation").mockResolvedValue(
       aNotificationHubsResponse,
     );
-    vi.spyOn(primary, "createOrUpdateInstallation").mockResolvedValue(
+    vi.spyOn(primaryNh, "createOrUpdateInstallation").mockResolvedValue(
       aNotificationHubsResponse,
     );
   });
 
   it("should succesfully create or update on legacy and primary, returns legacy response", async () => {
     const res = await createOrUpdateInstallation(
-      primary,
-      legacy,
+      primaryNh,
+      newNh,
       anInstallationId,
       "apns",
       "push-channel",
@@ -143,8 +143,8 @@ describe("createOrUpdateInstallation", () => {
       mockTelemetryClient,
     )();
 
-    expect(legacy.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
-    expect(primary.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
+    expect(newNh.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
+    expect(primaryNh.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
 
     expect(E.isRight(res)).toBe(true);
     if (E.isRight(res)) {
@@ -154,13 +154,13 @@ describe("createOrUpdateInstallation", () => {
   });
 
   it("should succesfully create or update on legacy and fail primary, returns legacy response", async () => {
-    vi.spyOn(primary, "createOrUpdateInstallation").mockRejectedValueOnce(
+    vi.spyOn(newNh, "createOrUpdateInstallation").mockRejectedValueOnce(
       new Error(),
     );
 
     const res = await createOrUpdateInstallation(
-      primary,
-      legacy,
+      primaryNh,
+      newNh,
       anInstallationId,
       "apns",
       "push-channel",
@@ -168,8 +168,8 @@ describe("createOrUpdateInstallation", () => {
       mockTelemetryClient,
     )();
 
-    expect(legacy.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
-    expect(primary.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
+    expect(primaryNh.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
+    expect(newNh.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
 
     expect(E.isRight(res)).toBe(true);
     if (E.isRight(res)) {
@@ -179,13 +179,13 @@ describe("createOrUpdateInstallation", () => {
   });
 
   it("should fail to create or update on legacy and skip primary, throw an error", async () => {
-    vi.spyOn(legacy, "createOrUpdateInstallation").mockRejectedValueOnce(
+    vi.spyOn(primaryNh, "createOrUpdateInstallation").mockRejectedValueOnce(
       new Error(),
     );
 
     const res = await createOrUpdateInstallation(
-      primary,
-      legacy,
+      primaryNh,
+      newNh,
       anInstallationId,
       "apns",
       "push-channel",
@@ -200,39 +200,39 @@ describe("createOrUpdateInstallation", () => {
       );
     }
 
-    expect(legacy.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
-    expect(primary.createOrUpdateInstallation).not.toHaveBeenCalled();
+    expect(primaryNh.createOrUpdateInstallation).toHaveBeenCalledTimes(1);
+    expect(newNh.createOrUpdateInstallation).not.toHaveBeenCalled();
   });
 });
 
 describe("deleteInstallation", () => {
-  let primary: NotificationHubsClient;
-  let legacy: NotificationHubsClient;
+  let primaryNh: NotificationHubsClient;
+  let newNh: NotificationHubsClient;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    primary = nhPartitionFactory.getPartition(anInstallationId);
-    legacy = legacyNhPartitionFactory.getPartition(anInstallationId);
-    vi.spyOn(legacy, "deleteInstallation").mockResolvedValue(
+    primaryNh = nhPartitionFactory.getPartition(anInstallationId);
+    newNh = newNhPartitionFactory.getPartition(anInstallationId);
+    vi.spyOn(newNh, "deleteInstallation").mockResolvedValue(
       aNotificationHubsResponse,
     );
-    vi.spyOn(primary, "deleteInstallation").mockResolvedValue(
+    vi.spyOn(primaryNh, "deleteInstallation").mockResolvedValue(
       aNotificationHubsResponse,
     );
   });
 
   it("should succesfully delete on legacy and primary, returns legacy response", async () => {
     const res = await deleteInstallation(
-      primary,
-      legacy,
+      primaryNh,
+      newNh,
       anInstallationId,
       mockTelemetryClient,
     )();
 
-    expect(legacy.deleteInstallation).toHaveBeenCalledTimes(1);
-    expect(legacy.deleteInstallation).toHaveBeenCalledWith(anInstallationId);
-    expect(primary.deleteInstallation).toHaveBeenCalledTimes(1);
-    expect(primary.deleteInstallation).toHaveBeenCalledWith(anInstallationId);
+    expect(newNh.deleteInstallation).toHaveBeenCalledTimes(1);
+    expect(newNh.deleteInstallation).toHaveBeenCalledWith(anInstallationId);
+    expect(primaryNh.deleteInstallation).toHaveBeenCalledTimes(1);
+    expect(primaryNh.deleteInstallation).toHaveBeenCalledWith(anInstallationId);
 
     expect(E.isRight(res)).toBe(true);
     if (E.isRight(res)) {
@@ -242,20 +242,20 @@ describe("deleteInstallation", () => {
   });
 
   it("should succesfully delete on legacy and fail primary, returns legacy response", async () => {
-    vi.spyOn(primary, "deleteInstallation").mockRejectedValueOnce(new Error());
+    vi.spyOn(newNh, "deleteInstallation").mockRejectedValueOnce(new Error());
 
     const res = await deleteInstallation(
-      primary,
-      legacy,
+      primaryNh,
+      newNh,
       anInstallationId,
       mockTelemetryClient,
     )();
 
-    expect(legacy.deleteInstallation).toHaveBeenCalledTimes(1);
-    expect(legacy.deleteInstallation).toHaveBeenCalledWith(anInstallationId);
+    expect(primaryNh.deleteInstallation).toHaveBeenCalledTimes(1);
+    expect(primaryNh.deleteInstallation).toHaveBeenCalledWith(anInstallationId);
 
-    expect(primary.deleteInstallation).toHaveBeenCalledTimes(1);
-    expect(primary.deleteInstallation).toHaveBeenCalledWith(anInstallationId);
+    expect(newNh.deleteInstallation).toHaveBeenCalledTimes(1);
+    expect(newNh.deleteInstallation).toHaveBeenCalledWith(anInstallationId);
 
     expect(E.isRight(res)).toBe(true);
     if (E.isRight(res)) {
@@ -265,11 +265,13 @@ describe("deleteInstallation", () => {
   });
 
   it("should fail to delete on legacy and skip primary, throw an error", async () => {
-    vi.spyOn(legacy, "deleteInstallation").mockRejectedValueOnce(new Error());
+    vi.spyOn(primaryNh, "deleteInstallation").mockRejectedValueOnce(
+      new Error(),
+    );
 
     const res = await deleteInstallation(
-      primary,
-      legacy,
+      primaryNh,
+      newNh,
       anInstallationId,
       mockTelemetryClient,
     )();
@@ -281,7 +283,7 @@ describe("deleteInstallation", () => {
       );
     }
 
-    expect(legacy.deleteInstallation).toHaveBeenCalledTimes(1);
-    expect(primary.deleteInstallation).not.toHaveBeenCalled();
+    expect(primaryNh.deleteInstallation).toHaveBeenCalledTimes(1);
+    expect(newNh.deleteInstallation).not.toHaveBeenCalled();
   });
 });
