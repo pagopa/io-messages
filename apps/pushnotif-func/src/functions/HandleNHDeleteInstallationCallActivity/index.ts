@@ -22,8 +22,8 @@ const nhPatitionFactory = new NotificationHubPartitionFactory(
   config.AZURE_NOTIFICATION_HUB_PARTITIONS,
 );
 
-const nhLegacyPartitionFactory = new NotificationHubPartitionFactory(
-  config.AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS,
+const nhNewPartitionFactory = new NotificationHubPartitionFactory(
+  config.AZURE_NEW_NOTIFICATION_HUB_PARTITIONS,
 );
 
 /**
@@ -45,7 +45,7 @@ const activityFunctionHandler = createActivity<ActivityInput>(
   activityName,
   ActivityInput,
   ActivityResultSuccess,
-  getActivityBody(nhPatitionFactory, nhLegacyPartitionFactory, telemetryClient),
+  getActivityBody(nhPatitionFactory, nhNewPartitionFactory, telemetryClient),
 );
 
 export default activityFunctionHandler;

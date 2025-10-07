@@ -29,7 +29,7 @@ export const nhPartitionFactory = new NotificationHubPartitionFactory([
   },
 ]);
 
-export const legacyNhPartitionFactory = new NotificationHubPartitionFactory([
+export const newNhPartitionFactory = new NotificationHubPartitionFactory([
   {
     endpoint:
       "Endpoint=sb://legacyn-1.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test;" as NonEmptyString,

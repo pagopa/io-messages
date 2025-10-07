@@ -9,7 +9,7 @@ export const envConfig: IConfig = {
   APPINSIGHTS_INSTRUMENTATIONKEY: "Idontknow" as NonEmptyString,
   APPINSIGHTS_SAMPLING_PERCENTAGE: "20" as unknown as IntegerFromString,
 
-  AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS: [
+  AZURE_NEW_NOTIFICATION_HUB_PARTITIONS: [
     {
       endpoint: "endpoint-partition-1" as NonEmptyString,
       name: "partition-1" as NonEmptyString,
@@ -31,6 +31,10 @@ export const envConfig: IConfig = {
       partitionRegex: /^[c-f]/,
     },
   ],
+  AZURE_NH_ENDPOINT:
+    "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar" as NonEmptyString,
+
+  AZURE_NH_HUB_NAME: "partition-legacy" as NonEmptyString,
 
   AZURE_NOTIFICATION_HUB_PARTITIONS: [
     {

@@ -51,25 +51,25 @@ const NotificationHubPartitionsConfig = t.interface({
   NH4_PARTITION_REGEX: RegExpFromString,
 });
 
-export type LegacyNotificationHubPartitionsConfig = t.TypeOf<
-  typeof LegacyNotificationHubPartitionsConfig
+export type NewNotificationHubPartitionsConfig = t.TypeOf<
+  typeof NewNotificationHubPartitionsConfig
 >;
-const LegacyNotificationHubPartitionsConfig = t.interface({
-  LEGACY_NH1_ENDPOINT: NonEmptyString,
-  LEGACY_NH1_NAME: NonEmptyString,
-  LEGACY_NH1_PARTITION_REGEX: RegExpFromString,
+const NewNotificationHubPartitionsConfig = t.interface({
+  NEW_NH1_ENDPOINT: NonEmptyString,
+  NEW_NH1_NAME: NonEmptyString,
+  NEW_NH1_PARTITION_REGEX: RegExpFromString,
 
-  LEGACY_NH2_ENDPOINT: NonEmptyString,
-  LEGACY_NH2_NAME: NonEmptyString,
-  LEGACY_NH2_PARTITION_REGEX: RegExpFromString,
+  NEW_NH2_ENDPOINT: NonEmptyString,
+  NEW_NH2_NAME: NonEmptyString,
+  NEW_NH2_PARTITION_REGEX: RegExpFromString,
 
-  LEGACY_NH3_ENDPOINT: NonEmptyString,
-  LEGACY_NH3_NAME: NonEmptyString,
-  LEGACY_NH3_PARTITION_REGEX: RegExpFromString,
+  NEW_NH3_ENDPOINT: NonEmptyString,
+  NEW_NH3_NAME: NonEmptyString,
+  NEW_NH3_PARTITION_REGEX: RegExpFromString,
 
-  LEGACY_NH4_ENDPOINT: NonEmptyString,
-  LEGACY_NH4_NAME: NonEmptyString,
-  LEGACY_NH4_PARTITION_REGEX: RegExpFromString,
+  NEW_NH4_ENDPOINT: NonEmptyString,
+  NEW_NH4_NAME: NonEmptyString,
+  NEW_NH4_PARTITION_REGEX: RegExpFromString,
 });
 
 /**
@@ -113,6 +113,12 @@ const BaseConfig = t.intersection([
         CommaSeparatedListOf(FiscalCode),
         [],
       ),
+    }),
+
+    // Legacy Notification Hub configuration
+    t.interface({
+      AZURE_NH_ENDPOINT: NonEmptyString,
+      AZURE_NH_HUB_NAME: NonEmptyString,
     }),
 
     t.interface({
@@ -206,72 +212,72 @@ const WithComputedNHPartitions = new t.Type<
 /**
  * Extends the app base configuration
  * by computing fixed Notification Hub partition configurations
- * into a single array of struct named AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS.
+ * into a single array of struct named AZURE_NEW_NOTIFICATION_HUB_PARTITIONS.
  */
-type WithComputedLegacyNHPartitions = {
-  readonly AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS: DisjoitedNotificationHubPartitionArray;
+type WithComputedNewNHPartitions = {
+  readonly AZURE_NEW_NOTIFICATION_HUB_PARTITIONS: DisjoitedNotificationHubPartitionArray;
 } & BaseConfig;
-const WithComputedLegacyNHPartitions = new t.Type<
-  WithComputedLegacyNHPartitions,
-  BaseConfig & LegacyNotificationHubPartitionsConfig,
-  BaseConfig & LegacyNotificationHubPartitionsConfig
+const WithComputedNewNHPartitions = new t.Type<
+  WithComputedNewNHPartitions,
+  BaseConfig & NewNotificationHubPartitionsConfig,
+  BaseConfig & NewNotificationHubPartitionsConfig
 >(
   "WithComputedLegacyNHPartitions",
-  (v: unknown): v is WithComputedLegacyNHPartitions =>
-    BaseConfig.is(v) && "AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS" in v,
+  (v: unknown): v is WithComputedNewNHPartitions =>
+    BaseConfig.is(v) && "AZURE_NEW_NOTIFICATION_HUB_PARTITIONS" in v,
   ({
-    LEGACY_NH1_ENDPOINT,
-    LEGACY_NH1_NAME,
-    LEGACY_NH1_PARTITION_REGEX,
-    LEGACY_NH2_ENDPOINT,
-    LEGACY_NH2_NAME,
-    LEGACY_NH2_PARTITION_REGEX,
-    LEGACY_NH3_ENDPOINT,
-    LEGACY_NH3_NAME,
-    LEGACY_NH3_PARTITION_REGEX,
-    LEGACY_NH4_ENDPOINT,
-    LEGACY_NH4_NAME,
-    LEGACY_NH4_PARTITION_REGEX,
+    NEW_NH1_ENDPOINT,
+    NEW_NH1_NAME,
+    NEW_NH1_PARTITION_REGEX,
+    NEW_NH2_ENDPOINT,
+    NEW_NH2_NAME,
+    NEW_NH2_PARTITION_REGEX,
+    NEW_NH3_ENDPOINT,
+    NEW_NH3_NAME,
+    NEW_NH3_PARTITION_REGEX,
+    NEW_NH4_ENDPOINT,
+    NEW_NH4_NAME,
+    NEW_NH4_PARTITION_REGEX,
     ...baseConfig
-  }): t.Validation<WithComputedLegacyNHPartitions> =>
+  }): t.Validation<WithComputedNewNHPartitions> =>
     // decode the fixed array of NH partitions...
     pipe(
       [
         {
-          endpoint: LEGACY_NH1_ENDPOINT,
-          name: LEGACY_NH1_NAME,
-          partitionRegex: LEGACY_NH1_PARTITION_REGEX,
+          endpoint: NEW_NH1_ENDPOINT,
+          name: NEW_NH1_NAME,
+          partitionRegex: NEW_NH1_PARTITION_REGEX,
         },
         {
-          endpoint: LEGACY_NH2_ENDPOINT,
-          name: LEGACY_NH2_NAME,
-          partitionRegex: LEGACY_NH2_PARTITION_REGEX,
+          endpoint: NEW_NH2_ENDPOINT,
+          name: NEW_NH2_NAME,
+          partitionRegex: NEW_NH2_PARTITION_REGEX,
         },
         {
-          endpoint: LEGACY_NH3_ENDPOINT,
-          name: LEGACY_NH3_NAME,
-          partitionRegex: LEGACY_NH3_PARTITION_REGEX,
+          endpoint: NEW_NH3_ENDPOINT,
+          name: NEW_NH3_NAME,
+          partitionRegex: NEW_NH3_PARTITION_REGEX,
         },
         {
-          endpoint: LEGACY_NH4_ENDPOINT,
-          name: LEGACY_NH4_NAME,
-          partitionRegex: LEGACY_NH4_PARTITION_REGEX,
+          endpoint: NEW_NH4_ENDPOINT,
+          name: NEW_NH4_NAME,
+          partitionRegex: NEW_NH4_PARTITION_REGEX,
         },
       ],
       DisjoitedNotificationHubPartitionArray.decode,
       // ...then add the key to the base config
       E.map((partitions) => ({
         ...baseConfig,
-        AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS: partitions,
+        AZURE_NEW_NOTIFICATION_HUB_PARTITIONS: partitions,
       })),
     ),
   (
-    v: WithComputedLegacyNHPartitions,
-  ): BaseConfig & LegacyNotificationHubPartitionsConfig => {
-    const { AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS, ...rest } = v;
+    v: WithComputedNewNHPartitions,
+  ): BaseConfig & NewNotificationHubPartitionsConfig => {
+    const { AZURE_NEW_NOTIFICATION_HUB_PARTITIONS, ...rest } = v;
     return {
       ...rest,
-      ...AZURE_LEGACY_NOTIFICATION_HUB_PARTITIONS.reduce(
+      ...AZURE_NEW_NOTIFICATION_HUB_PARTITIONS.reduce(
         (p, e, i) => ({
           ...p,
           // reconstruct the key set from the array
@@ -281,14 +287,14 @@ const WithComputedLegacyNHPartitions = new t.Type<
         }),
         {},
       ),
-    } as BaseConfig & LegacyNotificationHubPartitionsConfig; // cast needed because TS cannot understand types when we compose keys with strings
+    } as BaseConfig & NewNotificationHubPartitionsConfig; // cast needed because TS cannot understand types when we compose keys with strings
   },
 );
 
 type IConfigLegacy = t.TypeOf<typeof IConfigLegacy>;
 const IConfigLegacy = t
-  .intersection([BaseConfig, LegacyNotificationHubPartitionsConfig])
-  .pipe(WithComputedLegacyNHPartitions);
+  .intersection([BaseConfig, NewNotificationHubPartitionsConfig])
+  .pipe(WithComputedNewNHPartitions);
 
 type IConfigBase = t.TypeOf<typeof IConfigBase>;
 const IConfigBase = t

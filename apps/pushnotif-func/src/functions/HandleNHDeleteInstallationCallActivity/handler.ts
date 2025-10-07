@@ -31,14 +31,14 @@ export { ActivityResultSuccess } from "../../utils/durable/activities";
 export const getActivityBody =
   (
     nhPartitionFactory: NotificationHubPartitionFactory,
-    nhLegacyPartitionFactory: NotificationHubPartitionFactory,
+    nhNewPartitionFactory: NotificationHubPartitionFactory,
     telemetryClient: TelemetryClient,
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBody<ActivityInput, ActivityResultSuccess> =>
   ({ input, logger }) => {
     logger.info(`INSTALLATION_ID=${input.installationId}`);
     const nhClient = nhPartitionFactory.getPartition(input.installationId);
-    const nhLegacyClient = nhLegacyPartitionFactory.getPartition(
+    const nhLegacyClient = nhNewPartitionFactory.getPartition(
       input.installationId,
     );
 

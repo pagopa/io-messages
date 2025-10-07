@@ -100,21 +100,21 @@ locals {
       # Endpoint for the test notification hub namespace
       "AzureWebJobs.HandleNHNotificationCall.Disabled" = "0"
       # Endpoint for the itn notification hub namespace
-      NH1_ENDPOINT        = var.nh_itn_partition_1.endpoint
-      NH1_PARTITION_REGEX = var.nh_itn_partition_1.regex
-      NH1_NAME            = var.nh_itn_partition_1.name
+      NEW_NH1_ENDPOINT        = var.nh_itn_partition_1.endpoint
+      NEW_NH1_PARTITION_REGEX = var.nh_itn_partition_1.regex
+      NEW_NH1_NAME            = var.nh_itn_partition_1.name
 
-      NH2_ENDPOINT        = var.nh_itn_partition_2.endpoint
-      NH2_PARTITION_REGEX = var.nh_itn_partition_2.regex
-      NH2_NAME            = var.nh_itn_partition_2.name
+      NEW_NH2_ENDPOINT        = var.nh_itn_partition_2.endpoint
+      NEW_NH2_PARTITION_REGEX = var.nh_itn_partition_2.regex
+      NEW_NH2_NAME            = var.nh_itn_partition_2.name
 
-      NH3_ENDPOINT        = var.nh_itn_partition_3.endpoint
-      NH3_PARTITION_REGEX = var.nh_itn_partition_3.regex
-      NH3_NAME            = var.nh_itn_partition_3.name
+      NEW_NH3_ENDPOINT        = var.nh_itn_partition_3.endpoint
+      NEW_NH3_PARTITION_REGEX = var.nh_itn_partition_3.regex
+      NEW_NH3_NAME            = var.nh_itn_partition_3.name
 
-      NH4_ENDPOINT        = var.nh_itn_partition_4.endpoint
-      NH4_PARTITION_REGEX = var.nh_itn_partition_4.regex
-      NH4_NAME            = var.nh_itn_partition_4.name
+      NEW_NH4_ENDPOINT        = var.nh_itn_partition_4.endpoint
+      NEW_NH4_PARTITION_REGEX = var.nh_itn_partition_4.regex
+      NEW_NH4_NAME            = var.nh_itn_partition_4.name
       # ------------------------------------------------------------------------------
 
 
@@ -122,23 +122,23 @@ locals {
       # Notification Hubs variables
 
       # Endpoint for the weu notification hub namespace
-      LEGACY_AZURE_NH_HUB_NAME                         = data.azurerm_notification_hub.common.name
+      AZURE_NH_HUB_NAME                                = data.azurerm_notification_hub.common.name
       "AzureWebJobs.HandleNHNotificationCall.Disabled" = "0"
       # Endpoint for the weu notification hub namespace
-      LEGACY_NH1_PARTITION_REGEX = "^[0-3]"
-      LEGACY_NH1_NAME            = data.azurerm_notification_hub.common_partition[0].name
-      LEGACY_NH2_PARTITION_REGEX = "^[4-7]"
-      LEGACY_NH2_NAME            = data.azurerm_notification_hub.common_partition[1].name
-      LEGACY_NH3_PARTITION_REGEX = "^[8-b]"
-      LEGACY_NH3_NAME            = data.azurerm_notification_hub.common_partition[2].name
-      LEGACY_NH4_PARTITION_REGEX = "^[c-f]"
-      LEGACY_NH4_NAME            = data.azurerm_notification_hub.common_partition[3].name
+      NH1_PARTITION_REGEX = "^[0-3]"
+      NH1_NAME            = data.azurerm_notification_hub.common_partition[0].name
+      NH2_PARTITION_REGEX = "^[4-7]"
+      NH2_NAME            = data.azurerm_notification_hub.common_partition[1].name
+      NH3_PARTITION_REGEX = "^[8-b]"
+      NH3_NAME            = data.azurerm_notification_hub.common_partition[2].name
+      NH4_PARTITION_REGEX = "^[c-f]"
+      NH4_NAME            = data.azurerm_notification_hub.common_partition[3].name
 
-      LEGACY_AZURE_NH_ENDPOINT = data.azurerm_key_vault_secret.azure_nh_endpoint.value
-      LEGACY_NH1_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition1_endpoint.value
-      LEGACY_NH2_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition2_endpoint.value
-      LEGACY_NH3_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition3_endpoint.value
-      LEGACY_NH4_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition4_endpoint.value
+      AZURE_NH_ENDPOINT = data.azurerm_key_vault_secret.azure_nh_endpoint.value
+      NH1_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition1_endpoint.value
+      NH2_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition2_endpoint.value
+      NH3_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition3_endpoint.value
+      NH4_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition4_endpoint.value
       # ------------------------------------------------------------------------------
 
 

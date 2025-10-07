@@ -135,7 +135,7 @@ export const notify = (
 
 export const createOrUpdateInstallation = (
   notificationHubClient: NotificationHubsClient,
-  legacyNotificationHubClient: NotificationHubsClient,
+  newNotificationHubClient: NotificationHubsClient,
   installationId: NonEmptyString,
   platform: Platform,
   pushChannel: string,
@@ -145,7 +145,7 @@ export const createOrUpdateInstallation = (
   pipe(
     TE.tryCatch(
       () =>
-        legacyNotificationHubClient.createOrUpdateInstallation({
+        notificationHubClient.createOrUpdateInstallation({
           installationId,
           platform,
           pushChannel,
@@ -173,7 +173,7 @@ export const createOrUpdateInstallation = (
       pipe(
         TE.tryCatch(
           () =>
-            notificationHubClient.createOrUpdateInstallation({
+            newNotificationHubClient.createOrUpdateInstallation({
               installationId,
               platform,
               pushChannel,
@@ -215,13 +215,13 @@ export const createOrUpdateInstallation = (
 
 export const deleteInstallation = (
   notificationHubClient: NotificationHubsClient,
-  legacyNotificationHubClient: NotificationHubsClient,
+  newNotificationHubClient: NotificationHubsClient,
   installationId: NonEmptyString,
   telemetryClient: TelemetryClient,
 ): TE.TaskEither<Error, NotificationHubsResponse> =>
   pipe(
     TE.tryCatch(
-      () => legacyNotificationHubClient.deleteInstallation(installationId),
+      () => notificationHubClient.deleteInstallation(installationId),
       (errs) =>
         new Error(
           `Error while deleting installation on Legacy NotificationHub [${installationId}] [${errs}]`,
@@ -231,7 +231,7 @@ export const deleteInstallation = (
     TE.chain((legacyResp) =>
       pipe(
         TE.tryCatch(
-          () => notificationHubClient.deleteInstallation(installationId),
+          () => newNotificationHubClient.deleteInstallation(installationId),
           (errs) =>
             new Error(
               `Error while deleting installation on NotificationHub [${installationId}] [${errs}]`,
