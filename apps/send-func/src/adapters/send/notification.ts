@@ -16,7 +16,11 @@ import {
   thirdPartyMessageSchema,
 } from "@/domain/notification.js";
 
-import { checkQrMandateRequestSchema, Problem, problemSchema } from "./definitions.js";
+import {
+  Problem,
+  checkQrMandateRequestSchema,
+  problemSchema,
+} from "./definitions.js";
 
 export class NotRecipientClientError extends Error {
   body: CheckQrMandateResponse;
@@ -57,10 +61,10 @@ export default class SendNotificationClient implements NotificationClient {
   ): Promise<CheckQrMandateResponse> {
     try {
       const parsedHeaders = {
-          ...headers,
-          "content-type": "application/json",
-          "x-api-key": this.#apiKey,
-        };
+        ...headers,
+        "content-type": "application/json",
+        "x-api-key": this.#apiKey,
+      };
 
       const body = checkQrMandateRequestSchema.parse({ aarQrCodeValue });
 
@@ -96,9 +100,16 @@ export default class SendNotificationClient implements NotificationClient {
 
       return checkQrMandateResponseSchema.parse(responseJson);
     } catch (error) {
-      if (error instanceof NotificationClientError || error instanceof NotRecipientClientError) throw error;
-      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-      throw new Error(`Error during checkAarQrCodeIO api call | ${errorMessage}`);
+      if (
+        error instanceof NotificationClientError ||
+        error instanceof NotRecipientClientError
+      )
+        throw error;
+      const errorMessage =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      throw new Error(
+        `Error during checkAarQrCodeIO api call | ${errorMessage}`,
+      );
     }
   }
 
@@ -142,8 +153,11 @@ export default class SendNotificationClient implements NotificationClient {
       return thirdPartyMessageSchema.parse(responseJson);
     } catch (error) {
       if (error instanceof NotificationClientError) throw error;
-      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-      throw new Error(`Error during getReceivedNotification api call | ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      throw new Error(
+        `Error during getReceivedNotification api call | ${errorMessage}`,
+      );
     }
   }
 
@@ -197,8 +211,11 @@ export default class SendNotificationClient implements NotificationClient {
       return attachmentMetadataSchema.parse(responseJson);
     } catch (error) {
       if (error instanceof NotificationClientError) throw error;
-      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-      throw new Error(`Error during getReceivedNotificationAttachment api call | ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      throw new Error(
+        `Error during getReceivedNotificationAttachment api call | ${errorMessage}`,
+      );
     }
   }
 
@@ -242,8 +259,11 @@ export default class SendNotificationClient implements NotificationClient {
       return attachmentMetadataSchema.parse(responseJson);
     } catch (error) {
       if (error instanceof NotificationClientError) throw error;
-      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-      throw new Error(`Error during getReceivedNotificationDocument api call | ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      throw new Error(
+        `Error during getReceivedNotificationDocument api call | ${errorMessage}`,
+      );
     }
   }
 }

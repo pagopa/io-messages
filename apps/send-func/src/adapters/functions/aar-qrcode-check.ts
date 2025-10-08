@@ -11,7 +11,10 @@ import {
   checkQrMandateRequestSchema,
   problemJsonSchema,
 } from "../send/definitions.js";
-import { NotificationClientError, NotRecipientClientError } from "../send/notification.js";
+import {
+  NotRecipientClientError,
+  NotificationClientError,
+} from "../send/notification.js";
 import { malformedBodyResponse } from "./commons/response.js";
 
 export const aarQRCodeCheck =
@@ -32,7 +35,7 @@ export const aarQRCodeCheck =
         request.headers.get("x-pagopa-pn-io-src") || undefined,
       ...lollipopHeaders,
     };
-    
+
     let rawBody;
     try {
       rawBody = await request.json();
@@ -72,13 +75,14 @@ export const aarQRCodeCheck =
         };
       }
 
-      const errorMessage = err instanceof Error ? err.message : JSON.stringify(err);
+      const errorMessage =
+        err instanceof Error ? err.message : JSON.stringify(err);
       context.error(err);
       return {
         jsonBody: {
           detail: errorMessage,
-          title: "Internal server error",
           status: 500,
+          title: "Internal server error",
         },
         status: 500,
       };
