@@ -21,6 +21,7 @@ import {
   checkQrMandateRequestSchema,
   problemSchema,
 } from "./definitions.js";
+import z, { ZodError } from "zod/v4";
 
 export class NotRecipientClientError extends Error {
   body: CheckQrMandateResponse;
@@ -105,8 +106,9 @@ export default class SendNotificationClient implements NotificationClient {
         error instanceof NotRecipientClientError
       )
         throw error;
+
       const errorMessage =
-        error instanceof Error ? error.message : JSON.stringify(error);
+        error instanceof ZodError ? z.prettifyError(error) : (error instanceof Error ? error.message : JSON.stringify(error));
       throw new Error(
         `Error during checkAarQrCodeIO api call | ${errorMessage}`,
       );
@@ -154,7 +156,7 @@ export default class SendNotificationClient implements NotificationClient {
     } catch (error) {
       if (error instanceof NotificationClientError) throw error;
       const errorMessage =
-        error instanceof Error ? error.message : JSON.stringify(error);
+        error instanceof ZodError ? z.prettifyError(error) : (error instanceof Error ? error.message : JSON.stringify(error));
       throw new Error(
         `Error during getReceivedNotification api call | ${errorMessage}`,
       );
@@ -212,7 +214,7 @@ export default class SendNotificationClient implements NotificationClient {
     } catch (error) {
       if (error instanceof NotificationClientError) throw error;
       const errorMessage =
-        error instanceof Error ? error.message : JSON.stringify(error);
+        error instanceof ZodError ? z.prettifyError(error) : (error instanceof Error ? error.message : JSON.stringify(error));
       throw new Error(
         `Error during getReceivedNotificationAttachment api call | ${errorMessage}`,
       );
@@ -260,7 +262,7 @@ export default class SendNotificationClient implements NotificationClient {
     } catch (error) {
       if (error instanceof NotificationClientError) throw error;
       const errorMessage =
-        error instanceof Error ? error.message : JSON.stringify(error);
+        error instanceof ZodError ? z.prettifyError(error) : (error instanceof Error ? error.message : JSON.stringify(error));
       throw new Error(
         `Error during getReceivedNotificationDocument api call | ${errorMessage}`,
       );
