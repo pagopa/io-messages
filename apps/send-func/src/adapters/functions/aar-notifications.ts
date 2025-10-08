@@ -68,9 +68,12 @@ export const getNotification =
         };
       }
 
+      const errorMessage = err instanceof Error ? err.message : JSON.stringify(err);
+      context.error(err);
       return {
         jsonBody: {
-          detail: "Internal server error",
+          detail: errorMessage,
+          title: "Internal server error",
           status: 500,
         },
         status: 500,

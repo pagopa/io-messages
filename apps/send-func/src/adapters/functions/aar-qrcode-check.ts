@@ -11,7 +11,7 @@ import {
   checkQrMandateRequestSchema,
   problemJsonSchema,
 } from "../send/definitions.js";
-import { NotificationClientError } from "../send/notification.js";
+import { NotificationClientError, NotRecipientClientError } from "../send/notification.js";
 import { malformedBodyResponse } from "./commons/response.js";
 
 export const aarQRCodeCheck =
@@ -32,7 +32,7 @@ export const aarQRCodeCheck =
         request.headers.get("x-pagopa-pn-io-src") || undefined,
       ...lollipopHeaders,
     };
-
+    
     let rawBody;
     try {
       rawBody = await request.json();
@@ -55,15 +55,16 @@ export const aarQRCodeCheck =
       );
       return { jsonBody: response, status: 200 };
     } catch (err) {
+      if (err instanceof NotRecipientClientError) {
+        context.error("NotRecipient client error:", err.message);
+        return {
+          jsonBody: checkQrMandateResponseSchema.parse(err.body),
+          status: 403,
+        };
+      }
+
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
-
-        if (err.status === 403) {
-          return {
-            jsonBody: checkQrMandateResponseSchema.parse(err.body),
-            status: 403,
-          };
-        }
 
         return {
           jsonBody: problemJsonSchema.parse(err.body),
@@ -71,9 +72,12 @@ export const aarQRCodeCheck =
         };
       }
 
+      const errorMessage = err instanceof Error ? err.message : JSON.stringify(err);
+      context.error(err);
       return {
         jsonBody: {
-          detail: "Internal server error",
+          detail: errorMessage,
+          title: "Internal server error",
           status: 500,
         },
         status: 500,

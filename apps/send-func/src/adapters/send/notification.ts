@@ -16,14 +16,25 @@ import {
   thirdPartyMessageSchema,
 } from "@/domain/notification.js";
 
-import { checkQrMandateRequestSchema, problemSchema } from "./definitions.js";
+import { checkQrMandateRequestSchema, Problem, problemSchema } from "./definitions.js";
+
+export class NotRecipientClientError extends Error {
+  body: CheckQrMandateResponse;
+  name: string;
+
+  constructor(message: string, body: CheckQrMandateResponse) {
+    super(message);
+    this.name = "NotRecipientClientError";
+    this.body = body;
+  }
+}
 
 export class NotificationClientError extends Error {
-  body: unknown;
+  body: Problem;
   name: string;
   status: number;
 
-  constructor(message: string, status: number, body: unknown) {
+  constructor(message: string, status: number, body: Problem) {
     super(message);
     this.name = "NotificationClientError";
     this.status = status;
@@ -46,10 +57,10 @@ export default class SendNotificationClient implements NotificationClient {
   ): Promise<CheckQrMandateResponse> {
     try {
       const parsedHeaders = {
-        ...headers,
-        "content-type": "application/json",
-        "x-api-key": this.#apiKey,
-      };
+          ...headers,
+          "content-type": "application/json",
+          "x-api-key": this.#apiKey,
+        };
 
       const body = checkQrMandateRequestSchema.parse({ aarQrCodeValue });
 
@@ -64,23 +75,30 @@ export default class SendNotificationClient implements NotificationClient {
 
       const responseJson = await response.json();
 
+      if (response.status === 403) {
+        const parsedError = checkQrMandateResponseSchema.parse(responseJson);
+
+        throw new NotRecipientClientError(
+          `The api responded with HTTP status ${response.status}`,
+          parsedError,
+        );
+      }
+
       if (!response.ok) {
-        const parsedError =
-          response.status === 403
-            ? checkQrMandateResponseSchema.parse(responseJson)
-            : problemSchema.parse(responseJson);
+        const problem = problemSchema.parse(responseJson);
 
         throw new NotificationClientError(
           `The api responded with HTTP status ${response.status}`,
           response.status,
-          parsedError,
+          problem,
         );
       }
 
       return checkQrMandateResponseSchema.parse(responseJson);
     } catch (error) {
-      if (error instanceof NotificationClientError) throw error;
-      throw new Error(`Error during checkAarQrCodeIO api call | ${error}`);
+      if (error instanceof NotificationClientError || error instanceof NotRecipientClientError) throw error;
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+      throw new Error(`Error during checkAarQrCodeIO api call | ${errorMessage}`);
     }
   }
 
@@ -124,9 +142,8 @@ export default class SendNotificationClient implements NotificationClient {
       return thirdPartyMessageSchema.parse(responseJson);
     } catch (error) {
       if (error instanceof NotificationClientError) throw error;
-      throw new Error(
-        `Error during getReceivedNotification api call | ${error}`,
-      );
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+      throw new Error(`Error during getReceivedNotification api call | ${errorMessage}`);
     }
   }
 
@@ -180,9 +197,8 @@ export default class SendNotificationClient implements NotificationClient {
       return attachmentMetadataSchema.parse(responseJson);
     } catch (error) {
       if (error instanceof NotificationClientError) throw error;
-      throw new Error(
-        `Error during getReceivedNotificationAttachment api call | ${error}`,
-      );
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+      throw new Error(`Error during getReceivedNotificationAttachment api call | ${errorMessage}`);
     }
   }
 
@@ -226,9 +242,8 @@ export default class SendNotificationClient implements NotificationClient {
       return attachmentMetadataSchema.parse(responseJson);
     } catch (error) {
       if (error instanceof NotificationClientError) throw error;
-      throw new Error(
-        `Error during getReceivedNotificationDocument api call | ${error}`,
-      );
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+      throw new Error(`Error during getReceivedNotificationDocument api call | ${errorMessage}`);
     }
   }
 }
