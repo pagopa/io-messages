@@ -9,10 +9,10 @@ info:
   contact:
     name: pagoPA - Touchpoints team
 servers:
-  - url: https://api-app.io.pagopa.it/api/v1/send
+  - url: https://api-app.io.pagopa.it/api/v1/send/aar
     description: Ambiente di produzione
 paths:
-  /aar/notifications/{iun}:
+  /notifications/{iun}:
     get:
       tags:
         - SEND AAR Notifications
@@ -24,6 +24,10 @@ paths:
         - $ref: "#/components/parameters/pathIun"
         - $ref: "#/components/parameters/queryMandateId"
         - $ref: "#/components/parameters/headerIoSource"
+        - in: query
+          name: isTest
+          schema:
+            type: boolean
       responses:
         "200":
           description: OK
@@ -43,12 +47,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/AARProblemJson"
-  /aar/qr-code-check:
+  /qr-code-check:
     post:
       tags:
         - SEND AAR QRCode
-      description: Verifica il contenuto del qrcode di un' AAR  e restituisce dati utili al recupero della notifica
-      summary: Servizio per la verifica del aar-qr-code
+      description: Verifica il contenuto del qrcode di un' AAR SEND e restituisce dati utili al recupero della notifica
+      summary: Verifica QRCcode di una AAR
       operationId: aarQRCodeCheck
       parameters:
         - in: query
@@ -87,11 +91,13 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/AARProblemJson"
-  /aar/attachments/{urlEncodedBase64AttachmentUrl}:
+  /attachments/{urlEncodedBase64AttachmentUrl}:
     get:
       operationId: getNotificationAttachment
       tags:
         - SEND AAR Attachments
+      description: Restituisce i documenti relativi ad una AAR SEND
+      summary: Documenti relativi ad una AAR
       parameters:
         - $ref: "#/components/parameters/urlEncodedBase64AttachmentUrl"
         - $ref: "#/components/parameters/queryMandateId"
