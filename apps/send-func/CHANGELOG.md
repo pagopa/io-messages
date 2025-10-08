@@ -1,5 +1,11 @@
 # send-func
 
+## 1.3.3
+
+### Patch Changes
+
+- 84045a0: fix aar attachment api
+
 ## 1.3.2
 
 ### Patch Changes
