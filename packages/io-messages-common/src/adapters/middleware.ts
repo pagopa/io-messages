@@ -15,7 +15,7 @@ export class MiddlewareError extends Error {
   status: StatusCode;
 
   constructor(message: string, status: StatusCode, body?: ProblemJson) {
-    super(`MiddlewareError | ${message}`);
+    super(message);
     this.name = "MiddlawareError";
     this.status = status;
     this.body =
@@ -57,8 +57,6 @@ export function handlerWithMiddleware<MiddlewareParam>(
 
 function parseMiddlewareErrorResponse(error: unknown): HttpResponseInit {
   if (error instanceof MiddlewareError) {
-    error.body.detail = `${error.message} | ${error.body.detail}`;
-
     return {
       jsonBody: error.body,
       status: error.status,
@@ -68,7 +66,7 @@ function parseMiddlewareErrorResponse(error: unknown): HttpResponseInit {
   const errorMessage =
     error instanceof Error ? error.message : JSON.stringify(error);
   const jsonBody = problemJsonSchema.parse({
-    detail: `Middleware Error | ${errorMessage}`,
+    detail: errorMessage,
     status: 500,
     title: "Middleware Error",
   });
