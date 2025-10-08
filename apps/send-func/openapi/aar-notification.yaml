@@ -9,10 +9,10 @@ info:
   contact:
     name: pagoPA - Touchpoints team
 servers:
-  - url: https://api-app.io.pagopa.it/api/v1/send
+  - url: https://api-app.io.pagopa.it/api/v1/send/aar
     description: Ambiente di produzione
 paths:
-  /aar/notifications/{iun}:
+  /notifications/{iun}:
     get:
       tags:
         - SEND AAR Notifications
@@ -47,7 +47,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/AARProblemJson"
-  /aar/qr-code-check:
+  /qr-code-check:
     post:
       tags:
         - SEND AAR QRCode
@@ -91,7 +91,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/AARProblemJson"
-  /aar/attachments/{urlEncodedBase64AttachmentUrl}:
+  /attachments/{urlEncodedBase64AttachmentUrl}:
     get:
       operationId: getNotificationAttachment
       tags:
