@@ -89,6 +89,15 @@ export default class SendNotificationClient implements NotificationClient {
         );
       }
 
+      if (response.status === 403) {
+        const parsedError = checkQrMandateResponseSchema.parse(responseJson);
+
+        throw new NotRecipientClientError(
+          `The api responded with HTTP status ${response.status}`,
+          parsedError,
+        );
+      }
+
       if (!response.ok) {
         const problem = problemSchema.parse(responseJson);
 
