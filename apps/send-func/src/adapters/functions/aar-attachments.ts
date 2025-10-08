@@ -106,7 +106,7 @@ function safeParseAttachmentUrl(
       /^\/delivery\/notifications\/received\/([^/]+)\/attachments\/payment\/([^/]+)$/;
 
     const documentsRegex =
-      /^\/delivery\/notifications\/received\/([^/]+)\/attachments\/documents\/([^/]+)$/;
+      /^\/delivery\/notifications\/received\/([^/]+)\/attachments\/documents\/([0-9]+)$/;
 
     const paymentMatch = path.match(paymentRegex);
     if (paymentMatch) {
@@ -135,7 +135,7 @@ function safeParseAttachmentUrl(
       const [, iun, docIdx] = documentMatch;
 
       const parsedIun = iunSchema.parse(iun);
-      const parsedDocIdx = idxSchema.parse(docIdx);
+      const parsedDocIdx = idxSchema.parse(Number(docIdx));
 
       return {
         data: attachmentParamsSchema.parse({
