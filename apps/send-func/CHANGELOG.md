@@ -1,5 +1,11 @@
 # send-func
 
+## 1.3.2
+
+### Patch Changes
+
+- 83bcdbe: fix send aar api
+
 ## 1.3.1
 
 ### Patch Changes
