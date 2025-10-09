@@ -1,0 +1,32 @@
+{
+  "name": "io-nh-utils",
+  "version": "1.0.0",
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "main": "src/index.ts",
+  "type": "commonjs",
+  "scripts": {
+    "export": "ts-node src/export.ts",
+    "import": "ts-node src/import.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint --fix src",
+    "lint:check": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@azure/notification-hubs": "^2.0.2",
+    "commander": "^14.0.1",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^17.2.3",
+    "fast-xml-parser": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
