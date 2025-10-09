@@ -47,10 +47,10 @@ module "web_apps" {
   }
 
   redis_cache = {
-    id         = azurerm_redis_cache.com_new.id
-    hostname   = azurerm_redis_cache.com_new.hostname
-    port       = azurerm_redis_cache.com_new.ssl_port
-    access_key = azurerm_redis_cache.com_new.primary_access_key
+    id         = azurerm_redis_cache.com.id
+    hostname   = azurerm_redis_cache.com.hostname
+    port       = azurerm_redis_cache.com.ssl_port
+    access_key = azurerm_redis_cache.com.primary_access_key
   }
 
   application_insights = {
