@@ -29,15 +29,15 @@ const algoSchemaMap: {
     | typeof assertionRefSha512Schema;
 }[] = [
   {
-    algo: jwkPubKeyHashAlgorithmSchema.Enum.sha256,
+    algo: jwkPubKeyHashAlgorithmSchema.enum.sha256,
     schema: assertionRefSha256Schema,
   },
   {
-    algo: jwkPubKeyHashAlgorithmSchema.Enum.sha384,
+    algo: jwkPubKeyHashAlgorithmSchema.enum.sha384,
     schema: assertionRefSha384Schema,
   },
   {
-    algo: jwkPubKeyHashAlgorithmSchema.Enum.sha512,
+    algo: jwkPubKeyHashAlgorithmSchema.enum.sha512,
     schema: assertionRefSha512Schema,
   },
 ];

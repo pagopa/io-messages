@@ -25,12 +25,12 @@ export const aSignatureInput = lollipopSignatureInputSchema.parse(
 export const anLcParams = lcParamsSchema.parse({
   assertion_file_name: `${aFiscalCode}-${anAssertionRef}`,
   assertion_ref: anAssertionRef,
-  assertion_type: assertionTypeSchema.Enum.OIDC,
+  assertion_type: assertionTypeSchema.enum.OIDC,
   expired_at: new Date(),
   fiscal_code: aFiscalCode,
   lc_authentication_bearer: aBearerToken,
   pub_key: aPubKey,
-  status: pubKeyStatusSchema.Enum.VALID,
+  status: pubKeyStatusSchema.enum.VALID,
   ttl: 900,
   version: 1,
 });

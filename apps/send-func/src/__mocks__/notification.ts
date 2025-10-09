@@ -163,6 +163,7 @@ export const aLollipopHeaders: LollipopHeaders = {
 
 export const aSendHeaders = sendHeadersSchema.parse({
   "x-pagopa-cx-taxid": aFiscalCode,
+  "x-pagopa-pn-io-src": "QR_CODE",
   ...aLollipopHeaders,
 });
 

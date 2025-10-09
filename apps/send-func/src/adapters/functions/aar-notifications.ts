@@ -9,7 +9,7 @@ import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
 
 import {
   AarGetNotificationResponse,
-  problemJsonSchema,
+  aarProblemJsonSchema,
 } from "../send/definitions.js";
 import { NotificationClientError } from "../send/notification.js";
 import { malformedBodyResponse } from "./commons/response.js";
@@ -28,8 +28,7 @@ export const getNotification =
 
     const sendHeaders = {
       "x-pagopa-cx-taxid": lollipopHeaders["x-pagopa-lollipop-user-id"],
-      "x-pagopa-pn-io-src":
-        request.headers.get("x-pagopa-pn-io-src") || undefined,
+      "x-pagopa-pn-io-src": "QR_CODE",
       ...lollipopHeaders,
     };
 
@@ -63,7 +62,7 @@ export const getNotification =
         context.error("Notification client error:", err.message);
 
         return {
-          jsonBody: problemJsonSchema.parse(err.body),
+          jsonBody: aarProblemJsonSchema.parse(err.body),
           status: 500,
         };
       }

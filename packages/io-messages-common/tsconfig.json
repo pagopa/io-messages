@@ -5,6 +5,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "target": "ES2022",
+    "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
     "moduleResolution": "NodeNext",
     "sourceMap": true,

@@ -1,15 +1,12 @@
-import {
-  NotificationClient,
-  checkQrMandateResponseSchema,
-} from "@/domain/notification.js";
+import { NotificationClient } from "@/domain/notification.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
 
 import {
   AarQRCodeCheckResponse,
+  aarProblemJsonSchema,
   checkQrMandateRequestSchema,
-  problemJsonSchema,
 } from "../send/definitions.js";
 import {
   NotRecipientClientError,
@@ -31,8 +28,7 @@ export const aarQRCodeCheck =
 
     const sendHeaders = {
       "x-pagopa-cx-taxid": lollipopHeaders["x-pagopa-lollipop-user-id"],
-      "x-pagopa-pn-io-src":
-        request.headers.get("x-pagopa-pn-io-src") || undefined,
+      "x-pagopa-pn-io-src": "QR_CODE",
       ...lollipopHeaders,
     };
 
@@ -61,7 +57,7 @@ export const aarQRCodeCheck =
       if (err instanceof NotRecipientClientError) {
         context.error("NotRecipient client error:", err.message);
         return {
-          jsonBody: checkQrMandateResponseSchema.parse(err.body),
+          jsonBody: err.body,
           status: 403,
         };
       }
@@ -70,7 +66,7 @@ export const aarQRCodeCheck =
         context.error("Notification client error:", err.message);
 
         return {
-          jsonBody: problemJsonSchema.parse(err.body),
+          jsonBody: aarProblemJsonSchema.parse(err.body),
           status: 500,
         };
       }
