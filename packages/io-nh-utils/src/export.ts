@@ -1,14 +1,15 @@
-import { program } from "commander";
 import { NotificationHubsClient } from "@azure/notification-hubs";
+import { program } from "commander";
 import { createObjectCsvWriter } from "csv-writer";
+
 import {
+  getPagedRegistrations,
   getPager,
   getRegistrations,
-  getPagedRegistrations,
-} from "./notification-hub";
-import { parseConnectionString } from "./notification-hub/utils";
+} from "./notification-hub/index";
 import { RegRow } from "./notification-hub/types";
-import { parseEnvVariable, outputPath } from "./utils";
+import { parseConnectionString } from "./notification-hub/utils";
+import { outputPath, parseEnvVariable } from "./utils/index";
 
 interface IExportOptions {
   connectionString: string;
@@ -23,15 +24,15 @@ const runWithPagination = async ({
   maxRegistrations,
   resumeToken,
 }: IExportOptions) => {
-  const { namespace, keyName, key } = parseConnectionString(connectionString);
+  const { key, keyName, namespace } = parseConnectionString(connectionString);
 
-  const { rows, continuationToken } = await getPagedRegistrations(
-    { namespace, hubName, keyName, key },
+  const { continuationToken, rows } = await getPagedRegistrations(
+    { hubName, key, keyName, namespace },
     maxRegistrations,
     resumeToken,
   );
 
-  return { rows, continuationToken };
+  return { continuationToken, rows };
 };
 
 const run = async ({ connectionString, hubName }: IExportOptions) => {
@@ -46,11 +47,11 @@ const run = async ({ connectionString, hubName }: IExportOptions) => {
 
 const saveCsv = async (rows: RegRow[], path: string) => {
   const csvWriter = createObjectCsvWriter({
-    path,
     header: [
       { id: "registrationId", title: "registrationId" },
       { id: "installationId", title: "installationId" },
     ],
+    path,
   });
   await csvWriter.writeRecords(rows);
 };
@@ -61,10 +62,10 @@ program
   .option("-t, --top [TOP]", "Max amount of registrations to retrieve")
   .option("-k, --token [TOKEN]", "Continuation token for pagination")
   .action(async (options) => {
-    const connectionString = parseEnvVariable("NH_CONNECTION_STRING");
-    const hubName = parseEnvVariable("NH_HUB_NAME");
+    const connectionString = parseEnvVariable("FROM_NH_CONNECTION_STRING");
+    const hubName = parseEnvVariable("FROM_NH_HUB_NAME");
 
-    const { top, token } = options;
+    const { token, top } = options;
     let rows: RegRow[] = [];
     let continuationToken: string | undefined = token;
 
@@ -88,8 +89,10 @@ program
 
     await saveCsv(rows, outputPath());
 
+    //eslint-disable-next-line no-console
     console.log(`Exported ${rows.length} registrations in ${outputPath()}`);
     if (continuationToken)
+      //eslint-disable-next-line no-console
       console.log("Continuation token for next execution:", continuationToken);
   });
 

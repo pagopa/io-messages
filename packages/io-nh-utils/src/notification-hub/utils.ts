@@ -1,6 +1,7 @@
-import crypto from "node:crypto";
-import { XMLParser } from "fast-xml-parser";
 import { RegistrationDescription } from "@azure/notification-hubs";
+import { XMLParser } from "fast-xml-parser";
+import crypto from "node:crypto";
+
 import { RegRow, SasParams } from "./types";
 
 export const parseConnectionString = (connStr: string) => {
@@ -16,9 +17,9 @@ export const parseConnectionString = (connStr: string) => {
   const namespace = endpoint?.split(".")[0];
 
   return {
-    namespace,
-    keyName: map.SharedAccessKeyName,
     key: map.SharedAccessKey,
+    keyName: map.SharedAccessKeyName,
+    namespace,
   };
 };
 
@@ -35,7 +36,7 @@ const extractInstallationId = (tags: string[]): string | undefined => {
 export const formatRow = (registration: RegistrationDescription): RegRow => {
   const registrationId = registration.registrationId;
   const installationId = extractInstallationId(registration.tags || []);
-  return { registrationId, installationId };
+  return { installationId, registrationId };
 };
 
 export const buildSasToken = (
@@ -58,7 +59,7 @@ export const buildSasToken = (
 
 export const fetchRegistrationsPage = async (
   sas: SasParams,
-  top: number = 100,
+  top = 100,
   continuationToken?: string,
 ) => {
   const apiVersion = "2015-01";
@@ -76,11 +77,11 @@ export const fetchRegistrationsPage = async (
   }
 
   const res = await fetch(url.toString(), {
-    method: "GET",
     headers: {
-      "x-ms-version": apiVersion,
       Authorization: buildSasToken(resourceUri, sas.keyName, sas.key),
+      "x-ms-version": apiVersion,
     },
+    method: "GET",
   });
 
   if (!res.ok) {
@@ -97,29 +98,29 @@ export const fetchRegistrationsPage = async (
     ? entriesRaw
     : [entriesRaw].filter(Boolean);
 
-  const rows: RegRow[] = entries.map((e: any) => {
+  const rows: RegRow[] = entries.map((e) => {
     const content = e?.content;
     const [descKey] = Object.keys(content || {}).filter((k) =>
       k.endsWith("RegistrationDescription"),
     );
     const desc = descKey ? content[descKey] : undefined;
     const description = {
+      bodyTemplate: desc?.BodyTemplate,
+      etag: e?.["@_m:etag"] ?? e?.etag,
+      expiry: desc?.Expiry,
+      platform: descKey?.replace("RegistrationDescription", "").toLowerCase(),
+      pushChannel:
+        desc?.DeviceToken || desc?.GcmRegistrationId || desc?.FcmRegistrationId,
       registrationId: desc?.RegistrationId,
       tags: desc?.Tags?.split(",")
         .map((t: string) => t.trim())
         .filter(Boolean),
-      platform: descKey?.replace("RegistrationDescription", "").toLowerCase(),
-      pushChannel:
-        desc?.DeviceToken || desc?.GcmRegistrationId || desc?.FcmRegistrationId,
-      bodyTemplate: desc?.BodyTemplate,
-      expiry: desc?.Expiry,
-      etag: e?.["@_m:etag"] ?? e?.etag,
     };
     return {
-      registrationId: description.registrationId,
       installationId: extractInstallationId(description.tags || []),
+      registrationId: description.registrationId,
     };
   });
 
-  return { rows, continuationToken: nextToken };
+  return { continuationToken: nextToken, rows };
 };
