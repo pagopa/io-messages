@@ -7,7 +7,6 @@ import {
   getPager,
   getRegistrations,
 } from "./notification-hub/index";
-import { RegRow } from "./notification-hub/types";
 import { parseConnectionString } from "./notification-hub/utils";
 import { outputPath, parseEnvVariable } from "./utils/index";
 
@@ -45,28 +44,27 @@ const run = async ({ connectionString, hubName }: IExportOptions) => {
   return { rows };
 };
 
-const saveCsv = async (rows: RegRow[], path: string) => {
+const saveCsv = async (rows: string[], path: string) => {
   const csvWriter = createObjectCsvWriter({
-    header: [
-      { id: "registrationId", title: "registrationId" },
-      { id: "installationId", title: "installationId" },
-    ],
+    header: [{ id: "installationId", title: "installationId" }],
     path,
   });
-  await csvWriter.writeRecords(rows);
+  await csvWriter.writeRecords(
+    rows.map((installationId) => ({ installationId })),
+  );
 };
 
 program
   .version("1.0.0")
   .description("Export Notification Hub registrations to CSV")
-  .option("-t, --top [TOP]", "Max amount of registrations to retrieve")
+  .option("-t, --top [TOP]", "Max amount of registrations to retrieve", "1000")
   .option("-k, --token [TOKEN]", "Continuation token for pagination")
   .action(async (options) => {
     const connectionString = parseEnvVariable("FROM_NH_CONNECTION_STRING");
     const hubName = parseEnvVariable("FROM_NH_HUB_NAME");
 
     const { token, top } = options;
-    let rows: RegRow[] = [];
+    let rows: string[] = [];
     let continuationToken: string | undefined = token;
 
     if (top) {

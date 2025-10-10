@@ -54,24 +54,24 @@ export const getPager = (
 export const getRegistrations = async (
   pager: AsyncIterableIterator<RegistrationDescription[]>,
   max?: number,
-): Promise<{ continuationToken: string | undefined; rows: RegRow[] }> => {
-  const rows: RegRow[] = [];
+): Promise<{ continuationToken: string | undefined; rows: string[] }> => {
+  const rows: Set<string> = new Set();
   let continuationToken: string | undefined;
   let continueLoop = true;
   while (continueLoop) {
     const page = await pager.next();
     continuationToken = page?.value?.continuationToken;
 
-    rows.push(...(page?.value?.map(formatRow) || []));
+    page?.value?.forEach((row) => rows.add(formatRow(row).installationId));
 
     continueLoop = max
-      ? !(page?.done || !page?.value?.length) && rows.length <= max
+      ? !(page?.done || !page?.value?.length) && rows.size <= max
       : !(page?.done || !page?.value?.length);
   }
 
   return {
     continuationToken,
-    rows,
+    rows: Array.from(rows),
   };
 };
 
@@ -80,9 +80,11 @@ export const getPagedRegistrations = async (
   top = 100,
   token?: string,
 ) => {
-  const registrations: RegRow[] = [];
+  const installation: Set<string> = new Set();
   const pageSize = Math.min(500, Math.max(1, top));
   let nextToken: string | undefined = token;
+
+  const start = Date.now();
 
   do {
     const { continuationToken, rows } = await fetchRegistrationsPage(
@@ -91,14 +93,23 @@ export const getPagedRegistrations = async (
       nextToken,
     );
 
-    registrations.push(...rows);
+    rows.forEach((row) => installation.add(row.installationId));
     nextToken = continuationToken;
 
     //eslint-disable-next-line no-console
     console.log(
-      `Fetched ${rows.length} registrations, total ${registrations.length} out of ${top}`,
+      `${new Date(Date.now()).toLocaleString("it-IT")} - Fetched ${rows.length} registrations, total installations: ${installation.size} out of ${top}`,
     );
-  } while (nextToken && registrations.length < top);
+  } while (nextToken && installation.size < top);
 
-  return { continuationToken: nextToken, rows: registrations };
+  const end = Date.now();
+  const diffMs = end - start;
+  const minutes = Math.floor(diffMs / 60000);
+  const seconds = Math.floor((diffMs % 60000) / 1000);
+  //eslint-disable-next-line no-console
+  console.log(
+    `Fetched ${installation.size} installations in ${minutes}m ${seconds}s`,
+  );
+
+  return { continuationToken: nextToken, rows: Array.from(installation) };
 };
