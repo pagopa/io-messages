@@ -88,7 +88,7 @@ export const getPagedRegistrations = async (
     const { continuationToken, rows } = await fetchRegistrationsPage(
       sas,
       pageSize,
-      token,
+      nextToken,
     );
 
     registrations.push(...rows);
