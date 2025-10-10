@@ -25,7 +25,8 @@ const messageStatusIngestionHandler =
 
     // get all malformed documents so we can send them to the error repository
     const malformedDocuments = parsedMessageStatusesOrZodError.filter(
-      (document): document is ZodError => document instanceof ZodError,
+      (document): document is ZodError<MessageStatus> =>
+        document instanceof ZodError,
     );
 
     try {
