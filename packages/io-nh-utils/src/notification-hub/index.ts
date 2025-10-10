@@ -93,6 +93,11 @@ export const getPagedRegistrations = async (
 
     registrations.push(...rows);
     nextToken = continuationToken;
+
+    //eslint-disable-next-line no-console
+    console.log(
+      `Fetched ${rows.length} registrations, total ${registrations.length} out of ${top}`,
+    );
   } while (nextToken && registrations.length < top);
 
   return { continuationToken: nextToken, rows: registrations };
