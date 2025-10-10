@@ -33,8 +33,10 @@ const run = async ({
     toNotificationHub.hubName,
   );
 
-  for await (const row of rows) {
-    await migrateInstallation(fromClient, toClient, row.installationId);
+  const installationIds = [...new Set(rows.map((r) => r.installationId))];
+
+  for await (const installationId of installationIds) {
+    await migrateInstallation(fromClient, toClient, installationId);
   }
 };
 
