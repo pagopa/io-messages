@@ -1,6 +1,5 @@
 export interface RegRow {
   installationId: string;
-  registrationId: string;
 }
 
 export interface SasParams {

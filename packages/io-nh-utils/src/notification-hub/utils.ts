@@ -34,9 +34,8 @@ const extractInstallationId = (tags: string[]): string | undefined => {
 };
 
 export const formatRow = (registration: RegistrationDescription): RegRow => {
-  const registrationId = registration.registrationId;
   const installationId = extractInstallationId(registration.tags || []);
-  return { installationId, registrationId };
+  return { installationId };
 };
 
 export const buildSasToken = (
