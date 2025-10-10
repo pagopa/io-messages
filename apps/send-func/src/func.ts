@@ -11,7 +11,9 @@ import { aarQRCodeCheck } from "./adapters/functions/aar-qrcode-check.js";
 import { healthcheck } from "./adapters/functions/health.js";
 import SendNotificationClient from "./adapters/send/notification.js";
 import { GetAttachmentUseCase } from "./domain/use-cases/get-attachment.js";
+import { GetNotificationUseCase } from "./domain/use-cases/get-notification.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
+import { QrCodeCheckUseCase } from "./domain/use-cases/qr-code-check.js";
 
 const main = async (config: Config): Promise<void> => {
   const healthcheckUseCase = new HealthUseCase([]);
@@ -27,6 +29,10 @@ const main = async (config: Config): Promise<void> => {
     );
   };
 
+  const qrCodeCheckUseCase = new QrCodeCheckUseCase(getNotificationClient);
+  const getNotificationUseCase = new GetNotificationUseCase(
+    getNotificationClient,
+  );
   const getAttachmentUseCase = new GetAttachmentUseCase(getNotificationClient);
 
   const lollipopClient = new LollipopClient(
@@ -46,7 +52,7 @@ const main = async (config: Config): Promise<void> => {
     authLevel: "anonymous",
     handler: handlerWithMiddleware(
       lollipopMiddleware,
-      aarQRCodeCheck(getNotificationClient),
+      aarQRCodeCheck(qrCodeCheckUseCase),
     ),
     methods: ["POST"],
     route: "aar/qr-code-check",
@@ -56,7 +62,7 @@ const main = async (config: Config): Promise<void> => {
     authLevel: "anonymous",
     handler: handlerWithMiddleware(
       lollipopMiddleware,
-      getNotification(getNotificationClient),
+      getNotification(getNotificationUseCase),
     ),
     methods: ["GET"],
     route: "aar/notifications/{iun}",

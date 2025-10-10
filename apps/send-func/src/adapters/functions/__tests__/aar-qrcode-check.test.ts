@@ -5,22 +5,19 @@ import {
   aSendHeaders,
   anAarQrCodeValue,
   anInvalidAarQrCodeValue,
-  createMockNotificationClient,
+  mockNotificationClient,
 } from "@/__mocks__/notification.js";
 import { NotificationClientError } from "@/adapters/send/notification.js";
+import { QrCodeCheckUseCase } from "@/domain/use-cases/qr-code-check.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 
 import { aarQRCodeCheck } from "../aar-qrcode-check.js";
 
-const notificationClient = createMockNotificationClient();
-const uatNotificationClient = createMockNotificationClient();
-
-const getNotificationClient = (isTest: boolean) =>
-  isTest ? uatNotificationClient : notificationClient;
-
-const handler = aarQRCodeCheck(getNotificationClient);
+const getNotificationClientMock = vi.fn(() => mockNotificationClient);
+const qrCodeCheckUseCase = new QrCodeCheckUseCase(getNotificationClientMock);
+const handler = aarQRCodeCheck(qrCodeCheckUseCase);
 
 const context = new InvocationContext();
 
@@ -31,6 +28,8 @@ const anAarBodyString = JSON.stringify({
 const anInvalidAarBodyString = JSON.stringify({
   aarQrCodeValue: anInvalidAarQrCodeValue,
 });
+
+const qrCodeCheckExecuteSpy = vi.spyOn(qrCodeCheckUseCase, "execute");
 
 describe("AARQrCodeCheck", () => {
   beforeEach(() => {
@@ -49,30 +48,10 @@ describe("AARQrCodeCheck", () => {
       status: 200,
     });
 
-    expect(notificationClient.checkAarQrCodeIO).toHaveBeenCalledWith(
-      anAarQrCodeValue,
+    expect(qrCodeCheckExecuteSpy).toHaveBeenCalledWith(
+      false,
       aSendHeaders,
-    );
-    expect(uatNotificationClient.checkAarQrCodeIO).not.toHaveBeenCalled();
-  });
-
-  it("should use uatNotificationClient when isTest=true", async () => {
-    const request = new HttpRequest({
-      body: { string: anAarBodyString },
-      method: "POST",
-      query: { isTest: "true" },
-      url: "http://localhost",
-    });
-
-    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
-      jsonBody: aCheckQrMandateResponse,
-      status: 200,
-    });
-
-    expect(notificationClient.checkAarQrCodeIO).not.toHaveBeenCalled();
-    expect(uatNotificationClient.checkAarQrCodeIO).toHaveBeenCalledWith(
       anAarQrCodeValue,
-      aSendHeaders,
     );
   });
 
@@ -92,12 +71,11 @@ describe("AARQrCodeCheck", () => {
       status: 400,
     });
 
-    expect(notificationClient.checkAarQrCodeIO).not.toHaveBeenCalled();
-    expect(uatNotificationClient.checkAarQrCodeIO).not.toHaveBeenCalled();
+    expect(qrCodeCheckExecuteSpy).not.toHaveBeenCalled();
   });
 
   it("returns 500 status code for all the others errors", async () => {
-    notificationClient.checkAarQrCodeIO.mockImplementationOnce(() =>
+    qrCodeCheckExecuteSpy.mockImplementationOnce(() =>
       Promise.reject(
         new NotificationClientError("Notification client error", 503, aProblem),
       ),
@@ -114,6 +92,6 @@ describe("AARQrCodeCheck", () => {
       status: 500,
     });
 
-    expect(notificationClient.checkAarQrCodeIO).toHaveBeenCalledOnce();
+    expect(qrCodeCheckExecuteSpy).toHaveBeenCalledOnce();
   });
 });

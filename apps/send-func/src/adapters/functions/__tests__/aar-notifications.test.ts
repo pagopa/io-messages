@@ -5,23 +5,24 @@ import {
   aSendHeaders,
   aThirdPartyMessage,
   anIvalidMandateId,
-  createMockNotificationClient,
+  mockNotificationClient,
 } from "@/__mocks__/notification.js";
 import { NotificationClientError } from "@/adapters/send/notification.js";
+import { GetNotificationUseCase } from "@/domain/use-cases/get-notification.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getNotification } from "../aar-notifications.js";
 
-const notificationClient = createMockNotificationClient();
-const uatNotificationClient = createMockNotificationClient();
-
-const getNotificationClient = (isTest: boolean) =>
-  isTest ? uatNotificationClient : notificationClient;
-
-const handler = getNotification(getNotificationClient);
+const getNotificationClientMock = vi.fn(() => mockNotificationClient);
+const getNotificationUseCase = new GetNotificationUseCase(
+  getNotificationClientMock,
+);
+const handler = getNotification(getNotificationUseCase);
 
 const context = new InvocationContext();
+
+const getNotifiationExecuteSpy = vi.spyOn(getNotificationUseCase, "execute");
 
 describe("GetAARNotification", () => {
   beforeEach(() => {
@@ -40,14 +41,12 @@ describe("GetAARNotification", () => {
       status: 200,
     });
 
-    expect(notificationClient.getReceivedNotification).toHaveBeenCalledWith(
-      aIun,
+    expect(getNotifiationExecuteSpy).toHaveBeenCalledWith(
+      false,
       aSendHeaders,
+      aIun,
       undefined,
     );
-    expect(
-      uatNotificationClient.getReceivedNotification,
-    ).not.toHaveBeenCalled();
 
     const mandateId = crypto.randomUUID();
     request.query.set("mandateId", mandateId);
@@ -55,31 +54,11 @@ describe("GetAARNotification", () => {
       jsonBody: aThirdPartyMessage,
       status: 200,
     });
-    expect(notificationClient.getReceivedNotification).toHaveBeenCalledWith(
-      aIun,
+    expect(getNotifiationExecuteSpy).toHaveBeenCalledWith(
+      false,
       aSendHeaders,
+      aIun,
       mandateId,
-    );
-  });
-
-  it("should use uatNotificationClient when isTest=true", async () => {
-    const request = new HttpRequest({
-      method: "GET",
-      params: { iun: aIun },
-      query: { isTest: "true" },
-      url: "http://localhost",
-    });
-
-    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
-      jsonBody: aThirdPartyMessage,
-      status: 200,
-    });
-
-    expect(notificationClient.getReceivedNotification).not.toHaveBeenCalled();
-    expect(uatNotificationClient.getReceivedNotification).toHaveBeenCalledWith(
-      aIun,
-      aSendHeaders,
-      undefined,
     );
   });
 
@@ -102,7 +81,7 @@ describe("GetAARNotification", () => {
   });
 
   it("returns 500 status code for all the others errors", async () => {
-    notificationClient.getReceivedNotification.mockImplementationOnce(() =>
+    getNotifiationExecuteSpy.mockImplementationOnce(() =>
       Promise.reject(
         new NotificationClientError("Notification client error", 503, aProblem),
       ),
@@ -119,6 +98,6 @@ describe("GetAARNotification", () => {
       status: 500,
     });
 
-    expect(notificationClient.getReceivedNotification).toHaveBeenCalledOnce();
+    expect(getNotifiationExecuteSpy).toHaveBeenCalledOnce();
   });
 });

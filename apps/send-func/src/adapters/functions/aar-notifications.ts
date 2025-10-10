@@ -1,8 +1,5 @@
-import {
-  NotificationClient,
-  iunSchema,
-  mandateIdSchema,
-} from "@/domain/notification.js";
+import { iunSchema, mandateIdSchema } from "@/domain/notification.js";
+import { GetNotificationUseCase } from "@/domain/use-cases/get-notification.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
@@ -16,7 +13,7 @@ import { malformedBodyResponse } from "./commons/response.js";
 
 export const getNotification =
   (
-    getSendClient: (isTest: boolean) => NotificationClient,
+    getNotificationUseCase: GetNotificationUseCase,
   ): ExtentedHttpHandler<LollipopHeaders> =>
   async (
     request: HttpRequest,
@@ -24,7 +21,6 @@ export const getNotification =
     lollipopHeaders: LollipopHeaders,
   ): Promise<AarGetNotificationResponse> => {
     const isTest = request.query.get("isTest") === "true";
-    const client = getSendClient(isTest);
 
     const sendHeaders = {
       "x-pagopa-cx-taxid": lollipopHeaders["x-pagopa-lollipop-user-id"],
@@ -50,9 +46,10 @@ export const getNotification =
         "Bad Request",
       );
     try {
-      const response = await client.getReceivedNotification(
-        iun.data,
+      const response = await getNotificationUseCase.execute(
+        isTest,
         sendHeaders,
+        iun.data,
         parsedMandateId.data,
       );
 
