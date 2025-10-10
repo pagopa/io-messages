@@ -1,5 +1,11 @@
 # io-messages-common
 
+## 1.3.1
+
+### Patch Changes
+
+- 0863b13: update zod to version 4
+
 ## 1.3.0
 
 ### Minor Changes
