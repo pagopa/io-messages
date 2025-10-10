@@ -122,7 +122,7 @@ describe("NotificationClient.checkAarQrCodeIO", () => {
       client.checkAarQrCodeIO(anAarQrCodeValue, aSendHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
-        message: "Error during checkAarQrCodeIO api call | Network error",
+        message: "Network error",
       }),
     );
 
@@ -209,8 +209,7 @@ describe("NotificationClient.getReceivedNotification", () => {
       client.getReceivedNotification(aIun, aSendHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
-        message:
-          "Error during getReceivedNotification api call | Network error",
+        message: "Network error",
       }),
     );
 
@@ -308,8 +307,7 @@ describe("NotificationClient.getReceivedNotificationAttachment", () => {
       ),
     ).rejects.toEqual(
       expect.objectContaining({
-        message:
-          "Error during getReceivedNotificationAttachment api call | Network error",
+        message: "Network error",
       }),
     );
 
@@ -399,8 +397,7 @@ describe("NotificationClient.getReceivedNgetReceivedNotificationDocumentotificat
       client.getReceivedNotificationDocument(aIun, aDocIdx, aSendHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
-        message:
-          "Error during getReceivedNotificationDocument api call | Network error",
+        message: "Network error",
       }),
     );
 

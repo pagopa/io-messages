@@ -12,10 +12,12 @@ import {
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
+import * as z from "zod";
+import { ZodError } from "zod";
 
 import {
   AarGetAttachmentResponse,
-  problemJsonSchema,
+  aarProblemJsonSchema,
 } from "../send/definitions.js";
 import { NotificationClientError } from "../send/notification.js";
 import { malformedBodyResponse } from "./commons/response.js";
@@ -33,8 +35,7 @@ export const getAttachment =
 
     const sendHeaders = {
       "x-pagopa-cx-taxid": lollipopHeaders["x-pagopa-lollipop-user-id"],
-      "x-pagopa-pn-io-src":
-        request.headers.get("x-pagopa-pn-io-src") || undefined,
+      "x-pagopa-pn-io-src": "QR_CODE",
       ...lollipopHeaders,
     };
 
@@ -54,10 +55,7 @@ export const getAttachment =
     );
 
     if (!attachmentParams.success)
-      return malformedBodyResponse(
-        attachmentParams.error.message,
-        "Bad Request",
-      );
+      return malformedBodyResponse(attachmentParams.error, "Bad Request");
 
     try {
       const response = await getAttachmentUseCase.execute(
@@ -71,7 +69,7 @@ export const getAttachment =
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
 
-        const problemJson = problemJsonSchema.parse(err.body);
+        const problemJson = aarProblemJsonSchema.parse(err.body);
 
         return {
           jsonBody: problemJson,
@@ -79,10 +77,14 @@ export const getAttachment =
         };
       }
 
+      const errorMessage =
+        err instanceof Error ? err.message : JSON.stringify(err);
+      context.error(err);
       return {
         jsonBody: {
-          detail: "Internal server error",
+          detail: errorMessage,
           status: 500,
+          title: "Internal server error",
         },
         status: 500,
       };
@@ -93,7 +95,7 @@ function safeParseAttachmentUrl(
   urlEncodedBase64Url: string,
 ):
   | { data: AttachmentParams; success: true }
-  | { error: Error; success: false } {
+  | { error: string; success: false } {
   try {
     const base64Url = decodeURIComponent(urlEncodedBase64Url);
     const base64UrlBuffer = Buffer.from(base64Url, "base64");
@@ -151,9 +153,11 @@ function safeParseAttachmentUrl(
   } catch (error) {
     return {
       error:
-        error instanceof Error
-          ? error
-          : new Error(`Malformed attachmentUrl ${urlEncodedBase64Url}`),
+        error instanceof ZodError
+          ? JSON.stringify(z.flattenError(error))
+          : error instanceof Error
+            ? error.message
+            : `Malformed attachmentUrl ${urlEncodedBase64Url}`,
       success: false,
     };
   }
