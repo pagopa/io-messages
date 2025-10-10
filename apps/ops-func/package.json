@@ -1,7 +1,7 @@
 {
   "name": "ops-func",
   "main": "dist/func.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
     "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node20 --outdir=dist --packages=external",

@@ -1,5 +1,13 @@
 # send-func
 
+## 1.3.4
+
+### Patch Changes
+
+- 0863b13: update zod to version 4
+- Updated dependencies [0863b13]
+  - io-messages-common@1.3.1
+
 ## 1.3.3
 
 ### Patch Changes

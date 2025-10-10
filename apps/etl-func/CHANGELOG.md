@@ -1,5 +1,13 @@
 # etl-func
 
+## 1.0.5
+
+### Patch Changes
+
+- 0863b13: update zod to version 4
+- Updated dependencies [0863b13]
+  - io-messages-common@1.3.1
+
 ## 1.0.4
 
 ### Patch Changes
