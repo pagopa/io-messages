@@ -76,8 +76,8 @@ resource "azurerm_monitor_metric_alert" "com_redis_memory_alert" {
 
   criteria {
     metric_namespace = "Microsoft.Cache/redis"
-    metric_name      = "Used Memory Percentage"
-    aggregation      = "Average"
+    metric_name      = "usedmemorypercentage"
+    aggregation      = "Maximum"
     operator         = "GreaterThanOrEqual"
     threshold        = 80
   }
@@ -102,8 +102,8 @@ resource "azurerm_monitor_metric_alert" "com_redis_server_load_alert" {
 
   criteria {
     metric_namespace = "Microsoft.Cache/redis"
-    metric_name      = "Server Load"
-    aggregation      = "Average"
+    metric_name      = "serverLoad"
+    aggregation      = "Maximum"
     operator         = "GreaterThan"
     threshold        = 75
   }
