@@ -209,8 +209,7 @@ describe("NotificationClient.getReceivedNotification", () => {
       client.getReceivedNotification(aIun, aSendHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
-        message:
-          "Network error",
+        message: "Network error",
       }),
     );
 
