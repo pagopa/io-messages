@@ -37,6 +37,12 @@ const run = async ({
 
   for await (const installationId of installationIds) {
     await migrateInstallation(fromClient, toClient, installationId);
+    if (installationIds.indexOf(installationId) % 100 === 0) {
+      //eslint-disable-next-line no-console
+      console.log(
+        `${new Date(Date.now()).toLocaleString("it-IT")} - Imported ${installationIds.indexOf(installationId)} installations...`,
+      );
+    }
   }
 };
 

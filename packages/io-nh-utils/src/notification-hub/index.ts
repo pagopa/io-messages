@@ -81,7 +81,7 @@ export const getPagedRegistrations = async (
   token?: string,
 ) => {
   const installation: Set<string> = new Set();
-  const pageSize = Math.min(500, Math.max(1, top));
+  const pageSize = Math.min(100, Math.max(1, top));
   let nextToken: string | undefined = token;
 
   const start = Date.now();

@@ -37,7 +37,7 @@ const runWithPagination = async ({
 const run = async ({ connectionString, hubName }: IExportOptions) => {
   const client = new NotificationHubsClient(connectionString, hubName);
 
-  const pager = getPager(client, 500);
+  const pager = getPager(client, 100);
 
   const { rows } = await getRegistrations(pager, 20);
 
