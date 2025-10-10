@@ -9,6 +9,7 @@
   "scripts": {
     "export": "tsx src/export.ts",
     "import": "tsx src/import.ts",
+    "delete": "tsx src/delete.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint --fix src",

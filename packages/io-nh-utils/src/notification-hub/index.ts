@@ -14,12 +14,52 @@ import {
 } from "./types";
 import { fetchRegistrationsPage, formatRow } from "./utils";
 
+export const deleteInstallation = async (
+  client: NotificationHubsClient,
+  installationId: string,
+) => {
+  try {
+    await client.deleteInstallation(installationId);
+  } catch (err: any) {
+    console.error(
+      `Error deleting installation ${installationId}: ${err.message}`,
+    );
+  }
+};
+
+export const createInstallation = async (
+  client: NotificationHubsClient,
+  installation: Installation,
+) => {
+  try {
+    await client.createOrUpdateInstallation(installation);
+  } catch (err: any) {
+    console.error(
+      `Error creating installation ${installation.installationId}: ${err.message}`,
+    );
+  }
+};
+
+export const getInstallation = async (
+  client: NotificationHubsClient,
+  installationId: string,
+): Promise<Installation | undefined> => {
+  try {
+    const installation = await client.getInstallation(installationId);
+    return installation;
+  } catch (err: any) {
+    console.error(
+      `Error fetching installation ${installationId}: ${err.message}`,
+    );
+  }
+};
+
 export const migrateInstallation = async (
   fromClient: NotificationHubsClient,
   toClient: NotificationHubsClient,
   installationId: string,
 ) => {
-  const installation = await fromClient.getInstallation(installationId);
+  const installation = await getInstallation(fromClient, installationId);
   if (installation) {
     const newInstallation: Installation = {
       ...installation,
@@ -38,7 +78,7 @@ export const migrateInstallation = async (
         },
       },
     };
-    await toClient.createOrUpdateInstallation(newInstallation);
+    await createInstallation(toClient, newInstallation);
   }
 };
 
