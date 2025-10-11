@@ -172,3 +172,36 @@ variable "key_vault" {
     id   = string
   })
 }
+
+variable "nh_itn_partition_1" {
+  type = object({
+    id       = string
+    name     = string
+    endpoint = string
+    regex    = string
+  })
+}
+variable "nh_itn_partition_2" {
+  type = object({
+    id       = string
+    name     = string
+    endpoint = string
+    regex    = string
+  })
+}
+variable "nh_itn_partition_3" {
+  type = object({
+    id       = string
+    name     = string
+    endpoint = string
+    regex    = string
+  })
+}
+variable "nh_itn_partition_4" {
+  type = object({
+    id       = string
+    name     = string
+    endpoint = string
+    regex    = string
+  })
+}

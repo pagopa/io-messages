@@ -34,8 +34,6 @@ Those are all Environment variables needed by the application:
 
 | Variable name       | Description                                                                            | type   | Required |
 | ------------------- | -------------------------------------------------------------------------------------- | ------ | -------- |
-| AZURE_NH_HUB_NAME   | The name of the Legacy Notification Hub                                                | string | true     |
-| AZURE_NH_ENDPOINT   | The endpoint of the Legacy Notification Hub Namespace                                  | string | true     |
 | NH1_ENDPOINT        | The endpoint of the first namespace of Notification Hub                                | string | true     |
 | NH1_NAME            | The name of the Notification Hub in the first namespace                                | string | true     |
 | NH1_PARTITION_REGEX | The regex which defines the user subset associated with the first namespace Namespace  | string | true     |

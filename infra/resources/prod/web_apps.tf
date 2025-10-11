@@ -79,4 +79,17 @@ module "web_apps" {
   cqrs_func_ehns_enabled = true
 
   session_manager_base_url = "https://${data.azurerm_linux_function_app.session_manager_internal.default_hostname}"
+
+  nh_itn_partition_1 = merge(module.notification_hubs_itn.nh_itn_partition_1, {
+    regex = "^[0-3]",
+  })
+  nh_itn_partition_2 = merge(module.notification_hubs_itn.nh_itn_partition_2, {
+    regex = "^[4-7]",
+  })
+  nh_itn_partition_3 = merge(module.notification_hubs_itn.nh_itn_partition_3, {
+    regex = "^[8-b]",
+  })
+  nh_itn_partition_4 = merge(module.notification_hubs_itn.nh_itn_partition_4, {
+    regex = "^[c-f]",
+  })
 }
