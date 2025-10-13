@@ -1,5 +1,11 @@
 # etl-func
 
+## 1.0.6
+
+### Patch Changes
+
+- a2f90f4: Enable IngestMessageStatus function
+
 ## 1.0.5
 
 ### Patch Changes
