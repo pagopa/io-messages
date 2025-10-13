@@ -330,7 +330,15 @@ export const enrichMessagesStatus =
       TE.bind("lastMessageStatus", ({ messages }) =>
         pipe(
           messages.map((m) => m.id),
-          (ids) => getMessageStatusLastVersion(messageStatusModel, ids),
+          // if the messages array is empty we don't want to call the
+          // message-status collection to avoid execution of a query with empty
+          // array parameter
+          (ids) =>
+            ids.length > 0
+              ? getMessageStatusLastVersion(messageStatusModel, ids)
+              : TE.of<Error, Record<NonEmptyString, RetrievedMessageStatus>>(
+                  {},
+                ),
         ),
       ),
 
