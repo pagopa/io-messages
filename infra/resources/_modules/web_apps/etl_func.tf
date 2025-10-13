@@ -47,10 +47,12 @@ module "etl_func" {
 
   health_check_path = "/api/health"
 
-  app_settings      = local.etl_func.app_settings
-  slot_app_settings = local.etl_func.app_settings
+  app_settings = local.etl_func.app_settings
 
-  sticky_app_setting_names = ["NODE_ENV"]
+  sticky_app_setting_names = ["NODE_ENV", "AzureWebJobs.IngestMessageStatus.Disabled"]
+  slot_app_settings = merge(local.etl_func.app_settings, {
+    "AzureWebJobs.IngestMessageStatus.Disabled" = "1"
+  })
 
   virtual_network = var.virtual_network
 

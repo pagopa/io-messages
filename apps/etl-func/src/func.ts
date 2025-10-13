@@ -183,7 +183,7 @@ const main = async (config: Config) => {
       telemetryService,
     ),
     leaseContainerName: "dataplan-ingestion-lease",
-    leaseContainerPrefix: "message-status-1",
+    leaseContainerPrefix: "message-status-1-",
     maxItemsPerInvocation: 50,
     retry: {
       maxRetryCount: 5,
