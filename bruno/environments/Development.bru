@@ -4,9 +4,18 @@ vars {
   citizen_func_url: http://localhost:7072
   services_func_url: http://localhost:7073
   pushnotif_func_url: http://localhost:7071
-  send_func_url: http://localhost:7074
+  send_func_url: http://localhost:7074/api/v1/send
   sender_email: example@domain.com
   sender_subscription_id: 01JR0QRJ8MX1PD06DE6X5FWXS5
   sender_user_id: 01JR0QRJ8MX1PD06DE6X5FWXS5
   receipt_id: 192.168.1.89
+  session-manager-base-url: https://io-p-weu-session-manager-app-03.azurewebsites.net/api/auth/v1
+  send-func-is-test: true
 }
+vars:secret [
+  send-func-signature-input,
+  send-func-x-user,
+  test_user_password,
+  signature,
+  login-user-token
+]
