@@ -1,3 +1,4 @@
+import { MessageStatusExtendedQueryModel } from "@/model/message_status_query";
 import { Context } from "@azure/functions";
 import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
 import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
@@ -41,6 +42,7 @@ import {
   CreatedMessageWithoutContentWithStatus,
   ThirdPartyDataWithCategoryFetcher,
   computeFlagFromHasPrecondition,
+  enrichMessagesStatus,
   enrichServiceData,
   getThirdPartyDataWithCategoryFetcher,
   mapMessageCategory,
@@ -125,6 +127,12 @@ const findLastVersionByModelIdMock = vi
 const serviceModelMock = {
   findLastVersionByModelId: findLastVersionByModelIdMock,
 } as unknown as ServiceModel;
+
+const findAllVersionsByModelIdInMock = vi.fn();
+
+const messageStatusModelMock = {
+  findAllVersionsByModelIdIn: findAllVersionsByModelIdInMock,
+} as unknown as MessageStatusExtendedQueryModel;
 
 const functionsContextMock = {
   log: {
@@ -508,5 +516,20 @@ describe("computeFlagFromHasPrecondition", () => {
     expect(
       computeFlagFromHasPrecondition(HasPreconditionEnum.ALWAYS, true),
     ).toBeTruthy();
+  });
+});
+
+describe("enrichMessagesStatus", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("given an empty messages array, it should not call the findAllVersionsByModelIdIn in the messageStatusModel", async () => {
+    await enrichMessagesStatus(
+      functionsContextMock,
+      messageStatusModelMock,
+    )([])();
+
+    expect(findAllVersionsByModelIdInMock).not.toHaveBeenCalled();
   });
 });

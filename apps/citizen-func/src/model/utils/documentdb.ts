@@ -7,6 +7,8 @@ import * as t from "io-ts";
  *
  * Pass the partitionKey field / values if it differs from the modelId
  * to avoid multi-partition queries.
+ *
+ * Don't call this method with an empty array to avoid useless query execution.
  */
 export function findAllVersionsByModelIdIn<TR>(
   container: Container,
