@@ -195,7 +195,7 @@ const main = async (config: Config) => {
       },
       strategy: "exponentialBackoff",
     },
-    startFromTime: "2025/07/07T00:00:00Z",
+    startFromTime: "2023/01/01T00:00:00Z",
   });
 };
 
