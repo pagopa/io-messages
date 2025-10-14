@@ -21,7 +21,7 @@ const getNotificationClient = (isTest: boolean) =>
 
 const getAttachmentUseCase = new GetAttachmentUseCase(getNotificationClient);
 
-describe("ingestMessageStatusUseCase execute", () => {
+describe("getAttachmentUseCase execute", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
