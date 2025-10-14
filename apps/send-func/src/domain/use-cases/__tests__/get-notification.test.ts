@@ -1,5 +1,4 @@
 import {
-  aCheckQrMandateResponse,
   aIun,
   aSendHeaders,
   aThirdPartyMessage,
