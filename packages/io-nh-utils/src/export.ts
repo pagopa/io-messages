@@ -1,57 +1,40 @@
-import { NotificationHubsClient } from "@azure/notification-hubs";
 import { program } from "commander";
 import { createObjectCsvWriter } from "csv-writer";
+import fs from "fs";
 
-import {
-  getPagedRegistrations,
-  getPager,
-  getRegistrations,
-} from "./notification-hub/index";
+import { getPagedRegistrations } from "./notification-hub/index";
+import { RegRow } from "./notification-hub/types";
 import { parseConnectionString } from "./notification-hub/utils";
-import { outputPath, parseEnvVariable } from "./utils/index";
+import { outputPath, parseEnvVariable, readCsv } from "./utils/index";
 
 interface IExportOptions {
   connectionString: string;
+  exportFunction?: (rows: string[]) => Promise<void>;
   hubName: string;
   maxRegistrations?: number;
+  oldInstallations?: string[];
   resumeToken?: string;
 }
 
 const runWithPagination = async ({
   connectionString,
+  exportFunction,
   hubName,
   maxRegistrations,
+  oldInstallations,
   resumeToken,
 }: IExportOptions) => {
   const { key, keyName, namespace } = parseConnectionString(connectionString);
 
-  const { continuationToken, rows } = await getPagedRegistrations(
-    { hubName, key, keyName, namespace },
-    maxRegistrations,
-    resumeToken,
-  );
+  const { continuationToken, rows } = await getPagedRegistrations({
+    exportFunction,
+    oldInstallations,
+    sas: { hubName, key, keyName, namespace },
+    token: resumeToken,
+    top: maxRegistrations,
+  });
 
   return { continuationToken, rows };
-};
-
-const run = async ({ connectionString, hubName }: IExportOptions) => {
-  const client = new NotificationHubsClient(connectionString, hubName);
-
-  const pager = getPager(client, 100);
-
-  const { rows } = await getRegistrations(pager, 20);
-
-  return { rows };
-};
-
-const saveCsv = async (rows: string[], path: string) => {
-  const csvWriter = createObjectCsvWriter({
-    header: [{ id: "installationId", title: "installationId" }],
-    path,
-  });
-  await csvWriter.writeRecords(
-    rows.map((installationId) => ({ installationId })),
-  );
 };
 
 program
@@ -59,36 +42,48 @@ program
   .description("Export Notification Hub registrations to CSV")
   .option("-t, --top [TOP]", "Max amount of registrations to retrieve", "1000")
   .option("-k, --token [TOKEN]", "Continuation token for pagination")
+  .option("-p, --path [PATH]", "Full path to the CSV file", outputPath())
   .action(async (options) => {
     const connectionString = parseEnvVariable("FROM_NH_CONNECTION_STRING");
     const hubName = parseEnvVariable("FROM_NH_HUB_NAME");
 
-    const { token, top } = options;
+    const { path, token, top } = options;
     let rows: string[] = [];
     let continuationToken: string | undefined = token;
+    let oldInstallations: string[] = [];
 
-    if (top) {
-      const maxRegistrations = parseInt(top, 10);
-      const result = await runWithPagination({
-        connectionString,
-        hubName,
-        maxRegistrations,
-        resumeToken: token,
-      });
-      rows = result.rows;
-      continuationToken = result.continuationToken;
-    } else {
-      const result = await run({
-        connectionString,
-        hubName,
-      });
-      rows = result.rows;
+    const fileExists = fs.existsSync(path);
+    if (fileExists) {
+      const rows: RegRow[] = await readCsv(path);
+      oldInstallations = rows.map((row) => row.installationId);
     }
+    const csvWriter = createObjectCsvWriter({
+      append: fileExists,
+      header: [{ id: "installationId", title: "installationId" }],
+      path: path,
+    });
 
-    await saveCsv(rows, outputPath());
+    const exportFunction = async (newRows: string[]) => {
+      await csvWriter.writeRecords(
+        newRows.map((installationId) => ({ installationId })),
+      );
+    };
+
+    const maxRegistrations = parseInt(top || "1000", 10);
+    const result = await runWithPagination({
+      connectionString,
+      exportFunction,
+      hubName,
+      maxRegistrations,
+      oldInstallations,
+      resumeToken: token,
+    });
+
+    rows = result.rows;
+    continuationToken = result.continuationToken;
 
     //eslint-disable-next-line no-console
-    console.log(`Exported ${rows.length} registrations in ${outputPath()}`);
+    console.log(`Exported ${rows.length} registrations in ${path}`);
     if (continuationToken)
       //eslint-disable-next-line no-console
       console.log("Continuation token for next execution:", continuationToken);

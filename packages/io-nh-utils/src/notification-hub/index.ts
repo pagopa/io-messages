@@ -5,13 +5,7 @@ import {
 } from "@azure/notification-hubs";
 import "dotenv/config";
 
-import {
-  APNSPushType,
-  APNSTemplate,
-  FCMV1Template,
-  RegRow,
-  SasParams,
-} from "./types";
+import { APNSPushType, APNSTemplate, FCMV1Template, SasParams } from "./types";
 import { fetchRegistrationsPage, formatRow } from "./utils";
 
 export const deleteInstallation = async (
@@ -20,9 +14,11 @@ export const deleteInstallation = async (
 ) => {
   try {
     await client.deleteInstallation(installationId);
-  } catch (err: any) {
-    console.error(
-      `Error deleting installation ${installationId}: ${err.message}`,
+    //eslint-disable-next-line no-console
+    console.info(`Installation ${installationId} deleted successfully`);
+  } catch (error) {
+    throw new Error(
+      `Error deleting installation ${installationId}: ${error.message}`,
     );
   }
 };
@@ -33,9 +29,13 @@ export const createInstallation = async (
 ) => {
   try {
     await client.createOrUpdateInstallation(installation);
-  } catch (err: any) {
-    console.error(
-      `Error creating installation ${installation.installationId}: ${err.message}`,
+    //eslint-disable-next-line no-console
+    console.info(
+      `Installation ${installation.installationId} created successfully`,
+    );
+  } catch (error) {
+    throw new Error(
+      `Error creating installation ${installation.installationId}: ${error.message}`,
     );
   }
 };
@@ -47,9 +47,9 @@ export const getInstallation = async (
   try {
     const installation = await client.getInstallation(installationId);
     return installation;
-  } catch (err: any) {
-    console.error(
-      `Error fetching installation ${installationId}: ${err.message}`,
+  } catch (error) {
+    throw new Error(
+      `Error fetching installation ${installationId}: ${error.message}`,
     );
   }
 };
@@ -59,26 +59,33 @@ export const migrateInstallation = async (
   toClient: NotificationHubsClient,
   installationId: string,
 ) => {
-  const installation = await getInstallation(fromClient, installationId);
-  if (installation) {
-    const newInstallation: Installation = {
-      ...installation,
-      templates: {
-        template: {
-          body:
-            installation?.platform === "apns" ? APNSTemplate : FCMV1Template,
-          headers:
-            installation?.platform === "apns"
-              ? {
-                  ["apns-priority"]: "10",
-                  ["apns-push-type"]: APNSPushType.ALERT,
-                }
-              : {},
-          tags: [],
+  try {
+    const installation = await getInstallation(fromClient, installationId);
+    if (installation) {
+      const newInstallation: Installation = {
+        ...installation,
+        templates: {
+          template: {
+            body:
+              installation?.platform === "apns" ? APNSTemplate : FCMV1Template,
+            headers:
+              installation?.platform === "apns"
+                ? {
+                    ["apns-priority"]: "10",
+                    ["apns-push-type"]: APNSPushType.ALERT,
+                  }
+                : {},
+            tags: [],
+          },
         },
-      },
-    };
-    await createInstallation(toClient, newInstallation);
+      };
+      await createInstallation(toClient, newInstallation);
+    }
+  } catch (error) {
+    //eslint-disable-next-line no-console
+    console.error(
+      `Error migrating installation ${installationId}: ${error.message}`,
+    );
   }
 };
 
@@ -95,7 +102,7 @@ export const getRegistrations = async (
   pager: AsyncIterableIterator<RegistrationDescription[]>,
   max?: number,
 ): Promise<{ continuationToken: string | undefined; rows: string[] }> => {
-  const rows: Set<string> = new Set();
+  const rows = new Set<string>();
   let continuationToken: string | undefined;
   let continueLoop = true;
   while (continueLoop) {
@@ -115,14 +122,28 @@ export const getRegistrations = async (
   };
 };
 
-export const getPagedRegistrations = async (
-  sas: SasParams,
+interface IExportOptions {
+  exportFunction?: (rows: string[]) => Promise<void>;
+  oldInstallations?: string[];
+  sas: SasParams;
+  token?: string;
+  top?: number;
+}
+
+export const getPagedRegistrations = async ({
+  exportFunction,
+  oldInstallations,
+  sas,
+  token,
   top = 100,
-  token?: string,
-) => {
-  const installation: Set<string> = new Set();
+}: IExportOptions) => {
+  // using a set to avoid duplicates since an installation can have multiple registrations
+  const installations = new Set<string>();
   const pageSize = Math.min(100, Math.max(1, top));
   let nextToken: string | undefined = token;
+
+  // if we're continuing a previous run, prepopulate the set with the already exported installations
+  oldInstallations.forEach((installation) => installations.add(installation));
 
   const start = Date.now();
 
@@ -133,14 +154,31 @@ export const getPagedRegistrations = async (
       nextToken,
     );
 
-    rows.forEach((row) => installation.add(row.installationId));
+    if (exportFunction) {
+      try {
+        // only export new installation, filter out the ones already in the set
+        const newRows = rows.filter(
+          (r) => !installations.has(r.installationId),
+        );
+        if (newRows.length > 0) {
+          await exportFunction(newRows.map((r) => r.installationId));
+        }
+      } catch (error) {
+        //eslint-disable-next-line no-console
+        console.error(`Error exporting new rows: ${error.message}`);
+      }
+    }
+
+    rows.forEach((row) => installations.add(row.installationId));
     nextToken = continuationToken;
 
     //eslint-disable-next-line no-console
     console.log(
-      `${new Date(Date.now()).toLocaleString("it-IT")} - Fetched ${rows.length} registrations, total installations: ${installation.size} out of ${top}`,
+      `${new Date(Date.now()).toLocaleString("it-IT")} - Fetched ${rows.length} registrations, total installations: ${installations.size} out of ${top}`,
     );
-  } while (nextToken && installation.size < top);
+    //eslint-disable-next-line no-console
+    console.log(`Continuation token: ${nextToken ? nextToken : "none"}`);
+  } while (nextToken && installations.size < top);
 
   const end = Date.now();
   const diffMs = end - start;
@@ -148,8 +186,8 @@ export const getPagedRegistrations = async (
   const seconds = Math.floor((diffMs % 60000) / 1000);
   //eslint-disable-next-line no-console
   console.log(
-    `Fetched ${installation.size} installations in ${minutes}m ${seconds}s`,
+    `Fetched ${installations.size} installations in ${minutes}m ${seconds}s`,
   );
 
-  return { continuationToken: nextToken, rows: Array.from(installation) };
+  return { continuationToken: nextToken, rows: Array.from(installations) };
 };

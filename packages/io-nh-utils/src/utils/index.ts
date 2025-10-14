@@ -1,6 +1,9 @@
+import csv from "csv-parser";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+
+import { RegRow } from "../notification-hub/types";
 
 dotenv.config();
 
@@ -21,3 +24,13 @@ export const parseEnvVariable = (envVar: string, optional = false) => {
 
   return value;
 };
+
+export const readCsv = async (path: string): Promise<RegRow[]> =>
+  new Promise((resolve, reject) => {
+    const results: RegRow[] = [];
+    fs.createReadStream(path)
+      .pipe(csv())
+      .on("data", (data) => results.push(data as RegRow))
+      .on("end", () => resolve(results))
+      .on("error", reject);
+  });

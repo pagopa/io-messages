@@ -1,11 +1,9 @@
 import { NotificationHubsClient } from "@azure/notification-hubs";
 import { program } from "commander";
-import csv from "csv-parser";
-import fs from "fs";
 
 import { migrateInstallation } from "./notification-hub/index";
 import { RegRow } from "./notification-hub/types";
-import { parseEnvVariable } from "./utils/index";
+import { parseEnvVariable, readCsv } from "./utils/index";
 
 interface IImportOptions {
   fromNotificationHub: {
@@ -45,16 +43,6 @@ const run = async ({
     }
   }
 };
-
-const readCsv = async (path: string): Promise<RegRow[]> =>
-  new Promise((resolve, reject) => {
-    const results: RegRow[] = [];
-    fs.createReadStream(path)
-      .pipe(csv())
-      .on("data", (data) => results.push(data as RegRow))
-      .on("end", () => resolve(results))
-      .on("error", reject);
-  });
 
 program
   .version("1.0.0")
