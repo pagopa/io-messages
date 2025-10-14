@@ -1,5 +1,11 @@
 ### Changelog
 
+## 5.5.9
+
+### Patch Changes
+
+- abea01d: Fix: Use less message-status query with no messages.
+
 ## 5.5.8
 
 ### Patch Changes

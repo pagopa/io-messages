@@ -2,7 +2,6 @@ locals {
   etl_func = {
     app_settings = {
       NODE_ENV                                       = "production",
-      "AzureWebJobs.IngestMessageStatus.Disabled"    = "1",
       FUNCTIONS_WORKER_RUNTIME                       = "node",
       MESSAGE_CONTENT_STORAGE_URI                    = var.message_content_storage.endpoint
       EVENTHUB_CONNECTION_URI                        = var.app_settings.eventhub_connection_uri,
@@ -48,10 +47,12 @@ module "etl_func" {
 
   health_check_path = "/api/health"
 
-  app_settings      = local.etl_func.app_settings
-  slot_app_settings = local.etl_func.app_settings
+  app_settings = local.etl_func.app_settings
 
-  sticky_app_setting_names = ["NODE_ENV"]
+  sticky_app_setting_names = ["NODE_ENV", "AzureWebJobs.IngestMessageStatus.Disabled"]
+  slot_app_settings = merge(local.etl_func.app_settings, {
+    "AzureWebJobs.IngestMessageStatus.Disabled" = "1"
+  })
 
   virtual_network = var.virtual_network
 
