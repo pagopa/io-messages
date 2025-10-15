@@ -16,7 +16,8 @@ Outputs a .csv containing the list of installationIds.
 Run with `yarn import -p <PATH_TO_CSV>`.
 
 ```
--p, --path      Full path to the CSV file
+-p, --path            Full path to the CSV file
+-b, --batch-size      Full path to the CSV file
 ```
 
 The CSV file must contain the `installationId` header.

@@ -6,6 +6,7 @@ import { RegRow } from "./notification-hub/types";
 import { parseEnvVariable, readCsv } from "./utils/index";
 
 interface IImportOptions {
+  batchSize: number;
   fromNotificationHub: {
     connectionString: string;
     hubName: string;
@@ -18,6 +19,7 @@ interface IImportOptions {
 }
 
 const run = async ({
+  batchSize,
   fromNotificationHub,
   rows,
   toNotificationHub,
@@ -36,9 +38,9 @@ const run = async ({
 
   const start = Date.now();
 
-  const batches = [];
-  for (let i = 0; i < installationIds.length; i += 100) {
-    batches.push(installationIds.slice(i, i + 100));
+  const batches: string[][] = [];
+  for (let i = 0; i < installationIds.length; i += batchSize) {
+    batches.push(installationIds.slice(i, i + batchSize));
   }
   for await (const batch of batches) {
     await Promise.all(
@@ -56,10 +58,10 @@ const run = async ({
     );
     //eslint-disable-next-line no-console
     console.log(
-      `${new Date(Date.now()).toLocaleString("it-IT")} - Imported ${installationIds.indexOf(installationId)} installations...`,
+      `${new Date(Date.now()).toLocaleString("it-IT")} - Imported ${(batches.indexOf(batch) + 1) * batchSize} installations...`,
     );
     //eslint-disable-next-line no-console
-    console.log(`Last installation imported: ${installationId}`);
+    console.log(`Last installation imported: ${batch[batch.length - 1]}`);
   }
   const end = Date.now();
   const diffMs = end - start;
@@ -81,16 +83,22 @@ program
   .version("1.0.0")
   .description("Import Notification Hub installations from CSV")
   .option("-p, --path <PATH>", "Full path to the CSV file")
+  .option(
+    "-b, --batch-size <BATCH_SIZE>",
+    "Size of the batches to import",
+    "10",
+  )
   .action(async (options) => {
     const fromConnectionString = parseEnvVariable("FROM_NH_CONNECTION_STRING");
     const fromHubName = parseEnvVariable("FROM_NH_HUB_NAME");
     const toConnectionString = parseEnvVariable("TO_NH_CONNECTION_STRING");
     const toHubName = parseEnvVariable("TO_NH_HUB_NAME");
 
-    const { path } = options;
+    const { batchSize, path } = options;
     const rows: RegRow[] = await readCsv(path);
 
     await run({
+      batchSize: Number.parseInt(batchSize),
       fromNotificationHub: {
         connectionString: fromConnectionString,
         hubName: fromHubName,
