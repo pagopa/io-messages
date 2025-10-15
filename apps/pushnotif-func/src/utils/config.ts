@@ -51,6 +51,27 @@ const NotificationHubPartitionsConfig = t.interface({
   NH4_PARTITION_REGEX: RegExpFromString,
 });
 
+export type NewNotificationHubPartitionsConfig = t.TypeOf<
+  typeof NewNotificationHubPartitionsConfig
+>;
+const NewNotificationHubPartitionsConfig = t.interface({
+  NEW_NH1_ENDPOINT: NonEmptyString,
+  NEW_NH1_NAME: NonEmptyString,
+  NEW_NH1_PARTITION_REGEX: RegExpFromString,
+
+  NEW_NH2_ENDPOINT: NonEmptyString,
+  NEW_NH2_NAME: NonEmptyString,
+  NEW_NH2_PARTITION_REGEX: RegExpFromString,
+
+  NEW_NH3_ENDPOINT: NonEmptyString,
+  NEW_NH3_NAME: NonEmptyString,
+  NEW_NH3_PARTITION_REGEX: RegExpFromString,
+
+  NEW_NH4_ENDPOINT: NonEmptyString,
+  NEW_NH4_NAME: NonEmptyString,
+  NEW_NH4_PARTITION_REGEX: RegExpFromString,
+});
+
 /**
  * Global app configuration
  */
@@ -188,10 +209,100 @@ const WithComputedNHPartitions = new t.Type<
   },
 );
 
-export type IConfig = t.TypeOf<typeof IConfig>;
-export const IConfig = t
+/**
+ * Extends the app base configuration
+ * by computing fixed Notification Hub partition configurations
+ * into a single array of struct named AZURE_NEW_NOTIFICATION_HUB_PARTITIONS.
+ */
+type WithComputedNewNHPartitions = {
+  readonly AZURE_NEW_NOTIFICATION_HUB_PARTITIONS: DisjoitedNotificationHubPartitionArray;
+} & BaseConfig;
+const WithComputedNewNHPartitions = new t.Type<
+  WithComputedNewNHPartitions,
+  BaseConfig & NewNotificationHubPartitionsConfig,
+  BaseConfig & NewNotificationHubPartitionsConfig
+>(
+  "WithComputedLegacyNHPartitions",
+  (v: unknown): v is WithComputedNewNHPartitions =>
+    BaseConfig.is(v) && "AZURE_NEW_NOTIFICATION_HUB_PARTITIONS" in v,
+  ({
+    NEW_NH1_ENDPOINT,
+    NEW_NH1_NAME,
+    NEW_NH1_PARTITION_REGEX,
+    NEW_NH2_ENDPOINT,
+    NEW_NH2_NAME,
+    NEW_NH2_PARTITION_REGEX,
+    NEW_NH3_ENDPOINT,
+    NEW_NH3_NAME,
+    NEW_NH3_PARTITION_REGEX,
+    NEW_NH4_ENDPOINT,
+    NEW_NH4_NAME,
+    NEW_NH4_PARTITION_REGEX,
+    ...baseConfig
+  }): t.Validation<WithComputedNewNHPartitions> =>
+    // decode the fixed array of NH partitions...
+    pipe(
+      [
+        {
+          endpoint: NEW_NH1_ENDPOINT,
+          name: NEW_NH1_NAME,
+          partitionRegex: NEW_NH1_PARTITION_REGEX,
+        },
+        {
+          endpoint: NEW_NH2_ENDPOINT,
+          name: NEW_NH2_NAME,
+          partitionRegex: NEW_NH2_PARTITION_REGEX,
+        },
+        {
+          endpoint: NEW_NH3_ENDPOINT,
+          name: NEW_NH3_NAME,
+          partitionRegex: NEW_NH3_PARTITION_REGEX,
+        },
+        {
+          endpoint: NEW_NH4_ENDPOINT,
+          name: NEW_NH4_NAME,
+          partitionRegex: NEW_NH4_PARTITION_REGEX,
+        },
+      ],
+      DisjoitedNotificationHubPartitionArray.decode,
+      // ...then add the key to the base config
+      E.map((partitions) => ({
+        ...baseConfig,
+        AZURE_NEW_NOTIFICATION_HUB_PARTITIONS: partitions,
+      })),
+    ),
+  (
+    v: WithComputedNewNHPartitions,
+  ): BaseConfig & NewNotificationHubPartitionsConfig => {
+    const { AZURE_NEW_NOTIFICATION_HUB_PARTITIONS, ...rest } = v;
+    return {
+      ...rest,
+      ...AZURE_NEW_NOTIFICATION_HUB_PARTITIONS.reduce(
+        (p, e, i) => ({
+          ...p,
+          // reconstruct the key set from the array
+          [`NH${i}_ENDPOINT`]: e.endpoint,
+          [`NH${i}_NAME`]: e.name,
+          [`NH${i}_PARTITION_REGEX`]: e.partitionRegex,
+        }),
+        {},
+      ),
+    } as BaseConfig & NewNotificationHubPartitionsConfig; // cast needed because TS cannot understand types when we compose keys with strings
+  },
+);
+
+type IConfigLegacy = t.TypeOf<typeof IConfigLegacy>;
+const IConfigLegacy = t
+  .intersection([BaseConfig, NewNotificationHubPartitionsConfig])
+  .pipe(WithComputedNewNHPartitions);
+
+type IConfigBase = t.TypeOf<typeof IConfigBase>;
+const IConfigBase = t
   .intersection([BaseConfig, NotificationHubPartitionsConfig])
   .pipe(WithComputedNHPartitions);
+
+export type IConfig = t.TypeOf<typeof IConfig>;
+export const IConfig = t.intersection([IConfigBase, IConfigLegacy]);
 
 export const envConfig = {
   ...process.env,
