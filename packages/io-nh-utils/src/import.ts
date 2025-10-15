@@ -35,24 +35,31 @@ const run = async ({
   const errors: string[] = [];
 
   const start = Date.now();
-  for await (const installationId of installationIds) {
-    try {
-      await migrateInstallation(fromClient, toClient, installationId);
-    } catch (error) {
-      errors.push(installationId);
-      //eslint-disable-next-line no-console
-      console.error(
-        `Error importing installation ${installationId}: ${error.message}`,
-      );
-    }
-    if (installationIds.indexOf(installationId) % 100 === 0) {
-      //eslint-disable-next-line no-console
-      console.log(
-        `${new Date(Date.now()).toLocaleString("it-IT")} - Imported ${installationIds.indexOf(installationId)} installations...`,
-      );
-      //eslint-disable-next-line no-console
-      console.log(`Last installation imported: ${installationId}`);
-    }
+
+  const batches = [];
+  for (let i = 0; i < installationIds.length; i += 100) {
+    batches.push(installationIds.slice(i, i + 100));
+  }
+  for await (const batch of batches) {
+    await Promise.all(
+      batch.map(async (installationId) => {
+        try {
+          await migrateInstallation(fromClient, toClient, installationId);
+        } catch (error) {
+          errors.push(installationId);
+          //eslint-disable-next-line no-console
+          console.error(
+            `Error importing installation ${installationId}: ${error.message}`,
+          );
+        }
+      }),
+    );
+    //eslint-disable-next-line no-console
+    console.log(
+      `${new Date(Date.now()).toLocaleString("it-IT")} - Imported ${installationIds.indexOf(installationId)} installations...`,
+    );
+    //eslint-disable-next-line no-console
+    console.log(`Last installation imported: ${installationId}`);
   }
   const end = Date.now();
   const diffMs = end - start;
