@@ -14,8 +14,6 @@ export const deleteInstallation = async (
 ) => {
   try {
     await client.deleteInstallation(installationId);
-    //eslint-disable-next-line no-console
-    console.info(`Installation ${installationId} deleted successfully`);
   } catch (error) {
     throw new Error(
       `Error deleting installation ${installationId}: ${error.message}`,
@@ -29,10 +27,6 @@ export const createInstallation = async (
 ) => {
   try {
     await client.createOrUpdateInstallation(installation);
-    //eslint-disable-next-line no-console
-    console.info(
-      `Installation ${installation.installationId} created successfully`,
-    );
   } catch (error) {
     throw new Error(
       `Error creating installation ${installation.installationId}: ${error.message}`,
@@ -59,33 +53,26 @@ export const migrateInstallation = async (
   toClient: NotificationHubsClient,
   installationId: string,
 ) => {
-  try {
-    const installation = await getInstallation(fromClient, installationId);
-    if (installation) {
-      const newInstallation: Installation = {
-        ...installation,
-        templates: {
-          template: {
-            body:
-              installation?.platform === "apns" ? APNSTemplate : FCMV1Template,
-            headers:
-              installation?.platform === "apns"
-                ? {
-                    ["apns-priority"]: "10",
-                    ["apns-push-type"]: APNSPushType.ALERT,
-                  }
-                : {},
-            tags: [],
-          },
+  const installation = await getInstallation(fromClient, installationId);
+  if (installation) {
+    const newInstallation: Installation = {
+      ...installation,
+      templates: {
+        template: {
+          body:
+            installation?.platform === "apns" ? APNSTemplate : FCMV1Template,
+          headers:
+            installation?.platform === "apns"
+              ? {
+                  ["apns-priority"]: "10",
+                  ["apns-push-type"]: APNSPushType.ALERT,
+                }
+              : {},
+          tags: [],
         },
-      };
-      await createInstallation(toClient, newInstallation);
-    }
-  } catch (error) {
-    //eslint-disable-next-line no-console
-    console.error(
-      `Error migrating installation ${installationId}: ${error.message}`,
-    );
+      },
+    };
+    await createInstallation(toClient, newInstallation);
   }
 };
 
@@ -142,7 +129,7 @@ export const getPagedRegistrations = async ({
   const pageSize = Math.min(100, Math.max(1, top));
   let nextToken: string | undefined = token;
 
-  // if we're continuing a previous run, prepopulate the set with the already exported installations
+  // if we're continuing a previous run, prepopulate the set with the previously exported installations
   oldInstallations.forEach((installation) => installations.add(installation));
 
   const start = Date.now();

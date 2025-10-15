@@ -32,15 +32,41 @@ const run = async ({
   );
 
   const installationIds = [...new Set(rows.map((r) => r.installationId))];
+  const errors: string[] = [];
 
+  const start = Date.now();
   for await (const installationId of installationIds) {
-    await migrateInstallation(fromClient, toClient, installationId);
+    try {
+      await migrateInstallation(fromClient, toClient, installationId);
+    } catch (error) {
+      errors.push(installationId);
+      //eslint-disable-next-line no-console
+      console.error(
+        `Error importing installation ${installationId}: ${error.message}`,
+      );
+    }
     if (installationIds.indexOf(installationId) % 100 === 0) {
       //eslint-disable-next-line no-console
       console.log(
         `${new Date(Date.now()).toLocaleString("it-IT")} - Imported ${installationIds.indexOf(installationId)} installations...`,
       );
+      //eslint-disable-next-line no-console
+      console.log(`Last installation imported: ${installationId}`);
     }
+  }
+  const end = Date.now();
+  const diffMs = end - start;
+  const minutes = Math.floor(diffMs / 60000);
+  const seconds = Math.floor((diffMs % 60000) / 1000);
+  //eslint-disable-next-line no-console
+  console.log(
+    `Imported ${installationIds.length} installations in ${minutes}m ${seconds}s`,
+  );
+  if (errors.length > 0) {
+    //eslint-disable-next-line no-console
+    console.log(
+      `Could not import the following installation ids: ${errors.join(", ")}`,
+    );
   }
 };
 

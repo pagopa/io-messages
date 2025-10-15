@@ -49,23 +49,23 @@ program
   .description("Delete Notification Hub installations from CSV")
   .option("-p, --path <PATH>", "Full path to the CSV file")
   .action(async (options) => {
-    const fromConnectionString = parseEnvVariable("FROM_NH_CONNECTION_STRING");
-    const fromHubName = parseEnvVariable("FROM_NH_HUB_NAME");
+    const connectionString = parseEnvVariable("DELETE_NH_CONNECTION_STRING");
+    const hubName = parseEnvVariable("DELETE_NH_HUB_NAME");
 
     const { path } = options;
     const rows: RegRow[] = await readCsv(path);
 
     await run({
       notificationHub: {
-        connectionString: fromConnectionString,
-        hubName: fromHubName,
+        connectionString: connectionString,
+        hubName: hubName,
       },
       rows,
     });
 
     //eslint-disable-next-line no-console
     console.log(
-      `Deleted ${rows.length} registrations in ${fromHubName} from ${path}`,
+      `Deleted ${rows.length} registrations in ${hubName} from ${path}`,
     );
   });
 
