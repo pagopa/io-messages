@@ -1,5 +1,13 @@
 ### Changelog
 
+## 1.1.2
+
+### Patch Changes
+
+- 2c1c71f: Add new Notification Hub
+  CreateOrUpdateInstallation now updates both NH
+  DeleteInstallation now updates both NH
+
 ## 1.1.1
 
 ### Patch Changes
