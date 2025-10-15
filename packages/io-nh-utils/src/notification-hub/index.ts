@@ -59,9 +59,12 @@ export const migrateInstallation = async (
       ...installation,
       templates: {
         template: {
-          body: installation.platform === "apns" ? APNSTemplate : FCMV1Template,
+          body:
+            installation.platform.toLowerCase() === "apns"
+              ? APNSTemplate
+              : FCMV1Template,
           headers:
-            installation.platform === "apns"
+            installation.platform.toLowerCase() === "apns"
               ? {
                   ["apns-priority"]: "10",
                   ["apns-push-type"]: APNSPushType.ALERT,
