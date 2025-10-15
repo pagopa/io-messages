@@ -142,12 +142,14 @@ export const getPagedRegistrations = async ({
 
     if (exportFunction) {
       try {
+        const newInstallations = new Set<string>();
         // only export new installation, filter out the ones already in the set
         const newRows = rows.filter(
           (r) => !installations.has(r.installationId),
         );
-        if (newRows.length > 0) {
-          await exportFunction(newRows.map((r) => r.installationId));
+        newRows.forEach((row) => newInstallations.add(row.installationId));
+        if (newInstallations.size > 0) {
+          await exportFunction(Array.from(newInstallations));
         }
       } catch (error) {
         //eslint-disable-next-line no-console
