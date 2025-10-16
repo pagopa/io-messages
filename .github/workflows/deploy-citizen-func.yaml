@@ -14,5 +14,5 @@ jobs:
       workspace_name: citizen-func
       environment: app-prod
       resource_group_name: io-p-itn-com-rg-01
-      function_app_name: io-p-itn-com-citizen-func-01
+      function_app_name: io-p-itn-com-citizen-func-02
       use_staging_slot: true

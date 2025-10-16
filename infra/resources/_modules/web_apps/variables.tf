@@ -38,6 +38,7 @@ variable "subnet_pep_id" {
 variable "subnet_cidrs" {
   type = object({
     citizen_func        = string
+    citizen_func_new    = string
     etl_func            = string
     ops_func            = string
     push_notif_func     = string
@@ -170,5 +171,38 @@ variable "key_vault" {
   type = object({
     name = string
     id   = string
+  })
+}
+
+variable "nh_itn_partition_1" {
+  type = object({
+    id       = string
+    name     = string
+    endpoint = string
+    regex    = string
+  })
+}
+variable "nh_itn_partition_2" {
+  type = object({
+    id       = string
+    name     = string
+    endpoint = string
+    regex    = string
+  })
+}
+variable "nh_itn_partition_3" {
+  type = object({
+    id       = string
+    name     = string
+    endpoint = string
+    regex    = string
+  })
+}
+variable "nh_itn_partition_4" {
+  type = object({
+    id       = string
+    name     = string
+    endpoint = string
+    regex    = string
   })
 }
