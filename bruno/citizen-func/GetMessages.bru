@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{citizen_func_url}}/api/v1/messages/:fiscal_code
+  url: {{citizen_func_url}}/api/v1/messages/:fiscal_code?enrich_result_data=true
   body: none
   auth: none
+}
+
+params:query {
+  enrich_result_data: true
 }
 
 params:path {
