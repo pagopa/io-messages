@@ -1,4 +1,4 @@
-import { NotificationClient } from "@/domain/notification.js";
+import { QrCodeCheckUseCase } from "@/domain/use-cases/qr-code-check.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
@@ -16,7 +16,7 @@ import { malformedBodyResponse } from "./commons/response.js";
 
 export const aarQRCodeCheck =
   (
-    getSendClient: (isTest: boolean) => NotificationClient,
+    qrCodeCheckUseCase: QrCodeCheckUseCase,
   ): ExtentedHttpHandler<LollipopHeaders> =>
   async (
     request: HttpRequest,
@@ -24,8 +24,6 @@ export const aarQRCodeCheck =
     lollipopHeaders: LollipopHeaders,
   ): Promise<AarQRCodeCheckResponse> => {
     const isTest = request.query.get("isTest") === "true";
-    const client = getSendClient(isTest);
-
     const sendHeaders = {
       "x-pagopa-cx-taxid": lollipopHeaders["x-pagopa-lollipop-user-id"],
       "x-pagopa-pn-io-src": "QR_CODE",
@@ -48,9 +46,10 @@ export const aarQRCodeCheck =
       );
 
     try {
-      const response = await client.checkAarQrCodeIO(
-        parsedBody.data.aarQrCodeValue,
+      const response = await qrCodeCheckUseCase.execute(
+        isTest,
         sendHeaders,
+        parsedBody.data.aarQrCodeValue,
       );
       return { jsonBody: response, status: 200 };
     } catch (err) {
