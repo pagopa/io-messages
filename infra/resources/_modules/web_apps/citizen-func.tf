@@ -172,3 +172,44 @@ module "citizen_func_autoscaler" {
 
   tags = var.tags
 }
+
+// new citizen
+module "citizen_func_new" {
+  source  = "pagopa-dx/azure-function-app/azurerm"
+  version = "~> 4.0"
+
+  environment = merge(var.environment, {
+    app_name        = "citizen"
+    instance_number = "02"
+  })
+
+  resource_group_name = var.resource_group_name
+  health_check_path   = "/api/v1/info"
+  node_version        = 20
+
+  size = "P3mv3"
+
+  subnet_cidr                          = var.subnet_cidrs.citizen_func_new
+  subnet_pep_id                        = var.subnet_pep_id
+  private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name
+
+  virtual_network = {
+    name                = var.virtual_network.name
+    resource_group_name = var.virtual_network.resource_group_name
+  }
+
+  app_settings      = local.citizen_func.app_settings
+  slot_app_settings = local.citizen_func.app_settings
+
+  tags = var.tags
+
+  application_insights_connection_string   = var.application_insights.connection_string
+  application_insights_sampling_percentage = 5
+
+  action_group_ids = [var.action_group_id]
+}
+
+resource "azurerm_subnet_nat_gateway_association" "functions_messages_citizen_subnet_new" {
+  subnet_id      = module.citizen_func_new.subnet.id
+  nat_gateway_id = var.nat_gateway_id
+}
