@@ -6,6 +6,8 @@ resource "azurerm_notification_hub_namespace" "sandbox" {
   sku_name            = "Free"
 
   tags = var.tags
+
+  zone_redundancy_enabled = true
 }
 
 resource "azurerm_notification_hub" "sandbox" {
