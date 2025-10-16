@@ -38,6 +38,7 @@ variable "subnet_pep_id" {
 variable "subnet_cidrs" {
   type = object({
     citizen_func        = string
+    citizen_func_new    = string
     etl_func            = string
     ops_func            = string
     push_notif_func     = string

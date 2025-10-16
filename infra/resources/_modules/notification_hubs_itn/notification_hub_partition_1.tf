@@ -6,6 +6,8 @@ resource "azurerm_notification_hub_namespace" "partition_1" {
   sku_name            = "Standard"
 
   tags = var.tags
+
+  zone_redundancy_enabled = true
 }
 
 resource "azurerm_notification_hub" "partition_1" {

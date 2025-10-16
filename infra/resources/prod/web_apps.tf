@@ -26,6 +26,7 @@ module "web_apps" {
   subnet_cidrs = {
     etl_func            = "10.20.8.0/26"
     citizen_func        = "10.20.8.64/26"
+    citizen_func_new    = "10.20.18.0/26"
     ops_func            = "10.20.10.0/26"
     push_notif_func     = "10.20.10.64/26"
     cqrs_func           = "10.20.10.128/26"
