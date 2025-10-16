@@ -213,3 +213,86 @@ resource "azurerm_subnet_nat_gateway_association" "functions_messages_citizen_su
   subnet_id      = module.citizen_func_new.subnet.id
   nat_gateway_id = var.nat_gateway_id
 }
+
+resource "azurerm_role_assignment" "citizen_func_cosmosdb_account_api_new" {
+  for_each = toset([
+    module.citizen_func_new.function_app.function_app.principal_id,
+    module.citizen_func_new.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.cosmosdb_account_api.id
+  role_definition_name = "SQL DB Contributor"
+  principal_id         = each.value
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "citizen_func_api_new" {
+  for_each = toset([
+    module.citizen_func_new.function_app.function_app.principal_id,
+    module.citizen_func_new.function_app.function_app.slot.principal_id
+  ])
+  resource_group_name = var.cosmosdb_account_api.resource_group_name
+  account_name        = var.cosmosdb_account_api.name
+  scope               = var.cosmosdb_account_api.id
+  role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = each.value
+}
+
+resource "azurerm_role_assignment" "citizen_func_io_com_cosmos_new" {
+  for_each = toset([
+    module.citizen_func_new.function_app.function_app.principal_id,
+    module.citizen_func_new.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.io_com_cosmos.id
+  role_definition_name = "SQL DB Contributor"
+  principal_id         = each.value
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "citizen_func_com_new" {
+  for_each = toset([
+    module.citizen_func_new.function_app.function_app.principal_id,
+    module.citizen_func_new.function_app.function_app.slot.principal_id
+  ])
+  resource_group_name = var.io_com_cosmos.resource_group_name
+  account_name        = var.io_com_cosmos.name
+  scope               = var.io_com_cosmos.id
+  role_definition_id  = "${var.io_com_cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = each.value
+}
+
+module "citizen_func_autoscaler_new" {
+  source  = "pagopa-dx/azure-app-service-plan-autoscaler/azurerm"
+  version = "~> 1.0"
+
+  resource_group_name = module.citizen_func_new.function_app.resource_group_name
+  location            = var.environment.location
+
+  app_service_plan_id = module.citizen_func_new.function_app.plan.id
+
+  target_service = {
+    function_app = {
+      name = module.citizen_func_new.function_app.function_app.name
+    }
+  }
+
+  scheduler = {
+    normal_load = {
+      default = 11,
+      minimum = 6
+    },
+    low_load = {
+      minimum = 2,
+      name    = "low_load_profile",
+      default = 10,
+      start = {
+        hour    = 22,
+        minutes = 0
+      }
+      end = {
+        hour    = 5,
+        minutes = 0
+      },
+    },
+    maximum = 30,
+  }
+
+  tags = var.tags
+}
