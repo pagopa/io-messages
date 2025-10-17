@@ -110,17 +110,10 @@ async function runExport(opts: {
       opts.connectionString,
       opts.hubName,
     );
-    const job = await client.submitNotificationHubJob(
-      {
-        type: "ExportRegistrations",
-        outputContainerUrl: opts.outputContainerSasUrl,
-      },
-      {
-        onResponse: (body) => {
-          console.log(body.status);
-        },
-      },
-    );
+    const job = await client.submitNotificationHubJob({
+      type: "ExportRegistrations",
+      outputContainerUrl: opts.outputContainerSasUrl,
+    });
 
     const done = await waitForJobCompletion(client, job);
     return done; // done.outputContainerUrl conterrà i risultati
@@ -245,10 +238,18 @@ program
         expiresInHours: parseInt(cmd.expires, 10),
       });
 
+      const importFileUrlSas = await makeContainerSasUrl({
+        accountName: required("account-name", cmd.accountName),
+        accountKey: required("account-key", cmd.accountKey),
+        blobEndpoint: required("import-url", cmd.importUrl),
+        containerName: required("container", cmd.container),
+        expiresInHours: parseInt(cmd.expires, 10),
+      });
+
       const res = await runImport({
         connectionString: required("dest-conn", cmd.destConn),
         hubName: required("dest-hub", cmd.destHub),
-        importFileUrl: required("import-url", cmd.importUrl),
+        importFileUrl: importFileUrlSas,
         outputContainerSasUrl: containerSas,
       });
 
