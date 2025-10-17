@@ -2,7 +2,7 @@ import { program } from "commander";
 import { createObjectCsvWriter } from "csv-writer";
 import fs from "fs";
 
-import { getPagedRegistrations } from "./notification-hub/index";
+import { getInstallations } from "./notification-hub/index";
 import { RegRow } from "./notification-hub/types";
 import { parseConnectionString } from "./notification-hub/utils";
 import { outputPath, parseEnvVariable, readCsv } from "./utils/index";
@@ -11,7 +11,7 @@ interface IExportOptions {
   connectionString: string;
   exportFunction?: (rows: string[]) => Promise<void>;
   hubName: string;
-  maxRegistrations?: number;
+  maxInstallations?: number;
   oldInstallations?: string[];
   resumeToken?: string;
 }
@@ -20,18 +20,18 @@ const runWithPagination = async ({
   connectionString,
   exportFunction,
   hubName,
-  maxRegistrations,
+  maxInstallations,
   oldInstallations,
   resumeToken,
 }: IExportOptions) => {
   const { key, keyName, namespace } = parseConnectionString(connectionString);
 
-  const { continuationToken, rows } = await getPagedRegistrations({
+  const { continuationToken, rows } = await getInstallations({
     exportFunction,
     oldInstallations,
     sas: { hubName, key, keyName, namespace },
     token: resumeToken,
-    top: maxRegistrations,
+    top: maxInstallations,
   });
 
   return { continuationToken, rows };
@@ -39,8 +39,8 @@ const runWithPagination = async ({
 
 program
   .version("1.0.0")
-  .description("Export Notification Hub registrations to CSV")
-  .option("-t, --top [TOP]", "Max amount of registrations to retrieve", "1000")
+  .description("Export Notification Hub installations to CSV")
+  .option("-t, --top [TOP]", "Max amount of installations to retrieve", "1000")
   .option("-k, --token [TOKEN]", "Continuation token for pagination")
   .option("-p, --path [PATH]", "Full path to the CSV file", outputPath())
   .action(async (options) => {
@@ -74,7 +74,7 @@ program
       connectionString,
       exportFunction,
       hubName,
-      maxRegistrations,
+      maxInstallations: maxRegistrations,
       oldInstallations,
       resumeToken: token,
     });

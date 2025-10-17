@@ -55,6 +55,7 @@ export const migrateInstallation = async (
 ) => {
   const installation = await getInstallation(fromClient, installationId);
   if (installation) {
+    // create a new installation following apps/pushnotif-func/src/utils/notification.ts 's createOrUpdateInstallation
     const newInstallation: Installation = {
       ...installation,
       templates: {
@@ -70,6 +71,7 @@ export const migrateInstallation = async (
                   ["apns-push-type"]: APNSPushType.ALERT,
                 }
               : {},
+          // add the installation id as a tag (pushnotif-func receives it from io-backend's request)
           tags: [installation.installationId],
         },
       },
@@ -119,7 +121,7 @@ interface IExportOptions {
   top?: number;
 }
 
-export const getPagedRegistrations = async ({
+export const getInstallations = async ({
   exportFunction,
   oldInstallations,
   sas,
@@ -128,10 +130,11 @@ export const getPagedRegistrations = async ({
 }: IExportOptions) => {
   // using a set to avoid duplicates since an installation can have multiple registrations
   const installations = new Set<string>();
+  // max page size supported by the rest api seems to be 100 elements
   const pageSize = Math.min(100, Math.max(1, top));
   let nextToken: string | undefined = token;
 
-  // if we're continuing a previous run, prepopulate the set with the previously exported installations
+  // if we're resuming a previous run, prepopulate the set with the previously exported installations
   oldInstallations.forEach((installation) => installations.add(installation));
 
   const start = Date.now();
@@ -150,6 +153,7 @@ export const getPagedRegistrations = async ({
         const newRows = rows.filter(
           (r) => !installations.has(r.installationId),
         );
+        // create a set to avoid duplicates
         newRows.forEach((row) => newInstallations.add(row.installationId));
         if (newInstallations.size > 0) {
           await exportFunction(Array.from(newInstallations));

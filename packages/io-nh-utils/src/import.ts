@@ -42,6 +42,7 @@ const run = async ({
   for (let i = 0; i < installationIds.length; i += batchSize) {
     batches.push(installationIds.slice(i, i + batchSize));
   }
+  // loop the batches of installation migration
   for await (const batch of batches) {
     await Promise.all(
       batch.map(async (installationId) => {
