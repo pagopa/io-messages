@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@azure/notification-hubs": "^2.0.2",
+    "@azure/storage-blob": "^12.26.0",
     "@pagopa/eslint-config": "^4.0.3",
     "commander": "^14.0.1",
     "csv-parser": "^3.2.0",

@@ -9737,6 +9737,7 @@ __metadata:
   resolution: "io-nh-utils@workspace:packages/io-nh-utils"
   dependencies:
     "@azure/notification-hubs": "npm:^2.0.2"
+    "@azure/storage-blob": "npm:^12.26.0"
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@types/node": "npm:^24.7.0"
     commander: "npm:^14.0.1"
