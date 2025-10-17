@@ -273,6 +273,23 @@ module "citizen_func_autoscaler_new" {
     }
   }
 
+  scale_metrics = {
+    cpu = {
+      cooldown_decrease         = 20,
+      cooldown_increase         = 3,
+      decrease_by               = 3,
+      increase_by               = 3,
+      lower_threshold           = 20,
+      statistic_decrease        = "Max",
+      statistic_increase        = "Max",
+      time_aggregation_decrease = "Maximum",
+      time_aggregation_increase = "Maximum",
+      time_window_decrease      = 5,
+      time_window_increase      = 2,
+      upper_threshold           = 50
+    },
+  }
+
   scheduler = {
     normal_load = {
       default = 11,
