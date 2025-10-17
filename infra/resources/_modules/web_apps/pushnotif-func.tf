@@ -145,9 +145,10 @@ locals {
       # ------------------------------------------------------------------------------
       # Variable used during transition to new NH management
 
-      # Possible values : "none" | "all" | "beta" | "canary"
-      NH_PARTITION_FEATURE_FLAG = "all"
-
+      # Possible values : "NONE" | "ALL" | "BETA" | "CANARY"
+      NH_PARTITION_FEATURE_FLAG      = "NONE"
+      NH_PARTITION_CANARY            = "XYZ"
+      NH_PARTITION__BETA_TESTER_LIST = "[]"
 
       MESSAGE_CONTAINER_NAME                    = "message-content"
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
