@@ -106,8 +106,8 @@ async function runExport(opts: {
     outputContainerUrl: opts.outputContainerSasUrl,
   });
 
-  const done = await waitForJobCompletion(client, job);
-  return done; // done.outputContainerUrl conterrà i risultati
+  // const done = await waitForJobCompletion(client, job);
+  // return done; // done.outputContainerUrl conterrà i risultati
 }
 
 /**
@@ -130,8 +130,8 @@ async function runImport(opts: {
     outputContainerUrl: opts.outputContainerSasUrl,
   });
 
-  const done = await waitForJobCompletion(client, job);
-  return done;
+  // const done = await waitForJobCompletion(client, job);
+  // return done;
 }
 
 /**
@@ -148,6 +148,99 @@ function buildBlobUrlFromContainer(containerSasUrl: string, blobName: string) {
 }
 
 program
+  .command("export")
+  .requiredOption(
+    "--source-conn <conn>",
+    "Connection string del Notification Hub sorgente",
+  )
+  .requiredOption("--source-hub <hub>", "Nome del Notification Hub sorgente")
+  .requiredOption(
+    "--blob-endpoint <url>",
+    "Blob endpoint, es: https://<account>.blob.core.windows.net",
+  )
+  .requiredOption("--account-name <name>", "Storage account name")
+  .requiredOption("--account-key <key>", "Storage account key")
+  .requiredOption("--container <name>", "Nome container destinazione export")
+  .option("--expires <hours>", "Scadenza SAS in ore (default 24)", "24")
+  .action(async (cmd) => {
+    try {
+      const containerSas = await makeContainerSasUrl({
+        accountName: required("account-name", cmd.accountName),
+        accountKey: required("account-key", cmd.accountKey),
+        blobEndpoint: required("blob-endpoint", cmd.blobEndpoint),
+        containerName: required("container", cmd.container),
+        expiresInHours: parseInt(cmd.expires, 10),
+      });
+
+      const res = await runExport({
+        connectionString: required("source-conn", cmd.sourceConn),
+        hubName: required("source-hub", cmd.sourceHub),
+        outputContainerSasUrl: containerSas,
+      });
+
+      // L’export normalmente crea un blob "registrations.txt" o compresso.
+      console.log("Export completato.");
+      console.log("Output container SAS:", containerSas);
+      console.log(
+        "Esempio blob (ipotizzato):",
+        buildBlobUrlFromContainer(containerSas, "Output.txt"),
+      );
+    } catch (e: any) {
+      console.error("Errore durante export:", e.message ?? e);
+      process.exit(1);
+    }
+  });
+
+program
+  .command("import")
+  .requiredOption(
+    "--dest-conn <conn>",
+    "Connection string del Notification Hub di destinazione",
+  )
+  .requiredOption(
+    "--dest-hub <hub>",
+    "Nome del Notification Hub di destinazione",
+  )
+  .requiredOption(
+    "--import-url <sas>",
+    "SAS URL del blob da importare (es: .../registrations.txt?<sas>)",
+  )
+  .requiredOption(
+    "--blob-endpoint <url>",
+    "Blob endpoint, es: https://<account>.blob.core.windows.net",
+  )
+  .requiredOption("--account-name <name>", "Storage account name")
+  .requiredOption("--account-key <key>", "Storage account key")
+  .requiredOption("--container <name>", "Nome container appoggio")
+  .action(async (cmd) => {
+    try {
+      const containerSas = await makeContainerSasUrl({
+        accountName: required("account-name", cmd.accountName),
+        accountKey: required("account-key", cmd.accountKey),
+        blobEndpoint: required("blob-endpoint", cmd.blobEndpoint),
+        containerName: required("container", cmd.container),
+        expiresInHours: parseInt(cmd.expires, 10),
+      });
+
+      const res = await runImport({
+        connectionString: required("dest-conn", cmd.destConn),
+        hubName: required("dest-hub", cmd.destHub),
+        importFileUrl: required("import-url", cmd.importUrl),
+        outputContainerSasUrl: containerSas,
+      });
+
+      console.log("Import completato.");
+      // if (res.outputContainerUrl) {
+      //   console.log("Output/diagnostica:", res.outputContainerUrl);
+      // }
+    } catch (e: any) {
+      console.error("Errore durante import:", e.message ?? e);
+      process.exit(1);
+    }
+  });
+
+program
+  .command("migrate")
   .description(
     "Esegue export dal sorgente e import sul destinatario in un colpo solo",
   )
@@ -171,11 +264,7 @@ program
   .requiredOption("--account-name <name>", "Storage account name")
   .requiredOption("--account-key <key>", "Storage account key")
   .requiredOption("--container <name>", "Nome container appoggio")
-  .option(
-    "--blob-name <name>",
-    "Nome file di export atteso",
-    "registrations.txt",
-  )
+  .option("--blob-name <name>", "Nome file di export atteso", "Output.txt")
   .option("--expires <hours>", "Scadenza SAS in ore (default 24)", "24")
   .action(async (cmd) => {
     try {
@@ -203,10 +292,10 @@ program
       });
 
       console.log("Migrazione completata.");
-      if (exportJob.outputContainerUrl)
-        console.log("Export output:", exportJob.outputContainerUrl);
-      if (importJob.outputContainerUrl)
-        console.log("Import output:", importJob.outputContainerUrl);
+      // if (exportJob.outputContainerUrl)
+      //   console.log("Export output:", exportJob.outputContainerUrl);
+      // if (importJob.outputContainerUrl)
+      //   console.log("Import output:", importJob.outputContainerUrl);
     } catch (e: any) {
       console.error("Errore durante migrate:", e.message ?? e);
       process.exit(1);
