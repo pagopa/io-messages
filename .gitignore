@@ -57,6 +57,9 @@ local.settings.json
 node_modules
 dist
 
+# io-nh-utils
+packages/io-nh-utils/data
+
 # Local python packages
 .python_packages/
 
