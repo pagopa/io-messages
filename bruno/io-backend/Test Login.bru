@@ -17,6 +17,10 @@ body:json {
   }
 }
 
+vars:pre-request {
+  test_user_fiscal_code: LVTEST00A00A199X
+}
+
 vars:post-response {
   user_token: res.body.token
 }

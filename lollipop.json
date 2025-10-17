@@ -1,34 +1,23 @@
 {
-  "uuid": "49f2104d-d712-4574-abad-94a16cdd208a",
+  "uuid": "86f35cf4-99f8-4bba-940b-eb908a16b82f",
   "lastMigration": 33,
-  "name": "IO COM",
-  "endpointPrefix": "api/v1/messages-sending",
+  "name": "Lollipop",
+  "endpointPrefix": "api/v1",
   "latency": 0,
-  "port": 3000,
+  "port": 3002,
   "hostname": "",
-  "folders": [
-    {
-      "uuid": "fb08ecd3-a7a4-4076-adc3-79ccd722c4ab",
-      "name": "io-backend",
-      "children": [
-        {
-          "type": "route",
-          "uuid": "ec969226-01f0-49c7-9d18-e52a96bdde87"
-        }
-      ]
-    }
-  ],
+  "folders": [],
   "routes": [
     {
-      "uuid": "ec969226-01f0-49c7-9d18-e52a96bdde87",
+      "uuid": "04a5b332-6347-42c5-bd9c-44ef297305ed",
       "type": "http",
       "documentation": "",
-      "method": "get",
-      "endpoint": "session-manager/api/v1/sessions/:fiscalCode",
+      "method": "post",
+      "endpoint": "pubKeys/:assertionRef/generate",
       "responses": [
         {
-          "uuid": "36a38629-865b-462f-9d13-dbb2fdcd55dc",
-          "body": "{\n  \"active\": true\n}",
+          "uuid": "6bac4028-527a-4d2c-84e4-e25b873444eb",
+          "body": "{\n  \"assertion_file_name\": \"RSSMRA85M01H501U-sha256-abc123XYZ\",\n  \"assertion_ref\": \"sha256-7onKGsz_QxMU6IGAYvir-iezJt5OTflkKK1Eourci4I\",\n  \"assertion_type\": \"OIDC\",\n  \"expired_at\": \"2025-12-30\",\n  \"fiscal_code\": \"LVTEST00A00A199X\",\n  \"lc_authentication_bearer\": \"lc_authentication_bearer\",\n  \"pub_key\": \"pub_key\",\n  \"status\": \"VALID\",\n  \"ttl\": 11059200,\n  \"version\": 1\n}\n  ",
           "latency": 0,
           "statusCode": 200,
           "label": "",
@@ -40,52 +29,50 @@
           "rules": [
             {
               "target": "params",
-              "modifier": "fiscalCode",
-              "value": "RMLGNN97R06F158N",
-              "invert": false
+              "modifier": "assertionRef",
+              "value": "sha256-7onKGsz_QxMU6IGAYvir-iezJt5OTflkKK1Eourci4I",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "body",
+              "modifier": "operation_id",
+              "value": "01K7P4VSGHH0PJFV311P6AGQ36",
+              "invert": false,
+              "operator": "equals"
             }
           ],
-          "disableTemplating": false,
-          "fallbackTo404": false,
-          "default": false,
-          "crudKey": "id",
-          "callbacks": []
-        },
-        {
-          "uuid": "ba38694a-3c94-4510-becc-14aa42d80815",
-          "body": "{\n  \"active\": false\n}",
-          "latency": 0,
-          "statusCode": 200,
-          "label": "",
-          "headers": [],
-          "bodyType": "INLINE",
-          "filePath": "",
-          "databucketID": "",
-          "sendFileAsBody": false,
-          "rules": [],
-          "rulesOperator": "OR",
-          "disableTemplating": false,
-          "fallbackTo404": false,
-          "default": false,
-          "crudKey": "id",
-          "callbacks": []
-        },
-        {
-          "uuid": "285d6486-a0d7-48a2-9147-72a01b8283d7",
-          "body": "{}",
-          "latency": 0,
-          "statusCode": 401,
-          "label": "",
-          "headers": [],
-          "bodyType": "INLINE",
-          "filePath": "",
-          "databucketID": "",
-          "sendFileAsBody": false,
-          "rules": [],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
           "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "9085f727-5ef7-427f-a3b0-0e225d608246",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "assertionRef",
+              "value": "sha256-7onKGsz_QxMU6IGAYvir-iezJt5OTflkKK1Eourci4I",
+              "invert": true,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
           "crudKey": "id",
           "callbacks": []
         }
@@ -97,13 +84,13 @@
   ],
   "rootChildren": [
     {
-      "type": "folder",
-      "uuid": "fb08ecd3-a7a4-4076-adc3-79ccd722c4ab"
+      "type": "route",
+      "uuid": "04a5b332-6347-42c5-bd9c-44ef297305ed"
     }
   ],
-  "proxyMode": true,
-  "proxyHost": "http://host.docker.internal:7071/api/v1",
-  "proxyRemovePrefix": true,
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
   "tlsOptions": {
     "enabled": false,
     "type": "CERT",
@@ -134,16 +121,8 @@
   ],
   "proxyReqHeaders": [
     {
-      "key": "X-Subscription-Id",
-      "value": "MANAGE-01JR0QRJ8MX1PD06DE6X5FWXS5"
-    },
-    {
-      "key": "X-User-Id",
-      "value": "01JR0QRJ8MX1PD06DE6X5FWXS5"
-    },
-    {
-      "key": "X-User-Groups",
-      "value": "ApiRemoteContentConfigurationWrite"
+      "key": "",
+      "value": ""
     }
   ],
   "proxyResHeaders": [

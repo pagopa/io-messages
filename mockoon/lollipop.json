@@ -1,0 +1,143 @@
+{
+  "uuid": "86f35cf4-99f8-4bba-940b-eb908a16b82f",
+  "lastMigration": 33,
+  "name": "Lollipop",
+  "endpointPrefix": "api/v1",
+  "latency": 0,
+  "port": 3002,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "04a5b332-6347-42c5-bd9c-44ef297305ed",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "pubKeys/:assertionRef/generate",
+      "responses": [
+        {
+          "uuid": "6bac4028-527a-4d2c-84e4-e25b873444eb",
+          "body": "{\n  \"assertion_file_name\": \"RSSMRA85M01H501U-sha256-abc123XYZ\",\n  \"assertion_ref\": \"sha256-7onKGsz_QxMU6IGAYvir-iezJt5OTflkKK1Eourci4I\",\n  \"assertion_type\": \"OIDC\",\n  \"expired_at\": \"2025-12-30\",\n  \"fiscal_code\": \"LVTEST00A00A199X\",\n  \"lc_authentication_bearer\": \"lc_authentication_bearer\",\n  \"pub_key\": \"pub_key\",\n  \"status\": \"VALID\",\n  \"ttl\": 11059200,\n  \"version\": 1\n}\n  ",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "assertionRef",
+              "value": "sha256-7onKGsz_QxMU6IGAYvir-iezJt5OTflkKK1Eourci4I",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Functions-Key",
+              "value": "lollipopAPIKey",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "eaab31ac-63d1-4784-bc69-2fca28a8ed24",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "assertionRef",
+              "value": "sha256-7onKGsz_QxMU6IGAYvir-iezJt5OTflkKK1Eourci4I",
+              "invert": true,
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Functions-Key",
+              "value": "lollipopAPIKey",
+              "invert": true,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "04a5b332-6347-42c5-bd9c-44ef297305ed"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}

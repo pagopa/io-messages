@@ -1,0 +1,180 @@
+{
+  "uuid": "fd9a0a46-be96-44c7-bae1-dafdac578676",
+  "lastMigration": 33,
+  "name": "Send",
+  "endpointPrefix": "api/v1",
+  "latency": 0,
+  "port": 3001,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "62e92699-5244-40d5-af02-585d8811d979",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "delivery/notifications/received/check-qr-code",
+      "responses": [
+        {
+          "uuid": "d635fab9-4777-4d4f-b1ac-f14db456cd8f",
+          "body": "{\n  \"iun\": \"ABCD-EFGH-IJKL-123456-M-7\",\n  \"recipientInfo\": {\n      \"taxId\": \"LVTEST00A00A199X\",\n      \"denomination\": \"a denomination\"\n\n  }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "aarQrCodeValue",
+              "value": "IUN-ABCD-20250101-00012345",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "5b8d8506-7761-47d3-9e5a-0ef01463546e",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "delivery/notifications/received/:iun",
+      "responses": [
+        {
+          "uuid": "1bd9fd59-aa80-481a-8803-a2ff2e6d647c",
+          "body": "{\n  \"attachments\": [\n    {\n      \"category\": \"DOCUMENT\",\n      \"content_type\": \"application/pdf\",\n      \"id\": \"attachment123\",\n      \"name\": \"documento.pdf\",\n      \"url\": \"https://example.com/documento.pdf\"\n    }\n  ],\n  \"details\": {\n    \"abstract\": \"Notifica relativa a pagamento F24\",\n    \"completedPayments\": [\"302000100000019421\"],\n    \"isCancelled\": false,\n    \"iun\": \"ABCD-EFGH-IJKL-123456-M-7\",\n    \"notificationStatusHistory\": [\n      {\n        \"activeFrom\": \"2025-09-15T10:00:00+02:00\",\n        \"relatedTimelineElements\": [\"element1\", \"element2\"],\n        \"status\": \"ACCEPTED\"\n      },\n      {\n        \"activeFrom\": \"2025-09-16T09:30:00+02:00\",\n        \"relatedTimelineElements\": [\"element3\"],\n        \"status\": \"DELIVERED\"\n      }\n    ],\n    \"recipients\": [\n      {\n        \"denomination\": \"Mario Rossi\",\n        \"payment\": {\n          \"creditorTaxId\": \"77777777777\",\n          \"noticeCode\": \"302000100000019421\"\n        },\n        \"recipientType\": \"PF\",\n        \"taxId\": \"RSSMRA85M01H501U\"\n      }\n    ],\n    \"senderDenomination\": \"Comune di Esempio\",\n    \"subject\": \"Avviso di notifica\"\n  }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "iun",
+              "value": "ABCD-EFGH-IJKL-123456-M-7",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "704249c6-0a87-4fb8-a421-1e5c6e89e448",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "delivery/notifications/received/ABCD-EFGH-IJKL-123456-M-7/attachments/documents/1",
+      "responses": [
+        {
+          "uuid": "fc6c643a-a894-4c61-b079-26fa61c3c0ae",
+          "body": "{\n  \"contentLength\": 54092,\n  \"contentType\": \"application/pdf\",\n  \"filename\": \"documento.pdf\",\n  \"sha256\": \"aValidSha256\",\n  \"url\": \"https://example.com/download/documento.pdf\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "62e92699-5244-40d5-af02-585d8811d979"
+    },
+    {
+      "type": "route",
+      "uuid": "5b8d8506-7761-47d3-9e5a-0ef01463546e"
+    },
+    {
+      "type": "route",
+      "uuid": "704249c6-0a87-4fb8-a421-1e5c6e89e448"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}
