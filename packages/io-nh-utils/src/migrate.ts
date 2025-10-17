@@ -33,7 +33,7 @@ async function makeContainerSasUrl(opts: {
   blobEndpoint: string; // es: https://<account>.blob.core.windows.net
   containerName: string;
   expiresInHours?: number;
-}): Promise<string> {
+}) {
   const { accountName, accountKey, blobEndpoint, containerName } = opts;
   const cred = new StorageSharedKeyCredential(accountName, accountKey);
   const svc = new BlobServiceClient(blobEndpoint, cred);
@@ -56,7 +56,11 @@ async function makeContainerSasUrl(opts: {
     cred,
   ).toString();
 
-  return `${container.url}?${sas}`;
+  return {
+    container: container.url,
+    sas: sas,
+  };
+  // `${container.url}?${sas}`;
 }
 
 /**
@@ -180,7 +184,7 @@ program
   .option("--expires <hours>", "Scadenza SAS in ore (default 24)", "24")
   .action(async (cmd) => {
     try {
-      const containerSas = await makeContainerSasUrl({
+      const { container, sas } = await makeContainerSasUrl({
         accountName: required("account-name", cmd.accountName),
         accountKey: required("account-key", cmd.accountKey),
         blobEndpoint: required("blob-endpoint", cmd.blobEndpoint),
@@ -191,15 +195,15 @@ program
       const res = await runExport({
         connectionString: required("source-conn", cmd.sourceConn),
         hubName: required("source-hub", cmd.sourceHub),
-        outputContainerSasUrl: containerSas,
+        outputContainerSasUrl: `${container}?${sas}`,
       });
 
       // L’export normalmente crea un blob "registrations.txt" o compresso.
       console.log("Export completato.");
-      console.log("Output container SAS:", containerSas);
+      console.log("Output container SAS:", `${container}?${sas}`);
       console.log(
         "Esempio blob (ipotizzato):",
-        buildBlobUrlFromContainer(containerSas, "Output.txt"),
+        buildBlobUrlFromContainer(`${container}?${sas}`, "Output.txt"),
       );
     } catch (e: any) {
       console.error("Errore durante export:", e.message ?? e);
@@ -230,7 +234,7 @@ program
   .requiredOption("--container <name>", "Nome container appoggio")
   .action(async (cmd) => {
     try {
-      const containerSas = await makeContainerSasUrl({
+      const { container, sas } = await makeContainerSasUrl({
         accountName: required("account-name", cmd.accountName),
         accountKey: required("account-key", cmd.accountKey),
         blobEndpoint: required("blob-endpoint", cmd.blobEndpoint),
@@ -238,19 +242,11 @@ program
         expiresInHours: parseInt(cmd.expires, 10),
       });
 
-      const importFileUrlSas = await makeContainerSasUrl({
-        accountName: required("account-name", cmd.accountName),
-        accountKey: required("account-key", cmd.accountKey),
-        blobEndpoint: required("import-url", cmd.importUrl),
-        containerName: required("container", cmd.container),
-        expiresInHours: parseInt(cmd.expires, 10),
-      });
-
       const res = await runImport({
         connectionString: required("dest-conn", cmd.destConn),
         hubName: required("dest-hub", cmd.destHub),
-        importFileUrl: importFileUrlSas,
-        outputContainerSasUrl: containerSas,
+        importFileUrl: `${required("import-url", cmd.importUrl)}?${sas}`,
+        outputContainerSasUrl: `${container}?${sas}`,
       });
 
       console.log("Import completato.");
@@ -292,7 +288,7 @@ program
   .option("--expires <hours>", "Scadenza SAS in ore (default 24)", "24")
   .action(async (cmd) => {
     try {
-      const containerSas = await makeContainerSasUrl({
+      const { container, sas } = await makeContainerSasUrl({
         accountName: required("account-name", cmd.accountName),
         accountKey: required("account-key", cmd.accountKey),
         blobEndpoint: required("blob-endpoint", cmd.blobEndpoint),
@@ -303,16 +299,19 @@ program
       const exportJob = await runExport({
         connectionString: required("source-conn", cmd.sourceConn),
         hubName: required("source-hub", cmd.sourceHub),
-        outputContainerSasUrl: containerSas,
+        outputContainerSasUrl: `${container}?${sas}`,
       });
 
-      const blobUrl = buildBlobUrlFromContainer(containerSas, cmd.blobName);
+      const blobUrl = buildBlobUrlFromContainer(
+        `${container}?${sas}`,
+        cmd.blobName,
+      );
 
       const importJob = await runImport({
         connectionString: required("dest-conn", cmd.destConn),
         hubName: required("dest-hub", cmd.destHub),
         importFileUrl: blobUrl,
-        outputContainerSasUrl: containerSas,
+        outputContainerSasUrl: `${container}?${sas}`,
       });
 
       console.log("Migrazione completata.");
