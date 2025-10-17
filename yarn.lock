@@ -168,18 +168,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/core-lro@npm:^3.1.0":
-  version: 3.3.1
-  resolution: "@azure/core-lro@npm:3.3.1"
-  dependencies:
-    "@azure/abort-controller": "npm:^2.1.2"
-    "@azure/core-util": "npm:^1.13.0"
-    "@azure/logger": "npm:^1.3.0"
-    tslib: "npm:^2.6.2"
-  checksum: 10c0/e13554d6244844074e6710f661e28803464e0e3c902535667534e35fef18291f4150ab85a5801ec09cc9a9158120259fc51df05a78bf990c5fee27a3f9792571
-  languageName: node
-  linkType: hard
-
 "@azure/core-paging@npm:^1.4.0, @azure/core-paging@npm:^1.6.2":
   version: 1.6.2
   resolution: "@azure/core-paging@npm:1.6.2"
@@ -240,18 +228,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/core-util@npm:^1.13.0":
-  version: 1.13.1
-  resolution: "@azure/core-util@npm:1.13.1"
-  dependencies:
-    "@azure/abort-controller": "npm:^2.1.2"
-    "@typespec/ts-http-runtime": "npm:^0.3.0"
-    tslib: "npm:^2.6.2"
-  checksum: 10c0/37067621cdac933c51775c26648fdcea315f07b08bd875cff4610e403eabf9c12532525f0bf094e258dadc03a55d35f12c9242f662526847b32c85cdcc2d6603
-  languageName: node
-  linkType: hard
-
-"@azure/core-xml@npm:^1.0.0, @azure/core-xml@npm:^1.4.2, @azure/core-xml@npm:^1.4.3, @azure/core-xml@npm:^1.4.4, @azure/core-xml@npm:^1.4.5":
+"@azure/core-xml@npm:^1.0.0, @azure/core-xml@npm:^1.4.2, @azure/core-xml@npm:^1.4.3, @azure/core-xml@npm:^1.4.5":
   version: 1.5.0
   resolution: "@azure/core-xml@npm:1.5.0"
   dependencies:
@@ -400,7 +377,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/logger@npm:^1.0.0, @azure/logger@npm:^1.1.2, @azure/logger@npm:^1.1.4, @azure/logger@npm:^1.2.0, @azure/logger@npm:^1.3.0":
+"@azure/logger@npm:^1.0.0, @azure/logger@npm:^1.1.2, @azure/logger@npm:^1.1.4, @azure/logger@npm:^1.2.0":
   version: 1.3.0
   resolution: "@azure/logger@npm:1.3.0"
   dependencies:
@@ -453,25 +430,6 @@ __metadata:
     "@azure/logger": "npm:^1.1.2"
     tslib: "npm:^2.6.2"
   checksum: 10c0/0d35a4b1ead22919535a74ee9b88ace2947d85bd888ddcfc8798132e4ce02a23726284cd46cce8512d2d16af1d04ac833bf72b927922f86064a41b76368acd71
-  languageName: node
-  linkType: hard
-
-"@azure/notification-hubs@npm:^2.0.2":
-  version: 2.0.2
-  resolution: "@azure/notification-hubs@npm:2.0.2"
-  dependencies:
-    "@azure-rest/core-client": "npm:^2.3.3"
-    "@azure/abort-controller": "npm:^2.1.2"
-    "@azure/core-auth": "npm:^1.9.0"
-    "@azure/core-lro": "npm:^3.1.0"
-    "@azure/core-paging": "npm:^1.6.2"
-    "@azure/core-rest-pipeline": "npm:^1.19.0"
-    "@azure/core-tracing": "npm:^1.1.2"
-    "@azure/core-util": "npm:^1.11.0"
-    "@azure/core-xml": "npm:^1.4.4"
-    "@azure/logger": "npm:^1.1.2"
-    tslib: "npm:^2.8.1"
-  checksum: 10c0/9a519ec88ad7acd134c5c22094038a87700c2bcb4edbd0e16496ff165cd08da8f1f7186a1937d079d81f819c917d1f6e87da669035e5c32eebb9d4e89f6921f2
   languageName: node
   linkType: hard
 
@@ -9736,7 +9694,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "io-nh-utils@workspace:packages/io-nh-utils"
   dependencies:
-    "@azure/notification-hubs": "npm:^2.0.2"
+    "@azure/notification-hubs": "npm:^1.2.3"
     "@azure/storage-blob": "npm:^12.26.0"
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@types/node": "npm:^24.7.0"

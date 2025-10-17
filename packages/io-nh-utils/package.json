@@ -7,9 +7,9 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "export": "tsx src/export.ts",
-    "import": "tsx src/import.ts",
-    "migrate": "tsx src/migrate.ts",
+    "export": "tsx src/migrate.ts export",
+    "import": "tsx src/migrate.ts import",
+    "migrate": "tsx src/migrate.ts migrate",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint --fix src",
@@ -19,7 +19,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@azure/notification-hubs": "^2.0.2",
+    "@azure/notification-hubs": "^1.2.3",
     "@azure/storage-blob": "^12.26.0",
     "@pagopa/eslint-config": "^4.0.3",
     "commander": "^14.0.1",

@@ -3,6 +3,7 @@
 import { program } from "commander";
 import {
   NotificationHubJob,
+  NotificationHubJobPoller,
   NotificationHubsClient,
 } from "@azure/notification-hubs";
 import {
@@ -75,7 +76,14 @@ async function waitForJobCompletion(
       throw new Error(`Job ${job.jobId} timed out after ${timeoutMs / 1000}s`);
     }
 
-    current = await client.getNotificationHubJob(current.jobId!);
+    try {
+      current = await client.getNotificationHubJob(current.jobId!);
+    } catch (error) {
+      console.error(
+        `Error while polling for job ${current.jobId}: ${error.message}`,
+      );
+      throw error;
+    }
 
     if (current.status === "Completed") return current;
     if (current.status === "Failed") {
@@ -97,17 +105,28 @@ async function runExport(opts: {
   hubName: string;
   outputContainerSasUrl: string;
 }) {
-  const client = new NotificationHubsClient(
-    opts.connectionString,
-    opts.hubName,
-  );
-  const job = await client.submitNotificationHubJob({
-    type: "ExportRegistrations",
-    outputContainerUrl: opts.outputContainerSasUrl,
-  });
+  try {
+    const client = new NotificationHubsClient(
+      opts.connectionString,
+      opts.hubName,
+    );
+    const job = await client.submitNotificationHubJob(
+      {
+        type: "ExportRegistrations",
+        outputContainerUrl: opts.outputContainerSasUrl,
+      },
+      {
+        onResponse: (body) => {
+          console.log(body.status);
+        },
+      },
+    );
 
-  // const done = await waitForJobCompletion(client, job);
-  // return done; // done.outputContainerUrl conterrà i risultati
+    const done = await waitForJobCompletion(client, job);
+    return done; // done.outputContainerUrl conterrà i risultati
+  } catch (error) {
+    console.log(`Error on Job ImportUpsertRegistrations: ${error.message}`);
+  }
 }
 
 /**
@@ -124,14 +143,18 @@ async function runImport(opts: {
     opts.connectionString,
     opts.hubName,
   );
-  const job = await client.submitNotificationHubJob({
-    type: "ImportUpsertRegistrations",
-    importFileUrl: opts.importFileUrl,
-    outputContainerUrl: opts.outputContainerSasUrl,
-  });
+  try {
+    const job = await client.submitNotificationHubJob({
+      type: "ImportUpsertRegistrations",
+      importFileUrl: opts.importFileUrl,
+      outputContainerUrl: opts.outputContainerSasUrl,
+    });
 
-  // const done = await waitForJobCompletion(client, job);
-  // return done;
+    const done = await waitForJobCompletion(client, job);
+    return done;
+  } catch (error) {
+    console.log(`Error on Job ImportUpsertRegistrations: ${error.message}`);
+  }
 }
 
 /**
