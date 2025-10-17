@@ -14,18 +14,11 @@ import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
+import { FeatureFlag } from "./featureFlag";
 import {
   DisjoitedNotificationHubPartitionArray,
   RegExpFromString,
 } from "./types";
-
-export type NHPartitionFeatureFlag = t.TypeOf<typeof NHPartitionFeatureFlag>;
-export const NHPartitionFeatureFlag = t.keyof({
-  all: null,
-  beta: null,
-  canary: null,
-  none: null,
-});
 
 // Fixed Notification Hub partition configurations
 // Partitions are meant to be fixed and not to be extendable at wish
@@ -122,7 +115,13 @@ const BaseConfig = t.intersection([
     }),
 
     t.interface({
-      NH_PARTITION_FEATURE_FLAG: NHPartitionFeatureFlag,
+      NH_PARTITION_BETA_TESTER_LIST: withDefault(t.string, "").pipe(
+        CommaSeparatedListOf(NonEmptyString),
+      ),
+      NH_PARTITION_CANARY_USERS_REGEX: withDefault(t.string, "XYZ").pipe(
+        NonEmptyString,
+      ),
+      NH_PARTITION_FEATURE_FLAG: FeatureFlag,
     }),
   ]),
 ]);
