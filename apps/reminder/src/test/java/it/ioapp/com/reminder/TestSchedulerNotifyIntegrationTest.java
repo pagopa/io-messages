@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import dto.messageStatus;
 import it.ioapp.com.reminder.model.Reminder;
 import it.ioapp.com.reminder.producer.ReminderProducer;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.ApiClient;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.api.PaymentRequestsApi;
 import it.ioapp.com.reminder.scheduler.CheckRemindersToNotifyJob;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +47,8 @@ public class TestSchedulerNotifyIntegrationTest extends AbstractMock {
 
   @MockBean ReminderProducer reminderProducer;
 
+  @Autowired private PaymentRequestsApi paymentRequestsApi;
+
   @Mock private JobExecutionContext ctx;
 
   @Value("${paymentupdater.url}")
@@ -52,6 +56,12 @@ public class TestSchedulerNotifyIntegrationTest extends AbstractMock {
 
   @Before
   public void setUp() {
+    ApiClient mockClient = Mockito.mock(ApiClient.class);
+    Mockito.when(paymentRequestsApi.getApiClient()).thenReturn(mockClient);
+
+    Mockito.doNothing().when(mockClient).setApiKey(Mockito.anyString());
+    Mockito.when(mockClient.setBasePath(Mockito.anyString())).thenReturn(mockClient);
+
     before();
   }
 
