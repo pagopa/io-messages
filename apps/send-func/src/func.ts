@@ -14,9 +14,16 @@ import { GetAttachmentUseCase } from "./domain/use-cases/get-attachment.js";
 import { GetNotificationUseCase } from "./domain/use-cases/get-notification.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
 import { QrCodeCheckUseCase } from "./domain/use-cases/qr-code-check.js";
+import {
+  initNoSamplingClient,
+  TelemetryEventService,
+} from "./adapters/appinsights/appinsights.js";
 
 const main = async (config: Config): Promise<void> => {
   const healthcheckUseCase = new HealthUseCase([]);
+
+  const telemetryClient = initNoSamplingClient(config.appInsights);
+  const telemetryService = new TelemetryEventService(telemetryClient);
 
   const getNotificationClient = (isTest: boolean): SendNotificationClient => {
     const selectedConfig = isTest
