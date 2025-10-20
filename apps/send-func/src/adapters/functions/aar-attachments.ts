@@ -105,10 +105,10 @@ function safeParseAttachmentUrl(
     const searchParams = new URLSearchParams(queryString);
 
     const paymentRegex =
-      /^\/delivery\/notifications\/received\/([^/]+)\/attachments\/payment\/([^/]+)$/;
+      /^\/?delivery\/notifications\/received\/([^/]+)\/attachments\/payment\/([^/]+)\/?$/;
 
     const documentsRegex =
-      /^\/delivery\/notifications\/received\/([^/]+)\/attachments\/documents\/([0-9]+)$/;
+      /^\/?delivery\/notifications\/received\/([^/]+)\/attachments\/documents\/([0-9]+)$/;
 
     const paymentMatch = path.match(paymentRegex);
     if (paymentMatch) {
