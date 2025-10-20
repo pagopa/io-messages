@@ -7,9 +7,10 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "export": "tsx src/migrate.ts export",
-    "import": "tsx src/migrate.ts import",
-    "migrate": "tsx src/migrate.ts migrate",
+    "dotnet:build": "dotnet build -c Release ./src/NhRegJobs/NhRegJobs.csproj",
+    "dotnet:restore": "dotnet restore ./src/NhRegJobs/NhRegJobs.csproj",
+    "nh:export": "dotenv -e .env -- dotnet run -c Release --project ./src/NhRegJobs/NhRegJobs.csproj -- export",
+    "import": "tsx ./src/import.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint --fix src",
@@ -26,10 +27,12 @@
     "csv-parser": "^3.2.0",
     "csv-writer": "^1.6.0",
     "dotenv": "^17.2.3",
-    "fast-xml-parser": "^5.3.0"
+    "fast-xml-parser": "^5.3.0",
+    "undici": "^7.16.0"
   },
   "devDependencies": {
     "@types/node": "^24.7.0",
+    "dotenv-cli": "^3.1.0",
     "eslint": "8.57.1",
     "prettier": "^3.2.5",
     "ts-node": "^10.9.2",

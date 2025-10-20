@@ -4,7 +4,7 @@ Collection of utilities to export and migrate installations from one notificatio
 
 ## Export
 
-Run with `yarn export [-t <1000>] [-k <TOKEN>] [-p <PATH_TO_CSV>]`.
+Run with `yarn nh:export`.
 
 ```
 -t, --top       Max amount of registrations to retrieve, optional, default to 1000

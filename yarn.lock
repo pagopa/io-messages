@@ -9702,12 +9702,14 @@ __metadata:
     csv-parser: "npm:^3.2.0"
     csv-writer: "npm:^1.6.0"
     dotenv: "npm:^17.2.3"
+    dotenv-cli: "npm:^3.1.0"
     eslint: "npm:8.57.1"
     fast-xml-parser: "npm:^5.3.0"
     prettier: "npm:^3.2.5"
     ts-node: "npm:^10.9.2"
     tsx: "npm:^4.20.6"
     typescript: "npm:^5.9.3"
+    undici: "npm:^7.16.0"
   languageName: unknown
   linkType: soft
 
@@ -16666,6 +16668,13 @@ __metadata:
   dependencies:
     "@fastify/busboy": "npm:^2.0.0"
   checksum: 10c0/e4e4d631ca54ee0ad82d2e90e7798fa00a106e27e6c880687e445cc2f13b4bc87c5eba2a88c266c3eecffb18f26e227b778412da74a23acc374fca7caccec49b
+  languageName: node
+  linkType: hard
+
+"undici@npm:^7.16.0":
+  version: 7.16.0
+  resolution: "undici@npm:7.16.0"
+  checksum: 10c0/efd867792e9f233facf9efa0a087e2d9c3e4415c0b234061b9b40307ca4fa01d945fee4d43c7b564e1b80e0d519bcc682f9f6e0de13c717146c00a80e2f1fb0f
   languageName: node
   linkType: hard
 

@@ -1,7 +1,8 @@
 import csv from "csv-parser";
 import dotenv from "dotenv";
-import fs from "fs";
+import fs, { createReadStream } from "fs";
 import path from "path";
+import readline from "readline";
 
 import { RegRow } from "../notification-hub/types";
 
@@ -34,3 +35,20 @@ export const readCsv = async (path: string): Promise<RegRow[]> =>
       .on("end", () => resolve(results))
       .on("error", reject);
   });
+
+export const readTxt = async (path: string): Promise<string[]> => {
+  const ids = new Set<string>();
+  const re = /\$InstallationId:\{([^}]+)\}/g;
+
+  const rl = readline.createInterface({
+    input: createReadStream(path, { encoding: "utf-8" }),
+    crlfDelay: Infinity,
+  });
+
+  for await (const line of rl) {
+    let m;
+    while ((m = re.exec(line)) !== null) ids.add(m[1]);
+  }
+
+  return [...ids];
+};
