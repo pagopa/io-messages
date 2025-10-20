@@ -11,6 +11,7 @@
     "dotnet:restore": "dotnet restore ./src/NhRegJobs/NhRegJobs.csproj",
     "nh:export": "dotenv -e .env -- dotnet run -c Release --project ./src/NhRegJobs/NhRegJobs.csproj -- export",
     "import": "tsx ./src/import.ts",
+    "clean": "tsx ./src/clean.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint --fix src",

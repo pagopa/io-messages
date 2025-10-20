@@ -31,67 +31,6 @@ static Uri MakeContainerSasUri(string containerName, BlobContainerSasPermissions
     return container.GenerateSasUri(perms, DateTimeOffset.UtcNow.Add(ttl));
 }
 
-static Uri MakeBlobSasUri(string containerName, string blobName, BlobSasPermissions perms, TimeSpan ttl)
-{
-    var svc = MakeBlobService();
-    var blob = svc.GetBlobContainerClient(containerName).GetBlobClient(blobName);
-    return blob.GenerateSasUri(perms, DateTimeOffset.UtcNow.Add(ttl));
-}
-
-static string CleanRegistrationXml(string line, bool createMode)
-{
-    if (string.IsNullOrWhiteSpace(line)) return line;
-
-    var x = XDocument.Parse(line, LoadOptions.PreserveWhitespace);
-    XNamespace ns = "http://schemas.microsoft.com/netservices/2010/10/servicebus/connect";
-    XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
-
-    foreach (var exp in x.Descendants(ns + "ExpirationTime").ToList())
-        exp.Remove();
-
-    if (createMode)
-    {
-        var regId = x.Descendants(ns + "RegistrationId").FirstOrDefault();
-        if (regId != null)
-        {
-            regId.RemoveNodes();
-            regId.SetAttributeValue(xsi + "nil", "true");
-        }
-    }
-
-    return x.Root!.ToString(SaveOptions.DisableFormatting);
-}
-
-static async Task<Uri> CleanAndUploadAsync(
-    string containerName,
-    string srcBlobName,
-    string dstBlobName,
-    TimeSpan readSasTtl)
-{
-    var svc = MakeBlobService();
-    var container = svc.GetBlobContainerClient(containerName);
-    var src = container.GetBlobClient(srcBlobName);
-    var dst = container.GetBlobClient(dstBlobName);
-
-    await using var srcStream = await src.OpenReadAsync();
-    using var sr = new StreamReader(srcStream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-    using var ms = new MemoryStream();
-    await using (var sw = new StreamWriter(ms, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), leaveOpen: true))
-    {
-        while (!sr.EndOfStream)
-        {
-            var line = await sr.ReadLineAsync();
-            if (string.IsNullOrWhiteSpace(line)) continue;
-            var cleaned = CleanRegistrationXml(line!, true);
-            await sw.WriteLineAsync(cleaned);
-        }
-    }
-    ms.Position = 0;
-    await dst.UploadAsync(ms, overwrite: true);
-
-    return dst.GenerateSasUri(BlobSasPermissions.All, DateTimeOffset.UtcNow.Add(readSasTtl));
-}
-
 static async Task<NotificationHubJob> RunAndWaitAsync(NotificationHubClient client, NotificationHubJob job)
 {
     var created = await client.SubmitNotificationHubJobAsync(job);

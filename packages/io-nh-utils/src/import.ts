@@ -1,8 +1,12 @@
 import { NotificationHubsClient } from "@azure/notification-hubs";
 import { program } from "commander";
 
-import { migrateInstallation } from "./notification-hub/index";
-import { parseEnvVariable, readTxt } from "./utils/index";
+import {
+  importInstallation,
+  migrateInstallation,
+} from "./notification-hub/index";
+import { parseEnvVariable, readCsv, readTxt } from "./utils/index";
+import { RegRow } from "./notification-hub/types";
 
 interface IImportOptions {
   batchSize: number;
@@ -10,7 +14,7 @@ interface IImportOptions {
     connectionString: string;
     hubName: string;
   };
-  rows: string[];
+  rows: RegRow[];
   toNotificationHub: {
     connectionString: string;
     hubName: string;
@@ -37,16 +41,16 @@ const run = async ({
 
   const start = Date.now();
 
-  const batches: string[][] = [];
+  const batches: RegRow[][] = [];
   for (let i = 0; i < installationIds.length; i += batchSize) {
     batches.push(installationIds.slice(i, i + batchSize));
   }
   // loop the batches of installation migration
   for await (const batch of batches) {
     await Promise.all(
-      batch.map(async (installationId) => {
+      batch.map(async ({ installationId, platform }) => {
         try {
-          await migrateInstallation(fromClient, toClient, installationId);
+          await importInstallation(toClient, installationId, platform);
         } catch (error) {
           errors.push(installationId);
           //eslint-disable-next-line no-console
@@ -95,7 +99,7 @@ program
     const toHubName = parseEnvVariable("TO_HUB");
 
     const { batchSize, path } = options;
-    const rows: string[] = await readTxt(path);
+    const rows: RegRow[] = await readCsv(path);
 
     await run({
       batchSize: Number.parseInt(batchSize),
