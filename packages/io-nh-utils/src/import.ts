@@ -82,8 +82,6 @@ program
     "10",
   )
   .action(async (options) => {
-    const fromConnectionString = parseEnvVariable("FROM_CONN");
-    const fromHubName = parseEnvVariable("FROM_HUB");
     const toConnectionString = parseEnvVariable("TO_CONN");
     const toHubName = parseEnvVariable("TO_HUB");
 
