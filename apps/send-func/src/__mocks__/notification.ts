@@ -74,7 +74,6 @@ export const aProblem = problemSchema.parse({
   status: 503,
   title: "Service Unavailable",
   traceId: "123e4567-e89b-12d3-a456-426614174000",
-  type: "https://example.com/docs/errors#invalid-input",
 });
 
 export const aDocIdx = idxSchema.parse(1);

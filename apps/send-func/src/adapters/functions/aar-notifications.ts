@@ -4,12 +4,12 @@ import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
 
-import {
-  AarGetNotificationResponse,
-  aarProblemJsonSchema,
-} from "../send/definitions.js";
+import { AarGetNotificationResponse } from "../send/definitions.js";
 import { NotificationClientError } from "../send/notification.js";
-import { malformedBodyResponse } from "./commons/response.js";
+import {
+  malformedBodyResponse,
+  sendProblemToAARProblemJson,
+} from "./commons/response.js";
 
 export const getNotification =
   (
@@ -59,7 +59,7 @@ export const getNotification =
         context.error("Notification client error:", err.message);
 
         return {
-          jsonBody: aarProblemJsonSchema.parse(err.body),
+          jsonBody: sendProblemToAARProblemJson(err.body),
           status: 500,
         };
       }
