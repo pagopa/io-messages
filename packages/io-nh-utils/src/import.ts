@@ -54,7 +54,9 @@ const run = async ({ batchSize, rows, toNotificationHub }: IImportOptions) => {
       `${new Date(Date.now()).toLocaleString("it-IT")} - Imported ${(batches.indexOf(batch) + 1) * batchSize} installations...`,
     );
     //eslint-disable-next-line no-console
-    console.log(`Last installation imported: ${batch[batch.length - 1]}`);
+    console.log(
+      `Last installation imported: ${batch[batch.length - 1].installationId}`,
+    );
   }
   const end = Date.now();
   const diffMs = end - start;
