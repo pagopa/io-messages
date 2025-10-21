@@ -1,19 +1,12 @@
 import { NotificationHubsClient } from "@azure/notification-hubs";
 import { program } from "commander";
 
-import {
-  importInstallation,
-  migrateInstallation,
-} from "./notification-hub/index";
-import { parseEnvVariable, readCsv, readTxt } from "./utils/index";
+import { importInstallation } from "./notification-hub/index";
+import { parseEnvVariable, readCsv } from "./utils/index";
 import { RegRow } from "./notification-hub/types";
 
 interface IImportOptions {
   batchSize: number;
-  fromNotificationHub: {
-    connectionString: string;
-    hubName: string;
-  };
   rows: RegRow[];
   toNotificationHub: {
     connectionString: string;
@@ -21,16 +14,7 @@ interface IImportOptions {
   };
 }
 
-const run = async ({
-  batchSize,
-  fromNotificationHub,
-  rows,
-  toNotificationHub,
-}: IImportOptions) => {
-  const fromClient = new NotificationHubsClient(
-    fromNotificationHub.connectionString,
-    fromNotificationHub.hubName,
-  );
+const run = async ({ batchSize, rows, toNotificationHub }: IImportOptions) => {
   const toClient = new NotificationHubsClient(
     toNotificationHub.connectionString,
     toNotificationHub.hubName,
@@ -48,9 +32,14 @@ const run = async ({
   // loop the batches of installation migration
   for await (const batch of batches) {
     await Promise.all(
-      batch.map(async ({ installationId, platform }) => {
+      batch.map(async ({ installationId, platform, pushChannel }) => {
         try {
-          await importInstallation(toClient, installationId, platform);
+          await importInstallation(
+            toClient,
+            installationId,
+            platform,
+            pushChannel,
+          );
         } catch (error) {
           errors.push(installationId);
           //eslint-disable-next-line no-console
@@ -103,10 +92,6 @@ program
 
     await run({
       batchSize: Number.parseInt(batchSize),
-      fromNotificationHub: {
-        connectionString: fromConnectionString,
-        hubName: fromHubName,
-      },
       rows,
       toNotificationHub: {
         connectionString: toConnectionString,

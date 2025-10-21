@@ -83,24 +83,29 @@ export const importInstallation = async (
   toClient: NotificationHubsClient,
   installationId: string,
   platform: string,
+  pushChannel: string,
 ) => {
   // create a new installation following apps/pushnotif-func/src/utils/notification.ts 's createOrUpdateInstallation
   const newInstallation = {
+    installationId,
+    platform: platform.toLowerCase().includes("apple") ? "apns" : "fcmv1",
+    pushChannel,
     templates: {
       template: {
-        body: platform.toLowerCase() === "apns" ? APNSTemplate : FCMV1Template,
-        headers:
-          platform.toLowerCase() === "apns"
-            ? {
-                ["apns-priority"]: "10",
-                ["apns-push-type"]: APNSPushType.ALERT,
-              }
-            : {},
+        body: platform.toLowerCase().includes("apple")
+          ? APNSTemplate
+          : FCMV1Template,
+        headers: platform.toLowerCase().includes("apple")
+          ? {
+              ["apns-priority"]: "10",
+              ["apns-push-type"]: APNSPushType.ALERT,
+            }
+          : {},
         // add the installation id as a tag (pushnotif-func receives it from io-backend's request)
         tags: [installationId],
       },
     },
-  } as unknown as Installation;
+  } as Installation;
   await createInstallation(toClient, newInstallation);
 };
 

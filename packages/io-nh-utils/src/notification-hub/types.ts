@@ -1,6 +1,7 @@
 export interface RegRow {
   installationId: string;
   platform: string;
+  pushChannel: string;
 }
 
 export interface SasParams {

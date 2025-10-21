@@ -1,8 +1,7 @@
 import csv from "csv-parser";
 import dotenv from "dotenv";
-import fs, { createReadStream } from "fs";
+import fs from "fs";
 import path from "path";
-import readline from "readline";
 
 import { RegRow } from "../notification-hub/types";
 import { createObjectCsvWriter } from "csv-writer";
@@ -36,33 +35,6 @@ export const readCsv = async (path: string): Promise<RegRow[]> =>
       .on("end", () => resolve(results))
       .on("error", reject);
   });
-
-export const readTxt = async (
-  path: string,
-  oldInstallations: RegRow[],
-): Promise<RegRow[]> => {
-  const rl = readline.createInterface({
-    input: createReadStream(path, { encoding: "utf-8" }),
-    crlfDelay: Infinity,
-  });
-
-  const byId = new Map<string, RegRow>();
-  oldInstallations.map((i) => byId.set(i.installationId, i));
-  const typeRe = /\bi:type="([^"]+)"/;
-  const tagsRe = /<Tags>([^<]*)<\/Tags>/;
-  const instRe = /\$InstallationId:\{([^}]+)\}/;
-
-  for await (const line of rl) {
-    const type = typeRe.exec(line)?.[1];
-    const tags = tagsRe.exec(line)?.[1];
-    const installationId = tags ? instRe.exec(tags)?.[1] : undefined;
-    if (type && installationId && !byId.has(installationId)) {
-      byId.set(installationId, { platform: type, installationId });
-    }
-  }
-
-  return [...byId.values()];
-};
 
 export const saveCsv = async (path: string, rows: RegRow[]): Promise<void> => {
   const writer = createObjectCsvWriter({
