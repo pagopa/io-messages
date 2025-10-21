@@ -10,10 +10,12 @@ import {
 } from "../send/definitions.js";
 import { NotificationClientError } from "../send/notification.js";
 import { malformedBodyResponse } from "./commons/response.js";
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 
 export const getNotification =
   (
     getNotificationUseCase: GetNotificationUseCase,
+    telemetryService: TelemetryService,
   ): ExtentedHttpHandler<LollipopHeaders> =>
   async (
     request: HttpRequest,
@@ -58,6 +60,13 @@ export const getNotification =
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
 
+        telemetryService.trackEvent(
+          TelemetryEventName.SEND_INTERNAL_SERVER_ERROR,
+          {
+            status: err.status,
+          },
+        );
+
         return {
           jsonBody: aarProblemJsonSchema.parse(err.body),
           status: 500,
@@ -66,7 +75,7 @@ export const getNotification =
 
       const errorMessage =
         err instanceof Error ? err.message : JSON.stringify(err);
-      context.error(err);
+
       return {
         jsonBody: {
           detail: errorMessage,

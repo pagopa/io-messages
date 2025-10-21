@@ -59,7 +59,7 @@ const main = async (config: Config): Promise<void> => {
     authLevel: "anonymous",
     handler: handlerWithMiddleware(
       lollipopMiddleware,
-      aarQRCodeCheck(qrCodeCheckUseCase),
+      aarQRCodeCheck(qrCodeCheckUseCase, telemetryService),
     ),
     methods: ["POST"],
     route: "aar/qr-code-check",
@@ -69,7 +69,7 @@ const main = async (config: Config): Promise<void> => {
     authLevel: "anonymous",
     handler: handlerWithMiddleware(
       lollipopMiddleware,
-      getNotification(getNotificationUseCase),
+      getNotification(getNotificationUseCase, telemetryService),
     ),
     methods: ["GET"],
     route: "aar/notifications/{iun}",

@@ -13,10 +13,12 @@ import {
   NotificationClientError,
 } from "../send/notification.js";
 import { malformedBodyResponse } from "./commons/response.js";
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 
 export const aarQRCodeCheck =
   (
     qrCodeCheckUseCase: QrCodeCheckUseCase,
+    telemetryService: TelemetryService,
   ): ExtentedHttpHandler<LollipopHeaders> =>
   async (
     request: HttpRequest,
@@ -54,7 +56,7 @@ export const aarQRCodeCheck =
       return { jsonBody: response, status: 200 };
     } catch (err) {
       if (err instanceof NotRecipientClientError) {
-        context.error("NotRecipient client error:", err.message);
+        //SEND returns 403. It will start the user delegation mobile flow
         return {
           jsonBody: err.body,
           status: 403,
@@ -64,6 +66,27 @@ export const aarQRCodeCheck =
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
 
+        if (err.status === 403) {
+          telemetryService.trackEvent(
+            TelemetryEventName.MALFORMED_403_SEND_RESPONSE,
+          );
+        }
+
+        if (err.status === 404) {
+          telemetryService.trackEvent(
+            TelemetryEventName.NOT_FOUND_AAR_SEND_DATA,
+          );
+        }
+
+        if (err.status === 500) {
+          telemetryService.trackEvent(
+            TelemetryEventName.SEND_INTERNAL_SERVER_ERROR,
+            {
+              status: err.status,
+            },
+          );
+        }
+
         return {
           jsonBody: aarProblemJsonSchema.parse(err.body),
           status: 500,
@@ -72,7 +95,7 @@ export const aarQRCodeCheck =
 
       const errorMessage =
         err instanceof Error ? err.message : JSON.stringify(err);
-      context.error(err);
+
       return {
         jsonBody: {
           detail: errorMessage,
