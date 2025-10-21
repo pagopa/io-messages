@@ -67,6 +67,7 @@ async function splitAndProcess(
   let buf = "";
   let recCount = 0;
   let fileIndex = 0;
+  let skippedTemplate = 0;
   const csvPaths: string[] = [];
 
   const makeCsvPath = () =>
@@ -92,14 +93,26 @@ async function splitAndProcess(
           const node = obj?.[elementName];
           const platform: string | undefined =
             node?.["i:type"] || node?.type || undefined;
+
+          if (platform && /template/i.test(platform)) {
+            skippedTemplate++;
+            continue;
+          }
+
           const pushChannel: string | undefined =
-            node?.["DeviceToken"] || node?.DeviceToken || undefined;
+            node?.["DeviceToken"] ||
+            node?.DeviceToken ||
+            node?.["FcmV1RegistrationId"] ||
+            node?.FcmV1RegistrationId ||
+            undefined;
+
           const tags: string | undefined = node?.Tags ?? undefined;
           let installationId: string | undefined;
           if (typeof tags === "string") {
             const m = /\$InstallationId:\{([^}]+)\}/.exec(tags);
             installationId = m?.[1];
           }
+
           if (installationId && platform && pushChannel) {
             currentCsv.write(`${installationId},${platform},${pushChannel}\n`);
             recCount++;
@@ -125,7 +138,9 @@ async function splitAndProcess(
   });
 
   await new Promise((r) => currentCsv.end(r));
-  log(`Splitting complete — ${csvPaths.length} chunk(s) created`);
+  log(
+    `Splitting complete — ${csvPaths.length} chunk(s) created; skipped ${skippedTemplate} Template records`,
+  );
   return csvPaths.filter((p) => fs.existsSync(p));
 }
 
