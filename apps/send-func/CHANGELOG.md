@@ -1,5 +1,11 @@
 # send-func
 
+## 1.3.5
+
+### Patch Changes
+
+- e04cadd: Update SEND AAR attachment url regex
+
 ## 1.3.4
 
 ### Patch Changes
