@@ -3,7 +3,6 @@ import {
   AarProblemResponse,
   Problem,
 } from "@/adapters/send/definitions.js";
-import { send } from "process";
 
 export const malformedBodyResponse = (
   detail: string,
@@ -20,9 +19,9 @@ export const malformedBodyResponse = (
 export const sendProblemToAARProblemJson = (
   sendError: Problem,
 ): AARProblemJson => ({
-  status: sendError.status,
-  errors: sendError.errors,
   detail: sendError.detail ? sendError.detail : "Something went wrong",
+  errors: sendError.errors,
+  status: sendError.status,
   title: sendError.type
     ? `${sendError.type} - ${sendError.title}`
     : sendError.title,

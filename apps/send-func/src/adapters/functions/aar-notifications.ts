@@ -4,10 +4,7 @@ import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
 
-import {
-  AarGetNotificationResponse,
-  aarProblemJsonSchema,
-} from "../send/definitions.js";
+import { AarGetNotificationResponse } from "../send/definitions.js";
 import { NotificationClientError } from "../send/notification.js";
 import {
   malformedBodyResponse,

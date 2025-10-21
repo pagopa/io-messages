@@ -5,7 +5,6 @@ import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
 
 import {
   AarQRCodeCheckResponse,
-  aarProblemJsonSchema,
   checkQrMandateRequestSchema,
 } from "../send/definitions.js";
 import {

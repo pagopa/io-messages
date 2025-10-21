@@ -15,10 +15,7 @@ import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
 import * as z from "zod";
 import { ZodError } from "zod";
 
-import {
-  AarGetAttachmentResponse,
-  aarProblemJsonSchema,
-} from "../send/definitions.js";
+import { AarGetAttachmentResponse } from "../send/definitions.js";
 import { NotificationClientError } from "../send/notification.js";
 import {
   malformedBodyResponse,
