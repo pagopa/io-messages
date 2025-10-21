@@ -21,7 +21,7 @@ export const aarProblemJsonSchema = z.object({
   status: z.number().int().gte(100).lt(600),
   title: z.string().optional(),
   traceId: z.string().optional(),
-  type: z.url().optional(),
+  type: z.string().optional(),
 });
 
 export type AARProblemJson = z.TypeOf<typeof aarProblemJsonSchema>;
