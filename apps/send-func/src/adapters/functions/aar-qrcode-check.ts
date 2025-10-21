@@ -12,7 +12,10 @@ import {
   NotRecipientClientError,
   NotificationClientError,
 } from "../send/notification.js";
-import { malformedBodyResponse } from "./commons/response.js";
+import {
+  malformedBodyResponse,
+  sendProblemToAARProblemJson,
+} from "./commons/response.js";
 
 export const aarQRCodeCheck =
   (
@@ -65,7 +68,7 @@ export const aarQRCodeCheck =
         context.error("Notification client error:", err.message);
 
         return {
-          jsonBody: aarProblemJsonSchema.parse(err.body),
+          jsonBody: sendProblemToAARProblemJson(err.body),
           status: 500,
         };
       }

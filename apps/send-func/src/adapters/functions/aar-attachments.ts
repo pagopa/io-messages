@@ -20,7 +20,10 @@ import {
   aarProblemJsonSchema,
 } from "../send/definitions.js";
 import { NotificationClientError } from "../send/notification.js";
-import { malformedBodyResponse } from "./commons/response.js";
+import {
+  malformedBodyResponse,
+  sendProblemToAARProblemJson,
+} from "./commons/response.js";
 
 export const getAttachment =
   (
@@ -69,7 +72,7 @@ export const getAttachment =
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
 
-        const problemJson = aarProblemJsonSchema.parse(err.body);
+        const problemJson = sendProblemToAARProblemJson(err.body);
 
         return {
           jsonBody: problemJson,
