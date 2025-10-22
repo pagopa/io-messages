@@ -43,10 +43,6 @@ paths:
                 $ref: "#/components/schemas/AARProblemJson"
         "401":
           description: Unauthorized
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/AARProblemJson"
         "500":
           description: Bad request
           content:
@@ -93,10 +89,6 @@ paths:
                 $ref: "#/components/schemas/AARProblemJson"
         "401":
           description: Unauthorized
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/AARProblemJson"
         "500":
           description: Internal Server Error
           content:
@@ -133,10 +125,6 @@ paths:
                 $ref: "#/components/schemas/AARProblemJson"
         "401":
           description: Unauthorized
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/AARProblemJson"
         "500":
           description: Unexpected Error
           content:
