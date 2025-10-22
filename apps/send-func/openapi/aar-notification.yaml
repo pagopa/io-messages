@@ -41,6 +41,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/AARProblemJson"
+        "401":
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AARProblemJson"
         "500":
           description: Bad request
           content:
@@ -85,6 +91,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/AARProblemJson"
+        "401":
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AARProblemJson"
         "500":
           description: Internal Server Error
           content:
@@ -115,6 +127,12 @@ paths:
                 $ref: "#/components/schemas/NotificationAttachmentDownloadMetadataResponse"
         "400":
           description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AARProblemJson"
+        "401":
+          description: Unauthorized
           content:
             application/problem+json:
               schema:
