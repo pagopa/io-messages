@@ -41,6 +41,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/AARProblemJson"
+        "401":
+          description: Unauthorized
         "500":
           description: Bad request
           content:
@@ -73,18 +75,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AARQRCodeCheckResponse"
-        "403":
-          description: Mandate not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AARQRCodeCheckResponse"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/AARProblemJson"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Mandate not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AARQRCodeCheckResponse"
         "500":
           description: Internal Server Error
           content:
@@ -119,6 +123,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/AARProblemJson"
+        "401":
+          description: Unauthorized
         "500":
           description: Unexpected Error
           content:
