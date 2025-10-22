@@ -1,4 +1,4 @@
-import { getIsUserEligibleForNewFeature } from "@/utils/featureFlag";
+import { useNewNotificationHub } from "@/utils/featureFlag";
 import { AzureFunction, Context } from "@azure/functions";
 
 import { initTelemetryClient } from "../../utils/appinsights";
@@ -18,15 +18,6 @@ const newNhPatitionFactory = new NotificationHubPartitionFactory(
   config.AZURE_NEW_NOTIFICATION_HUB_PARTITIONS,
 );
 
-const useNewNotifHub = getIsUserEligibleForNewFeature(
-  (i: string) => config.NH_PARTITION_BETA_TESTER_LIST.includes(i),
-  (i: string) => {
-    const regex = new RegExp(config.NH_PARTITION_CANARY_USERS_REGEX);
-    return regex.test(i);
-  },
-  config.NH_PARTITION_FEATURE_FLAG,
-);
-
 export const index: AzureFunction = (
   _: Context,
   notifyRequest: unknown,
@@ -37,5 +28,9 @@ export const index: AzureFunction = (
     telemetryClient,
     nhPatitionFactory,
     newNhPatitionFactory,
-    useNewNotifHub,
+    useNewNotificationHub(
+      config.NH_PARTITION_BETA_TESTER_LIST,
+      config.NH_PARTITION_CANARY_USERS_REGEX,
+      config.NH_PARTITION_FEATURE_FLAG,
+    ),
   );

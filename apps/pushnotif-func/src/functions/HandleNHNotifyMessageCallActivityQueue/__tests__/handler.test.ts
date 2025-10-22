@@ -4,12 +4,19 @@ import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { envConfig } from "../../../__mocks__/env-config.mock";
-import { nhPartitionFactory } from "../../../__mocks__/notification-hub";
+import {
+  newNhPartitionFactory,
+  nhPartitionFactory,
+} from "../../../__mocks__/notification-hub";
 import {
   KindEnum,
   NotifyMessage,
 } from "../../../generated/notifications/NotifyMessage";
 import { toSHA256 } from "../../../utils/conversions";
+import {
+  FeatureFlagEnum,
+  useNewNotificationHub,
+} from "../../../utils/featureFlag";
 import { handle } from "../handler";
 
 const aFiscalCodeHash =
@@ -37,6 +44,7 @@ const aNotifyMessageToBlacklistedUser: NotifyMessage = {
 };
 
 vi.spyOn(nhPartitionFactory, "getPartition");
+vi.spyOn(newNhPartitionFactory, "getPartition");
 
 describe("HandleNHNotifyMessageCallActivityQueue", () => {
   beforeEach(() => {
@@ -68,6 +76,8 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
       envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
       mockTelemetryClient,
       nhPartitionFactory,
+      newNhPartitionFactory,
+      () => false, // always use nhPartitionFactory
     );
     expect(res.kind).toEqual("SUCCESS");
 
@@ -116,6 +126,8 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
       envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
       mockTelemetryClient,
       nhPartitionFactory,
+      newNhPartitionFactory,
+      () => false, // always use nhPartitionFactory
     );
     expect(res.kind).toEqual("SUCCESS");
 
@@ -154,6 +166,8 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
         envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
         mockTelemetryClient,
         nhPartitionFactory,
+        newNhPartitionFactory,
+        () => false, // always use nhPartitionFactory
       ),
     ).rejects.toEqual(expect.objectContaining({ kind: "TRANSIENT" }));
     expect(
@@ -191,6 +205,8 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
       envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
       mockTelemetryClient,
       nhPartitionFactory,
+      newNhPartitionFactory,
+      () => false, // always use nhPartitionFactory
     );
 
     expect(res.kind).toEqual("SUCCESS");
@@ -198,5 +214,147 @@ describe("HandleNHNotifyMessageCallActivityQueue", () => {
 
     expect(NotificationHubsClient.prototype.sendNotification).not.toBeCalled();
     expect(nhPartitionFactory.getPartition).not.toHaveBeenCalled();
+  });
+});
+
+describe("HandleNHNotifyMessageCallActivityQueue FeatureFlag behavior", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should call newNhPartitionFactory when FeatureFlagEnum.ALL", async () => {
+    vi.spyOn(
+      NotificationHubsClient.prototype,
+      "sendNotification",
+    ).mockResolvedValueOnce({
+      failureCount: 0,
+      results: [],
+      state: "Completed",
+      successCount: 1,
+    });
+
+    const input = Buffer.from(
+      JSON.stringify({
+        message: aNotifyMessage,
+        target: "current",
+      }),
+    ).toString("base64");
+
+    await handle(
+      input,
+      envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
+      mockTelemetryClient,
+      nhPartitionFactory,
+      newNhPartitionFactory,
+      useNewNotificationHub([], "", FeatureFlagEnum.ALL),
+    );
+
+    expect(nhPartitionFactory.getPartition).not.toHaveBeenCalled();
+    expect(newNhPartitionFactory.getPartition).toHaveBeenCalledWith(
+      aNotifyMessage.installationId,
+    );
+  });
+
+  it("should NOT call newNhPartitionFactory when FeatureFlagEnum.NONE", async () => {
+    vi.spyOn(
+      NotificationHubsClient.prototype,
+      "sendNotification",
+    ).mockResolvedValueOnce({
+      failureCount: 0,
+      results: [],
+      state: "Completed",
+      successCount: 1,
+    });
+
+    const input = Buffer.from(
+      JSON.stringify({
+        message: aNotifyMessage,
+        target: "current",
+      }),
+    ).toString("base64");
+
+    await handle(
+      input,
+      envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
+      mockTelemetryClient,
+      nhPartitionFactory,
+      newNhPartitionFactory,
+      useNewNotificationHub([], "", FeatureFlagEnum.NONE),
+    );
+
+    expect(nhPartitionFactory.getPartition).toHaveBeenCalledWith(
+      aNotifyMessage.installationId,
+    );
+    expect(newNhPartitionFactory.getPartition).not.toHaveBeenCalled();
+  });
+
+  it("should call newNhPartitionFactory when FeatureFlagEnum.BETA and InstallationId in betaTesterList", async () => {
+    vi.spyOn(
+      NotificationHubsClient.prototype,
+      "sendNotification",
+    ).mockResolvedValueOnce({
+      failureCount: 0,
+      results: [],
+      state: "Completed",
+      successCount: 1,
+    });
+
+    const input = Buffer.from(
+      JSON.stringify({
+        message: aNotifyMessage,
+        target: "current",
+      }),
+    ).toString("base64");
+
+    await handle(
+      input,
+      envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
+      mockTelemetryClient,
+      nhPartitionFactory,
+      newNhPartitionFactory,
+      useNewNotificationHub(
+        [aNotifyMessage.installationId],
+        "",
+        FeatureFlagEnum.BETA,
+      ),
+    );
+
+    expect(nhPartitionFactory.getPartition).not.toHaveBeenCalled();
+    expect(newNhPartitionFactory.getPartition).toHaveBeenCalledWith(
+      aNotifyMessage.installationId,
+    );
+  });
+
+  it("should NOT call newNhPartitionFactory when FeatureFlagEnum.BETA and InstallationId not in betaTesterList", async () => {
+    vi.spyOn(
+      NotificationHubsClient.prototype,
+      "sendNotification",
+    ).mockResolvedValueOnce({
+      failureCount: 0,
+      results: [],
+      state: "Completed",
+      successCount: 1,
+    });
+
+    const input = Buffer.from(
+      JSON.stringify({
+        message: aNotifyMessage,
+        target: "current",
+      }),
+    ).toString("base64");
+
+    await handle(
+      input,
+      envConfig.FISCAL_CODE_NOTIFICATION_BLACKLIST,
+      mockTelemetryClient,
+      nhPartitionFactory,
+      newNhPartitionFactory,
+      useNewNotificationHub([], "", FeatureFlagEnum.BETA),
+    );
+
+    expect(nhPartitionFactory.getPartition).toHaveBeenCalledWith(
+      aNotifyMessage.installationId,
+    );
+    expect(newNhPartitionFactory.getPartition).not.toHaveBeenCalled();
   });
 });
