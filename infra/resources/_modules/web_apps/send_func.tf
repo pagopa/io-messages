@@ -67,7 +67,7 @@ resource "azurerm_key_vault_access_policy" "send_func_kv_access_policy" {
 resource "azurerm_monitor_metric_alert" "send_func_5xx_http_server_errors" {
   name                = "${module.send_func.function_app.function_app.name}-http-5xx-server-errors"
   resource_group_name = var.resource_group_name
-  scopes              = [module.send_func.function_app.function_app.principal_id]
+  scopes              = [module.send_func.function_app.function_app.id]
   description         = "${module.send_func.function_app.function_app.name} http 5xx server errors"
   severity            = 1
   window_size         = "PT5M"
@@ -90,7 +90,7 @@ resource "azurerm_monitor_metric_alert" "send_func_5xx_http_server_errors" {
 resource "azurerm_monitor_metric_alert" "send_func_4xx_http_server_errors" {
   name                = "${module.send_func.function_app.function_app.name}-http-4xx-server-errors"
   resource_group_name = var.resource_group_name
-  scopes              = [module.send_func.function_app.function_app.principal_id]
+  scopes              = [module.send_func.function_app.function_app.id]
   description         = "${module.send_func.function_app.function_app.name} http 4xx server errors"
   severity            = 1
   window_size         = "PT5M"
