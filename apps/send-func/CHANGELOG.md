@@ -1,5 +1,17 @@
 # send-func
 
+## 1.3.6
+
+### Patch Changes
+
+- 030a1ab: add 401 response status to aar api
+
+## 1.3.5
+
+### Patch Changes
+
+- e04cadd: Update SEND AAR attachment url regex
+
 ## 1.3.4
 
 ### Patch Changes

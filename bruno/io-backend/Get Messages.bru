@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{app_backend_public_url}}/api/v1/messages
+  url: {{app_backend_public_url}}/api/v1/messages?enrich_result_data=true
   body: none
   auth: bearer
+}
+
+params:query {
+  enrich_result_data: true
 }
 
 auth:bearer {

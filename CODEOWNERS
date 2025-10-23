@@ -1,3 +1,3 @@
 * @pagopa/io-communication-backend @lucamancosu
-/.github @pagopa/io-communication-backend @pagopa/engineering-team-devex @lucamancosu
-/infra @pagopa/io-communication-backend @pagopa/engineering-team-devex @lucamancosu
+/infra/bootstrapper @pagopa/io-communication-backend @lucamancosu @pagopa/engineering-team-devex
+
