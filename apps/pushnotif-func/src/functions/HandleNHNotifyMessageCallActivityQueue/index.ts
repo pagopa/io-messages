@@ -1,8 +1,8 @@
-import { useNewNotificationHub } from "@/utils/featureFlag";
 import { AzureFunction, Context } from "@azure/functions";
 
 import { initTelemetryClient } from "../../utils/appinsights";
 import { getConfigOrThrow } from "../../utils/config";
+import { useNewNotificationHub } from "../../utils/featureFlag";
 import { NotificationHubPartitionFactory } from "../../utils/notificationhubServicePartition";
 import { NhNotifyMessageResponse, handle } from "./handler";
 
