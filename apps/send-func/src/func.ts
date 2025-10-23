@@ -4,6 +4,10 @@ import LollipopClient from "io-messages-common/adapters/lollipop/lollipop-client
 import { createLollipopMiddleware } from "io-messages-common/adapters/lollipop/lollipop-middleware";
 import { handlerWithMiddleware } from "io-messages-common/adapters/middleware";
 
+import {
+  TelemetryEventService,
+  initNoSamplingClient,
+} from "./adapters/appinsights/appinsights.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
 import { getAttachment } from "./adapters/functions/aar-attachments.js";
 import { getNotification } from "./adapters/functions/aar-notifications.js";
@@ -14,10 +18,6 @@ import { GetAttachmentUseCase } from "./domain/use-cases/get-attachment.js";
 import { GetNotificationUseCase } from "./domain/use-cases/get-notification.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
 import { QrCodeCheckUseCase } from "./domain/use-cases/qr-code-check.js";
-import {
-  initNoSamplingClient,
-  TelemetryEventService,
-} from "./adapters/appinsights/appinsights.js";
 
 const main = async (config: Config): Promise<void> => {
   const healthcheckUseCase = new HealthUseCase([]);

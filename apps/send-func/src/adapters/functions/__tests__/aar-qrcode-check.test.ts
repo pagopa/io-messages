@@ -7,6 +7,7 @@ import {
   anInvalidAarQrCodeValue,
   mockNotificationClient,
 } from "@/__mocks__/notification.js";
+import { TelemetryEventService } from "@/adapters/appinsights/appinsights.js";
 import { NotificationClientError } from "@/adapters/send/notification.js";
 import { QrCodeCheckUseCase } from "@/domain/use-cases/qr-code-check.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
@@ -14,7 +15,6 @@ import { beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 
 import { aarQRCodeCheck } from "../aar-qrcode-check.js";
-import { TelemetryEventService } from "@/adapters/appinsights/appinsights.js";
 
 const trackEventMock = vi.fn(() => Promise.resolve());
 const mocks = vi.hoisted(() => ({

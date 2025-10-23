@@ -1,3 +1,4 @@
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { QrCodeCheckUseCase } from "@/domain/use-cases/qr-code-check.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
@@ -15,7 +16,6 @@ import {
   malformedBodyResponse,
   sendProblemToAARProblemJson,
 } from "./commons/response.js";
-import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 
 export const aarQRCodeCheck =
   (

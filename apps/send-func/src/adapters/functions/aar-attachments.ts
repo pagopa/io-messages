@@ -4,6 +4,7 @@ import {
   iunSchema,
   mandateIdSchema,
 } from "@/domain/notification.js";
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import {
   AttachmentParams,
   GetAttachmentUseCase,
@@ -21,7 +22,6 @@ import {
   malformedBodyResponse,
   sendProblemToAARProblemJson,
 } from "./commons/response.js";
-import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 
 export const getAttachment =
   (

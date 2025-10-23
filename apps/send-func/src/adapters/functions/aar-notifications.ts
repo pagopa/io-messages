@@ -1,4 +1,5 @@
 import { iunSchema, mandateIdSchema } from "@/domain/notification.js";
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { GetNotificationUseCase } from "@/domain/use-cases/get-notification.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
@@ -10,7 +11,6 @@ import {
   malformedBodyResponse,
   sendProblemToAARProblemJson,
 } from "./commons/response.js";
-import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 
 export const getNotification =
   (
