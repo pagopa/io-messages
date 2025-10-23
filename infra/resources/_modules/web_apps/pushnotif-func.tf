@@ -122,23 +122,21 @@ locals {
       # Notification Hubs variables
 
       # Endpoint for the weu notification hub namespace
-      AZURE_NH_HUB_NAME                                = data.azurerm_notification_hub.common.name
-      "AzureWebJobs.HandleNHNotificationCall.Disabled" = "0"
-      # Endpoint for the weu notification hub namespace
       NH1_PARTITION_REGEX = "^[0-3]"
-      NH1_NAME            = data.azurerm_notification_hub.common_partition[0].name
-      NH2_PARTITION_REGEX = "^[4-7]"
-      NH2_NAME            = data.azurerm_notification_hub.common_partition[1].name
-      NH3_PARTITION_REGEX = "^[8-b]"
-      NH3_NAME            = data.azurerm_notification_hub.common_partition[2].name
-      NH4_PARTITION_REGEX = "^[c-f]"
-      NH4_NAME            = data.azurerm_notification_hub.common_partition[3].name
+      NH1_NAME            = var.nh_itn_partition_4.name
+      NH1_ENDPOINT        = var.nh_itn_partition_1.endpoint
 
-      AZURE_NH_ENDPOINT = data.azurerm_key_vault_secret.azure_nh_endpoint.value
-      NH1_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition1_endpoint.value
-      NH2_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition2_endpoint.value
-      NH3_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition3_endpoint.value
-      NH4_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition4_endpoint.value
+      NH2_PARTITION_REGEX = "^[4-7]"
+      NH2_NAME            = var.nh_itn_partition_4.name
+      NH2_ENDPOINT        = var.nh_itn_partition_1.endpoint
+
+      NH3_PARTITION_REGEX = "^[8-b]"
+      NH3_NAME            = var.nh_itn_partition_4.name
+      NH3_ENDPOINT        = var.nh_itn_partition_1.endpoint
+
+      NH4_PARTITION_REGEX = "^[c-f]"
+      NH4_NAME            = var.nh_itn_partition_4.name
+      NH4_ENDPOINT        = var.nh_itn_partition_1.endpoint
       # ------------------------------------------------------------------------------
 
 

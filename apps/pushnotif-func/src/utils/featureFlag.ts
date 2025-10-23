@@ -35,13 +35,3 @@ export const getIsUserEligibleForNewFeature =
         return false;
     }
   };
-
-export const useNewNotificationHub = (
-  betaTesterList: readonly string[],
-  featureFlag: FeatureFlag,
-) =>
-  getIsUserEligibleForNewFeature(
-    (i: string) => betaTesterList.includes(i),
-    () => false,
-    featureFlag,
-  );
