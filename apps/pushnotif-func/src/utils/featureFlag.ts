@@ -2,10 +2,10 @@ import { enumType } from "@pagopa/ts-commons/lib/types";
 import * as t from "io-ts";
 
 export enum FeatureFlagEnum {
-  ALL = "ALL",
-  BETA = "BETA",
-  CANARY = "CANARY",
-  NONE = "NONE",
+  ALL = "all",
+  BETA = "beta",
+  CANARY = "canary",
+  NONE = "none",
 }
 
 export const FeatureFlag = enumType<FeatureFlagEnum>(
@@ -23,13 +23,13 @@ export const getIsUserEligibleForNewFeature =
   ): ((i: T) => boolean) =>
   (i): boolean => {
     switch (featureFlag) {
-      case "ALL":
+      case FeatureFlagEnum.ALL:
         return true;
-      case "BETA":
+      case FeatureFlagEnum.BETA:
         return isUserBeta(i);
-      case "CANARY":
+      case FeatureFlagEnum.CANARY:
         return isUserCanary(i) || isUserBeta(i);
-      case "NONE":
+      case FeatureFlagEnum.NONE:
         return false;
       default:
         return false;
