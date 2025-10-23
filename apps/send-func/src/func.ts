@@ -79,7 +79,7 @@ const main = async (config: Config): Promise<void> => {
     authLevel: "anonymous",
     handler: handlerWithMiddleware(
       lollipopMiddleware,
-      getAttachment(getAttachmentUseCase),
+      getAttachment(getAttachmentUseCase, telemetryService),
     ),
     methods: ["GET"],
     route: "aar/attachments/{attachmentUrl}",

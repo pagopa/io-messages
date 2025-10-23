@@ -75,6 +75,7 @@ export const getNotification =
 
       const errorMessage =
         err instanceof Error ? err.message : JSON.stringify(err);
+      context.error(err);
 
       return {
         jsonBody: {

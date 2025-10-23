@@ -21,10 +21,12 @@ import {
   malformedBodyResponse,
   sendProblemToAARProblemJson,
 } from "./commons/response.js";
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 
 export const getAttachment =
   (
     getAttachmentUseCase: GetAttachmentUseCase,
+    telemetryService: TelemetryService,
   ): ExtentedHttpHandler<LollipopHeaders> =>
   async (
     request: HttpRequest,
@@ -70,6 +72,13 @@ export const getAttachment =
         context.error("Notification client error:", err.message);
 
         const problemJson = sendProblemToAARProblemJson(err.body);
+
+        telemetryService.trackEvent(
+          TelemetryEventName.SEND_INTERNAL_SERVER_ERROR,
+          {
+            status: err.status,
+          },
+        );
 
         return {
           jsonBody: problemJson,
