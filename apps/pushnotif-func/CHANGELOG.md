@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.2.0
+
+### Minor Changes
+
+- 4c3a958: Adds a feature flag to redirect notifications through the new notification hubs
+
 ## 1.1.2
 
 ### Patch Changes
