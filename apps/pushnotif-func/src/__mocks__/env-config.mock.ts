@@ -2,6 +2,7 @@ import { IntegerFromString } from "@pagopa/ts-commons/lib/numbers";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 
 import { IConfig } from "../utils/config";
+import { FeatureFlagEnum } from "../utils/featureFlag";
 
 const aBlacklistedFiscalCode = "AAAAAA00A00H501I" as FiscalCode;
 
@@ -64,7 +65,8 @@ export const envConfig: IConfig = {
   MESSAGE_CONTAINER_NAME: "MessageContainerNane" as NonEmptyString,
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING:
     "MessageContentStorageConnectionString" as NonEmptyString,
-  NH_PARTITION_FEATURE_FLAG: "all",
+  NH_PARTITION_BETA_TESTER_LIST: [],
+  NH_PARTITION_FEATURE_FLAG: FeatureFlagEnum.ALL,
 
   NOTIFICATIONS_QUEUE_NAME: "notification-queue-name" as NonEmptyString,
 

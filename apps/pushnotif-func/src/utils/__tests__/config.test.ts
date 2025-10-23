@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { envConfig } from "../../__mocks__/env.mock";
 import { IConfig } from "../config";
+import { FeatureFlagEnum } from "../featureFlag";
 
 const aConfig = { ...envConfig, isProduction: false };
 
@@ -16,10 +17,10 @@ beforeEach(() => {
 describe("IConfig", () => {
   it.each`
     ff
-    ${"all"}
-    ${"none"}
-    ${"beta"}
-    ${"canary"}
+    ${FeatureFlagEnum.ALL}
+    ${FeatureFlagEnum.NONE}
+    ${FeatureFlagEnum.BETA}
+    ${FeatureFlagEnum.CANARY}
   `("should deserialize config with $ff user subset", ({ ff }) => {
     const decoded = pipe(
       {
