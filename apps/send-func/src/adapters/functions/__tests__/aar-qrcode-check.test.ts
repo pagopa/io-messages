@@ -14,10 +14,24 @@ import { beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 
 import { aarQRCodeCheck } from "../aar-qrcode-check.js";
+import { TelemetryEventService } from "@/adapters/appinsights/appinsights.js";
+
+const trackEventMock = vi.fn(() => Promise.resolve());
+const mocks = vi.hoisted(() => ({
+  TelemetryClient: vi.fn().mockImplementation(() => ({
+    trackEvent: trackEventMock,
+  })),
+}));
+
+const telemetryClient = new mocks.TelemetryClient();
+const telemetryServiceMock = new TelemetryEventService(telemetryClient);
+const telemetryTrackEventMock = vi
+  .spyOn(telemetryServiceMock, "trackEvent")
+  .mockResolvedValue();
 
 const getNotificationClientMock = vi.fn(() => mockNotificationClient);
 const qrCodeCheckUseCase = new QrCodeCheckUseCase(getNotificationClientMock);
-const handler = aarQRCodeCheck(qrCodeCheckUseCase);
+const handler = aarQRCodeCheck(qrCodeCheckUseCase, telemetryServiceMock);
 
 const context = new InvocationContext();
 
@@ -53,6 +67,8 @@ describe("AARQrCodeCheck", () => {
       aSendHeaders,
       anAarQrCodeValue,
     );
+
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
   it("returns 400 status code if the request is malformed", async () => {
@@ -72,6 +88,7 @@ describe("AARQrCodeCheck", () => {
     });
 
     expect(qrCodeCheckExecuteSpy).not.toHaveBeenCalled();
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
   it("returns 500 status code for all the others errors", async () => {
@@ -93,5 +110,6 @@ describe("AARQrCodeCheck", () => {
     });
 
     expect(qrCodeCheckExecuteSpy).toHaveBeenCalledOnce();
+    expect(telemetryTrackEventMock).toHaveBeenCalledOnce();
   });
 });

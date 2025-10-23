@@ -68,25 +68,25 @@ export const aarQRCodeCheck =
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
 
-        if (err.status === 403) {
-          telemetryService.trackEvent(
-            TelemetryEventName.MALFORMED_403_SEND_RESPONSE,
-          );
-        }
-
-        if (err.status === 404) {
-          telemetryService.trackEvent(
-            TelemetryEventName.NOT_FOUND_AAR_SEND_DATA,
-          );
-        }
-
-        if (err.status === 500) {
-          telemetryService.trackEvent(
-            TelemetryEventName.SEND_INTERNAL_SERVER_ERROR,
-            {
-              status: err.status,
-            },
-          );
+        switch (err.status) {
+          case 403:
+            telemetryService.trackEvent(
+              TelemetryEventName.MALFORMED_403_SEND_RESPONSE,
+            );
+            break;
+          case 404:
+            telemetryService.trackEvent(
+              TelemetryEventName.NOT_FOUND_AAR_SEND_DATA,
+            );
+            break;
+          default:
+            telemetryService.trackEvent(
+              TelemetryEventName.SEND_INTERNAL_SERVER_ERROR,
+              {
+                status: err.status,
+              },
+            );
+            break;
         }
 
         return {

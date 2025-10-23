@@ -13,12 +13,26 @@ import { HttpRequest, InvocationContext } from "@azure/functions";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getNotification } from "../aar-notifications.js";
+import { TelemetryEventService } from "@/adapters/appinsights/appinsights.js";
+
+const trackEventMock = vi.fn(() => Promise.resolve());
+const mocks = vi.hoisted(() => ({
+  TelemetryClient: vi.fn().mockImplementation(() => ({
+    trackEvent: trackEventMock,
+  })),
+}));
+
+const telemetryClient = new mocks.TelemetryClient();
+const telemetryServiceMock = new TelemetryEventService(telemetryClient);
+const telemetryTrackEventMock = vi
+  .spyOn(telemetryServiceMock, "trackEvent")
+  .mockResolvedValue();
 
 const getNotificationClientMock = vi.fn(() => mockNotificationClient);
 const getNotificationUseCase = new GetNotificationUseCase(
   getNotificationClientMock,
 );
-const handler = getNotification(getNotificationUseCase);
+const handler = getNotification(getNotificationUseCase, telemetryServiceMock);
 
 const context = new InvocationContext();
 
@@ -60,6 +74,7 @@ describe("GetAARNotification", () => {
       aIun,
       mandateId,
     );
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
   it("returns 400 status code if the request is malformed", async () => {
@@ -78,6 +93,7 @@ describe("GetAARNotification", () => {
       },
       status: 400,
     });
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
   it("returns 500 status code for all the others errors", async () => {
@@ -99,5 +115,6 @@ describe("GetAARNotification", () => {
     });
 
     expect(getNotifiationExecuteSpy).toHaveBeenCalledOnce();
+    expect(telemetryTrackEventMock).toHaveBeenCalledOnce();
   });
 });
