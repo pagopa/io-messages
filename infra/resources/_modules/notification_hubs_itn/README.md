@@ -72,5 +72,10 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_nh_itn_partition_1"></a> [nh\_itn\_partition\_1](#output\_nh\_itn\_partition\_1) | n/a |
+| <a name="output_nh_itn_partition_2"></a> [nh\_itn\_partition\_2](#output\_nh\_itn\_partition\_2) | n/a |
+| <a name="output_nh_itn_partition_3"></a> [nh\_itn\_partition\_3](#output\_nh\_itn\_partition\_3) | n/a |
+| <a name="output_nh_itn_partition_4"></a> [nh\_itn\_partition\_4](#output\_nh\_itn\_partition\_4) | n/a |
 <!-- END_TF_DOCS -->
