@@ -38,14 +38,10 @@ export const getIsUserEligibleForNewFeature =
 
 export const useNewNotificationHub = (
   betaTesterList: readonly string[],
-  canaryUserRegex: string,
   featureFlag: FeatureFlag,
 ) =>
   getIsUserEligibleForNewFeature(
     (i: string) => betaTesterList.includes(i),
-    (i: string) => {
-      const regex = new RegExp(canaryUserRegex);
-      return regex.test(i);
-    },
+    () => false,
     featureFlag,
   );

@@ -66,7 +66,6 @@ export const envConfig: IConfig = {
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING:
     "MessageContentStorageConnectionString" as NonEmptyString,
   NH_PARTITION_BETA_TESTER_LIST: [],
-  NH_PARTITION_CANARY_USERS_REGEX: "XYZ" as NonEmptyString,
   NH_PARTITION_FEATURE_FLAG: FeatureFlagEnum.ALL,
 
   NOTIFICATIONS_QUEUE_NAME: "notification-queue-name" as NonEmptyString,

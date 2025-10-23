@@ -147,7 +147,6 @@ locals {
 
       # Possible values : "NONE" | "ALL" | "BETA" | "CANARY"
       NH_PARTITION_FEATURE_FLAG      = "NONE"
-      NH_PARTITION_CANARY            = "XYZ"
       NH_PARTITION__BETA_TESTER_LIST = ""
 
       MESSAGE_CONTAINER_NAME                    = "message-content"

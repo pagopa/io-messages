@@ -118,9 +118,6 @@ const BaseConfig = t.intersection([
       NH_PARTITION_BETA_TESTER_LIST: withDefault(t.string, "").pipe(
         CommaSeparatedListOf(NonEmptyString),
       ),
-      NH_PARTITION_CANARY_USERS_REGEX: withDefault(t.string, "XYZ").pipe(
-        NonEmptyString,
-      ),
       NH_PARTITION_FEATURE_FLAG: FeatureFlag,
     }),
   ]),

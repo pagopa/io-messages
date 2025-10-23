@@ -30,7 +30,6 @@ export const index: AzureFunction = (
     newNhPatitionFactory,
     useNewNotificationHub(
       config.NH_PARTITION_BETA_TESTER_LIST,
-      config.NH_PARTITION_CANARY_USERS_REGEX,
       config.NH_PARTITION_FEATURE_FLAG,
     ),
   );

@@ -246,7 +246,7 @@ describe("HandleNHNotifyMessageCallActivityQueue FeatureFlag behavior", () => {
       mockTelemetryClient,
       nhPartitionFactory,
       newNhPartitionFactory,
-      useNewNotificationHub([], "", FeatureFlagEnum.ALL),
+      useNewNotificationHub([], FeatureFlagEnum.ALL),
     );
 
     expect(nhPartitionFactory.getPartition).not.toHaveBeenCalled();
@@ -279,7 +279,7 @@ describe("HandleNHNotifyMessageCallActivityQueue FeatureFlag behavior", () => {
       mockTelemetryClient,
       nhPartitionFactory,
       newNhPartitionFactory,
-      useNewNotificationHub([], "", FeatureFlagEnum.NONE),
+      useNewNotificationHub([], FeatureFlagEnum.NONE),
     );
 
     expect(nhPartitionFactory.getPartition).toHaveBeenCalledWith(
@@ -314,7 +314,6 @@ describe("HandleNHNotifyMessageCallActivityQueue FeatureFlag behavior", () => {
       newNhPartitionFactory,
       useNewNotificationHub(
         [aNotifyMessage.installationId],
-        "",
         FeatureFlagEnum.BETA,
       ),
     );
@@ -349,7 +348,7 @@ describe("HandleNHNotifyMessageCallActivityQueue FeatureFlag behavior", () => {
       mockTelemetryClient,
       nhPartitionFactory,
       newNhPartitionFactory,
-      useNewNotificationHub([], "", FeatureFlagEnum.BETA),
+      useNewNotificationHub([], FeatureFlagEnum.BETA),
     );
 
     expect(nhPartitionFactory.getPartition).toHaveBeenCalledWith(
