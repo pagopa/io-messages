@@ -29,6 +29,8 @@ export const handle = (
   fiscalCodeNotificationBlacklist: readonly FiscalCode[],
   telemetryClient: TelemetryClient,
   nhPartitionFactory: NotificationHubPartitionFactory,
+  newNhPartitionFactory: NotificationHubPartitionFactory,
+  useNewPartition: (i: string) => boolean,
 ): NhNotifyMessageResponse =>
   pipe(
     inputRequest,
@@ -54,7 +56,9 @@ export const handle = (
         TE.orElseW(() =>
           pipe(
             notify(
-              nhPartitionFactory.getPartition(message.installationId),
+              useNewPartition(message.installationId)
+                ? newNhPartitionFactory.getPartition(message.installationId)
+                : nhPartitionFactory.getPartition(message.installationId),
               message.payload,
               message.installationId,
               telemetryClient,
