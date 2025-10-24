@@ -1,0 +1,28 @@
+meta {
+  name: 500 - GetNotificationAttachment
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{send_func_url}}/aar/attachments/:attachment_url?isTest={{send-func-is-test}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  isTest: {{send-func-is-test}}
+}
+
+params:path {
+  attachment_url: {{attachment_url}}
+}
+
+headers {
+  x-pagopa-lollipop-original-method: GET
+  x-pagopa-lollipop-original-url: https://localhost:7074/api/v1/send/aar/attachments/{{attachment_url}}
+}
+
+vars:pre-request {
+  attachment_url: L2RlbGl2ZXJ5L25vdGlmaWNhdGlvbnMvcmVjZWl2ZWQvQUJDRC1FRkdILUlKS0wtMTIzNDU2LU0tNy9hdHRhY2htZW50cy9kb2N1bWVudHMvMQ==
+}

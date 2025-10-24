@@ -4,6 +4,7 @@ import {
   iunSchema,
   mandateIdSchema,
 } from "@/domain/notification.js";
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import {
   AttachmentParams,
   GetAttachmentUseCase,
@@ -25,6 +26,7 @@ import {
 export const getAttachment =
   (
     getAttachmentUseCase: GetAttachmentUseCase,
+    telemetryService: TelemetryService,
   ): ExtentedHttpHandler<LollipopHeaders> =>
   async (
     request: HttpRequest,
@@ -70,6 +72,13 @@ export const getAttachment =
         context.error("Notification client error:", err.message);
 
         const problemJson = sendProblemToAARProblemJson(err.body);
+
+        telemetryService.trackEvent(
+          TelemetryEventName.SEND_AAR_ATTACHMENT_SERVER_ERROR,
+          {
+            status: err.status,
+          },
+        );
 
         return {
           jsonBody: problemJson,

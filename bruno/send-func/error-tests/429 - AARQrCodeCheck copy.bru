@@ -1,0 +1,27 @@
+meta {
+  name: 429 - AARQrCodeCheck copy
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{send_func_url}}/aar/qr-code-check?isTest={{send-func-is-test}}
+  body: json
+  auth: inherit
+}
+
+params:query {
+  isTest: {{send-func-is-test}}
+}
+
+headers {
+  x-pagopa-lollipop-original-method: POST
+  x-pagopa-lollipop-original-url: https://localhost:7074/api/v1/send/aar/qr-code-check
+  x-user: ewogICAgImRhdGVfb2ZfYmlydGgiOiAiMjAwMC0wNi0wMiIsCiAgICAiZmFtaWx5X25hbWUiOiAiUm9zc2kiLAogICAgImZpc2NhbF9jb2RlIjogIkxWVEVTVDAwQTAwQTE5OVkiLAogICAgIm5hbWUiOiAiTWFyaW8iLAogICAgInNlc3Npb25fdHJhY2tpbmdfaWQiOiAiMGZhOWYyYTczOWJiZTY2MzkyNDQzOTM2MWNlMGFhMTJjY2IwYWQyYzBkZjQzZDlkNTU5NjRiMDEyMDBkMWM4NyIsCiAgICAic3BpZF9sZXZlbCI6ICJodHRwczovL3d3dy5zcGlkLmdvdi5pdC9TcGlkTDIiLAogICAgImFzc2VydGlvbl9yZWYiOiAic2hhMjU2LTdvbktHc3pfUXhNVTZJR0FZdmlyLWllekp0NU9UZmxrS0sxRW91cmNpNEkiLAogICAgImNyZWF0ZWRfYXQiOiAxNzU4Mjg4MzY4MzcxLAogICAgInRva2VuX3JlbWFpbmluZ190dGwiOiAyNTkwNTQ3Cn0=
+}
+
+body:json {
+  {
+    "aarQrCodeValue": "https://qr-code.test.com/http_code_divergent_from_openapi_spec"
+  }
+}

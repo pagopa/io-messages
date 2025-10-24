@@ -8,6 +8,7 @@
     "NOTIFICATION_CLIENT_UAT_API_KEY": "anApiKey",
     "NOTIFICATION_CLIENT_UAT_BASE_URL": "http://mock-server-send:3000/api/v1",
     "LOLLIPOP_API_BASE_URL": "http://mock-server-lollipop:3000/api/v1",
-    "LOLLIPOP_FUNC_KEY": "lollipopAPIKey"
+    "LOLLIPOP_FUNC_KEY": "lollipopAPIKey",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "APPLICATIONINSIGHTS-CONNECTION-STRING-HERE",
   }
 }

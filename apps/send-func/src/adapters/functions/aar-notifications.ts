@@ -1,4 +1,5 @@
 import { iunSchema, mandateIdSchema } from "@/domain/notification.js";
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { GetNotificationUseCase } from "@/domain/use-cases/get-notification.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
@@ -14,6 +15,7 @@ import {
 export const getNotification =
   (
     getNotificationUseCase: GetNotificationUseCase,
+    telemetryService: TelemetryService,
   ): ExtentedHttpHandler<LollipopHeaders> =>
   async (
     request: HttpRequest,
@@ -58,6 +60,13 @@ export const getNotification =
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
 
+        telemetryService.trackEvent(
+          TelemetryEventName.SEND_AAR_NOTIFICATION_SERVER_ERROR,
+          {
+            status: err.status,
+          },
+        );
+
         return {
           jsonBody: sendProblemToAARProblemJson(err.body),
           status: 500,
@@ -67,6 +76,7 @@ export const getNotification =
       const errorMessage =
         err instanceof Error ? err.message : JSON.stringify(err);
       context.error(err);
+
       return {
         jsonBody: {
           detail: errorMessage,

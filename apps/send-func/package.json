@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@azure/functions": "^4.4.0",
+    "applicationinsights": "^2.9.5",
     "io-messages-common": "workspace:^",
     "zod": "^4.0.0"
   },

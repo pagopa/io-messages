@@ -4,6 +4,10 @@ import LollipopClient from "io-messages-common/adapters/lollipop/lollipop-client
 import { createLollipopMiddleware } from "io-messages-common/adapters/lollipop/lollipop-middleware";
 import { handlerWithMiddleware } from "io-messages-common/adapters/middleware";
 
+import {
+  TelemetryEventService,
+  initNoSamplingClient,
+} from "./adapters/appinsights/appinsights.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
 import { getAttachment } from "./adapters/functions/aar-attachments.js";
 import { getNotification } from "./adapters/functions/aar-notifications.js";
@@ -17,6 +21,9 @@ import { QrCodeCheckUseCase } from "./domain/use-cases/qr-code-check.js";
 
 const main = async (config: Config): Promise<void> => {
   const healthcheckUseCase = new HealthUseCase([]);
+
+  const telemetryClient = initNoSamplingClient(config.appInsights);
+  const telemetryService = new TelemetryEventService(telemetryClient);
 
   const getNotificationClient = (isTest: boolean): SendNotificationClient => {
     const selectedConfig = isTest
@@ -52,7 +59,7 @@ const main = async (config: Config): Promise<void> => {
     authLevel: "anonymous",
     handler: handlerWithMiddleware(
       lollipopMiddleware,
-      aarQRCodeCheck(qrCodeCheckUseCase),
+      aarQRCodeCheck(qrCodeCheckUseCase, telemetryService),
     ),
     methods: ["POST"],
     route: "aar/qr-code-check",
@@ -62,7 +69,7 @@ const main = async (config: Config): Promise<void> => {
     authLevel: "anonymous",
     handler: handlerWithMiddleware(
       lollipopMiddleware,
-      getNotification(getNotificationUseCase),
+      getNotification(getNotificationUseCase, telemetryService),
     ),
     methods: ["GET"],
     route: "aar/notifications/{iun}",
@@ -72,7 +79,7 @@ const main = async (config: Config): Promise<void> => {
     authLevel: "anonymous",
     handler: handlerWithMiddleware(
       lollipopMiddleware,
-      getAttachment(getAttachmentUseCase),
+      getAttachment(getAttachmentUseCase, telemetryService),
     ),
     methods: ["GET"],
     route: "aar/attachments/{attachmentUrl}",
