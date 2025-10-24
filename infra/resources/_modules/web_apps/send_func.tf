@@ -86,26 +86,3 @@ resource "azurerm_monitor_metric_alert" "send_func_5xx_http_server_errors" {
     action_group_id = var.action_group_id
   }
 }
-
-resource "azurerm_monitor_metric_alert" "send_func_4xx_http_server_errors" {
-  name                = "${module.send_func.function_app.function_app.name}-http-4xx-server-errors"
-  resource_group_name = var.resource_group_name
-  scopes              = [module.send_func.function_app.function_app.id]
-  description         = "${module.send_func.function_app.function_app.name} http 4xx server errors"
-  severity            = 1
-  window_size         = "PT5M"
-  frequency           = "PT1M"
-  auto_mitigate       = false
-
-  criteria {
-    metric_namespace = "Microsoft.Web/sites"
-    metric_name      = "Http4xx"
-    aggregation      = "Total"
-    operator         = "GreaterThan"
-    threshold        = 10
-  }
-
-  action {
-    action_group_id = var.action_group_id
-  }
-}
