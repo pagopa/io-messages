@@ -74,7 +74,7 @@ export const getAttachment =
         const problemJson = sendProblemToAARProblemJson(err.body);
 
         telemetryService.trackEvent(
-          TelemetryEventName.SEND_INTERNAL_SERVER_ERROR,
+          TelemetryEventName.SEND_AAR_ATTACHMENT_SERVER_ERROR,
           {
             status: err.status,
           },

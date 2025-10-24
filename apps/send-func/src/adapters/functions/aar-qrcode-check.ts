@@ -71,17 +71,17 @@ export const aarQRCodeCheck =
         switch (err.status) {
           case 403:
             telemetryService.trackEvent(
-              TelemetryEventName.MALFORMED_403_SEND_RESPONSE,
+              TelemetryEventName.SEND_AAR_QRCODE_CHECK_MALFORMED_403,
             );
             break;
           case 404:
             telemetryService.trackEvent(
-              TelemetryEventName.NOT_FOUND_AAR_SEND_DATA,
+              TelemetryEventName.SEND_AAR_QRCODE_CHECK_DATA_NOT_FOUND,
             );
             break;
           default:
             telemetryService.trackEvent(
-              TelemetryEventName.SEND_INTERNAL_SERVER_ERROR,
+              TelemetryEventName.SEND_AAR_QRCODE_CHECK_SERVER_ERROR,
               {
                 status: err.status,
               },

@@ -61,7 +61,7 @@ export const getNotification =
         context.error("Notification client error:", err.message);
 
         telemetryService.trackEvent(
-          TelemetryEventName.SEND_INTERNAL_SERVER_ERROR,
+          TelemetryEventName.SEND_AAR_NOTIFICATION_SERVER_ERROR,
           {
             status: err.status,
           },
