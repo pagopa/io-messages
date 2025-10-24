@@ -32,6 +32,7 @@ export const envConfig = {
     "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar",
   NEW_NH4_NAME: "NH4",
   NEW_NH4_PARTITION_REGEX: "^[c-f]",
+  NH_PARTITION_BETA_TESTER_LIST: "",
   NH_PARTITION_FEATURE_FLAG: "all",
 
   NH1_ENDPOINT:

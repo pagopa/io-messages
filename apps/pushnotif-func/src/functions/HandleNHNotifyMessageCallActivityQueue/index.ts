@@ -2,6 +2,7 @@ import { AzureFunction, Context } from "@azure/functions";
 
 import { initTelemetryClient } from "../../utils/appinsights";
 import { getConfigOrThrow } from "../../utils/config";
+import { useNewNotificationHub } from "../../utils/featureFlag";
 import { NotificationHubPartitionFactory } from "../../utils/notificationhubServicePartition";
 import { NhNotifyMessageResponse, handle } from "./handler";
 
@@ -13,6 +14,10 @@ const nhPatitionFactory = new NotificationHubPartitionFactory(
   config.AZURE_NOTIFICATION_HUB_PARTITIONS,
 );
 
+const newNhPatitionFactory = new NotificationHubPartitionFactory(
+  config.AZURE_NEW_NOTIFICATION_HUB_PARTITIONS,
+);
+
 export const index: AzureFunction = (
   _: Context,
   notifyRequest: unknown,
@@ -22,4 +27,9 @@ export const index: AzureFunction = (
     config.FISCAL_CODE_NOTIFICATION_BLACKLIST,
     telemetryClient,
     nhPatitionFactory,
+    newNhPatitionFactory,
+    useNewNotificationHub(
+      config.NH_PARTITION_BETA_TESTER_LIST,
+      config.NH_PARTITION_FEATURE_FLAG,
+    ),
   );
