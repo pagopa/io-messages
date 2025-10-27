@@ -7,7 +7,7 @@ module "comsosdb_sql_container_messages_ingestion_test_lease" {
   account_name  = var.cosmosdb_account.name
   database_name = "db"
 
-  throughput = 1600
+  throughput = 4000
 
   partition_key_paths = ["/id"]
   default_ttl         = "-1"
