@@ -60,22 +60,6 @@ locals {
       # Endpoint for the test notification hub namespace
       "AzureWebJobs.HandleNHNotificationCall.Disabled" = "0"
       # Endpoint for the itn notification hub namespace
-      NEW_NH1_ENDPOINT        = var.nh_itn_partition_1.endpoint
-      NEW_NH1_PARTITION_REGEX = var.nh_itn_partition_1.regex
-      NEW_NH1_NAME            = var.nh_itn_partition_1.name
-
-      NEW_NH2_ENDPOINT        = var.nh_itn_partition_2.endpoint
-      NEW_NH2_PARTITION_REGEX = var.nh_itn_partition_2.regex
-      NEW_NH2_NAME            = var.nh_itn_partition_2.name
-
-      NEW_NH3_ENDPOINT        = var.nh_itn_partition_3.endpoint
-      NEW_NH3_PARTITION_REGEX = var.nh_itn_partition_3.regex
-      NEW_NH3_NAME            = var.nh_itn_partition_3.name
-
-      NEW_NH4_ENDPOINT        = var.nh_itn_partition_4.endpoint
-      NEW_NH4_PARTITION_REGEX = var.nh_itn_partition_4.regex
-      NEW_NH4_NAME            = var.nh_itn_partition_4.name
-
       NH1_ENDPOINT        = var.nh_itn_partition_1.endpoint
       NH1_PARTITION_REGEX = var.nh_itn_partition_1.regex
       NH1_NAME            = var.nh_itn_partition_1.name
@@ -91,15 +75,6 @@ locals {
       NH4_ENDPOINT        = var.nh_itn_partition_4.endpoint
       NH4_PARTITION_REGEX = var.nh_itn_partition_4.regex
       NH4_NAME            = var.nh_itn_partition_4.name
-
-      # ------------------------------------------------------------------------------
-      # Variable used during transition to new NH management
-      AZURE_NH_HUB_NAME = var.nh_itn_partition_1.name
-      AZURE_NH_ENDPOINT = var.nh_itn_partition_1.endpoint
-
-      # Possible values : "none" | "all" | "beta" | "canary"
-      NH_PARTITION_FEATURE_FLAG     = "all"
-      NH_PARTITION_BETA_TESTER_LIST = ""
       # ------------------------------------------------------------------------------
 
 
