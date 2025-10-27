@@ -94,6 +94,8 @@ locals {
 
       # ------------------------------------------------------------------------------
       # Variable used during transition to new NH management
+      AZURE_NH_HUB_NAME = var.nh_itn_partition_1.name
+      AZURE_NH_ENDPOINT = var.nh_itn_partition_1.endpoint
 
       # Possible values : "none" | "all" | "beta" | "canary"
       NH_PARTITION_FEATURE_FLAG     = "all"
