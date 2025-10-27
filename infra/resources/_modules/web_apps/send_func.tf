@@ -71,7 +71,7 @@ resource "azurerm_monitor_metric_alert" "send_func_5xx_http_server_errors" {
   description         = "${module.send_func.function_app.function_app.name} http 5xx server errors"
   severity            = 1
   window_size         = "PT5M"
-  frequency           = "PT1M"
+  frequency           = "PT5M"
   auto_mitigate       = false
 
   criteria {
