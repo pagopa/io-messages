@@ -1,20 +1,33 @@
 import { NotificationHubsClient } from "@azure/notification-hubs";
 import { program } from "commander";
 
-import { importInstallation } from "./notification-hub/index";
+import { migrateInstallation } from "./notification-hub/index";
 import { parseEnvVariable, readCsv } from "./utils/index";
 import { RegRow } from "./notification-hub/types";
 
 interface IImportOptions {
   batchSize: number;
   rows: RegRow[];
+  fromNotificationHub: {
+    connectionString: string;
+    hubName: string;
+  };
   toNotificationHub: {
     connectionString: string;
     hubName: string;
   };
 }
 
-const run = async ({ batchSize, rows, toNotificationHub }: IImportOptions) => {
+const run = async ({
+  batchSize,
+  rows,
+  fromNotificationHub,
+  toNotificationHub,
+}: IImportOptions) => {
+  const fromClient = new NotificationHubsClient(
+    fromNotificationHub.connectionString,
+    fromNotificationHub.hubName,
+  );
   const toClient = new NotificationHubsClient(
     toNotificationHub.connectionString,
     toNotificationHub.hubName,
@@ -32,14 +45,9 @@ const run = async ({ batchSize, rows, toNotificationHub }: IImportOptions) => {
   // loop the batches of installation migration
   for await (const batch of batches) {
     await Promise.all(
-      batch.map(async ({ installationId, platform, pushChannel }) => {
+      batch.map(async ({ installationId }) => {
         try {
-          await importInstallation(
-            toClient,
-            installationId,
-            platform,
-            pushChannel,
-          );
+          await migrateInstallation(fromClient, toClient, installationId);
         } catch (error) {
           errors.push(installationId);
           //eslint-disable-next-line no-console
@@ -84,6 +92,8 @@ program
     "10",
   )
   .action(async (options) => {
+    const fromConnectionString = parseEnvVariable("FROM_CONN");
+    const fromHubName = parseEnvVariable("FROM_HUB");
     const toConnectionString = parseEnvVariable("TO_CONN");
     const toHubName = parseEnvVariable("TO_HUB");
 
@@ -93,6 +103,10 @@ program
     await run({
       batchSize: Number.parseInt(batchSize),
       rows,
+      fromNotificationHub: {
+        connectionString: fromConnectionString,
+        hubName: fromHubName,
+      },
       toNotificationHub: {
         connectionString: toConnectionString,
         hubName: toHubName,

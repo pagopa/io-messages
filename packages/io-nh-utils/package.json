@@ -12,6 +12,7 @@
     "nh:export": "dotenv -e .env -- dotnet run -c Release --project ./src/NhRegJobs/NhRegJobs.csproj -- export",
     "import": "tsx ./src/import.ts",
     "clean": "tsx ./src/clean.ts",
+    "compare": "tsx ./src/compare.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint --fix src",
