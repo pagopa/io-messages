@@ -36,7 +36,6 @@ const getPlatformFromPlatformEnum = (
 export const getActivityBody =
   (
     nhPartitionFactory: NotificationHubPartitionFactory,
-    nhNewPartitionFactory: NotificationHubPartitionFactory,
     telemetryClient: TelemetryClient,
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBodyImpl =>
@@ -45,12 +44,10 @@ export const getActivityBody =
     return pipe(
       createOrUpdateInstallation(
         nhPartitionFactory.getPartition(input.installationId),
-        nhNewPartitionFactory.getPartition(input.installationId),
         input.installationId,
         getPlatformFromPlatformEnum(input.platform),
         input.pushChannel,
         input.tags,
-        telemetryClient,
       ),
       TE.bimap(
         (e) => {

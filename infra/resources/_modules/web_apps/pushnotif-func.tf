@@ -1,43 +1,3 @@
-## Legacy Notification Hub
-data "azurerm_notification_hub" "common" {
-  name                = format("%s-common", local.nh_name_prefix)
-  namespace_name      = format("%s-common", local.nh_namespace_prefix)
-  resource_group_name = local.nh_resource_group_name
-}
-data "azurerm_notification_hub" "common_partition" {
-  count               = local.nh_partition_count
-  name                = format("%s-common-partition-%d", local.nh_name_prefix, count.index + 1)
-  namespace_name      = format("%s-common-partition-%d", local.nh_namespace_prefix, count.index + 1)
-  resource_group_name = local.nh_resource_group_name
-}
-
-## Key vault
-data "azurerm_key_vault" "common" {
-  name                = format("%s-kv-common", local.product)
-  resource_group_name = format("%s-rg-common", local.product)
-}
-
-data "azurerm_key_vault_secret" "azure_nh_endpoint" {
-  name         = "common-AZURE-NH-ENDPOINT"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-data "azurerm_key_vault_secret" "azure_nh_partition1_endpoint" {
-  name         = "common-partition-1-AZURE-NH-ENDPOINT"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-data "azurerm_key_vault_secret" "azure_nh_partition2_endpoint" {
-  name         = "common-partition-2-AZURE-NH-ENDPOINT"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-data "azurerm_key_vault_secret" "azure_nh_partition3_endpoint" {
-  name         = "common-partition-3-AZURE-NH-ENDPOINT"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-data "azurerm_key_vault_secret" "azure_nh_partition4_endpoint" {
-  name         = "common-partition-4-AZURE-NH-ENDPOINT"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-
 ## Application insights
 
 data "azurerm_monitor_action_group" "io_com_action_group" {
@@ -115,32 +75,22 @@ locals {
       NEW_NH4_ENDPOINT        = var.nh_itn_partition_4.endpoint
       NEW_NH4_PARTITION_REGEX = var.nh_itn_partition_4.regex
       NEW_NH4_NAME            = var.nh_itn_partition_4.name
-      # ------------------------------------------------------------------------------
 
+      NH1_ENDPOINT        = var.nh_itn_partition_1.endpoint
+      NH1_PARTITION_REGEX = var.nh_itn_partition_1.regex
+      NH1_NAME            = var.nh_itn_partition_1.name
 
-      # ------------------------------------------------------------------------------
-      # Notification Hubs variables
+      NH2_ENDPOINT        = var.nh_itn_partition_2.endpoint
+      NH2_PARTITION_REGEX = var.nh_itn_partition_2.regex
+      NH2_NAME            = var.nh_itn_partition_2.name
 
-      # Endpoint for the weu notification hub namespace
-      AZURE_NH_HUB_NAME                                = data.azurerm_notification_hub.common.name
-      "AzureWebJobs.HandleNHNotificationCall.Disabled" = "0"
-      # Endpoint for the weu notification hub namespace
-      NH1_PARTITION_REGEX = "^[0-3]"
-      NH1_NAME            = data.azurerm_notification_hub.common_partition[0].name
-      NH2_PARTITION_REGEX = "^[4-7]"
-      NH2_NAME            = data.azurerm_notification_hub.common_partition[1].name
-      NH3_PARTITION_REGEX = "^[8-b]"
-      NH3_NAME            = data.azurerm_notification_hub.common_partition[2].name
-      NH4_PARTITION_REGEX = "^[c-f]"
-      NH4_NAME            = data.azurerm_notification_hub.common_partition[3].name
+      NH3_ENDPOINT        = var.nh_itn_partition_3.endpoint
+      NH3_PARTITION_REGEX = var.nh_itn_partition_3.regex
+      NH3_NAME            = var.nh_itn_partition_3.name
 
-      AZURE_NH_ENDPOINT = data.azurerm_key_vault_secret.azure_nh_endpoint.value
-      NH1_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition1_endpoint.value
-      NH2_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition2_endpoint.value
-      NH3_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition3_endpoint.value
-      NH4_ENDPOINT      = data.azurerm_key_vault_secret.azure_nh_partition4_endpoint.value
-      # ------------------------------------------------------------------------------
-
+      NH4_ENDPOINT        = var.nh_itn_partition_4.endpoint
+      NH4_PARTITION_REGEX = var.nh_itn_partition_4.regex
+      NH4_NAME            = var.nh_itn_partition_4.name
 
       # ------------------------------------------------------------------------------
       # Variable used during transition to new NH management
@@ -148,6 +98,8 @@ locals {
       # Possible values : "none" | "all" | "beta" | "canary"
       NH_PARTITION_FEATURE_FLAG     = "all"
       NH_PARTITION_BETA_TESTER_LIST = ""
+      # ------------------------------------------------------------------------------
+
 
       MESSAGE_CONTAINER_NAME                    = "message-content"
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string

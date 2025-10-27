@@ -4,10 +4,7 @@ import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { context as contextMock } from "../../../__mocks__/durable-functions";
-import {
-  newNhPartitionFactory,
-  nhPartitionFactory,
-} from "../../../__mocks__/notification-hub";
+import { nhPartitionFactory } from "../../../__mocks__/notification-hub";
 import {
   ActivityResultFailure,
   createActivity,
@@ -33,11 +30,7 @@ const handler = createActivity(
   "HandleNHDeleteInstallationCallActivity",
   ActivityInput,
   ActivityResultSuccess,
-  getActivityBody(
-    nhPartitionFactory,
-    newNhPartitionFactory,
-    mockTelemetryClient,
-  ),
+  getActivityBody(nhPartitionFactory, mockTelemetryClient),
 );
 
 describe("HandleNHDeleteInstallationCallActivity", () => {
@@ -56,7 +49,7 @@ describe("HandleNHDeleteInstallationCallActivity", () => {
     const res = await handler(contextMock, input);
     expect(
       NotificationHubsClient.prototype.deleteInstallation,
-    ).toHaveBeenCalledTimes(2);
+    ).toHaveBeenCalledTimes(1);
 
     expect(nhPartitionFactory.getPartition).toHaveBeenCalledExactlyOnceWith(
       anInstallationId,

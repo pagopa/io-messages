@@ -23,10 +23,6 @@ const nhPatitionFactory = new NotificationHubPartitionFactory(
   config.AZURE_NOTIFICATION_HUB_PARTITIONS,
 );
 
-const nhNewPatitionFactory = new NotificationHubPartitionFactory(
-  config.AZURE_NEW_NOTIFICATION_HUB_PARTITIONS,
-);
-
 /**
  * Build a `CreateOrUpdateActivity` to be called by an Orchestrator
  *
@@ -46,7 +42,7 @@ const activityFunctionHandler = createActivity(
   activityName,
   ActivityInput,
   ActivityResultSuccess,
-  getActivityBody(nhPatitionFactory, nhNewPatitionFactory, telemetryClient),
+  getActivityBody(nhPatitionFactory, telemetryClient),
 );
 
 export default activityFunctionHandler;
