@@ -2,40 +2,12 @@ import { IntegerFromString } from "@pagopa/ts-commons/lib/numbers";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 
 import { IConfig } from "../utils/config";
-import { FeatureFlagEnum } from "../utils/featureFlag";
 
 const aBlacklistedFiscalCode = "AAAAAA00A00H501I" as FiscalCode;
 
 export const envConfig: IConfig = {
   APPINSIGHTS_INSTRUMENTATIONKEY: "Idontknow" as NonEmptyString,
   APPINSIGHTS_SAMPLING_PERCENTAGE: "20" as unknown as IntegerFromString,
-
-  AZURE_NEW_NOTIFICATION_HUB_PARTITIONS: [
-    {
-      endpoint: "endpoint-partition-1" as NonEmptyString,
-      name: "partition-1" as NonEmptyString,
-      partitionRegex: /^[0-3]/,
-    },
-    {
-      endpoint: "endpoint-partition-2" as NonEmptyString,
-      name: "partition-2" as NonEmptyString,
-      partitionRegex: /^[4-7]/,
-    },
-    {
-      endpoint: "endpoint-partition-3" as NonEmptyString,
-      name: "partition-3" as NonEmptyString,
-      partitionRegex: /^[8-b]/,
-    },
-    {
-      endpoint: "endpoint-partition-4" as NonEmptyString,
-      name: "partition-4" as NonEmptyString,
-      partitionRegex: /^[c-f]/,
-    },
-  ],
-  AZURE_NH_ENDPOINT:
-    "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar" as NonEmptyString,
-
-  AZURE_NH_HUB_NAME: "partition-legacy" as NonEmptyString,
 
   AZURE_NOTIFICATION_HUB_PARTITIONS: [
     {
@@ -65,8 +37,6 @@ export const envConfig: IConfig = {
   MESSAGE_CONTAINER_NAME: "MessageContainerNane" as NonEmptyString,
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING:
     "MessageContentStorageConnectionString" as NonEmptyString,
-  NH_PARTITION_BETA_TESTER_LIST: [],
-  NH_PARTITION_FEATURE_FLAG: FeatureFlagEnum.ALL,
 
   NOTIFICATIONS_QUEUE_NAME: "notification-queue-name" as NonEmptyString,
 
