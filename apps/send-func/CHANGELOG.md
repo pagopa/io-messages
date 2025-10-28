@@ -1,5 +1,11 @@
 # send-func
 
+## 1.3.7
+
+### Patch Changes
+
+- e8d451a: Add telemetry into AAR routes
+
 ## 1.3.6
 
 ### Patch Changes
