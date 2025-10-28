@@ -43,7 +43,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/PNActivation'
+            $ref: "#/definitions/PNActivation"
           x-examples:
             application/json:
               activation_status: true
