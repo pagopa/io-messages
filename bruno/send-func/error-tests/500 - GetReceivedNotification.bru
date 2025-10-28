@@ -1,0 +1,28 @@
+meta {
+  name: 500 - GetReceivedNotification
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{send_func_url}}/aar/notifications/:iun?isTest={{send-func-is-test}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  isTest: {{send-func-is-test}}
+}
+
+params:path {
+  iun: {{iun}}
+}
+
+headers {
+  x-pagopa-lollipop-original-method: GET
+  x-pagopa-lollipop-original-url: https://localhost:7074/api/v1/send/aar/notiications/{{iun}}
+}
+
+vars:pre-request {
+  iun: ABCD-EFGH-IJKL-500429-M-7
+}
