@@ -146,7 +146,7 @@ locals {
       # Variable used during transition to new NH management
 
       # Possible values : "none" | "all" | "beta" | "canary"
-      NH_PARTITION_FEATURE_FLAG     = "none"
+      NH_PARTITION_FEATURE_FLAG     = "all"
       NH_PARTITION_BETA_TESTER_LIST = ""
 
       MESSAGE_CONTAINER_NAME                    = "message-content"
