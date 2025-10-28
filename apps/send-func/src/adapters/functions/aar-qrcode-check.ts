@@ -1,3 +1,4 @@
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { QrCodeCheckUseCase } from "@/domain/use-cases/qr-code-check.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
@@ -19,6 +20,7 @@ import {
 export const aarQRCodeCheck =
   (
     qrCodeCheckUseCase: QrCodeCheckUseCase,
+    telemetryService: TelemetryService,
   ): ExtentedHttpHandler<LollipopHeaders> =>
   async (
     request: HttpRequest,
@@ -56,7 +58,7 @@ export const aarQRCodeCheck =
       return { jsonBody: response, status: 200 };
     } catch (err) {
       if (err instanceof NotRecipientClientError) {
-        context.error("NotRecipient client error:", err.message);
+        //SEND returns 403. It will start the user delegation mobile flow
         return {
           jsonBody: err.body,
           status: 403,
@@ -65,6 +67,27 @@ export const aarQRCodeCheck =
 
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
+
+        switch (err.status) {
+          case 403:
+            telemetryService.trackEvent(
+              TelemetryEventName.SEND_AAR_QRCODE_CHECK_MALFORMED_403,
+            );
+            break;
+          case 404:
+            telemetryService.trackEvent(
+              TelemetryEventName.SEND_AAR_QRCODE_CHECK_DATA_NOT_FOUND,
+            );
+            break;
+          default:
+            telemetryService.trackEvent(
+              TelemetryEventName.SEND_AAR_QRCODE_CHECK_SERVER_ERROR,
+              {
+                status: err.status,
+              },
+            );
+            break;
+        }
 
         return {
           jsonBody: sendProblemToAARProblemJson(err.body),
@@ -75,6 +98,7 @@ export const aarQRCodeCheck =
       const errorMessage =
         err instanceof Error ? err.message : JSON.stringify(err);
       context.error(err);
+
       return {
         jsonBody: {
           detail: errorMessage,

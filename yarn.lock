@@ -14330,6 +14330,7 @@ __metadata:
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@types/node": "npm:^20.17.30"
     "@vitest/coverage-v8": "npm:^3.1.2"
+    applicationinsights: "npm:^2.9.5"
     esbuild: "npm:^0.25.2"
     eslint: "npm:8.57.1"
     io-messages-common: "workspace:^"
