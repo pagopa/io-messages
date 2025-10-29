@@ -56,7 +56,7 @@ resource "azurerm_api_management_api" "pn_api_v1" {
 
   import {
     content_format = "openapi-link"
-    content_value  = "https://raw.githubusercontent.com/pagopa/io-messages/refs/heads/feat/add-apim-pn-activation-api/apps/send-func/openapi/api-pn.yaml"
+    content_value  = "https://raw.githubusercontent.com/pagopa/io-messages/363a9b80c717364ce6040e0a4681a037562722bd/apps/send-func/openapi/api-pn.yaml"
   }
 }
 
@@ -66,7 +66,7 @@ resource "azurerm_api_management_api_policy" "pn_api_v1_policy" {
   api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
 
-  xml_link = "https://raw.githubusercontent.com/pagopa/io-messages/refs/heads/feat/add-apim-pn-activation-api/infra/resources/_modules/apim/api/send/pn-policy.xml"
+  xml_link = "https://raw.githubusercontent.com/pagopa/io-messages/363a9b80c717364ce6040e0a4681a037562722bd/infra/resources/_modules/apim/api/send/pn-policy.xml"
 }
 
 resource "azurerm_api_management_product_api" "pn_api_v1_product_api" {
