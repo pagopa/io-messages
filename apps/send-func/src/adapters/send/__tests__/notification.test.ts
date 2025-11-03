@@ -458,8 +458,8 @@ describe("NotificationClient.createNotificationMandate", () => {
       client.createNotificationMandate(anAarQrCodeValue, aSendHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
-        name: "NotificationClientAuthError",
         message: anAuthErrorResponse.message,
+        name: "NotificationClientAuthError",
         status: 401,
       }),
     );
@@ -491,8 +491,8 @@ describe("NotificationClient.createNotificationMandate", () => {
       client.createNotificationMandate(anAarQrCodeValue, aSendHeaders),
     ).rejects.toEqual(
       expect.objectContaining({
-        name: "NotificationClientAuthError",
         message: anAuthErrorResponse.message,
+        name: "NotificationClientAuthError",
         status: 403,
       }),
     );

@@ -4,9 +4,9 @@ import {
   problemSchema,
 } from "@/adapters/send/definitions.js";
 import {
+  CIEValidationDataSchema,
   attachmentMetadataSchema,
   checkQrMandateResponseSchema,
-  CIEValidationDataSchema,
   idxSchema,
   iunSchema,
   mandateCreationResponseSchema,
@@ -150,12 +150,12 @@ export const aPaymentAttachmentParams = attachmentParamsSchema.parse({
 });
 
 export const aMandateCreationResponse = mandateCreationResponseSchema.parse({
-  requestTTL: 0,
   mandate: {
+    dateTo: "2025-12-31",
     mandateId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     verificationCode: "14158",
-    dateTo: "2025-12-31",
   },
+  requestTTL: 0,
 });
 
 export const aDocumentAttachmentParams = attachmentParamsSchema.parse({
@@ -197,18 +197,24 @@ export const aCIEValidationdata = CIEValidationDataSchema.parse({
 });
 
 interface MockNotificationClient {
+  acceptNotificationMandate: Mock;
   checkAarQrCodeIO: Mock;
+  createNotificationMandate: Mock;
   getReceivedNotification: Mock;
   getReceivedNotificationAttachment: Mock;
   getReceivedNotificationDocument: Mock;
-  createNotificationMandate: Mock;
-  acceptNotificationMandate: Mock;
 }
 
 export const createMockNotificationClient = (): MockNotificationClient => ({
+  acceptNotificationMandate: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve()),
   checkAarQrCodeIO: vi
     .fn()
     .mockImplementation(() => Promise.resolve(aCheckQrMandateResponse)),
+  createNotificationMandate: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(aMandateCreationResponse)),
   getReceivedNotification: vi
     .fn()
     .mockImplementation(() => Promise.resolve(aThirdPartyMessage)),
@@ -218,12 +224,6 @@ export const createMockNotificationClient = (): MockNotificationClient => ({
   getReceivedNotificationDocument: vi
     .fn()
     .mockImplementation(() => Promise.resolve(anAttachmentMetadata)),
-  createNotificationMandate: vi
-    .fn()
-    .mockImplementation(() => Promise.resolve(aMandateCreationResponse)),
-  acceptNotificationMandate: vi
-    .fn()
-    .mockImplementation(() => Promise.resolve()),
 });
 
 export const mockNotificationClient = {
