@@ -37,7 +37,7 @@ export class NotificationCLientAuthError extends Error {
 
   constructor(message: string, status: number) {
     super(message);
-    this.name = "NotificationClientAurhError";
+    this.name = "NotificationClientAuthError";
     this.status = status;
   }
 }
@@ -81,7 +81,7 @@ export default class SendNotificationClient implements NotificationClient {
     mandateId: MandateId,
     CIEValidationdata: CIEValidationData,
     headers: SendHeaders,
-  ): Promise<unknown> {
+  ): Promise<void> {
     const parsedHeaders = {
       ...headers,
       "content-type": "application/json",
@@ -139,7 +139,7 @@ export default class SendNotificationClient implements NotificationClient {
       );
     }
 
-    return parsedResponse.data;
+    return;
   }
 
   async checkAarQrCodeIO(

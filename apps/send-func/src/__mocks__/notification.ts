@@ -1,12 +1,15 @@
 import {
+  authErrorSchema,
   checkQrMandateRequestSchema,
   problemSchema,
 } from "@/adapters/send/definitions.js";
 import {
   attachmentMetadataSchema,
   checkQrMandateResponseSchema,
+  CIEValidationDataSchema,
   idxSchema,
   iunSchema,
+  mandateCreationResponseSchema,
   sendHeadersSchema,
   thirdPartyMessageSchema,
 } from "@/domain/notification.js";
@@ -28,6 +31,10 @@ export const aCheckQrMandateResponse = checkQrMandateResponseSchema.parse({
   iun: "ABCD-EFGH-IJKL-123456-M-7",
   mandateId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   recipientInfo: { denomination: "aDenomination", taxId: "aTaxId" },
+});
+
+export const anAuthErrorResponse = authErrorSchema.parse({
+  message: "auth error message",
 });
 
 export const anAssertionRef = assertionRefSchema.parse(
@@ -142,6 +149,15 @@ export const aPaymentAttachmentParams = attachmentParamsSchema.parse({
   type: "payment",
 });
 
+export const aMandateCreationResponse = mandateCreationResponseSchema.parse({
+  requestTTL: 0,
+  mandate: {
+    mandateId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    verificationCode: "14158",
+    dateTo: "2025-12-31",
+  },
+});
+
 export const aDocumentAttachmentParams = attachmentParamsSchema.parse({
   docIdx: 1,
   iun: aIun,
@@ -166,11 +182,27 @@ export const aSendHeaders = sendHeadersSchema.parse({
   ...aLollipopHeaders,
 });
 
+export const aCIEValidationdata = CIEValidationDataSchema.parse({
+  mrtdData: {
+    dg1: "dg1",
+    dg11: "dg11",
+    sod: "sod",
+  },
+  nisData: {
+    nis: "nis",
+    pub_key: "pub_key",
+    sod: "sod",
+  },
+  signedNonce: "signedNonce",
+});
+
 interface MockNotificationClient {
   checkAarQrCodeIO: Mock;
   getReceivedNotification: Mock;
   getReceivedNotificationAttachment: Mock;
   getReceivedNotificationDocument: Mock;
+  createNotificationMandate: Mock;
+  acceptNotificationMandate: Mock;
 }
 
 export const createMockNotificationClient = (): MockNotificationClient => ({
@@ -186,6 +218,12 @@ export const createMockNotificationClient = (): MockNotificationClient => ({
   getReceivedNotificationDocument: vi
     .fn()
     .mockImplementation(() => Promise.resolve(anAttachmentMetadata)),
+  createNotificationMandate: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(aMandateCreationResponse)),
+  acceptNotificationMandate: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve()),
 });
 
 export const mockNotificationClient = {
