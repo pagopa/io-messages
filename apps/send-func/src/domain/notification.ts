@@ -109,11 +109,54 @@ export const thirdPartyMessageSchema = z.object({
 
 export type ThirdPartyMessage = z.TypeOf<typeof thirdPartyMessageSchema>;
 
+export const mandateCreationResponseSchema = z.object({
+  mandate: z.object({
+    dateTo: z.string(),
+    mandateId: mandateIdSchema,
+    verificationCode: z
+      .string()
+      .max(5)
+      .regex(/^[0-9]*$/),
+  }),
+  requestTTL: z.int(),
+});
+
+export type MandateCreationResponse = z.TypeOf<
+  typeof mandateCreationResponseSchema
+>;
+
+export const CIEValidationDataSchema = z.object({
+  mrtdData: z.object({
+    dg1: z.string(),
+    dg11: z.string(),
+    sod: z.string(),
+  }),
+  nisData: z.object({
+    nis: z.string(),
+    pub_key: z.string(),
+    sod: z.string(),
+  }),
+  signedNonce: z.string(),
+});
+
+export type CIEValidationData = z.TypeOf<typeof CIEValidationDataSchema>;
+
 export interface NotificationClient {
+  acceptNotificationMandate(
+    mandateId: MandateId,
+    CIEValidationdata: CIEValidationData,
+    headers: SendHeaders,
+  ): Promise<unknown>;
+
   checkAarQrCodeIO(
     aarQrCodeValue: AarQrCodeValue,
     headers: SendHeaders,
   ): Promise<CheckQrMandateResponse>;
+
+  createNotificationMandate(
+    aarQrCodeValue: AarQrCodeValue,
+    headers: SendHeaders,
+  ): Promise<MandateCreationResponse>;
 
   getReceivedNotification(
     iun: string,
