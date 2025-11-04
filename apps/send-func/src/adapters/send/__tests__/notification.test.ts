@@ -17,7 +17,6 @@ import {
 import { describe, expect, it, vi } from "vitest";
 
 import NotificationClient from "../notification.js";
-import { aC } from "vitest/dist/chunks/reporters.d.BFLkQcL6.js";
 
 const apiKey = "anApiKey";
 const baseUrl = "https://mockurl.com";
