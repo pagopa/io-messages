@@ -146,7 +146,7 @@ export interface NotificationClient {
     mandateId: MandateId,
     CIEValidationdata: CIEValidationData,
     headers: SendHeaders,
-  ): Promise<unknown>;
+  ): Promise<void>;
 
   checkAarQrCodeIO(
     aarQrCodeValue: AarQrCodeValue,
