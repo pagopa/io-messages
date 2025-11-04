@@ -227,9 +227,15 @@ export const createMockNotificationClient = (): MockNotificationClient => ({
 });
 
 export const mockNotificationClient = {
+  acceptNotificationMandate: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve()),
   checkAarQrCodeIO: vi
     .fn()
     .mockImplementation(() => Promise.resolve(aCheckQrMandateResponse)),
+  createNotificationMandate: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(aMandateCreationResponse)),
   getReceivedNotification: vi
     .fn()
     .mockImplementation(() => Promise.resolve(aThirdPartyMessage)),
