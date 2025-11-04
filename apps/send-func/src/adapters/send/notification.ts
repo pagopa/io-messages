@@ -93,7 +93,7 @@ export default class SendNotificationClient implements NotificationClient {
     );
 
     const response = await fetch(url.toString(), {
-      body: JSON.stringify({ CIEValidationdata }),
+      body: JSON.stringify(CIEValidationdata),
       headers: parsedHeaders,
       method: "PATCH",
     });
@@ -126,16 +126,6 @@ export default class SendNotificationClient implements NotificationClient {
         `The api responded with HTTP status ${response.status}`,
         response.status,
         problem,
-      );
-    }
-
-    const parsedResponse =
-      mandateCreationResponseSchema.safeParse(responseJson);
-
-    if (!parsedResponse.success) {
-      const errorMessage = JSON.stringify(z.flattenError(parsedResponse.error));
-      throw new Error(
-        `Error during createNotificationMandate api call | ${errorMessage}`,
       );
     }
 
