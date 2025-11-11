@@ -1,15 +1,18 @@
 import {
+  aCIEValidationdata,
   aCheckQrMandateRequest,
   aCheckQrMandateResponse,
   aDocIdx,
   aFiscalCode,
   aIun,
+  aMandateCreationResponse,
   aProblem,
   aSendHeaders,
   aThirdPartyMessage,
   anAarQrCodeValue,
   anAttachmentMetadata,
   anAttachmentName,
+  anAuthErrorResponse,
 } from "@/__mocks__/notification.js";
 import { describe, expect, it, vi } from "vitest";
 
@@ -414,5 +417,340 @@ describe("NotificationClient.getReceivedNgetReceivedNotificationDocumentotificat
     );
 
     expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("NotificationClient.createNotificationMandate", () => {
+  it("returns a valid MandateCreationResponse on successful request", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      json: async () => aMandateCreationResponse,
+      ok: true,
+      status: 200,
+    } as Response);
+
+    const response = await client.createNotificationMandate(
+      anAarQrCodeValue,
+      aSendHeaders,
+    );
+
+    expect(response).toEqual(aMandateCreationResponse);
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${baseUrl}/mandate/api/v1/io/mandate`,
+      expect.objectContaining({
+        body: JSON.stringify(aCheckQrMandateRequest),
+        headers: expect.objectContaining({
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "x-pagopa-cx-taxid": aFiscalCode,
+        }),
+        method: "POST",
+      }),
+    );
+  });
+
+  it("can throw a 401 error with an AuthError in the body", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      json: async () => anAuthErrorResponse,
+      ok: false,
+      status: 401,
+    } as Response);
+
+    await expect(
+      client.createNotificationMandate(anAarQrCodeValue, aSendHeaders),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: anAuthErrorResponse.message,
+        name: "NotificationClientAuthError",
+        status: 401,
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${baseUrl}/mandate/api/v1/io/mandate`,
+      expect.objectContaining({
+        body: JSON.stringify(aCheckQrMandateRequest),
+        headers: expect.objectContaining({
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "x-pagopa-cx-taxid": aFiscalCode,
+        }),
+        method: "POST",
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledOnce();
+  });
+
+  it("can throw a 403 error with an AuthError in the body", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      json: async () => anAuthErrorResponse,
+      ok: false,
+      status: 403,
+    } as Response);
+
+    await expect(
+      client.createNotificationMandate(anAarQrCodeValue, aSendHeaders),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: anAuthErrorResponse.message,
+        name: "NotificationClientAuthError",
+        status: 403,
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${baseUrl}/mandate/api/v1/io/mandate`,
+      expect.objectContaining({
+        body: JSON.stringify(aCheckQrMandateRequest),
+        headers: expect.objectContaining({
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "x-pagopa-cx-taxid": aFiscalCode,
+        }),
+        method: "POST",
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledOnce();
+  });
+
+  it("throws an error with a Problem when the api return a status different from 403 and 401", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      json: async () => aProblem,
+      ok: false,
+      status: 422,
+    } as Response);
+
+    await expect(
+      client.createNotificationMandate(anAarQrCodeValue, aSendHeaders),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        body: aProblem,
+        message: `The api responded with HTTP status 422`,
+        status: 422,
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${baseUrl}/mandate/api/v1/io/mandate`,
+      expect.objectContaining({
+        body: JSON.stringify(aCheckQrMandateRequest),
+        headers: expect.objectContaining({
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "x-pagopa-cx-taxid": aFiscalCode,
+        }),
+        method: "POST",
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledOnce();
+  });
+
+  it("should throw a generic error if the fetch or something elese fails", async () => {
+    const returnedError = new Error("Network error");
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValueOnce(returnedError);
+
+    await expect(
+      client.createNotificationMandate(anAarQrCodeValue, aSendHeaders),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: "Network error",
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${baseUrl}/mandate/api/v1/io/mandate`,
+      expect.objectContaining({
+        body: JSON.stringify(aCheckQrMandateRequest),
+        headers: expect.objectContaining({
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "x-pagopa-cx-taxid": aFiscalCode,
+        }),
+        method: "POST",
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledOnce();
+  });
+});
+
+describe("NotificationClient.acceptNotificationMandate", () => {
+  const aMandateId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
+
+  it("returns on successful request", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      json: async () => {},
+      ok: true,
+      status: 200,
+    } as Response);
+
+    const response = await client.acceptNotificationMandate(
+      aMandateId,
+      aCIEValidationdata,
+      aSendHeaders,
+    );
+
+    expect(response).toEqual(undefined);
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${baseUrl}/mandate/api/v1/io//mandate/${aMandateId}/cie/accept`,
+      expect.objectContaining({
+        body: JSON.stringify(aCIEValidationdata),
+        headers: expect.objectContaining({
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "x-pagopa-cx-taxid": aFiscalCode,
+        }),
+        method: "PATCH",
+      }),
+    );
+  });
+
+  it("can throw a 401 error with an AuthError in the body", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      json: async () => anAuthErrorResponse,
+      ok: false,
+      status: 401,
+    } as Response);
+
+    await expect(
+      client.acceptNotificationMandate(
+        aMandateId,
+        aCIEValidationdata,
+        aSendHeaders,
+      ),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: anAuthErrorResponse.message,
+        name: "NotificationClientAuthError",
+        status: 401,
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${baseUrl}/mandate/api/v1/io//mandate/${aMandateId}/cie/accept`,
+      expect.objectContaining({
+        body: JSON.stringify(aCIEValidationdata),
+        headers: expect.objectContaining({
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "x-pagopa-cx-taxid": aFiscalCode,
+        }),
+        method: "PATCH",
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledOnce();
+  });
+
+  it("can throw a 403 error with an AuthError in the body", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      json: async () => anAuthErrorResponse,
+      ok: false,
+      status: 403,
+    } as Response);
+
+    await expect(
+      client.acceptNotificationMandate(
+        aMandateId,
+        aCIEValidationdata,
+        aSendHeaders,
+      ),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: anAuthErrorResponse.message,
+        name: "NotificationClientAuthError",
+        status: 403,
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${baseUrl}/mandate/api/v1/io//mandate/${aMandateId}/cie/accept`,
+      expect.objectContaining({
+        body: JSON.stringify(aCIEValidationdata),
+        headers: expect.objectContaining({
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "x-pagopa-cx-taxid": aFiscalCode,
+        }),
+        method: "PATCH",
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledOnce();
+  });
+
+  it("throws an error with a Problem when the api return a status different from 403 and 401", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      json: async () => aProblem,
+      ok: false,
+      status: 422,
+    } as Response);
+
+    await expect(
+      client.acceptNotificationMandate(
+        aMandateId,
+        aCIEValidationdata,
+        aSendHeaders,
+      ),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        body: aProblem,
+        message: `The api responded with HTTP status 422`,
+        status: 422,
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${baseUrl}/mandate/api/v1/io//mandate/${aMandateId}/cie/accept`,
+      expect.objectContaining({
+        body: JSON.stringify(aCIEValidationdata),
+        headers: expect.objectContaining({
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "x-pagopa-cx-taxid": aFiscalCode,
+        }),
+        method: "PATCH",
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledOnce();
+  });
+
+  it("should throw a generic error if the fetch or something elese fails", async () => {
+    const returnedError = new Error("Network error");
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValueOnce(returnedError);
+
+    await expect(
+      client.acceptNotificationMandate(
+        aMandateId,
+        aCIEValidationdata,
+        aSendHeaders,
+      ),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: "Network error",
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${baseUrl}/mandate/api/v1/io//mandate/${aMandateId}/cie/accept`,
+      expect.objectContaining({
+        body: JSON.stringify(aCIEValidationdata),
+        headers: expect.objectContaining({
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "x-pagopa-cx-taxid": aFiscalCode,
+        }),
+        method: "PATCH",
+      }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledOnce();
   });
 });
