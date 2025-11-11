@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+LAYOUT_WITH_LEGEND()
+
+title SEND AAR vista statica delle dipendenze
+
+System(IO,"IO","IO-App, IO-BE, IO-Services-Metadata")
+System(SEND,"SEND","portale Web e backend")
+IO<->SEND:scambio informazioni
+
+Boundary(cittadini,"cittadini","insieme dei cittadini"){
+
+	Person(utente, "Utente delegato","delegato, iscritto su IO")
+	Person_Ext(cittadino, "cittadino","delegante, non iscritto su IO")
+ cittadino -l-> utente : chiede aiuto per visualizzare il contenuto di un AAR a
+}
+
+
+cittadini -u-> SEND:visualizza AAR e genera una delega permanente via web tramite
+SEND -d-> cittadini:invia AAR
+
+utente -u-> IO:visualizza AAR via app e richiede delega temporanea tramite
+
+
+
+@enduml

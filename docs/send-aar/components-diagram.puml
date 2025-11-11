@@ -1,0 +1,41 @@
+@startuml container
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+LAYOUT_WITH_LEGEND()
+title SEND AAR vista statica dei componenti
+
+System_Boundary(s0, "IO") {
+
+    Boundary(b1, "IO-COM") {
+        Container(send_fn, "send-func")
+    }
+
+    Boundary(b4, "IO-Infra") {
+        Container(apim, "io-p-apim-v2")
+    }
+
+    Boundary(b2, "IO-App") {
+        Container(cie_sdk, "SDK CIE")
+        System(ioapp, "IO-app", "mobile app")
+        BiRel(ioapp, cie_sdk, "verifica CIE")
+    }
+
+    Boundary(b3, "IO-auth-identity") {
+        Container(sessione_manager, "session-manager")
+        Container(lollipop_fn, "lollipop-func")
+    }
+
+}
+
+System_Boundary(s1, "SEND") {
+  Container(send_be, "backend-send")
+}
+
+Rel(ioapp, apim, "chiama")
+Rel(apim, send_fn, "inoltra chiamata")
+Rel(apim, sessione_manager, "richiede verifica sessione utente")
+Rel(send_fn, lollipop_fn, "richieded lc-params")
+Rel(send_fn, send_be, "inoltra chiamata")
+
+@enduml

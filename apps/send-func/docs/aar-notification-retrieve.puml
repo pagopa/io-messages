@@ -1,0 +1,57 @@
+@startuml aar-notification-retrieve
+participant "io-app" as ioAPP
+participant "io-p-apim-v2" as ioAPIM
+participant "session-manager" as sessionManager
+participant "send-func" as sendFunc
+participant "lollipop-func" as lollipopFunc
+participant "backend-send" as beSEND
+
+
+
+
+ioAPP -> ioAPP: Scansiona QR-code su AAR SEND
+ioAPP -> ioAPIM: Invia valore QR-code e dati sessione utente
+ioAPIM -> sessionManager: Verifica sessione utente
+sessionManager -> ioAPIM: Restituisce esito verifica sessione utente
+alt Verifica sessione utente fallita
+    ioAPIM -[#red]x ioAPP: restituisce errore
+end
+ioAPIM -> sendFunc: Inoltra chiamata
+
+sendFunc -> lollipopFunc: Verifica header lollipop
+lollipopFunc --> sendFunc: Restituisce esito verifica
+alt Verifica header lollipop fallita
+    sendFunc -[#red]x ioAPP: restituisce errore
+end
+sendFunc -> beSEND: Inoltra dati ad API backend SEND
+
+beSEND --> sendFunc: Restituisce esito richiesta dati per accesso notifica
+alt Error durante recupero dati notifica
+    sendFunc -[#red]x ioAPP: restituisce errore
+end
+sendFunc -[#green]> ioAPP: Restituisce dati per accesso notifica
+
+note right of ioAPP
+    L'applicazione ha tutti i dati per recuperare
+    il contentuto della notifica
+end note
+
+ioAPP -> ioAPIM: Richiede contenuto notifica e/o allegati della notifica
+ioAPIM -> ioAPIM: Verifica autenticazione utente
+alt Verifica autenticazione utente fallita
+    ioAPIM -[#red]x ioAPP: restituisce errore
+end
+ioAPIM -> sendFunc: Inoltra chiamata
+sendFunc -> lollipopFunc: Verifica header lollipop
+lollipopFunc --> sendFunc: Restituisce esito verifica
+alt Verifica header lollipop fallita
+    sendFunc -[#red]x ioAPP: restituisce errore
+end
+sendFunc -> beSEND: Inoltra dati ad API BE SEND
+beSEND --> sendFunc: Restituisce contenuto notifica
+alt Error durante recupero contenuto notifica
+    sendFunc -[#red]x ioAPP: restituisce errore
+end
+sendFunc -[#green]> ioAPP: Restituisce contenuto della notifica
+
+@enduml
