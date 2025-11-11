@@ -52,6 +52,11 @@ export const problemSchema = z.object({
 
 export type Problem = z.TypeOf<typeof problemSchema>;
 
+export const authErrorSchema = z.object({
+  message: z.string(),
+});
+export type AuthError = z.TypeOf<typeof authErrorSchema>;
+
 export const checkQrMandateRequestSchema = z.object({
   aarQrCodeValue: aarQrCodeValueSchema,
 });
