@@ -1,4 +1,4 @@
-@startuml container
+@startuml components-diagram
 !include <C4/C4_Context>
 !include <C4/C4_Container>
 
@@ -11,7 +11,7 @@ System_Boundary(s0, "IO") {
         Container(send_fn, "send-func")
     }
 
-    Boundary(b4, "IO-Infra") {
+    Boundary(b4, "IO-Plaftorm") {
         Container(apim, "io-p-apim-v2")
     }
 

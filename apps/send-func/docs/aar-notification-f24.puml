@@ -1,0 +1,95 @@
+@startuml aar-notification-f24
+participant "io-app" as ioAPP
+participant "io-p-apim-v2" as ioAPIM
+participant "session-manager" as sessionManager
+participant "send-func" as sendFunc
+participant "lollipop-func" as lollipopFunc
+participant "backend-send" as beSEND
+
+activate ioAPP
+activate ioAPIM
+
+note right of ioAPP
+    L'applicazione ha tutti i dati della
+    notifica e può richiedere
+    il contenuto dell'F24.
+end note
+
+ioAPP -> ioAPIM: Richiesta F24
+ioAPIM -> sessionManager: Verifica sessione utente
+activate sessionManager
+sessionManager -> ioAPIM: Esito verifica sessione utente
+deactivate sessionManager
+alt Verifica sessione utente fallita
+    ioAPIM -[#red]x ioAPP: restituisce errore
+end
+
+ioAPIM -> sendFunc: Inoltra chiamata
+activate sendFunc
+
+sendFunc -> lollipopFunc: Richiesta generazione lc-params
+activate lollipopFunc
+lollipopFunc --> sendFunc: Esito generazione lc-params
+deactivate lollipopFunc
+alt Errore generazione header lollipop
+    sendFunc -[#red]x ioAPP: restituisce errore
+end
+sendFunc -> beSEND: Inoltra richiesta aggiungendo headers lollipop
+activate beSEND
+beSEND --> sendFunc: Esito richiesta F24
+deactivate beSEND
+
+alt Error durante recupero F24
+    sendFunc -[#red]x ioAPP: restituisce errore
+end
+sendFunc -[#green]> ioAPP: Termina la richiesta con successo
+deactivate sendFunc
+
+
+alt F24 di SEND non ancora pronto
+  loop richiesta F24
+    note right of ioAPP
+      Nel caso SEND risponda con un paramentro
+      "retry" indicante che l'F24 non è ancora pronto,
+      l'utente rimane in attesa e l'app ripete la chiamata
+    end note
+
+    ioAPP -> ioAPIM: Richiesta F24
+    ioAPIM -> sessionManager: Verifica sessione utente
+    activate sessionManager
+    sessionManager -> ioAPIM: Esito verifica sessione utente
+    deactivate sessionManager
+    alt Verifica sessione utente fallita
+        ioAPIM -[#red]x ioAPP: restituisce errore
+    end
+
+    ioAPIM -> sendFunc: Inoltra chiamata
+    activate sendFunc
+
+    sendFunc -> lollipopFunc: Richiesta generazione lc-params
+    activate lollipopFunc
+    lollipopFunc --> sendFunc: Esito generazione lc-params
+    deactivate lollipopFunc
+    alt Errore generazione header lollipop
+        sendFunc -[#red]x ioAPP: restituisce errore
+    end
+    sendFunc -> beSEND: Inoltra richiesta aggiungendo headers lollipop
+    activate beSEND
+    beSEND --> sendFunc: Esito richiesta F24
+    deactivate beSEND
+
+    break Error durante recupero F24
+        sendFunc -[#red]x ioAPP: restituisce errore
+    end
+    sendFunc -[#green]> ioAPP: Termina la richiesta con successo
+  end
+else F24 di SEND pronto
+  sendFunc -[#green]> ioAPP: Restituisce link dell'allegato
+  deactivate ioAPIM
+  deactivate sendFunc
+end
+
+
+
+
+@enduml

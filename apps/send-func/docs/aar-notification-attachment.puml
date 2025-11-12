@@ -1,0 +1,49 @@
+@startuml aar-notification-attachement
+participant "io-app" as ioAPP
+participant "io-p-apim-v2" as ioAPIM
+participant "session-manager" as sessionManager
+participant "send-func" as sendFunc
+participant "lollipop-func" as lollipopFunc
+participant "backend-send" as beSEND
+
+
+activate ioAPP
+activate ioAPIM
+
+note right of ioAPP
+    L'applicazione ha tutti i dati della
+    notifica e può richiedere l'allegato
+end note
+
+
+ioAPP -> ioAPIM: Richiesta allegato
+ioAPIM -> sessionManager: Verifica sessione utente
+activate sessionManager
+sessionManager -> ioAPIM: Esito verifica sessione utente
+deactivate sessionManager
+alt Verifica sessione utente fallita
+    ioAPIM -[#red]x ioAPP: restituisce errore
+end
+ioAPIM -> sendFunc: Inoltra richiesta
+
+activate sendFunc
+sendFunc -> lollipopFunc: Richiesta generazione lc-params
+activate lollipopFunc
+lollipopFunc --> sendFunc: Esito generazione lc-params
+deactivate lollipopFunc
+alt Errore generazione header lollipop
+    sendFunc -[#red]x ioAPP: restituisce errore
+end
+sendFunc -> beSEND: Inoltra richiesta aggiungendo headers lollipop
+
+activate beSEND
+beSEND --> sendFunc: Restituisce esito richiesta
+deactivate beSEND
+alt Error durante recupero allegato
+    sendFunc -[#red]x ioAPP: restituisce errore
+end
+sendFunc -[#green]> ioAPP: Restituisce link dell'allegato
+deactivate sendFunc
+deactivate ioAPIM
+
+@enduml

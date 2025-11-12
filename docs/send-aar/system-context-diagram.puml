@@ -1,4 +1,4 @@
-@startuml
+@startuml system-context-diagram
 !include <C4/C4_Context>
 !include <C4/C4_Container>
 
