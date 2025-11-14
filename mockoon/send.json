@@ -33,13 +33,6 @@
               "value": "https://qr-code.test.com/ABCD2025010100012345",
               "invert": false,
               "operator": "equals"
-            },
-            {
-              "target": "header",
-              "modifier": "x-pagopa-cx-taxid",
-              "value": "LVTEST00A00A199X",
-              "invert": false,
-              "operator": "equals"
             }
           ],
           "rulesOperator": "AND",
@@ -119,6 +112,33 @@
               "target": "body",
               "modifier": "aarQrCodeValue",
               "value": "https://qr-code.test.com/http_code_divergent_from_openapi_spec",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "bee58e48-bec9-4619-9ca3-03ed1a10234c",
+          "body": "{\n  \"iun\": \"RBII-HBSZ-MHGQ-068014-B-5\",\n  \"mandateId\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"recipientInfo\": {\n    \"denomination\": \"Nome Cognome\",\n    \"taxId\": \"CGNNMO01T10A944Q\"\n  }\n}",
+          "latency": 0,
+          "statusCode": 403,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "aarQrCodeValue",
+              "value": "https://qr-code.test.com/another_user_AAR",
               "invert": false,
               "operator": "equals"
             }
@@ -266,6 +286,153 @@
       "responseMode": null,
       "streamingMode": null,
       "streamingInterval": 0
+    },
+    {
+      "uuid": "3a464a59-e7a8-46e9-ad25-f15172130356",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "mandate/api/v1/io/mandate",
+      "responses": [
+        {
+          "uuid": "85d8f976-940d-4455-a5df-deea6822b767",
+          "body": "{\n  \"requestTTL\": 0,\n  \"mandate\": {\n    \"mandateId\": \"6FAc2Cc4-114d-46a8-B591-E3E1fb566e6f\",\n    \"verificationCode\": \"44014\",\n    \"dateTo\": \"string\"\n  }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "aarQrCodeValue",
+              "value": "https://qr-code.test.com/ABCD2025010100012345",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "2651ab8a-d398-405f-addd-2d6f0c2b466c",
+          "body": "{\n  \"message\": \"User is not authorized to access this resource with an explicit deny\"\n}",
+          "latency": 0,
+          "statusCode": 403,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "aarQrCodeValue",
+              "value": "https://qr-code.test.com/403_SEND_response",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "ee1a3818-d11c-4838-b28b-e9bd531ae783",
+          "body": "{\n  \"title\": \"string\",\n  \"status\": 200,\n  \"detail\": \"There was an error processing the request\",\n  \"errors\": [\n    {\n      \"code\": \"PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY | etc...\",\n      \"element\": \"body.order.item[2].quantity\",\n      \"detail\": \"Parameter not valid\"\n    }\n  ],\n  \"traceId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+          "latency": 0,
+          "statusCode": 409,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "aarQrCodeValue",
+              "value": "https://qr-code.test.com/409_SEND_response",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "9cd389a3-2b7f-4251-8551-27fe4160a9b4",
+          "body": "{\n  \"message\": \"Unauthorized\"\n}",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "aarQrCodeValue",
+              "value": "https://qr-code.test.com/401_SEND_response",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "69d225ac-370b-405b-a6d0-1b8fa7615ab5",
+          "body": "{\n  \"title\": \"string\",\n  \"status\": 200,\n  \"detail\": \"There was an error processing the request\",\n  \"errors\": [\n    {\n      \"code\": \"PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY | etc...\",\n      \"element\": \"body.order.item[2].quantity\",\n      \"detail\": \"Parameter not valid\"\n    }\n  ],\n  \"traceId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "aarQrCodeValue",
+              "value": "https://qr-code.test.com/500_SEND_response",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     }
   ],
   "rootChildren": [
@@ -280,6 +447,10 @@
     {
       "type": "route",
       "uuid": "704249c6-0a87-4fb8-a421-1e5c6e89e448"
+    },
+    {
+      "type": "route",
+      "uuid": "3a464a59-e7a8-46e9-ad25-f15172130356"
     }
   ],
   "proxyMode": false,
