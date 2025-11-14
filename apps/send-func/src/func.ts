@@ -91,7 +91,7 @@ const main = async (config: Config): Promise<void> => {
     route: "aar/attachments/{attachmentUrl}",
   });
 
-  app.http("AARQrCodeCheck", {
+  app.http("CreateNotificationMandate", {
     authLevel: "anonymous",
     handler: handlerWithMiddleware(
       lollipopMiddleware,
