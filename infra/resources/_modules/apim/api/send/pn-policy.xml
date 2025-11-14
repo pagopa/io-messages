@@ -1,7 +1,7 @@
 <policies>
   <inbound>
     <base />
-    <rate-limit calls="{{io-com-pn-activation-rate}}" renewal-period="60" />
+    <rate-limit calls="{{io-com-pn-activation-rate}}" renewal-period="{{io-com-pn-activation-rate-period}}" />
     <set-variable name="urlId" value="@{
             Random rnd = new Random();
             int urlId = rnd.Next(1, 3);
