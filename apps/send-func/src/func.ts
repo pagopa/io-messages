@@ -10,10 +10,12 @@ import {
 } from "./adapters/appinsights/appinsights.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
 import { getAttachment } from "./adapters/functions/aar-attachments.js";
+import { createNotificationMandate } from "./adapters/functions/aar-notification-mandate.js";
 import { getNotification } from "./adapters/functions/aar-notifications.js";
 import { aarQRCodeCheck } from "./adapters/functions/aar-qrcode-check.js";
 import { healthcheck } from "./adapters/functions/health.js";
 import SendNotificationClient from "./adapters/send/notification.js";
+import { CreateNotificationMandateUseCase } from "./domain/use-cases/create-notification-mandate.js";
 import { GetAttachmentUseCase } from "./domain/use-cases/get-attachment.js";
 import { GetNotificationUseCase } from "./domain/use-cases/get-notification.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
@@ -41,6 +43,10 @@ const main = async (config: Config): Promise<void> => {
     getNotificationClient,
   );
   const getAttachmentUseCase = new GetAttachmentUseCase(getNotificationClient);
+
+  const createNotificationMandateUseCase = new CreateNotificationMandateUseCase(
+    getNotificationClient,
+  );
 
   const lollipopClient = new LollipopClient(
     config.lollipop.apiKey,
@@ -83,6 +89,19 @@ const main = async (config: Config): Promise<void> => {
     ),
     methods: ["GET"],
     route: "aar/attachments/{attachmentUrl}",
+  });
+
+  app.http("AARQrCodeCheck", {
+    authLevel: "anonymous",
+    handler: handlerWithMiddleware(
+      lollipopMiddleware,
+      createNotificationMandate(
+        createNotificationMandateUseCase,
+        telemetryService,
+      ),
+    ),
+    methods: ["POST"],
+    route: "aar/mandate",
   });
 };
 
