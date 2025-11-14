@@ -1,11 +1,11 @@
 meta {
-  name: AARQrCodeCheck
+  name: 409
   type: http
-  seq: 2
+  seq: 3
 }
 
 post {
-  url: {{send_func_url}}/aar/qr-code-check?isTest={{send-func-is-test}}
+  url: {{send_func_url}}/aar/mandate?isTest={{send-func-is-test}}
   body: json
   auth: inherit
 }
@@ -21,6 +21,6 @@ headers {
 
 body:json {
   {
-    "aarQrCodeValue": "https://qr-code.test.com/ABCD2025010100012345"
+    "aarQrCodeValue": "https://qr-code.test.com/409_SEND_response"
   }
 }
