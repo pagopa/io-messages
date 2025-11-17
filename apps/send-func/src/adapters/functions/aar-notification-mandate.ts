@@ -17,10 +17,11 @@ import {
   sendAuthErrorToAARProblemJson,
   sendProblemToAARProblemJson,
 } from "./commons/response.js";
+import { AcceptNotificationMandateUseCase } from "@/domain/use-cases/accept-notification-mandate.js";
 
 export const createNotificationMandate =
   (
-    createNotificationMandate: CreateNotificationMandateUseCase,
+    createNotificationMandateUseCase: CreateNotificationMandateUseCase,
     telemetryService: TelemetryService,
   ): ExtentedHttpHandler<LollipopHeaders> =>
   async (
@@ -51,7 +52,7 @@ export const createNotificationMandate =
       );
 
     try {
-      const response = await createNotificationMandate.execute(
+      const response = await createNotificationMandateUseCase.execute(
         isTest,
         sendHeaders,
         parsedBody.data.aarQrCodeValue,
