@@ -1,3 +1,4 @@
+import { acceptNotificationMandate } from "@/adapters/functions/aar-notification-mandate.js";
 import {
   authErrorSchema,
   checkQrMandateRequestSchema,

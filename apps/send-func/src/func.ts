@@ -10,11 +10,15 @@ import {
 } from "./adapters/appinsights/appinsights.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
 import { getAttachment } from "./adapters/functions/aar-attachments.js";
-import { createNotificationMandate } from "./adapters/functions/aar-notification-mandate.js";
+import {
+  acceptNotificationMandate,
+  createNotificationMandate,
+} from "./adapters/functions/aar-notification-mandate.js";
 import { getNotification } from "./adapters/functions/aar-notifications.js";
 import { aarQRCodeCheck } from "./adapters/functions/aar-qrcode-check.js";
 import { healthcheck } from "./adapters/functions/health.js";
 import SendNotificationClient from "./adapters/send/notification.js";
+import { AcceptNotificationMandateUseCase } from "./domain/use-cases/accept-notification-mandate.js";
 import { CreateNotificationMandateUseCase } from "./domain/use-cases/create-notification-mandate.js";
 import { GetAttachmentUseCase } from "./domain/use-cases/get-attachment.js";
 import { GetNotificationUseCase } from "./domain/use-cases/get-notification.js";
@@ -45,6 +49,10 @@ const main = async (config: Config): Promise<void> => {
   const getAttachmentUseCase = new GetAttachmentUseCase(getNotificationClient);
 
   const createNotificationMandateUseCase = new CreateNotificationMandateUseCase(
+    getNotificationClient,
+  );
+
+  const acceptNotificationMandateUseCase = new AcceptNotificationMandateUseCase(
     getNotificationClient,
   );
 
@@ -102,6 +110,19 @@ const main = async (config: Config): Promise<void> => {
     ),
     methods: ["POST"],
     route: "aar/mandates",
+  });
+
+  app.http("AcceptNotificationMandate", {
+    authLevel: "anonymous",
+    handler: handlerWithMiddleware(
+      lollipopMiddleware,
+      acceptNotificationMandate(
+        acceptNotificationMandateUseCase,
+        telemetryService,
+      ),
+    ),
+    methods: ["PATCH"],
+    route: "aar/mandates/${mandateId}",
   });
 };
 
