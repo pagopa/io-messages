@@ -13,6 +13,7 @@
     "import": "tsx ./src/import.ts",
     "clean": "tsx ./src/clean.ts",
     "compare": "tsx ./src/compare.ts",
+    "send": "tsx ./src/send.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint --fix src",

@@ -1,4 +1,5 @@
 import {
+  createTemplateNotification,
   Installation,
   NotificationHubsClient,
   RegistrationDescription,
@@ -6,6 +7,34 @@ import {
 import "dotenv/config";
 
 import { APNSPushType, APNSTemplate, FCMV1Template, SasParams } from "./types";
+
+export const toTagExpression = (fiscalCodeHash: string): string =>
+  `$InstallationId:{${fiscalCodeHash}}`;
+
+export const sendMessage = async (
+  client: NotificationHubsClient,
+  installationId: string,
+  message: { title: string; content: string },
+) => {
+  try {
+    await client.sendNotification(
+      createTemplateNotification({
+        body: {
+          message: message.content,
+          // message_id: message.id,
+          title: message.title,
+        },
+      }),
+      {
+        tagExpression: toTagExpression(installationId),
+      },
+    );
+  } catch (error) {
+    throw new Error(
+      `Error sending message to installations [${installationId}]: ${error.message}`,
+    );
+  }
+};
 
 export const deleteInstallation = async (
   client: NotificationHubsClient,
