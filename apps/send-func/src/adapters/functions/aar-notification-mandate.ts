@@ -1,4 +1,9 @@
+import {
+  CIEValidationDataSchema,
+  mandateIdSchema,
+} from "@/domain/notification.js";
 import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
+import { AcceptNotificationMandateUseCase } from "@/domain/use-cases/accept-notification-mandate.js";
 import { CreateNotificationMandateUseCase } from "@/domain/use-cases/create-notification-mandate.js";
 import {
   HttpRequest,
@@ -21,11 +26,6 @@ import {
   sendAuthErrorToAARProblemJson,
   sendProblemToAARProblemJson,
 } from "./commons/response.js";
-import { AcceptNotificationMandateUseCase } from "@/domain/use-cases/accept-notification-mandate.js";
-import {
-  CIEValidationDataSchema,
-  mandateIdSchema,
-} from "@/domain/notification.js";
 
 export const createNotificationMandate =
   (

@@ -15,6 +15,7 @@ import {
   NotificationCLientAuthError,
   NotificationClientError,
 } from "@/adapters/send/notification.js";
+import { AcceptNotificationMandateUseCase } from "@/domain/use-cases/accept-notification-mandate.js";
 import { CreateNotificationMandateUseCase } from "@/domain/use-cases/create-notification-mandate.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { beforeEach } from "vitest";
@@ -28,7 +29,6 @@ import {
   sendAuthErrorToAARProblemJson,
   sendProblemToAARProblemJson,
 } from "../commons/response.js";
-import { AcceptNotificationMandateUseCase } from "@/domain/use-cases/accept-notification-mandate.js";
 
 const trackEventMock = vi.fn(() => Promise.resolve());
 const mocks = vi.hoisted(() => ({
