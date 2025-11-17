@@ -101,7 +101,7 @@ const main = async (config: Config): Promise<void> => {
       ),
     ),
     methods: ["POST"],
-    route: "aar/mandate",
+    route: "aar/mandates",
   });
 };
 
