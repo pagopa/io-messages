@@ -89,7 +89,7 @@ describe("CreateNotificationMandate", () => {
 
     await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: aCreateNotificationMandateResponse,
-      status: 200,
+      status: 201,
     });
 
     expect(createNotificationMandateExecuteSpy).toHaveBeenCalledWith(
@@ -233,7 +233,7 @@ describe("AcceptNotificationMandate", () => {
     });
 
     await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
-      status: 200,
+      status: 204,
     });
 
     expect(acceptNotificationMandateExecuteSpy).toHaveBeenCalledWith(
