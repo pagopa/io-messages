@@ -65,7 +65,7 @@ export const createNotificationMandate =
         sendHeaders,
         parsedBody.data.aarQrCodeValue,
       );
-      return { jsonBody: response, status: 200 };
+      return { jsonBody: response, status: 201 };
     } catch (err) {
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
@@ -165,7 +165,7 @@ export const acceptNotificationMandate =
         parsedBody.data,
         sendHeaders,
       );
-      return { status: 200 };
+      return { status: 204 };
     } catch (err) {
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
