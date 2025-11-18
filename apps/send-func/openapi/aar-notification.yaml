@@ -149,7 +149,7 @@ paths:
             schema:
               $ref: "#/components/schemas/RequestCheckQrMandateDto"
       responses:
-        "200":
+        "201":
           description: Created
           content:
             application/json:
