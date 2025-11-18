@@ -122,7 +122,7 @@ const main = async (config: Config): Promise<void> => {
       ),
     ),
     methods: ["PATCH"],
-    route: "aar/mandates/${mandateId}",
+    route: "aar/mandates/{mandateId}",
   });
 };
 

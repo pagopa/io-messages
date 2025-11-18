@@ -89,7 +89,7 @@ export default class SendNotificationClient implements NotificationClient {
     };
 
     const url = new URL(
-      `${this.#baseUrl}/mandate/api/v1/io//mandate/${mandateId}/cie/accept`,
+      `${this.#baseUrl}/mandate/api/v1/io/mandate/${mandateId}/cie/accept`,
     );
 
     const response = await fetch(url.toString(), {
@@ -98,9 +98,8 @@ export default class SendNotificationClient implements NotificationClient {
       method: "PATCH",
     });
 
-    const responseJson = await response.json();
-
     if (!response.ok) {
+      const responseJson = await response.json();
       if (response.status === 401 || response.status === 403) {
         const parsedProblem = authErrorSchema.safeParse(responseJson);
 
