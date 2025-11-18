@@ -22,6 +22,7 @@ export const common = z.object({
   }),
   messageContentStorage: z.object({
     accountUri: z.string().url(),
+    accountUriItn: z.string().url(),
     containerName: z.string().min(1),
   }),
   messageIngestionErrorTable: tableStorageConfigSchema,
@@ -92,6 +93,7 @@ const mapEnvironmentVariablesToConfig = (env: Env) => {
     },
     messageContentStorage: {
       accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
+      accountUriItn: env.IOCOM_STORAGE_URI,
       containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
     },
     messageIngestionErrorTable: {

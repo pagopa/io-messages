@@ -4,6 +4,7 @@ locals {
       NODE_ENV                                       = "production",
       FUNCTIONS_WORKER_RUNTIME                       = "node",
       MESSAGE_CONTENT_STORAGE_URI                    = var.message_content_storage.endpoint
+      IOCOM_STORAGE_URI                              = var.com_st_uri
       EVENTHUB_CONNECTION_URI                        = var.app_settings.eventhub_connection_uri,
       MESSAGE_CONTENT_CONTAINER_NAME                 = "message-content",
       MESSAGE_EVENTHUB_NAME                          = "io-p-itn-com-etl-messages-evh-01"

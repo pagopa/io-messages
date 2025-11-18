@@ -3,6 +3,7 @@ import { TableClient } from "@azure/data-tables";
 import { app } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
+import { BlobServiceClientWithFallBack } from "@pagopa/azure-storage-migration-kit";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
 import { createClient } from "redis";
@@ -39,6 +40,14 @@ const main = async (config: Config) => {
     config.messageContentStorage.accountUri,
     azureCredentials,
   );
+  const blobServiceCLientItn = new BlobServiceClient(
+    config.messageContentStorage.accountUriItn,
+    azureCredentials,
+  );
+  const blobServiceClientWithFallBack = new BlobServiceClientWithFallBack(
+    blobServiceCLientItn,
+    blobServiceCLient,
+  );
 
   const messageProducerClient = makeEventHubProducerClient(
     config.messagesEventHub,
@@ -72,7 +81,7 @@ const main = async (config: Config) => {
   );
 
   const blobMessageContentProvider = new BlobMessageContent(
-    blobServiceCLient,
+    blobServiceClientWithFallBack,
     config.messageContentStorage.containerName,
   );
 
