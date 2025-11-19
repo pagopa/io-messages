@@ -1,9 +1,5 @@
 ﻿import { Context } from "@azure/functions";
-import {
-  MessageModel,
-  RetrievedMessage
-} from "@pagopa/io-functions-commons/dist/src/models/message";
-import { BlobService } from "azure-storage";
+import { RetrievedMessage } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { constVoid, flow, pipe } from "fp-ts/lib/function";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as RA from "fp-ts/lib/ReadonlyArray";
@@ -16,13 +12,15 @@ import {
   PermanentFailure,
   toPermanentFailure,
   toTransientFailure,
-  TransientFailure
+  TransientFailure,
 } from "../utils/errors";
 import { enrichMessageContent } from "../utils/message";
+import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
+import { MessageModel } from "../io-functions-common/message";
 
 const RetriableMessagePublishFailureInput = t.interface({
   body: RetrievedMessage,
-  retriable: t.literal(true)
+  retriable: t.literal(true),
 });
 
 type RetriableMessagePublishFailureInput = t.TypeOf<
@@ -32,8 +30,8 @@ export const HandleMessagePublishFailureInput = t.union([
   RetriableMessagePublishFailureInput,
   t.interface({
     body: t.unknown,
-    retriable: t.literal(false)
-  })
+    retriable: t.literal(false),
+  }),
 ]);
 export type HandleMessagePublishFailureInput = t.TypeOf<
   typeof HandleMessagePublishFailureInput
@@ -44,33 +42,33 @@ export const HandleMessageChangeFeedPublishFailureHandler = (
   message: unknown,
   telemetryClient: TelemetryClient,
   messageModel: MessageModel,
-  blobService: BlobService,
-  client: KP.KafkaProducerCompact<RetrievedMessage>
+  blobService: BlobServiceWithFallBack,
+  client: KP.KafkaProducerCompact<RetrievedMessage>,
   // eslint-disable-next-line max-params
 ): Promise<Failure | void> =>
   pipe(
     message,
     HandleMessagePublishFailureInput.decode,
     TE.fromEither,
-    TE.mapLeft(flow(errorsToError, e => toPermanentFailure(e)())),
-    TE.chain(failureInput =>
+    TE.mapLeft(flow(errorsToError, (e) => toPermanentFailure(e)())),
+    TE.chain((failureInput) =>
       pipe(
         failureInput,
         RetriableMessagePublishFailureInput.decode,
         TE.fromEither,
         TE.mapLeft(() =>
-          toPermanentFailure(Error(JSON.stringify(failureInput.body)))()
+          toPermanentFailure(Error(JSON.stringify(failureInput.body)))(),
         ),
-        TE.map(retriableFailure => retriableFailure.body)
-      )
+        TE.map((retriableFailure) => retriableFailure.body),
+      ),
     ),
-    TE.chain(retrievedMessage =>
+    TE.chain((retrievedMessage) =>
       pipe(
         enrichMessageContent(messageModel, blobService, retrievedMessage),
-        TE.mapLeft(_ =>
-          toTransientFailure(Error("Cannot Enrich MessageContent"))()
-        )
-      )
+        TE.mapLeft((_) =>
+          toTransientFailure(Error("Cannot Enrich MessageContent"))(),
+        ),
+      ),
     ),
     TE.chain(
       flow(
@@ -79,13 +77,13 @@ export const HandleMessageChangeFeedPublishFailureHandler = (
         TE.mapLeft(
           flow(
             RA.reduce("", (acc, err) => `${acc}|${err.message}`),
-            msg => toTransientFailure(Error(msg))()
-          )
+            (msg) => toTransientFailure(Error(msg))(),
+          ),
         ),
-        TE.map(constVoid)
-      )
+        TE.map(constVoid),
+      ),
     ),
-    TE.mapLeft(err => {
+    TE.mapLeft((err) => {
       const isTransient = TransientFailure.is(err);
       const error = isTransient
         ? `HandleMessageChangeFeedPublishFailureHandler|TRANSIENT_ERROR=${err.reason}`
@@ -99,9 +97,9 @@ export const HandleMessageChangeFeedPublishFailureHandler = (
           fatal: PermanentFailure.is(err).toString(),
           isSuccess: "false",
           modelId: err.modelId ?? "",
-          name: "message.cqrs.changefeed.retry.failure"
+          name: "message.cqrs.changefeed.retry.failure",
         },
-        tagOverrides: { samplingEnabled: String(isTransient) }
+        tagOverrides: { samplingEnabled: String(isTransient) },
       });
       context.log.error(error);
       if (isTransient) {
@@ -110,5 +108,5 @@ export const HandleMessageChangeFeedPublishFailureHandler = (
       }
       return err;
     }),
-    TE.toUnion
+    TE.toUnion,
   )();

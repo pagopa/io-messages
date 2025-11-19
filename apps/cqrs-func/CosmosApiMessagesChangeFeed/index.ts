@@ -1,12 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */ // disabled in order to use the naming convention used to flatten nested object to root ('_' char used as nested object separator)
 import { Context } from "@azure/functions";
-import { createBlobService } from "azure-storage";
 import * as winston from "winston";
 
-import {
-  MessageModel,
-  MESSAGE_COLLECTION_NAME
-} from "@pagopa/io-functions-commons/dist/src/models/message";
+import { MESSAGE_COLLECTION_NAME } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { AzureContextTransport } from "@pagopa/io-functions-commons/dist/src/utils/logging";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 
@@ -20,55 +16,58 @@ import { getThirdPartyDataWithCategoryFetcher } from "../utils/message";
 import { IBulkOperationResult } from "../utils/publish";
 import { handleMessageChange } from "./handler";
 import { fromSas } from "../utils/event_hub";
+import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
+import { MessageModel } from "../io-functions-common/message";
 
 // eslint-disable-next-line functional/no-let
 let logger: Context["log"] | undefined;
 const contextTransport = new AzureContextTransport(() => logger, {
-  level: "debug"
+  level: "debug",
 });
 winston.add(contextTransport);
 
 const config = getConfigOrThrow();
 
 const telemetryClient = initTelemetryClient(
-  config.APPLICATIONINSIGHTS_CONNECTION_STRING
+  config.APPLICATIONINSIGHTS_CONNECTION_STRING,
 );
 
 const kafkaClient = fromSas(
   config.MESSAGES_TOPIC_CONNECTION_STRING,
   config.KAFKA_SSL_ACTIVE,
-  avroMessageFormatter(getThirdPartyDataWithCategoryFetcher(config))
+  avroMessageFormatter(getThirdPartyDataWithCategoryFetcher(config)),
 );
 
 const errorStorage = new QueueClient(
   config.COM_STORAGE_CONNECTION_STRING,
-  config.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME
+  config.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME,
 );
 
 const messageModel = new MessageModel(
   cosmosdbInstance.container(MESSAGE_COLLECTION_NAME),
-  "message-content" as NonEmptyString
+  "message-content" as NonEmptyString,
 );
 
 const messageContentBlobService = createBlobService(
-  config.MESSAGE_CONTENT_STORAGE_CONNECTION
+  config.IOCOM_STORAGE_URI,
+  config.MESSAGE_CONTENT_STORAGE_CONNECTION,
 );
 
 const run = async (
   context: Context,
-  documents: ReadonlyArray<unknown>
+  documents: ReadonlyArray<unknown>,
 ): Promise<Failure | IBulkOperationResult> => {
   logger = context.log;
   return handleMessageChange(
     messageModel,
     messageContentBlobService,
-    config.MESSAGE_CHANGE_FEED_START_TIME
+    config.MESSAGE_CHANGE_FEED_START_TIME,
   )(
     kafkaClient,
     errorStorage,
     telemetryClient,
     "messageForPaymentUpdater",
-    documents
+    documents,
   );
 };
 

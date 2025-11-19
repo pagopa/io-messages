@@ -22,6 +22,7 @@ locals {
 
       MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME = "message-paymentupdater-failures"
 
+      IOCOM_STORAGE_URI                  = var.com_st_uri
       MESSAGE_CONTENT_STORAGE_CONNECTION = var.message_content_storage.connection_string
       QueueStorageConnection             = var.message_content_storage.connection_string
 

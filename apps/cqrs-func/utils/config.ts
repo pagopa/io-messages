@@ -31,6 +31,7 @@ export const IConfig = t.intersection([
     COSMOSDB_NAME: NonEmptyString,
     COSMOSDB__accountEndpoint: NonEmptyString,
 
+    IOCOM_STORAGE_URI: NonEmptyString,
     COM_STORAGE_CONNECTION_STRING: NonEmptyString,
 
     MESSAGES_TOPIC_CONNECTION_STRING: AzureEventhubSasFromString,
