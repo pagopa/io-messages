@@ -121,10 +121,10 @@ describe("CreateNotificationMandate", () => {
     expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
-  it("returns 500 status code for all the others errors", async () => {
+  it("returns 409 status code if 409 status code is returned by SEND", async () => {
     createNotificationMandateExecuteSpy.mockImplementationOnce(() =>
       Promise.reject(
-        new NotificationClientError("Notification client error", 503, aProblem),
+        new NotificationClientError("Notification client error", 409, aProblem),
       ),
     );
 
@@ -136,18 +136,17 @@ describe("CreateNotificationMandate", () => {
 
     await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: sendProblemToAARProblemJson(aProblem),
-      status: 500,
+      status: 409,
     });
 
     expect(createNotificationMandateExecuteSpy).toHaveBeenCalledOnce();
-    expect(telemetryTrackEventMock).toHaveBeenCalledOnce();
   });
 
   it("returns 500 status specifying inner status code returned by SEND", async () => {
     const aProblemsArray = [
       { ...aProblem, status: 400 },
-      { ...aProblem, status: 409 },
       { ...aProblem, status: 500 },
+      { ...aProblem, status: 503 },
     ];
     for (const aProblemItem of aProblemsArray) {
       createNotificationMandateExecuteSpy.mockImplementationOnce(() =>
@@ -177,9 +176,7 @@ describe("CreateNotificationMandate", () => {
       expect(telemetryTrackEventMock).toHaveBeenCalledOnce();
       vi.clearAllMocks();
     }
-  });
 
-  it("returns the proper status code on auth error", async () => {
     const aAuthErrorsStatusCodesArray = [{ status: 401 }, { status: 403 }];
 
     for (const aAuthErrorItem of aAuthErrorsStatusCodesArray) {
@@ -204,7 +201,7 @@ describe("CreateNotificationMandate", () => {
           clientAuthError,
           aAuthErrorItem.status,
         ),
-        status: aAuthErrorItem.status,
+        status: 500,
       });
 
       expect(createNotificationMandateExecuteSpy).toHaveBeenCalledOnce();
@@ -291,10 +288,10 @@ describe("AcceptNotificationMandate", () => {
     expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
-  it("returns 500 status code for all the others errors", async () => {
+  it("returns 422 status code if 422 status code is returned by SEND", async () => {
     acceptNotificationMandateExecuteSpy.mockImplementationOnce(() =>
       Promise.reject(
-        new NotificationClientError("Notification client error", 503, aProblem),
+        new NotificationClientError("Notification client error", 422, aProblem),
       ),
     );
 
@@ -307,17 +304,17 @@ describe("AcceptNotificationMandate", () => {
 
     await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: sendProblemToAARProblemJson(aProblem),
-      status: 500,
+      status: 422,
     });
 
     expect(acceptNotificationMandateExecuteSpy).toHaveBeenCalledOnce();
-    expect(telemetryTrackEventMock).toHaveBeenCalledOnce();
   });
 
   it("returns 500 status specifying inner status code returned by SEND", async () => {
     const aProblemsArray = [
       { ...aProblem, status: 400 },
-      { ...aProblem, status: 422 },
+      { ...aProblem, status: 500 },
+      { ...aProblem, status: 503 },
     ];
     for (const aProblemItem of aProblemsArray) {
       acceptNotificationMandateExecuteSpy.mockImplementationOnce(() =>
@@ -348,9 +345,7 @@ describe("AcceptNotificationMandate", () => {
       expect(telemetryTrackEventMock).toHaveBeenCalledOnce();
       vi.clearAllMocks();
     }
-  });
 
-  it("returns the proper status code on auth error", async () => {
     const aAuthErrorsStatusCodesArray = [{ status: 401 }, { status: 403 }];
 
     for (const aAuthErrorItem of aAuthErrorsStatusCodesArray) {
@@ -376,7 +371,7 @@ describe("AcceptNotificationMandate", () => {
           clientAuthError,
           aAuthErrorItem.status,
         ),
-        status: aAuthErrorItem.status,
+        status: 500,
       });
 
       expect(acceptNotificationMandateExecuteSpy).toHaveBeenCalledOnce();
