@@ -162,17 +162,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/AARProblemJson"
         "401":
-          description: Unauthorized - Token di autenticazione mancante o non valido
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AARProblemJson"
-        "403":
-          description: Forbidden - Utente non autorizzato
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AARProblemJson"
+          description: Unauthorized
         "409":
           description: >-
             Conflict - Esiste già una delega in stato attiva o pending tra il
@@ -187,7 +177,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AARProblemJson"
-  /mandate/{mandateId}:
+  /mandates/{mandateId}:
     patch:
       tags:
         - SEND AAR Mandate
@@ -219,17 +209,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/AARProblemJson"
         "401":
-          description: Unauthorized - Token di autenticazione mancante o non valido
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AARProblemJson"
-        "403":
-          description: Forbidden - Utente non autorizzato
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AARProblemJson"
+          description: Unauthorized
         "422":
           description: Unprocessable Entity - Verifiche CIE/NONCE non riuscite
           content:
