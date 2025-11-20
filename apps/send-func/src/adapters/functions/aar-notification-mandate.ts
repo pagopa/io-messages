@@ -69,6 +69,7 @@ export const createNotificationMandate =
     } catch (err) {
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
+        let responseStatus = 500;
 
         switch (err.status) {
           case 403:
@@ -80,6 +81,9 @@ export const createNotificationMandate =
             telemetryService.trackEvent(
               TelemetryEventName.SEND_AAR_CREATE_MANDATE_QRCODE_DATA_NOT_FOUND,
             );
+            break;
+          case 409:
+            responseStatus = 409;
             break;
           default:
             telemetryService.trackEvent(
@@ -93,14 +97,14 @@ export const createNotificationMandate =
 
         return {
           jsonBody: sendProblemToAARProblemJson(err.body),
-          status: 500,
+          status: responseStatus,
         };
       }
 
       if (err instanceof NotificationCLientAuthError) {
         return {
           jsonBody: sendAuthErrorToAARProblemJson(err, err.status),
-          status: err.status,
+          status: 500,
         };
       }
       const errorMessage =
@@ -169,6 +173,7 @@ export const acceptNotificationMandate =
     } catch (err) {
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
+        let responseStatus = 500;
 
         switch (err.status) {
           case 403:
@@ -180,6 +185,9 @@ export const acceptNotificationMandate =
             telemetryService.trackEvent(
               TelemetryEventName.SEND_AAR_CREATE_MANDATE_QRCODE_DATA_NOT_FOUND,
             );
+            break;
+          case 422:
+            responseStatus = 422;
             break;
           default:
             telemetryService.trackEvent(
@@ -193,14 +201,14 @@ export const acceptNotificationMandate =
 
         return {
           jsonBody: sendProblemToAARProblemJson(err.body),
-          status: 500,
+          status: responseStatus,
         };
       }
 
       if (err instanceof NotificationCLientAuthError) {
         return {
           jsonBody: sendAuthErrorToAARProblemJson(err, err.status),
-          status: err.status,
+          status: 500,
         };
       }
       const errorMessage =

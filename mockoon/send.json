@@ -350,7 +350,7 @@
         },
         {
           "uuid": "ee1a3818-d11c-4838-b28b-e9bd531ae783",
-          "body": "{\n  \"title\": \"string\",\n  \"status\": 200,\n  \"detail\": \"There was an error processing the request\",\n  \"errors\": [\n    {\n      \"code\": \"PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY | etc...\",\n      \"element\": \"body.order.item[2].quantity\",\n      \"detail\": \"Parameter not valid\"\n    }\n  ],\n  \"traceId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+          "body": "{\n  \"title\": \"string\",\n  \"status\": 409,\n  \"detail\": \"There was an error processing the request\",\n  \"errors\": [\n    {\n      \"code\": \"PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY | etc...\",\n      \"element\": \"body.order.item[2].quantity\",\n      \"detail\": \"Parameter not valid\"\n    }\n  ],\n  \"traceId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
           "latency": 0,
           "statusCode": 409,
           "label": "",
@@ -445,7 +445,7 @@
           "uuid": "82d84d94-b649-4058-ae72-219ca3c0aab8",
           "body": "",
           "latency": 0,
-          "statusCode": 200,
+          "statusCode": 204,
           "label": "",
           "headers": [],
           "bodyType": "INLINE",
@@ -469,60 +469,6 @@
           "callbacks": []
         },
         {
-          "uuid": "6c51cbdc-22cb-406e-aeaa-7fcec2b02fe3",
-          "body": "{\n  \"message\": \"User is not authorized to access this resource with an explicit deny\"\n}",
-          "latency": 0,
-          "statusCode": 403,
-          "label": "",
-          "headers": [],
-          "bodyType": "INLINE",
-          "filePath": "",
-          "databucketID": "",
-          "sendFileAsBody": false,
-          "rules": [
-            {
-              "target": "body",
-              "modifier": "aarQrCodeValue",
-              "value": "https://qr-code.test.com/403_SEND_response",
-              "invert": false,
-              "operator": "equals"
-            }
-          ],
-          "rulesOperator": "OR",
-          "disableTemplating": false,
-          "fallbackTo404": false,
-          "default": false,
-          "crudKey": "id",
-          "callbacks": []
-        },
-        {
-          "uuid": "4303f26c-1776-4874-afff-1795cc421b76",
-          "body": "{\n  \"type\": \"GENERIC_ERROR\",\n  \"status\": 422,\n  \"title\": \"Handled error\",\n  \"detail\": \"See logs for details in PN-MANDATE\",\n  \"traceId\": \"trace_id:f474bb7c-e0cd-46b0-9ddf-8b0006fd33d4\",\n  \"timestamp\": \"2025-09-15T14:49:27.179Z\",\n  \"errors\": [\n    {\n      \"code\": \"PN_MANDATE_CIE_VALIDATION_ERROR\",\n      \"element\": null,\n      \"detail\": \"none\"\n    }\n  ]\n}",
-          "latency": 0,
-          "statusCode": 422,
-          "label": "",
-          "headers": [],
-          "bodyType": "INLINE",
-          "filePath": "",
-          "databucketID": "",
-          "sendFileAsBody": false,
-          "rules": [
-            {
-              "target": "body",
-              "modifier": "aarQrCodeValue",
-              "value": "https://qr-code.test.com/409_SEND_response",
-              "invert": false,
-              "operator": "equals"
-            }
-          ],
-          "rulesOperator": "OR",
-          "disableTemplating": false,
-          "fallbackTo404": false,
-          "default": false,
-          "crudKey": "id",
-          "callbacks": []
-        },
-        {
           "uuid": "6ef39f0e-8b77-41ec-b480-1e6f0a332786",
           "body": "{\n  \"message\": \"Unauthorized\"\n}",
           "latency": 0,
@@ -536,13 +482,20 @@
           "rules": [
             {
               "target": "body",
-              "modifier": "aarQrCodeValue",
-              "value": "https://qr-code.test.com/401_SEND_response",
+              "modifier": "signedNonce",
+              "value": "401_response",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "params",
+              "modifier": "mandateId",
+              "value": "f47ac10b-58cc-4321-a567-0e02b2c3d479",
               "invert": false,
               "operator": "equals"
             }
           ],
-          "rulesOperator": "OR",
+          "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
           "default": false,
@@ -550,8 +503,76 @@
           "callbacks": []
         },
         {
-          "uuid": "3457b389-d121-4ebc-bf8a-bef5664161ca",
-          "body": "{\n  \"type\": \"GENERIC_ERROR\",\n  \"status\": 500,\n  \"title\": \"Unhandled error\",\n  \"detail\": \"See logs for details in PN-MANDATE\",\n  \"traceId\": \"trace_id:f474bb7c-e0cd-46b0-9ddf-8b0006fd33d4\",\n  \"timestamp\": \"2025-09-15T14:49:27.179Z\",\n  \"errors\": [\n    {\n      \"code\": \"PN_GENERIC_ERROR\",\n      \"element\": null,\n      \"detail\": \"none\"\n    }\n  ]\n}",
+          "uuid": "8003718c-59b1-4acd-bcf7-67be9a56df53",
+          "body": "{\n  \"message\": \"User is not authorized to access this resource with an explicit deny\"\n}",
+          "latency": 0,
+          "statusCode": 403,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "signedNonce",
+              "value": "403_response",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "params",
+              "modifier": "mandateId",
+              "value": "f47ac10b-58cc-4321-a567-0e02b2c3d479",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "fa83e8cd-103a-4655-8971-545a2bb1c40a",
+          "body": "{\n  \"type\": \"GENERIC_ERROR\",\n  \"status\": 422,\n  \"title\": \"Handled error\",\n  \"detail\": \"See logs for details in PN-MANDATE\",\n  \"traceId\": \"trace_id:f474bb7c-e0cd-46b0-9ddf-8b0006fd33d4\",\n  \"timestamp\": \"2025-09-15T14:49:27.179Z\",\n  \"errors\": [\n    {\n      \"code\": \"PN_MANDATE_CIE_VALIDATION_ERROR\",\n      \"element\": \"null\",\n      \"detail\": \"none\"\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 422,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "signedNonce",
+              "value": "422_response",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "params",
+              "modifier": "mandateId",
+              "value": "f47ac10b-58cc-4321-a567-0e02b2c3d479",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "cb469f1a-b6b7-4716-a7bf-c4b826764f66",
+          "body": "{\n  \"type\": \"GENERIC_ERROR\",\n  \"status\": 500,\n  \"title\": \"Unhandled error\",\n  \"detail\": \"See logs for details in PN-MANDATE\",\n  \"traceId\": \"trace_id:f474bb7c-e0cd-46b0-9ddf-8b0006fd33d4\",\n  \"timestamp\": \"2025-09-15T14:49:27.179Z\",\n  \"errors\": [\n    {\n      \"code\": \"PN_GENERIC_ERROR\",\n      \"element\": \"null\",\n      \"detail\": \"none\"\n    }\n  ]\n}",
           "latency": 0,
           "statusCode": 500,
           "label": "",
@@ -563,13 +584,20 @@
           "rules": [
             {
               "target": "body",
-              "modifier": "aarQrCodeValue",
-              "value": "https://qr-code.test.com/500_SEND_response",
+              "modifier": "signedNonce",
+              "value": "500_response",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "params",
+              "modifier": "mandateId",
+              "value": "f47ac10b-58cc-4321-a567-0e02b2c3d479",
               "invert": false,
               "operator": "equals"
             }
           ],
-          "rulesOperator": "OR",
+          "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
           "default": false,
