@@ -1,11 +1,12 @@
-import { BlobService } from "azure-storage";
-
 import * as E from "fp-ts/lib/Either";
 import { flow, pipe } from "fp-ts/lib/function";
 import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as RA from "fp-ts/ReadonlyArray";
-
+import * as O from "fp-ts/lib/Option";
+import * as J from "fp-ts/Json";
+import { readableReport } from "@pagopa/ts-commons/lib/reporters";
+import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
 import {
   MessageModel,
@@ -15,16 +16,22 @@ import { MessageContentType } from "../generated/avro/dto/MessageContentTypeEnum
 import { toPermanentFailure, toTransientFailure } from "./errors";
 import { IStorableError, toStorableError } from "./storable_error";
 import { IConfig } from "./config";
+import {
+  BlobNotFoundCode,
+  BlobServiceWithFallBack,
+  GenericCode,
+  getBlobAsTextWithError,
+} from "@pagopa/azure-storage-legacy-migration-kit";
 /**
  * Retrieve a message content from blob storage and enrich message
  */
 export const enrichMessageContent = (
   messageModel: MessageModel,
-  blobService: BlobService,
+  blobService: BlobServiceWithFallBack,
   message: RetrievedMessage,
 ): TE.TaskEither<IStorableError<RetrievedMessage>, RetrievedMessage> =>
   pipe(
-    messageModel.getContentFromBlob(blobService, message.id),
+    getContentFromBlob(blobService, message.id),
     TE.mapLeft((e) =>
       toTransientFailure(
         e,
@@ -52,7 +59,7 @@ export const enrichMessagesContent =
   (
     messageModel: MessageModel,
     messageContentChunkSize: number,
-    blobService: BlobService,
+    blobService: BlobServiceWithFallBack,
   ) =>
   (
     messages: ReadonlyArray<RetrievedMessage>,
@@ -108,3 +115,62 @@ export const getThirdPartyDataWithCategoryFetcher: (
         category,
       }),
     );
+
+const MESSAGE_BLOB_STORAGE_SUFFIX = ".json";
+const blobIdFromMessageId = (messageId: string): string =>
+  `${messageId}${MESSAGE_BLOB_STORAGE_SUFFIX}`;
+
+const getContentFromBlob = (
+  blobService: BlobServiceWithFallBack,
+  messageId: string,
+): TE.TaskEither<Error, O.Option<MessageContent>> => {
+  // Retrieve blob content and deserialize
+  return pipe(
+    blobIdFromMessageId(messageId),
+    getBlobAsTextWithError(blobService, "message-content"),
+    TE.mapLeft((storageError) => ({
+      code: storageError.code ?? GenericCode,
+      message: storageError.message,
+    })),
+    TE.chain((maybeContentAsText) =>
+      TE.fromEither(
+        E.fromOption(
+          // Blob exists but the content is empty
+          () => ({
+            code: GenericCode,
+            message: "Cannot get stored message content from empty blob",
+          }),
+        )(maybeContentAsText),
+      ),
+    ),
+    // Try to decode the MessageContent
+    TE.chain(
+      flow(
+        J.parse,
+        E.mapLeft(E.toError),
+        TE.fromEither,
+        TE.mapLeft((parseError) => ({
+          code: GenericCode,
+          message: `Cannot parse content text into object: ${parseError.message}`,
+        })),
+      ),
+    ),
+    TE.chain(
+      flow(
+        MessageContent.decode,
+        TE.fromEither,
+        TE.mapLeft((decodeErrors) => ({
+          code: GenericCode,
+          message: `Cannot deserialize stored message content: ${readableReport(
+            decodeErrors,
+          )}`,
+        })),
+        TE.map(O.some),
+      ),
+    ),
+    TE.orElse((error) =>
+      error.code === BlobNotFoundCode ? TE.right(O.none) : TE.left(error),
+    ),
+    TE.mapLeft((error) => new Error(error.message)),
+  );
+};
