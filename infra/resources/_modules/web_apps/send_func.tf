@@ -4,7 +4,7 @@ locals {
       NODE_ENV                         = "production",
       FUNCTIONS_WORKER_RUNTIME         = "node",
       NOTIFICATION_CLIENT_API_KEY      = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=send-aar-notification-prod-key)",
-      NOTIFICATION_CLIENT_BASE_URL     = "https://api-io.pn.pagopa.it",
+      NOTIFICATION_CLIENT_BASE_URL     = "https://api-io.notifichedigitali.it",
       NOTIFICATION_CLIENT_UAT_API_KEY  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=send-aar-notification-uat-key)",
       NOTIFICATION_CLIENT_UAT_BASE_URL = "https://api-io.uat.notifichedigitali.it",
       LOLLIPOP_API_BASE_URL            = "https://io-p-itn-auth-lollipop-func-02.azurewebsites.net/api/v1",
@@ -45,6 +45,50 @@ module "send_func" {
   tags = var.tags
 
   action_group_id = var.action_group_id
+}
+
+module "send_func_autoscaler" {
+  source  = "pagopa-dx/azure-app-service-plan-autoscaler/azurerm"
+  version = "~> 1.0"
+
+  app_service_plan_id = module.send_func.function_app.plan.id
+  location            = var.environment.location
+
+  resource_group_name = module.send_func.function_app.resource_group_name
+
+  target_service = {
+    function_app = {
+      name = module.send_func.function_app.function_app.name
+    }
+  }
+
+  scale_metrics = {
+    cpu = {
+      cooldown_decrease         = 20,
+      cooldown_increase         = 3,
+      decrease_by               = 1,
+      increase_by               = 1,
+      lower_threshold           = 20,
+      statistic_decrease        = "Max",
+      statistic_increase        = "Max",
+      time_aggregation_decrease = "Maximum",
+      time_aggregation_increase = "Maximum",
+      time_window_decrease      = 5,
+      time_window_increase      = 2,
+      upper_threshold           = 70
+    },
+  }
+
+  scheduler = {
+    normal_load = {
+      default = 2,
+      minimum = 2
+    },
+
+    maximum = 30,
+  }
+
+  tags = var.tags
 }
 
 resource "azurerm_role_assignment" "key_vault_send_func_secrets_user" {
