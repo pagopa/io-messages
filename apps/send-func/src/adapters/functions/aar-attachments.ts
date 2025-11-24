@@ -4,6 +4,7 @@ import {
   iunSchema,
   mandateIdSchema,
 } from "@/domain/notification.js";
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import {
   AttachmentParams,
   GetAttachmentUseCase,
@@ -15,16 +16,17 @@ import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
 import * as z from "zod";
 import { ZodError } from "zod";
 
-import {
-  AarGetAttachmentResponse,
-  aarProblemJsonSchema,
-} from "../send/definitions.js";
+import { AarGetAttachmentResponse } from "../send/definitions.js";
 import { NotificationClientError } from "../send/notification.js";
-import { malformedBodyResponse } from "./commons/response.js";
+import {
+  malformedBodyResponse,
+  sendProblemToAARProblemJson,
+} from "./commons/response.js";
 
 export const getAttachment =
   (
     getAttachmentUseCase: GetAttachmentUseCase,
+    telemetryService: TelemetryService,
   ): ExtentedHttpHandler<LollipopHeaders> =>
   async (
     request: HttpRequest,
@@ -69,7 +71,14 @@ export const getAttachment =
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
 
-        const problemJson = aarProblemJsonSchema.parse(err.body);
+        const problemJson = sendProblemToAARProblemJson(err.body);
+
+        telemetryService.trackEvent(
+          TelemetryEventName.SEND_AAR_ATTACHMENT_SERVER_ERROR,
+          {
+            status: err.status,
+          },
+        );
 
         return {
           jsonBody: problemJson,
@@ -105,10 +114,10 @@ function safeParseAttachmentUrl(
     const searchParams = new URLSearchParams(queryString);
 
     const paymentRegex =
-      /^\/delivery\/notifications\/received\/([^/]+)\/attachments\/payment\/([^/]+)$/;
+      /^\/?delivery\/notifications\/received\/([^/]+)\/attachments\/payment\/([^/]+)\/?$/;
 
     const documentsRegex =
-      /^\/delivery\/notifications\/received\/([^/]+)\/attachments\/documents\/([0-9]+)$/;
+      /^\/?delivery\/notifications\/received\/([^/]+)\/attachments\/documents\/([0-9]+)$/;
 
     const paymentMatch = path.match(paymentRegex);
     if (paymentMatch) {

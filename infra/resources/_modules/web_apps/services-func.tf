@@ -131,24 +131,41 @@ module "services_func_autoscaler" {
     }
   }
 
+  scale_metrics = {
+    cpu = {
+      cooldown_decrease         = 20,
+      cooldown_increase         = 3,
+      decrease_by               = 3,
+      increase_by               = 3,
+      lower_threshold           = 20,
+      statistic_decrease        = "Max",
+      statistic_increase        = "Max",
+      time_aggregation_decrease = "Maximum",
+      time_aggregation_increase = "Maximum",
+      time_window_decrease      = 5,
+      time_window_increase      = 2,
+      upper_threshold           = 50
+    },
+  }
+
   scheduler = {
     normal_load = {
-      default = 11,
-      minimum = 6
+      default = 16,
+      minimum = 16
     },
-    low_load = {
-      minimum = 2,
-      name    = "low_load_profile",
-      default = 10,
-      start = {
-        hour    = 22,
-        minutes = 0
-      }
-      end = {
-        hour    = 7,
-        minutes = 0
-      },
-    },
+    # low_load = {
+    #   minimum = 2,
+    #   name    = "low_load_profile",
+    #   default = 10,
+    #   start = {
+    #     hour    = 22,
+    #     minutes = 0
+    #   }
+    #   end = {
+    #     hour    = 5,
+    #     minutes = 0
+    #   },
+    # },
     maximum = 30,
   }
 

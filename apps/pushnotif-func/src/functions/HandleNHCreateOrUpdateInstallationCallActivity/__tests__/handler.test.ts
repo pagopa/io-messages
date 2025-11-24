@@ -4,10 +4,7 @@ import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { context as contextMock } from "../../../__mocks__/durable-functions";
-import {
-  newNhPartitionFactory,
-  nhPartitionFactory,
-} from "../../../__mocks__/notification-hub";
+import { nhPartitionFactory } from "../../../__mocks__/notification-hub";
 import {
   CreateOrUpdateInstallationMessage,
   KindEnum,
@@ -45,11 +42,7 @@ const handler = createActivity(
   activityName,
   ActivityInput,
   ActivityResultSuccess,
-  getActivityBody(
-    nhPartitionFactory,
-    newNhPartitionFactory,
-    mockTelemetryClient,
-  ),
+  getActivityBody(nhPartitionFactory, mockTelemetryClient),
 );
 
 describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {

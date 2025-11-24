@@ -1,5 +1,29 @@
 # send-func
 
+## 1.4.0
+
+### Minor Changes
+
+- 9756b16: Add send aar API to the notification client
+
+## 1.3.7
+
+### Patch Changes
+
+- e8d451a: Add telemetry into AAR routes
+
+## 1.3.6
+
+### Patch Changes
+
+- 030a1ab: add 401 response status to aar api
+
+## 1.3.5
+
+### Patch Changes
+
+- e04cadd: Update SEND AAR attachment url regex
+
 ## 1.3.4
 
 ### Patch Changes

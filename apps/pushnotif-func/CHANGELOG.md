@@ -1,5 +1,17 @@
 ### Changelog
 
+## 1.2.1
+
+### Patch Changes
+
+- 274323e: Remove migration code
+
+## 1.2.0
+
+### Minor Changes
+
+- 4c3a958: Adds a feature flag to redirect notifications through the new notification hubs
+
 ## 1.1.2
 
 ### Patch Changes

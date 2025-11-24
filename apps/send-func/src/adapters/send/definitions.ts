@@ -17,11 +17,9 @@ export const aarProblemJsonSchema = z.object({
       }),
     )
     .optional(),
-  instance: z.url().optional(),
   status: z.number().int().gte(100).lt(600),
   title: z.string().optional(),
   traceId: z.string().optional(),
-  type: z.url().optional(),
 });
 
 export type AARProblemJson = z.TypeOf<typeof aarProblemJsonSchema>;
@@ -53,6 +51,11 @@ export const problemSchema = z.object({
 });
 
 export type Problem = z.TypeOf<typeof problemSchema>;
+
+export const authErrorSchema = z.object({
+  message: z.string(),
+});
+export type AuthError = z.TypeOf<typeof authErrorSchema>;
 
 export const checkQrMandateRequestSchema = z.object({
   aarQrCodeValue: aarQrCodeValueSchema,

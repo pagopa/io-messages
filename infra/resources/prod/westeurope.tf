@@ -28,23 +28,3 @@ module "storage_api_weu" {
 
   tags = local.tags
 }
-
-module "notification_hubs_weu" {
-  source = "../_modules/notification_hubs"
-
-  project                    = local.project_legacy
-  legacy_resource_group_name = azurerm_resource_group.notifications.name
-  resource_group_name        = data.azurerm_resource_group.weu_common.name
-  location                   = azurerm_resource_group.notifications.location
-  location_short             = "weu"
-
-  resource_group_name_itn = azurerm_resource_group.itn_com.name
-
-  key_vault_common_id = data.azurerm_key_vault.weu_common.id
-
-  action_group_id = module.monitoring.action_group.id
-
-  adgroup_com_devs_id = data.azuread_group.adgroup_com_devs.object_id
-
-  tags = local.tags
-}
