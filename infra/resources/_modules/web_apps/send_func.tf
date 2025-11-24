@@ -4,7 +4,7 @@ locals {
       NODE_ENV                         = "production",
       FUNCTIONS_WORKER_RUNTIME         = "node",
       NOTIFICATION_CLIENT_API_KEY      = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=send-aar-notification-prod-key)",
-      NOTIFICATION_CLIENT_BASE_URL     = "https://api-io.pn.pagopa.it",
+      NOTIFICATION_CLIENT_BASE_URL     = "https://api-io.notifichedigitali.it",
       NOTIFICATION_CLIENT_UAT_API_KEY  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=send-aar-notification-uat-key)",
       NOTIFICATION_CLIENT_UAT_BASE_URL = "https://api-io.uat.notifichedigitali.it",
       LOLLIPOP_API_BASE_URL            = "https://io-p-itn-auth-lollipop-func-02.azurewebsites.net/api/v1",
