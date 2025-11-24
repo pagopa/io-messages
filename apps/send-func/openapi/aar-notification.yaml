@@ -163,14 +163,6 @@ paths:
                 $ref: "#/components/schemas/AARProblemJson"
         "401":
           description: Unauthorized
-        "409":
-          description: >-
-            Conflict - Esiste già una delega in stato attiva o pending tra il
-            delegante e delegato per lo stesso IUN.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AARProblemJson"
         "500":
           description: Internal server error
           content:
