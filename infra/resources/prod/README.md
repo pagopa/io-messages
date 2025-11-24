@@ -29,7 +29,6 @@
 | <a name="module_monitoring"></a> [monitoring](#module\_monitoring) | ../_modules/monitoring/ | n/a |
 | <a name="module_mysql"></a> [mysql](#module\_mysql) | ../_modules/mysql | n/a |
 | <a name="module_notification_hubs_itn"></a> [notification\_hubs\_itn](#module\_notification\_hubs\_itn) | ../_modules/notification_hubs_itn | n/a |
-| <a name="module_notification_hubs_weu"></a> [notification\_hubs\_weu](#module\_notification\_hubs\_weu) | ../_modules/notification_hubs | n/a |
 | <a name="module_storage_api_weu"></a> [storage\_api\_weu](#module\_storage\_api\_weu) | ../_modules/storage_accounts | n/a |
 | <a name="module_web_apps"></a> [web\_apps](#module\_web\_apps) | ../_modules/web_apps | n/a |
 
