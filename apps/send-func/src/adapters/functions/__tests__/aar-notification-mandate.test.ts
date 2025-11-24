@@ -121,30 +121,10 @@ describe("CreateNotificationMandate", () => {
     expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
-  it("returns 409 status code if 409 status code is returned by SEND", async () => {
-    createNotificationMandateExecuteSpy.mockImplementationOnce(() =>
-      Promise.reject(
-        new NotificationClientError("Notification client error", 409, aProblem),
-      ),
-    );
-
-    const request = new HttpRequest({
-      body: { string: anAarBodyString },
-      method: "POST",
-      url: "http://localhost",
-    });
-
-    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
-      jsonBody: sendProblemToAARProblemJson(aProblem),
-      status: 409,
-    });
-
-    expect(createNotificationMandateExecuteSpy).toHaveBeenCalledOnce();
-  });
-
   it("returns 500 status specifying inner status code returned by SEND", async () => {
     const aProblemsArray = [
       { ...aProblem, status: 400 },
+      { ...aProblem, status: 409 },
       { ...aProblem, status: 500 },
       { ...aProblem, status: 503 },
     ];

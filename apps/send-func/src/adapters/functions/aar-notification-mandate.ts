@@ -82,9 +82,6 @@ export const createNotificationMandate =
               TelemetryEventName.SEND_AAR_CREATE_MANDATE_QRCODE_DATA_NOT_FOUND,
             );
             break;
-          case 409:
-            responseStatus = 409;
-            break;
           default:
             telemetryService.trackEvent(
               TelemetryEventName.SEND_AAR_CREATE_MANDATE_SERVER_ERROR,
