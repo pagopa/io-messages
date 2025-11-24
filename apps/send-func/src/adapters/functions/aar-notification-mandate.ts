@@ -69,7 +69,6 @@ export const createNotificationMandate =
     } catch (err) {
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
-        let responseStatus = 500;
 
         switch (err.status) {
           case 403:
@@ -94,7 +93,7 @@ export const createNotificationMandate =
 
         return {
           jsonBody: sendProblemToAARProblemJson(err.body),
-          status: responseStatus,
+          status: 500,
         };
       }
 
