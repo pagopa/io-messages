@@ -170,7 +170,7 @@ module "services_func_autoscaler" {
   }
 
   tags = var.tags
-} 
+}
 
 resource "azurerm_subnet_nat_gateway_association" "services_func_subnet" {
   subnet_id      = module.services_func.subnet.id
