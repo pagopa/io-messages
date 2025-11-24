@@ -2,20 +2,23 @@ import {
   AarQrCodeValue,
   AttachmentMetadata,
   AttachmentName,
+  CIEValidationData,
   CheckQrMandateResponse,
   Idx,
   Iun,
+  MandateCreationResponse,
   MandateId,
   NotificationClient,
   SendHeaders,
   ThirdPartyMessage,
   attachmentMetadataSchema,
   checkQrMandateResponseSchema,
+  mandateCreationResponseSchema,
   thirdPartyMessageSchema,
 } from "@/domain/notification.js";
 import * as z from "zod";
 
-import { Problem, problemSchema } from "./definitions.js";
+import { Problem, authErrorSchema, problemSchema } from "./definitions.js";
 
 export class NotRecipientClientError extends Error {
   body: CheckQrMandateResponse;
@@ -25,6 +28,17 @@ export class NotRecipientClientError extends Error {
     super(message);
     this.name = "NotRecipientClientError";
     this.body = body;
+  }
+}
+
+export class NotificationCLientAuthError extends Error {
+  name: string;
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "NotificationClientAuthError";
+    this.status = status;
   }
 }
 
@@ -41,6 +55,19 @@ export class NotificationClientError extends Error {
   }
 }
 
+const unsuccessfulResponseToProblem = (
+  responseJson: unknown,
+  response: Response,
+): Problem => {
+  const parsedProblem = problemSchema.safeParse(responseJson);
+  return parsedProblem.success
+    ? parsedProblem.data
+    : {
+        detail: JSON.stringify(z.flattenError(parsedProblem.error)),
+        status: response.status,
+      };
+};
+
 export default class SendNotificationClient implements NotificationClient {
   #apiKey: string;
   #baseUrl: string;
@@ -48,6 +75,61 @@ export default class SendNotificationClient implements NotificationClient {
   constructor(apiKey: string, baseUrl: string) {
     this.#apiKey = apiKey;
     this.#baseUrl = baseUrl;
+  }
+
+  async acceptNotificationMandate(
+    mandateId: MandateId,
+    CIEValidationdata: CIEValidationData,
+    headers: SendHeaders,
+  ): Promise<void> {
+    const parsedHeaders = {
+      ...headers,
+      "content-type": "application/json",
+      "x-api-key": this.#apiKey,
+    };
+
+    const url = new URL(
+      `${this.#baseUrl}/mandate/api/v1/io//mandate/${mandateId}/cie/accept`,
+    );
+
+    const response = await fetch(url.toString(), {
+      body: JSON.stringify(CIEValidationdata),
+      headers: parsedHeaders,
+      method: "PATCH",
+    });
+
+    const responseJson = await response.json();
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        const parsedProblem = authErrorSchema.safeParse(responseJson);
+
+        if (!parsedProblem.success) {
+          throw new NotificationClientError(
+            `The api responded with HTTP status ${response.status}`,
+            response.status,
+            {
+              detail: JSON.stringify(z.flattenError(parsedProblem.error)),
+              status: response.status,
+            },
+          );
+        }
+
+        throw new NotificationCLientAuthError(
+          parsedProblem.data.message,
+          response.status,
+        );
+      }
+
+      const problem = unsuccessfulResponseToProblem(responseJson, response);
+      throw new NotificationClientError(
+        `The api responded with HTTP status ${response.status}`,
+        response.status,
+        problem,
+      );
+    }
+
+    return;
   }
 
   async checkAarQrCodeIO(
@@ -91,14 +173,7 @@ export default class SendNotificationClient implements NotificationClient {
     }
 
     if (!response.ok) {
-      const parsedProblem = problemSchema.safeParse(responseJson);
-      const problem = parsedProblem.success
-        ? parsedProblem.data
-        : {
-            detail: JSON.stringify(z.flattenError(parsedProblem.error)),
-            status: response.status,
-          };
-
+      const problem = unsuccessfulResponseToProblem(responseJson, response);
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,
@@ -111,6 +186,68 @@ export default class SendNotificationClient implements NotificationClient {
       const errorMessage = JSON.stringify(z.flattenError(parsedResponse.error));
       throw new Error(
         `Error during checkAarQrCodeIO api call | ${errorMessage}`,
+      );
+    }
+
+    return parsedResponse.data;
+  }
+
+  async createNotificationMandate(
+    aarQrCodeValue: AarQrCodeValue,
+    headers: SendHeaders,
+  ): Promise<MandateCreationResponse> {
+    const parsedHeaders = {
+      ...headers,
+      "content-type": "application/json",
+      "x-api-key": this.#apiKey,
+    };
+
+    const url = new URL(`${this.#baseUrl}/mandate/api/v1/io/mandate`);
+
+    const response = await fetch(url.toString(), {
+      body: JSON.stringify({ aarQrCodeValue }),
+      headers: parsedHeaders,
+      method: "POST",
+    });
+
+    const responseJson = await response.json();
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        const parsedProblem = authErrorSchema.safeParse(responseJson);
+
+        if (!parsedProblem.success) {
+          throw new NotificationClientError(
+            `The api responded with HTTP status ${response.status}`,
+            response.status,
+            {
+              detail: JSON.stringify(z.flattenError(parsedProblem.error)),
+              status: response.status,
+            },
+          );
+        }
+
+        throw new NotificationCLientAuthError(
+          parsedProblem.data.message,
+          response.status,
+        );
+      }
+
+      const problem = unsuccessfulResponseToProblem(responseJson, response);
+      throw new NotificationClientError(
+        `The api responded with HTTP status ${response.status}`,
+        response.status,
+        problem,
+      );
+    }
+
+    const parsedResponse =
+      mandateCreationResponseSchema.safeParse(responseJson);
+
+    if (!parsedResponse.success) {
+      const errorMessage = JSON.stringify(z.flattenError(parsedResponse.error));
+      throw new Error(
+        `Error during createNotificationMandate api call | ${errorMessage}`,
       );
     }
 
@@ -204,14 +341,7 @@ export default class SendNotificationClient implements NotificationClient {
     const responseJson = await response.json();
 
     if (!response.ok) {
-      const parsedProblem = problemSchema.safeParse(responseJson);
-      const problem = parsedProblem.success
-        ? parsedProblem.data
-        : {
-            detail: JSON.stringify(z.flattenError(parsedProblem.error)),
-            status: response.status,
-          };
-
+      const problem = unsuccessfulResponseToProblem(responseJson, response);
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,
@@ -257,14 +387,7 @@ export default class SendNotificationClient implements NotificationClient {
     const responseJson = await response.json();
 
     if (!response.ok) {
-      const parsedProblem = problemSchema.safeParse(responseJson);
-      const problem = parsedProblem.success
-        ? parsedProblem.data
-        : {
-            detail: JSON.stringify(z.flattenError(parsedProblem.error)),
-            status: response.status,
-          };
-
+      const problem = unsuccessfulResponseToProblem(responseJson, response);
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,

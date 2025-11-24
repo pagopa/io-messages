@@ -1,5 +1,11 @@
 # send-func
 
+## 1.4.0
+
+### Minor Changes
+
+- 9756b16: Add send aar API to the notification client
+
 ## 1.3.7
 
 ### Patch Changes

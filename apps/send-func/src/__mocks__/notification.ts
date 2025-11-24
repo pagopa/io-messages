@@ -1,12 +1,15 @@
 import {
+  authErrorSchema,
   checkQrMandateRequestSchema,
   problemSchema,
 } from "@/adapters/send/definitions.js";
 import {
+  CIEValidationDataSchema,
   attachmentMetadataSchema,
   checkQrMandateResponseSchema,
   idxSchema,
   iunSchema,
+  mandateCreationResponseSchema,
   sendHeadersSchema,
   thirdPartyMessageSchema,
 } from "@/domain/notification.js";
@@ -28,6 +31,10 @@ export const aCheckQrMandateResponse = checkQrMandateResponseSchema.parse({
   iun: "ABCD-EFGH-IJKL-123456-M-7",
   mandateId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   recipientInfo: { denomination: "aDenomination", taxId: "aTaxId" },
+});
+
+export const anAuthErrorResponse = authErrorSchema.parse({
+  message: "auth error message",
 });
 
 export const anAssertionRef = assertionRefSchema.parse(
@@ -142,6 +149,15 @@ export const aPaymentAttachmentParams = attachmentParamsSchema.parse({
   type: "payment",
 });
 
+export const aMandateCreationResponse = mandateCreationResponseSchema.parse({
+  mandate: {
+    dateTo: "2025-12-31",
+    mandateId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    verificationCode: "14158",
+  },
+  requestTTL: 0,
+});
+
 export const aDocumentAttachmentParams = attachmentParamsSchema.parse({
   docIdx: 1,
   iun: aIun,
@@ -166,17 +182,39 @@ export const aSendHeaders = sendHeadersSchema.parse({
   ...aLollipopHeaders,
 });
 
+export const aCIEValidationdata = CIEValidationDataSchema.parse({
+  mrtdData: {
+    dg1: "dg1",
+    dg11: "dg11",
+    sod: "sod",
+  },
+  nisData: {
+    nis: "nis",
+    pub_key: "pub_key",
+    sod: "sod",
+  },
+  signedNonce: "signedNonce",
+});
+
 interface MockNotificationClient {
+  acceptNotificationMandate: Mock;
   checkAarQrCodeIO: Mock;
+  createNotificationMandate: Mock;
   getReceivedNotification: Mock;
   getReceivedNotificationAttachment: Mock;
   getReceivedNotificationDocument: Mock;
 }
 
 export const createMockNotificationClient = (): MockNotificationClient => ({
+  acceptNotificationMandate: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve()),
   checkAarQrCodeIO: vi
     .fn()
     .mockImplementation(() => Promise.resolve(aCheckQrMandateResponse)),
+  createNotificationMandate: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(aMandateCreationResponse)),
   getReceivedNotification: vi
     .fn()
     .mockImplementation(() => Promise.resolve(aThirdPartyMessage)),
@@ -189,9 +227,15 @@ export const createMockNotificationClient = (): MockNotificationClient => ({
 });
 
 export const mockNotificationClient = {
+  acceptNotificationMandate: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve()),
   checkAarQrCodeIO: vi
     .fn()
     .mockImplementation(() => Promise.resolve(aCheckQrMandateResponse)),
+  createNotificationMandate: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(aMandateCreationResponse)),
   getReceivedNotification: vi
     .fn()
     .mockImplementation(() => Promise.resolve(aThirdPartyMessage)),
