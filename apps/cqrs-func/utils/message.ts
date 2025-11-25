@@ -1,5 +1,6 @@
 import * as E from "fp-ts/lib/Either";
-import { flow, pipe } from "fp-ts/lib/function";
+import { constant, constVoid, flow, pipe } from "fp-ts/lib/function";
+import * as AS from "azure-storage";
 import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as RA from "fp-ts/ReadonlyArray";
@@ -19,8 +20,8 @@ import { IConfig } from "./config";
 import {
   BlobNotFoundCode,
   BlobServiceWithFallBack,
+  FallbackTracker,
   GenericCode,
-  getBlobAsTextWithError,
 } from "@pagopa/azure-storage-legacy-migration-kit";
 /**
  * Retrieve a message content from blob storage and enrich message
@@ -174,3 +175,72 @@ const getContentFromBlob = (
     TE.mapLeft((error) => new Error(error.message)),
   );
 };
+
+const isBlobNotFound = (err: AS.StorageError) =>
+  err.code === "BlobNotFound" || err.statusCode === 404;
+
+export const getBlobAsTextWithError =
+  (
+    blobService: BlobServiceWithFallBack,
+    containerName: string,
+    options: AS.BlobService.GetBlobRequestOptions = {},
+    tracker?: FallbackTracker,
+  ) =>
+  (blobName: string): TE.TaskEither<AS.StorageError, O.Option<string>> =>
+    pipe(
+      new Promise<E.Either<AS.StorageError, O.Option<string>>>((resolve) =>
+        blobService.primary.getBlobToText(
+          containerName,
+          blobName,
+          options,
+          (err, result, _) => {
+            if (!err) {
+              return resolve(E.right(O.fromNullable(result)));
+            }
+
+            if (!isBlobNotFound(err)) {
+              return resolve(E.left(err));
+            }
+
+            pipe(
+              blobService.secondary,
+              O.fromNullable,
+              O.map((fallback) =>
+                fallback.getBlobToText(
+                  containerName,
+                  blobName,
+                  options,
+                  (e, r, __) =>
+                    pipe(
+                      consumeFallbackTracker(containerName, blobName, tracker),
+                      () => {
+                        if (!e) {
+                          return resolve(E.right(O.fromNullable(r)));
+                        }
+                        if (isBlobNotFound(e)) {
+                          return resolve(E.right(O.none));
+                        }
+                        return resolve(E.left(e));
+                      },
+                    ),
+                ),
+              ),
+              O.getOrElse(() => resolve(E.right(O.none))),
+            );
+          },
+        ),
+      ),
+      constant,
+    );
+
+const consumeFallbackTracker = (
+  containerName: string,
+  blobName: string,
+  tracker?: FallbackTracker,
+) =>
+  pipe(
+    tracker,
+    O.fromNullable,
+    O.map((fallbackTracker) => fallbackTracker(containerName, blobName)),
+    O.getOrElse(constVoid),
+  );

@@ -22,7 +22,7 @@ const messageModel = new MessageModel(
 );
 
 const messageContentBlobService = createBlobService(
-  config.MESSAGE_CONTENT_STORAGE_CONNECTION,
+  config.COM_STORAGE_CONNECTION_STRING,
   config.MESSAGE_CONTENT_STORAGE_CONNECTION,
 );
 
