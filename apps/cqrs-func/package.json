@@ -1,7 +1,7 @@
 {
   "name": "cqrs-func",
   "author": "IO team",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "license": "UNLICENSED",
   "scripts": {
     "build": "yarn generate && tsc",
