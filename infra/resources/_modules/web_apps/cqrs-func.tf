@@ -74,6 +74,13 @@ module "cqrs_func" {
 
   app_settings = local.cqrs_func.app_settings
 
+  sticky_app_setting_names = [
+    "NODE_ENV",
+    "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled",
+    "AzureWebJobs.CosmosApiMessagesChangeFeed.Disabled",
+    "AzureWebJobs.HandleMessageChangeFeedPublishFailures.Disabled",
+    "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled"
+  ]
   slot_app_settings = merge(
     local.cqrs_func.app_settings, {
       // disable listeners on staging slot
@@ -147,5 +154,13 @@ resource "azurerm_cosmosdb_sql_role_assignment" "cosmos_api_cqrs_func" {
   account_name        = var.cosmosdb_account_api.name
   role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = module.cqrs_func.function_app.function_app.principal_id
+  scope               = var.cosmosdb_account_api.id
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "cosmos_api_cqrs_func_slot" {
+  resource_group_name = var.cosmosdb_account_api.resource_group_name
+  account_name        = var.cosmosdb_account_api.name
+  role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = module.cqrs_func.function_app.function_app.slot.principal_id
   scope               = var.cosmosdb_account_api.id
 }
