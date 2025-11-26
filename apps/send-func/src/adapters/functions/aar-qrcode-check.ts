@@ -27,10 +27,18 @@ export const aarQRCodeCheck =
     context: InvocationContext,
     lollipopHeaders: LollipopHeaders,
   ): Promise<AarQRCodeCheckResponse> => {
+    const ioSrcHeader = request.headers.get("x-pagopa-pn-io-src");
+    if (!ioSrcHeader) {
+      return malformedBodyResponse(
+        "Missing mandatory x-pagopa-pn-io-src header",
+        "Bad Request",
+      );
+    }
+
     const isTest = request.query.get("isTest") === "true";
     const sendHeaders = {
       "x-pagopa-cx-taxid": lollipopHeaders["x-pagopa-lollipop-user-id"],
-      "x-pagopa-pn-io-src": "QR_CODE",
+      "x-pagopa-pn-io-src": ioSrcHeader,
       ...lollipopHeaders,
     };
 
