@@ -1,0 +1,10 @@
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+index 0098a34cb226953839df0305a769515861861018..bb8d18a1626f00233d1ebc7b67585b4f2de837cf 100644
+--- a/dist/index.d.ts
++++ b/dist/index.d.ts
+@@ -1,4 +1,4 @@
+-import * as SB from '@azure/storage-blob';
++import * as SB from '@azure/storage-blob/dist/commonjs';
+ import { TokenCredential } from '@azure/core-auth';
+ 
+ type FallbackTracker = (containerName: string, blobName: string) => void;

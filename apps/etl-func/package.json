@@ -25,6 +25,7 @@
     "@azure/functions": "^4.4.0",
     "@azure/identity": "^4.5.0",
     "@azure/storage-blob": "^12.26.0",
+    "@pagopa/azure-storage-migration-kit": "patch:@pagopa/azure-storage-migration-kit@npm%3A0.0.1#~/.yarn/patches/@pagopa-azure-storage-migration-kit-npm-0.0.1-49e19fea6a.patch",
     "applicationinsights": "^2.9.5",
     "avsc": "^5.7.7",
     "io-messages-common": "workspace:^",
