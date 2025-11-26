@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 1.0.8
+
+### Patch Changes
+
+- 5bf8eb2: Add migration toolkit
+
 ## 1.0.7
 
 ### Patch Changes
