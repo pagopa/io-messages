@@ -1,5 +1,6 @@
 import { UserSessionInfo } from "@/generated/session-manager/UserSessionInfo";
 import { Client } from "@/generated/session-manager/client";
+import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
 import {
@@ -22,11 +23,12 @@ import {
   ResponseErrorNotFound,
 } from "@pagopa/ts-commons/lib/responses";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { BlobService } from "azure-storage";
 import * as TE from "fp-ts/TaskEither";
 import * as AP from "fp-ts/lib/Apply";
 import { flow, pipe } from "fp-ts/lib/function";
 import { match } from "ts-pattern";
+
+import { getContentFromBlob } from "./readers.utils";
 
 export type ServiceReader = (
   serviceId: ServiceId,
@@ -77,7 +79,7 @@ const getMessageMetadata =
     );
 
 const getMessageContent =
-  (messageModel: MessageModel, blobService: BlobService) =>
+  (messageModel: MessageModel, blobService: BlobServiceWithFallBack) =>
   (
     messageId: NonEmptyString,
   ): TE.TaskEither<
@@ -85,7 +87,7 @@ const getMessageContent =
     MessageContent
   > =>
     pipe(
-      messageModel.getContentFromBlob(blobService, messageId),
+      getContentFromBlob(blobService, messageId),
       TE.mapLeft(() =>
         ResponseErrorInternal("Error while retrieving the message"),
       ),
@@ -113,7 +115,7 @@ export type MessageWithContentReader = (
 export const getMessageWithContent =
   (
     messageModel: MessageModel,
-    blobService: BlobService,
+    blobService: BlobServiceWithFallBack,
   ): MessageWithContentReader =>
   (fiscalCode, messageId): ReturnType<MessageWithContentReader> =>
     pipe(

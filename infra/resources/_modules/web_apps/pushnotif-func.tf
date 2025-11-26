@@ -80,6 +80,7 @@ locals {
 
       MESSAGE_CONTAINER_NAME                    = "message-content"
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
+      IOCOM_STORAGE_CONNECTION_STRING           = var.com_st_connectiostring
 
       SESSION_MANAGER_API_KEY  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=session-manager-api-key)",
       SESSION_MANAGER_BASE_URL = var.session_manager_base_url,
