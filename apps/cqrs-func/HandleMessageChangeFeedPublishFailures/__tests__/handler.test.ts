@@ -6,51 +6,52 @@ import { MessageContentType } from "../../generated/avro/dto/MessageContentTypeE
 import { TelemetryClient } from "../../utils/appinsights";
 import { ThirdPartyDataWithCategoryFetcher } from "../../utils/message";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
+import * as messageUtils from "../../utils/message-utils";
 import {
   aMessageContent,
-  aRetrievedMessageWithoutContent
+  aRetrievedMessageWithoutContent,
 } from "../../__mocks__/message";
 import {
   HandleMessageChangeFeedPublishFailureHandler,
-  HandleMessagePublishFailureInput
+  HandleMessagePublishFailureInput,
 } from "../handler";
 import { vi, beforeEach, describe, test, expect } from "vitest";
 
-const functionsContextMock = ({
+const functionsContextMock = {
   bindings: {},
   done: vi.fn(),
   log: {
-    error: vi.fn()
-  }
-} as unknown) as Context;
+    error: vi.fn(),
+  },
+} as unknown as Context;
 
-const telemetryClientMock = ({
-  trackException: vi.fn(_ => void 0)
-} as unknown) as TelemetryClient;
+const telemetryClientMock = {
+  trackException: vi.fn((_) => void 0),
+} as unknown as TelemetryClient;
 
 const getContentFromBlobMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aMessageContent)));
 
-const mockMessageModel = ({
-  getContentFromBlob: getContentFromBlobMock
-} as any) as MessageModel;
+const mockMessageModel = {
+  getContentFromBlob: getContentFromBlobMock,
+} as any as MessageModel;
 
 const inputMessage = {
   body: {
     ...aRetrievedMessageWithoutContent,
-    kind: "IRetrievedMessageWithoutContent" as const
-  }
+    kind: "IRetrievedMessageWithoutContent" as const,
+  },
 };
 
 const aRetriableInput: HandleMessagePublishFailureInput = {
   ...inputMessage,
-  retriable: true
+  retriable: true,
 };
 
 const aNotRetriableInput: HandleMessagePublishFailureInput = {
   ...inputMessage,
-  retriable: false
+  retriable: false,
 };
 
 const anyParam = {} as any;
@@ -61,9 +62,9 @@ const anyParam = {} as any;
 
 const kafkaClient = {} as any;
 
-const sendMessagesMock = vi.fn().mockImplementation(_ => TE.right([]));
+const sendMessagesMock = vi.fn().mockImplementation((_) => TE.right([]));
 
-vi.spyOn(KP, "sendMessages").mockImplementation(_ => sendMessagesMock);
+vi.spyOn(KP, "sendMessages").mockImplementation((_) => sendMessagesMock);
 
 describe("HandleMessageChangeFeedPublishFailureHandler", () => {
   beforeEach(() => {
@@ -71,13 +72,16 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
   });
 
   test("should write an avro message on kafka client", async () => {
+    vi.spyOn(messageUtils, "getContentFromBlob").mockImplementation(() =>
+      TE.right(O.some(aMessageContent)),
+    );
     const res = await HandleMessageChangeFeedPublishFailureHandler(
       functionsContextMock,
       aRetriableInput,
       telemetryClientMock,
       mockMessageModel,
       anyParam,
-      kafkaClient
+      kafkaClient,
     );
     expect(res).toEqual(void 0);
     expect(telemetryClientMock.trackException).not.toHaveBeenCalled();
@@ -85,14 +89,14 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
       {
         ...inputMessage.body,
         content: aMessageContent,
-        kind: "IRetrievedMessageWithContent"
-      }
+        kind: "IRetrievedMessageWithContent",
+      },
     ]);
   });
 
   test("should throw if Transient failure occurs", async () => {
-    getContentFromBlobMock.mockImplementationOnce(() =>
-      TE.left("Cannot enrich message content")
+    vi.spyOn(messageUtils, "getContentFromBlob").mockImplementation(() =>
+      TE.right(O.none),
     );
     await expect(
       HandleMessageChangeFeedPublishFailureHandler(
@@ -101,13 +105,13 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
         telemetryClientMock,
         mockMessageModel,
         anyParam,
-        kafkaClient
-      )
+        kafkaClient,
+      ),
     ).rejects.toBeDefined();
     expect(telemetryClientMock.trackException).toHaveBeenCalledWith(
       expect.objectContaining({
-        tagOverrides: { samplingEnabled: "true" }
-      })
+        tagOverrides: { samplingEnabled: "true" },
+      }),
     );
   });
 
@@ -119,12 +123,12 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
         telemetryClientMock,
         mockMessageModel,
         anyParam,
-        kafkaClient
-      )
+        kafkaClient,
+      ),
     ).resolves.toEqual(
       expect.objectContaining({
-        kind: "PERMANENT"
-      })
+        kind: "PERMANENT",
+      }),
     );
     expect(telemetryClientMock.trackException).toHaveBeenCalled();
   });
@@ -137,12 +141,12 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
         telemetryClientMock,
         mockMessageModel,
         anyParam,
-        kafkaClient
-      )
+        kafkaClient,
+      ),
     ).resolves.toEqual(
       expect.objectContaining({
-        kind: "PERMANENT"
-      })
+        kind: "PERMANENT",
+      }),
     );
     expect(telemetryClientMock.trackException).toHaveBeenCalled();
   });

@@ -1,11 +1,8 @@
-import { BlobService } from "azure-storage";
-
 import * as E from "fp-ts/lib/Either";
 import { flow, pipe } from "fp-ts/lib/function";
 import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as RA from "fp-ts/ReadonlyArray";
-
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
 import {
   MessageModel,
@@ -15,16 +12,19 @@ import { MessageContentType } from "../generated/avro/dto/MessageContentTypeEnum
 import { toPermanentFailure, toTransientFailure } from "./errors";
 import { IStorableError, toStorableError } from "./storable_error";
 import { IConfig } from "./config";
+import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
+import { getContentFromBlob } from "./message-utils";
+
 /**
  * Retrieve a message content from blob storage and enrich message
  */
 export const enrichMessageContent = (
   messageModel: MessageModel,
-  blobService: BlobService,
+  blobService: BlobServiceWithFallBack,
   message: RetrievedMessage,
 ): TE.TaskEither<IStorableError<RetrievedMessage>, RetrievedMessage> =>
   pipe(
-    messageModel.getContentFromBlob(blobService, message.id),
+    getContentFromBlob(blobService, message.id),
     TE.mapLeft((e) =>
       toTransientFailure(
         e,
@@ -52,7 +52,7 @@ export const enrichMessagesContent =
   (
     messageModel: MessageModel,
     messageContentChunkSize: number,
-    blobService: BlobService,
+    blobService: BlobServiceWithFallBack,
   ) =>
   (
     messages: ReadonlyArray<RetrievedMessage>,
