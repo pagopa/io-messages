@@ -2480,15 +2480,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagopa/io-app-email-templates@npm:^0.5.1":
-  version: 0.5.1
-  resolution: "@pagopa/io-app-email-templates@npm:0.5.1"
+"@pagopa/io-app-email-templates@npm:^0.7.3":
+  version: 0.7.3
+  resolution: "@pagopa/io-app-email-templates@npm:0.7.3"
   dependencies:
     "@pagopa/ts-commons": "npm:^13.0.0"
     fp-ts: "npm:^2.16.5"
     io-ts: "npm:^2.2.21"
     moment-timezone: "npm:^0.5.45"
-  checksum: 10c0/1e76363077dc70d1e6ea968486fcf1148093dd56805d5953105b1446d88a88026af9c1987f0a7255c59214d8208c22b73f1f68d7194f0f5163cd8dd03ad6923e
+  checksum: 10c0/572a8162f85ad971a06833b7faa65ebb73a7edf811726efdb7d45b93632c5621d3f78523aee44a681bf54534bc06ea77f8e064946798c11d4805b5e5dd8ef400
   languageName: node
   linkType: hard
 
@@ -14384,7 +14384,7 @@ __metadata:
     "@azure/storage-queue": "npm:^12.4.0"
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@pagopa/express-azure-functions": "npm:^2.1.1"
-    "@pagopa/io-app-email-templates": "npm:^0.5.1"
+    "@pagopa/io-app-email-templates": "npm:^0.7.3"
     "@pagopa/io-backend-notifications-sdk": "npm:^9.7.0"
     "@pagopa/io-functions-admin-sdk": "npm:^1.10.1"
     "@pagopa/io-functions-commons": "npm:^29.3.0"
