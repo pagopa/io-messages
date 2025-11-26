@@ -2,7 +2,6 @@ import { CosmosClient } from "@azure/cosmos";
 import { TableClient } from "@azure/data-tables";
 import { app } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
-import { BlobServiceClient } from "@azure/storage-blob";
 import { BlobServiceClientWithFallBack } from "@pagopa/azure-storage-migration-kit";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
@@ -13,6 +12,10 @@ import {
   initNoSamplingClient,
 } from "./adapters/appinsights/appinsights.js";
 import { messageSchema, messageStatusAvroSchema } from "./adapters/avro.js";
+import {
+  makeStorageAccountClient,
+  makeTempStorageAccountClient,
+} from "./adapters/blob-storage/index.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
 import { EventHubEventProducer } from "./adapters/eventhub/event.js";
@@ -22,6 +25,7 @@ import messagesIngestionHandler from "./adapters/functions/messages-ingestion.js
 import { MessageAdapter } from "./adapters/message.js";
 import RedisRecipientRepository from "./adapters/redis/recipient.js";
 import { EventErrorTableStorage } from "./adapters/table-storage/event-error-table-storage.js";
+import { makeTableStorageAccountClient } from "./adapters/table-storage/index.js";
 import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
 import { IngestMessageUseCase } from "./domain/use-cases/ingest-message.js";
 import { IngestMessageStatusUseCase } from "./domain/use-cases/ingest-message-status.js";
@@ -36,14 +40,14 @@ const main = async (config: Config) => {
   const telemetryClient = initNoSamplingClient(config.appInsights);
   const telemetryService = new TelemetryEventService(telemetryClient);
 
-  const blobServiceCLient = new BlobServiceClient(
-    config.messageContentStorage.accountUri,
+  const blobServiceCLient = makeStorageAccountClient(config, azureCredentials);
+
+  // Temporary storage account for itn migration purpose
+  const blobServiceCLientItn = makeTempStorageAccountClient(
+    config,
     azureCredentials,
   );
-  const blobServiceCLientItn = new BlobServiceClient(
-    config.messageContentStorage.accountUriItn,
-    azureCredentials,
-  );
+
   const blobServiceClientWithFallBack = new BlobServiceClientWithFallBack(
     blobServiceCLientItn,
     blobServiceCLient,
@@ -70,9 +74,8 @@ const main = async (config: Config) => {
     recipientRepository,
   );
 
-  const messageIngestionErrorTableClient = new TableClient(
-    `${config.messageIngestionErrorTable.connectionUri}${config.messageIngestionErrorTable.tableName}`,
-    config.messageIngestionErrorTable.tableName,
+  const messageIngestionErrorTableClient = makeTableStorageAccountClient(
+    config,
     azureCredentials,
   );
 

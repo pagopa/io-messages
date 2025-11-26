@@ -4,8 +4,8 @@
     "AzureWebJobsStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;",
     "NODE_ENV": "development",
     "FUNCTIONS_WORKER_RUNTIME": "node",
-    "IOCOM_STORAGE_URI": "https://testgiovannist.blob.core.windows.net/",
-    "MESSAGE_CONTENT_STORAGE_URI": "https://testgiovannist.blob.core.windows.net/",
+    "IOCOM_STORAGE_URI": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;",
+    "MESSAGE_CONTENT_STORAGE_URI": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;",
     "MESSAGE_CONTENT_CONTAINER_NAME": "messages",
     "EVENTHUB_CONNECTION_STRING": "Endpoint=sb://eventhubs;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
     "MESSAGE_EVENTHUB_NAME": "messages",
@@ -21,10 +21,13 @@
     "COMMON_COSMOS_MESSAGE_STATUS_CONTAINER_NAME": "message-status",
     "MESSAGE_ERROR_TABLE_STORAGE_NAME": "MessagesDataplanIngestionErrors",
     "MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME": "MessageStatusDataplanIngestionErrors",
-    "ACCOUNT_STORAGE__tableServiceUri": "https://testgiovannist.table.core.windows.net/",
+    "ACCOUNT_STORAGE__tableServiceUri": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;",
     "APPLICATIONINSIGHTS_CONNECTION_STRING": "APPLICATIONINSIGHTS-CONNECTION-STRING-HERE",
     "IOCOM_COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
     "IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME": "io-messages",
-    "IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME": "message-ingestion-summary"
+    "IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME": "message-ingestion-summary",
+    "MESSAGE_CONTENT_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;",
+    "IOCOM_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;",
+    "MESSAGE_ERROR_TABLE_STORAGE_CONENCTION_STRING": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"
   }
 }
