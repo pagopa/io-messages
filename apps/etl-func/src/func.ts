@@ -142,6 +142,10 @@ const main = async (config: Config) => {
         await blobServiceClient
           .getContainerClient(config.messageContentStorage.containerName)
           .getProperties();
+        // check for storage availability or throw
+        await blobServiceClientItn
+          .getContainerClient(config.messageContentStorage.containerName)
+          .getProperties();
         // check for cosmos availability
         await ioComCosmosClient.getDatabaseAccount();
       } catch (error) {
