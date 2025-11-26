@@ -40,17 +40,17 @@ const main = async (config: Config) => {
   const telemetryClient = initNoSamplingClient(config.appInsights);
   const telemetryService = new TelemetryEventService(telemetryClient);
 
-  const blobServiceCLient = makeStorageAccountClient(config, azureCredentials);
+  const blobServiceClient = makeStorageAccountClient(config, azureCredentials);
 
   // Temporary storage account for itn migration purpose
-  const blobServiceCLientItn = makeTempStorageAccountClient(
+  const blobServiceClientItn = makeTempStorageAccountClient(
     config,
     azureCredentials,
   );
 
   const blobServiceClientWithFallBack = new BlobServiceClientWithFallBack(
-    blobServiceCLientItn,
-    blobServiceCLient,
+    blobServiceClientItn,
+    blobServiceClient,
   );
 
   const messageProducerClient = makeEventHubProducerClient(
@@ -139,7 +139,7 @@ const main = async (config: Config) => {
     handler: async () => {
       try {
         // check for storage availability or throw
-        await blobServiceCLient
+        await blobServiceClient
           .getContainerClient(config.messageContentStorage.containerName)
           .getProperties();
         // check for cosmos availability
