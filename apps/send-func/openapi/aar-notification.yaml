@@ -67,7 +67,6 @@ paths:
           name: isTest
           schema:
             type: boolean
-        - $ref: "#/components/parameters/headerIoSource"
       requestBody:
         content:
           application/json:
@@ -160,7 +159,10 @@ paths:
         della delega in caso di successo
       operationId: createAARMandate
       parameters:
-        - $ref: "#/components/parameters/headerIoSource"
+        - in: query
+          name: isTest
+          schema:
+            type: boolean
       requestBody:
         content:
           application/json:
@@ -202,6 +204,10 @@ paths:
         passa in stato ACTIVE in caso di successo.
       operationId: acceptIOMandate
       parameters:
+        - in: query
+          name: isTest
+          schema:
+            type: boolean
         - name: mandateId
           in: path
           required: true
