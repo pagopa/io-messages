@@ -84,6 +84,7 @@ export const IConfig = t.intersection([
     MESSAGE_CONTAINER_NAME: NonEmptyString,
 
     MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
+    IO_COM_STORAGE_CONNECTION_STRING: NonEmptyString,
 
     PN_SERVICE_ID: NonEmptyString,
 
