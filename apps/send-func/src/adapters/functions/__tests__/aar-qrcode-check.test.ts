@@ -2,7 +2,7 @@ import {
   aCheckQrMandateResponse,
   aLollipopHeaders,
   aProblem,
-  aSendHeaders,
+  aSendHeadersWithoutSrc,
   anAarQrCodeValue,
   anInvalidAarQrCodeValue,
   mockNotificationClient,
@@ -56,7 +56,6 @@ describe("AARQrCodeCheck", () => {
       method: "POST",
       url: "http://localhost",
     });
-    request.headers.set("x-pagopa-pn-io-src", "QR_CODE");
 
     await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: aCheckQrMandateResponse,
@@ -65,7 +64,7 @@ describe("AARQrCodeCheck", () => {
 
     expect(qrCodeCheckExecuteSpy).toHaveBeenCalledWith(
       false,
-      aSendHeaders,
+      aSendHeadersWithoutSrc,
       anAarQrCodeValue,
     );
 
@@ -78,31 +77,10 @@ describe("AARQrCodeCheck", () => {
       method: "POST",
       url: "http://localhost",
     });
-    request.headers.set("x-pagopa-pn-io-src", "QR_CODE");
 
     await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: {
         detail: `Malformed aar qr code ${anInvalidAarBodyString}`,
-        status: 400,
-        title: "Bad Request",
-      },
-      status: 400,
-    });
-
-    expect(qrCodeCheckExecuteSpy).not.toHaveBeenCalled();
-    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
-  });
-
-  it("returns 400 status code if the x-pagopa-pn-io-src header is not set", async () => {
-    const request = new HttpRequest({
-      body: { string: anInvalidAarBodyString },
-      method: "POST",
-      url: "http://localhost",
-    });
-
-    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
-      jsonBody: {
-        detail: "Missing mandatory x-pagopa-pn-io-src header",
         status: 400,
         title: "Bad Request",
       },
@@ -125,7 +103,6 @@ describe("AARQrCodeCheck", () => {
       method: "POST",
       url: "http://localhost",
     });
-    request.headers.set("x-pagopa-pn-io-src", "QR_CODE");
 
     await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: aProblem,
