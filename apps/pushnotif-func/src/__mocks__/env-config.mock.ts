@@ -34,8 +34,6 @@ export const envConfig: IConfig = {
   COSMOSDB_NAME: "CosmosDBName" as NonEmptyString,
   COSMOSDB_URI: "CosmosDBUri" as NonEmptyString,
   FISCAL_CODE_NOTIFICATION_BLACKLIST: [aBlacklistedFiscalCode],
-  IOCOM_STORAGE_CONNECTION_STRING:
-    "MessageContentStorageConnectionString" as NonEmptyString,
   MESSAGE_CONTAINER_NAME: "MessageContainerNane" as NonEmptyString,
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING:
     "MessageContentStorageConnectionString" as NonEmptyString,

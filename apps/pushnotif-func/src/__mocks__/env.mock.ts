@@ -5,7 +5,6 @@ export const envConfig = {
   COSMOSDB_NAME: "CosmosDBName",
 
   COSMOSDB_URI: "CosmosDBUri",
-  IOCOM_STORAGE_CONNECTION_STRING: "MessageContentStorageConnectionString",
   MESSAGE_CONTAINER_NAME: "MessageContainerNane",
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING:
     "MessageContentStorageConnectionString",
