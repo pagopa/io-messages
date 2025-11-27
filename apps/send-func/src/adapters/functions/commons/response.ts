@@ -1,6 +1,7 @@
 import {
   AARProblemJson,
   AarProblemResponse,
+  AuthError,
   Problem,
 } from "@/adapters/send/definitions.js";
 
@@ -26,4 +27,14 @@ export const sendProblemToAARProblemJson = (
     ? `${sendError.type} - ${sendError.title}`
     : sendError.title,
   traceId: sendError.traceId,
+});
+
+export const sendAuthErrorToAARProblemJson = (
+  sendAuthError: AuthError,
+  status: number,
+): AARProblemJson => ({
+  detail: sendAuthError.message
+    ? sendAuthError.message
+    : "Something went wrong",
+  status: status,
 });

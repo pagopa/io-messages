@@ -585,7 +585,7 @@ describe("NotificationClient.acceptNotificationMandate", () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
       json: async () => {},
       ok: true,
-      status: 200,
+      status: 201,
     } as Response);
 
     const response = await client.acceptNotificationMandate(
@@ -596,7 +596,7 @@ describe("NotificationClient.acceptNotificationMandate", () => {
 
     expect(response).toEqual(undefined);
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${baseUrl}/mandate/api/v1/io//mandate/${aMandateId}/cie/accept`,
+      `${baseUrl}/mandate/api/v1/io/mandate/${aMandateId}/cie/accept`,
       expect.objectContaining({
         body: JSON.stringify(aCIEValidationdata),
         headers: expect.objectContaining({
@@ -631,7 +631,7 @@ describe("NotificationClient.acceptNotificationMandate", () => {
     );
 
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${baseUrl}/mandate/api/v1/io//mandate/${aMandateId}/cie/accept`,
+      `${baseUrl}/mandate/api/v1/io/mandate/${aMandateId}/cie/accept`,
       expect.objectContaining({
         body: JSON.stringify(aCIEValidationdata),
         headers: expect.objectContaining({
@@ -668,7 +668,7 @@ describe("NotificationClient.acceptNotificationMandate", () => {
     );
 
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${baseUrl}/mandate/api/v1/io//mandate/${aMandateId}/cie/accept`,
+      `${baseUrl}/mandate/api/v1/io/mandate/${aMandateId}/cie/accept`,
       expect.objectContaining({
         body: JSON.stringify(aCIEValidationdata),
         headers: expect.objectContaining({
@@ -705,7 +705,7 @@ describe("NotificationClient.acceptNotificationMandate", () => {
     );
 
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${baseUrl}/mandate/api/v1/io//mandate/${aMandateId}/cie/accept`,
+      `${baseUrl}/mandate/api/v1/io/mandate/${aMandateId}/cie/accept`,
       expect.objectContaining({
         body: JSON.stringify(aCIEValidationdata),
         headers: expect.objectContaining({
@@ -739,7 +739,7 @@ describe("NotificationClient.acceptNotificationMandate", () => {
     );
 
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${baseUrl}/mandate/api/v1/io//mandate/${aMandateId}/cie/accept`,
+      `${baseUrl}/mandate/api/v1/io/mandate/${aMandateId}/cie/accept`,
       expect.objectContaining({
         body: JSON.stringify(aCIEValidationdata),
         headers: expect.objectContaining({
