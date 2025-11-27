@@ -1,8 +1,8 @@
 import { createClient } from "@/generated/session-manager/client";
 import { ErrorResponse } from "@azure/cosmos";
+import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
-import { BlobService } from "azure-storage";
 import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
 import * as TE from "fp-ts/TaskEither";
@@ -20,6 +20,7 @@ import {
   getService,
   getUserSessionStatusReader,
 } from "../readers";
+import * as messageUtils from "../readers.utils";
 
 const findOneByServiceIdMock = vi.fn(
   () =>
@@ -70,6 +71,9 @@ const sessionClientMock: ReturnType<typeof createClient> = {
 describe("ServiceReader", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(messageUtils, "getContentFromBlob").mockImplementation(() =>
+      TE.right(O.some(aMessageContent)),
+    );
   });
 
   it("should return the existing service", async () => {
@@ -116,7 +120,7 @@ describe("MessageWithContentReader", () => {
   it("should return the existing message with its content", async () => {
     const messageReader = getMessageWithContent(
       messageModelMock,
-      {} as BlobService,
+      {} as BlobServiceWithFallBack,
     );
 
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();
@@ -127,7 +131,7 @@ describe("MessageWithContentReader", () => {
     findMessageForRecipientMock.mockImplementationOnce(() => TE.of(O.none));
     const messageReader = getMessageWithContent(
       messageModelMock,
-      {} as BlobService,
+      {} as BlobServiceWithFallBack,
     );
 
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();
@@ -141,9 +145,12 @@ describe("MessageWithContentReader", () => {
 
   it("should return IResponseErrorNotFound if message content does not exists", async () => {
     getContentFromBlobMock.mockImplementationOnce(() => TE.of(O.none));
+    vi.spyOn(messageUtils, "getContentFromBlob").mockImplementationOnce(() =>
+      TE.of(O.none),
+    );
     const messageReader = getMessageWithContent(
       messageModelMock,
-      {} as BlobService,
+      {} as BlobServiceWithFallBack,
     );
 
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();
@@ -159,7 +166,7 @@ describe("MessageWithContentReader", () => {
     findMessageForRecipientMock.mockImplementationOnce(() => TE.left({}));
     const messageReader = getMessageWithContent(
       messageModelMock,
-      {} as BlobService,
+      {} as BlobServiceWithFallBack,
     );
 
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();
@@ -173,9 +180,12 @@ describe("MessageWithContentReader", () => {
 
   it("should return IResponseErrorInternal if an error occurred retrieving message content", async () => {
     getContentFromBlobMock.mockImplementationOnce(() => TE.left({}));
+    vi.spyOn(messageUtils, "getContentFromBlob").mockImplementationOnce(() =>
+      TE.left({ message: "Error", name: "Error" } as Error),
+    );
     const messageReader = getMessageWithContent(
       messageModelMock,
-      {} as BlobService,
+      {} as BlobServiceWithFallBack,
     );
 
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();

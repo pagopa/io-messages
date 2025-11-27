@@ -62,7 +62,7 @@ services:
     ports:
       - "8004:3000"
     volumes:
-      - "./mockoon/mockoon.json:/data:readonly"
+      - "./mockoon/session-manager.json:/data:readonly"
 
   mock-server-send:
     image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
