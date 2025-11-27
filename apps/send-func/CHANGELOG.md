@@ -1,5 +1,11 @@
 # send-func
 
+## 1.4.1
+
+### Patch Changes
+
+- 9968d59: fix header management in send api
+
 ## 1.4.0
 
 ### Minor Changes
