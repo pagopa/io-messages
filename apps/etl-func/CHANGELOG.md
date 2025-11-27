@@ -1,5 +1,11 @@
 # etl-func
 
+## 1.0.7
+
+### Patch Changes
+
+- 395fd13: Add migration toolkit
+
 ## 1.0.6
 
 ### Patch Changes
