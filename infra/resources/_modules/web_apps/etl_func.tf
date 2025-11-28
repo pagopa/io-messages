@@ -4,6 +4,7 @@ locals {
       NODE_ENV                                       = "production",
       FUNCTIONS_WORKER_RUNTIME                       = "node",
       MESSAGE_CONTENT_STORAGE_URI                    = var.message_content_storage.endpoint
+      IOCOM_STORAGE_URI                              = var.com_st_uri
       EVENTHUB_CONNECTION_URI                        = var.app_settings.eventhub_connection_uri,
       MESSAGE_CONTENT_CONTAINER_NAME                 = "message-content",
       MESSAGE_EVENTHUB_NAME                          = "io-p-itn-com-etl-messages-evh-01"
@@ -107,6 +108,17 @@ resource "azurerm_role_assignment" "message_content_container_read" {
   role_definition_name = "Storage Blob Data Reader"
   principal_id         = each.value
 }
+
+resource "azurerm_role_assignment" "com_st_storage_blob_reader" {
+  for_each = toset([
+    module.etl_func.function_app.function_app.principal_id,
+    module.etl_func.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.com_st_id
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = each.value
+}
+
 
 resource "azurerm_role_assignment" "com_st" {
   for_each = toset([

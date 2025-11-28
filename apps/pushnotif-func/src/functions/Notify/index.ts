@@ -1,5 +1,6 @@
 import { AzureFunction, Context } from "@azure/functions";
 import { QueueClient } from "@azure/storage-queue";
+import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 import createAzureFunctionHandler from "@pagopa/express-azure-functions/dist/src/createAzureFunctionsHandler";
 import {
   MESSAGE_COLLECTION_NAME,
@@ -23,7 +24,6 @@ import {
   toFetch,
 } from "@pagopa/ts-commons/lib/fetch";
 import { Millisecond } from "@pagopa/ts-commons/lib/units";
-import { createBlobService } from "azure-storage";
 import * as express from "express";
 import { pipe } from "fp-ts/lib/function";
 import nodeFetch from "node-fetch";
@@ -75,6 +75,7 @@ const messageModel = new MessageModel(
 );
 
 const blobService = createBlobService(
+  config.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
   config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
 );
 

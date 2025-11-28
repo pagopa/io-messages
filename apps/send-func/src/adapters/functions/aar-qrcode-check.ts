@@ -30,7 +30,6 @@ export const aarQRCodeCheck =
     const isTest = request.query.get("isTest") === "true";
     const sendHeaders = {
       "x-pagopa-cx-taxid": lollipopHeaders["x-pagopa-lollipop-user-id"],
-      "x-pagopa-pn-io-src": "QR_CODE",
       ...lollipopHeaders,
     };
 
