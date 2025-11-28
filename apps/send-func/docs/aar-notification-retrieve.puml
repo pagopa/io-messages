@@ -6,75 +6,174 @@ participant "send-func" as sendFunc
 participant "lollipop-func" as lollipopFunc
 participant "backend-send" as beSEND
 
+
 activate ioAPP
 activate ioAPIM
 
-
-ioAPP -> ioAPP: Scansiona QRCcode su AAR SEND
+ioAPP -> ioAPP: Inquadra QRCcode su AAR SEND
 ioAPP -> ioAPIM: Richiesta verifica contenuto QRCode
 ioAPIM -> sessionManager: Verifica sessione utente
 activate sessionManager
-sessionManager -> ioAPIM: Restituisce esito verifica sessione utente
-deactivate sessionManager
 alt Verifica sessione utente fallita
-    ioAPIM -[#red]x ioAPP: restituisce errore
+    ioAPIM -[#red]x ioAPP: HTTP 401 - errore di autenticazione
 end
+sessionManager -> ioAPIM: Esito verifica sessione utente
+deactivate sessionManager
+
+note right of ioAPIM
+  Sessione utente valida.
+  APIM ridirige richiesta verso send-func
+end note
 ioAPIM -> sendFunc: Inoltra chiamata
 
 activate sendFunc
-sendFunc -> lollipopFunc: Richiesta generazione lc-params
-activate lollipopFunc
-lollipopFunc --> sendFunc: Esito generazione lc-params
-deactivate lollipopFunc
-alt Errore generazione header lollipop
-    sendFunc -[#red]x ioAPP: restituisce errore
+note right of sendFunc
+  Verifica la presenza e la
+  correttezza degli header Lollipop
+end note
+alt x-user header mancante o invalido
+  sendFunc -[#red]x ioAPP: HTTP 401 -> errore di autenticazione
+else assertion ref non valido
+  sendFunc -[#red]x ioAPP: HTTP 403 -> errore di autorizzazione
+else richiesta malformata
+  sendFunc -[#red]x ioAPP: HTTP 400
+else errore del server
+  sendFunc -[#red]x ioAPP: HTTP 500
 end
-sendFunc -> beSEND: Inoltra richiesta aggiungendo headers lollipop
 
-activate beSEND
-beSEND --> sendFunc: Restituisce esito richiesta
-deactivate beSEND
-alt Error esito verifica dati QRCode
-    sendFunc -[#red]x ioAPP: restituisce errore
+
+sendFunc -> lollipopFunc: Richiesta generazione lc-params
+
+activate lollipopFunc
+note right of sendFunc
+  Richiesta dei parametri utili a
+  costruire gli headers lollipop
+  utilizzati per chiamare il backend di SEND
+end note
+alt errore recupero lcparams
+  sendFunc -[#red]x ioAPP: HTTP 500
 end
-sendFunc -[#green]> ioAPP: Restituisce dati per accedere alla notifica
+
+
+lollipopFunc --> sendFunc: Restituisce lc-params
+deactivate lollipopFunc
+
+
+note right of sendFunc
+  Arrichisce la richiesta con gli
+  header lollipop e la inoltra al
+  backend SEND
+end note
+sendFunc -> beSEND: Inoltra richiesta
+activate beSEND
+alt utente non autorizzato
+  note left of beSEND
+    La notifica non è destinata
+    all'utente che ha inquadrato
+    il QR code della AAR
+  end note
+  beSEND -[#red]x sendFunc: HTTP 403
+  sendFunc -[#red]x ioAPP: HTTP 403
+  note right of ioAPP
+    L'utente può richiedere l'attivazione
+    della delega o uscire dal flusso
+  end note
+else errore del backend send
+  beSEND -[#red]x sendFunc: HTTP 4xx o HTTP 5xx
+  sendFunc -[#red]x ioAPP: HTTP 500
+end
+
+beSEND --> sendFunc: Esito richiesta
+deactivate beSEND
+sendFunc -[#green]> ioAPP: HTTP 200
+
 deactivate sendFunc
 deactivate ioAPIM
+deactivate lollipopFunc
 
 note right of ioAPP
-    L'applicazione ha tutti i dati per recuperare
+    L'applicazione riceve i dati per recuperare
     il contentuto della notifica
 end note
+
+
+
+
 
 ioAPP -> ioAPIM: Richiede contenuto notifica
 activate ioAPIM
 ioAPIM -> sessionManager: Verifica sessione utente
 activate sessionManager
-sessionManager -> ioAPIM: Restituisce esito verifica sessione utente
-deactivate sessionManager
 alt Verifica sessione utente fallita
-    ioAPIM -[#red]x ioAPP: restituisce errore
+    ioAPIM -[#red]x ioAPP: HTTP 401 - errore di autenticazione
 end
+sessionManager -> ioAPIM: Esito verifica sessione utente
+deactivate sessionManager
+
+note right of ioAPIM
+  Sessione utente valida.
+  APIM ridirige richiesta verso send-func
+end note
 ioAPIM -> sendFunc: Inoltra chiamata
 
 activate sendFunc
+note right of sendFunc
+  Verifica la presenza e la
+  correttezza degli header Lollipop
+end note
+alt x-user header mancante o invalido
+  sendFunc -[#red]x ioAPP: HTTP 401 -> errore di autenticazione
+else assertion ref non valido
+  sendFunc -[#red]x ioAPP: HTTP 403 -> errore di autorizzazione
+else richiesta malformata
+  sendFunc -[#red]x ioAPP: HTTP 400
+else errore del server
+  sendFunc -[#red]x ioAPP: HTTP 500
+end
+
+
 sendFunc -> lollipopFunc: Richiesta generazione lc-params
 activate lollipopFunc
-lollipopFunc --> sendFunc: Esito generazione lc-params
+note right of sendFunc
+  Richiesta dei parametri utili a
+  costruire gli headers lollipop
+  utilizzati per chiamare il backend di SEND
+end note
+alt errore recupero lcparams
+  sendFunc -[#red]x ioAPP: HTTP 500
+end
+
+lollipopFunc --> sendFunc: Restituisce lc-params
 deactivate lollipopFunc
-alt Errore generazione header lollipop
-    sendFunc -[#red]x ioAPP: restituisce errore
-end
-sendFunc -> beSEND: Inoltra richiesta aggiungendo headers lollipop
 
+
+note right of sendFunc
+  Arrichisce la richiesta con gli
+  header lollipop e la inoltra al
+  backend SEND
+end note
+sendFunc -> beSEND: Inoltra richiesta
 activate beSEND
-beSEND --> sendFunc: Restituisce esito richiesta
-deactivate beSEND
 
-alt Errore durante recupero contenuto notifica
-    sendFunc -[#red]x ioAPP: restituisce errore
+alt errore del backend send
+  beSEND -[#red]x sendFunc: HTTP 4xx o HTTP 5xx
+  sendFunc -[#red]x ioAPP: HTTP 500
 end
-sendFunc -[#green]> ioAPP: Restituisce contenuto della notifica
+
+beSEND --> sendFunc: Esito richiesta
+deactivate beSEND
+sendFunc -[#green]> ioAPP: HTTP 200
+
+deactivate sendFunc
+deactivate ioAPIM
+deactivate lollipopFunc
+
+
+note right of ioAPP
+L'applicazione riceve il
+contenuto della notifica
+end note
+
 deactivate sendFunc
 deactivate ioAPIM
 @enduml
