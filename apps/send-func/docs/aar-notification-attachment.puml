@@ -11,39 +11,86 @@ activate ioAPP
 activate ioAPIM
 
 note right of ioAPP
-    L'applicazione ha tutti i dati della
-    notifica e può richiedere l'allegato
+    L'applicazione ha i dati della
+    notifica e può richiedere
+    gli allegati
 end note
 
-
 ioAPP -> ioAPIM: Richiesta allegato
+
 ioAPIM -> sessionManager: Verifica sessione utente
 activate sessionManager
+alt Verifica sessione utente fallita
+    ioAPIM -[#red]x ioAPP: HTTP 401 - errore di autenticazione
+end
 sessionManager -> ioAPIM: Esito verifica sessione utente
 deactivate sessionManager
-alt Verifica sessione utente fallita
-    ioAPIM -[#red]x ioAPP: restituisce errore
-end
-ioAPIM -> sendFunc: Inoltra richiesta
+
+note right of ioAPIM
+  Sessione utente valida.
+  APIM ridirige richiesta verso send-func
+end note
+ioAPIM -> sendFunc: Inoltra chiamata
 
 activate sendFunc
-sendFunc -> lollipopFunc: Richiesta generazione lc-params
-activate lollipopFunc
-lollipopFunc --> sendFunc: Esito generazione lc-params
-deactivate lollipopFunc
-alt Errore generazione header lollipop
-    sendFunc -[#red]x ioAPP: restituisce errore
+note right of sendFunc
+  Verifica la presenza e la
+  correttezza degli header Lollipop
+end note
+alt x-user header mancante o invalido
+  sendFunc -[#red]x ioAPP: HTTP 401 -> errore di autenticazione
+else assertion ref non valido
+  sendFunc -[#red]x ioAPP: HTTP 403 -> errore di autorizzazione
+else richiesta malformata
+  sendFunc -[#red]x ioAPP: HTTP 400
+else errore del server
+  sendFunc -[#red]x ioAPP: HTTP 500
 end
-sendFunc -> beSEND: Inoltra richiesta aggiungendo headers lollipop
 
-activate beSEND
-beSEND --> sendFunc: Restituisce esito richiesta
-deactivate beSEND
-alt Error durante recupero allegato
-    sendFunc -[#red]x ioAPP: restituisce errore
+
+sendFunc -> lollipopFunc: Richiesta generazione lc-params
+
+activate lollipopFunc
+note right of sendFunc
+  Richiesta dei parametri utili a
+  costruire gli headers Lollipop
+  utilizzati per chiamare il backend di SEND
+end note
+alt errore recupero lcparams
+  sendFunc -[#red]x ioAPP: HTTP 500
 end
-sendFunc -[#green]> ioAPP: Restituisce link dell'allegato
+
+
+lollipopFunc --> sendFunc: Restituisce lc-params
+deactivate lollipopFunc
+
+
+note right of sendFunc
+  Arrichisce la richiesta con gli
+  header Lollipop e la inoltra al
+  backend SEND
+end note
+sendFunc -> beSEND: Inoltra richiesta
+activate beSEND
+
+alt errore del backend send
+  beSEND -[#red]x sendFunc: HTTP 4xx o HTTP 5xx
+  sendFunc -[#red]x ioAPP: HTTP 500
+end
+
+beSEND --> sendFunc: Esito richiesta
+deactivate beSEND
+sendFunc -[#green]> ioAPP: HTTP 200
+
 deactivate sendFunc
 deactivate ioAPIM
+deactivat e lollipopFunc
 
+
+note right of ioAPP
+L'applicazione riceve l'allegato
+end note
+
+deactivate sendFunc
+deactivate ioAPIM
 @enduml
