@@ -9,87 +9,94 @@ participant "backend-send" as beSEND
 activate ioAPP
 activate ioAPIM
 
-note right of ioAPP
+loop richiesta F24
+
+  note right of ioAPP
     L'applicazione ha tutti i dati della
     notifica e può richiedere
     il contenuto dell'F24.
-end note
+  end note
 
-ioAPP -> ioAPIM: Richiesta F24
-ioAPIM -> sessionManager: Verifica sessione utente
-activate sessionManager
-sessionManager -> ioAPIM: Esito verifica sessione utente
-deactivate sessionManager
-alt Verifica sessione utente fallita
-    ioAPIM -[#red]x ioAPP: restituisce errore
-end
+  ioAPP -> ioAPIM: Richiesta F24
+  ioAPIM -> sessionManager: Verifica sessione utente
+  activate sessionManager
+  break Verifica sessione utente fallita
+    ioAPIM -[#red]x ioAPP: HTTP 401 - errore di autenticazione
+  end
+  sessionManager -> ioAPIM: Esito verifica sessione utente
+  deactivate sessionManager
 
-ioAPIM -> sendFunc: Inoltra chiamata
-activate sendFunc
+  note right of ioAPIM
+  Sessione utente valida.
+  APIM ridirige richiesta verso send-func
+  end note
+  ioAPIM -> sendFunc: Inoltra chiamata
 
-sendFunc -> lollipopFunc: Richiesta generazione lc-params
-activate lollipopFunc
-lollipopFunc --> sendFunc: Esito generazione lc-params
-deactivate lollipopFunc
-alt Errore generazione header lollipop
-    sendFunc -[#red]x ioAPP: restituisce errore
-end
-sendFunc -> beSEND: Inoltra richiesta aggiungendo headers lollipop
-activate beSEND
-beSEND --> sendFunc: Esito richiesta F24
-deactivate beSEND
-
-alt Error durante recupero F24
-    sendFunc -[#red]x ioAPP: restituisce errore
-end
-sendFunc -[#green]> ioAPP: Termina la richiesta con successo
-deactivate sendFunc
+  activate sendFunc
+  note right of sendFunc
+  Verifica la presenza e la
+  correttezza degli header Lollipop
+  end note
+  break x-user header mancante o invalido
+    sendFunc -[#red]x ioAPP: HTTP 401 -> errore di autenticazione
+    else assertion ref non valido
+      sendFunc -[#red]x ioAPP: HTTP 403 -> errore di autorizzazione
+    else richiesta malformata
+      sendFunc -[#red]x ioAPP: HTTP 400
+    else errore del server
+      sendFunc -[#red]x ioAPP: HTTP 500
+  end
 
 
-alt F24 di SEND non ancora pronto
-  loop richiesta F24
+  sendFunc -> lollipopFunc: Richiesta generazione lc-params
+
+  activate lollipopFunc
+  note right of sendFunc
+  Richiesta dei parametri utili a
+  costruire gli headers Lollipop
+  utilizzati per chiamare il backend di SEND
+  end note
+  break errore recupero lcparams
+    sendFunc -[#red]x ioAPP: HTTP 500
+  end
+
+
+  lollipopFunc --> sendFunc: Restituisce lc-params
+  deactivate lollipopFunc
+
+
+  note right of sendFunc
+  Arrichisce la richiesta con gli
+  header lollipop e la inoltra al
+  backend SEND
+  end note
+  sendFunc -> beSEND: Inoltra richiesta
+  activate beSEND
+
+  break errore del backend send
+    beSEND -[#red]x sendFunc: HTTP 4xx o HTTP 5xx
+    sendFunc -[#red]x ioAPP: HTTP 500
+  end
+
+  beSEND --> sendFunc: Esito richiesta
+  deactivate beSEND
+  alt F24 non ancora pronto
     note right of ioAPP
       Nel caso SEND risponda con un paramentro
       "retry" indicante che l'F24 non è ancora pronto,
       l'utente rimane in attesa e l'app ripete la chiamata
+      per la richiesta dell'F24
     end note
-
-    ioAPP -> ioAPIM: Richiesta F24
-    ioAPIM -> sessionManager: Verifica sessione utente
-    activate sessionManager
-    sessionManager -> ioAPIM: Esito verifica sessione utente
-    deactivate sessionManager
-    alt Verifica sessione utente fallita
-        ioAPIM -[#red]x ioAPP: restituisce errore
-    end
-
-    ioAPIM -> sendFunc: Inoltra chiamata
-    activate sendFunc
-
-    sendFunc -> lollipopFunc: Richiesta generazione lc-params
-    activate lollipopFunc
-    lollipopFunc --> sendFunc: Esito generazione lc-params
-    deactivate lollipopFunc
-    alt Errore generazione header lollipop
-        sendFunc -[#red]x ioAPP: restituisce errore
-    end
-    sendFunc -> beSEND: Inoltra richiesta aggiungendo headers lollipop
-    activate beSEND
-    beSEND --> sendFunc: Esito richiesta F24
-    deactivate beSEND
-
-    break Error durante recupero F24
-        sendFunc -[#red]x ioAPP: restituisce errore
-    end
-    sendFunc -[#green]> ioAPP: Termina la richiesta con successo
+    sendFunc -[#green]> ioAPP: HTTP 200
+    else F24 pronto
+      break
+        note right of ioAPP
+          L'applicazione riceve l'url dell' F24
+        end note
+        sendFunc -[#green]> ioAPP: HTTP 200
+      end
   end
-else F24 di SEND pronto
-  sendFunc -[#green]> ioAPP: Restituisce link dell'allegato
-  deactivate ioAPIM
   deactivate sendFunc
 end
-
-
-
 
 @enduml

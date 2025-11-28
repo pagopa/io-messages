@@ -84,7 +84,7 @@ sendFunc -[#green]> ioAPP: HTTP 200
 
 deactivate sendFunc
 deactivate ioAPIM
-deactivat e lollipopFunc
+deactivate lollipopFunc
 
 
 note right of ioAPP
