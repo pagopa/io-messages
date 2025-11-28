@@ -4,14 +4,14 @@ import {
   FallbackTracker,
   GenericCode,
 } from "@pagopa/azure-storage-legacy-migration-kit";
-import * as AS from "azure-storage";
-import { constant, constVoid, flow, pipe } from "fp-ts/lib/function";
-import * as O from "fp-ts/lib/Option";
-import * as J from "fp-ts/lib/Json";
-import * as E from "fp-ts/lib/Either";
-import * as TE from "fp-ts/lib/TaskEither";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
+import * as AS from "azure-storage";
+import * as E from "fp-ts/lib/Either";
+import * as J from "fp-ts/lib/Json";
+import * as O from "fp-ts/lib/Option";
+import * as TE from "fp-ts/lib/TaskEither";
+import { constVoid, constant, flow, pipe } from "fp-ts/lib/function";
 
 const isBlobNotFound = (err: AS.StorageError) =>
   err.code === "BlobNotFound" || err.statusCode === 404;
@@ -42,7 +42,7 @@ export const getBlobAsTextWithError =
           containerName,
           blobName,
           options,
-          (err, result, _) => {
+          (err, result) => {
             if (!err) {
               return resolve(E.right(O.fromNullable(result)));
             }
@@ -59,7 +59,7 @@ export const getBlobAsTextWithError =
                   containerName,
                   blobName,
                   options,
-                  (e, r, __) =>
+                  (e, r) =>
                     pipe(
                       consumeFallbackTracker(containerName, blobName, tracker),
                       () => {
@@ -90,9 +90,9 @@ const blobIdFromMessageId = (messageId: string): string =>
 export const getContentFromBlob = (
   blobService: BlobServiceWithFallBack,
   messageId: string,
-): TE.TaskEither<Error, O.Option<MessageContent>> => {
+): TE.TaskEither<Error, O.Option<MessageContent>> =>
   // Retrieve blob content and deserialize
-  return pipe(
+  pipe(
     blobIdFromMessageId(messageId),
     getBlobAsTextWithError(blobService, "message-content"),
     TE.mapLeft((storageError) => ({
@@ -140,4 +140,3 @@ export const getContentFromBlob = (
     ),
     TE.mapLeft((error) => new Error(error.message)),
   );
-};
