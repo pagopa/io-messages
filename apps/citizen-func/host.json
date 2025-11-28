@@ -2,16 +2,10 @@
   "version": "2.0",
   "logging": {
     "logLevel": {
-      "default": "Information",
-      "DurableTask.AzureStorage": "Warning",
-      "DurableTask.Core": "Warning",
-      "Function.GetMessage": "Warning",
-      "Function.GetMessages": "Warning",
-      "Function.GetProfile": "Warning",
-      "Function.GetRCConfiguration": "Warning",
-      "Function.GetService": "Warning",
-      "Function.GetUserDataProcessing": "Warning",
-      "Function.GetVisibleServices": "Warning"
+      "default": "Warning",
+      "Function": "Information",
+      "Host.Results": "Information",
+      "Host.Aggregator": "Information"
     },
     "applicationInsights": {
       "samplingSettings": {

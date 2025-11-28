@@ -8,6 +8,7 @@
     "COSMOSDB_NAME": "io-messages",
     "MESSAGE_CONTAINER_NAME": "messages",
     "MESSAGE_CONTENT_STORAGE_CONNECTION_STRING": "UseDevelopmentStorage=true",
+    "IO_COM_STORAGE_CONNECTION_STRING": "UseDevelopmentStorage=true",
     "REMOTE_CONTENT_COSMOSDB_URI": "https://io-d-itn-common-cosno-01.documents.azure.com:443/",
     "REMOTE_CONTENT_COSMOSDB_NAME": "remote-content-cosmos-01",
     "PN_SERVICE_ID": "a-pn-id",

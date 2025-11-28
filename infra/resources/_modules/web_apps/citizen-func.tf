@@ -13,6 +13,7 @@ locals {
 
       // BLOB STORAGE
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
+      IO_COM_STORAGE_CONNECTION_STRING          = var.com_st_connectiostring
       MESSAGE_CONTAINER_NAME                    = "message-content"
 
       // REDIS
