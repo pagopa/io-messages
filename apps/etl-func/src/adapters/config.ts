@@ -1,30 +1,32 @@
 import { z } from "zod";
 
 import { applicationInsightsSchema } from "./appinsights/config.js";
+import {
+  messageContentConfigSchema,
+  messageContentDevConfigSchema,
+} from "./blob-storage/config.js";
 import { Env, envSchema } from "./env.js";
 import { eventhubConfigSchema } from "./eventhub/config.js";
 import { redisConfigSchema } from "./redis/config.js";
-import { tableStorageConfigSchema } from "./table-storage/config.js";
+import {
+  tableStorageConfigSchema,
+  tableStorageDevConfigSchema,
+} from "./table-storage/config.js";
 import { pdvConfigSchema } from "./tokenizer/config.js";
 
 export const common = z.object({
   appInsights: applicationInsightsSchema,
   common_cosmos: z.object({
-    accountUri: z.string().url(),
+    accountUri: z.url(),
     databaseName: z.string().min(1),
     messageStatusContainerName: z.string().min(1),
     messagesContainerName: z.string().min(1),
   }),
   iocomCosmos: z.object({
-    accountUri: z.string().url(),
+    accountUri: z.url(),
     eventsCollectorDatabaseName: z.string().min(1),
     messageIngestionSummaryContainerName: z.string().min(1),
   }),
-  messageContentStorage: z.object({
-    accountUri: z.string().url(),
-    containerName: z.string().min(1),
-  }),
-  messageIngestionErrorTable: tableStorageConfigSchema,
   messageStatusErrorTable: tableStorageConfigSchema,
   messagesRedis: redisConfigSchema,
   pdvTokenizer: pdvConfigSchema,
@@ -34,11 +36,15 @@ export const configSchema = common.and(
   z.discriminatedUnion("environment", [
     z.object({
       environment: z.literal("production"),
+      messageContentStorage: messageContentConfigSchema,
+      messageIngestionErrorTable: tableStorageConfigSchema,
       messageStatusEventHub: eventhubConfigSchema,
       messagesEventHub: eventhubConfigSchema,
     }),
     z.object({
       environment: z.literal("development"),
+      messageContentStorage: messageContentDevConfigSchema,
+      messageIngestionErrorTable: tableStorageDevConfigSchema,
       messageStatusEventHub: eventhubConfigSchema,
       messagesEventHub: eventhubConfigSchema,
     }),
@@ -72,6 +78,31 @@ const mapEnvironmentVariablesToConfig = (env: Env) => {
           connectionString: env.EVENTHUB_CONNECTION_STRING,
           eventHubName: env.MESSAGE_STATUS_EVENTHUB_NAME,
         };
+
+  const messageContentStorage =
+    env.NODE_ENV === "production"
+      ? {
+          accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
+          accountUriItn: env.IOCOM_STORAGE_URI,
+          containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
+        }
+      : {
+          connectionString: env.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+          containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
+          itnConnectionString: env.IOCOM_STORAGE_CONNECTION_STRING,
+        };
+
+  const messageIngestionErrorTable =
+    env.NODE_ENV === "production"
+      ? {
+          connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
+          tableName: env.MESSAGE_ERROR_TABLE_STORAGE_NAME,
+        }
+      : {
+          connectionString: env.MESSAGE_ERROR_TABLE_STORAGE_CONENCTION_STRING,
+          tableName: env.MESSAGE_ERROR_TABLE_STORAGE_NAME,
+        };
+
   return {
     appInsights: {
       connectionString: env.APPLICATIONINSIGHTS_CONNECTION_STRING,
@@ -90,14 +121,8 @@ const mapEnvironmentVariablesToConfig = (env: Env) => {
       messageIngestionSummaryContainerName:
         env.IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME,
     },
-    messageContentStorage: {
-      accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
-      containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
-    },
-    messageIngestionErrorTable: {
-      connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
-      tableName: env.MESSAGE_ERROR_TABLE_STORAGE_NAME,
-    },
+    messageContentStorage: messageContentStorage,
+    messageIngestionErrorTable: messageIngestionErrorTable,
     messageStatusErrorTable: {
       connectionUri: env.ACCOUNT_STORAGE__tableServiceUri,
       tableName: env.MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME,

@@ -1,5 +1,11 @@
 ### Changelog
 
+## 1.2.2
+
+### Patch Changes
+
+- bbb7845: Add legacy migration toolkit
+
 ## 1.2.1
 
 ### Patch Changes
