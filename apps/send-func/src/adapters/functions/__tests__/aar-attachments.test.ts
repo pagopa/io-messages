@@ -68,7 +68,6 @@ describe("GetAttachment", () => {
       params: { attachmentUrl: anEncodedAttachmentUrl },
       url: "http://localhost",
     });
-    request.headers.set("x-pagopa-pn-io-src", "QR_CODE");
 
     await expect(
       getAttachmentHandler(request, context, aLollipopHeaders),
@@ -109,7 +108,6 @@ describe("GetAttachment", () => {
       query: { mandateId: anIvalidMandateId },
       url: "http://localhost",
     });
-    request.headers.set("x-pagopa-pn-io-src", "QR_CODE");
 
     await expect(
       getAttachmentHandler(request, context, aLollipopHeaders),
@@ -127,7 +125,6 @@ describe("GetAttachment", () => {
       params: { attachmentUrl: anEncodedInvalidAttachmentUrl },
       url: "http://localhost",
     });
-    request2.headers.set("x-pagopa-pn-io-src", "QR_CODE");
 
     await expect(
       getAttachmentHandler(request2, context, aLollipopHeaders),
@@ -140,29 +137,6 @@ describe("GetAttachment", () => {
       status: 400,
     });
 
-    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
-  });
-
-  it("returns 400 status code if the x-pagopa-pn-io-src header is not set", async () => {
-    const request = new HttpRequest({
-      method: "GET",
-      params: { attachmentUrl: anEncodedAttachmentUrl },
-      query: { mandateId: anIvalidMandateId },
-      url: "http://localhost",
-    });
-
-    await expect(
-      getAttachmentHandler(request, context, aLollipopHeaders),
-    ).resolves.toEqual({
-      jsonBody: {
-        detail: "Missing mandatory x-pagopa-pn-io-src header",
-        status: 400,
-        title: "Bad Request",
-      },
-      status: 400,
-    });
-
-    expect(executeSpy).not.toHaveBeenCalled();
     expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
@@ -183,7 +157,6 @@ describe("GetAttachment", () => {
       params: { attachmentUrl: anEncodedAttachmentUrl },
       url: "http://localhost",
     });
-    request.headers.set("x-pagopa-pn-io-src", "QR_CODE");
 
     await expect(
       getAttachmentHandler(request, context, aLollipopHeaders),
