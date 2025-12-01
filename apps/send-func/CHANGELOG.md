@@ -1,5 +1,11 @@
 # send-func
 
+## 1.4.2
+
+### Patch Changes
+
+- 1edeec5: revert send api mandatory header
+
 ## 1.4.1
 
 ### Patch Changes
