@@ -1,5 +1,11 @@
 # services-func
 
+## 1.0.4
+
+### Patch Changes
+
+- 036db90: Update footer template mail.
+
 ## 1.0.3
 
 ### Patch Changes
