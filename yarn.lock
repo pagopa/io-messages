@@ -13665,6 +13665,7 @@ __metadata:
     "@azure/notification-hubs": "npm:^1.2.3"
     "@azure/service-bus": "npm:^7.9.4"
     "@azure/storage-queue": "npm:^12.4.0"
+    "@pagopa/azure-storage-legacy-migration-kit": "npm:^0.0.4"
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@pagopa/express-azure-functions": "npm:^2.0.0"
     "@pagopa/io-functions-commons": "npm:^29.3.0"
