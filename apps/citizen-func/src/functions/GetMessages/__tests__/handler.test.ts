@@ -1,4 +1,6 @@
 import { Context } from "@azure/functions";
+import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
+import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
 import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
 import { TagEnum as TagEnumPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
@@ -33,7 +35,6 @@ import {
   Ulid,
 } from "@pagopa/ts-commons/lib/strings";
 import { OrganizationFiscalCode } from "@pagopa/ts-commons/lib/strings";
-import { BlobService } from "azure-storage";
 import * as RA from "fp-ts/ReadonlyArray";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
@@ -61,6 +62,7 @@ import { HasPreconditionEnum } from "../../../generated/definitions/HasPrecondit
 import { MessageStatusExtendedQueryModel } from "../../../model/message_status_query";
 import { MessageViewExtendedQueryModel } from "../../../model/message_view_query";
 import { IConfig } from "../../../utils/config";
+import * as mc from "../../../utils/message-content";
 import { RedisClientFactory } from "../../../utils/redis";
 import * as redis from "../../../utils/redis_storage";
 import RCConfigurationUtility from "../../../utils/remoteContentConfig";
@@ -163,16 +165,10 @@ const aRetrievedMessageView: RetrievedMessageView = pipe(
 // Mocks
 //----------------------------
 
-const blobServiceMock = {
-  getBlobToText: vi.fn().mockReturnValue(
-    TE.of(
-      O.some({
-        markdown: "a markdown",
-        subject: "a subject",
-      } as MessageContent),
-    ),
-  ),
-} as unknown as BlobService;
+const blobServiceMock = createBlobService(
+  "UseDevelopmentStorage=true",
+  "UseDevelopmentStorage=true",
+);
 
 const getMockIterator = <T>(values: T): Iterator<T> => ({
   next: vi
@@ -346,6 +342,14 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValueOnce(
+      TE.of(
+        O.some({
+          markdown: "a markdown",
+          subject: "a subject",
+        } as MessageContent),
+      ),
+    );
   });
 
   it("should respond with a query error if it cannot retrieve messages", async () => {
@@ -663,6 +667,15 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValueOnce(
+      TE.of(
+        O.some({
+          markdown: "a markdown",
+          subject: "a subject",
+        } as MessageContent),
+      ),
+    );
   });
 
   it("should respond with a page of messages when given enrichment parameter", async () => {
@@ -734,7 +747,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     getTaskMock.mockReturnValueOnce(TE.left(new Error("Error")));
 
     // we expect for 2 messages to have remote_content and preconditions
-    getContentFromBlobMock.mockReturnValueOnce(
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValueOnce(
       TE.of(
         O.some({
           markdown: "a markdown",
@@ -743,11 +756,11 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
             has_precondition: HasPreconditionEnum.ALWAYS,
             has_remote_content: true,
           },
-        }),
+        } as MessageContent),
       ),
     );
 
-    getContentFromBlobMock.mockReturnValueOnce(
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValueOnce(
       TE.of(
         O.some({
           markdown: "a markdown",
@@ -756,7 +769,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
             has_precondition: HasPreconditionEnum.ALWAYS,
             has_remote_content: true,
           },
-        }),
+        } as MessageContent),
       ),
     );
 
@@ -822,7 +835,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     const messageIterator = getMockIterator(aMessageList);
     const messageModelMock = getMessageModelMock(messageIterator);
 
-    vi.spyOn(messageModelMock, "getContentFromBlob").mockImplementation(() =>
+    vi.spyOn(mc, "getContentFromBlob").mockImplementation(() =>
       TE.of(
         O.some({
           markdown: "a markdown",
@@ -905,7 +918,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     const messageIterator = getMockIterator([aMessageList[0]]);
     const messageModelMock = getMessageModelMock(messageIterator);
 
-    getContentFromBlobMock.mockReturnValueOnce(
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValueOnce(
       TE.of(
         O.some({
           markdown: "a markdown",
@@ -977,7 +990,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     const messageIterator = getMockIterator(aMessageList);
     const messageModelMock = getMessageModelMock(messageIterator);
 
-    vi.spyOn(messageModelMock, "getContentFromBlob").mockImplementation(() =>
+    vi.spyOn(mc, "getContentFromBlob").mockImplementation(() =>
       TE.of(
         O.some({
           markdown: "a markdown",
@@ -1158,17 +1171,10 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
   });
 
   it("should respond with internal error when messages cannot be enriched with content", async () => {
-    const getContentFromBlob = vi
-      .fn()
-      .mockReturnValue(
-        TE.of(
-          O.some({
-            markdown: "a markdown",
-            subject: "a subject",
-          } as MessageContent),
-        ),
-      )
-      .mockReturnValueOnce(TE.left(new Error("GENERIC_ERROR")));
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValueOnce(
+      TE.left(new Error("GENERIC_ERROR")),
+    );
+
     const messagesIter = {
       next: vi
         .fn()
@@ -1177,10 +1183,11 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
         }))
         .mockImplementationOnce(async () => ({ done: true })),
     };
+
     const messageModelMock = {
       findMessages: vi.fn().mockReturnValue(TE.of(messagesIter)),
-      getContentFromBlob,
     };
+
     const getMessagesFunctionSelector = getCreateGetMessagesFunctionSelection(
       messageStatusModelMock,
       messageModelMock as unknown as MessageModel,
@@ -1295,7 +1302,7 @@ describe("GetMessagesHandler |> Message View", () => {
     [
       {} as MessageModel,
       {} as MessageStatusExtendedQueryModel,
-      {} as BlobService,
+      {} as BlobServiceWithFallBack,
       mockRCConfigurationUtility,
       dummyThirdPartyDataWithCategoryFetcher,
     ],
