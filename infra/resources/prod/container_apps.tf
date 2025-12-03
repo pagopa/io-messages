@@ -23,6 +23,8 @@ module "container_apps" {
     data.azuread_group.adgroup_io_admins.object_id,
   ]
 
+  eventhub_namespace = module.eventhubs.namespace
+
   dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.com.id
 
   tags = local.tags
