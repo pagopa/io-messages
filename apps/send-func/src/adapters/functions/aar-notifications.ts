@@ -64,6 +64,9 @@ export const getNotification =
           TelemetryEventName.SEND_AAR_NOTIFICATION_SERVER_ERROR,
           {
             status: err.status,
+            traceId: err.body.traceId,
+            errorCode: err.body.errors,
+            detail: err.body.detail,
           },
         );
 

@@ -63,7 +63,7 @@ const unsuccessfulResponseToProblem = (
   return parsedProblem.success
     ? parsedProblem.data
     : {
-        detail: JSON.stringify(z.flattenError(parsedProblem.error)),
+        detail: JSON.stringify(responseJson), //critical part if the data are sensitive
         status: response.status,
       };
 };
