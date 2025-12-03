@@ -202,7 +202,7 @@ paths:
       summary: >-
         Accetta la delega fornendo i dati della CIE del delegante. La delega
         passa in stato ACTIVE in caso di successo.
-      operationId: acceptIOMandate
+      operationId: acceptAARMandate
       parameters:
         - in: query
           name: isTest
