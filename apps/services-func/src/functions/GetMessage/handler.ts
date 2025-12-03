@@ -1,5 +1,4 @@
 /* eslint-disable max-lines-per-function */
-import { getContentFromBlob } from "@/utils/message-content";
 import { Context } from "@azure/functions";
 import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { MessageContent } from "@pagopa/io-backend-notifications-sdk/MessageContent";
@@ -90,6 +89,7 @@ import {
   PaymentDuplicatedStatusFaultPaymentProblemJson,
 } from "../../generated/pagopa-ecommerce/PaymentDuplicatedStatusFaultPaymentProblemJson";
 import { IConfig } from "../../utils/config";
+import { getContentFromBlob } from "../../utils/message-content";
 import { errorsToError } from "../../utils/responses";
 import { MessageReadStatusAuth } from "./userPreferenceChecker/messageReadStatusAuth";
 
