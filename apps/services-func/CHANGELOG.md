@@ -1,5 +1,11 @@
 # services-func
 
+## 1.0.5
+
+### Patch Changes
+
+- 173dc56: Add migration toolkit
+
 ## 1.0.4
 
 ### Patch Changes
