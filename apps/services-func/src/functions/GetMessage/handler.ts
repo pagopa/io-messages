@@ -1,5 +1,7 @@
 /* eslint-disable max-lines-per-function */
+import { getContentFromBlob } from "@/utils/message-content";
 import { Context } from "@azure/functions";
+import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { MessageContent } from "@pagopa/io-backend-notifications-sdk/MessageContent";
 import { ExternalCreatedMessageWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/ExternalCreatedMessageWithContent";
 import { ExternalCreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/ExternalCreatedMessageWithoutContent";
@@ -70,7 +72,6 @@ import {
   getResponseErrorForbiddenNotAuthorized,
 } from "@pagopa/ts-commons/lib/responses";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { BlobService } from "azure-storage";
 import * as express from "express";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
@@ -289,7 +290,7 @@ export const GetMessageHandler =
     messageStatusModel: MessageStatusModel,
     notificationModel: NotificationModel,
     notificationStatusModel: NotificationStatusModel,
-    blobService: BlobService,
+    blobService: BlobServiceWithFallBack,
     canAccessMessageReadStatus: MessageReadStatusAuth,
     pagoPaEcommerceClient: PagoPaEcommerceClient,
   ): IGetMessageHandler =>
@@ -351,7 +352,7 @@ export const GetMessageHandler =
 
     // fetch the content of the message from the blob storage
     const errorOrMaybeContent = await pipe(
-      messageModel.getContentFromBlob(blobService, retrievedMessage.id),
+      getContentFromBlob(blobService, retrievedMessage.id),
       TE.mapLeft((error) => {
         context.log.error(`GetMessageHandler|${JSON.stringify(error)}`);
         return ResponseErrorInternal(`${error.name}: ${error.message}`);
@@ -513,7 +514,7 @@ export function GetMessage(
   messageStatusModel: MessageStatusModel,
   notificationModel: NotificationModel,
   notificationStatusModel: NotificationStatusModel,
-  blobService: BlobService,
+  blobService: BlobServiceWithFallBack,
   canAccessMessageReadStatus: MessageReadStatusAuth,
   pagoPaEcommerceClient: PagoPaEcommerceClient,
 ): express.RequestHandler {
