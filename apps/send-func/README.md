@@ -88,7 +88,7 @@ in your local.setting.json setup the following envs like this:
 ```bash
 "NOTIFICATION_CLIENT_UAT_API_KEY": "anApiKey",
 "NOTIFICATION_CLIENT_UAT_BASE_URL": "http://localhost:8005/api/v1",
-"LOLLIPOP_API_BASE_URL": "http://mock-server-lollipop:8006/api/v1",
+"LOLLIPOP_API_BASE_URL": "http://localhost:8006/api/v1",
 "LOLLIPOP_FUNC_KEY": "lollipopAPIKey",
 ```
 

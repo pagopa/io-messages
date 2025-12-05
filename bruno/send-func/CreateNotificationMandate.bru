@@ -1,11 +1,11 @@
 meta {
-  name: AARQrCodeCheck
+  name: CreateNotificationMandate
   type: http
-  seq: 2
+  seq: 5
 }
 
 post {
-  url: {{send_func_url}}/aar/qr-code-check?isTest={{send-func-is-test}}
+  url: {{send_func_url}}/aar/mandates?isTest={{send-func-is-test}}
   body: json
   auth: inherit
 }
