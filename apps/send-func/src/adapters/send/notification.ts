@@ -159,10 +159,7 @@ export default class SendNotificationClient implements NotificationClient {
         throw new NotificationClientError(
           `The api responded with HTTP status ${response.status}`,
           response.status,
-          {
-            detail: JSON.stringify(z.flattenError(parsedError.error)),
-            status: response.status,
-          },
+          unsuccessfulResponseToProblem(responseJson, response),
         );
       }
       throw new NotRecipientClientError(
@@ -172,11 +169,10 @@ export default class SendNotificationClient implements NotificationClient {
     }
 
     if (!response.ok) {
-      const problem = unsuccessfulResponseToProblem(responseJson, response);
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,
-        problem,
+        unsuccessfulResponseToProblem(responseJson, response),
       );
     }
 
