@@ -44,7 +44,7 @@
         },
         {
           "uuid": "88335cbb-ea0f-4ce8-8115-3bd6d5313bcd",
-          "body": "[]",
+          "body": "{\n  \"Message\": \"Auth problem\"\n}",
           "latency": 0,
           "statusCode": 403,
           "label": "",
@@ -71,7 +71,7 @@
         },
         {
           "uuid": "74daf864-c1eb-4b18-b6b8-5e654eb05505",
-          "body": "{}",
+          "body": "{\n  \"unexptedProperty\":\"error message\"\n}",
           "latency": 0,
           "statusCode": 404,
           "label": "",
@@ -85,33 +85,6 @@
               "target": "body",
               "modifier": "aarQrCodeValue",
               "value": "https://qr-code.test.com/AAR_not_found",
-              "invert": false,
-              "operator": "equals"
-            }
-          ],
-          "rulesOperator": "OR",
-          "disableTemplating": false,
-          "fallbackTo404": false,
-          "default": false,
-          "crudKey": "id",
-          "callbacks": []
-        },
-        {
-          "uuid": "1d32900d-469e-4808-b942-a7472d9add03",
-          "body": "{}",
-          "latency": 0,
-          "statusCode": 429,
-          "label": "",
-          "headers": [],
-          "bodyType": "INLINE",
-          "filePath": "",
-          "databucketID": "",
-          "sendFileAsBody": false,
-          "rules": [
-            {
-              "target": "body",
-              "modifier": "aarQrCodeValue",
-              "value": "https://qr-code.test.com/http_code_divergent_from_openapi_spec",
               "invert": false,
               "operator": "equals"
             }
@@ -190,10 +163,10 @@
           "callbacks": []
         },
         {
-          "uuid": "39d11fdd-fa9e-416d-832e-f1d015b39648",
-          "body": "{}",
+          "uuid": "871f698b-0846-4f87-a7c3-2f15cd53268a",
+          "body": "{\n  \"status\": 400,\n  \"title\": \"Bad Request\",\n  \"detail\": \"Error description message\"\n}",
           "latency": 0,
-          "statusCode": 429,
+          "statusCode": 400,
           "label": "",
           "headers": [],
           "bodyType": "INLINE",
@@ -204,7 +177,34 @@
             {
               "target": "params",
               "modifier": "iun",
-              "value": "ABCD-EFGH-IJKL-500429-M-7",
+              "value": "ABCD-EFGH-IJKL-123400-M-7",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "343bb6ff-95d5-417f-9238-f37d43aac09a",
+          "body": "{\n  \"status\": 500,\n  \"title\": \"Unhandled error\",\n  \"detail\": \"See logs for details in PN-MANDATE\",\n  \"traceId\": \"trace_id:f474bb7c-e0cd-46b0-9ddf-8b0006fd33d4\",\n  \"errors\": [\n    {\n      \"code\": \"PN_GENERIC_ERROR\",\n      \"element\": \"null\",\n      \"detail\": \"none\"\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "iun",
+              "value": "ABCD-EFGH-IJKL-123500-M-7",
               "invert": false,
               "operator": "equals"
             }
@@ -252,33 +252,6 @@
           "disableTemplating": false,
           "fallbackTo404": false,
           "default": true,
-          "crudKey": "id",
-          "callbacks": []
-        },
-        {
-          "uuid": "b5ed3a75-27d4-4899-93e6-171a7fa4fa60",
-          "body": "{}",
-          "latency": 0,
-          "statusCode": 404,
-          "label": "",
-          "headers": [],
-          "bodyType": "INLINE",
-          "filePath": "",
-          "databucketID": "",
-          "sendFileAsBody": false,
-          "rules": [
-            {
-              "target": "params",
-              "modifier": "iun",
-              "value": "ABCD-EFGH-IJKL-123456-N-8",
-              "invert": false,
-              "operator": "equals"
-            }
-          ],
-          "rulesOperator": "OR",
-          "disableTemplating": false,
-          "fallbackTo404": false,
-          "default": false,
           "crudKey": "id",
           "callbacks": []
         }
