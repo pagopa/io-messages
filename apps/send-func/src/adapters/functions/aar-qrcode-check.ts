@@ -72,9 +72,7 @@ export const aarQRCodeCheck =
           TelemetryEventName.SEND_AAR_QRCODE_CHECK_SERVER_ERROR,
           {
             status: err.status,
-            traceId: err.body.traceId,
-            errorCode: err.body.errors,
-            detail: err.body.detail,
+            body: err.body,
           },
         );
 
