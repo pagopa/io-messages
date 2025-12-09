@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable vitest/prefer-called-with */
 
+import * as mc from "@/utils/message-content";
 import { ExternalCreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/ExternalCreatedMessageWithoutContent";
 import { ExternalMessageResponseWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/ExternalMessageResponseWithoutContent";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
@@ -102,6 +103,9 @@ describe("GetMessageHandler", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValue(
+      TE.of(O.some(aPaymentMessageContent)),
+    );
   });
 
   const aFiscalCode = "FRLFRC74E04B157I" as FiscalCode;
@@ -294,6 +298,8 @@ describe("GetMessageHandler", () => {
       getContentFromBlob: vi.fn(() => TE.of(none)),
     };
 
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValue(TE.of(none));
+
     const getMessageHandler = GetMessageHandler(
       true,
       mockMessageModel as any,
@@ -314,7 +320,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -334,6 +340,8 @@ describe("GetMessageHandler", () => {
       getContentFromBlob: vi.fn(() => TE.left(new Error())),
     };
 
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValue(TE.left(new Error()));
+
     const getMessageHandler = GetMessageHandler(
       true,
       mockMessageModel as any,
@@ -354,7 +362,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -371,6 +379,8 @@ describe("GetMessageHandler", () => {
       ),
       getContentFromBlob: vi.fn(() => TE.of(none)),
     };
+
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValue(TE.of(none));
 
     const getMessageHandler = GetMessageHandler(
       true,
@@ -392,7 +402,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -539,6 +549,8 @@ describe("GetMessageHandler", () => {
       senderServiceId: "anotherOrg",
     };
 
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValueOnce(TE.of(none));
+
     const mockMessageModel = {
       findMessageForRecipient: vi.fn(() => TE.of(some(message))),
       getContentFromBlob: vi.fn(() => TE.of(none)),
@@ -583,6 +595,10 @@ describe("GetMessageHandler", () => {
       ),
     };
 
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValue(
+      TE.of(O.some(aMessageContentWithLegalData)),
+    );
+
     const getMessageHandler = GetMessageHandler(
       true,
       mockMessageModel as any,
@@ -603,7 +619,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -678,6 +694,8 @@ describe("GetMessageHandler", () => {
       getContentFromBlob: vi.fn(() => TE.of(none)),
     };
 
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValue(TE.of(none));
+
     const getMessageHandler = GetMessageHandler(
       true,
       mockMessageModel as any,
@@ -698,7 +716,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -838,6 +856,10 @@ describe("GetMessageHandler", () => {
       getContentFromBlob: vi.fn(() => TE.of(O.some(aMessageContent))),
     };
 
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValue(
+      TE.of(O.some(aMessageContent)),
+    );
+
     const getMessageHandler = GetMessageHandler(
       true,
       mockMessageModel as any,
@@ -858,7 +880,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -880,6 +902,9 @@ describe("GetMessageHandler", () => {
       ),
       getContentFromBlob: vi.fn(() => TE.of(O.some(aMessageContent))),
     };
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValue(
+      TE.of(O.some(aMessageContent)),
+    );
 
     const getMessageHandler = GetMessageHandler(
       true,
@@ -901,7 +926,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -929,6 +954,10 @@ describe("GetMessageHandler", () => {
       getContentFromBlob: vi.fn(() => TE.of(O.some(aMessageContent))),
     };
 
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValue(
+      TE.of(O.some(aMessageContent)),
+    );
+
     mockMessageReadStatusAuth.mockReturnValueOnce(TE.right(true));
 
     const getMessageHandler = GetMessageHandler(
@@ -951,7 +980,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -979,6 +1008,9 @@ describe("GetMessageHandler", () => {
       ),
       getContentFromBlob: vi.fn(() => TE.of(O.some(aMessageContent))),
     };
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValue(
+      TE.of(O.some(aMessageContent)),
+    );
 
     mockMessageReadStatusAuth.mockReturnValueOnce(TE.right(true));
 
@@ -1002,7 +1034,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -1032,6 +1064,10 @@ describe("GetMessageHandler", () => {
       getContentFromBlob: vi.fn(() => TE.of(O.some(aMessageContent))),
     };
 
+    vi.spyOn(mc, "getContentFromBlob").mockReturnValue(
+      TE.of(O.some(aMessageContent)),
+    );
+
     // Using base mockMessageReadStatusAuth it's not working correctly
     const mockMessageReadStatusAuth = getMockMessageReadStatusAuth();
     mockMessageReadStatusAuth.mockReturnValueOnce(TE.of(false));
@@ -1056,7 +1092,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -1112,7 +1148,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -1168,7 +1204,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -1220,7 +1256,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -1276,7 +1312,7 @@ describe("GetMessageHandler", () => {
       aRetrievedMessageWithoutContent.id,
     );
 
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
