@@ -401,6 +401,33 @@
           "default": false,
           "crudKey": "id",
           "callbacks": []
+        },
+        {
+          "uuid": "8d2cb74d-0c85-4c10-9d75-f358293a3730",
+          "body": "{\n  \"unexpectedProperty\": \"message\"\n}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "aarQrCodeValue",
+              "value": "https://qr-code.test.com/404_SEND_response",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
       "responseMode": null,
@@ -491,6 +518,40 @@
               "target": "body",
               "modifier": "signedNonce",
               "value": "403_response",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "params",
+              "modifier": "mandateId",
+              "value": "f47ac10b-58cc-4321-a567-0e02b2c3d479",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "9c4b8bd1-a572-4ea4-99d1-1ef1bcca73d6",
+          "body": "{\n  \"unexpectedProperty\": \"message\"\n}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "signedNonce",
+              "value": "404_response",
               "invert": false,
               "operator": "equals"
             },
