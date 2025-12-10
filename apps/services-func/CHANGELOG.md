@@ -1,5 +1,11 @@
 # services-func
 
+## 1.0.6
+
+### Patch Changes
+
+- 46b42db: Fix return of getBlobAsTextWithError on BlobNotFound 404
+
 ## 1.0.5
 
 ### Patch Changes
