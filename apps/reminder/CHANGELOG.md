@@ -1,5 +1,11 @@
 # reminder
 
+## 0.17.5
+
+### Patch Changes
+
+- be41cf3: fix compilation error
+
 ## 0.17.4
 
 ### Patch Changes
