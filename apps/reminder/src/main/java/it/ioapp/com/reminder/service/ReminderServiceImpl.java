@@ -395,7 +395,7 @@ public class ReminderServiceImpl implements ReminderService {
     listDate.add(LocalDateTime.now());
     reminder.setDateReminder(listDate);
     reminderRepository.save(reminder);
-     log.warn("Updated counters for rptId {} ", reminder.getRptId());
+    log.warn("Updated counters for rptId {} ", reminder.getRptId());
   }
 
   private NotificationType computeNotificationType(Reminder reminder) {
