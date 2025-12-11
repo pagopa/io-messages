@@ -1,5 +1,11 @@
 # reminder
 
+## 0.17.6
+
+### Patch Changes
+
+- dfd5828: fix compilation error
+
 ## 0.17.5
 
 ### Patch Changes
