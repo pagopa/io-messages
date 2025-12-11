@@ -1,5 +1,11 @@
 # reminder
 
+## 0.17.4
+
+### Patch Changes
+
+- f33f10f: Add possibility to test a fake reminder
+
 ## 0.17.3
 
 ### Patch Changes
