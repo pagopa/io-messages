@@ -238,10 +238,13 @@ public class ReminderServiceImpl implements ReminderService {
 
     if (paymentDueDate != null && paymentDueDate.equals(reminderDueDate)) {
       log.warn("Due date present for rptId {} ", reminder.getRptId());
+      log.warn("Due date present for rptId {} ", reminder.getRptId());
       if (paymentInfo.isPaid()) {
+        log.warn("Setting paid flag to true for rptId {} ", reminder.getRptId());
         log.warn("Setting paid flag to true for rptId {} ", reminder.getRptId());
         reminders.forEach(rem -> rem.setPaidFlag(true));
       } else {
+        log.warn("Sending reminder to producer for rptId {} ", reminder.getRptId());
         log.warn("Sending reminder to producer for rptId {} ", reminder.getRptId());
         try {
           Reminder rem =
@@ -376,6 +379,7 @@ public class ReminderServiceImpl implements ReminderService {
   }
 
   public void updateCounter(Reminder reminder) {
+    log.warn("Trying to update counters for rptId {} ", reminder.getRptId());
     log.warn("Trying to update counters for rptId {} ", reminder.getRptId());
     NotificationType notificationType = computeNotificationType(reminder);
 
