@@ -2,7 +2,7 @@ import {
   aCheckQrMandateResponse,
   aLollipopHeaders,
   aProblem,
-  aSendHeadersWithoutSrc,
+  aSendHeaders,
   anAarQrCodeValue,
   anInvalidAarQrCodeValue,
   mockNotificationClient,
@@ -64,7 +64,7 @@ describe("AARQrCodeCheck", () => {
 
     expect(qrCodeCheckExecuteSpy).toHaveBeenCalledWith(
       false,
-      aSendHeadersWithoutSrc,
+      aSendHeaders,
       anAarQrCodeValue,
     );
 

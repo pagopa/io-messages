@@ -1,5 +1,17 @@
 # send-func
 
+## 1.4.3
+
+### Patch Changes
+
+- c229453: update send aar mandate api operationId
+
+## 1.4.2
+
+### Patch Changes
+
+- 1edeec5: revert send api mandatory header
+
 ## 1.4.1
 
 ### Patch Changes

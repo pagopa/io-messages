@@ -1,4 +1,5 @@
 import { Context } from "@azure/functions";
+import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 import createAzureFunctionHandler from "@pagopa/express-azure-functions/dist/src/createAzureFunctionsHandler";
 import {
   MESSAGE_COLLECTION_NAME,
@@ -30,7 +31,6 @@ import {
 } from "@pagopa/io-functions-commons/dist/src/models/service_preference";
 import { secureExpressApp } from "@pagopa/io-functions-commons/dist/src/utils/express";
 import { setAppContext } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
-import { createBlobService } from "azure-storage";
 import * as express from "express";
 
 import { pagoPaEcommerceClient } from "../../clients/pagopa-ecommerce";
@@ -76,6 +76,7 @@ const servicePreferencesModel = new ServicesPreferencesModel(
 );
 
 const blobService = createBlobService(
+  config.IO_COM_STORAGE_CONNECTION_STRING,
   config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
 );
 

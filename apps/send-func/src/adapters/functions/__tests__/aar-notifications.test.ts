@@ -49,7 +49,6 @@ describe("GetAARNotification", () => {
       params: { iun: aIun },
       url: "http://localhost",
     });
-    request.headers.set("x-pagopa-pn-io-src", "QR_CODE");
 
     await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: aThirdPartyMessage,
@@ -85,7 +84,6 @@ describe("GetAARNotification", () => {
       query: { mandateId: anIvalidMandateId },
       url: "http://localhost",
     });
-    request.headers.set("x-pagopa-pn-io-src", "QR_CODE");
 
     await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: {
@@ -95,27 +93,6 @@ describe("GetAARNotification", () => {
       },
       status: 400,
     });
-    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
-  });
-
-  it("returns 400 status code if the x-pagopa-pn-io-src header is not set", async () => {
-    const request = new HttpRequest({
-      method: "GET",
-      params: { iun: aIun },
-      query: { mandateId: anIvalidMandateId },
-      url: "http://localhost",
-    });
-
-    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
-      jsonBody: {
-        detail: "Missing mandatory x-pagopa-pn-io-src header",
-        status: 400,
-        title: "Bad Request",
-      },
-      status: 400,
-    });
-
-    expect(getNotifiationExecuteSpy).not.toHaveBeenCalled();
     expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 
@@ -131,7 +108,6 @@ describe("GetAARNotification", () => {
       params: { iun: aIun },
       url: "http://localhost",
     });
-    request.headers.set("x-pagopa-pn-io-src", "QR_CODE");
 
     await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: aProblem,
