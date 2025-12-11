@@ -225,8 +225,8 @@ public class ReminderServiceImpl implements ReminderService {
     PaymentInfo paymentInfo = null;
     if (reminder.getContent_subject().equals("TEST_REMINDER_NOTIFY_TRUE_759864")) {
       paymentInfo = new PaymentInfo();
-      info.isPaid(false);
-      info.setDueDate(reminderDueDate);
+      paymentInfo.isPaid(false);
+      paymentInfo.setDueDate(reminderDueDate);
     } else {
       paymentInfo = getPaymentInfo(reminder.getRptId());
     }
