@@ -1,0 +1,5 @@
+---
+"reminder": patch
+---
+
+Added logs
