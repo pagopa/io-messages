@@ -1,5 +1,11 @@
 # reminder
 
+## 0.17.3
+
+### Patch Changes
+
+- d992549: Added logs
+
 ## 0.17.2
 
 ### Patch Changes
