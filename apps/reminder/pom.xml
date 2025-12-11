@@ -13,7 +13,7 @@
 
   <groupId>it.ioapp.com</groupId>
   <artifactId>reminder</artifactId>
-  <version>0.17.3</version>
+  <version>0.17.4</version>
 
   <properties>
     <java.version>17</java.version>
