@@ -229,9 +229,12 @@ public class ReminderServiceImpl implements ReminderService {
             calculateShard(reminder.getFiscalCode()), reminder.getRptId());
 
     if (paymentDueDate != null && paymentDueDate.equals(reminderDueDate)) {
+      log.warn("Due date present for rptId {} ", reminder.getRptId());
       if (paymentInfo.isPaid()) {
+        log.warn("Setting paid flag to true for rptId {} ", reminder.getRptId());
         reminders.forEach(rem -> rem.setPaidFlag(true));
       } else {
+        log.warn("Sending reminder to producer for rptId {} ", reminder.getRptId());
         try {
           Reminder rem =
               Collections.min(reminders, Comparator.comparing(c -> c.getInsertionDate()));
@@ -364,6 +367,7 @@ public class ReminderServiceImpl implements ReminderService {
   }
 
   public void updateCounter(Reminder reminder) {
+    log.warn("Trying to update counters for rptId {} ", reminder.getRptId());
     NotificationType notificationType = computeNotificationType(reminder);
 
     if (notificationType == NotificationType.REMINDER_READ) {
@@ -382,6 +386,7 @@ public class ReminderServiceImpl implements ReminderService {
     listDate.add(LocalDateTime.now());
     reminder.setDateReminder(listDate);
     reminderRepository.save(reminder);
+     log.warn("Updated counters for rptId {} ", reminder.getRptId());
   }
 
   private NotificationType computeNotificationType(Reminder reminder) {
