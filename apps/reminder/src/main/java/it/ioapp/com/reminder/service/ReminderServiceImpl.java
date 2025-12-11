@@ -306,7 +306,7 @@ public class ReminderServiceImpl implements ReminderService {
       log.warn("Received payment info for rptId: {}", rptId);
       return info;
 
-    } catch (HttpServerErrorException errorException) {
+    } catch (HttpClientErrorException errorException) {
       try {
         String rawResponse = errorException.getResponseBodyAsString();
         log.error("Received error from pagoPa Ecommerce api: {}", rawResponse);
