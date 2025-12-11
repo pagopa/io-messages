@@ -17,5 +17,5 @@ resource "azurerm_key_vault_access_policy" "reminder" {
 resource "azurerm_role_assignment" "eventhub_namespace_reminder_write" {
   scope                = var.eventhub_namespace.id
   role_definition_name = "Azure Event Hubs Data Sender"
-  principal_id         = module.com_cae.user_assigned_identity.principal_id
+  principal_id         = module.reminder_ca_itn_01.principal_id
 }
