@@ -1,7 +1,7 @@
 meta {
-  name: 409
+  name: 400
   type: http
-  seq: 4
+  seq: 1
 }
 
 post {
@@ -21,6 +21,6 @@ headers {
 
 body:json {
   {
-    "aarQrCodeValue": "https://qr-code.test.com/409_SEND_response"
+    "wrongProperty": "https://qr-code.test.com/SEND_response"
   }
 }
