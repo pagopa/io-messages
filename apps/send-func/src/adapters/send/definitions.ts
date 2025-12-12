@@ -49,6 +49,7 @@ export const problemSchema = z.object({
     .optional(),
   traceId: z.string().optional(),
   type: z.string().optional(),
+  unexpectedResponseData: z.string().optional(), //field added to track unexpected response data from downstream services
 });
 
 export type Problem = z.TypeOf<typeof problemSchema>;

@@ -76,7 +76,10 @@ export const getAttachment =
         telemetryService.trackEvent(
           TelemetryEventName.SEND_AAR_ATTACHMENT_SERVER_ERROR,
           {
+            detail: err.body.detail,
+            errorCode: err.body.errors,
             status: err.status,
+            traceId: err.body.traceId,
           },
         );
 

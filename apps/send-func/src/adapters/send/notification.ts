@@ -63,8 +63,8 @@ const unsuccessfulResponseToProblem = (
   return parsedProblem.success
     ? parsedProblem.data
     : {
-        detail: JSON.stringify(z.flattenError(parsedProblem.error)),
         status: response.status,
+        unexpectedResponseData: JSON.stringify(responseJson), //critical part if the data are sensitive
       };
 };
 
@@ -159,10 +159,7 @@ export default class SendNotificationClient implements NotificationClient {
         throw new NotificationClientError(
           `The api responded with HTTP status ${response.status}`,
           response.status,
-          {
-            detail: JSON.stringify(z.flattenError(parsedError.error)),
-            status: response.status,
-          },
+          unsuccessfulResponseToProblem(responseJson, response),
         );
       }
       throw new NotRecipientClientError(
@@ -172,11 +169,10 @@ export default class SendNotificationClient implements NotificationClient {
     }
 
     if (!response.ok) {
-      const problem = unsuccessfulResponseToProblem(responseJson, response);
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,
-        problem,
+        unsuccessfulResponseToProblem(responseJson, response),
       );
     }
 
@@ -219,10 +215,7 @@ export default class SendNotificationClient implements NotificationClient {
           throw new NotificationClientError(
             `The api responded with HTTP status ${response.status}`,
             response.status,
-            {
-              detail: JSON.stringify(z.flattenError(parsedProblem.error)),
-              status: response.status,
-            },
+            unsuccessfulResponseToProblem(responseJson, response),
           );
         }
 
@@ -232,11 +225,10 @@ export default class SendNotificationClient implements NotificationClient {
         );
       }
 
-      const problem = unsuccessfulResponseToProblem(responseJson, response);
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,
-        problem,
+        unsuccessfulResponseToProblem(responseJson, response),
       );
     }
 
@@ -279,18 +271,10 @@ export default class SendNotificationClient implements NotificationClient {
     const responseJson = await response.json();
 
     if (!response.ok) {
-      const parsedProblem = problemSchema.safeParse(responseJson);
-      const problem = parsedProblem.success
-        ? parsedProblem.data
-        : {
-            detail: JSON.stringify(z.flattenError(parsedProblem.error)),
-            status: response.status,
-          };
-
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,
-        problem,
+        unsuccessfulResponseToProblem(responseJson, response),
       );
     }
 
@@ -340,11 +324,10 @@ export default class SendNotificationClient implements NotificationClient {
     const responseJson = await response.json();
 
     if (!response.ok) {
-      const problem = unsuccessfulResponseToProblem(responseJson, response);
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,
-        problem,
+        unsuccessfulResponseToProblem(responseJson, response),
       );
     }
 
@@ -386,11 +369,10 @@ export default class SendNotificationClient implements NotificationClient {
     const responseJson = await response.json();
 
     if (!response.ok) {
-      const problem = unsuccessfulResponseToProblem(responseJson, response);
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,
-        problem,
+        unsuccessfulResponseToProblem(responseJson, response),
       );
     }
 
