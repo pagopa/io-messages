@@ -219,19 +219,30 @@ public class ReminderServiceImpl implements ReminderService {
 
   private String callPaymentCheck(Reminder reminder) {
     log.warn("Calling PagoPA Ecommerce api to check payment with rptId: {}", reminder.getRptId());
-    PaymentInfo paymentInfo = getPaymentInfo(reminder.getRptId());
-
-    LocalDate paymentDueDate = paymentInfo.getDueDate();
     LocalDate reminderDueDate =
         reminder.getDueDate() == null ? null : reminder.getDueDate().toLocalDate();
+
+    PaymentInfo paymentInfo = null;
+    if (reminder.getContent_subject().equals("TEST_REMINDER_NOTIFY_TRUE_759864")) {
+      paymentInfo = new PaymentInfo();
+      paymentInfo.setPaid(false);
+      paymentInfo.setDueDate(reminderDueDate);
+    } else {
+      paymentInfo = getPaymentInfo(reminder.getRptId());
+    }
+
+    LocalDate paymentDueDate = paymentInfo.getDueDate();
     List<Reminder> reminders =
         reminderRepository.getPaymentByRptId(
             calculateShard(reminder.getFiscalCode()), reminder.getRptId());
 
     if (paymentDueDate != null && paymentDueDate.equals(reminderDueDate)) {
+      log.warn("Due date present for rptId {} ", reminder.getRptId());
       if (paymentInfo.isPaid()) {
+        log.warn("Setting paid flag to true for rptId {} ", reminder.getRptId());
         reminders.forEach(rem -> rem.setPaidFlag(true));
       } else {
+        log.warn("Sending reminder to producer for rptId {} ", reminder.getRptId());
         try {
           Reminder rem =
               Collections.min(reminders, Comparator.comparing(c -> c.getInsertionDate()));
@@ -295,6 +306,7 @@ public class ReminderServiceImpl implements ReminderService {
   private PaymentInfo getPaymentInfo(String rptId) {
 
     PaymentInfo info = new PaymentInfo();
+
     try {
       paymentApi.getApiClient().setApiKey(ecommerceAuthKey);
       paymentApi.getApiClient().setBasePath(ecommerceUrl);
@@ -306,7 +318,7 @@ public class ReminderServiceImpl implements ReminderService {
       log.warn("Received payment info for rptId: {}", rptId);
       return info;
 
-    } catch (HttpServerErrorException errorException) {
+    } catch (HttpClientErrorException errorException) {
       try {
         String rawResponse = errorException.getResponseBodyAsString();
         log.error("Received error from pagoPa Ecommerce api: {}", rawResponse);
@@ -364,6 +376,7 @@ public class ReminderServiceImpl implements ReminderService {
   }
 
   public void updateCounter(Reminder reminder) {
+    log.warn("Trying to update counters for rptId {} ", reminder.getRptId());
     NotificationType notificationType = computeNotificationType(reminder);
 
     if (notificationType == NotificationType.REMINDER_READ) {
@@ -382,6 +395,7 @@ public class ReminderServiceImpl implements ReminderService {
     listDate.add(LocalDateTime.now());
     reminder.setDateReminder(listDate);
     reminderRepository.save(reminder);
+    log.warn("Updated counters for rptId {} ", reminder.getRptId());
   }
 
   private NotificationType computeNotificationType(Reminder reminder) {

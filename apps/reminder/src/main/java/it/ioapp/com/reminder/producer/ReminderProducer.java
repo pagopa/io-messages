@@ -23,6 +23,7 @@ public class ReminderProducer {
 
     String json = mapper.writeValueAsString(reminder);
     ListenableFuture<SendResult<String, String>> future = kafkaTemplatePayments.send(topic, json);
+    log.warn("Trying to write reminder to topic for rptId {} ", reminder.getRptId());
     future.addCallback(
         new ListenableFutureCallback<SendResult<String, String>>() {
           @Override

@@ -66,9 +66,6 @@ export const getBlobAsTextWithError =
                         if (!e) {
                           return resolve(E.right(O.fromNullable(r)));
                         }
-                        if (isBlobNotFound(e)) {
-                          return resolve(E.right(O.none));
-                        }
                         return resolve(E.left(e));
                       },
                     ),

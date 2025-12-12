@@ -33,6 +33,16 @@ export const aCheckQrMandateResponse = checkQrMandateResponseSchema.parse({
   recipientInfo: { denomination: "aDenomination", taxId: "aTaxId" },
 });
 
+export const aCreateNotificationMandateResponse =
+  mandateCreationResponseSchema.parse({
+    mandate: {
+      dateTo: "2025-12-31",
+      mandateId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      verificationCode: "14158",
+    },
+    requestTTL: 0,
+  });
+
 export const anAuthErrorResponse = authErrorSchema.parse({
   message: "auth error message",
 });
@@ -81,6 +91,10 @@ export const aProblem = problemSchema.parse({
   status: 503,
   title: "Service Unavailable",
   traceId: "123e4567-e89b-12d3-a456-426614174000",
+});
+
+export const aAuthError = authErrorSchema.parse({
+  message: "An authentication error occurred",
 });
 
 export const aDocIdx = idxSchema.parse(1);

@@ -1,5 +1,17 @@
 # send-func
 
+## 1.5.0
+
+### Minor Changes
+
+- ee3c631: Add SEND AAR mandate API
+
+## 1.4.3
+
+### Patch Changes
+
+- c229453: update send aar mandate api operationId
+
 ## 1.4.2
 
 ### Patch Changes
