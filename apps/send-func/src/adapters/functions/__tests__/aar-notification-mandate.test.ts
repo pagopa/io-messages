@@ -80,7 +80,7 @@ describe("CreateNotificationMandate", () => {
     vi.clearAllMocks();
   });
 
-  it("returns 200 status code if the request is well-formed", async () => {
+  it("returns 201 status code if the request is well-formed", async () => {
     const request = new HttpRequest({
       body: { string: anAarBodyString },
       method: "POST",
@@ -201,7 +201,7 @@ describe("AcceptNotificationMandate", () => {
     vi.clearAllMocks();
   });
 
-  it("returns 200 status code if the request is well-formed", async () => {
+  it("returns 204 status code if the request is well-formed", async () => {
     const request = new HttpRequest({
       body: { string: aCIEValidationdataBodyString },
       method: "PATCH",
