@@ -1,6 +1,6 @@
 {
   "name": "services-func",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "license": "UNLICENSED",
   "type": "commonjs",
   "scripts": {
@@ -47,6 +47,7 @@
     "@azure/cosmos": "^4.0.0",
     "@azure/identity": "^4.5.0",
     "@azure/storage-queue": "^12.4.0",
+    "@pagopa/azure-storage-legacy-migration-kit": "^0.0.4",
     "@pagopa/express-azure-functions": "^2.1.1",
     "@pagopa/io-app-email-templates": "^0.7.3",
     "@pagopa/io-backend-notifications-sdk": "^9.7.0",

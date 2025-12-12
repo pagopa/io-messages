@@ -1,5 +1,29 @@
 # reminder
 
+## 0.17.6
+
+### Patch Changes
+
+- dfd5828: fix compilation error
+
+## 0.17.5
+
+### Patch Changes
+
+- be41cf3: fix compilation error
+
+## 0.17.4
+
+### Patch Changes
+
+- f33f10f: Add possibility to test a fake reminder
+
+## 0.17.3
+
+### Patch Changes
+
+- d992549: Added logs
+
 ## 0.17.2
 
 ### Patch Changes

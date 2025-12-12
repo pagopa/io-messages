@@ -1,5 +1,11 @@
 ### Changelog
 
+## 5.5.10
+
+### Patch Changes
+
+- aec0636: Add migration toolkit.
+
 ## 5.5.9
 
 ### Patch Changes

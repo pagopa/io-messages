@@ -68,3 +68,10 @@ variable "dns_forwarding_ruleset_id" {
   type        = string
   description = "Id of the DNS Forwarding Ruleset to use for the Container App Environment"
 }
+
+variable "eventhub_namespace" {
+  type = object({
+    id   = string
+    name = string
+  })
+}

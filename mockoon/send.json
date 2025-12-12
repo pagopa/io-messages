@@ -122,6 +122,33 @@
           "default": false,
           "crudKey": "id",
           "callbacks": []
+        },
+        {
+          "uuid": "259b5202-5f74-4fd7-a755-760b4cf280e9",
+          "body": "{\n  \"iun\": \"RBII-HBSZ-MHGQ-068014-B-5\",\n  \"mandateId\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"recipientInfo\": {\n    \"denomination\": \"Nome Cognome\",\n    \"taxId\": \"CGNNMO01T10A944Q\"\n  }\n}",
+          "latency": 0,
+          "statusCode": 403,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "aarQrCodeValue",
+              "value": "https://qr-code.test.com/another_user_AAR",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
       "responseMode": null,
@@ -659,11 +686,11 @@
     },
     {
       "type": "route",
-      "uuid": "3a464a59-e7a8-46e9-ad25-f15172130356"
+      "uuid": "16f8a843-c740-48bb-9d3b-6c23a46bdb44"
     },
     {
       "type": "route",
-      "uuid": "16f8a843-c740-48bb-9d3b-6c23a46bdb44"
+      "uuid": "3a464a59-e7a8-46e9-ad25-f15172130356"
     }
   ],
   "proxyMode": false,

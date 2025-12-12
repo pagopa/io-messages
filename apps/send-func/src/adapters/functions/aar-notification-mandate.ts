@@ -185,7 +185,6 @@ export const acceptNotificationMandate =
           status: 500,
         };
       }
-
       const errorMessage =
         err instanceof Error ? err.message : JSON.stringify(err);
       context.error(err);
