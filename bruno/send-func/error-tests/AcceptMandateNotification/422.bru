@@ -1,0 +1,40 @@
+meta {
+  name: 422
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{send_func_url}}/aar/mandates/:mandateId?isTest={{send-func-is-test}}
+  body: json
+  auth: inherit
+}
+
+params:query {
+  isTest: {{send-func-is-test}}
+}
+
+params:path {
+  mandateId: f47ac10b-58cc-4321-a567-0e02b2c3d479
+}
+
+headers {
+  x-pagopa-lollipop-original-method: POST
+  x-pagopa-lollipop-original-url: https://localhost:7074/api/v1/send/aar/qr-code-check
+}
+
+body:json {
+  {
+    "signedNonce": "422_response",
+    "nisData": {
+      "nis": "string",
+      "pub_key": "string",
+      "sod": "string"
+    },
+    "mrtdData": {
+      "dg1": "string",
+      "dg11": "string",
+      "sod": "string"
+    }
+  }
+}

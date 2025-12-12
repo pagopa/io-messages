@@ -2,6 +2,7 @@ import {
   aarQrCodeValueSchema,
   attachmentMetadataSchema,
   checkQrMandateResponseSchema,
+  mandateCreationResponseSchema,
   thirdPartyMessageSchema,
 } from "@/domain/notification.js";
 import * as z from "zod";
@@ -78,6 +79,15 @@ export const aarQRCodeCheckResponseSchema = z.object({
 
 export type AarQRCodeCheckResponse = z.TypeOf<
   typeof aarQRCodeCheckResponseSchema
+>;
+
+export const createNotificationMandateResponseSchema = z.object({
+  jsonBody: z.union([mandateCreationResponseSchema, aarProblemJsonSchema]),
+  status: z.number().int(),
+});
+
+export type CreateNotificationMandateResponse = z.TypeOf<
+  typeof createNotificationMandateResponseSchema
 >;
 
 export const aarGetNotificationResponseSchema = z.object({

@@ -26,60 +26,11 @@
           "filePath": "",
           "databucketID": "",
           "sendFileAsBody": false,
-          "rules": [
-            {
-              "target": "params",
-              "modifier": "assertionRef",
-              "value": "sha256-7onKGsz_QxMU6IGAYvir-iezJt5OTflkKK1Eourci4I",
-              "invert": false,
-              "operator": "equals"
-            },
-            {
-              "target": "header",
-              "modifier": "X-Functions-Key",
-              "value": "lollipopAPIKey",
-              "invert": false,
-              "operator": "equals"
-            }
-          ],
+          "rules": [],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
           "default": true,
-          "crudKey": "id",
-          "callbacks": []
-        },
-        {
-          "uuid": "eaab31ac-63d1-4784-bc69-2fca28a8ed24",
-          "body": "{}",
-          "latency": 0,
-          "statusCode": 400,
-          "label": "",
-          "headers": [],
-          "bodyType": "INLINE",
-          "filePath": "",
-          "databucketID": "",
-          "sendFileAsBody": false,
-          "rules": [
-            {
-              "target": "params",
-              "modifier": "assertionRef",
-              "value": "sha256-7onKGsz_QxMU6IGAYvir-iezJt5OTflkKK1Eourci4I",
-              "invert": true,
-              "operator": "equals"
-            },
-            {
-              "target": "header",
-              "modifier": "X-Functions-Key",
-              "value": "lollipopAPIKey",
-              "invert": true,
-              "operator": "equals"
-            }
-          ],
-          "rulesOperator": "OR",
-          "disableTemplating": false,
-          "fallbackTo404": false,
-          "default": false,
           "crudKey": "id",
           "callbacks": []
         }
