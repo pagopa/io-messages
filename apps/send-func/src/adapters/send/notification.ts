@@ -64,7 +64,7 @@ const unsuccessfulResponseToProblem = (
     ? parsedProblem.data
     : {
         status: response.status,
-        unexpectedResponseData: JSON.stringify(responseJson), //critical part if the data are sensitive
+        unexpectedResponseData: JSON.stringify(responseJson),
       };
 };
 
