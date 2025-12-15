@@ -16,7 +16,7 @@ resource "azurerm_api_management_api" "send_api_v1" {
 
   import {
     content_format = "openapi-link"
-    content_value  = "https://raw.githubusercontent.com/pagopa/io-messages/102402c46494c609b59829561c2f8c50fdc3ab1a/apps/send-func/openapi/aar-notification.yaml"
+    content_value  = "https://raw.githubusercontent.com/pagopa/io-messages/b312ec7ad60c202a0c48ad93a05785eb9e30faa6/apps/send-func/openapi/aar-notification.yaml"
   }
 }
 
