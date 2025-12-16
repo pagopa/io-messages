@@ -63,8 +63,8 @@ const unsuccessfulResponseToProblem = (
   return parsedProblem.success
     ? parsedProblem.data
     : {
-        status: response.status,
         detail: JSON.stringify(z.treeifyError(parsedProblem.error)),
+        status: response.status,
       };
 };
 
