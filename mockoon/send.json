@@ -44,7 +44,7 @@
         },
         {
           "uuid": "88335cbb-ea0f-4ce8-8115-3bd6d5313bcd",
-          "body": "[]",
+          "body": "{\n  \"Message\": \"Auth problem\"\n}",
           "latency": 0,
           "statusCode": 403,
           "label": "",
@@ -71,7 +71,7 @@
         },
         {
           "uuid": "74daf864-c1eb-4b18-b6b8-5e654eb05505",
-          "body": "{}",
+          "body": "{\n  \"unexptedProperty\":\"error message\"\n}",
           "latency": 0,
           "statusCode": 404,
           "label": "",
@@ -97,10 +97,10 @@
           "callbacks": []
         },
         {
-          "uuid": "1d32900d-469e-4808-b942-a7472d9add03",
-          "body": "{}",
+          "uuid": "bee58e48-bec9-4619-9ca3-03ed1a10234c",
+          "body": "{\n  \"iun\": \"RBII-HBSZ-MHGQ-068014-B-5\",\n  \"mandateId\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"recipientInfo\": {\n    \"denomination\": \"Nome Cognome\",\n    \"taxId\": \"CGNNMO01T10A944Q\"\n  }\n}",
           "latency": 0,
-          "statusCode": 429,
+          "statusCode": 403,
           "label": "",
           "headers": [],
           "bodyType": "INLINE",
@@ -111,7 +111,7 @@
             {
               "target": "body",
               "modifier": "aarQrCodeValue",
-              "value": "https://qr-code.test.com/http_code_divergent_from_openapi_spec",
+              "value": "https://qr-code.test.com/another_user_AAR",
               "invert": false,
               "operator": "equals"
             }
@@ -124,7 +124,7 @@
           "callbacks": []
         },
         {
-          "uuid": "bee58e48-bec9-4619-9ca3-03ed1a10234c",
+          "uuid": "259b5202-5f74-4fd7-a755-760b4cf280e9",
           "body": "{\n  \"iun\": \"RBII-HBSZ-MHGQ-068014-B-5\",\n  \"mandateId\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"recipientInfo\": {\n    \"denomination\": \"Nome Cognome\",\n    \"taxId\": \"CGNNMO01T10A944Q\"\n  }\n}",
           "latency": 0,
           "statusCode": 403,
@@ -190,10 +190,10 @@
           "callbacks": []
         },
         {
-          "uuid": "39d11fdd-fa9e-416d-832e-f1d015b39648",
-          "body": "{}",
+          "uuid": "871f698b-0846-4f87-a7c3-2f15cd53268a",
+          "body": "{\n  \"status\": 400,\n  \"title\": \"Bad Request\",\n  \"detail\": \"Error description message\"\n}",
           "latency": 0,
-          "statusCode": 429,
+          "statusCode": 400,
           "label": "",
           "headers": [],
           "bodyType": "INLINE",
@@ -204,7 +204,34 @@
             {
               "target": "params",
               "modifier": "iun",
-              "value": "ABCD-EFGH-IJKL-500429-M-7",
+              "value": "ABCD-EFGH-IJKL-123400-M-7",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "343bb6ff-95d5-417f-9238-f37d43aac09a",
+          "body": "{\n  \"status\": 500,\n  \"title\": \"Unhandled error\",\n  \"detail\": \"See logs for details in PN-MANDATE\",\n  \"traceId\": \"trace_id:f474bb7c-e0cd-46b0-9ddf-8b0006fd33d4\",\n  \"errors\": [\n    {\n      \"code\": \"PN_GENERIC_ERROR\",\n      \"element\": \"null\",\n      \"detail\": \"none\"\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "iun",
+              "value": "ABCD-EFGH-IJKL-123500-M-7",
               "invert": false,
               "operator": "equals"
             }
@@ -252,33 +279,6 @@
           "disableTemplating": false,
           "fallbackTo404": false,
           "default": true,
-          "crudKey": "id",
-          "callbacks": []
-        },
-        {
-          "uuid": "b5ed3a75-27d4-4899-93e6-171a7fa4fa60",
-          "body": "{}",
-          "latency": 0,
-          "statusCode": 404,
-          "label": "",
-          "headers": [],
-          "bodyType": "INLINE",
-          "filePath": "",
-          "databucketID": "",
-          "sendFileAsBody": false,
-          "rules": [
-            {
-              "target": "params",
-              "modifier": "iun",
-              "value": "ABCD-EFGH-IJKL-123456-N-8",
-              "invert": false,
-              "operator": "equals"
-            }
-          ],
-          "rulesOperator": "OR",
-          "disableTemplating": false,
-          "fallbackTo404": false,
-          "default": false,
           "crudKey": "id",
           "callbacks": []
         }
@@ -428,6 +428,33 @@
           "default": false,
           "crudKey": "id",
           "callbacks": []
+        },
+        {
+          "uuid": "8d2cb74d-0c85-4c10-9d75-f358293a3730",
+          "body": "{\n  \"unexpectedProperty\": \"message\"\n}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "aarQrCodeValue",
+              "value": "https://qr-code.test.com/404_SEND_response",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
       "responseMode": null,
@@ -537,6 +564,40 @@
           "callbacks": []
         },
         {
+          "uuid": "9c4b8bd1-a572-4ea4-99d1-1ef1bcca73d6",
+          "body": "{\n  \"unexpectedProperty\": \"message\"\n}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "signedNonce",
+              "value": "404_response",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "params",
+              "modifier": "mandateId",
+              "value": "f47ac10b-58cc-4321-a567-0e02b2c3d479",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
           "uuid": "fa83e8cd-103a-4655-8971-545a2bb1c40a",
           "body": "{\n  \"type\": \"GENERIC_ERROR\",\n  \"status\": 422,\n  \"title\": \"Handled error\",\n  \"detail\": \"See logs for details in PN-MANDATE\",\n  \"traceId\": \"trace_id:f474bb7c-e0cd-46b0-9ddf-8b0006fd33d4\",\n  \"timestamp\": \"2025-09-15T14:49:27.179Z\",\n  \"errors\": [\n    {\n      \"code\": \"PN_MANDATE_CIE_VALIDATION_ERROR\",\n      \"element\": \"null\",\n      \"detail\": \"none\"\n    }\n  ]\n}",
           "latency": 0,
@@ -625,11 +686,11 @@
     },
     {
       "type": "route",
-      "uuid": "3a464a59-e7a8-46e9-ad25-f15172130356"
+      "uuid": "16f8a843-c740-48bb-9d3b-6c23a46bdb44"
     },
     {
       "type": "route",
-      "uuid": "16f8a843-c740-48bb-9d3b-6c23a46bdb44"
+      "uuid": "3a464a59-e7a8-46e9-ad25-f15172130356"
     }
   ],
   "proxyMode": false,

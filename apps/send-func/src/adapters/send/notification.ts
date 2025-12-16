@@ -63,7 +63,7 @@ const unsuccessfulResponseToProblem = (
   return parsedProblem.success
     ? parsedProblem.data
     : {
-        detail: JSON.stringify(z.flattenError(parsedProblem.error)),
+        detail: JSON.stringify(z.treeifyError(parsedProblem.error)),
         status: response.status,
       };
 };
@@ -107,10 +107,7 @@ export default class SendNotificationClient implements NotificationClient {
           throw new NotificationClientError(
             `The api responded with HTTP status ${response.status}`,
             response.status,
-            {
-              detail: JSON.stringify(z.flattenError(parsedProblem.error)),
-              status: response.status,
-            },
+            unsuccessfulResponseToProblem(responseJson, response),
           );
         }
 
@@ -159,10 +156,7 @@ export default class SendNotificationClient implements NotificationClient {
         throw new NotificationClientError(
           `The api responded with HTTP status ${response.status}`,
           response.status,
-          {
-            detail: JSON.stringify(z.flattenError(parsedError.error)),
-            status: response.status,
-          },
+          unsuccessfulResponseToProblem(responseJson, response),
         );
       }
       throw new NotRecipientClientError(
@@ -172,17 +166,16 @@ export default class SendNotificationClient implements NotificationClient {
     }
 
     if (!response.ok) {
-      const problem = unsuccessfulResponseToProblem(responseJson, response);
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,
-        problem,
+        unsuccessfulResponseToProblem(responseJson, response),
       );
     }
 
     const parsedResponse = checkQrMandateResponseSchema.safeParse(responseJson);
     if (!parsedResponse.success) {
-      const errorMessage = JSON.stringify(z.flattenError(parsedResponse.error));
+      const errorMessage = JSON.stringify(z.treeifyError(parsedResponse.error));
       throw new Error(
         `Error during checkAarQrCodeIO api call | ${errorMessage}`,
       );
@@ -219,10 +212,7 @@ export default class SendNotificationClient implements NotificationClient {
           throw new NotificationClientError(
             `The api responded with HTTP status ${response.status}`,
             response.status,
-            {
-              detail: JSON.stringify(z.flattenError(parsedProblem.error)),
-              status: response.status,
-            },
+            unsuccessfulResponseToProblem(responseJson, response),
           );
         }
 
@@ -232,11 +222,10 @@ export default class SendNotificationClient implements NotificationClient {
         );
       }
 
-      const problem = unsuccessfulResponseToProblem(responseJson, response);
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,
-        problem,
+        unsuccessfulResponseToProblem(responseJson, response),
       );
     }
 
@@ -244,7 +233,7 @@ export default class SendNotificationClient implements NotificationClient {
       mandateCreationResponseSchema.safeParse(responseJson);
 
     if (!parsedResponse.success) {
-      const errorMessage = JSON.stringify(z.flattenError(parsedResponse.error));
+      const errorMessage = JSON.stringify(z.treeifyError(parsedResponse.error));
       throw new Error(
         `Error during createNotificationMandate api call | ${errorMessage}`,
       );
@@ -279,24 +268,16 @@ export default class SendNotificationClient implements NotificationClient {
     const responseJson = await response.json();
 
     if (!response.ok) {
-      const parsedProblem = problemSchema.safeParse(responseJson);
-      const problem = parsedProblem.success
-        ? parsedProblem.data
-        : {
-            detail: JSON.stringify(z.flattenError(parsedProblem.error)),
-            status: response.status,
-          };
-
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,
-        problem,
+        unsuccessfulResponseToProblem(responseJson, response),
       );
     }
 
     const parsedResponse = thirdPartyMessageSchema.safeParse(responseJson);
     if (!parsedResponse.success) {
-      const errorMessage = JSON.stringify(z.flattenError(parsedResponse.error));
+      const errorMessage = JSON.stringify(z.treeifyError(parsedResponse.error));
       throw new Error(
         `Error during getReceivedNotification api call | ${errorMessage}`,
       );
@@ -340,17 +321,16 @@ export default class SendNotificationClient implements NotificationClient {
     const responseJson = await response.json();
 
     if (!response.ok) {
-      const problem = unsuccessfulResponseToProblem(responseJson, response);
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,
-        problem,
+        unsuccessfulResponseToProblem(responseJson, response),
       );
     }
 
     const parsedResponse = attachmentMetadataSchema.safeParse(responseJson);
     if (!parsedResponse.success) {
-      const errorMessage = JSON.stringify(z.flattenError(parsedResponse.error));
+      const errorMessage = JSON.stringify(z.treeifyError(parsedResponse.error));
       throw new Error(
         `Error during getReceivedNotificationAttachment api call | ${errorMessage}`,
       );
@@ -386,17 +366,16 @@ export default class SendNotificationClient implements NotificationClient {
     const responseJson = await response.json();
 
     if (!response.ok) {
-      const problem = unsuccessfulResponseToProblem(responseJson, response);
       throw new NotificationClientError(
         `The api responded with HTTP status ${response.status}`,
         response.status,
-        problem,
+        unsuccessfulResponseToProblem(responseJson, response),
       );
     }
 
     const parsedResponse = attachmentMetadataSchema.safeParse(responseJson);
     if (!parsedResponse.success) {
-      const errorMessage = JSON.stringify(z.flattenError(parsedResponse.error));
+      const errorMessage = JSON.stringify(z.treeifyError(parsedResponse.error));
       throw new Error(
         `Error during getReceivedNotificationDocument api call | ${errorMessage}`,
       );
