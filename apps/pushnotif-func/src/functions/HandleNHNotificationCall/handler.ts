@@ -10,9 +10,15 @@ import { KindEnum as CreateOrUpdateKind } from "../../generated/notifications/Cr
 import { DeleteInstallationMessage } from "../../generated/notifications/DeleteInstallationMessage";
 import { KindEnum as DeleteKind } from "../../generated/notifications/DeleteInstallationMessage";
 import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
+import { MassNotifyKind } from "../MassNotify/mass-notify.dto";
+import { MassNotifyMessage } from "../MassNotify/mass-notify.dto";
 import { KindEnum as NotifyKind } from "../../generated/notifications/NotifyMessage";
 import { toString } from "../../utils/conversions";
-import { NhNotifyMessageRequest, NhTarget } from "../../utils/types";
+import {
+  NhNotifyMessageRequest,
+  NhMassNotifyMessageRequest,
+  NhTarget,
+} from "../../utils/types";
 import { OrchestratorName as CreateOrUpdateInstallationOrchestrator } from "../HandleNHCreateOrUpdateInstallationCallOrchestrator/handler";
 import { OrchestratorName as DeleteInstallationOrchestratorName } from "../HandleNHDeleteInstallationCallOrchestrator/handler";
 
@@ -20,6 +26,7 @@ export const NotificationMessage = t.union([
   NotifyMessage,
   CreateOrUpdateInstallationMessage,
   DeleteInstallationMessage,
+  MassNotifyMessage,
 ]);
 
 export type NotificationHubMessage = t.TypeOf<typeof NotificationMessage>;
@@ -35,6 +42,22 @@ const notifyMessage = (
     T.map((m) => Buffer.from(JSON.stringify(m)).toString("base64")),
     T.map(
       (notifyMessages) => (context.bindings.notifyMessages = notifyMessages),
+    ),
+    T.map(() => "-1"), // There is no orchestrator_id to return
+  )();
+
+const massNotifyMessage = (
+  context: Context,
+  message: MassNotifyMessage,
+): Promise<string> =>
+  pipe(
+    NhTarget.encode("current"),
+    T.of,
+    T.map((target) => NhMassNotifyMessageRequest.encode({ message, target })),
+    T.map((m) => Buffer.from(JSON.stringify(m)).toString("base64")),
+    T.map(
+      (massNotifyMessages) =>
+        (context.bindings.massNotifyMessages = massNotifyMessages),
     ),
     T.map(() => "-1"), // There is no orchestrator_id to return
   )();
@@ -63,6 +86,8 @@ const startOrchestrator = async (
       );
     case NotifyKind.Notify:
       return await notifyMessage(context, notificationHubMessage);
+    case MassNotifyKind.Generic:
+      return await massNotifyMessage(context, notificationHubMessage);
     default:
       context.log.error(
         `HandleNHNotificationCall|ERROR=Unknown message kind, message: ${toString(

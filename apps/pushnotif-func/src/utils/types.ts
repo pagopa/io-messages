@@ -4,6 +4,7 @@ import { identity, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
 import { NotifyMessage } from "../generated/notifications/NotifyMessage";
+import { MassNotifyMessage } from "../functions/MassNotify/mass-notify.dto";
 
 /**
  * Parses a string into a deserialized json
@@ -93,3 +94,11 @@ export const NhNotifyMessageRequest = t.interface({
   target: NhTarget,
 });
 export type NhNotifyMessageRequest = t.TypeOf<typeof NhNotifyMessageRequest>;
+
+export const NhMassNotifyMessageRequest = t.interface({
+  message: MassNotifyMessage,
+  target: NhTarget,
+});
+export type NhMassNotifyMessageRequest = t.TypeOf<
+  typeof NhMassNotifyMessageRequest
+>;

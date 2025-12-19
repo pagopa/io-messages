@@ -18,6 +18,13 @@
       "name": "notifyMessages",
       "type": "queue",
       "direction": "out"
+    },
+    {
+      "queueName": "%MASS_NOTIFY_MESSAGE_QUEUE_NAME%",
+      "connection": "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+      "name": "massNotifyMessages",
+      "type": "queue",
+      "direction": "out"
     }
   ],
   "disabled": false,

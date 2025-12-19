@@ -14,6 +14,7 @@ import * as t from "io-ts";
 
 import { InstallationId } from "../generated/notifications/InstallationId";
 import { NotifyMessagePayload } from "../generated/notifications/NotifyMessagePayload";
+import { MassNotifyMessagePayload } from "@/functions/MassNotify/mass-notify.dto";
 
 /**
  * A template suitable for Apple's APNs.
@@ -90,6 +91,18 @@ const createNotification = (
     }),
   );
 
+const createMassNotification = (
+  body: MassNotifyMessagePayload,
+): TE.TaskEither<never, TemplateNotification> =>
+  TE.of(
+    createTemplateNotification({
+      body: {
+        message: body.message,
+        title: body.title,
+      },
+    }),
+  );
+
 export const nhResultSuccess = t.interface({
   kind: t.literal("SUCCESS"),
 });
@@ -125,6 +138,41 @@ export const notify = (
         properties: {
           installationId,
           messageId: payload.message_id,
+          state: response.state,
+          successCount: response.successCount,
+        },
+        tagOverrides: { samplingEnabled: "false" },
+      });
+    }),
+  );
+
+export const massNotify = (
+  notificationHubServices: NotificationHubsClient[],
+  template: NonEmptyString,
+  tags: ReadonlyArray<NonEmptyString>,
+  payload: MassNotifyMessagePayload,
+  telemetryClient: TelemetryClient,
+): TaskEither<Error, void> =>
+  pipe(
+    createMassNotification(payload),
+    TE.chain((notification) =>
+      TE.tryCatch(
+        () =>
+          // As this is a test implementation, we send the notification only to the first partition
+          notificationHubServices[0].sendNotification(notification, {
+            // Will match templates like massive:generic or massive:test, and installations with at least one of the provided tags
+            tagExpression: `massive:${template} && (${tags.join(" ||")})`,
+          }),
+        (errs) =>
+          new Error(
+            `Error while sending notification to NotificationHub | ${errs}`,
+          ),
+      ),
+    ),
+    TE.map((response) => {
+      telemetryClient.trackEvent({
+        name: "api.messages.notification.push.nh.response",
+        properties: {
           state: response.state,
           successCount: response.successCount,
         },

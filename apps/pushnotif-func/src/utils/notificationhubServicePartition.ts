@@ -50,4 +50,8 @@ export class NotificationHubPartitionFactory {
 
     return client;
   }
+
+  getAllPartitions(): NotificationHubsClient[] {
+    return Array.from(this.#m.values());
+  }
 }

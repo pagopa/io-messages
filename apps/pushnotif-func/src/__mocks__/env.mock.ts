@@ -34,6 +34,7 @@ export const envConfig = {
     "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar",
 
   NOTIFY_MESSAGE_QUEUE_NAME: "notify-queue-name",
+  MASS_NOTIFY_MESSAGE_QUEUE_NAME: "mass-notify-queue-name",
 
   RETRY_ATTEMPT_NUMBER: "1",
   SESSION_MANAGER_API_KEY: "SessionManagerAPIKey",
