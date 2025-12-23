@@ -174,6 +174,9 @@ paths:
             $ref: "#/definitions/ProblemJson"
         "429":
           description: Too many requests
+        "500":
+          description: Internal Server error
+          $ref: "#/definitions/ProblemJson"
   /remote-contents/configurations/{id}:
     get:
       operationId: getRCConfiguration
