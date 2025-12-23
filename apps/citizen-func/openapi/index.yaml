@@ -71,10 +71,6 @@ paths:
           description: Bad request.
           schema:
             $ref: "#/definitions/ProblemJson"
-        "404":
-          description: No message found.
-          schema:
-            $ref: "#/definitions/ProblemJson"
         "429":
           description: Too many requests
         "500":
