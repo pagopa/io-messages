@@ -8,14 +8,23 @@ info:
   x-logo:
     url: https://io.italia.it/assets/img/io-logo-blue.svg
   description: >
-    # Warning
+    ## Overview
 
-    **This is an experimental API that is (most probably) going to change as we
-    evolve the IO platform.**
+    This microservice provides a centralized interface for retrieving individual
+    message details, managing user inboxes, and tracking interaction states
+    (e.g., Read).
 
-    # Introduction
+    ## Core Operations The API is organized around three primary functional
+    areas:
 
-    This is the documentation of the IO API for App.
+    * **Message Retrieval:** Use the `getMessage` operation to fetch full
+    metadata
+        and content for a specific unique identifier.
+    * **Inbox Management:** The `getMessagesByUser` endpoint allows users to
+    retrieve
+        their full history or paginated lists of recent communications.
+    * **State Tracking:** Use `upsertMessageStatusAttributes` to change the
+    status of the message.
 host: api.cd.italia.it
 basePath: /api/v1
 schemes:
