@@ -4,7 +4,7 @@
   "license": "UNLICENSED",
   "type": "commonjs",
   "scripts": {
-    "build": "tsc",
+    "build": "yarn openapi:bundle && yarn generate && tsc",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "openapi:bundle": "yarn bundle-api-spec -i openapi/index.yaml -o openapi/index.yaml -V $npm_package_version",
