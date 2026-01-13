@@ -88,7 +88,6 @@ import {
   FaultCodeCategoryEnum,
   PaymentDuplicatedStatusFaultPaymentProblemJson,
 } from "../../generated/pagopa-ecommerce/PaymentDuplicatedStatusFaultPaymentProblemJson";
-import { IConfig } from "../../utils/config";
 import { getContentFromBlob } from "../../utils/message-content";
 import { errorsToError } from "../../utils/responses";
 import { MessageReadStatusAuth } from "./userPreferenceChecker/messageReadStatusAuth";
@@ -182,49 +181,40 @@ const WithPayment = t.type({
 const WithStatusProcessed = t.type({
   status: t.literal(NotRejectedMessageStatusValueEnum.PROCESSED),
 });
-const eligibleForPaymentStatus =
-  (FF_PAYMENT_STATUS_ENABLED: boolean) =>
-  (
-    messageWithContent: unknown,
-  ): E.Either<Error | t.Errors, PaymentDataWithRequiredPayee> =>
-    pipe(
-      messageWithContent,
-      E.right,
-      E.chainFirst(
-        E.fromPredicate(
-          () => FF_PAYMENT_STATUS_ENABLED,
-          () => Error("Feature Flag disabled"),
+const eligibleForPaymentStatus = (
+  messageWithContent: unknown,
+): E.Either<Error | t.Errors, PaymentDataWithRequiredPayee> =>
+  pipe(
+    messageWithContent,
+    E.right,
+    E.chainW((mwc) =>
+      pipe(
+        WithStatusProcessed.decode(mwc),
+        E.mapLeft(() => new Error("Message status is not processed")),
+      ),
+    ),
+    E.chainW((mwc) =>
+      pipe(
+        WithPayment.decode(mwc),
+        E.mapLeft(
+          () => new Error("Message does not contain required payment data"),
         ),
       ),
-      E.chainW((mwc) =>
-        pipe(
-          WithStatusProcessed.decode(mwc),
-          E.mapLeft(() => new Error("Message status is not processed")),
-        ),
-      ),
-      E.chainW((mwc) =>
-        pipe(
-          WithPayment.decode(mwc),
-          E.mapLeft(
-            () => new Error("Message does not contain required payment data"),
-          ),
-        ),
-      ),
-      E.map((mwc) => mwc.message.content.payment_data),
-    );
+    ),
+    E.map((mwc) => mwc.message.content.payment_data),
+  );
 
 const decorateWithPaymentStatus = <
   T extends {
     readonly message: { readonly content: MessageContent | undefined };
   },
 >(
-  FF_PAYMENT_STATUS_ENABLED: boolean,
   pagoPaEcommerceClient: PagoPaEcommerceClient,
   messageWithContent: T,
 ): TE.TaskEither<IResponseErrorInternal, T> =>
   pipe(
     messageWithContent,
-    eligibleForPaymentStatus(FF_PAYMENT_STATUS_ENABLED),
+    eligibleForPaymentStatus,
     TE.fromEither,
     TE.foldW(
       () => TE.right({ ...messageWithContent, payment_status: undefined }),
@@ -285,7 +275,6 @@ const decorateWithPaymentStatus = <
 // eslint-disable-next-line max-params, max-lines-per-function
 export const GetMessageHandler =
   (
-    FF_PAYMENT_STATUS_ENABLED: boolean,
     messageModel: MessageModel,
     messageStatusModel: MessageStatusModel,
     notificationModel: NotificationModel,
@@ -474,7 +463,6 @@ export const GetMessageHandler =
                 ),
                 TE.chain((messageWithAdvanceProperties) =>
                   decorateWithPaymentStatus(
-                    FF_PAYMENT_STATUS_ENABLED,
                     pagoPaEcommerceClient,
                     messageWithAdvanceProperties,
                   ),
@@ -508,7 +496,6 @@ export const GetMessageHandler =
  */
 // eslint-disable-next-line max-params
 export function GetMessage(
-  { FF_PAYMENT_STATUS_ENABLED }: IConfig,
   serviceModel: ServiceModel,
   messageModel: MessageModel,
   messageStatusModel: MessageStatusModel,
@@ -519,7 +506,6 @@ export function GetMessage(
   pagoPaEcommerceClient: PagoPaEcommerceClient,
 ): express.RequestHandler {
   const handler = GetMessageHandler(
-    FF_PAYMENT_STATUS_ENABLED,
     messageModel,
     messageStatusModel,
     notificationModel,

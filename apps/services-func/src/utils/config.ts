@@ -8,7 +8,6 @@
 import { HttpsUrl } from "@pagopa/io-functions-commons/dist/generated/definitions/HttpsUrl";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
 import { MailerConfig } from "@pagopa/io-functions-commons/dist/src/mailer";
-import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
 import { DateFromTimestamp } from "@pagopa/ts-commons/lib/dates";
 import {
   NonNegativeIntegerFromString,
@@ -63,8 +62,6 @@ export const IConfig = t.intersection([
     FF_INCOMPLETE_SERVICE_WHITELIST: CommaSeparatedListOf(ServiceId),
 
     FF_OPT_IN_EMAIL_ENABLED: t.boolean,
-
-    FF_PAYMENT_STATUS_ENABLED: withDefault(BooleanFromString, false),
 
     IO_COM_STORAGE_CONNECTION_STRING: NonEmptyString,
 
