@@ -1,6 +1,7 @@
 import {
   Installation,
   NotificationHubsClient,
+  NotificationHubsMessageResponse,
   NotificationHubsResponse,
   TemplateNotification,
   createTemplateNotification,
@@ -14,6 +15,7 @@ import * as t from "io-ts";
 
 import { InstallationId } from "../generated/notifications/InstallationId";
 import { NotifyMessagePayload } from "../generated/notifications/NotifyMessagePayload";
+import { MassNotifyMessagePayload } from "../functions/MassNotify/mass-notify.dto";
 
 /**
  * A template suitable for Apple's APNs.
@@ -90,6 +92,16 @@ const createNotification = (
     }),
   );
 
+const createMassNotification = (
+  body: MassNotifyMessagePayload,
+): TemplateNotification =>
+  createTemplateNotification({
+    body: {
+      message: body.message,
+      title: body.title,
+    },
+  });
+
 export const nhResultSuccess = t.interface({
   kind: t.literal("SUCCESS"),
 });
@@ -132,6 +144,40 @@ export const notify = (
       });
     }),
   );
+
+export const massNotify = async (
+  notificationHubServices: NotificationHubsClient[],
+  template: string,
+  tags: readonly string[],
+  payload: MassNotifyMessagePayload,
+  telemetryClient: TelemetryClient,
+): Promise<NotificationHubsMessageResponse> => {
+  const notification = createMassNotification(payload);
+  try {
+    const response = await notificationHubServices[0].sendNotification(
+      notification,
+      {
+        // Will match templates like massive:generic or massive:test, and installations with at least one of the provided tags
+        tagExpression: `massive:${template} && ${tags.length > 1 ? `(${tags.join("||")})` : tags[0]}`,
+      },
+    );
+
+    telemetryClient.trackEvent({
+      name: "api.messages.notification.push.nh.response",
+      properties: {
+        state: response.state,
+        successCount: response.successCount,
+      },
+      tagOverrides: { samplingEnabled: "false" },
+    });
+
+    return response;
+  } catch (error) {
+    throw new Error(
+      `Error while sending notification to NotificationHub | ${error}`,
+    );
+  }
+};
 
 export const createOrUpdateInstallation = (
   notificationHubClient: NotificationHubsClient,

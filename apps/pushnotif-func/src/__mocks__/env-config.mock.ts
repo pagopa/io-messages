@@ -44,6 +44,7 @@ export const envConfig: IConfig = {
     "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar" as NonEmptyString,
 
   NOTIFY_MESSAGE_QUEUE_NAME: "notify-queue-name" as NonEmptyString,
+  MASS_NOTIFY_MESSAGE_QUEUE_NAME: "mass-notify-queue-name" as NonEmptyString,
 
   RETRY_ATTEMPT_NUMBER: "1" as unknown as IntegerFromString,
   SESSION_MANAGER_API_KEY: "SessionManagerAPIKey" as NonEmptyString,

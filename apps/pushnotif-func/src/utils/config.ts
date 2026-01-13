@@ -64,6 +64,7 @@ const BaseConfig = t.intersection([
   }),
   t.interface({
     NOTIFY_MESSAGE_QUEUE_NAME: NonEmptyString,
+    MASS_NOTIFY_MESSAGE_QUEUE_NAME: NonEmptyString,
   }),
   t.intersection([
     t.interface({

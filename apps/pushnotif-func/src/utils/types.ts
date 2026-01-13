@@ -2,8 +2,11 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as E from "fp-ts/lib/Either";
 import { identity, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
+import * as z from "zod";
 
 import { NotifyMessage } from "../generated/notifications/NotifyMessage";
+import { MassNotifyMessage } from "../functions/MassNotify/mass-notify.dto";
+// import { MassNotifyMessage } from "../functions/MassNotify/mass-notify.dto";
 
 /**
  * Parses a string into a deserialized json
@@ -93,3 +96,15 @@ export const NhNotifyMessageRequest = t.interface({
   target: NhTarget,
 });
 export type NhNotifyMessageRequest = t.TypeOf<typeof NhNotifyMessageRequest>;
+
+// Zod types
+export const NhTargetZ = z.union([z.literal("current"), z.literal("legacy")]);
+export type NhTargetZ = z.infer<typeof NhTargetZ>;
+
+export const NhMassNotifyMessageRequest = z.object({
+  message: MassNotifyMessage,
+  target: z.enum(["current", "legacy"]),
+});
+export type NhMassNotifyMessageRequest = z.infer<
+  typeof NhMassNotifyMessageRequest
+>;

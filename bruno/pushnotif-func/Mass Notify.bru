@@ -1,11 +1,11 @@
 meta {
-  name: Notify
+  name: Mass Notify
   type: http
-  seq: 3
+  seq: 2
 }
 
 post {
-  url: {{pushnotif_func_url}}/api/v1/notify
+  url: {{pushnotif_func_url}}/api/v1/mass-notify
   body: json
   auth: none
 }
@@ -16,9 +16,10 @@ headers {
 
 body:json {
   {
-    "notification_type": {{notification_type}},
-    "message_id": {{message_id}},
-    "fiscal_code": {{fiscal_code}}
+    "subject": "Test massive notification subject",
+    "body": "Test massive notification body",
+    "template": "generic",
+    "tags": ["1", "2"]
   }
 }
 

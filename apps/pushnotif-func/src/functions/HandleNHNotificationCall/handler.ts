@@ -10,9 +10,18 @@ import { KindEnum as CreateOrUpdateKind } from "../../generated/notifications/Cr
 import { DeleteInstallationMessage } from "../../generated/notifications/DeleteInstallationMessage";
 import { KindEnum as DeleteKind } from "../../generated/notifications/DeleteInstallationMessage";
 import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
+import {
+  MassNotifyMessage,
+  MassNotifyMessageLegacy,
+} from "../MassNotify/mass-notify.dto";
 import { KindEnum as NotifyKind } from "../../generated/notifications/NotifyMessage";
 import { toString } from "../../utils/conversions";
-import { NhNotifyMessageRequest, NhTarget } from "../../utils/types";
+import {
+  NhMassNotifyMessageRequest,
+  NhNotifyMessageRequest,
+  NhTarget,
+  NhTargetZ,
+} from "../../utils/types";
 import { OrchestratorName as CreateOrUpdateInstallationOrchestrator } from "../HandleNHCreateOrUpdateInstallationCallOrchestrator/handler";
 import { OrchestratorName as DeleteInstallationOrchestratorName } from "../HandleNHDeleteInstallationCallOrchestrator/handler";
 
@@ -20,6 +29,7 @@ export const NotificationMessage = t.union([
   NotifyMessage,
   CreateOrUpdateInstallationMessage,
   DeleteInstallationMessage,
+  MassNotifyMessageLegacy,
 ]);
 
 export type NotificationHubMessage = t.TypeOf<typeof NotificationMessage>;
@@ -38,6 +48,22 @@ const notifyMessage = (
     ),
     T.map(() => "-1"), // There is no orchestrator_id to return
   )();
+
+const massNotifyMessage = (
+  context: Context,
+  message: MassNotifyMessage,
+): Promise<string> => {
+  const target = NhTargetZ.parse("current");
+  const massNotifyMessageRequest = NhMassNotifyMessageRequest.parse({
+    message,
+    target,
+  });
+  const massNotifyMessageBase64 = Buffer.from(
+    JSON.stringify(massNotifyMessageRequest),
+  ).toString("base64");
+  context.bindings.massNotifyMessages = massNotifyMessageBase64;
+  return Promise.resolve("-1"); // There is no orchestrator_id to return
+};
 
 const startOrchestrator = async (
   notificationHubMessage: NotificationHubMessage,
@@ -63,6 +89,23 @@ const startOrchestrator = async (
       );
     case NotifyKind.Notify:
       return await notifyMessage(context, notificationHubMessage);
+    case "Generic":
+      const massNotifyMessageParsed = MassNotifyMessage.safeParse(
+        notificationHubMessage,
+      );
+      if (!massNotifyMessageParsed.success) {
+        context.log.error(
+          `HandleNHNotificationCall|ERROR=Invalid MassNotifyMessage, message: ${toString(
+            notificationHubMessage,
+          )}`,
+        );
+        throw new Error(
+          `Invalid MassNotifyMessage, message: ${toString(
+            notificationHubMessage,
+          )}`,
+        );
+      }
+      return await massNotifyMessage(context, massNotifyMessageParsed.data);
     default:
       context.log.error(
         `HandleNHNotificationCall|ERROR=Unknown message kind, message: ${toString(

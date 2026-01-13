@@ -13693,6 +13693,7 @@ __metadata:
     typescript: "npm:^5.8.3"
     vitest: "npm:^3.1.2"
     winston: "npm:^3.2.1"
+    zod: "npm:^4.0.0"
   dependenciesMeta:
     express-azure-functions:
       built: false
