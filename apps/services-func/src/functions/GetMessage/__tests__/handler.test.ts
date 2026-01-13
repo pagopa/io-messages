@@ -301,7 +301,6 @@ describe("GetMessageHandler", () => {
     vi.spyOn(mc, "getContentFromBlob").mockReturnValue(TE.of(none));
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       getNotificationModelMock(),
@@ -343,7 +342,6 @@ describe("GetMessageHandler", () => {
     vi.spyOn(mc, "getContentFromBlob").mockReturnValue(TE.left(new Error()));
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       getNotificationModelMock(),
@@ -383,7 +381,6 @@ describe("GetMessageHandler", () => {
     vi.spyOn(mc, "getContentFromBlob").mockReturnValue(TE.of(none));
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       getNotificationModelMock(),
@@ -427,7 +424,6 @@ describe("GetMessageHandler", () => {
     };
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       {} as any,
@@ -472,7 +468,6 @@ describe("GetMessageHandler", () => {
     };
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       {} as any,
@@ -515,7 +510,6 @@ describe("GetMessageHandler", () => {
     };
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       {} as any,
@@ -557,7 +551,6 @@ describe("GetMessageHandler", () => {
     };
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       {} as any,
@@ -600,7 +593,6 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       getNotificationModelMock(),
@@ -645,7 +637,6 @@ describe("GetMessageHandler", () => {
     };
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       {} as any,
@@ -697,7 +688,6 @@ describe("GetMessageHandler", () => {
     vi.spyOn(mc, "getContentFromBlob").mockReturnValue(TE.of(none));
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       getNotificationModelMock(aRetrievedNotification),
@@ -740,7 +730,6 @@ describe("GetMessageHandler", () => {
     };
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(
         TE.left<QueryError, Option<MessageStatus>>({
@@ -776,7 +765,6 @@ describe("GetMessageHandler", () => {
     };
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       {
@@ -861,7 +849,6 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       getNotificationModelMock(aRetrievedNotification),
@@ -907,7 +894,6 @@ describe("GetMessageHandler", () => {
     );
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       getNotificationModelMock(aRetrievedNotification),
@@ -961,7 +947,6 @@ describe("GetMessageHandler", () => {
     mockMessageReadStatusAuth.mockReturnValueOnce(TE.right(true));
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       getNotificationModelMock(aRetrievedNotification),
@@ -1015,7 +1000,6 @@ describe("GetMessageHandler", () => {
     mockMessageReadStatusAuth.mockReturnValueOnce(TE.right(true));
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       getNotificationModelMock(aRetrievedNotification),
@@ -1073,7 +1057,6 @@ describe("GetMessageHandler", () => {
     mockMessageReadStatusAuth.mockReturnValueOnce(TE.of(false));
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(),
       getNotificationModelMock(aRetrievedNotification),
@@ -1118,7 +1101,6 @@ describe("GetMessageHandler", () => {
     };
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(
         TE.of(
@@ -1165,62 +1147,6 @@ describe("GetMessageHandler", () => {
     }
   });
 
-  it("should NOT provide information about payment status if user is allowed and message is of type ADVANCED but FF is disabled", async () => {
-    const mockMessageModel = {
-      findMessageForRecipient: vi.fn(() =>
-        TE.of(some(aRetrievedMessageWithAdvancedFeatures)),
-      ),
-      getContentFromBlob: vi.fn(() => TE.of(O.some(aPaymentMessageContent))),
-    };
-
-    const getMessageHandler = GetMessageHandler(
-      false,
-      mockMessageModel as any,
-      getMessageStatusModelMock(
-        TE.of(
-          some({
-            ...aMessageStatus,
-            status: NotRejectedMessageStatusValueEnum.PROCESSED,
-          }),
-        ),
-      ),
-      getNotificationModelMock(aRetrievedNotification),
-      getNotificationStatusModelMock(),
-      {} as any,
-      mockMessageReadStatusAuth,
-      getPagopaEcommerceClientMock(409, {
-        faultCodeCategory: FaultCodeCategoryEnum.PAYMENT_DUPLICATED,
-        faultCodeDetail:
-          PaymentDuplicatedStatusFaultEnum.PAA_PAGAMENTO_DUPLICATO,
-      }),
-    );
-
-    const result = await getMessageHandler(
-      mockContext,
-      aUserAuthenticationTrustedApplicationWithAdvancedFetures,
-      undefined as any, // not used
-      someUserAttributes,
-      aFiscalCode,
-      aRetrievedMessageWithoutContent.id,
-    );
-
-    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
-    expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
-    expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
-      aRetrievedMessageWithoutContent.fiscalCode,
-      aRetrievedMessageWithoutContent.id,
-    );
-
-    expect(result.kind).toBe("IResponseSuccessJson");
-    if (result.kind === "IResponseSuccessJson") {
-      expect(result.value).toEqual(
-        expect.objectContaining({
-          payment_status: undefined,
-        }),
-      );
-    }
-  });
-
   it("should provide default information about payment status if user is allowed and message is of type ADVANCED and message is not found in payment updater", async () => {
     const mockMessageModel = {
       findMessageForRecipient: vi.fn(() =>
@@ -1230,7 +1156,6 @@ describe("GetMessageHandler", () => {
     };
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(
         TE.of(
@@ -1282,7 +1207,6 @@ describe("GetMessageHandler", () => {
     };
 
     const getMessageHandler = GetMessageHandler(
-      true,
       mockMessageModel as any,
       getMessageStatusModelMock(
         TE.of(

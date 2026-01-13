@@ -28,7 +28,6 @@
     "NODE_ENV": "dev",
     "MAILHOG_HOSTNAME": "mailhog",
     "APIM_BASE_URL": "http://localhost",
-    "FF_PAYMENT_STATUS_ENABLED": true,
     "FF_DISABLE_INCOMPLETE_SERVICES": "none"
   },
   "ConnectionStrings": {}
