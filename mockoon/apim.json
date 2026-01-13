@@ -1,0 +1,94 @@
+{
+  "uuid": "1a131e9e-8aaa-4cfd-9ffd-484a5e7c99b3",
+  "lastMigration": 33,
+  "name": "Apim",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3000,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "20874de3-79e9-45c8-a2b5-bfe8d2b2bb70",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "api/v1/messages-sending/remote-contents/configurations/01ARZ3NDEKTSV4RRFFQ69G5FAV",
+      "responses": [
+        {
+          "uuid": "3da508c5-a2a7-412c-bf72-144d6b0fafd8",
+          "body": "{\n  \"configuration_id\": \"01ARZ3NDEKTSV4RRFFQ69G5FAV\",\n  \"description\": \"A new RC Configuration fortesting purpose\",\n  \"disable_lollipop_for\": [],\n  \"has_precondition\": \"NEVER\",\n  \"id\": \"01ARZ3NDEKTSV4RRFFQ69G5FAV\",\n  \"is_lollipop_enabled\": false,\n  \"name\": \"Updated configuration\",\n  \"user_id\": \"01JR0QRJ8MX1PD06DE6X5FWXS5\",\n  \"test_users\": [],\n  \"prod_environment\": {\n    \"base_url\": \"string\",\n    \"details_authentication\": {\n      \"header_key_name\": \"string\",\n      \"key\": \"string\",\n      \"type\": \"API-KEY\"\n    }\n  }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "20874de3-79e9-45c8-a2b5-bfe8d2b2bb70"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}
