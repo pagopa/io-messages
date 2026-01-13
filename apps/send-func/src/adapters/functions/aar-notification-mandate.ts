@@ -70,26 +70,13 @@ export const createNotificationMandate =
       if (err instanceof NotificationClientError) {
         context.error("Notification client error:", err.message);
 
-        switch (err.status) {
-          case 403:
-            telemetryService.trackEvent(
-              TelemetryEventName.SEND_AAR_CREATE_MANDATE_MALFORMED_403,
-            );
-            break;
-          case 404:
-            telemetryService.trackEvent(
-              TelemetryEventName.SEND_AAR_CREATE_MANDATE_QRCODE_DATA_NOT_FOUND,
-            );
-            break;
-          default:
-            telemetryService.trackEvent(
-              TelemetryEventName.SEND_AAR_CREATE_MANDATE_SERVER_ERROR,
-              {
-                status: err.status,
-              },
-            );
-            break;
-        }
+        telemetryService.trackEvent(
+          TelemetryEventName.SEND_AAR_CREATE_MANDATE_SERVER_ERROR,
+          {
+            body: err.body,
+            status: err.status,
+          },
+        );
 
         return {
           jsonBody: sendProblemToAARProblemJson(err.body),
@@ -172,23 +159,14 @@ export const acceptNotificationMandate =
         let responseStatus = 500;
 
         switch (err.status) {
-          case 403:
-            telemetryService.trackEvent(
-              TelemetryEventName.SEND_AAR_CREATE_MANDATE_MALFORMED_403,
-            );
-            break;
-          case 404:
-            telemetryService.trackEvent(
-              TelemetryEventName.SEND_AAR_CREATE_MANDATE_QRCODE_DATA_NOT_FOUND,
-            );
-            break;
           case 422:
             responseStatus = 422;
             break;
           default:
             telemetryService.trackEvent(
-              TelemetryEventName.SEND_AAR_CREATE_MANDATE_SERVER_ERROR,
+              TelemetryEventName.SEND_AAR_ACCEPT_MANDATE_SERVER_ERROR,
               {
+                body: err.body,
                 status: err.status,
               },
             );
