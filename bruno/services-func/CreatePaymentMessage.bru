@@ -5,13 +5,13 @@ meta {
 }
 
 post {
-  url: {{services_func_url}}/api/v1/messages/{{fiscal_code}}
+  url: {{services_func_url}}/api/v1/messages/LVTEST00A00A199X
   body: json
   auth: none
 }
 
 headers {
-  x-user-groups: {{user_groups}}
+  x-user-groups: ApiMessageWrite,ApiMessageWriteWithPayee
   x-user-email: {{sender_email}}
   x-subscription-id: {{sender_subscription_id}}
   x-user-id: {{sender_user_id}}
@@ -33,9 +33,4 @@ body:json {
       }
     }
   }
-}
-
-vars:pre-request {
-  fiscal_code: LVTEST00A00A199X
-  user_groups: ApiMessageWrite,ApiMessageWriteWithPayee
 }
