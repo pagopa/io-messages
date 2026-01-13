@@ -21,7 +21,7 @@ const tableServiceClient = TableServiceClient.fromConnectionString(
   { allowInsecureConnection: true },
 );
 
-const containers = ["message-content"];
+const containers = ["message-content", "processing-message"];
 const queues = [
   "push-notifications",
   "notify-messages",
