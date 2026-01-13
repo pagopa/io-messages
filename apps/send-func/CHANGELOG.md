@@ -1,5 +1,11 @@
 # send-func
 
+## 1.5.1
+
+### Patch Changes
+
+- 671b73e: Augmenting error telemetry data
+
 ## 1.5.0
 
 ### Minor Changes
