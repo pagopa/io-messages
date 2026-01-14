@@ -1,5 +1,11 @@
 # services-func
 
+## 1.0.7
+
+### Patch Changes
+
+- a29f984: Removes the `FF_PAYMENT_STATUS_ENABLED` feature flag that is no longer needed as it's set to `true` in production.
+
 ## 1.0.6
 
 ### Patch Changes
