@@ -8,17 +8,13 @@ import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generate
 import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/FiscalCode";
 import { NewMessage as ApiNewMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/NewMessage";
 import { PaymentDataWithRequiredPayee } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentDataWithRequiredPayee";
-import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
 import { StandardServiceCategoryEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/StandardServiceCategory";
 import {
   Message,
   MessageModel,
   NewMessageWithoutContent,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
-import {
-  ServiceModel,
-  ValidService,
-} from "@pagopa/io-functions-commons/dist/src/models/service";
+import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
 import {
   AzureAllowBodyPayloadMiddleware,
   IAzureApiAuthorization,
@@ -317,8 +313,6 @@ export function CreateMessageHandler(
   messageModel: MessageModel,
   generateObjectId: ObjectIdGenerator,
   saveProcessingMessage: ReturnType<typeof makeUpsertBlobFromObject>,
-  disableIncompleteServices: boolean,
-  incompleteServiceWhitelist: readonly ServiceId[],
   sandboxFiscalCode: NonEmptyString,
 ): ICreateMessageHandler {
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, max-lines-per-function
@@ -465,22 +459,6 @@ export function CreateMessageHandler(
       TE.fromEither(
         canWriteMessage(auth.groups, authorizedRecipients, fiscalCode),
       ),
-      // Verify if the Service has the required quality to sent message
-      TE.chain(() =>
-        disableIncompleteServices &&
-        !incompleteServiceWhitelist.includes(serviceId) &&
-        !authorizedRecipients.has(fiscalCode)
-          ? TE.fromEither(
-              pipe(
-                ValidService.decode(userAttributes.service),
-                E.bimap(
-                  () => ResponseErrorForbiddenNotAuthorizedForRecipient,
-                  () => true,
-                ),
-              ),
-            )
-          : TE.right(true),
-      ),
       TE.chainW(() =>
         // check whether the client can ask for payment
         TE.fromEither(
@@ -582,8 +560,6 @@ export function CreateMessage(
   serviceModel: ServiceModel,
   messageModel: MessageModel,
   saveProcessingMessage: ReturnType<typeof makeUpsertBlobFromObject>,
-  disableIncompleteServices: boolean,
-  incompleteServiceWhitelist: readonly ServiceId[],
   sandboxFiscalCode: NonEmptyString,
 ): express.RequestHandler {
   const handler = CreateMessageHandler(
@@ -592,8 +568,6 @@ export function CreateMessage(
     messageModel,
     ulidGenerator,
     saveProcessingMessage,
-    disableIncompleteServices,
-    incompleteServiceWhitelist,
     sandboxFiscalCode,
   );
   const middlewaresWrap = withRequestMiddlewares(

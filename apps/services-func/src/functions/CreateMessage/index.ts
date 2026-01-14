@@ -51,8 +51,6 @@ app.post(
       blobService,
       config.PROCESSING_MESSAGE_CONTAINER_NAME,
     ),
-    config.FF_DISABLE_INCOMPLETE_SERVICES,
-    config.FF_INCOMPLETE_SERVICE_WHITELIST,
     config.SANDBOX_FISCAL_CODE,
   ),
 );

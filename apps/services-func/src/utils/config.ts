@@ -57,10 +57,6 @@ export const IConfig = t.intersection([
 
     EMAIL_NOTIFICATION_SERVICE_BLACKLIST: CommaSeparatedListOf(ServiceId),
 
-    // eslint-disable-next-line sort-keys
-    FF_DISABLE_INCOMPLETE_SERVICES: t.boolean,
-    FF_INCOMPLETE_SERVICE_WHITELIST: CommaSeparatedListOf(ServiceId),
-
     FF_OPT_IN_EMAIL_ENABLED: t.boolean,
 
     IO_COM_STORAGE_CONNECTION_STRING: NonEmptyString,
@@ -104,12 +100,6 @@ export const DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS = 24 * 60 * 60;
 
 export const envConfig = {
   ...process.env,
-
-  FF_DISABLE_INCOMPLETE_SERVICES: pipe(
-    O.fromNullable(process.env.FF_DISABLE_INCOMPLETE_SERVICES),
-    O.map((_) => _.toLowerCase() === "true"),
-    O.getOrElse(() => false),
-  ),
   FF_OPT_IN_EMAIL_ENABLED: pipe(
     O.fromNullable(process.env.FF_OPT_IN_EMAIL_ENABLED),
     O.map((_) => _.toLocaleLowerCase() === "true"),

@@ -3,13 +3,9 @@ import { RemoteContentClient } from "@/clients/remote-content";
 import { Context } from "@azure/functions";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
-import {
-  IAzureApiAuthorization,
-  UserGroup,
-} from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_api_auth";
-import { IAzureUserAttributes } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_user_attributes";
+import { UserGroup } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_api_auth";
 import { initAppInsights } from "@pagopa/ts-commons/lib/appinsights";
-import { EmailString, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as fc from "fast-check";
 import * as E from "fp-ts/lib/Either";
 import { none, some } from "fp-ts/lib/Option";
@@ -18,10 +14,8 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { describe, expect, it, vi } from "vitest";
 
 import {
-  aFiscalCode,
   anAzureApiAuthorization,
   anAzureUserAttributes,
-  anIncompleteService,
   anotherFiscalCode,
 } from "../../../__mocks__/mocks";
 import {
@@ -268,8 +262,6 @@ describe("CreateMessageHandler", () => {
           undefined as any,
           undefined as any,
           undefined as any,
-          true,
-          [],
           aSandboxFiscalCode,
         );
 
@@ -296,8 +288,6 @@ describe("CreateMessageHandler", () => {
       undefined as any,
       undefined as any,
       undefined as any,
-      true,
-      [],
       aSandboxFiscalCode,
     );
 
@@ -313,60 +303,6 @@ describe("CreateMessageHandler", () => {
     expect(response.kind).toBe("IResponseErrorValidation");
   });
 
-  it("should return IResponseErrorForbiddenNotAuthorizedForProduction if the service hasn't quality field", async () => {
-    const mockAzureApiAuthorization: IAzureApiAuthorization = {
-      groups: new Set([UserGroup.ApiMessageWrite]),
-      kind: "IAzureApiAuthorization",
-      subscriptionId: "" as NonEmptyString,
-      userId: "" as NonEmptyString,
-    };
-
-    const mockAzureUserAttributes: IAzureUserAttributes = {
-      email: "" as EmailString,
-      kind: "IAzureUserAttributes",
-      service: {
-        ...anIncompleteService,
-        authorizedRecipients: new Set([aFiscalCode]),
-      } as IAzureUserAttributes["service"],
-    };
-    const mockGenerateObjId = vi
-      .fn()
-      .mockImplementationOnce(() => "mocked-message-id");
-    const mockTelemetryClient = {
-      trackEvent: vi.fn(),
-    } as unknown as ReturnType<typeof initAppInsights>;
-
-    const mockSaveBlob = vi.fn(() => TE.of(O.some({} as any)));
-    const createMessageHandler = CreateMessageHandler(
-      mockTelemetryClient,
-      remoteContentClient,
-      undefined as any,
-      mockGenerateObjId,
-      mockSaveBlob,
-      true,
-      [],
-      aSandboxFiscalCode,
-    );
-
-    const response = await createMessageHandler(
-      createContext(),
-      mockAzureApiAuthorization,
-      undefined as any,
-      mockAzureUserAttributes,
-      {
-        content: {
-          markdown: "md",
-          subject: "subject",
-        },
-      } as ApiNewMessageWithDefaults,
-      some(anotherFiscalCode),
-    );
-
-    expect(response.kind).toBe(
-      "IResponseErrorForbiddenNotAuthorizedForRecipient",
-    );
-  });
-
   it("should call the mockSaveBlob using the value of the requireSecureChannels of the service if the value is not provided in the message", async () => {
     const mockGenerateObjId = vi
       .fn()
@@ -378,8 +314,6 @@ describe("CreateMessageHandler", () => {
       mockMessageModel,
       mockGenerateObjId,
       mockSaveBlob,
-      true,
-      [],
       aSandboxFiscalCode,
     );
 
@@ -418,8 +352,6 @@ describe("CreateMessageHandler", () => {
       mockMessageModel,
       mockGenerateObjId,
       mockSaveBlob,
-      true,
-      [],
       aSandboxFiscalCode,
     );
 
@@ -460,8 +392,6 @@ describe("CreateMessageHandler", () => {
       mockMessageModel,
       undefined as any,
       mockSaveBlob,
-      true,
-      [],
       aSandboxFiscalCode,
     );
 
@@ -502,8 +432,6 @@ describe("CreateMessageHandler", () => {
       mockMessageModel,
       undefined as any,
       mockSaveBlob,
-      true,
-      [],
       aSandboxFiscalCode,
     );
 
@@ -547,8 +475,6 @@ describe("CreateMessageHandler", () => {
       mockMessageModel,
       mockGenerateObjId,
       mockSaveBlob,
-      true,
-      [],
       aSandboxFiscalCode,
     );
 
@@ -597,8 +523,6 @@ describe("CreateMessageHandler", () => {
       mockMessageModel,
       mockGenerateObjId,
       mockSaveBlob,
-      true,
-      [],
       aSandboxFiscalCode,
     );
 
@@ -634,8 +558,6 @@ describe("CreateMessageHandler", () => {
       mockMessageModel,
       mockGenerateObjId,
       mockSaveBlob,
-      true,
-      [],
       aSandboxFiscalCode,
     );
 
