@@ -7,7 +7,7 @@
     "build": "yarn openapi:bundle && yarn generate && tsc",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "openapi:bundle": "yarn node copy-commons-definitions.js && bundle-api-spec -i openapi/index.yaml.template -o openapi/index.yaml -V $npm_package_version",
+    "openapi:bundle": "yarn bundle-api-spec -i openapi/index.yaml -o openapi/index.yaml -V $npm_package_version",
     "dist:modules": "modclean -r -n default:safe && yarn install --production",
     "version": "yarn openapi:bundle",
     "lint": "eslint --fix src",

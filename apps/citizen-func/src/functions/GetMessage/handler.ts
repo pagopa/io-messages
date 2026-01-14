@@ -24,10 +24,8 @@ import {
 import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import {
-  IResponseErrorForbiddenNotAuthorized,
   IResponseErrorInternal,
   IResponseErrorNotFound,
-  IResponseErrorValidation,
   IResponseSuccessJson,
   ResponseErrorInternal,
   ResponseErrorNotFound,
@@ -69,11 +67,9 @@ type IGetMessageHandler = (
   messageId: string,
   maybePublicMessage: O.Option<boolean>,
 ) => Promise<
-  | IResponseErrorForbiddenNotAuthorized
   | IResponseErrorInternal
   | IResponseErrorNotFound
   | IResponseErrorQuery
-  | IResponseErrorValidation
   | IResponseSuccessJson<InternalMessageResponseWithContent>
 >;
 
