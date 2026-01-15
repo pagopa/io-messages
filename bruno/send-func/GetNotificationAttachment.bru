@@ -26,3 +26,14 @@ headers {
 vars:pre-request {
   attachment_url: L2RlbGl2ZXJ5L25vdGlmaWNhdGlvbnMvcmVjZWl2ZWQvQUJDRC1FRkdILUlKS0wtMTIzNDU2LU0tNy9hdHRhY2htZW50cy9kb2N1bWVudHMvMQ==
 }
+
+docs {
+  # Retrieve AAR notification attachements
+  
+  The IO application call the api, using a base64 encoded attachment_url created with the data returned by the /aar/notifications/:iun API, for retrieve all the attachement and payment documents of an AAR notification.
+  
+  ### Authentication and Authorization
+  
+  This API is protected by authentication and authorization mechanisms.
+  All headers defined in the request Headers section, as well as those configured at the collection or folder level, are mandatory and must be included with each request.
+}

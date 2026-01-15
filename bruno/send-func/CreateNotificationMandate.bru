@@ -24,3 +24,18 @@ body:json {
     "aarQrCodeValue": "https://qr-code.test.com/ABCD2025010100012345"
   }
 }
+
+docs {
+  # Create AAR user delegation record
+  
+  The IO application uses this to create a delegation for a user who is not the recipient of an AAR. This API only initiates the creation of the delegation request and does not confirm it.
+  
+  In case of a successful response, it returns data that the application must sign and then send using the API for the delegation confirmation.
+  
+  ### Authentication and Authorization
+  
+  This API is protected by authentication and authorization mechanisms.
+  All headers defined in the request Headers section, as well as those configured at the collection or folder level, are mandatory and must be included with each request.
+  
+  
+}

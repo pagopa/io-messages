@@ -24,3 +24,17 @@ body:json {
     "aarQrCodeValue": "https://qr-code.test.com/ABCD2025010100012345"
   }
 }
+
+docs {
+  # Validate the AAR QRcode value
+  
+  It is used by the IO application to send the AAR QR code value to the send-func.  
+  The API validate the QRcode value and returns the data that can be used in the /aar/notifications/:iun API for retrieve the AAR notitifaction data. 
+  It can returns an error if the QRCode is not valid or if its content is not intended for the calling user.
+  
+  
+  ### Authentication and Authorization
+  
+  This API is protected by authentication and authorization mechanisms.
+  All headers defined in the request Headers section, as well as those configured at the collection or folder level, are mandatory and must be included with each request.
+}
