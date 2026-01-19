@@ -26,3 +26,14 @@ headers {
 vars:pre-request {
   iun: ABCD-EFGH-IJKL-123456-M-7
 }
+
+docs {
+  # Retrieve AAR notification data
+  
+  The IO application use the api to retrieve all the notification data, exept the attachements, using the **iun** returned by the /aar/qr-code-check API 
+  
+  ### Authentication and Authorization
+  
+  This API is protected by authentication and authorization mechanisms.
+  All headers defined in the request Headers section, as well as those configured at the collection or folder level, are mandatory and must be included with each request.
+}
