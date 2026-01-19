@@ -5,8 +5,12 @@ resource "azurerm_api_management_api" "send_api_v1" {
   resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
   revision            = "1"
 
-  description  = "IO COM SEND AAR"
-  display_name = "IO COM SEND AAR"
+  description  = "Microservizio che espone API per - verifica contenuto del QR-Code di un AAR SEND - recuperare il contenuto di una notifica AAR SEND - download degli allegati realtivi ad una notifica AAR SEND"
+  display_name = "IO-COM SEND Service"
+
+  contact {
+    name = "pagoPA - Touchpoints team"
+  }
 
   path      = "api/com/v1/send/aar"
   protocols = ["https"]
