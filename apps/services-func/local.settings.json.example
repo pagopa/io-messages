@@ -27,8 +27,7 @@
     "NOTIFY_API_KEY": "apiKey",
     "NODE_ENV": "dev",
     "MAILHOG_HOSTNAME": "mailhog",
-    "APIM_BASE_URL": "http://localhost:8007",
-    "FF_DISABLE_INCOMPLETE_SERVICES": "none"
+    "APIM_BASE_URL": "http://localhost:8007"
   },
   "ConnectionStrings": {}
 }
