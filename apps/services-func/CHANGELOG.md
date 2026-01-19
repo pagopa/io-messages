@@ -1,5 +1,12 @@
 # services-func
 
+## 1.0.8
+
+### Patch Changes
+
+- 32729fd: Remove deprecated FF_DISABLE_INCOMPLETE_SERVICES and
+  FF_INCOMPLETE_SERVICE_WHITELIST environment variables.
+
 ## 1.0.7
 
 ### Patch Changes
