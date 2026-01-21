@@ -1,0 +1,17 @@
+meta {
+  name: Info
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{send_func_url}}/info
+  body: none
+  auth: none
+}
+
+docs {
+  ## Info
+  
+  Returns the name and the version of the function
+}
