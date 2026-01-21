@@ -60,7 +60,10 @@ const main = async (config: Config): Promise<void> => {
     config.lollipop.apiKey,
     config.lollipop.baseUrl,
   );
-  const lollipopMiddleware = createLollipopMiddleware(lollipopClient);
+  const lollipopMiddleware = createLollipopMiddleware(
+    lollipopClient,
+    telemetryService,
+  );
 
   app.http("Health", {
     authLevel: "anonymous",
