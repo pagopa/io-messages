@@ -1,5 +1,11 @@
 # send-func
 
+## 1.5.2
+
+### Patch Changes
+
+- 84bbce4: Add info API
+
 ## 1.5.1
 
 ### Patch Changes

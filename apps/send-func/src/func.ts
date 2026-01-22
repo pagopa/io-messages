@@ -17,6 +17,7 @@ import {
 import { getNotification } from "./adapters/functions/aar-notifications.js";
 import { aarQRCodeCheck } from "./adapters/functions/aar-qrcode-check.js";
 import { healthcheck } from "./adapters/functions/health.js";
+import { infoHandler } from "./adapters/functions/info.js";
 import SendNotificationClient from "./adapters/send/notification.js";
 import { AcceptNotificationMandateUseCase } from "./domain/use-cases/accept-notification-mandate.js";
 import { CreateNotificationMandateUseCase } from "./domain/use-cases/create-notification-mandate.js";
@@ -70,6 +71,13 @@ const main = async (config: Config): Promise<void> => {
     handler: healthcheck(healthcheckUseCase),
     methods: ["GET"],
     route: "health",
+  });
+
+  app.http("Info", {
+    authLevel: "anonymous",
+    handler: infoHandler,
+    methods: ["GET"],
+    route: "info",
   });
 
   app.http("AARQrCodeCheck", {
