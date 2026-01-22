@@ -206,7 +206,7 @@ describe("parseLollipopHeaders invalid request headers", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      { status: 403 },
+      expect.objectContaining({ status: 403 }),
     );
   });
 
@@ -232,7 +232,7 @@ describe("parseLollipopHeaders invalid request headers", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      { status: 403 },
+      expect.objectContaining({ status: 403 }),
     );
   });
 
@@ -258,7 +258,7 @@ describe("parseLollipopHeaders invalid request headers", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      { status: 403 },
+      expect.objectContaining({ status: 403 }),
     );
   });
 
@@ -283,7 +283,7 @@ describe("parseLollipopHeaders invalid request headers", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      { status: 403 },
+      expect.objectContaining({ status: 403 }),
     );
   });
 
@@ -308,7 +308,7 @@ describe("parseLollipopHeaders invalid request headers", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      { status: 403 },
+      expect.objectContaining({ status: 403 }),
     );
   });
 });
@@ -338,7 +338,7 @@ describe("parseLollipopHeaders invalid x-user header", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      { status: 401 },
+      expect.objectContaining({ status: 401 }),
     );
   });
 
@@ -386,7 +386,7 @@ describe("parseLollipopHeaders invalid x-user header", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      { status: 401 },
+      expect.objectContaining({ status: 401 }),
     );
   });
 
@@ -410,7 +410,7 @@ describe("parseLollipopHeaders invalid x-user header", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      { status: 401 },
+      expect.objectContaining({ status: 401 }),
     );
   });
 });
@@ -445,7 +445,7 @@ describe("parseLollipopHeaders assertion_ref validation", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      { status: 403 },
+      expect.objectContaining({ status: 403 }),
     );
   });
 
@@ -474,7 +474,7 @@ describe("parseLollipopHeaders assertion_ref validation", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      { status: 401 },
+      expect.objectContaining({ status: 401 }),
     );
   });
 
@@ -496,7 +496,7 @@ describe("parseLollipopHeaders assertion_ref validation", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      { status: 403 },
+      expect.objectContaining({ status: 403 }),
     );
   });
 });
@@ -597,7 +597,7 @@ describe("LollipopClient errors", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_GET_LC_PARAMS_ERROR,
-      { status: 500 },
+      expect.objectContaining({ status: 500 }),
     );
   });
 
@@ -621,7 +621,9 @@ describe("LollipopClient errors", () => {
       parseLollipopHeaders(req, mockLollipopClient, mockTelemetryService),
     ).rejects.toThrow("Unexpected Middleware error | Error: Network error");
 
-    expect(mockTelemetryService.trackEvent).not.toHaveBeenCalled();
+    expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
+      TelemetryEventName.LOLLIPOP_MIDDLEWARE_GENERIC_SERVER_ERROR,
+    );
   });
 });
 

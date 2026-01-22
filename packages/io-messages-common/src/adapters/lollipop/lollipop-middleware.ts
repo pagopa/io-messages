@@ -21,6 +21,7 @@ import { lollipopRequestHeadersSchema } from "./definitions/request-headers.js";
 import { LollipopSignatureInput } from "./definitions/signature-input.js";
 import { Thumbprint, thumbprintSchema } from "./definitions/thumbprint.js";
 import LollipopClient, { LollipopClientError } from "./lollipop-client.js";
+import z from "zod";
 
 const algoSchemaMap: {
   algo: JwkPubKeyHashAlgorithm;
@@ -85,6 +86,7 @@ export const parseLollipopHeaders = async (
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
       {
         status: 403,
+        body: z.treeifyError(parsedRequestHeaders.error),
       },
     );
     throw new MiddlewareError(
@@ -101,6 +103,7 @@ export const parseLollipopHeaders = async (
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
       {
         status: 401,
+        body: "Missing x-user header",
       },
     );
     throw new MiddlewareError("Missing x-user header", 401);
@@ -115,6 +118,7 @@ export const parseLollipopHeaders = async (
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
       {
         status: 401,
+        body: JSON.stringify(z.treeifyError(parsedUser.error)),
       },
     );
     throw new MiddlewareError(`Invalid x-user header ${parsedUser.error}`, 401);
@@ -132,6 +136,7 @@ export const parseLollipopHeaders = async (
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
       {
         status: 403,
+        body: "Missing AssertionRef in user identity",
       },
     );
     throw new MiddlewareError("AssertionRef is missing", 403);
@@ -143,6 +148,7 @@ export const parseLollipopHeaders = async (
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
       {
         status: 403,
+        body: "AssertionRef mismatch",
       },
     );
     throw new MiddlewareError("AssertionRef mismatch", 403);
@@ -168,11 +174,15 @@ export const parseLollipopHeaders = async (
         TelemetryEventName.LOLLIPOP_MIDDLEWARE_GET_LC_PARAMS_ERROR,
         {
           status: 500,
+          body: JSON.stringify(err.body),
         },
       );
       throw new MiddlewareError(err.message, 500, err.body);
     }
 
+    telemetryService.trackEvent(
+      TelemetryEventName.LOLLIPOP_MIDDLEWARE_GENERIC_SERVER_ERROR,
+    );
     throw new Error(`Unexpected Middleware error | ${err}`);
   }
 };
