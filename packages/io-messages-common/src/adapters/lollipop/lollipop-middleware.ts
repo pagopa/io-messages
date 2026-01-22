@@ -1,3 +1,4 @@
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { HttpRequest } from "@azure/functions";
 import { ulid } from "ulid";
 
@@ -20,7 +21,6 @@ import { lollipopRequestHeadersSchema } from "./definitions/request-headers.js";
 import { LollipopSignatureInput } from "./definitions/signature-input.js";
 import { Thumbprint, thumbprintSchema } from "./definitions/thumbprint.js";
 import LollipopClient, { LollipopClientError } from "./lollipop-client.js";
-import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 
 const algoSchemaMap: {
   algo: JwkPubKeyHashAlgorithm;
