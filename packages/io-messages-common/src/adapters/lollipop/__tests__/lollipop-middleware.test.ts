@@ -16,15 +16,14 @@ import {
 import LollipopClient, { LollipopClientError } from "../lollipop-client.js";
 import { parseLollipopHeaders } from "../lollipop-middleware.js";
 
-// Helper to create a mock HttpRequest
 const createMockRequest = (headers: Record<string, string>): HttpRequest => {
-  const headersMap = new Map(Object.entries(headers));
-  return {
-    headers: headersMap,
-  } as unknown as HttpRequest;
+  return new HttpRequest({
+    url: "https://api.example.com/test",
+    method: "POST",
+    headers: headers,
+  });
 };
 
-// Helper to create a valid user identity
 const createValidUserIdentity = (assertionRef?: string) => ({
   assertion_ref: assertionRef,
   date_of_birth: "1997-10-06",
@@ -34,8 +33,9 @@ const createValidUserIdentity = (assertionRef?: string) => ({
   spid_level: "https://www.spid.gov.it/SpidL2",
 });
 
-// Helper to create valid lollipop request headers
-const createValidLollipopHeaders = (signatureInput?: string) => ({
+const createValidLollipopHeaders = (
+  signatureInput?: string,
+): Record<string, string> => ({
   signature: "sig1=:mockSignature:",
   "signature-input": signatureInput || aSignatureInput,
   "x-pagopa-lollipop-original-method": "POST",
@@ -433,9 +433,9 @@ describe("parseLollipopHeaders", () => {
         name: "Mario",
         spid_level: "https://www.spid.gov.it/SpidL2",
       };
-      const userHeader = Buffer.from(JSON.stringify(invalidUserIdentity)).toString(
-        "base64",
-      );
+      const userHeader = Buffer.from(
+        JSON.stringify(invalidUserIdentity),
+      ).toString("base64");
 
       const req = createMockRequest({
         ...createValidLollipopHeaders(),
@@ -599,7 +599,7 @@ describe("parseLollipopHeaders", () => {
       );
     });
 
-it("should handle signature-input with parameters in different order", async () => {
+    it("should handle signature-input with parameters in different order", async () => {
       const signatureInput = `sig1=(); nonce="test"; keyid="${aThumbprint}"`;
 
       const userIdentity = createValidUserIdentity(anAssertionRef);
