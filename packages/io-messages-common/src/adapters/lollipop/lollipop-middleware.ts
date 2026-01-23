@@ -86,8 +86,8 @@ export const parseLollipopHeaders = async (
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
       {
         body: z.treeifyError(parsedRequestHeaders.error),
-        status: 403,
         requestPath: new URL(req.url).pathname,
+        status: 403,
       },
     );
     throw new MiddlewareError(
@@ -104,8 +104,8 @@ export const parseLollipopHeaders = async (
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
       {
         body: "Missing x-user header",
-        status: 401,
         requestPath: new URL(req.url).pathname,
+        status: 401,
       },
     );
     throw new MiddlewareError("Missing x-user header", 401);
@@ -120,8 +120,8 @@ export const parseLollipopHeaders = async (
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
       {
         body: JSON.stringify(z.treeifyError(parsedUser.error)),
-        status: 401,
         requestPath: new URL(req.url).pathname,
+        status: 401,
       },
     );
     throw new MiddlewareError(`Invalid x-user header ${parsedUser.error}`, 401);
@@ -139,8 +139,8 @@ export const parseLollipopHeaders = async (
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
       {
         body: "Missing AssertionRef in user identity",
-        status: 403,
         requestPath: new URL(req.url).pathname,
+        status: 403,
       },
     );
     throw new MiddlewareError("AssertionRef is missing", 403);
@@ -152,8 +152,8 @@ export const parseLollipopHeaders = async (
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
       {
         body: "AssertionRef mismatch",
-        status: 403,
         requestPath: new URL(req.url).pathname,
+        status: 403,
       },
     );
     throw new MiddlewareError("AssertionRef mismatch", 403);
@@ -179,8 +179,8 @@ export const parseLollipopHeaders = async (
         TelemetryEventName.LOLLIPOP_MIDDLEWARE_GET_LC_PARAMS_ERROR,
         {
           body: JSON.stringify(err.body),
-          status: 500,
           requestPath: new URL(req.url).pathname,
+          status: 500,
         },
       );
       throw new MiddlewareError(err.message, 500, err.body);

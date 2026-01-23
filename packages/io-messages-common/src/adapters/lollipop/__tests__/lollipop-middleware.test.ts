@@ -18,7 +18,7 @@ import { parseLollipopHeaders } from "../lollipop-middleware.js";
 
 const createMockRequest = (
   headers: Record<string, string>,
-  path: string = "/api/v1/messages",
+  path = "/api/v1/messages",
 ): HttpRequest =>
   new HttpRequest({
     headers: headers,
@@ -209,7 +209,7 @@ describe("parseLollipopHeaders invalid request headers", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      expect.objectContaining({ status: 403, requestPath: "/api/v1/messages" }),
+      expect.objectContaining({ requestPath: "/api/v1/messages", status: 403 }),
     );
   });
 
@@ -235,7 +235,7 @@ describe("parseLollipopHeaders invalid request headers", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      expect.objectContaining({ status: 403, requestPath: "/api/v1/messages" }),
+      expect.objectContaining({ requestPath: "/api/v1/messages", status: 403 }),
     );
   });
 
@@ -261,7 +261,7 @@ describe("parseLollipopHeaders invalid request headers", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      expect.objectContaining({ status: 403, requestPath: "/api/v1/messages" }),
+      expect.objectContaining({ requestPath: "/api/v1/messages", status: 403 }),
     );
   });
 
@@ -286,7 +286,7 @@ describe("parseLollipopHeaders invalid request headers", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      expect.objectContaining({ status: 403, requestPath: "/api/v1/messages" }),
+      expect.objectContaining({ requestPath: "/api/v1/messages", status: 403 }),
     );
   });
 
@@ -311,7 +311,7 @@ describe("parseLollipopHeaders invalid request headers", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      expect.objectContaining({ status: 403, requestPath: "/api/v1/messages" }),
+      expect.objectContaining({ requestPath: "/api/v1/messages", status: 403 }),
     );
   });
 });
@@ -341,7 +341,7 @@ describe("parseLollipopHeaders invalid x-user header", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      expect.objectContaining({ status: 401, requestPath: "/api/v1/messages" }),
+      expect.objectContaining({ requestPath: "/api/v1/messages", status: 401 }),
     );
   });
 
@@ -389,7 +389,7 @@ describe("parseLollipopHeaders invalid x-user header", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      expect.objectContaining({ status: 401, requestPath: "/api/v1/messages" }),
+      expect.objectContaining({ requestPath: "/api/v1/messages", status: 401 }),
     );
   });
 
@@ -413,7 +413,7 @@ describe("parseLollipopHeaders invalid x-user header", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      expect.objectContaining({ status: 401, requestPath: "/api/v1/messages" }),
+      expect.objectContaining({ requestPath: "/api/v1/messages", status: 401 }),
     );
   });
 });
@@ -448,7 +448,7 @@ describe("parseLollipopHeaders assertion_ref validation", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      expect.objectContaining({ status: 403, requestPath: "/api/v1/messages" }),
+      expect.objectContaining({ requestPath: "/api/v1/messages", status: 403 }),
     );
   });
 
@@ -477,7 +477,7 @@ describe("parseLollipopHeaders assertion_ref validation", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      expect.objectContaining({ status: 401, requestPath: "/api/v1/messages" }),
+      expect.objectContaining({ requestPath: "/api/v1/messages", status: 401 }),
     );
   });
 
@@ -499,7 +499,7 @@ describe("parseLollipopHeaders assertion_ref validation", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      expect.objectContaining({ status: 403, requestPath: "/api/v1/messages" }),
+      expect.objectContaining({ requestPath: "/api/v1/messages", status: 403 }),
     );
   });
 });
@@ -600,7 +600,7 @@ describe("LollipopClient errors", () => {
 
     expect(mockTelemetryService.trackEvent).toHaveBeenCalledWith(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_GET_LC_PARAMS_ERROR,
-      expect.objectContaining({ status: 500, requestPath: "/api/v1/messages" }),
+      expect.objectContaining({ requestPath: "/api/v1/messages", status: 500 }),
     );
   });
 
