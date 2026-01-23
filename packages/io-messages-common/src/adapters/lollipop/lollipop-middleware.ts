@@ -87,6 +87,7 @@ export const parseLollipopHeaders = async (
       {
         body: z.treeifyError(parsedRequestHeaders.error),
         status: 403,
+        requestPath: new URL(req.url).pathname,
       },
     );
     throw new MiddlewareError(
@@ -104,6 +105,7 @@ export const parseLollipopHeaders = async (
       {
         body: "Missing x-user header",
         status: 401,
+        requestPath: new URL(req.url).pathname,
       },
     );
     throw new MiddlewareError("Missing x-user header", 401);
@@ -119,6 +121,7 @@ export const parseLollipopHeaders = async (
       {
         body: JSON.stringify(z.treeifyError(parsedUser.error)),
         status: 401,
+        requestPath: new URL(req.url).pathname,
       },
     );
     throw new MiddlewareError(`Invalid x-user header ${parsedUser.error}`, 401);
@@ -137,6 +140,7 @@ export const parseLollipopHeaders = async (
       {
         body: "Missing AssertionRef in user identity",
         status: 403,
+        requestPath: new URL(req.url).pathname,
       },
     );
     throw new MiddlewareError("AssertionRef is missing", 403);
@@ -149,6 +153,7 @@ export const parseLollipopHeaders = async (
       {
         body: "AssertionRef mismatch",
         status: 403,
+        requestPath: new URL(req.url).pathname,
       },
     );
     throw new MiddlewareError("AssertionRef mismatch", 403);
@@ -175,6 +180,7 @@ export const parseLollipopHeaders = async (
         {
           body: JSON.stringify(err.body),
           status: 500,
+          requestPath: new URL(req.url).pathname,
         },
       );
       throw new MiddlewareError(err.message, 500, err.body);
@@ -182,6 +188,9 @@ export const parseLollipopHeaders = async (
 
     telemetryService.trackEvent(
       TelemetryEventName.LOLLIPOP_MIDDLEWARE_GENERIC_SERVER_ERROR,
+      {
+        requestPath: new URL(req.url).pathname,
+      },
     );
     throw new Error(`Unexpected Middleware error | ${err}`);
   }
