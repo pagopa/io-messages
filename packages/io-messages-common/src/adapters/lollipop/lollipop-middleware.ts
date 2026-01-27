@@ -73,6 +73,22 @@ const getNonceOrUuidFromSignature = (
   return match ? match[1] : ulid();
 };
 
+const trackMalformedHeadersError = (
+  telemetryService: TelemetryService,
+  requestPath: string,
+  body: ZodError | string,
+  status: number,
+) => {
+  telemetryService.trackEvent(
+    TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
+    {
+      body: typeof body === "string" ? body : z.treeifyError(body),
+      requestPath,
+      status,
+    },
+  );
+};
+
 export const parseLollipopHeaders = async (
   req: HttpRequest,
   lollipopClient: LollipopClient,
@@ -80,26 +96,17 @@ export const parseLollipopHeaders = async (
 ): Promise<LollipopHeaders> => {
   const requestPath = new URL(req.url).pathname;
 
-  const trackMalformedHeadersError = (
-    body: ZodError | string,
-    status: number,
-  ) => {
-    telemetryService.trackEvent(
-      TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
-      {
-        body: typeof body === "string" ? body : z.treeifyError(body),
-        requestPath,
-        status,
-      },
-    );
-  };
-
   // Validate lollipop request headers
   const normalizedHeaders = Object.fromEntries(req.headers.entries());
   const parsedRequestHeaders =
     lollipopRequestHeadersSchema.safeParse(normalizedHeaders);
   if (!parsedRequestHeaders.success) {
-    trackMalformedHeadersError(parsedRequestHeaders.error, 403);
+    trackMalformedHeadersError(
+      telemetryService,
+      requestPath,
+      parsedRequestHeaders.error,
+      403,
+    );
     throw new MiddlewareError(
       `Missing or invalid required lollipop headers`,
       403,
@@ -109,7 +116,12 @@ export const parseLollipopHeaders = async (
   // Validate x-user header presence
   const userHeader = req.headers.get("x-user");
   if (!userHeader) {
-    trackMalformedHeadersError("Missing x-user header", 401);
+    trackMalformedHeadersError(
+      telemetryService,
+      requestPath,
+      "Missing x-user header",
+      401,
+    );
     throw new MiddlewareError("Missing x-user header", 401);
   }
 
@@ -119,32 +131,44 @@ export const parseLollipopHeaders = async (
   );
   const parsedUser = userIdentitySchema.safeParse(decodedUser);
   if (!parsedUser.success) {
-    trackMalformedHeadersError(parsedUser.error, 401);
+    trackMalformedHeadersError(
+      telemetryService,
+      requestPath,
+      parsedUser.error,
+      401,
+    );
 
     throw new MiddlewareError(`Invalid x-user header ${parsedUser.error}`, 401);
   }
 
   const userIdentity = parsedUser.data;
   const requestHeaders = parsedRequestHeaders.data;
+  const signatureInput = requestHeaders["signature-input"];
 
   // Extract signature parameters
-  const operationId = getNonceOrUuidFromSignature(
-    requestHeaders["signature-input"],
-  );
-  const thumbprint = getKeyThumbprintFromSignature(
-    requestHeaders["signature-input"],
-  );
+  const operationId = getNonceOrUuidFromSignature(signatureInput);
+  const thumbprint = getKeyThumbprintFromSignature(signatureInput);
 
   // Validate assertion reference
   const assertionRef = userIdentity.assertion_ref;
   if (!assertionRef) {
-    trackMalformedHeadersError("Missing AssertionRef in user identity", 403);
+    trackMalformedHeadersError(
+      telemetryService,
+      requestPath,
+      "Missing AssertionRef in user identity",
+      403,
+    );
     throw new MiddlewareError("AssertionRef is missing", 403);
   }
 
   const algo = getAlgoFromAssertionRef(assertionRef);
   if (assertionRef !== `${algo}-${thumbprint}`) {
-    trackMalformedHeadersError("AssertionRef mismatch", 403);
+    trackMalformedHeadersError(
+      telemetryService,
+      requestPath,
+      "AssertionRef mismatch",
+      403,
+    );
     throw new MiddlewareError("AssertionRef mismatch", 403);
   }
 
