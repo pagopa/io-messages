@@ -1,5 +1,7 @@
+import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { HttpRequest } from "@azure/functions";
 import { ulid } from "ulid";
+import z, { ZodError } from "zod";
 
 import { userIdentitySchema } from "../auth/user-identity.js";
 import { Middleware, MiddlewareError } from "../middleware.js";
@@ -71,43 +73,104 @@ const getNonceOrUuidFromSignature = (
   return match ? match[1] : ulid();
 };
 
+const trackMalformedHeadersError = (
+  telemetryService: TelemetryService,
+  requestPath: string,
+  body: ZodError | string,
+  status: number,
+) => {
+  telemetryService.trackEvent(
+    TelemetryEventName.LOLLIPOP_MIDDLEWARE_MALFORMED_HEADERS_ERROR,
+    {
+      body: typeof body === "string" ? body : z.treeifyError(body),
+      requestPath,
+      status,
+    },
+  );
+};
+
 export const parseLollipopHeaders = async (
   req: HttpRequest,
   lollipopClient: LollipopClient,
+  telemetryService: TelemetryService,
 ): Promise<LollipopHeaders> => {
+  const requestPath = new URL(req.url).pathname;
+
+  // Validate lollipop request headers
   const normalizedHeaders = Object.fromEntries(req.headers.entries());
   const parsedRequestHeaders =
     lollipopRequestHeadersSchema.safeParse(normalizedHeaders);
-  if (!parsedRequestHeaders.success)
+  if (!parsedRequestHeaders.success) {
+    trackMalformedHeadersError(
+      telemetryService,
+      requestPath,
+      parsedRequestHeaders.error,
+      403,
+    );
     throw new MiddlewareError(
       `Missing or invalid required lollipop headers`,
       403,
     );
+  }
 
-  const requestHeaders = parsedRequestHeaders.data;
-
+  // Validate x-user header presence
   const userHeader = req.headers.get("x-user");
-  if (!userHeader) throw new MiddlewareError("Missing x-user header", 401);
+  if (!userHeader) {
+    trackMalformedHeadersError(
+      telemetryService,
+      requestPath,
+      "Missing x-user header",
+      401,
+    );
+    throw new MiddlewareError("Missing x-user header", 401);
+  }
 
+  // Parse and validate user identity
   const decodedUser = JSON.parse(
     Buffer.from(userHeader, "base64").toString("utf-8"),
   );
   const parsedUser = userIdentitySchema.safeParse(decodedUser);
-  if (!parsedUser.success)
+  if (!parsedUser.success) {
+    trackMalformedHeadersError(
+      telemetryService,
+      requestPath,
+      parsedUser.error,
+      401,
+    );
+
     throw new MiddlewareError(`Invalid x-user header ${parsedUser.error}`, 401);
+  }
 
   const userIdentity = parsedUser.data;
+  const requestHeaders = parsedRequestHeaders.data;
   const signatureInput = requestHeaders["signature-input"];
 
+  // Extract signature parameters
   const operationId = getNonceOrUuidFromSignature(signatureInput);
   const thumbprint = getKeyThumbprintFromSignature(signatureInput);
-  const assertionRef = userIdentity.assertion_ref;
 
-  if (!assertionRef) throw new MiddlewareError("AssertionRef is missing", 403);
+  // Validate assertion reference
+  const assertionRef = userIdentity.assertion_ref;
+  if (!assertionRef) {
+    trackMalformedHeadersError(
+      telemetryService,
+      requestPath,
+      "Missing AssertionRef in user identity",
+      403,
+    );
+    throw new MiddlewareError("AssertionRef is missing", 403);
+  }
 
   const algo = getAlgoFromAssertionRef(assertionRef);
-  if (assertionRef !== `${algo}-${thumbprint}`)
+  if (assertionRef !== `${algo}-${thumbprint}`) {
+    trackMalformedHeadersError(
+      telemetryService,
+      requestPath,
+      "AssertionRef mismatch",
+      403,
+    );
     throw new MiddlewareError("AssertionRef mismatch", 403);
+  }
 
   try {
     const lcParams = await lollipopClient.generateLCParams(
@@ -124,15 +187,30 @@ export const parseLollipopHeaders = async (
       ...requestHeaders,
     });
   } catch (err) {
-    if (err instanceof LollipopClientError)
+    if (err instanceof LollipopClientError) {
+      telemetryService.trackEvent(
+        TelemetryEventName.LOLLIPOP_MIDDLEWARE_GET_LC_PARAMS_ERROR,
+        {
+          body: JSON.stringify(err.body),
+          requestPath,
+          status: 500,
+        },
+      );
       throw new MiddlewareError(err.message, 500, err.body);
+    }
+
+    telemetryService.trackEvent(
+      TelemetryEventName.LOLLIPOP_MIDDLEWARE_GENERIC_SERVER_ERROR,
+      { requestPath },
+    );
     throw new Error(`Unexpected Middleware error | ${err}`);
   }
 };
 
 export function createLollipopMiddleware(
   lollipopClient: LollipopClient,
+  telemetryService: TelemetryService,
 ): Middleware<LollipopHeaders> {
   return async (req: HttpRequest) =>
-    await parseLollipopHeaders(req, lollipopClient);
+    await parseLollipopHeaders(req, lollipopClient, telemetryService);
 }
