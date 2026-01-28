@@ -1,5 +1,11 @@
 # io-messages-common
 
+## 1.4.0
+
+### Minor Changes
+
+- 9cf82a6: Add telemetry to the lollipop middleware
+
 ## 1.3.1
 
 ### Patch Changes

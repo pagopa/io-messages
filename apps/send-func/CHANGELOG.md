@@ -1,5 +1,13 @@
 # send-func
 
+## 1.5.3
+
+### Patch Changes
+
+- 9cf82a6: Add telemetry to the lollipop middleware
+- Updated dependencies [9cf82a6]
+  - io-messages-common@1.4.0
+
 ## 1.5.2
 
 ### Patch Changes
