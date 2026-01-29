@@ -18,3 +18,10 @@ resource "azurerm_api_management_product_policy" "apim_itn_product_io_com_policy
 
   xml_link = "https://raw.githubusercontent.com/pagopa/io-messages/2b0d3d226b95f731c4a6fdf58daff2e6dfcb4ef0/infra/resources/_modules/apim/product/policy.xml"
 }
+
+# Platform Domain Product
+data "azurerm_api_management_product" "apim_platform_domain_product" {
+  product_id          = "io-communications"
+  api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
+}

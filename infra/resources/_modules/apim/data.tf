@@ -26,3 +26,9 @@ data "azurerm_linux_web_app" "session_manager_app_weu" {
   name                = "io-p-weu-session-manager-app-03"
   resource_group_name = "io-p-weu-session-manager-rg-01"
 }
+
+
+data "azurerm_key_vault_secret" "app_backend_api_key_secret" {
+  name         = "pushnotif-func-key" # TODO: replace with"appbackend-APP-BACKEND-PRIMARY-KEY"
+  key_vault_id = local.key_vault.id
+}
