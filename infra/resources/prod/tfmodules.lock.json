@@ -1,9 +1,9 @@
 {
   "container_apps.com_cae": {
-    "hash": "97f9c6f79adc987c1d8b607a99fcc6ecc65a6a76cada97f1d7731e343b560c63",
-    "version": "1.0.2",
+    "hash": "a1c1605b8b6f16fab52b41686e125c37d8fd3ecc226698b687cdfb4a4c288de2",
+    "version": "1.1.0",
     "name": "azure_container_app_environment",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app-environment/azurerm/1.0.2"
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app-environment/azurerm/1.1.0"
   },
   "container_apps.reminder_ca_itn_01": {
     "hash": "f40ba13e4318b7b6a4ca8da9104573e699a138b55ad750f48bce7c14687c6edd",
@@ -18,10 +18,10 @@
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-cosmos-account/azurerm/0.2.0"
   },
   "eventhubs.etl": {
-    "hash": "dbe7be54650ef9e344642733ae5e6b9ce385e97a7e40af2278cdb44581d59146",
-    "version": "0.1.0",
+    "hash": "78d794bccb16a7e173cc0221d41c3556677d80e9846980cc9c8e7c4ccb4d49c0",
+    "version": "0.2.0",
     "name": "azure_event_hub",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-event-hub/azurerm/0.1.0"
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-event-hub/azurerm/0.2.0"
   },
   "storage_api_weu.com_st": {
     "hash": "a2a257b25753f91b36acef29e080efc4d62dea59e803f56e33e813e7a343e66b",
@@ -108,10 +108,10 @@
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/1.0.1"
   },
   "web_apps.citizen_func_new": {
-    "hash": "7f7683c1baaa380df0ef3eb5b3329d4c587cd716e57f268d81ac8b6a7519e641",
-    "version": "4.1.1",
+    "hash": "40edd316da1ed706917773f8bebbdc9675027778d770adb1c0d003fbf5f25012",
+    "version": "4.2.0",
     "name": "azure_function_app",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/4.1.1"
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/4.2.0"
   },
   "web_apps.citizen_func_autoscaler_new": {
     "hash": "0ce217941a45b1d47e10fd2c908ee084a98370b5ca797d57e314afc2fc7a07a3",

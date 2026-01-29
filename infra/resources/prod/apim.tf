@@ -8,4 +8,5 @@ module "apim" {
   domain                = local.domain
 
   key_vault = module.key_vaults.com
+
 }
