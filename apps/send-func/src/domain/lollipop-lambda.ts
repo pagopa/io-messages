@@ -38,23 +38,23 @@ export const lollipopLambdaAuthorizerContextSchema = z
 
 export const lollipopLambdaRequestSummarySchema = z.object({
   authorizerContextKeys: z.array(z.string()).optional(),
+  body: z.object().loose().optional(),
   hasAuthorizerContext: z.boolean().optional(),
   headers: z.record(z.string(), z.string()).optional(),
-  requestBody: z.object(),
 });
 
 export const lollipopLambdaSuccessResponseSchema = z.object({
   data: z.object({
     authorizerContext: lollipopLambdaAuthorizerContextSchema.optional(),
-    lollipopHeaders: lollipopLambdaHeadersSchema.optional(),
+    lollipopHeaders: z.object().loose().optional(),
     message: z.string(),
     request: lollipopLambdaRequestInfoSchema,
-    requestBody: z.object(),
+    requestBody: z.object().loose().optional(),
     summary: lollipopLambdaRequestSummarySchema.optional(),
-    timestamp: z.string().datetime(),
+    timestamp: z.string(),
   }),
   success: z.literal(true),
-  timestamp: z.string().datetime(),
+  timestamp: z.string(),
 });
 
 export type LollipopLambdaRequestInfo = z.infer<
@@ -73,12 +73,12 @@ export type LollipopLambdaSuccessResponse = z.infer<
 export interface LollipopLambdaClient {
   checkWithGet(
     headers: LollipopLambdaHeaders,
-    query: LollipopLambdaQuery,
+    query?: LollipopLambdaQuery,
   ): Promise<LollipopLambdaSuccessResponse>;
 
   checkWithPost(
-    query: LollipopLambdaQuery,
     headers: LollipopLambdaHeaders,
-    requestBody: LollipopLambdaRequestBody,
+    query?: LollipopLambdaQuery,
+    requestBody?: LollipopLambdaRequestBody,
   ): Promise<LollipopLambdaSuccessResponse>;
 }
