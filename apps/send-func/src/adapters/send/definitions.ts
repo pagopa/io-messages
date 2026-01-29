@@ -107,3 +107,16 @@ export const aarGetAttachmentResponseSchema = z.object({
 export type AarGetAttachmentResponse = z.TypeOf<
   typeof aarGetAttachmentResponseSchema
 >;
+
+export const lollipopLambdaErrorResponseSchema = z.object({
+  error: z.object({
+    message: z.string(),
+    statusCode: z.number().int(),
+  }),
+  success: z.literal(false),
+  timestamp: z.string(),
+});
+
+export type LollipopLambdaErrorResponse = z.infer<
+  typeof lollipopLambdaErrorResponseSchema
+>;
