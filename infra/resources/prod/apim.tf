@@ -9,5 +9,4 @@ module "apim" {
 
   key_vault = module.key_vaults.com
 
-
 }

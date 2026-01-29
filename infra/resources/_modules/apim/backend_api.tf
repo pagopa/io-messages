@@ -48,7 +48,7 @@ resource "azurerm_api_management_api_policy" "io_communications" {
   api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
 
-  xml_content = file("${path.module}/policies/api/backend/_api_base_policy.xml")
+  xml_content = file("${path.module}/api/backend/_api_base_policy.xml")
 }
 
 resource "azurerm_api_management_api_tag" "io_communications_api_tag" {
