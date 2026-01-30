@@ -24,7 +24,7 @@ export const lollipopLambdaRequestInfoSchema = z.object({
   hasBody: z.boolean(),
   method: z.enum(["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]),
   path: z.string(),
-  queryParameters: z.record(z.string(), z.string()).optional(),
+  queryParameters: z.object().loose().optional(),
   requestTime: z.string().optional(),
 });
 
@@ -38,9 +38,9 @@ export const lollipopLambdaAuthorizerContextSchema = z
 
 export const lollipopLambdaRequestSummarySchema = z.object({
   authorizerContextKeys: z.array(z.string()).optional(),
-  body: z.object().loose().optional(),
+  body: z.string().optional(),
   hasAuthorizerContext: z.boolean().optional(),
-  headers: z.record(z.string(), z.string()).optional(),
+  headers: z.object().loose().optional(),
 });
 
 export const lollipopLambdaSuccessResponseSchema = z.object({
