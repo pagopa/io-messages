@@ -1,0 +1,34 @@
+meta {
+  name: LollipopIntegrationCheck
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{send_func_url}}/lollipop-check/test?isTest=true&params1="testParam"
+  body: none
+  auth: inherit
+}
+
+params:query {
+  isTest: true
+  params1: "testParam"
+}
+
+headers {
+  x-pagopa-lollipop-original-method: GET
+  x-pagopa-lollipop-original-url: https://localhost:7074/api/v1/send/lollipop-check/test
+}
+
+vars:pre-request {
+  iun: ABCD-EFGH-IJKL-123456-M-7
+}
+
+docs {
+  # Verify the lollipop integration calling the SEND lollipop-lambda server
+  
+  ### Authentication and Authorization
+  
+  This API is protected by authentication and authorization mechanisms.
+  All headers defined in the request Headers section, as well as those configured at the collection or folder level, are mandatory and must be included with each request.
+}
