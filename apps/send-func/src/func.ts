@@ -18,12 +18,15 @@ import { getNotification } from "./adapters/functions/aar-notifications.js";
 import { aarQRCodeCheck } from "./adapters/functions/aar-qrcode-check.js";
 import { healthcheck } from "./adapters/functions/health.js";
 import { infoHandler } from "./adapters/functions/info.js";
+import { lollipopIntegrationCheck } from "./adapters/functions/lollipop-integration-check.js";
+import LollipopIntegrationCheckClient from "./adapters/send/lollipop-integration-check.js";
 import SendNotificationClient from "./adapters/send/notification.js";
 import { AcceptNotificationMandateUseCase } from "./domain/use-cases/accept-notification-mandate.js";
 import { CreateNotificationMandateUseCase } from "./domain/use-cases/create-notification-mandate.js";
 import { GetAttachmentUseCase } from "./domain/use-cases/get-attachment.js";
 import { GetNotificationUseCase } from "./domain/use-cases/get-notification.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
+import { LambdaLollipopCheckUseCase } from "./domain/use-cases/lollipop-lambda-check.js";
 import { QrCodeCheckUseCase } from "./domain/use-cases/qr-code-check.js";
 
 const main = async (config: Config): Promise<void> => {
@@ -43,6 +46,15 @@ const main = async (config: Config): Promise<void> => {
     );
   };
 
+  const getLollipopIntegrationCheckClient = (
+    isTest: boolean,
+  ): LollipopIntegrationCheckClient => {
+    const selectedConfig = isTest
+      ? config.lollipopLambdaUatClient
+      : config.lollipopLambdaClient;
+
+    return new LollipopIntegrationCheckClient(selectedConfig.baseUrl);
+  };
   const qrCodeCheckUseCase = new QrCodeCheckUseCase(getNotificationClient);
   const getNotificationUseCase = new GetNotificationUseCase(
     getNotificationClient,
@@ -55,6 +67,10 @@ const main = async (config: Config): Promise<void> => {
 
   const acceptNotificationMandateUseCase = new AcceptNotificationMandateUseCase(
     getNotificationClient,
+  );
+
+  const lambdaLollipopCheckUseCase = new LambdaLollipopCheckUseCase(
+    getLollipopIntegrationCheckClient,
   );
 
   const lollipopClient = new LollipopClient(
@@ -134,6 +150,16 @@ const main = async (config: Config): Promise<void> => {
     ),
     methods: ["PATCH"],
     route: "aar/mandates/{mandateId}",
+  });
+
+  app.http("LollipopIntegrationCheckGet", {
+    authLevel: "anonymous",
+    handler: handlerWithMiddleware(
+      lollipopMiddleware,
+      lollipopIntegrationCheck(lambdaLollipopCheckUseCase, telemetryService),
+    ),
+    methods: ["GET", "POST"],
+    route: "lollipop-check/test",
   });
 };
 
