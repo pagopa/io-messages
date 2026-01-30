@@ -7,7 +7,11 @@ import { aLollipopHeaders } from "@/__mocks__/notification.js";
 import { TelemetryEventService } from "@/adapters/appinsights/appinsights.js";
 import { LollipopIntegrationCheckClientError } from "@/adapters/send/lollipop-integration-check.js";
 import { LambdaLollipopCheckUseCase } from "@/domain/use-cases/lollipop-lambda-check.js";
-import { HttpRequest, InvocationContext } from "@azure/functions";
+import {
+  HttpRequest,
+  HttpResponseInit,
+  InvocationContext,
+} from "@azure/functions";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { lollipopIntegrationCheck } from "../lollipop-integration-check.js";
@@ -191,7 +195,11 @@ describe("LollipopIntegrationCheck", () => {
         url: "http://localhost?isTest=false",
       });
 
-      const result = await handler(request, context, aLollipopHeaders);
+      const result: HttpResponseInit = await handler(
+        request,
+        context,
+        aLollipopHeaders,
+      );
 
       expect(result.status).toBe(500);
       expect(result.jsonBody).toMatchObject({
