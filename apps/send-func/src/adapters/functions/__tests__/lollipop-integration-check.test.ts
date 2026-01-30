@@ -1,6 +1,4 @@
 import {
-  aLollipopLambdaHeaders,
-  aLollipopLambdaQuery,
   aLollipopLambdaRequestBody,
   aLollipopLambdaSuccessResponse,
   createMockLollipopLambdaClient,
@@ -196,14 +194,14 @@ describe("LollipopIntegrationCheck", () => {
       const result = await handler(request, context, aLollipopHeaders);
 
       expect(result.status).toBe(500);
-      expect((result as any).jsonBody).toMatchObject({
+      expect(result.jsonBody).toMatchObject({
         error: {
           message: "Generic error",
           statusCode: 500,
         },
         success: false,
       });
-      expect((result as any).jsonBody.timestamp).toBeDefined();
+      expect(result.jsonBody.timestamp).toBeDefined();
 
       expect(lollipopLambdaCheckExecuteSpy).toHaveBeenCalledOnce();
       expect(telemetryTrackEventMock).not.toHaveBeenCalled();
