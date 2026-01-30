@@ -7,23 +7,24 @@ import {
 } from "../lollipop-lambda.js";
 
 export class LambdaLollipopCheckUseCase {
-  #lambdaLollipopClient: () => LollipopLambdaClient;
+  #getLambdaLollipopClient: (isTest: boolean) => LollipopLambdaClient;
   #method: "GET" | "POST";
 
   constructor(
-    lambdaLollipopClient: () => LollipopLambdaClient,
+    getLambdaLollipopClient: (isTest: boolean) => LollipopLambdaClient,
     method: "GET" | "POST",
   ) {
-    this.#lambdaLollipopClient = lambdaLollipopClient;
+    this.#getLambdaLollipopClient = getLambdaLollipopClient;
     this.#method = method;
   }
 
   async execute(
+    isTest: boolean,
     headers: LollipopLambdaHeaders,
     query?: LollipopLambdaQuery,
     requestBody?: LollipopLambdaRequestBody,
   ): Promise<LollipopLambdaSuccessResponse> {
-    const lambdaLollipopClient = this.#lambdaLollipopClient();
+    const lambdaLollipopClient = this.#getLambdaLollipopClient(isTest);
 
     const response =
       this.#method === "GET"
