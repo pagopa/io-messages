@@ -15,20 +15,20 @@ const uatLollipopLambdaClient = createMockLollipopLambdaClient();
 const getLollipopLambdaClient = (isTest: boolean) =>
   isTest ? uatLollipopLambdaClient : lollipopLambdaClient;
 
-describe("LambdaLollipopCheckUseCase with GET method", () => {
-  const getLollipopCheckUseCase = new LambdaLollipopCheckUseCase(
-    getLollipopLambdaClient,
-    "GET",
-  );
+const lollipopCheckUseCase = new LambdaLollipopCheckUseCase(
+  getLollipopLambdaClient,
+);
 
+describe("LambdaLollipopCheckUseCase with GET method", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("calls the prod lollipopLambdaClient checkWithGet when method is GET and isTest is false", async () => {
     await expect(
-      getLollipopCheckUseCase.execute(
+      lollipopCheckUseCase.execute(
         false,
+        "GET",
         aLollipopLambdaHeaders,
         aLollipopLambdaQuery,
       ),
@@ -45,8 +45,9 @@ describe("LambdaLollipopCheckUseCase with GET method", () => {
 
   it("calls the uat lollipopLambdaClient checkWithGet when method is GET and isTest is true", async () => {
     await expect(
-      getLollipopCheckUseCase.execute(
+      lollipopCheckUseCase.execute(
         true,
+        "GET",
         aLollipopLambdaHeaders,
         aLollipopLambdaQuery,
       ),
@@ -63,7 +64,7 @@ describe("LambdaLollipopCheckUseCase with GET method", () => {
 
   it("calls checkWithGet without query parameters when not provided", async () => {
     await expect(
-      getLollipopCheckUseCase.execute(false, aLollipopLambdaHeaders),
+      lollipopCheckUseCase.execute(false, "GET", aLollipopLambdaHeaders),
     ).resolves.toBe(aLollipopLambdaSuccessResponse);
 
     expect(lollipopLambdaClient.checkWithGet).toHaveBeenCalledOnce();
@@ -75,19 +76,15 @@ describe("LambdaLollipopCheckUseCase with GET method", () => {
 });
 
 describe("LambdaLollipopCheckUseCase with POST method", () => {
-  const postLollipopCheckUseCase = new LambdaLollipopCheckUseCase(
-    getLollipopLambdaClient,
-    "POST",
-  );
-
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("calls the prod lollipopLambdaClient checkWithPost when method is POST and isTest is false", async () => {
     await expect(
-      postLollipopCheckUseCase.execute(
+      lollipopCheckUseCase.execute(
         false,
+        "POST",
         aLollipopLambdaHeaders,
         aLollipopLambdaQuery,
         aLollipopLambdaRequestBody,
@@ -106,8 +103,9 @@ describe("LambdaLollipopCheckUseCase with POST method", () => {
 
   it("calls the uat lollipopLambdaClient checkWithPost when method is POST and isTest is true", async () => {
     await expect(
-      postLollipopCheckUseCase.execute(
+      lollipopCheckUseCase.execute(
         true,
+        "POST",
         aLollipopLambdaHeaders,
         aLollipopLambdaQuery,
         aLollipopLambdaRequestBody,
@@ -126,7 +124,7 @@ describe("LambdaLollipopCheckUseCase with POST method", () => {
 
   it("calls checkWithPost without query and body when not provided", async () => {
     await expect(
-      postLollipopCheckUseCase.execute(false, aLollipopLambdaHeaders),
+      lollipopCheckUseCase.execute(false, "POST", aLollipopLambdaHeaders),
     ).resolves.toBe(aLollipopLambdaSuccessResponse);
 
     expect(lollipopLambdaClient.checkWithPost).toHaveBeenCalledOnce();
@@ -139,8 +137,9 @@ describe("LambdaLollipopCheckUseCase with POST method", () => {
 
   it("calls checkWithPost with query but without body", async () => {
     await expect(
-      postLollipopCheckUseCase.execute(
+      lollipopCheckUseCase.execute(
         false,
+        "POST",
         aLollipopLambdaHeaders,
         aLollipopLambdaQuery,
       ),

@@ -8,18 +8,16 @@ import {
 
 export class LambdaLollipopCheckUseCase {
   #getLambdaLollipopClient: (isTest: boolean) => LollipopLambdaClient;
-  #method: "GET" | "POST";
 
   constructor(
     getLambdaLollipopClient: (isTest: boolean) => LollipopLambdaClient,
-    method: "GET" | "POST",
   ) {
     this.#getLambdaLollipopClient = getLambdaLollipopClient;
-    this.#method = method;
   }
 
   async execute(
     isTest: boolean,
+    method: "GET" | "POST",
     headers: LollipopLambdaHeaders,
     query?: LollipopLambdaQuery,
     requestBody?: LollipopLambdaRequestBody,
@@ -27,7 +25,7 @@ export class LambdaLollipopCheckUseCase {
     const lambdaLollipopClient = this.#getLambdaLollipopClient(isTest);
 
     const response =
-      this.#method === "GET"
+      method === "GET"
         ? await lambdaLollipopClient.checkWithGet(headers, query)
         : await lambdaLollipopClient.checkWithPost(headers, query, requestBody);
 
