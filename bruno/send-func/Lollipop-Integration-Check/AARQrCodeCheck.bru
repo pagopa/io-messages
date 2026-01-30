@@ -1,17 +1,18 @@
 meta {
   name: AARQrCodeCheck
   type: http
-  seq: 3
+  seq: 2
 }
 
 post {
-  url: {{send_func_url}}/aar/qr-code-check?isTest={{send-func-is-test}}
+  url: {{send_func_url}}/lollipop-check/test?isTest=true&params1="testParam"
   body: json
   auth: inherit
 }
 
 params:query {
-  isTest: {{send-func-is-test}}
+  isTest: true
+  params1: "testParam"
 }
 
 headers {
@@ -21,7 +22,7 @@ headers {
 
 body:json {
   {
-    "aarQrCodeValue": "https://qr-code.test.com/ABCD2025010100012345"
+    "bodyParam1": "testBodyParam"
   }
 }
 
