@@ -1,5 +1,5 @@
 meta {
-  name: AARQrCodeCheck
+  name: LollipopIntegrationCheckPost
   type: http
   seq: 2
 }
@@ -27,12 +27,7 @@ body:json {
 }
 
 docs {
-  # Validate the AAR QRcode value
-  
-  It is used by the IO application to send the AAR QR code value to the send-func.  
-  The API validate the QRcode value and returns the data that can be used in the /aar/notifications/:iun API for retrieve the AAR notitifaction data. 
-  It can returns an error if the QRCode is not valid or if its content is not intended for the calling user.
-  
+  # Verify the lollipop integration calling the SEND lollipop-lambda server
   
   ### Authentication and Authorization
   

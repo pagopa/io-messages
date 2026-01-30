@@ -1,5 +1,5 @@
 meta {
-  name: GetReceivedNotification
+  name: LollipopIntegrationCheck
   type: http
   seq: 1
 }
@@ -25,9 +25,7 @@ vars:pre-request {
 }
 
 docs {
-  # Retrieve AAR notification data
-  
-  The IO application use the api to retrieve all the notification data, exept the attachements, using the **iun** returned by the /aar/qr-code-check API 
+  # Verify the lollipop integration calling the SEND lollipop-lambda server
   
   ### Authentication and Authorization
   
