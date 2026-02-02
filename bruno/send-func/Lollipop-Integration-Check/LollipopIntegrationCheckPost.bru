@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{send_func_url}}/lollipop-check/test?isTest=true&params1="testParam"
+  url: {{send_func_url}}/lollipop-check/test?isTest=true&params1="testParam"&errorResponse
   body: json
   auth: inherit
 }
@@ -13,6 +13,7 @@ post {
 params:query {
   isTest: true
   params1: "testParam"
+  errorResponse: 
 }
 
 headers {
@@ -36,6 +37,9 @@ body:json {
 
 docs {
   # Verify the lollipop integration calling the SEND lollipop-lambda server
+  
+  ### How to use 
+  errorResponse parameter is a test parameter. You can set it to 400, 403, 500 to get a mocked error response from mockoon
   
   ### Authentication and Authorization
   
