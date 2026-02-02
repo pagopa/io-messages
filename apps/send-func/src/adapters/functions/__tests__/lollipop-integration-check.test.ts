@@ -75,7 +75,6 @@ describe("LollipopIntegrationCheck", () => {
           ...aLollipopHeaders,
         },
         {
-          isTest: "false",
           testParam: "testValue",
         },
         undefined,
@@ -134,7 +133,6 @@ describe("LollipopIntegrationCheck", () => {
           ...aLollipopHeaders,
         },
         {
-          isTest: "false",
           testParam: "testValue",
         },
         aLollipopLambdaRequestBody,

@@ -24,6 +24,7 @@ export const lollipopIntegrationCheck =
       ...lollipopHeaders,
     };
     const query = Object.fromEntries(request.query.entries());
+    delete query.isTest;
     const method = request.method === "POST" ? "POST" : "GET";
 
     try {
