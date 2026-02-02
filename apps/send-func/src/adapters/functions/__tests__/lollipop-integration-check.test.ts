@@ -6,7 +6,7 @@ import {
 import { aLollipopHeaders } from "@/__mocks__/notification.js";
 import { TelemetryEventService } from "@/adapters/appinsights/appinsights.js";
 import { LollipopIntegrationCheckClientError } from "@/adapters/send/lollipop-integration-check.js";
-import { LambdaLollipopCheckUseCase } from "@/domain/use-cases/lollipop-lambda-check.js";
+import { LollipopLambdaCheckUseCase } from "@/domain/use-cases/lollipop-lambda-check.js";
 import {
   HttpRequest,
   HttpResponseInit,
@@ -32,7 +32,7 @@ const telemetryTrackEventMock = vi
 const mockLollipopLambdaClient = createMockLollipopLambdaClient();
 const getLollipopLambdaClient = vi.fn(() => mockLollipopLambdaClient);
 
-const lollipopLambdaCheckUseCase = new LambdaLollipopCheckUseCase(
+const lollipopLambdaCheckUseCase = new LollipopLambdaCheckUseCase(
   getLollipopLambdaClient,
 );
 

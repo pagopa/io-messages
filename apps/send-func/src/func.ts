@@ -26,7 +26,7 @@ import { CreateNotificationMandateUseCase } from "./domain/use-cases/create-noti
 import { GetAttachmentUseCase } from "./domain/use-cases/get-attachment.js";
 import { GetNotificationUseCase } from "./domain/use-cases/get-notification.js";
 import { HealthUseCase } from "./domain/use-cases/health.js";
-import { LambdaLollipopCheckUseCase } from "./domain/use-cases/lollipop-lambda-check.js";
+import { LollipopLambdaCheckUseCase } from "./domain/use-cases/lollipop-lambda-check.js";
 import { QrCodeCheckUseCase } from "./domain/use-cases/qr-code-check.js";
 
 const main = async (config: Config): Promise<void> => {
@@ -69,7 +69,7 @@ const main = async (config: Config): Promise<void> => {
     getNotificationClient,
   );
 
-  const lambdaLollipopCheckUseCase = new LambdaLollipopCheckUseCase(
+  const lambdaLollipopCheckUseCase = new LollipopLambdaCheckUseCase(
     getLollipopIntegrationCheckClient,
   );
 

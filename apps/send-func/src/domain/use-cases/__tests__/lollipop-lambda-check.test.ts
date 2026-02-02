@@ -7,7 +7,7 @@ import {
 } from "@/__mocks__/lollipop-lambda.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { LambdaLollipopCheckUseCase } from "../lollipop-lambda-check.js";
+import { LollipopLambdaCheckUseCase } from "../lollipop-lambda-check.js";
 
 const lollipopLambdaClient = createMockLollipopLambdaClient();
 const uatLollipopLambdaClient = createMockLollipopLambdaClient();
@@ -15,11 +15,11 @@ const uatLollipopLambdaClient = createMockLollipopLambdaClient();
 const getLollipopLambdaClient = (isTest: boolean) =>
   isTest ? uatLollipopLambdaClient : lollipopLambdaClient;
 
-const lollipopCheckUseCase = new LambdaLollipopCheckUseCase(
+const lollipopCheckUseCase = new LollipopLambdaCheckUseCase(
   getLollipopLambdaClient,
 );
 
-describe("LambdaLollipopCheckUseCase with GET method", () => {
+describe("LollipopLambdaCheckUseCase with GET method", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -75,7 +75,7 @@ describe("LambdaLollipopCheckUseCase with GET method", () => {
   });
 });
 
-describe("LambdaLollipopCheckUseCase with POST method", () => {
+describe("LollipopLambdaCheckUseCase with POST method", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

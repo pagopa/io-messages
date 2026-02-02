@@ -6,7 +6,7 @@ import {
   LollipopLambdaSuccessResponse,
 } from "../lollipop-lambda.js";
 
-export class LambdaLollipopCheckUseCase {
+export class LollipopLambdaCheckUseCase {
   #getLambdaLollipopClient: (isTest: boolean) => LollipopLambdaClient;
 
   constructor(

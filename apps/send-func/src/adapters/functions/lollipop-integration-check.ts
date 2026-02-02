@@ -1,6 +1,6 @@
 import { lollipopLambdaRequestBodySchema } from "@/domain/lollipop-lambda.js";
 import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
-import { LambdaLollipopCheckUseCase } from "@/domain/use-cases/lollipop-lambda-check.js";
+import { LollipopLambdaCheckUseCase } from "@/domain/use-cases/lollipop-lambda-check.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
@@ -10,7 +10,7 @@ import { LollipopIntegrationCheckClientError } from "../send/lollipop-integratio
 
 export const lollipopIntegrationCheck =
   (
-    lollipopLambdaCheckUseCase: LambdaLollipopCheckUseCase,
+    lollipopLambdaCheckUseCase: LollipopLambdaCheckUseCase,
     telemetryService: TelemetryService,
   ): ExtentedHttpHandler<LollipopHeaders> =>
   async (
