@@ -33,7 +33,7 @@ describe("LollipopIntegrationCheckClient.checkWithGet", () => {
 
     expect(response).toEqual(aLollipopLambdaSuccessResponse);
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${baseUrl}/lollipop-test`,
+      `${baseUrl}/io-playground/lollipop-test`,
       expect.objectContaining({
         headers: expect.objectContaining({
           "content-type": "application/json",
@@ -58,7 +58,7 @@ describe("LollipopIntegrationCheckClient.checkWithGet", () => {
 
     expect(response).toEqual(aLollipopLambdaSuccessResponse);
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${baseUrl}/lollipop-test?testParam=testValue`,
+      `${baseUrl}/io-playground/lollipop-test?testParam=testValue`,
       expect.objectContaining({
         headers: expect.objectContaining({
           "content-type": "application/json",
@@ -84,7 +84,7 @@ describe("LollipopIntegrationCheckClient.checkWithGet", () => {
     );
 
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${baseUrl}/lollipop-test`,
+      `${baseUrl}/io-playground/lollipop-test`,
       expect.objectContaining({
         headers: expect.objectContaining({
           "content-type": "application/json",
@@ -111,7 +111,7 @@ describe("LollipopIntegrationCheckClient.checkWithGet", () => {
     );
 
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${baseUrl}/lollipop-test?testParam=testValue`,
+      `${baseUrl}/io-playground/lollipop-test?testParam=testValue`,
       expect.objectContaining({
         headers: expect.objectContaining({
           "content-type": "application/json",
@@ -136,7 +136,7 @@ describe("LollipopIntegrationCheckClient.checkWithPost", () => {
 
     expect(response).toEqual(aLollipopLambdaSuccessResponse);
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${baseUrl}/lollipop-test`,
+      `${baseUrl}/io-playground/lollipop-test`,
       expect.objectContaining({
         body: undefined,
         headers: expect.objectContaining({
@@ -163,7 +163,7 @@ describe("LollipopIntegrationCheckClient.checkWithPost", () => {
 
     expect(response).toEqual(aLollipopLambdaSuccessResponse);
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${baseUrl}/lollipop-test?testParam=testValue`,
+      `${baseUrl}/io-playground/lollipop-test?testParam=testValue`,
       expect.objectContaining({
         body: JSON.stringify(aLollipopLambdaRequestBody),
         headers: expect.objectContaining({
@@ -189,7 +189,7 @@ describe("LollipopIntegrationCheckClient.checkWithPost", () => {
 
     expect(response).toEqual(aLollipopLambdaSuccessResponse);
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${baseUrl}/lollipop-test`,
+      `${baseUrl}/io-playground/lollipop-test`,
       expect.objectContaining({
         body: JSON.stringify(aLollipopLambdaRequestBody),
         headers: expect.objectContaining({
@@ -219,7 +219,7 @@ describe("LollipopIntegrationCheckClient.checkWithPost", () => {
     );
 
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${baseUrl}/lollipop-test?testParam=testValue`,
+      `${baseUrl}/io-playground/lollipop-test?testParam=testValue`,
       expect.objectContaining({
         body: JSON.stringify(aLollipopLambdaRequestBody),
         headers: expect.objectContaining({

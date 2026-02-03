@@ -48,7 +48,7 @@ export const aLollipopLambdaSuccessResponse =
         bodyLength: 123,
         hasBody: true,
         method: "POST",
-        path: "/lollipop-test",
+        path: "/io-playground/lollipop-test",
         queryParameters: {
           testParam: "testValue",
         },
