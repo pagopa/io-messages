@@ -13,7 +13,7 @@
       "type": "http",
       "documentation": "",
       "method": "get",
-      "endpoint": "lollipop-test",
+      "endpoint": "io-playground/lollipop-test",
       "responses": [
         {
           "uuid": "1eafea24-39ef-46ec-9e49-be14775b7e04",
@@ -125,7 +125,7 @@
       "type": "http",
       "documentation": "",
       "method": "post",
-      "endpoint": "lollipop-test",
+      "endpoint": "io-playground/lollipop-test",
       "responses": [
         {
           "uuid": "cd931af4-7cc2-4cff-b22e-f5897b710792",

@@ -58,7 +58,7 @@ export default class LollipopIntegrationCheckClient
   }
 
   #buildUrl(query?: LollipopLambdaQuery): URL {
-    const url = new URL(`${this.#baseUrl}/lollipop-test`);
+    const url = new URL(`${this.#baseUrl}/io-playground/lollipop-test`);
     if (query) {
       Object.entries(query).forEach(([key, value]) => {
         url.searchParams.append(key, String(value));
