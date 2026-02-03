@@ -30,5 +30,5 @@ data "azurerm_linux_web_app" "session_manager_app_weu" {
 
 data "azurerm_key_vault_secret" "app_backend_api_key_secret" {
   name         = "appbackend-APP-BACKEND-PRIMARY-KEY"
-  key_vault_id = local.common_key_vault.id
+  key_vault_id = var.common_key_vault.id
 }
