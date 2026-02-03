@@ -51,10 +51,12 @@ const unsuccessfulResponseParsing = (
 export default class LollipopIntegrationCheckClient
   implements LollipopLambdaClient
 {
+  #apiKey: string;
   #baseUrl: string;
 
-  constructor(baseUrl: string) {
+  constructor(baseUrl: string, apiKey: string) {
     this.#baseUrl = baseUrl;
+    this.#apiKey = apiKey;
   }
 
   #buildUrl(query?: LollipopLambdaQuery): URL {
@@ -96,7 +98,11 @@ export default class LollipopIntegrationCheckClient
     query?: LollipopLambdaQuery,
   ): Promise<LollipopLambdaSuccessResponse> {
     const response = await fetch(this.#buildUrl(query).toString(), {
-      headers: { ...headers, "content-type": "application/json" },
+      headers: {
+        ...headers,
+        "content-type": "application/json",
+        "x-api-key": this.#apiKey,
+      },
       method: "GET",
     });
 

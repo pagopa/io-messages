@@ -3,14 +3,16 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "LOLLIPOP_API_BASE_URL": "http://mock-server-lollipop:3000/api/v1",
+    "LOLLIPOP_FUNC_KEY": "lollipopAPIKey",
     "NOTIFICATION_CLIENT_API_KEY": "anApiKey",
     "NOTIFICATION_CLIENT_BASE_URL": "https://produrl.com",
     "NOTIFICATION_CLIENT_UAT_API_KEY": "anApiKey",
     "NOTIFICATION_CLIENT_UAT_BASE_URL": "http://mock-server-send:3000/api/v1",
-    "LOLLIPOP_LAMBDA_CLIENT_BASE_URL": "https://lollipop-lambda-produrl.com"
-    "LOLLIPOP_LAMBDA_CLIENT_UAT_BASE_URL": "http://mock-server-lollipop-lambda:3000/api/v1"
-    "LOLLIPOP_API_BASE_URL": "http://mock-server-lollipop:3000/api/v1",
-    "LOLLIPOP_FUNC_KEY": "lollipopAPIKey",
+    "LOLLIPOP_LAMBDA_CLIENT_BASE_URL": "https://lollipop-lambda-produrl.com",
+    "LOLLIPOP_LAMBDA_CLIENT_UAT_BASE_URL": "http://mock-server-lollipop-lambda:3000/api/v1",
+    "LOLLIPOP_LAMBDA_CLIENT_API_KEY": "lollipopLambdaAPIKey",
+    "LOLLIPOP_LAMBDA_CLIENT_UAT_API_KEY": "lollipopLambdaAPIKey",
     "APPLICATIONINSIGHTS_CONNECTION_STRING": "APPLICATIONINSIGHTS-CONNECTION-STRING-HERE",
   }
 }
