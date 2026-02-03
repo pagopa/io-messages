@@ -9,4 +9,6 @@ module "apim" {
 
   key_vault = module.key_vaults.com
 
+  common_key_vault = data.azurerm_key_vault.weu_common
+
 }
