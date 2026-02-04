@@ -2,6 +2,7 @@ import { lollipopLambdaRequestBodySchema } from "@/domain/lollipop-lambda.js";
 import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { LollipopLambdaCheckUseCase } from "@/domain/use-cases/lollipop-lambda-check.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
+import z, { ZodError } from "zod";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
 
@@ -43,6 +44,20 @@ export const lollipopIntegrationCheck =
 
       return { jsonBody: response, status: 200 };
     } catch (err) {
+      if (err instanceof ZodError) {
+        return {
+          jsonBody: {
+            error: {
+              message: JSON.stringify(z.treeifyError(err)),
+              statusCode: 400,
+            },
+            success: false,
+            timestamp: new Date().toISOString(),
+          },
+          status: 400,
+        };
+      }
+
       if (err instanceof LollipopIntegrationCheckClientError) {
         context.error("LollipopItegrationCheck client error:", err.message);
 

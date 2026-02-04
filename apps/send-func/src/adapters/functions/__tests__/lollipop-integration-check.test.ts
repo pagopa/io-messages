@@ -212,5 +212,31 @@ describe("LollipopIntegrationCheck", () => {
       expect(lollipopLambdaCheckExecuteSpy).toHaveBeenCalledOnce();
       expect(telemetryTrackEventMock).not.toHaveBeenCalled();
     });
+
+    it("returns 400 status code for Zod validation errors", async () => {
+      const request = new HttpRequest({
+        body: { string: JSON.stringify(["invalid", "array", "data"]) },
+        method: "POST",
+        url: "http://localhost?isTest=false",
+      });
+
+      const result: HttpResponseInit = await handler(
+        request,
+        context,
+        aLollipopHeaders,
+      );
+
+      expect(result.status).toBe(400);
+      expect(result.jsonBody).toMatchObject({
+        error: {
+          statusCode: 400,
+        },
+        success: false,
+      });
+      expect(result.jsonBody.error.message).toBeDefined();
+      expect(result.jsonBody.timestamp).toBeDefined();
+
+      expect(lollipopLambdaCheckExecuteSpy).not.toHaveBeenCalled();
+    });
   });
 });
