@@ -47,7 +47,7 @@ export const lollipopIntegrationCheck =
         context.error("LollipopItegrationCheck client error:", err.message);
 
         telemetryService.trackEvent(
-          TelemetryEventName.SEND_LIPPOP_INTEGRATION_CLIENT_ERROR,
+          TelemetryEventName.SEND_LOLLIPPOP_INTEGRATION_CLIENT_ERROR,
           {
             body: err.body,
             status: err.status,
