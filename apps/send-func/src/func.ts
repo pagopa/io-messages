@@ -53,7 +53,10 @@ const main = async (config: Config): Promise<void> => {
       ? config.lollipopLambdaUatClient
       : config.lollipopLambdaClient;
 
-    return new LollipopIntegrationCheckClient(selectedConfig.baseUrl);
+    return new LollipopIntegrationCheckClient(
+      selectedConfig.baseUrl,
+      selectedConfig.apiKey,
+    );
   };
   const qrCodeCheckUseCase = new QrCodeCheckUseCase(getNotificationClient);
   const getNotificationUseCase = new GetNotificationUseCase(
