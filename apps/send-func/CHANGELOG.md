@@ -1,5 +1,11 @@
 # send-func
 
+## 1.5.4
+
+### Patch Changes
+
+- 8d592ee: Add lollipop-integration-check API
+
 ## 1.5.3
 
 ### Patch Changes

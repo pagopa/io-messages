@@ -44,3 +44,10 @@ variable "key_vault" {
     id   = string
   })
 }
+
+variable "common_key_vault" {
+  type = object({
+    id   = string
+    name = string
+  })
+}

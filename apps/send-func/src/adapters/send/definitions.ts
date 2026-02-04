@@ -1,3 +1,4 @@
+import { lollipopLambdaSuccessResponseSchema } from "@/domain/lollipop-lambda.js";
 import {
   aarQrCodeValueSchema,
   attachmentMetadataSchema,
@@ -106,4 +107,29 @@ export const aarGetAttachmentResponseSchema = z.object({
 
 export type AarGetAttachmentResponse = z.TypeOf<
   typeof aarGetAttachmentResponseSchema
+>;
+
+export const lollipopLambdaErrorResponseSchema = z.object({
+  error: z.object({
+    message: z.string(),
+    statusCode: z.number().int(),
+  }),
+  success: z.literal(false),
+  timestamp: z.string(),
+});
+
+export type LollipopLambdaErrorResponse = z.infer<
+  typeof lollipopLambdaErrorResponseSchema
+>;
+
+export const lollipopLambdaCheckResponseSchema = z.object({
+  jsonBody: z.union([
+    lollipopLambdaErrorResponseSchema,
+    lollipopLambdaSuccessResponseSchema,
+  ]),
+  status: z.number().int(),
+});
+
+export type LollipopLambdaCheckResponse = z.TypeOf<
+  typeof lollipopLambdaCheckResponseSchema
 >;
