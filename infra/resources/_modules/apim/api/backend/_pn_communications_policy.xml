@@ -1,0 +1,15 @@
+<policies>
+  <inbound>
+    <base />
+    <rate-limit calls="{{io-com-pn-activation-rate}}" renewal-period="{{io-com-pn-activation-rate-period}}" />
+  </inbound>
+  <outbound>
+    <base />
+  </outbound>
+  <backend>
+    <base />
+  </backend>
+  <on-error>
+    <base />
+  </on-error>
+</policies>
