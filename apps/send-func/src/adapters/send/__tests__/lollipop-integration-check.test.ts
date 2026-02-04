@@ -10,7 +10,7 @@ import { LollipopLambdaErrorResponse } from "../definitions.js";
 import LollipopIntegrationCheckClient from "../lollipop-integration-check.js";
 
 const baseUrl = "https://mockurl.com";
-const client = new LollipopIntegrationCheckClient(baseUrl);
+const client = new LollipopIntegrationCheckClient(baseUrl, "mock-api-key");
 
 const aLollipopLambdaErrorResponse: LollipopLambdaErrorResponse = {
   error: {
