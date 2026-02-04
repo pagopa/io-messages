@@ -2,9 +2,9 @@ import { lollipopLambdaRequestBodySchema } from "@/domain/lollipop-lambda.js";
 import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
 import { LollipopLambdaCheckUseCase } from "@/domain/use-cases/lollipop-lambda-check.js";
 import { HttpRequest, InvocationContext } from "@azure/functions";
-import z, { ZodError } from "zod";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { ExtentedHttpHandler } from "io-messages-common/adapters/middleware";
+import z, { ZodError } from "zod";
 
 import { LollipopLambdaCheckResponse } from "../send/definitions.js";
 import { LollipopIntegrationCheckClientError } from "../send/lollipop-integration-check.js";
