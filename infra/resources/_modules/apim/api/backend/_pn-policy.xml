@@ -1,0 +1,37 @@
+<policies>
+  <inbound>
+    <base />
+    <rate-limit calls="{{io-com-pn-activation-rate}}" renewal-period="{{io-com-pn-activation-rate-period}}" />
+    <set-variable name="urlId" value="@{
+            Random rnd = new Random();
+            int urlId = rnd.Next(1, 3);
+            return urlId.ToString();
+        }" />
+    <choose>
+        <when condition="@(context.Variables.GetValueOrDefault<string>("urlId").Equals("1"))">
+            <set-backend-service base-url="https://io-p-app-appbackendl1.azurewebsites.net/api/v1/pn" />
+        </when>
+        <when condition="@(context.Variables.GetValueOrDefault<string>("urlId").Equals("2"))">
+            <set-backend-service base-url="https://io-p-app-appbackendl2.azurewebsites.net/api/v1/pn" />
+        </when>
+        <otherwise>
+            <return-response>
+                <set-status code="500" reason="InternalServerError" />
+                <set-header name="Microsoft-Azure-Api-Management-Correlation-Id" exists-action="override">
+                    <value>@{return Guid.NewGuid().ToString();}</value>
+                </set-header>
+                <set-body>A gateway-related error occurred while processing the request.</set-body>
+            </return-response>
+        </otherwise>
+    </choose>
+  </inbound>
+  <outbound>
+    <base />
+  </outbound>
+  <backend>
+    <base />
+  </backend>
+  <on-error>
+    <base />
+  </on-error>
+</policies>
