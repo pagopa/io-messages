@@ -86,7 +86,7 @@ export default class LollipopIntegrationCheckClient
     if (!parsedResponse.success) {
       const errorMessage = JSON.stringify(z.treeifyError(parsedResponse.error));
       throw new Error(
-        `Error during lollipop check integration api call | ${errorMessage}`,
+        `Error parsing the response during lollipop check integration api call | ${errorMessage}`,
       );
     }
 
