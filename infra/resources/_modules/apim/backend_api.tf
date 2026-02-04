@@ -17,7 +17,7 @@ resource "azurerm_api_management_api" "communications" {
 
   description  = "IO Communications AppBackend API"
   display_name = "Communications AppBackend"
-  path         = "api/communications"
+  path         = "api/communication"
   protocols    = ["https"]
 
   import {
