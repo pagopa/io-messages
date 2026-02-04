@@ -33,7 +33,7 @@ resource "azurerm_api_management_product_api" "io_communications" {
   product_id          = azurerm_api_management_product.apim_itn_product_io_com.product_id
 }
 
-resource "azurerm_api_management_api_policy" "io_communications" {
+resource "azurerm_api_management_api_policy" "io_communications_base" {
   api_name            = azurerm_api_management_api.communications.name
   api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
@@ -42,7 +42,7 @@ resource "azurerm_api_management_api_policy" "io_communications" {
 }
 
 
-resource "azurerm_api_management_api_operation_policy" "io_communications" {
+resource "azurerm_api_management_api_operation_policy" "io_communications_get_send_activation" {
   operation_id        = "getSendActivation"
   api_name            = azurerm_api_management_api.communications.name
   api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
@@ -52,7 +52,7 @@ resource "azurerm_api_management_api_operation_policy" "io_communications" {
 }
 
 
-resource "azurerm_api_management_api_operation_policy" "io_communications" {
+resource "azurerm_api_management_api_operation_policy" "io_communications_upsert_send_activation" {
   operation_id        = "upsertSendActivation"
   api_name            = azurerm_api_management_api.communications.name
   api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
