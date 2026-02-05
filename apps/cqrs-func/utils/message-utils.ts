@@ -1,17 +1,17 @@
-import * as E from "fp-ts/lib/Either";
-import { constant, constVoid, flow, pipe } from "fp-ts/lib/function";
-import * as AS from "azure-storage";
-import * as TE from "fp-ts/lib/TaskEither";
-import * as O from "fp-ts/lib/Option";
-import * as J from "fp-ts/Json";
-import { readableReport } from "@pagopa/ts-commons/lib/reporters";
-import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
 import {
   BlobNotFoundCode,
   BlobServiceWithFallBack,
   FallbackTracker,
   GenericCode,
 } from "@pagopa/azure-storage-legacy-migration-kit";
+import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
+import { readableReport } from "@pagopa/ts-commons/lib/reporters";
+import * as AS from "azure-storage";
+import * as J from "fp-ts/Json";
+import * as E from "fp-ts/lib/Either";
+import * as O from "fp-ts/lib/Option";
+import * as TE from "fp-ts/lib/TaskEither";
+import { constVoid, constant, flow, pipe } from "fp-ts/lib/function";
 
 const MESSAGE_BLOB_STORAGE_SUFFIX = ".json";
 const blobIdFromMessageId = (messageId: string): string =>
@@ -20,9 +20,9 @@ const blobIdFromMessageId = (messageId: string): string =>
 export const getContentFromBlob = (
   blobService: BlobServiceWithFallBack,
   messageId: string,
-): TE.TaskEither<Error, O.Option<MessageContent>> => {
+): TE.TaskEither<Error, O.Option<MessageContent>> =>
   // Retrieve blob content and deserialize
-  return pipe(
+  pipe(
     blobIdFromMessageId(messageId),
     getBlobAsTextWithError(blobService, "message-content"),
     TE.mapLeft((storageError) => ({
@@ -70,7 +70,6 @@ export const getContentFromBlob = (
     ),
     TE.mapLeft((error) => new Error(error.message)),
   );
-};
 
 const isBlobNotFound = (err: AS.StorageError) =>
   err.code === "BlobNotFound" || err.statusCode === 404;

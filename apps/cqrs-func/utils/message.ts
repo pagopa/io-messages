@@ -1,19 +1,20 @@
-import * as E from "fp-ts/lib/Either";
-import { flow, pipe } from "fp-ts/lib/function";
-import * as T from "fp-ts/lib/Task";
-import * as TE from "fp-ts/lib/TaskEither";
-import * as RA from "fp-ts/ReadonlyArray";
+import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
 import {
   MessageModel,
   RetrievedMessage,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
+import * as RA from "fp-ts/ReadonlyArray";
+import * as E from "fp-ts/lib/Either";
+import * as T from "fp-ts/lib/Task";
+import * as TE from "fp-ts/lib/TaskEither";
+import { flow, pipe } from "fp-ts/lib/function";
+
 import { MessageContentType } from "../generated/avro/dto/MessageContentTypeEnum";
-import { toPermanentFailure, toTransientFailure } from "./errors";
-import { IStorableError, toStorableError } from "./storable_error";
 import { IConfig } from "./config";
-import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
+import { toPermanentFailure, toTransientFailure } from "./errors";
 import { getContentFromBlob } from "./message-utils";
+import { IStorableError, toStorableError } from "./storable_error";
 
 /**
  * Retrieve a message content from blob storage and enrich message
@@ -55,9 +56,9 @@ export const enrichMessagesContent =
     blobService: BlobServiceWithFallBack,
   ) =>
   (
-    messages: ReadonlyArray<RetrievedMessage>,
+    messages: readonly RetrievedMessage[],
   ): T.Task<
-    ReadonlyArray<E.Either<IStorableError<RetrievedMessage>, RetrievedMessage>>
+    readonly E.Either<IStorableError<RetrievedMessage>, RetrievedMessage>[]
   > =>
     pipe(
       messages,

@@ -8,8 +8,8 @@
     "start": "func start --javascript",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint --fix",
-    "lint:check": "eslint",
+    "lint": "eslint --fix .",
+    "lint:check": "eslint .",
     "generate:avro": "shx rm -rf ./generated/avro && shx mkdir -p ./generated/avro && avro-to-typescript --compile ./avro ./generated/avro",
     "generate": "yarn generate:avro",
     "dist:modules": "modclean -r -n default:safe && yarn install --production"

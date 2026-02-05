@@ -5,17 +5,15 @@
  * The configuration is evaluate eagerly at the first access to the module. The module exposes convenient methods to access such value.
  */
 
-import * as t from "io-ts";
-
-import * as E from "fp-ts/Either";
-import { pipe } from "fp-ts/lib/function";
+import { AzureEventhubSasFromString } from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
+import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
+import { NumberFromString } from "@pagopa/ts-commons/lib/numbers";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
-
-import { AzureEventhubSasFromString } from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import { withDefault } from "@pagopa/ts-commons/lib/types";
-import { NumberFromString } from "@pagopa/ts-commons/lib/numbers";
+import * as E from "fp-ts/Either";
+import { pipe } from "fp-ts/lib/function";
+import * as t from "io-ts";
 
 export const MessageChangeFeedConfig = t.type({
   MESSAGE_CHANGE_FEED_LEASE_PREFIX: NonEmptyString,
@@ -28,19 +26,19 @@ export const IConfig = t.intersection([
   t.type({
     APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
-    COSMOSDB_NAME: NonEmptyString,
+    COM_STORAGE_CONNECTION_STRING: NonEmptyString,
     COSMOSDB__accountEndpoint: NonEmptyString,
 
-    COM_STORAGE_CONNECTION_STRING: NonEmptyString,
+    COSMOSDB_NAME: NonEmptyString,
 
-    MESSAGES_TOPIC_CONNECTION_STRING: AzureEventhubSasFromString,
+    KAFKA_SSL_ACTIVE: BooleanFromString,
+    MESSAGE_CONTENT_STORAGE_CONNECTION: NonEmptyString,
+
+    MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME: NonEmptyString,
     MESSAGE_STATUS_FOR_REMINDER_TOPIC_PRODUCER_CONNECTION_STRING:
       AzureEventhubSasFromString,
 
-    MESSAGE_CONTENT_STORAGE_CONNECTION: NonEmptyString,
-    MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME: NonEmptyString,
-
-    KAFKA_SSL_ACTIVE: BooleanFromString,
+    MESSAGES_TOPIC_CONNECTION_STRING: AzureEventhubSasFromString,
 
     PN_SERVICE_ID: NonEmptyString,
 
@@ -70,7 +68,7 @@ export const getConfig = (): t.Validation<IConfig> => errorOrConfig;
 export const getConfigOrThrow = (): IConfig =>
   pipe(
     errorOrConfig,
-    E.getOrElseW((errors: ReadonlyArray<t.ValidationError>) => {
+    E.getOrElseW((errors: readonly t.ValidationError[]) => {
       throw new Error(`Invalid configuration: ${readableReport(errors)}`);
     }),
   );

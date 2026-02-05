@@ -1,18 +1,19 @@
 ﻿import { AzureFunction, Context } from "@azure/functions";
+import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 import {
-  MessageModel,
   MESSAGE_COLLECTION_NAME,
+  MessageModel,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+
 import { initTelemetryClient } from "../utils/appinsights";
 import { getConfigOrThrow } from "../utils/config";
 import { cosmosdbInstance } from "../utils/cosmosdb";
 import { Failure } from "../utils/errors";
+import { fromSas } from "../utils/event_hub";
 import { avroMessageFormatter } from "../utils/formatter/messagesAvroFormatter";
 import { getThirdPartyDataWithCategoryFetcher } from "../utils/message";
 import { HandleMessageChangeFeedPublishFailureHandler } from "./handler";
-import { fromSas } from "../utils/event_hub";
-import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 
 const config = getConfigOrThrow();
 
@@ -39,6 +40,7 @@ const kafkaClient = fromSas(
 export const index: AzureFunction = (
   context: Context,
   message: unknown,
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
 ): Promise<Failure | void> =>
   HandleMessageChangeFeedPublishFailureHandler(
     context,

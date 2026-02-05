@@ -1,27 +1,25 @@
 /* eslint-disable @typescript-eslint/naming-convention */ // disabled in order to use the naming convention used to flatten nested object to root ('_' char used as nested object separator)
 import { Context } from "@azure/functions";
+import { QueueClient } from "@azure/storage-queue";
 import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
-import * as winston from "winston";
-
 import {
-  MessageModel,
   MESSAGE_COLLECTION_NAME,
+  MessageModel,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { AzureContextTransport } from "@pagopa/io-functions-commons/dist/src/utils/logging";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import * as winston from "winston";
 
-import { QueueClient } from "@azure/storage-queue";
 import { initTelemetryClient } from "../utils/appinsights";
 import { getConfigOrThrow } from "../utils/config";
 import { cosmosdbInstance } from "../utils/cosmosdb";
 import { Failure } from "../utils/errors";
+import { fromSas } from "../utils/event_hub";
 import { avroMessageFormatter } from "../utils/formatter/messagesAvroFormatter";
 import { getThirdPartyDataWithCategoryFetcher } from "../utils/message";
 import { IBulkOperationResult } from "../utils/publish";
 import { handleMessageChange } from "./handler";
-import { fromSas } from "../utils/event_hub";
 
-// eslint-disable-next-line functional/no-let
 let logger: Context["log"] | undefined;
 const contextTransport = new AzureContextTransport(() => logger, {
   level: "debug",
@@ -57,7 +55,7 @@ const messageContentBlobService = createBlobService(
 
 const run = async (
   context: Context,
-  documents: ReadonlyArray<unknown>,
+  documents: readonly unknown[],
 ): Promise<Failure | IBulkOperationResult> => {
   logger = context.log;
   return handleMessageChange(

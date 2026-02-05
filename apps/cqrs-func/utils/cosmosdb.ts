@@ -2,8 +2,9 @@
  * Use a singleton CosmosDB client across functions.
  */
 import { CosmosClient } from "@azure/cosmos";
-import { getConfigOrThrow } from "./config";
 import { DefaultAzureCredential } from "@azure/identity";
+
+import { getConfigOrThrow } from "./config";
 
 const azureCredentials = new DefaultAzureCredential();
 

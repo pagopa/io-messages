@@ -1,24 +1,25 @@
 ﻿import { Context } from "@azure/functions";
+import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
+import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import {
   MessageModel,
   RetrievedMessage,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
-import { constVoid, flow, pipe } from "fp-ts/lib/function";
-import * as TE from "fp-ts/lib/TaskEither";
 import * as RA from "fp-ts/lib/ReadonlyArray";
+import * as TE from "fp-ts/lib/TaskEither";
+import { constVoid, flow, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
-import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
+
 import { TelemetryClient, trackException } from "../utils/appinsights";
 import { errorsToError } from "../utils/conversions";
 import {
   Failure,
   PermanentFailure,
+  TransientFailure,
   toPermanentFailure,
   toTransientFailure,
-  TransientFailure,
 } from "../utils/errors";
 import { enrichMessageContent } from "../utils/message";
-import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 
 const RetriableMessagePublishFailureInput = t.interface({
   body: RetrievedMessage,
@@ -46,7 +47,7 @@ export const HandleMessageChangeFeedPublishFailureHandler = (
   messageModel: MessageModel,
   blobService: BlobServiceWithFallBack,
   client: KP.KafkaProducerCompact<RetrievedMessage>,
-  // eslint-disable-next-line max-params
+  // eslint-disable-next-line max-params, @typescript-eslint/no-invalid-void-type
 ): Promise<Failure | void> =>
   pipe(
     message,
