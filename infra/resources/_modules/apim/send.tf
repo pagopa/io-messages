@@ -110,7 +110,7 @@ resource "azurerm_api_management_api" "send_lollipop_integration_check_api_v1" {
 
 
 resource "azurerm_api_management_api_policy" "send_lollipop_integration_check_api_v1_policy" {
-  api_name = azurerm_api_management_api.send_api_v1.name
+  api_name = azurerm_api_management_api.send_lollipop_integration_check_api_v1.name
 
   api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
