@@ -1,0 +1,278 @@
+openapi: 3.0.3
+info:
+  title: Lollipop Check
+  version: 1.0.0
+  description: |
+    Service for validating Lollipop Authorizer integration.
+servers:
+  - url: https://api-app.io.pagopa.it/api/com/v1/send/lollipop-check
+    description: Production API Gateway endpoint
+paths:
+  /test:
+    get:
+      summary: Test GET request with Lollipop authentication
+      description: |
+        Accepts a GET request authenticated via Lollipop headers.
+        Returns comprehensive information about the request.
+      operationId: testLollipopGet
+      tags:
+        - Check Lollipop integration with GET method
+      parameters:
+        - in: query
+          name: isTest
+          schema:
+            type: boolean
+        - in: query
+          name: query
+          description: Generic query parameters (all optional)
+          required: false
+          schema:
+            type: object
+            additionalProperties: true
+          style: form
+          explode: true
+      responses:
+        "200":
+          description: Request processed successfully
+          headers:
+            X-Lambda-Name:
+              schema:
+                type: string
+                example: lollipop-dummy-service
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden - Authorization denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      summary: Test POST request with Lollipop authentication
+      description: |
+        Accepts a POST request authenticated via Lollipop headers.
+        Returns comprehensive information about the request.
+      operationId: testLollipopPost
+      tags:
+        - Check Lollipop integration with POST method
+      parameters:
+        - in: query
+          name: isTest
+          schema:
+            type: boolean
+        - in: header
+          name: content-digest
+          description: SHA-256 digest of the request body (required for POST with body)
+          required: false
+          schema:
+            type: string
+            pattern: "^sha-256=:[A-Za-z0-9+/=]+:$"
+            example: "sha-256=:X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=:"
+        - in: query
+          name: query
+          description: Generic query parameters (all optional)
+          required: false
+          schema:
+            type: object
+            additionalProperties: true
+          style: form
+          explode: true
+      requestBody:
+        description: Free-form JSON body (any valid JSON structure accepted)
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostRequestBody"
+            examples:
+              testData:
+                summary: Example test data
+                value:
+                  testField: "test value"
+                  nestedObject:
+                    key: "value"
+                  arrayField: [1, 2, 3]
+      responses:
+        "200":
+          description: Request processed successfully
+          headers:
+            X-Lambda-Name:
+              schema:
+                type: string
+                example: lollipop-dummy-service
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden - Authorization denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      in: header
+      name: Authorization
+  schemas:
+    SuccessResponse:
+      type: object
+      required:
+        - success
+        - timestamp
+        - data
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          type: object
+          required:
+            - message
+            - timestamp
+            - request
+          properties:
+            message:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+            request:
+              $ref: "#/components/schemas/RequestInfo"
+            requestBody:
+              type: object
+              additionalProperties: true
+              nullable: true
+            lollipopHeaders:
+              type: object
+              additionalProperties:
+                type: string
+            authorizerContext:
+              $ref: "#/components/schemas/AuthorizerContext"
+            summary:
+              $ref: "#/components/schemas/RequestSummary"
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - timestamp
+        - error
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        timestamp:
+          type: string
+          format: date-time
+        error:
+          type: object
+          required:
+            - message
+            - statusCode
+          properties:
+            message:
+              type: string
+            statusCode:
+              type: integer
+    PostRequestBody:
+      type: object
+      additionalProperties: true
+      description: Any valid JSON object
+    RequestInfo:
+      type: object
+      required:
+        - method
+        - path
+        - hasBody
+        - bodyLength
+      properties:
+        method:
+          type: string
+          enum: [GET, POST, PUT, DELETE, PATCH, OPTIONS]
+        path:
+          type: string
+        requestTime:
+          type: string
+        queryParameters:
+          type: object
+          additionalProperties:
+            type: string
+        hasBody:
+          type: boolean
+        bodyLength:
+          type: integer
+    AuthorizerContext:
+      type: object
+      description: Context data passed from the Lollipop Custom Authorizer
+      properties:
+        userId:
+          type: string
+        name:
+          type: string
+        familyName:
+          type: string
+      additionalProperties: true
+    RequestSummary:
+      type: object
+      properties:
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        body:
+          type: string
+          nullable: true
+        hasAuthorizerContext:
+          type: boolean
+        authorizerContextKeys:
+          type: array
+          items:
+            type: string
+tags:
+  - name: Test Endpoints
+    description: Testing and debugging endpoints for Lollipop authentication
+security:
+  - Bearer: []
