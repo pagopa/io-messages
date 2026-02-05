@@ -1,5 +1,11 @@
 # send-func
 
+## 1.5.5
+
+### Patch Changes
+
+- 060caa4: add lollipop-integration-check openAPI
+
 ## 1.5.4
 
 ### Patch Changes
