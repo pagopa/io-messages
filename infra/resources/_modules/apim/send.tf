@@ -80,3 +80,47 @@ resource "azurerm_api_management_product_api" "pn_api_v1_product_api" {
   api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
 }
+
+
+resource "azurerm_api_management_api" "send_lollipop_integration_check_api_v1" {
+  name = format("%s-%s-lollipop-integration-check-api-01", local.product, var.location_short)
+
+  api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
+  revision            = "1"
+
+  description  = "Microservizio che espone API per verificare l'integrazione SEND con Lollipop."
+  display_name = "IO-COM SEND Lollipop Integration Check"
+
+  contact {
+    name = "pagoPA - Touchpoints team"
+  }
+
+  path      = "api/com/v1/send/lollipop-check"
+  protocols = ["https"]
+
+  subscription_required = false
+
+  import {
+    content_format = "openapi-link"
+    content_value  = "https://raw.githubusercontent.com/pagopa/io-messages/060caa4dc8edcc2f1e9200750b917dd88254dfc8/apps/send-func/openapi/lollipop-integration-check.yaml"
+  }
+}
+
+
+resource "azurerm_api_management_api_policy" "send_lollipop_integration_check_api_v1_policy" {
+  api_name = azurerm_api_management_api.send_lollipop_integration_check_api_v1.name
+
+  api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
+
+  xml_link = "https://raw.githubusercontent.com/pagopa/io-messages/12150e581e0771e78b096cf391c6d27edff65b89/infra/resources/_modules/apim/api/send/lollipop-integration-check-policy.xml"
+}
+
+resource "azurerm_api_management_product_api" "send_lollipop_integration_check_api_v1_product_api" {
+  product_id = azurerm_api_management_product.apim_itn_product_io_com.product_id
+  api_name   = azurerm_api_management_api.send_lollipop_integration_check_api_v1.name
+
+  api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
+}
