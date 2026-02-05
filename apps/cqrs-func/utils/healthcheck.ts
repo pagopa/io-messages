@@ -31,7 +31,7 @@ const formatProblem = <S extends ProblemSource>(
   message: string,
 ): HealthProblem<S> => `${source}|${message}` as HealthProblem<S>;
 
-// utility to format an unknown error to an arry of HealthProblem
+// utility to format an unknown error to an array of HealthProblem
 const toHealthProblems =
   <S extends ProblemSource>(source: S) =>
   (e: unknown): readonly HealthProblem<S>[] => [
