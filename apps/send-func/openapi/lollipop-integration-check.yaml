@@ -103,7 +103,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RequestBody"
+              $ref: "#/components/schemas/PostRequestBody"
             examples:
               testData:
                 summary: Example test data
@@ -217,7 +217,7 @@ components:
               type: string
             statusCode:
               type: integer
-    RequestBody:
+    PostRequestBody:
       type: object
       additionalProperties: true
       description: Any valid JSON object
