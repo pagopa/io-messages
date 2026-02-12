@@ -1,5 +1,11 @@
 # services-func
 
+## 1.0.9
+
+### Patch Changes
+
+- c2b1553: Upgrade ExtensionBundle v3 -> v4
+
 ## 1.0.8
 
 ### Patch Changes
