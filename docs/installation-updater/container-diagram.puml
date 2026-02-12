@@ -1,0 +1,46 @@
+@startuml
+!include <C4/C4_Container>
+
+LAYOUT_WITH_LEGEND()
+
+title Container Diagram - Installation Management System
+
+System_Ext(microservices, "Internal Microservices", "Microservices that calls Create/Update/Delete operations on installations.")
+
+System_Boundary(pushnotif_microservice, "Pushnotif Microservice") {
+
+  ContainerQueue(push_notifications, "push-notifications", "Azure Storage Queue")
+
+  Container(create_or_update_installation, "CreateOrUpdateInstallation", "Azure Function")
+  Container(delete_installation, "DeleteInstallation", "Azure Function")
+  Container(update_all_installations, "UpdateAllInstallations", "Azure Function")
+
+  ContainerDb(cosmos_container, "installations", "Cosmos DB", "Stores installation documents; source for Change Feed.")
+
+  ContainerQueue(update_installation_ims, "update-installation-ims", "Azure Storage Queue")
+  ContainerQueue(update_installation_ims_poison, "update-installation-ims-poison", "Azure Storage Queue")
+
+  Container(update_installation, "UpdateInstallation", "Azure Function")
+}
+
+System_Ext(notification_hub, "Azure Notification Hub")
+
+Rel(microservices, push_notifications, "Push CRUD Requests")
+
+Rel(push_notifications, create_or_update_installation, "Read Creaete/Update operations")
+Rel(push_notifications, delete_installation, "Read Delete operations")
+
+Rel(create_or_update_installation, notification_hub, "Create/Update installations")
+Rel(delete_installation, notification_hub, "Delete installations")
+
+Rel(create_or_update_installation, cosmos_container, "Create/Update installations")
+Rel(delete_installation, cosmos_container, "Delete installations")
+
+Rel(cosmos_container, update_all_installations, "Read batch", "change feed trigger")
+
+Rel(update_all_installations, update_installation_ims, "Push single update operations", "change feed trigger")
+
+Rel(update_installation_ims, update_installation, "Read a single installation update operation", "queue trigger")
+Rel(update_installation, notification_hub, "Update a single installation", "queue trigger")
+Rel(update_installation, update_installation_ims_poison, "In case of errors")
+@enduml
