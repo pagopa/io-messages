@@ -1,5 +1,11 @@
 # send-func
 
+## 1.5.6
+
+### Patch Changes
+
+- fe31dea: fix lollipop integration test POST api
+
 ## 1.5.5
 
 ### Patch Changes
