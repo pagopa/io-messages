@@ -169,7 +169,7 @@ module "citizen_func_autoscaler_new" {
   scheduler = {
     normal_load = {
       default = 11,
-      minimum = 6
+      minimum = 2
     },
 
     low_load = {
