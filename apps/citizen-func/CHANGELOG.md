@@ -1,5 +1,11 @@
 ### Changelog
 
+## 5.5.11
+
+### Patch Changes
+
+- 751bfa0: Upgrade ExtensionBundle v3 -> v4
+
 ## 5.5.10
 
 ### Patch Changes
