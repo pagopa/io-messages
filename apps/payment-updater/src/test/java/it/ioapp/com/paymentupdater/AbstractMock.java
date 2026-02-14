@@ -148,6 +148,18 @@ public abstract class AbstractMock {
         .thenThrow(errorResponse);
   }
 
+  public void mockGetPaymentThrowError() throws JsonProcessingException {
+    ValidationFaultPaymentUnavailableProblemJson ecommerceResponse =
+        new ValidationFaultPaymentUnavailableProblemJson();
+    ecommerceResponse.setFaultCodeDetail(ValidationFaultPaymentUnavailable.PPT_AUTENTICAZIONE);
+    RuntimeException errorResponse =
+        new RuntimeException(
+            "Forced error for test: " + mapper.writeValueAsString(ecommerceResponse));
+
+    Mockito.when(mockPaymentApi.getPaymentRequestInfo(Mockito.anyString()))
+        .thenThrow(errorResponse);
+  }
+
   protected Payment selectReminderMockObject(
       String type,
       String id,
