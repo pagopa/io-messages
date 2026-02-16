@@ -1,0 +1,70 @@
+@startuml
+
+title Delete installation
+
+actor "IO user" as iou
+participant "IO Backend" as be
+
+queue "push-notifications" as pnq
+
+box "pushnotif-func"
+  participant "DeleteInstallation" as pn
+end box
+
+database "installations" as ic
+
+participant "Notification Hub" as nh
+
+participant "app-insights" as ai
+
+iou -> be : Delete Installation
+activate iou
+activate be
+
+be --> pnq : Push the Delete message to the queue
+
+be -[#green]> iou
+
+deactivate be
+deactivate iou
+
+note right of pnq
+  **DeleteInstallationMessage**
+  {
+    "installationId": "foo",
+    "kind": "DeleteInstallation"
+  }
+end note
+pn -> pnq : Read a DeleteInstallation message
+activate pn
+
+pn -> ic : Delete the document\nrepresenting the installation
+activate ic
+
+alt "Error from cosmos"
+  ic -[#red]> pn : 5xx from cosmos
+  alt "Was last retry"
+    pn --> ai : Track an event
+  end
+  pn -[#red]>X pnq: Throw an error
+else "Success from cosmos"
+    ic -[#green]> pn
+    deactivate ic
+end
+
+pn -> nh : Delete the installation
+activate nh
+alt "Error from notification hub"
+  nh -[#red]> pn : Error
+  alt "Was last retry"
+    pn --> ai : Track an event
+  end
+  pn -[#red]>X pnq: Throw an error
+else "Success from notification hub"
+  nh -[#green]> pn : 201
+  deactivate nh
+end
+
+deactivate pn
+
+@enduml
