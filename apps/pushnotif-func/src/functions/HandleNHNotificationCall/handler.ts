@@ -47,23 +47,17 @@ const startOrchestrator = async (
 ): Promise<string> => {
   switch (notificationHubMessage.kind) {
     case DeleteKind.DeleteInstallation:
-      return await client.startNew(
-        DeleteInstallationOrchestratorName,
-        {
-          input: {
-            message: notificationHubMessage,
-          },
+      return await client.startNew(DeleteInstallationOrchestratorName, {
+        input: {
+          message: notificationHubMessage,
         },
-      );
+      });
     case CreateOrUpdateKind.CreateOrUpdateInstallation:
-      return await client.startNew(
-        CreateOrUpdateInstallationOrchestrator,
-        {
-          input: {
-            message: notificationHubMessage,
-          },
+      return await client.startNew(CreateOrUpdateInstallationOrchestrator, {
+        input: {
+          message: notificationHubMessage,
         },
-      );
+      });
     case NotifyKind.Notify:
       return await notifyMessage(
         context,

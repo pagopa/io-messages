@@ -1,9 +1,9 @@
 import { InvocationContext } from "@azure/functions";
 
 export interface ActivityLogger {
-  readonly info: (msg: string) => void;
-  readonly error: (msg: string) => void;
   readonly debug: (msg: string) => void;
+  readonly error: (msg: string) => void;
+  readonly info: (msg: string) => void;
   readonly warn: (msg: string) => void;
 }
 
@@ -18,8 +18,8 @@ export const createLogger = (
   context: InvocationContext,
   logPrefix = "",
 ): ActivityLogger => ({
+  debug: (msg: string): void => context.debug(`${logPrefix}|${msg}`),
   error: (msg: string): void => context.error(`${logPrefix}|${msg}`),
   info: (msg: string): void => context.log(`${logPrefix}|${msg}`),
-  debug: (msg: string): void => context.debug(`${logPrefix}|${msg}`),
   warn: (msg: string): void => context.warn(`${logPrefix}|${msg}`),
 });

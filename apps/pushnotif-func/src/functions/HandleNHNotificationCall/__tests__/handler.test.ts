@@ -56,7 +56,10 @@ const mockContext = {
 
 describe("HandleNHNotificationCall", () => {
   it("should call Delete Orchestrator when message is DeleteInstallation", async () => {
-    await getHandler(mockNotifyQueueOutput)(aDeleteInStalltionMessage, mockContext);
+    await getHandler(mockNotifyQueueOutput)(
+      aDeleteInStalltionMessage,
+      mockContext,
+    );
 
     expect(dfClient.startNew).toHaveBeenCalledWith(
       "HandleNHDeleteInstallationCallOrchestrator",
