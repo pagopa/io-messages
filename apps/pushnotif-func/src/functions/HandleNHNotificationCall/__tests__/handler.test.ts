@@ -2,7 +2,7 @@
 import { InvocationContext } from "@azure/functions";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as df from "durable-functions";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CreateOrUpdateInstallationMessage } from "../../../generated/notifications/CreateOrUpdateInstallationMessage";
 import { DeleteInstallationMessage } from "../../../generated/notifications/DeleteInstallationMessage";
@@ -55,6 +55,10 @@ const mockContext = {
 } as unknown as InvocationContext;
 
 describe("HandleNHNotificationCall", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("should call Delete Orchestrator when message is DeleteInstallation", async () => {
     await getHandler(mockNotifyQueueOutput)(
       aDeleteInStalltionMessage,
@@ -85,6 +89,23 @@ describe("HandleNHNotificationCall", () => {
         },
       },
     );
+  });
+
+  it("should enqueue notify message when message kind is Notify", async () => {
+    await getHandler(mockNotifyQueueOutput)(aNotifyMessage, mockContext);
+
+    const expectedPayload = Buffer.from(
+      JSON.stringify({
+        message: aNotifyMessage,
+        target: "current",
+      }),
+    ).toString("base64");
+
+    expect(mockContext.extraOutputs.set).toHaveBeenCalledWith(
+      mockNotifyQueueOutput,
+      expectedPayload,
+    );
+    expect(dfClient.startNew).not.toHaveBeenCalled();
   });
 
   it("should not call any Orchestrator when message kind is not correct", async () => {
