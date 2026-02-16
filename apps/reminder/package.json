@@ -4,7 +4,7 @@
   "version": "0.17.6",
   "type": "module",
   "scripts": {
-    "build": "mvn clean package -DskipTests",
+    "build": "mvn clean package",
     "test": "mvn test",
     "test:coverage": "mvn test jacoco:report",
     "start": "mvn spring-boot:run",
