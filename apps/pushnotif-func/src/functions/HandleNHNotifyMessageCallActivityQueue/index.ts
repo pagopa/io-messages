@@ -13,6 +13,7 @@ const nhPatitionFactory = new NotificationHubPartitionFactory(
   config.AZURE_NOTIFICATION_HUB_PARTITIONS,
 );
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const index = (
   notifyRequest: unknown,
   _context: InvocationContext,
