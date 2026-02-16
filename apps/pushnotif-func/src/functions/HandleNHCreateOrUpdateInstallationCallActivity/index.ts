@@ -38,11 +38,13 @@ export const getCallableActivity = (
     retryOptions,
   );
 
-const activityFunctionHandler = createActivity(
+/**
+ * Activity handler for durable-functions v3.
+ * Receives only input (no context parameter).
+ */
+export const activityFunctionHandler = createActivity(
   activityName,
   ActivityInput,
   ActivityResultSuccess,
   getActivityBody(nhPatitionFactory, telemetryClient),
 );
-
-export default activityFunctionHandler;

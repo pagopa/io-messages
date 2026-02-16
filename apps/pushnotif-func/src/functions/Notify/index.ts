@@ -1,3 +1,8 @@
+// TODO: Migrate Notify HttpTrigger from Express to V4 programming model
+// This function is temporarily disabled during the V3→V4 migration.
+// It needs to be decoupled from Express before it can be registered in main.ts.
+
+/*
 import { AzureFunction, Context } from "@azure/functions";
 import { QueueClient } from "@azure/storage-queue";
 import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
@@ -125,3 +130,4 @@ const httpStart: AzureFunction = (context: Context): void => {
 };
 
 export default httpStart;
+*/

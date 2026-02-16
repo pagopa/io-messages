@@ -1,4 +1,4 @@
-import { Task } from "durable-functions/lib/src/classes";
+import { Task } from "durable-functions";
 import * as t from "io-ts";
 
 import { DeleteInstallationMessage } from "../../generated/notifications/DeleteInstallationMessage";

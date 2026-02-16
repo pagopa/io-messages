@@ -1,6 +1,5 @@
-import { Context } from "@azure/functions";
+import { FunctionOutput, InvocationContext } from "@azure/functions";
 import * as df from "durable-functions";
-import { DurableOrchestrationClient } from "durable-functions/lib/src/durableorchestrationclient";
 import * as T from "fp-ts/Task";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
@@ -25,7 +24,8 @@ export const NotificationMessage = t.union([
 export type NotificationHubMessage = t.TypeOf<typeof NotificationMessage>;
 
 const notifyMessage = (
-  context: Context,
+  context: InvocationContext,
+  notifyQueueOutput: FunctionOutput,
   message: NotifyMessage,
 ): Promise<string> =>
   pipe(
@@ -33,38 +33,45 @@ const notifyMessage = (
     T.of,
     T.map((target) => NhNotifyMessageRequest.encode({ message, target })),
     T.map((m) => Buffer.from(JSON.stringify(m)).toString("base64")),
-    T.map(
-      (notifyMessages) => (context.bindings.notifyMessages = notifyMessages),
+    T.map((notifyMessages) =>
+      context.extraOutputs.set(notifyQueueOutput, notifyMessages),
     ),
     T.map(() => "-1"), // There is no orchestrator_id to return
   )();
 
 const startOrchestrator = async (
   notificationHubMessage: NotificationHubMessage,
-  context: Context,
-  client: DurableOrchestrationClient,
+  context: InvocationContext,
+  client: df.DurableClient,
+  notifyQueueOutput: FunctionOutput,
 ): Promise<string> => {
   switch (notificationHubMessage.kind) {
     case DeleteKind.DeleteInstallation:
       return await client.startNew(
         DeleteInstallationOrchestratorName,
-        undefined,
         {
-          message: notificationHubMessage,
+          input: {
+            message: notificationHubMessage,
+          },
         },
       );
     case CreateOrUpdateKind.CreateOrUpdateInstallation:
       return await client.startNew(
         CreateOrUpdateInstallationOrchestrator,
-        undefined,
         {
-          message: notificationHubMessage,
+          input: {
+            message: notificationHubMessage,
+          },
         },
       );
     case NotifyKind.Notify:
-      return await notifyMessage(context, notificationHubMessage);
+      return await notifyMessage(
+        context,
+        notifyQueueOutput,
+        notificationHubMessage,
+      );
     default:
-      context.log.error(
+      context.error(
         `HandleNHNotificationCall|ERROR=Unknown message kind, message: ${toString(
           notificationHubMessage,
         )}`,
@@ -76,15 +83,20 @@ const startOrchestrator = async (
 };
 
 /**
- * Invoke Orchestrator to manage Notification Hub Service call with data provided by an enqued message
+ * Invoke Orchestrator to manage Notification Hub Service call with data provided by an enqueued message
  */
 export const getHandler =
-  () =>
+  (notifyQueueOutput: FunctionOutput) =>
   async (
-    context: Context,
-    notificationHubMessage: NotificationHubMessage,
-  ): Promise<string> => {
+    notificationHubMessage: unknown,
+    context: InvocationContext,
+  ): Promise<void> => {
     const client = df.getClient(context);
 
-    return startOrchestrator(notificationHubMessage, context, client);
+    await startOrchestrator(
+      notificationHubMessage as NotificationHubMessage,
+      context,
+      client,
+      notifyQueueOutput,
+    );
   };

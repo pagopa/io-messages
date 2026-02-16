@@ -1,4 +1,4 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
 import * as t from "io-ts";
@@ -51,21 +51,23 @@ export interface ILogger {
 }
 
 /**
+ * Creates a logger instance bound to an InvocationContext.
  *
- * @param context
+ * @param context the InvocationContext for Azure Functions V4 logging
  * @param logPrefix
+ * @param telemetryClient
  * @returns
  */
 export const createLogger = (
-  context: Context,
+  context: InvocationContext,
   logPrefix: string,
   telemetryClient?: TelemetryClient,
 ): ILogger => ({
   error: (s: string): void => {
-    context.log.error(`${logPrefix}|${s}`);
+    context.error(`${logPrefix}|${s}`);
   },
   info: (s: string): void => {
-    context.log.info(`${logPrefix}|${s}`);
+    context.log(`${logPrefix}|${s}`);
   },
   trackEvent: (e): void => {
     telemetryClient?.trackEvent({
@@ -75,6 +77,6 @@ export const createLogger = (
     });
   },
   warning: (s: string): void => {
-    context.log.warn(`${logPrefix}|${s}`);
+    context.warn(`${logPrefix}|${s}`);
   },
 });

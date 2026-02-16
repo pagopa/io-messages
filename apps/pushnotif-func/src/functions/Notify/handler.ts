@@ -316,8 +316,8 @@ export const Notify = (
     ),
   );
   return wrapRequestHandler(
-    middlewaresWrap((context, _) =>
-      handler(createLogger(context, "Notify", telemetryClient), _),
+    middlewaresWrap((_context, _) =>
+      handler(createLogger(_context, "Notify", telemetryClient), _),
     ),
   );
 };

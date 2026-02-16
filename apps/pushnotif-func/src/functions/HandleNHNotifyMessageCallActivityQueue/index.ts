@@ -1,4 +1,4 @@
-import { AzureFunction, Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 
 import { initTelemetryClient } from "../../utils/appinsights";
 import { getConfigOrThrow } from "../../utils/config";
@@ -13,9 +13,9 @@ const nhPatitionFactory = new NotificationHubPartitionFactory(
   config.AZURE_NOTIFICATION_HUB_PARTITIONS,
 );
 
-export const index: AzureFunction = (
-  _: Context,
+export const index = (
   notifyRequest: unknown,
+  _context: InvocationContext,
 ): NhNotifyMessageResponse =>
   handle(
     notifyRequest,

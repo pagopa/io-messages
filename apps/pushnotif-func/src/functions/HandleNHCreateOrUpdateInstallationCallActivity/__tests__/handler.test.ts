@@ -67,7 +67,7 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
 
       expect.assertions(2);
 
-      const res = await handler(contextMock, input);
+      const res = await handler(input, contextMock);
       expect(ActivityResultSuccess.is(res)).toBeTruthy();
       expect(nhPartitionFactory.getPartition).toHaveReturnedWith(
         expect.objectContaining({
@@ -96,7 +96,7 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
     expect.assertions(2);
 
     try {
-      await handler(contextMock, input);
+      await handler(input, contextMock);
     } catch (e) {
       expect(
         NotificationHubsClient.prototype.createOrUpdateInstallation,

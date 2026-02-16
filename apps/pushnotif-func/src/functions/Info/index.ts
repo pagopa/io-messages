@@ -1,3 +1,8 @@
+// TODO: Migrate Info HttpTrigger from Express to V4 programming model
+// This function is temporarily disabled during the V3→V4 migration.
+// It needs to be decoupled from Express before it can be registered in main.ts.
+
+/*
 import { AzureFunction, Context } from "@azure/functions";
 import createAzureFunctionHandler from "@pagopa/express-azure-functions/dist/src/createAzureFunctionsHandler";
 import { secureExpressApp } from "@pagopa/io-functions-commons/dist/src/utils/express";
@@ -20,3 +25,4 @@ const httpStart: AzureFunction = (context: Context): void => {
 };
 
 export default httpStart;
+*/

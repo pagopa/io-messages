@@ -1,4 +1,4 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
@@ -19,10 +19,8 @@ export type ActivityBody<
   Success extends ActivityResultSuccess = ActivityResultSuccess,
   Failure extends ActivityResultFailure = ActivityResultFailure,
 > = (p: {
-  readonly context: Context;
   readonly input: Input;
   readonly logger: ActivityLogger;
-  // bindings?: Bindings;
 }) => TE.TaskEither<Failure, Success>;
 
 // All activity will return ActivityResultFailure, ActivityResultSuccess or some derived types
@@ -39,7 +37,7 @@ type ActivityResult<R extends ActivityResultFailure | ActivityResultSuccess> =
  * @param InputCodec an io-ts codec which maps the expected input structure
  * @param body the activity logic implementation
  * @param OutputCodec an io-ts codec which maps the expected output structure
- * @returns
+ * @returns an activity handler compatible with durable-functions v3 (input, context)
  */
 export const createActivity =
   <
@@ -53,8 +51,8 @@ export const createActivity =
     body: ActivityBody<I, S, F>,
   ) =>
   async (
-    context: Context,
     rawInput: unknown,
+    context: InvocationContext,
   ): Promise<ActivityResult<F | S>> => {
     const logger = createLogger(context, activityName);
 
@@ -69,7 +67,7 @@ export const createActivity =
             readableReport(err),
           ) as F,
       ),
-      TE.chain((input) => body({ context, input, logger })),
+      TE.chain((input) => body({ input, logger })),
       TE.map((e) => OutputCodec.encode(e)),
       TE.toUnion,
     )();

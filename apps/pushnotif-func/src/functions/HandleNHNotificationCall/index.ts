@@ -6,6 +6,4 @@ const config = getConfigOrThrow();
 
 initTelemetryClient(config);
 
-export const index = getHandler();
-
-export default index;
+export { getHandler } from "./handler";
