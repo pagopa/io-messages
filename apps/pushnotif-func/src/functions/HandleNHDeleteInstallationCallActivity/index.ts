@@ -37,10 +37,6 @@ export const getCallableActivity = (
     retryOptions,
   );
 
-/**
- * Activity handler for durable-functions v3.
- * Receives only input (no context parameter).
- */
 export const activityFunctionHandler = createActivity<ActivityInput>(
   activityName,
   ActivityInput,
