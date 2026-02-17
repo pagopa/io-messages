@@ -12,7 +12,6 @@ import { DeleteInstallationMessage } from "../../generated/notifications/DeleteI
 import { KindEnum as DeleteKind } from "../../generated/notifications/DeleteInstallationMessage";
 import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
 import { KindEnum as NotifyKind } from "../../generated/notifications/NotifyMessage";
-import { toString } from "../../utils/conversions";
 import { NhNotifyMessageRequest, NhTarget } from "../../utils/types";
 import { OrchestratorName as CreateOrUpdateInstallationOrchestrator } from "../HandleNHCreateOrUpdateInstallationCallOrchestrator/handler";
 import { OrchestratorName as DeleteInstallationOrchestratorName } from "../HandleNHDeleteInstallationCallOrchestrator/handler";
@@ -66,15 +65,12 @@ const startOrchestrator = async (
         notifyQueueOutput,
         notificationHubMessage,
       );
-    default:
-      context.error(
-        `HandleNHNotificationCall|ERROR=Unknown message kind, message: ${toString(
-          notificationHubMessage,
-        )}`,
-      );
+    default: {
+      const _exhaustiveCheck: never = notificationHubMessage;
       throw new Error(
-        `Unknown message kind, message: ${toString(notificationHubMessage)}`,
+        `Unhandled message kind: ${String((_exhaustiveCheck as NotificationHubMessage).kind)}`,
       );
+    }
   }
 };
 
