@@ -99,10 +99,5 @@ export const getHandler =
 
     const client = df.getClient(context);
 
-    await startOrchestrator(
-      decoded.right,
-      context,
-      client,
-      notifyQueueOutput,
-    );
+    await startOrchestrator(decoded.right, context, client, notifyQueueOutput);
   };
