@@ -1,5 +1,7 @@
 import { FunctionOutput, InvocationContext } from "@azure/functions";
+import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import * as df from "durable-functions";
+import * as E from "fp-ts/Either";
 import * as T from "fp-ts/Task";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
@@ -85,10 +87,20 @@ export const getHandler =
     notificationHubMessage: unknown,
     context: InvocationContext,
   ): Promise<void> => {
+    const decoded = NotificationMessage.decode(notificationHubMessage);
+
+    if (E.isLeft(decoded)) {
+      const error = readableReport(decoded.left);
+      context.error(
+        `HandleNHNotificationCall|ERROR=Invalid message|DETAILS=${error}`,
+      );
+      throw new Error(`Invalid NotificationHubMessage: ${error}`);
+    }
+
     const client = df.getClient(context);
 
     await startOrchestrator(
-      notificationHubMessage as NotificationHubMessage,
+      decoded.right,
       context,
       client,
       notifyQueueOutput,

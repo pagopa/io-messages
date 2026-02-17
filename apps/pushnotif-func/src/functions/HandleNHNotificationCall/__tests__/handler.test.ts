@@ -108,17 +108,16 @@ describe("HandleNHNotificationCall", () => {
     expect(dfClient.startNew).not.toHaveBeenCalled();
   });
 
-  it("should not call any Orchestrator when message kind is not correct", async () => {
-    const aWrongMessage = {
-      installationId: aFiscalCodeHash,
-      kind: "WrongMessage" as any,
-    };
+  it("should throw and log when message fails io-ts decoding", async () => {
+    const anInvalidMessage = { unexpected: "data" };
 
-    expect.assertions(1);
-    try {
-      await getHandler(mockNotifyQueueOutput)(aWrongMessage, mockContext);
-    } catch (error) {
-      expect(error).toBeInstanceOf(Error);
-    }
+    await expect(
+      getHandler(mockNotifyQueueOutput)(anInvalidMessage, mockContext),
+    ).rejects.toThrow("Invalid NotificationHubMessage");
+
+    expect(mockContext.error).toHaveBeenCalledWith(
+      expect.stringContaining("HandleNHNotificationCall|ERROR=Invalid message"),
+    );
+    expect(dfClient.startNew).not.toHaveBeenCalled();
   });
 });
