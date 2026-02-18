@@ -6,7 +6,7 @@ import { IConfig } from "../utils/config";
 const aBlacklistedFiscalCode = "AAAAAA00A00H501I" as FiscalCode;
 
 export const envConfig: IConfig = {
-  APPINSIGHTS_INSTRUMENTATIONKEY: "Idontknow" as NonEmptyString,
+  APPLICATIONINSIGHTS_CONNECTION_STRING: "Idontknow" as NonEmptyString,
   APPINSIGHTS_SAMPLING_PERCENTAGE: "20" as unknown as IntegerFromString,
 
   AZURE_NOTIFICATION_HUB_PARTITIONS: [

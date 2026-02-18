@@ -2922,7 +2922,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagopa/ts-commons@npm:^13.0.0, @pagopa/ts-commons@npm:^13.1.1":
+"@pagopa/ts-commons@npm:^13.0.0, @pagopa/ts-commons@npm:^13.1.1, @pagopa/ts-commons@npm:^13.1.2":
   version: 13.1.2
   resolution: "@pagopa/ts-commons@npm:13.1.2"
   dependencies:
@@ -13674,13 +13674,13 @@ __metadata:
     "@pagopa/express-azure-functions": "npm:^2.0.0"
     "@pagopa/io-functions-commons": "npm:^30.0.0"
     "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
-    "@pagopa/ts-commons": "npm:^11.0.0"
+    "@pagopa/ts-commons": "npm:^13.1.2"
     "@types/express": "npm:^4.17.9"
     "@types/node": "npm:^20.17.30"
     "@types/node-fetch": "npm:^2.5.7"
     "@types/vfile-message": "npm:^2.0.0"
     "@vitest/coverage-v8": "npm:^3.1.2"
-    applicationinsights: "npm:^1.8.10"
+    applicationinsights: "npm:^2.9.5"
     azure-storage: "npm:^2.10.3"
     durable-functions: "npm:^3.0.0"
     eslint: "npm:8.57.1"

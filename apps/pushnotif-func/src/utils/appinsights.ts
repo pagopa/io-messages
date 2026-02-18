@@ -1,6 +1,5 @@
 import { initAppInsights } from "@pagopa/ts-commons/lib/appinsights";
 import * as ai from "applicationinsights";
-
 import { IConfig } from "./config";
 
 // Avoid to initialize Application Insights more than once
@@ -9,7 +8,7 @@ export const initTelemetryClient = (
 ): ReturnType<typeof initAppInsights> | ai.TelemetryClient =>
   ai.defaultClient
     ? ai.defaultClient
-    : initAppInsights(env.APPINSIGHTS_INSTRUMENTATIONKEY, {
+    : initAppInsights(env.APPLICATIONINSIGHTS_CONNECTION_STRING, {
         samplingPercentage: env.APPINSIGHTS_SAMPLING_PERCENTAGE,
       });
 
