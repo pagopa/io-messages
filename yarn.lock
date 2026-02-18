@@ -2787,6 +2787,39 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pagopa/io-functions-commons@npm:^30.0.0":
+  version: 30.0.0
+  resolution: "@pagopa/io-functions-commons@npm:30.0.0"
+  dependencies:
+    "@azure/cosmos": "npm:^4.0.0"
+    "@azure/data-tables": "npm:^13.2.2"
+    applicationinsights: "npm:^2.9.5"
+    azure-storage: "npm:^2.10.5"
+    cidr-matcher: "npm:^2.1.1"
+    helmet: "npm:^4.6.0"
+    helmet-csp: "npm:^2.5.1"
+    node-fetch: "npm:^2.6.1"
+    nodemailer: "npm:^6.9.13"
+    nodemailer-sendgrid: "npm:^1.0.3"
+    referrer-policy: "npm:^1.1.0"
+    rehype-stringify: "npm:^3.0.0"
+    remark-frontmatter: "npm:^2.0.0"
+    remark-parse: "npm:^5.0.0"
+    remark-rehype: "npm:^3.0.0"
+    request-ip: "npm:^3.3.0"
+    ulid: "npm:^2.3.0"
+    unified: "npm:^9.2.2"
+    winston: "npm:^3.1.0"
+  peerDependencies:
+    "@azure/functions": ^4.11.2
+    "@pagopa/ts-commons": ^13.1.1
+    express: ^4.15.3
+    fp-ts: ^2.16.5
+    io-ts: ^2.2.21
+  checksum: 10c0/2350b6bc7c5bd6028e96a51be60119d602df549cf1bac91c97c386e5cca4528a9174991f000dea0bbe53171c5cfe266d6ec085beee2713cc709e5108583bec9b
+  languageName: node
+  linkType: hard
+
 "@pagopa/openapi-codegen-ts@npm:^11.1.0":
   version: 11.3.0
   resolution: "@pagopa/openapi-codegen-ts@npm:11.3.0"
@@ -13639,7 +13672,7 @@ __metadata:
     "@pagopa/azure-storage-legacy-migration-kit": "npm:^0.0.4"
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@pagopa/express-azure-functions": "npm:^2.0.0"
-    "@pagopa/io-functions-commons": "npm:^29.3.0"
+    "@pagopa/io-functions-commons": "npm:^30.0.0"
     "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
     "@pagopa/ts-commons": "npm:^11.0.0"
     "@types/express": "npm:^4.17.9"
