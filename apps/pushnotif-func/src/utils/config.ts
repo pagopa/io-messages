@@ -67,9 +67,10 @@ const BaseConfig = t.intersection([
   }),
   t.intersection([
     t.interface({
+      // the internal function runtime has MaxTelemetryItem per second set to 20 by default
       // @see https://github.com/Azure/azure-functions-host/blob/master/src/WebJobs.Script/Config/ApplicationInsightsLoggerOptionsSetup.cs#L29
       APPINSIGHTS_SAMPLING_PERCENTAGE: withDefault(IntegerFromString, 5),
-      // the internal function runtime has MaxTelemetryItem per second set to 20 by default
+
       APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
       RETRY_ATTEMPT_NUMBER: IntegerFromString,
