@@ -23,8 +23,10 @@ import {
 import { getHandler as getDeleteOrchestratorHandler } from "./functions/HandleNHDeleteInstallationCallOrchestrator/handler";
 import { getHandler as getNotificationCallHandler } from "./functions/HandleNHNotificationCall/handler";
 import { handle as handleNotifyMessage } from "./functions/HandleNHNotifyMessageCallActivityQueue/handler";
+import { Info } from "./functions/Info/handler";
 import { initTelemetryClient } from "./utils/appinsights";
 import { getConfigOrThrow } from "./utils/config";
+import { cosmosdbClient } from "./utils/cosmosdb";
 import { NotificationHubPartitionFactory } from "./utils/notificationhubServicePartition";
 
 // ---------------------------------------------------------------------------
@@ -102,8 +104,14 @@ app.storageQueue("HandleNHNotifyMessageCallActivityQueue", {
 });
 
 // ---------------------------------------------------------------------------
-// HTTP Triggers — TODO: migrate from Express to V4 programming model
+// HTTP Triggers
 // ---------------------------------------------------------------------------
 // Info and Notify are currently disabled.
 // They need to be decoupled from Express before being registered here.
 // See src/functions/Info/index.ts and src/functions/Notify/index.ts
+app.http("Info", {
+  authLevel: "anonymous",
+  handler: Info(cosmosdbClient),
+  methods: ["GET"],
+  route: "info",
+});

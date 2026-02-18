@@ -1,13 +1,11 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { CosmosClient } from "@azure/cosmos";
-import { wrapRequestHandler } from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import {
   IResponseErrorInternal,
   IResponseSuccessJson,
   ResponseErrorInternal,
   ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
-import * as express from "express";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 
@@ -20,9 +18,9 @@ type InfoHandler = () => Promise<
     }>
 >;
 
-export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  return () =>
+export const InfoHandler =
+  (healthCheck: HealthCheck): InfoHandler =>
+  (): ReturnType<InfoHandler> =>
     pipe(
       healthCheck,
       TE.bimap(
@@ -34,10 +32,9 @@ export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
       ),
       TE.toUnion,
     )();
-}
 
-export function Info(cosmosClient: CosmosClient): express.RequestHandler {
+export const Info = (cosmosClient: CosmosClient) => {
   const handler = InfoHandler(checkApplicationHealth(cosmosClient));
 
-  return wrapRequestHandler(handler);
-}
+  return wrapHandlerV4([], handler);
+};
