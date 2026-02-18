@@ -52,9 +52,10 @@ module "etl_func" {
 
   app_settings = local.etl_func.app_settings
 
-  sticky_app_setting_names = ["NODE_ENV", "AzureWebJobs.IngestMessageStatus.Disabled"]
+  sticky_app_setting_names = ["NODE_ENV", "AzureWebJobs.IngestMessageStatus.Disabled", "AzureWebJobs.IngestMessages.Disabled"]
   slot_app_settings = merge(local.etl_func.app_settings, {
     "AzureWebJobs.IngestMessageStatus.Disabled" = "1"
+    "AzureWebJobs.IngestMessages.Disabled"      = "1"
   })
 
   virtual_network = var.virtual_network
