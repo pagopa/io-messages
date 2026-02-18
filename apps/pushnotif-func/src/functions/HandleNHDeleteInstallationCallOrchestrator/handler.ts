@@ -3,7 +3,7 @@ import * as t from "io-ts";
 
 import { DeleteInstallationMessage } from "../../generated/notifications/DeleteInstallationMessage";
 import * as o from "../../utils/durable/orchestrators";
-import { getCallableActivity as getDeleteInstallationCallableActivity } from "../HandleNHDeleteInstallationCallActivity";
+import { getCallableActivity as getDeleteInstallationCallableActivity } from "../HandleNHDeleteInstallationCallActivity/handler";
 
 export const OrchestratorName = "HandleNHDeleteInstallationCallOrchestrator";
 

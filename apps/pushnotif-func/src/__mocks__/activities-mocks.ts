@@ -3,7 +3,7 @@ import { vi } from "vitest";
 import {
   ActivityInput as DeleteInstallationActivityInput,
   ActivityResultSuccess as DeleteInstallationActivityResultSuccess,
-} from "../functions/HandleNHDeleteInstallationCallActivity";
+} from "../functions/HandleNHDeleteInstallationCallActivity/handler";
 import { CallableActivity } from "../utils/durable/orchestrators";
 
 /* eslint-enable require-yield */

@@ -7,23 +7,51 @@
  */
 import { app, output } from "@azure/functions";
 import * as df from "durable-functions";
+import { RetryOptions } from "durable-functions";
 
-import { activityFunctionHandler as createOrUpdateActivityHandler } from "./functions/HandleNHCreateOrUpdateInstallationCallActivity";
-import { handler as createOrUpdateOrchestratorHandler } from "./functions/HandleNHCreateOrUpdateInstallationCallOrchestrator";
-import { activityFunctionHandler as deleteActivityHandler } from "./functions/HandleNHDeleteInstallationCallActivity";
-import { handler as deleteOrchestratorHandler } from "./functions/HandleNHDeleteInstallationCallOrchestrator";
+import {
+  ActivityName as CreateOrUpdateActivityName,
+  getActivityHandler as getCreateOrUpdateActivityHandler,
+  getCallableActivity as getCreateOrUpdateCallableActivity,
+} from "./functions/HandleNHCreateOrUpdateInstallationCallActivity/handler";
+import { getHandler as getCreateOrUpdateOrchestratorHandler } from "./functions/HandleNHCreateOrUpdateInstallationCallOrchestrator/handler";
+import {
+  ActivityName as DeleteActivityName,
+  getActivityHandler as getDeleteActivityHandler,
+  getCallableActivity as getDeleteCallableActivity,
+} from "./functions/HandleNHDeleteInstallationCallActivity/handler";
+import { getHandler as getDeleteOrchestratorHandler } from "./functions/HandleNHDeleteInstallationCallOrchestrator/handler";
 import { getHandler as getNotificationCallHandler } from "./functions/HandleNHNotificationCall/handler";
-import { index as notifyMessageCallHandler } from "./functions/HandleNHNotifyMessageCallActivityQueue";
+import { handle as handleNotifyMessage } from "./functions/HandleNHNotifyMessageCallActivityQueue/handler";
+import { initTelemetryClient } from "./utils/appinsights";
+import { getConfigOrThrow } from "./utils/config";
+import { NotificationHubPartitionFactory } from "./utils/notificationhubServicePartition";
+
+// ---------------------------------------------------------------------------
+// Shared configuration and dependencies
+// ---------------------------------------------------------------------------
+const config = getConfigOrThrow();
+const telemetryClient = initTelemetryClient(config);
+
+const nhPartitionFactory = new NotificationHubPartitionFactory(
+  config.AZURE_NOTIFICATION_HUB_PARTITIONS,
+);
+
+const retryOptions = new RetryOptions(5000, config.RETRY_ATTEMPT_NUMBER);
+retryOptions.backoffCoefficient = 1.5;
 
 // ---------------------------------------------------------------------------
 // Durable Functions — Activities
 // ---------------------------------------------------------------------------
-df.app.activity("HandleNHCreateOrUpdateInstallationCallActivity", {
-  handler: createOrUpdateActivityHandler,
+df.app.activity(CreateOrUpdateActivityName, {
+  handler: getCreateOrUpdateActivityHandler(
+    nhPartitionFactory,
+    telemetryClient,
+  ),
 });
 
-df.app.activity("HandleNHDeleteInstallationCallActivity", {
-  handler: deleteActivityHandler,
+df.app.activity(DeleteActivityName, {
+  handler: getDeleteActivityHandler(nhPartitionFactory, telemetryClient),
 });
 
 // ---------------------------------------------------------------------------
@@ -31,12 +59,16 @@ df.app.activity("HandleNHDeleteInstallationCallActivity", {
 // ---------------------------------------------------------------------------
 df.app.orchestration(
   "HandleNHCreateOrUpdateInstallationCallOrchestrator",
-  createOrUpdateOrchestratorHandler,
+  getCreateOrUpdateOrchestratorHandler({
+    createOrUpdateActivity: getCreateOrUpdateCallableActivity(retryOptions),
+  }),
 );
 
 df.app.orchestration(
   "HandleNHDeleteInstallationCallOrchestrator",
-  deleteOrchestratorHandler,
+  getDeleteOrchestratorHandler({
+    deleteInstallationActivity: getDeleteCallableActivity(retryOptions),
+  }),
 );
 
 // ---------------------------------------------------------------------------
@@ -59,7 +91,13 @@ app.storageQueue("HandleNHNotificationCall", {
 
 app.storageQueue("HandleNHNotifyMessageCallActivityQueue", {
   connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
-  handler: notifyMessageCallHandler,
+  handler: (notifyRequest) =>
+    handleNotifyMessage(
+      notifyRequest,
+      config.FISCAL_CODE_NOTIFICATION_BLACKLIST,
+      telemetryClient,
+      nhPartitionFactory,
+    ),
   queueName: "%NOTIFY_MESSAGE_QUEUE_NAME%",
 });
 

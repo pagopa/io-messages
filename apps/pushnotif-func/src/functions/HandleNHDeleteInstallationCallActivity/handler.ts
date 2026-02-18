@@ -1,5 +1,6 @@
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
+import { RetryOptions } from "durable-functions";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
@@ -8,8 +9,10 @@ import { toString } from "../../utils/conversions";
 import {
   ActivityBody,
   ActivityResultSuccess,
+  createActivity,
   failActivity,
 } from "../../utils/durable/activities";
+import * as o from "../../utils/durable/orchestrators";
 import { deleteInstallation } from "../../utils/notification";
 import { NotificationHubPartitionFactory } from "../../utils/notificationhubServicePartition";
 
@@ -67,3 +70,24 @@ export const getActivityBody =
       ),
     );
   };
+
+export const getCallableActivity = (
+  retryOptions: RetryOptions,
+): o.CallableActivity<ActivityInput> =>
+  o.callableActivity<ActivityInput>(
+    ActivityName,
+    ActivityResultSuccess,
+    retryOptions,
+  );
+
+export const getActivityHandler = (
+  nhPartitionFactory: NotificationHubPartitionFactory,
+  telemetryClient: TelemetryClient,
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+) =>
+  createActivity<ActivityInput>(
+    ActivityName,
+    ActivityInput,
+    ActivityResultSuccess,
+    getActivityBody(nhPartitionFactory, telemetryClient),
+  );

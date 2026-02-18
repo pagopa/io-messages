@@ -6,7 +6,7 @@ import { CreateOrUpdateInstallationMessage } from "../../generated/notifications
 import { toString } from "../../utils/conversions";
 import * as o from "../../utils/durable/orchestrators";
 import { failureUnhandled } from "../../utils/durable/orchestrators";
-import { getCallableActivity as getCreateOrUpdateCallableActivity } from "../HandleNHCreateOrUpdateInstallationCallActivity";
+import { getCallableActivity as getCreateOrUpdateCallableActivity } from "../HandleNHCreateOrUpdateInstallationCallActivity/handler";
 
 export const OrchestratorName =
   "HandleNHCreateOrUpdateInstallationCallOrchestrator";
