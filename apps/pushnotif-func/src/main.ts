@@ -57,8 +57,7 @@ import {
 import { createClient } from "./generated/session-manager/client";
 import { initTelemetryClient } from "./utils/appinsights";
 import { getConfigOrThrow } from "./utils/config";
-import { cosmosdbClient } from "./utils/cosmosdb";
-import { cosmosdbInstance } from "./utils/cosmosdb";
+import { cosmosdbClient, cosmosdbInstance } from "./utils/cosmosdb";
 import { NotificationHubPartitionFactory } from "./utils/notificationhubServicePartition";
 
 // ---------------------------------------------------------------------------
@@ -184,18 +183,16 @@ app.storageQueue("HandleNHNotifyMessageCallActivityQueue", {
 // ---------------------------------------------------------------------------
 // HTTP Triggers
 // ---------------------------------------------------------------------------
-// Info and Notify are currently disabled.
-// They need to be decoupled from Express before being registered here.
-// See src/functions/Info/index.ts and src/functions/Notify/index.ts
+
 app.http("Info", {
   authLevel: "anonymous",
   handler: Info(cosmosdbClient),
   methods: ["GET"],
-  route: "info",
+  route: "api/v1/info",
 });
 
 app.http("Notify", {
-  authLevel: "anonymous",
+  authLevel: "function",
   handler: Notify(
     getUserProfileReader(profileModel),
     getUserSessionStatusReader(sessionManagerClient),
@@ -204,6 +201,6 @@ app.http("Notify", {
     sendNotification(notifyQueueClient),
     telemetryClient,
   ),
-  methods: ["GET"],
-  route: "notify",
+  methods: ["POST"],
+  route: "api/v1/notify",
 });
