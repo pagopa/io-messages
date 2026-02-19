@@ -6,8 +6,30 @@
  * to be decoupled from Express before being registered here.
  */
 import { app, output } from "@azure/functions";
+import { QueueClient } from "@azure/storage-queue";
+import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
+import {
+  MESSAGE_COLLECTION_NAME,
+  MessageModel,
+} from "@pagopa/io-functions-commons/dist/src/models/message";
+import {
+  PROFILE_COLLECTION_NAME,
+  ProfileModel,
+} from "@pagopa/io-functions-commons/dist/src/models/profile";
+import {
+  SERVICE_COLLECTION_NAME,
+  ServiceModel,
+} from "@pagopa/io-functions-commons/dist/src/models/service";
+import {
+  AbortableFetch,
+  setFetchTimeout,
+  toFetch,
+} from "@pagopa/ts-commons/lib/fetch";
+import { Millisecond } from "@pagopa/ts-commons/lib/units";
 import * as df from "durable-functions";
 import { RetryOptions } from "durable-functions";
+import { pipe } from "fp-ts/lib/function";
+import nodeFetch from "node-fetch";
 
 import {
   ActivityName as CreateOrUpdateActivityName,
@@ -24,16 +46,38 @@ import { getHandler as getDeleteOrchestratorHandler } from "./functions/HandleNH
 import { getHandler as getNotificationCallHandler } from "./functions/HandleNHNotificationCall/handler";
 import { handle as handleNotifyMessage } from "./functions/HandleNHNotifyMessageCallActivityQueue/handler";
 import { Info } from "./functions/Info/handler";
+import { Notify } from "./functions/Notify/handler";
+import { sendNotification } from "./functions/Notify/notification";
+import {
+  getMessageWithContent,
+  getService,
+  getUserProfileReader,
+  getUserSessionStatusReader,
+} from "./functions/Notify/readers";
+import { createClient } from "./generated/session-manager/client";
 import { initTelemetryClient } from "./utils/appinsights";
 import { getConfigOrThrow } from "./utils/config";
 import { cosmosdbClient } from "./utils/cosmosdb";
+import { cosmosdbInstance } from "./utils/cosmosdb";
 import { NotificationHubPartitionFactory } from "./utils/notificationhubServicePartition";
 
 // ---------------------------------------------------------------------------
-// Shared configuration and dependencies
+// Shared configuration and Functions dependencies
 // ---------------------------------------------------------------------------
+
+const DEFAULT_REQUEST_TIMEOUT_MS = 10000 as Millisecond;
+
 const config = getConfigOrThrow();
 const telemetryClient = initTelemetryClient(config);
+
+// Generic HTTP/HTTPS fetch with optional keepalive agent
+// @see https://github.com/pagopa/io-ts-commons/blob/master/src/agent.ts#L10
+const httpOrHttpsApiFetch = pipe(
+  AbortableFetch(nodeFetch as unknown as typeof fetch),
+  (abortableFetch) =>
+    setFetchTimeout(DEFAULT_REQUEST_TIMEOUT_MS, abortableFetch),
+  (fetchWithTimeout) => toFetch(fetchWithTimeout),
+);
 
 const nhPartitionFactory = new NotificationHubPartitionFactory(
   config.AZURE_NOTIFICATION_HUB_PARTITIONS,
@@ -41,6 +85,40 @@ const nhPartitionFactory = new NotificationHubPartitionFactory(
 
 const retryOptions = new RetryOptions(5000, config.RETRY_ATTEMPT_NUMBER);
 retryOptions.backoffCoefficient = 1.5;
+
+// Models
+const messageModel = new MessageModel(
+  cosmosdbInstance.container(MESSAGE_COLLECTION_NAME),
+  config.MESSAGE_CONTAINER_NAME,
+);
+
+const blobService = createBlobService(
+  config.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
+  config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+);
+
+const serviceModel = new ServiceModel(
+  cosmosdbInstance.container(SERVICE_COLLECTION_NAME),
+);
+
+const profileModel = new ProfileModel(
+  cosmosdbInstance.container(PROFILE_COLLECTION_NAME),
+);
+
+const sessionManagerClient = createClient<"ApiKeyAuth">({
+  baseUrl: config.SESSION_MANAGER_BASE_URL,
+  fetchApi: httpOrHttpsApiFetch,
+  withDefaults: (op) => (params) =>
+    op({
+      ...params,
+      ApiKeyAuth: config.SESSION_MANAGER_API_KEY,
+    }),
+});
+
+const notifyQueueClient = new QueueClient(
+  config.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
+  config.NOTIFICATIONS_QUEUE_NAME,
+);
 
 // ---------------------------------------------------------------------------
 // Durable Functions — Activities
@@ -114,4 +192,18 @@ app.http("Info", {
   handler: Info(cosmosdbClient),
   methods: ["GET"],
   route: "info",
+});
+
+app.http("Notify", {
+  authLevel: "anonymous",
+  handler: Notify(
+    getUserProfileReader(profileModel),
+    getUserSessionStatusReader(sessionManagerClient),
+    getMessageWithContent(messageModel, blobService),
+    getService(serviceModel),
+    sendNotification(notifyQueueClient),
+    telemetryClient,
+  ),
+  methods: ["GET"],
+  route: "notify",
 });

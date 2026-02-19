@@ -1,6 +1,5 @@
 /* eslint-disable vitest/prefer-called-with, no-useless-escape */
 
-import { Context } from "@azure/functions";
 import { PushNotificationsContentTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/PushNotificationsContentType";
 import { ReminderStatusEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/ReminderStatus";
 import { UserGroup } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_api_auth";
@@ -8,12 +7,14 @@ import context_middleware from "@pagopa/io-functions-commons/dist/src/utils/midd
 import { ResponseErrorInternal } from "@pagopa/ts-commons/lib/responses";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
-import * as e from "express";
 import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { mockReq, mockRes } from "../../../__mocks__/express-types";
+import {
+  createMockContext,
+  createMockRequest,
+} from "../../../__mocks__/httptrigger.mock";
 import {
   aFiscalCode,
   aRetrievedMessageWithContent,
@@ -43,13 +44,6 @@ const aValidReadReminderNotifyPayload: NotificationInfo = {
   message_id: "aMessageId" as NonEmptyString,
   notification_type: NotificationTypeEnum.REMINDER_READ,
 };
-
-const aMockedRequestWithRightParams = {
-  ...mockReq(),
-  body: {
-    aValidNotifyPayload: aValidMessageNotifyPayload,
-  },
-} as e.Request;
 
 // -------------------------------------
 // Mocks
@@ -83,7 +77,7 @@ const sendNotificationMock = vi.fn(
   () => TE.of(void 0) as ReturnType<SendNotification>,
 );
 
-const mockContext = {} as Context;
+const mockContext = createMockContext();
 const mockContextMiddleware = vi.fn(async () => E.of(mockContext));
 
 vi.spyOn(context_middleware, "ContextMiddleware").mockReturnValue(
@@ -111,10 +105,9 @@ const getHandler = () =>
 // -------------------------------------
 describe("Notify Middlewares", () => {
   it("should return 400 if payload is not defined", async () => {
-    const aRequestWithInvalidPayload = {
-      ...aMockedRequestWithRightParams,
-      body: {},
-    } as e.Request;
+    const aRequestWithInvalidPayload = createMockRequest({
+      body: { string: JSON.stringify({}) },
+    });
 
     const notifyhandler = Notify(
       userProfileReaderMock,
@@ -125,15 +118,10 @@ describe("Notify Middlewares", () => {
       {} as TelemetryClient,
     );
 
-    const res = mockRes();
-    await notifyhandler(
-      aRequestWithInvalidPayload,
-      res as unknown as e.Response,
-      {} as e.NextFunction,
-    );
+    const res = await notifyhandler(aRequestWithInvalidPayload, mockContext);
 
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith(
+    expect(res.status).toEqual(400);
+    expect(res.jsonBody).toEqual(
       expect.objectContaining({
         detail: `value [undefined] at [root.0.notification_type] is not a valid [NotificationType]\nvalue [undefined] at [root.0.fiscal_code] is not a valid [string that matches the pattern \"^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$\"]\nvalue [undefined] at [root.0.message_id] is not a valid [non empty string]`,
         status: 400,
@@ -143,10 +131,14 @@ describe("Notify Middlewares", () => {
   });
 
   it("should return 400 if payload is not correct", async () => {
-    const aRequestWithInvalidPayload = {
-      ...aMockedRequestWithRightParams,
-      body: { ...aValidMessageNotifyPayload, message_id: "" },
-    } as e.Request;
+    const aRequestWithInvalidPayload = createMockRequest({
+      body: {
+        string: JSON.stringify({
+          ...aValidMessageNotifyPayload,
+          message_id: "",
+        }),
+      },
+    });
 
     const notifyhandler = Notify(
       userProfileReaderMock,
@@ -157,15 +149,10 @@ describe("Notify Middlewares", () => {
       {} as TelemetryClient,
     );
 
-    const res = mockRes();
-    await notifyhandler(
-      aRequestWithInvalidPayload,
-      res as unknown as e.Response,
-      {} as e.NextFunction,
-    );
+    const res = await notifyhandler(aRequestWithInvalidPayload, mockContext);
 
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith(
+    expect(res.status).toEqual(400);
+    expect(res.jsonBody).toEqual(
       expect.objectContaining({
         detail: `value [\"\"] at [root.0.message_id] is not a valid [non empty string]`,
         status: 400,
@@ -194,15 +181,17 @@ describe("Notify Middlewares", () => {
   ])(
     "should return 403 if user groups are not corrects",
     async ({ notification_type, x_user_groups }) => {
-      const aRequestWithNotAllowedPayload = {
-        ...aMockedRequestWithRightParams,
+      const aRequestWithNotAllowedPayload = createMockRequest({
         body: {
-          ...aValidMessageNotifyPayload,
-          notification_type: notification_type,
+          string: JSON.stringify({
+            ...aValidMessageNotifyPayload,
+            notification_type: notification_type,
+          }),
         },
-        header: (name) =>
-          new Map<string, string>([["x-user-groups", x_user_groups]]).get(name),
-      } as e.Request;
+        headers: {
+          "x-user-groups": x_user_groups,
+        } as Record<string, string>,
+      });
 
       const notifyhandler = Notify(
         userProfileReaderMock,
@@ -213,15 +202,13 @@ describe("Notify Middlewares", () => {
         {} as TelemetryClient,
       );
 
-      const res = mockRes();
-      await notifyhandler(
+      const res = await notifyhandler(
         aRequestWithNotAllowedPayload,
-        res as unknown as e.Response,
-        {} as e.NextFunction,
+        mockContext,
       );
 
-      expect(res.status).toHaveBeenCalledWith(403);
-      expect(res.json).toHaveBeenCalledWith(
+      expect(res.status).toEqual(403);
+      expect(res.jsonBody).toEqual(
         expect.objectContaining({
           detail: `No valid scopes, you are not allowed to send such payloads. Ask the administrator to give you the required permissions.`,
           status: 403,
@@ -487,15 +474,17 @@ describe("Notify |> Reminder |> Success", () => {
   ])(
     "should return 204 with the correct user groups",
     async ({ notification_type, x_user_groups }) => {
-      const aRequestWithNotAllowedPayload = {
-        ...aMockedRequestWithRightParams,
+      const aRequestWithAllowedPayload = createMockRequest({
         body: {
-          ...aValidMessageNotifyPayload,
-          notification_type: notification_type,
+          string: JSON.stringify({
+            ...aValidMessageNotifyPayload,
+            notification_type,
+          }),
         },
-        header: (name) =>
-          new Map<string, string>([["x-user-groups", x_user_groups]]).get(name),
-      } as e.Request;
+        headers: {
+          "x-user-groups": x_user_groups,
+        } as Record<string, string>,
+      });
 
       const notifyhandler = Notify(
         userProfileReaderMock,
@@ -509,14 +498,9 @@ describe("Notify |> Reminder |> Success", () => {
         } as TelemetryClient,
       );
 
-      const res = mockRes();
-      await notifyhandler(
-        aRequestWithNotAllowedPayload,
-        res as unknown as e.Response,
-        {} as e.NextFunction,
-      );
+      const res = await notifyhandler(aRequestWithAllowedPayload, mockContext);
 
-      expect(res.status).toHaveBeenCalledWith(204);
+      expect(res.status).toEqual(204);
     },
   );
 });

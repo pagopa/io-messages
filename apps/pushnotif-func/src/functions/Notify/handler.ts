@@ -2,16 +2,13 @@ import { UserSessionInfo } from "@/generated/session-manager/UserSessionInfo";
 import { PushNotificationsContentTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/PushNotificationsContentType";
 import { ReminderStatusEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/ReminderStatus";
 import { RetrievedProfile } from "@pagopa/io-functions-commons/dist/src/models/profile";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import {
   AzureAllowBodyPayloadMiddleware,
   UserGroup,
 } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_api_auth";
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { RequiredBodyPayloadMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_body_payload";
-import {
-  withRequestMiddlewares,
-  wrapRequestHandler,
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import { initAppInsights } from "@pagopa/ts-commons/lib/appinsights";
 import {
   IResponseErrorForbiddenNotAuthorized,
@@ -23,7 +20,6 @@ import {
   getResponseErrorForbiddenNotAuthorized,
 } from "@pagopa/ts-commons/lib/responses";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import * as express from "express";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
@@ -295,7 +291,7 @@ export const Notify = (
   sendNotification: SendNotification,
   telemetryClient?: ReturnType<typeof initAppInsights>,
   // eslint-disable-next-line max-params
-): express.RequestHandler => {
+) => {
   const handler = NotifyHandler(
     retrieveUserProfile,
     retrieveUserSession,
@@ -303,7 +299,7 @@ export const Notify = (
     retrieveService,
     sendNotification,
   );
-  const middlewaresWrap = withRequestMiddlewares(
+  const middlewares = [
     ContextMiddleware(),
     RequiredBodyPayloadMiddleware(NotificationInfo),
     AzureAllowBodyPayloadMiddleware(
@@ -314,10 +310,9 @@ export const Notify = (
       ReminderNotificationInfo,
       new Set([UserGroup.ApiReminderNotify]),
     ),
-  );
-  return wrapRequestHandler(
-    middlewaresWrap((_context, _) =>
-      handler(createLogger(_context, "Notify", telemetryClient), _),
-    ),
+  ] as const;
+
+  return wrapHandlerV4(middlewares, (_context, body) =>
+    handler(createLogger(_context, "Notify", telemetryClient), body),
   );
 };
