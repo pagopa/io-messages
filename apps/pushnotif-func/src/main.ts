@@ -1,10 +1,3 @@
-/**
- * Entry point for Azure Functions V4 Programming Model.
- *
- * All function registrations are done here instead of via function.json files.
- * HttpTrigger functions (Info, Notify) are temporarily excluded — they need
- * to be decoupled from Express before being registered here.
- */
 import { app, output } from "@azure/functions";
 import { QueueClient } from "@azure/storage-queue";
 import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
