@@ -21,6 +21,7 @@ box "iopitncomst01 Blob Storage account" #LightBlue
   box "Queues"
     database "send-notification" as smq
     database "send-notification-poison" as smpq
+    database "check-job-message" as cjmq
   end box
 end box
 
@@ -83,6 +84,20 @@ alt Status != CREATED
   httpfunc -[#red]x admin : 400
 end
 
+httpfunc -> httpfunc : Calculate check's visibilityTimeout as\nstartTime + executionTime - Date.now()
+note right of httpfunc
+  **CheckNotificationStatusMessage**
+  {
+    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "visibilityTimeout": 3600
+  }
+end note
+httpfunc -> cjmq : Push message with visibilityTimeout
+alt Transient from the queue
+  cjmq -[#red]> httpfunc : Transient
+  httpfunc --> ai : Track an event with the message payload.
+end
+
 note right of httpfunc
   **Job Document**
   {
@@ -125,7 +140,7 @@ loop tags / groups of tags
     {
       "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
       "jobType": "send",
-      "scheduleTimestamp": 123456789,
+      "scheduledTimestamp": 123456789,
       "tags": ["aaa", "aab", "aac"]
     }
   end note
@@ -168,7 +183,7 @@ alt Invalid message
     **Message**
     {
       "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
-      "scheduleTimestamp": 123456789,
+      "scheduledTimestamp": 123456789,
       "tags": ["aaa", "aab", "aac"],
       "error": "Invalid scheduled time"
     }
@@ -185,11 +200,21 @@ alt Error from notification hub
     **Message**
     {
       "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
-      "scheduleTimestamp": 123456789,
+      "scheduledTimestamp": 123456789,
       "tags": ["aaa", "aab", "aac"]
     }
   end note
-  queuefunc -> smpq : Push message
+
+  alt Was last retry
+    queuefunc -> smpq : Push to the poison
+  
+    alt Transient from the queue
+      smpq -[#red]> queuefunc : Transient
+      queuefunc --> ai : Track an event with the message payload.
+    end
+  end
+
+  queuefunc -[#red]x queuefunc : Throw an error
 end
 
 note right of queuefunc
@@ -206,7 +231,7 @@ note right of queuefunc
   {
     "notificationId": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0",
     "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
-    "scheduleTimestamp": 123456789,
+    "scheduledTimestamp": 123456789,
     "completed": false,
     "tags": ["aaa", "aab", "aac"]
   }
@@ -221,7 +246,7 @@ alt Error from comos
     {
       "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
       "jobType": "send",
-      "scheduleTimestamp": 123456789,
+      "scheduledTimestamp": 123456789,
       "tags": ["aaa", "aab", "aac"],
       "error": "Error from cosmos, notification scheduled correctly as xxx"
     }
