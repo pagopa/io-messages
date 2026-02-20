@@ -1,0 +1,202 @@
+@startuml
+
+title "Stop massive notification job"
+
+actor "IO COM Admin" as admin
+
+box "pushnotif-func"
+  participant "StopMassiveJob" as httpfunc
+end box
+
+!pragma teoz true
+box "io-p-itn-com-cosno-01 cosmos account" #LightBlue
+  box "push-notifications cosmos database"
+    database "massive-jobs" as mnj
+    database "massive-job-progress" as mnjp
+  end box
+end box
+
+box "iopitncomst01 Blob Storage account" #LightBlue
+  box "Queues"
+    database "check-job-message" as cjmq
+  end box
+end box
+
+box "Notification Hubs"
+  participant "Notification Hub" as nh1
+end box
+
+participant "app-insights" as ai
+
+note right of admin
+  **Request Params**
+  {
+    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B"
+  }
+end note
+admin -> httpfunc : PUT /massive-notification-job/:jobId
+activate admin
+activate httpfunc
+
+httpfunc -> httpfunc : Validate request
+
+alt Invalid request
+  httpfunc -[#red]x admin : 400
+end
+
+note right of httpfunc
+  **Filters**
+  {
+    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+  }
+end note
+httpfunc -> mnj : Get the job
+activate mnj
+
+alt Error from comos
+  mnj -[#red]> httpfunc : Transient error
+  httpfunc -[#red]x admin : 500
+else Job not found
+  mnj -[#red]> httpfunc : 404
+  httpfunc -[#red]x admin : 404
+end
+
+
+note right of httpfunc
+  **Job Document**
+  {
+    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "title": "Push notification title",
+    "body": "Push notification body",
+    "status": "SCHEDULED",
+    "executionTimeInHour": 6,
+    "startTime": 1771492295
+  }
+end note
+mnj -[#green]> httpfunc : Success
+deactivate mnj
+
+note left of httpfunc
+  At this point the status can be:
+  - CREATED
+  - SCHEDULED
+  - STOPPED
+  - COMPLETED
+end note
+httpfunc -> httpfunc : Check if status is valid
+alt status != SCHEDULED
+  note right of admin
+    **Response Body**
+    {
+        "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+        "message": "Jobs with this status cannot be stopped",
+        "status": "CREATED"
+    }
+    end note
+    httpfunc -[#red]x admin : 400
+end
+
+note right of httpfunc
+  **Filters**
+  {
+    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "status": "SCHEDULED"
+  }
+end note
+httpfunc -> mnjp : Get the scheduled notificaions' id
+activate mnjp
+
+alt Error from comos
+  mnjp -[#red]> httpfunc : Transient error
+  httpfunc -[#red]x admin : 500
+else List is empty
+  mnjp -[#green]> httpfunc : 200
+
+  httpfunc -> mnj : Set status to stopped
+  activate mnj
+  alt Error from comos
+    mnj -[#red]> httpfunc : Transient error
+    httpfunc -[#red]x admin : 500
+  end
+
+  mnj -[#green]> httpfunc : 200
+  deactivate mnj
+
+  note right of admin
+    **Response Body**
+    {
+        "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+        "status": "STOPPED"
+    }
+    end note
+  httpfunc -[#green]> admin : 200
+end
+
+note right of httpfunc
+    **Job Progress Document list**
+    [
+        {
+            "notificationId": "xxx",
+            "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+            "status": "SCHEDULED"
+        },
+        ...
+    ]
+end note
+mnjp -[#green]> httpfunc : 200
+deactivate mnjp
+
+loop notificationId
+    httpfunc -> nh1 : Stop push notification
+    activate nh1
+
+    alt Transient from the Notification Hub
+        nh1 -[#red]> httpfunc : Transient
+        httpfunc -[#red]x admin : 500
+    end
+
+    note right of httpfunc
+    **Response Body**
+    {
+        "notificationId": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0"
+    }
+    end note
+    nh1 -[#green]> httpfunc : 200
+    deactivate nh1
+
+    httpfunc -> mnjp : Set status to "STOPPED"
+    activate mnjp
+    alt Error from comos
+      mnjp -[#red]> httpfunc : Transient error
+      httpfunc -[#red]x admin : 500
+    end
+
+    mnjp -[#green]> httpfunc : Success
+    deactivate mnjp
+end
+
+httpfunc -> mnj : Set status to "STOPPED"
+activate mnj
+alt Error from comos
+  mnj -[#red]> httpfunc : Transient error
+  httpfunc -[#red]x admin : 500
+end
+
+mnj -[#green]> httpfunc : Success
+deactivate mnj
+
+note right of admin
+  **Response Body**
+  {
+    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "status": "STOPPED"
+  }
+end note
+httpfunc -[#green]> admin : 200
+
+httpfunc --> ai : Track a success event
+
+deactivate httpfunc
+deactivate admin
+
+@enduml
