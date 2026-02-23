@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Task } from "durable-functions/lib/src/classes";
+import { Task } from "durable-functions";
 import * as t from "io-ts";
 
 import { CreateOrUpdateInstallationMessage } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
 import { toString } from "../../utils/conversions";
 import * as o from "../../utils/durable/orchestrators";
 import { failureUnhandled } from "../../utils/durable/orchestrators";
-import { getCallableActivity as getCreateOrUpdateCallableActivity } from "../HandleNHCreateOrUpdateInstallationCallActivity";
+import { getCallableActivity as getCreateOrUpdateCallableActivity } from "../HandleNHCreateOrUpdateInstallationCallActivity/handler";
 
 export const OrchestratorName =
   "HandleNHCreateOrUpdateInstallationCallOrchestrator";

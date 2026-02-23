@@ -1,6 +1,6 @@
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { IOrchestrationFunctionContext } from "durable-functions/lib/src/iorchestrationfunctioncontext";
+import { OrchestrationContext } from "durable-functions";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -74,7 +74,7 @@ const contextMockWithDf = {
     getInput: mockGetInput,
     setCustomStatus: vi.fn(),
   },
-} as unknown as IOrchestrationFunctionContext;
+} as unknown as OrchestrationContext;
 
 describe("HandleNHCreateOrUpdateInstallationCallOrchestrator", () => {
   beforeEach(() => {

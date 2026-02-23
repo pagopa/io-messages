@@ -46,7 +46,7 @@ describe("HandleNHDeleteInstallationCallActivity", () => {
     const input = ActivityInput.encode({
       installationId: anInstallationId,
     });
-    const res = await handler(contextMock, input);
+    const res = await handler(input, contextMock);
     expect(
       NotificationHubsClient.prototype.deleteInstallation,
     ).toHaveBeenCalledTimes(1);
@@ -74,7 +74,7 @@ describe("HandleNHDeleteInstallationCallActivity", () => {
     const input = ActivityInput.encode({
       installationId: anInstallationId,
     });
-    const res = await handler(contextMock, input);
+    const res = await handler(input, contextMock);
     expect(
       NotificationHubsClient.prototype.deleteInstallation,
     ).toHaveBeenCalledTimes(1);

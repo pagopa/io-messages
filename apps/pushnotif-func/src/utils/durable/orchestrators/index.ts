@@ -1,9 +1,5 @@
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
-import {
-  IOrchestrationFunctionContext,
-  RetryOptions,
-  Task,
-} from "durable-functions/lib/src/classes";
+import { OrchestrationContext, RetryOptions, Task } from "durable-functions";
 import * as E from "fp-ts/lib/Either";
 import { identity, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
@@ -31,7 +27,7 @@ export * from "./returnTypes";
 type TNextDefault = unknown;
 
 type OrchestratorBody<I, TNext> = (p: {
-  readonly context: IOrchestrationFunctionContext;
+  readonly context: OrchestrationContext;
   readonly input: I;
   readonly logger: IOrchestratorLogger;
 }) => Generator<Task, void, TNext>;
@@ -43,7 +39,7 @@ type OrchestratorBody<I, TNext> = (p: {
  * @param orchestratorName name of the orchestrator (as it's defined in the Azure Runtime)
  * @param InputCodec an io-ts codec which maps the expected input structure
  * @param body a generator function which implements the business logic; it's meant to either return void or throw respectively in case of success or failure
- * @returns a generator functions which implementa a valid Azure Durable Functions Orchestrator
+ * @returns a generator function compatible with durable-functions v3 / programming model v4
  */
 export const createOrchestrator = <I, TNext = TNextDefault>(
   orchestratorName: string,
@@ -51,7 +47,7 @@ export const createOrchestrator = <I, TNext = TNextDefault>(
   body: OrchestratorBody<I, TNext>,
 ) =>
   function* (
-    context: IOrchestrationFunctionContext,
+    context: OrchestrationContext,
   ): Generator<Task, OrchestratorFailure | OrchestratorSuccess, TNext> {
     // TODO: define type variable TNext so that
     const logger = createLogger(context, orchestratorName);
@@ -91,7 +87,7 @@ export type CallableActivity<
   // Failures aren't mapped as they are thrown
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention
   __ extends ActivityResultFailure = ActivityResultFailure,
-> = (context: IOrchestrationFunctionContext, input: I) => Generator<Task, S>;
+> = (context: OrchestrationContext, input: I) => Generator<Task, S>;
 
 /**
  * Creates a callable for an activity to be used into an orchestrator function.
@@ -112,10 +108,7 @@ export const callableActivity = <
   OutputCodec: t.Type<S>,
   retryOptions?: RetryOptions,
 ) =>
-  function* (
-    context: IOrchestrationFunctionContext,
-    input: I,
-  ): Generator<Task, S> {
+  function* (context: OrchestrationContext, input: I): Generator<Task, S> {
     let result: unknown;
     try {
       result = yield typeof retryOptions === "undefined"

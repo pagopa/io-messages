@@ -3,13 +3,15 @@ import * as ai from "applicationinsights";
 
 import { IConfig } from "./config";
 
-// Avoid to initialize Application Insights more than once
 export const initTelemetryClient = (
   env: IConfig,
 ): ReturnType<typeof initAppInsights> | ai.TelemetryClient =>
   ai.defaultClient
     ? ai.defaultClient
-    : initAppInsights(env.APPINSIGHTS_INSTRUMENTATIONKEY, {
+    : initAppInsights(env.APPLICATIONINSIGHTS_CONNECTION_STRING, {
+        // We need to disable tracing only when we are testing locally because
+        // interfere with azurite docker container.
+        isTracingDisabled: !env.isProduction,
         samplingPercentage: env.APPINSIGHTS_SAMPLING_PERCENTAGE,
       });
 
