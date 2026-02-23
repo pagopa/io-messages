@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.0.1
+
+### Patch Changes
+
+- e2e1b60: Update and pin dependencies
+
 ## 2.0.0
 
 ### Major Changes
