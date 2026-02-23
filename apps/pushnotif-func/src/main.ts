@@ -150,7 +150,7 @@ df.app.orchestration(
 // Output binding for the notify-message queue (used by HandleNHNotificationCall)
 const notifyQueueOutput = output.storageQueue({
   connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
-  queueName: "%NOTIFY_MESSAGE_QUEUE_NAME%",
+  queueName: config.NOTIFY_MESSAGE_QUEUE_NAME,
 });
 
 app.storageQueue("HandleNHNotificationCall", {
@@ -158,7 +158,7 @@ app.storageQueue("HandleNHNotificationCall", {
   extraInputs: [df.input.durableClient()],
   extraOutputs: [notifyQueueOutput],
   handler: getNotificationCallHandler(notifyQueueOutput),
-  queueName: "%NOTIFICATIONS_QUEUE_NAME%",
+  queueName: config.NOTIFICATIONS_QUEUE_NAME,
 });
 
 app.storageQueue("HandleNHNotifyMessageCallActivityQueue", {
@@ -170,7 +170,7 @@ app.storageQueue("HandleNHNotifyMessageCallActivityQueue", {
       telemetryClient,
       nhPartitionFactory,
     ),
-  queueName: "%NOTIFY_MESSAGE_QUEUE_NAME%",
+  queueName: config.NOTIFY_MESSAGE_QUEUE_NAME,
 });
 
 // ---------------------------------------------------------------------------
