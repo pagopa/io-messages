@@ -34,6 +34,7 @@
     "applicationinsights": "^2.9.5",
     "azure-storage": "^2.10.3",
     "durable-functions": "^3.0.0",
+    "express": "^4.15.3",
     "fp-ts": "^2.10.5",
     "io-ts": "^2.2.16",
     "node-fetch": "^2.6.1",
@@ -43,6 +44,7 @@
   "devDependencies": {
     "@pagopa/eslint-config": "^4.0.3",
     "@pagopa/openapi-codegen-ts": "^14.0.0",
+    "@types/express-serve-static-core": "^4.17.33",
     "@types/node": "^20.17.30",
     "@types/node-fetch": "^2.5.7",
     "@types/vfile-message": "^2.0.0",
