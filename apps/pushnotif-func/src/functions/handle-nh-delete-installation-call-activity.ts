@@ -5,16 +5,16 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
-import { toString } from "../../utils/conversions";
+import { toString } from "../utils/conversions";
 import {
   ActivityBody,
   ActivityResultSuccess,
   createActivity,
   failActivity,
-} from "../../utils/durable/activities";
-import * as o from "../../utils/durable/orchestrators";
-import { deleteInstallation } from "../../utils/notification";
-import { NotificationHubPartitionFactory } from "../../utils/notificationhubServicePartition";
+} from "../utils/durable/activities";
+import * as o from "../utils/durable/orchestrators";
+import { deleteInstallation } from "../utils/notification";
+import { NotificationHubPartitionFactory } from "../utils/notificationhubServicePartition";
 
 // Activity name for df
 export const ActivityName = "HandleNHDeleteInstallationCallActivity";
@@ -26,7 +26,7 @@ export const ActivityInput = t.type({
 });
 
 // Activity Result
-export { ActivityResultSuccess } from "../../utils/durable/activities";
+export { ActivityResultSuccess } from "../utils/durable/activities";
 
 /**
  * For each Notification Hub Message of type "Delete" calls related Notification Hub service

@@ -14,24 +14,24 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createMockContext,
   createMockRequest,
-} from "../../../__mocks__/httptrigger.mock";
+} from "../../__mocks__/httptrigger.mock";
 import {
   aFiscalCode,
   aRetrievedMessageWithContent,
   aRetrievedProfile,
   aRetrievedService,
-} from "../../../__mocks__/models.mock";
-import { NotificationInfo } from "../../../generated/definitions/NotificationInfo";
-import { NotificationTypeEnum } from "../../../generated/definitions/NotificationType";
-import { toHash } from "../../../utils/crypto";
-import { Notify, NotifyHandler } from "../handler";
-import { SendNotification } from "../notification";
+} from "../../__mocks__/models.mock";
+import { NotificationInfo } from "../../generated/definitions/NotificationInfo";
+import { NotificationTypeEnum } from "../../generated/definitions/NotificationType";
+import { toHash } from "../../utils/crypto";
+import { Notify, NotifyHandler } from "../notify";
+import { SendNotification } from "../../utils/notify/notification";
 import {
   MessageWithContentReader,
   ServiceReader,
   SessionStatusReader,
   UserProfileReader,
-} from "../readers";
+} from "../../utils/notify/readers";
 
 const aValidMessageNotifyPayload: NotificationInfo = {
   fiscal_code: aFiscalCode,

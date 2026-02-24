@@ -9,7 +9,7 @@ import {
   KindEnum as NotifyKind,
   NotifyMessage,
 } from "../../generated/notifications/NotifyMessage";
-import { toHash } from "../../utils/crypto";
+import { toHash } from "../crypto";
 
 export const base64EncodeObject = (_: unknown): string =>
   Buffer.from(JSON.stringify(_)).toString("base64");

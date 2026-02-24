@@ -25,24 +25,24 @@ import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 import { match } from "ts-pattern";
 
-import { NotificationInfo } from "../../generated/definitions/NotificationInfo";
+import { NotificationInfo } from "../generated/definitions/NotificationInfo";
 import {
   NotificationType,
   NotificationTypeEnum,
-} from "../../generated/definitions/NotificationType";
+} from "../generated/definitions/NotificationType";
 import {
   NotificationPrinter,
   getPrinterForTemplate,
-} from "../../templates/printer";
-import { toHash } from "../../utils/crypto";
-import { ILogger, createLogger } from "../../utils/logger";
-import { SendNotification } from "./notification";
+} from "../templates/printer";
+import { toHash } from "../utils/crypto";
+import { ILogger, createLogger } from "../utils/logger";
+import { SendNotification } from "../utils/notify/notification";
 import {
   MessageWithContentReader,
   ServiceReader,
   SessionStatusReader,
   UserProfileReader,
-} from "./readers";
+} from "../utils/notify/readers";
 
 const isReminderNotification = (notificationType: NotificationType): boolean =>
   [

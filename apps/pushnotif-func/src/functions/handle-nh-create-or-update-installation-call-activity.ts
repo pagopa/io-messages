@@ -4,18 +4,18 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
-import { InstallationId } from "../../generated/notifications/InstallationId";
-import { Platform, PlatformEnum } from "../../generated/notifications/Platform";
-import { toString } from "../../utils/conversions";
+import { InstallationId } from "../generated/notifications/InstallationId";
+import { Platform, PlatformEnum } from "../generated/notifications/Platform";
+import { toString } from "../utils/conversions";
 import {
   ActivityBody,
   ActivityResultSuccess,
   createActivity,
   retryActivity,
-} from "../../utils/durable/activities";
-import * as o from "../../utils/durable/orchestrators";
-import { createOrUpdateInstallation } from "../../utils/notification";
-import { NotificationHubPartitionFactory } from "../../utils/notificationhubServicePartition";
+} from "../utils/durable/activities";
+import * as o from "../utils/durable/orchestrators";
+import { createOrUpdateInstallation } from "../utils/notification";
+import { NotificationHubPartitionFactory } from "../utils/notificationhubServicePartition";
 
 // Activity name for df
 export const ActivityName = "HandleNHCreateOrUpdateInstallationCallActivity";
@@ -28,7 +28,7 @@ export const ActivityInput = t.type({
   tags: t.readonlyArray(t.string, "array of string"),
 });
 
-export { ActivityResultSuccess } from "../../utils/durable/activities";
+export { ActivityResultSuccess } from "../utils/durable/activities";
 
 export type ActivityBodyImpl = ActivityBody<
   ActivityInput,
