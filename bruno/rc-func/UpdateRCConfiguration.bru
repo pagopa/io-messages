@@ -1,13 +1,17 @@
 meta {
   name: UpdateRCConfiguration
   type: http
-  seq: 6
+  seq: 5
 }
 
 put {
-  url: {{rc_func_url}}/api/v1/remote-contents/configurations/{{configuration_id}}
+  url: {{rc_func_url}}/api/v1/remote-contents/configurations/:configuration_id
   body: json
   auth: none
+}
+
+params:path {
+  configuration_id: 
 }
 
 body:json {
