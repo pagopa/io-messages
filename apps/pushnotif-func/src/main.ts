@@ -44,7 +44,7 @@ import { createClient } from "./generated/session-manager/client";
 import { initTelemetryClient } from "./utils/appinsights";
 import { getConfigOrThrow } from "./utils/config";
 import { cosmosdbClient, cosmosdbInstance } from "./utils/cosmosdb";
-import { NotificationHubPartitionFactory } from "./utils/notificationhubServicePartition";
+import { NotificationHubPartitionFactory } from "./utils/notificationhub-service-partition";
 import { sendNotification } from "./utils/notify/notification";
 import {
   getMessageWithContent,

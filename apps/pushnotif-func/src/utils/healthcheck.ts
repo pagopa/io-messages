@@ -17,7 +17,7 @@ import { pipe } from "fp-ts/lib/function";
 import fetch from "node-fetch";
 
 import { IConfig, getConfig } from "./config";
-import { NotificationHubPartitionFactory } from "./notificationhubServicePartition";
+import { NotificationHubPartitionFactory } from "./notificationhub-service-partition";
 
 type ProblemSource =
   | "AzureCosmosDB"

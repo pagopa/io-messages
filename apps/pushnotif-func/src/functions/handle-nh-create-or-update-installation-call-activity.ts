@@ -15,7 +15,7 @@ import {
 } from "../utils/durable/activities";
 import * as o from "../utils/durable/orchestrators";
 import { createOrUpdateInstallation } from "../utils/notification";
-import { NotificationHubPartitionFactory } from "../utils/notificationhubServicePartition";
+import { NotificationHubPartitionFactory } from "../utils/notificationhub-service-partition";
 
 // Activity name for df
 export const ActivityName = "HandleNHCreateOrUpdateInstallationCallActivity";

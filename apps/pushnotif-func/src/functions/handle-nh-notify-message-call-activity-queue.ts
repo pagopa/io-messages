@@ -14,7 +14,7 @@ import {
   toTransientFailure,
 } from "../utils/errors";
 import { notify } from "../utils/notification";
-import { NotificationHubPartitionFactory } from "../utils/notificationhubServicePartition";
+import { NotificationHubPartitionFactory } from "../utils/notificationhub-service-partition";
 import { NhNotifyMessageRequest } from "../utils/types";
 
 const errorsToError = (errors: t.Errors): Error =>
