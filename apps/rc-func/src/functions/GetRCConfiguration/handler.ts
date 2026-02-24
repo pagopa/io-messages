@@ -2,6 +2,7 @@ import {
   RCConfigurationModel,
   RetrievedRCConfiguration,
 } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { RequiredParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_param";
 import { retrievedRCConfigurationToPublic } from "@pagopa/io-functions-commons/dist/src/utils/rc_configuration";
@@ -236,3 +237,29 @@ export const getGetRCConfigurationExpressHandler: GetGetRCConfigurationHandler =
       ),
     );
   };
+
+export const getGetRCConfigurationHandlerV4 = ({
+  config,
+  rccModel,
+  redisClient,
+}: IGetGetRCConfigurationHandlerParameter) => {
+  const handler = getRCConfigurationHandler({
+    config,
+    rccModel,
+    redisClient,
+  });
+
+  const middlewares = [
+    ContextMiddleware(),
+    RequiredSubscriptionIdMiddleware(),
+    RequiredUserGroupsMiddleware(),
+    RequiredUserIdMiddleware(),
+    RequiredParamMiddleware("configurationId", Ulid),
+  ] as const;
+
+  return wrapHandlerV4(
+    middlewares,
+    (_, subscriptionId, userGroups, userId, configurationId) =>
+      handler({ configurationId, subscriptionId, userGroups, userId }),
+  );
+};

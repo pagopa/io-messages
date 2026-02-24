@@ -1,4 +1,5 @@
 import { CosmosClient } from "@azure/cosmos";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import { wrapRequestHandler } from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import {
   IResponseErrorInternal,
@@ -44,4 +45,15 @@ export function Info(
   );
 
   return wrapRequestHandler(handler);
+}
+
+export function InfoV4(
+  cosmosClient: CosmosClient,
+  remoteContentCosmosClient: CosmosClient,
+): ReturnType<typeof wrapHandlerV4> {
+  const handler = InfoHandler(
+    checkApplicationHealth(cosmosClient, remoteContentCosmosClient),
+  );
+
+  return wrapHandlerV4([], handler);
 }

@@ -2,6 +2,7 @@ import {
   RCConfiguration,
   RCConfigurationModel,
 } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { RequiredBodyPayloadMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_body_payload";
 import { RequiredParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_param";
@@ -20,7 +21,6 @@ import {
   ResponseSuccessNoContent,
 } from "@pagopa/ts-commons/lib/responses";
 import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
-import { TelemetryClient } from "applicationinsights";
 import * as express from "express";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
@@ -32,6 +32,7 @@ import {
   RequiredUserGroupsMiddleware,
   RequiredUserIdMiddleware,
 } from "../../middlewares/required_headers_middleware";
+import { TelemetryClient } from "../../utils/appinsights";
 import { IConfig } from "../../utils/config";
 import { makeNewRCConfigurationWithConfigurationId } from "../../utils/mappers";
 import { RedisClientFactory } from "../../utils/redis";
@@ -243,3 +244,46 @@ export const getUpdateRCConfigurationExpressHandler: GetUpdateRCConfigurationHan
       ),
     );
   };
+
+export const getUpdateRCConfigurationHandlerV4 = ({
+  config,
+  rccModel,
+  redisClientFactory,
+  telemetryClient,
+}: IGetUpdateRCConfigurationHandlerParameter) => {
+  const handler = updateRCConfigurationHandler({
+    config,
+    rccModel,
+    redisClientFactory,
+    telemetryClient,
+  });
+
+  const middlewares = [
+    ContextMiddleware(),
+    RequiredSubscriptionIdMiddleware(),
+    RequiredUserGroupsMiddleware(),
+    RequiredUserIdMiddleware(),
+    RequiredParamMiddleware("configurationId", Ulid),
+    RequiredBodyPayloadMiddleware(NewRCConfigurationPublic),
+  ] as const;
+
+  return wrapHandlerV4(
+    middlewares,
+    (
+      _,
+      subscriptionId,
+      userGroups,
+      userId,
+      configurationId,
+      newRCConfiguration,
+      // eslint-disable-next-line max-params
+    ) =>
+      handler({
+        configurationId,
+        newRCConfiguration,
+        subscriptionId,
+        userGroups,
+        userId,
+      }),
+  );
+};

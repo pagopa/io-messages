@@ -1,4 +1,5 @@
 import { RCConfigurationModel } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { RequiredBodyPayloadMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_body_payload";
 import { retrievedRCConfigurationToPublic } from "@pagopa/io-functions-commons/dist/src/utils/rc_configuration";
@@ -125,3 +126,27 @@ export const getCreateRCConfigurationExpressHandler: GetCreateRCConfigurationHan
       ),
     );
   };
+
+export const getCreateRCConfigurationHandlerV4 = ({
+  generateConfigurationId,
+  rccModel,
+}: IGetCreateRCConfigurationHandlerParameter) => {
+  const handler = createRCConfigurationHandler({
+    generateConfigurationId,
+    rccModel,
+  });
+
+  const middlewares = [
+    ContextMiddleware(),
+    RequiredSubscriptionIdMiddleware(),
+    RequiredUserGroupsMiddleware(),
+    RequiredUserIdMiddleware(),
+    RequiredBodyPayloadMiddleware(NewRCConfigurationPublic),
+  ] as const;
+
+  return wrapHandlerV4(
+    middlewares,
+    (_, subscriptionId, userGroups, userId, newRCConfiguration) =>
+      handler({ newRCConfiguration, subscriptionId, userGroups, userId }),
+  );
+};
