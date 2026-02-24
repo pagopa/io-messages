@@ -24,10 +24,6 @@ import {
 } from "./utils/cosmosdb";
 import { RedisClientFactory } from "./utils/redis";
 
-// ---------------------------------------------------------------------------
-// Shared configuration and dependencies
-// ---------------------------------------------------------------------------
-
 const config = getConfigOrThrow();
 const telemetryClient = initTelemetryClient(config);
 
@@ -42,10 +38,6 @@ const userRCConfigurationModel = new UserRCConfigurationModel(
 );
 
 const redisClientFactory = new RedisClientFactory(config);
-
-// ---------------------------------------------------------------------------
-// HTTP Triggers
-// ---------------------------------------------------------------------------
 
 app.http("Info", {
   authLevel: "anonymous",
@@ -96,10 +88,6 @@ app.http("UpdateRCConfiguration", {
   methods: ["PUT"],
   route: "v1/remote-contents/configurations/{configurationId}",
 });
-
-// ---------------------------------------------------------------------------
-// Cosmos DB Triggers
-// ---------------------------------------------------------------------------
 
 const cosmosChangeFeedHandler: CosmosDBHandler = async (
   documents: unknown[],
