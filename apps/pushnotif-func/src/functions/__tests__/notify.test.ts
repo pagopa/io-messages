@@ -23,14 +23,14 @@ import {
 } from "../../__mocks__/models.mock";
 import { NotificationInfo } from "../../generated/definitions/NotificationInfo";
 import { NotificationTypeEnum } from "../../generated/definitions/NotificationType";
-import { toHash } from "../../utils/crypto";
-import { SendNotification } from "../../utils/notify/notification";
+import { SendNotification } from "../../services/notification";
 import {
   MessageWithContentReader,
   ServiceReader,
   SessionStatusReader,
   UserProfileReader,
-} from "../../utils/notify/readers";
+} from "../../services/readers";
+import { toHash } from "../../utils/crypto";
 import { Notify, NotifyHandler } from "../notify";
 
 const aValidMessageNotifyPayload: NotificationInfo = {
