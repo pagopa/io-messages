@@ -2,10 +2,10 @@ import { QueueClient } from "@azure/storage-queue";
 import * as E from "fp-ts/Either";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { aFiscalCode, aRetrievedMessage } from "../../../__mocks__/models.mock";
-import { NotificationMessageKindEnum } from "../../../generated/notifications/NotificationMessageKind";
-import { KindEnum as NotifyKind } from "../../../generated/notifications/NotifyMessage";
-import { toHash } from "../../../utils/crypto";
+import { aFiscalCode, aRetrievedMessage } from "../../__mocks__/models.mock";
+import { NotificationMessageKindEnum } from "../../generated/notifications/NotificationMessageKind";
+import { KindEnum as NotifyKind } from "../../generated/notifications/NotifyMessage";
+import { toHash } from "../../utils/crypto";
 import { base64EncodeObject, sendNotification } from "../notification";
 
 // -----------------------------

@@ -30,19 +30,19 @@ import {
   NotificationType,
   NotificationTypeEnum,
 } from "../generated/definitions/NotificationType";
+import { SendNotification } from "../service/notification";
+import {
+  MessageWithContentReader,
+  ServiceReader,
+  SessionStatusReader,
+  UserProfileReader,
+} from "../service/readers";
 import {
   NotificationPrinter,
   getPrinterForTemplate,
 } from "../templates/printer";
 import { toHash } from "../utils/crypto";
 import { ILogger, createLogger } from "../utils/logger";
-import { SendNotification } from "../utils/notify/notification";
-import {
-  MessageWithContentReader,
-  ServiceReader,
-  SessionStatusReader,
-  UserProfileReader,
-} from "../utils/notify/readers";
 
 const isReminderNotification = (notificationType: NotificationType): boolean =>
   [
