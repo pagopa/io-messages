@@ -30,13 +30,13 @@ import {
   NotificationType,
   NotificationTypeEnum,
 } from "../generated/definitions/NotificationType";
-import { SendNotification } from "../service/notification";
+import { SendNotification } from "../services/notification";
 import {
   MessageWithContentReader,
   ServiceReader,
   SessionStatusReader,
   UserProfileReader,
-} from "../service/readers";
+} from "../services/readers";
 import {
   NotificationPrinter,
   getPrinterForTemplate,

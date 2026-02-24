@@ -41,13 +41,13 @@ import { handle as handleNotifyMessage } from "./functions/handle-nh-notify-mess
 import { Info } from "./functions/info";
 import { Notify } from "./functions/notify";
 import { createClient } from "./generated/session-manager/client";
-import { sendNotification } from "./service/notification";
+import { sendNotification } from "./services/notification";
 import {
   getMessageWithContent,
   getService,
   getUserProfileReader,
   getUserSessionStatusReader,
-} from "./service/readers";
+} from "./services/readers";
 import { initTelemetryClient } from "./utils/appinsights";
 import { getConfigOrThrow } from "./utils/config";
 import { cosmosdbClient, cosmosdbInstance } from "./utils/cosmosdb";
