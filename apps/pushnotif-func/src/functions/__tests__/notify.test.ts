@@ -24,7 +24,6 @@ import {
 import { NotificationInfo } from "../../generated/definitions/NotificationInfo";
 import { NotificationTypeEnum } from "../../generated/definitions/NotificationType";
 import { toHash } from "../../utils/crypto";
-import { Notify, NotifyHandler } from "../notify";
 import { SendNotification } from "../../utils/notify/notification";
 import {
   MessageWithContentReader,
@@ -32,6 +31,7 @@ import {
   SessionStatusReader,
   UserProfileReader,
 } from "../../utils/notify/readers";
+import { Notify, NotifyHandler } from "../notify";
 
 const aValidMessageNotifyPayload: NotificationInfo = {
   fiscal_code: aFiscalCode,
