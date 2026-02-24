@@ -7,10 +7,6 @@ import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/m
 import { RequiredBodyPayloadMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_body_payload";
 import { RequiredParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_param";
 import {
-  withRequestMiddlewares,
-  wrapRequestHandler,
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
-import {
   IResponseErrorForbiddenNotAuthorized,
   IResponseErrorInternal,
   IResponseErrorNotFound,
@@ -21,7 +17,6 @@ import {
   ResponseSuccessNoContent,
 } from "@pagopa/ts-commons/lib/responses";
 import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
-import * as express from "express";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
@@ -198,52 +193,6 @@ interface IGetUpdateRCConfigurationHandlerParameter {
   readonly redisClientFactory: RedisClientFactory;
   readonly telemetryClient?: TelemetryClient;
 }
-
-type GetUpdateRCConfigurationHandlerReturnType = express.RequestHandler;
-
-type GetUpdateRCConfigurationHandler = (
-  parameter: IGetUpdateRCConfigurationHandlerParameter,
-) => GetUpdateRCConfigurationHandlerReturnType;
-
-export const getUpdateRCConfigurationExpressHandler: GetUpdateRCConfigurationHandler =
-  ({ config, rccModel, redisClientFactory, telemetryClient }) => {
-    const handler = updateRCConfigurationHandler({
-      config,
-      rccModel,
-      redisClientFactory,
-      telemetryClient,
-    });
-
-    const middlewaresWrap = withRequestMiddlewares(
-      ContextMiddleware(),
-      RequiredSubscriptionIdMiddleware(),
-      RequiredUserGroupsMiddleware(),
-      RequiredUserIdMiddleware(),
-      RequiredParamMiddleware("configurationId", Ulid),
-      RequiredBodyPayloadMiddleware(NewRCConfigurationPublic),
-    );
-
-    return wrapRequestHandler(
-      middlewaresWrap(
-        (
-          _,
-          subscriptionId,
-          userGroups,
-          userId,
-          configurationId,
-          newRCConfiguration,
-          // eslint-disable-next-line max-params
-        ) =>
-          handler({
-            configurationId,
-            newRCConfiguration,
-            subscriptionId,
-            userGroups,
-            userId,
-          }),
-      ),
-    );
-  };
 
 export const getUpdateRCConfigurationHandlerV4 = ({
   config,

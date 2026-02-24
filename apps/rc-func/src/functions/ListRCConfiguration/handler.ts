@@ -4,17 +4,12 @@ import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { retrievedRCConfigurationToPublic } from "@pagopa/io-functions-commons/dist/src/utils/rc_configuration";
 import {
-  withRequestMiddlewares,
-  wrapRequestHandler,
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
-import {
   IResponseErrorForbiddenNotAuthorized,
   IResponseErrorInternal,
   IResponseSuccessJson,
   ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
 import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
-import * as express from "express";
 import * as RA from "fp-ts/lib/ReadonlyArray";
 import * as TE from "fp-ts/lib/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
@@ -94,36 +89,7 @@ export const listRCConfigurationHandler =
       TE.toUnion,
     )();
 
-type ListRCConfigurationHandlerReturnType = express.RequestHandler;
-
-type ListRCConfigurationHandler = (
-  parameter: IListRCConfigurationHandlerParameter,
-) => ListRCConfigurationHandlerReturnType;
-
-export const listRCConfigurationExpressHandler: ListRCConfigurationHandler = ({
-  rcConfigurationModel,
-  userRCConfigurationModel,
-}) => {
-  const handler = listRCConfigurationHandler({
-    rcConfigurationModel,
-    userRCConfigurationModel,
-  });
-
-  const middlewaresWrap = withRequestMiddlewares(
-    ContextMiddleware(),
-    RequiredSubscriptionIdMiddleware(),
-    RequiredUserGroupsMiddleware(),
-    RequiredUserIdMiddleware(),
-  );
-
-  return wrapRequestHandler(
-    middlewaresWrap((_, subscriptionId, userGroups, userId) =>
-      handler({ subscriptionId, userGroups, userId }),
-    ),
-  );
-};
-
-export const listRCConfigurationHandlerV4 = ({
+export const getListRCConfigurationHandler = ({
   rcConfigurationModel,
   userRCConfigurationModel,
 }: IListRCConfigurationHandlerParameter) => {

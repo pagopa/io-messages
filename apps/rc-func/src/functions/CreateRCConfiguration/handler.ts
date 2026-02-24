@@ -4,17 +4,12 @@ import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/m
 import { RequiredBodyPayloadMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_body_payload";
 import { retrievedRCConfigurationToPublic } from "@pagopa/io-functions-commons/dist/src/utils/rc_configuration";
 import {
-  withRequestMiddlewares,
-  wrapRequestHandler,
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
-import {
   IResponseErrorForbiddenNotAuthorized,
   IResponseErrorInternal,
   IResponseSuccessRedirectToResource,
   ResponseSuccessRedirectToResource,
 } from "@pagopa/ts-commons/lib/responses";
 import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
-import * as express from "express";
 import * as TE from "fp-ts/lib/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
 
@@ -98,36 +93,7 @@ interface IGetCreateRCConfigurationHandlerParameter {
   readonly rccModel: RCConfigurationModel;
 }
 
-type GetCreateRCConfigurationHandlerReturnType = express.RequestHandler;
-
-type GetCreateRCConfigurationHandler = (
-  parameter: IGetCreateRCConfigurationHandlerParameter,
-) => GetCreateRCConfigurationHandlerReturnType;
-
-export const getCreateRCConfigurationExpressHandler: GetCreateRCConfigurationHandler =
-  ({ generateConfigurationId, rccModel }) => {
-    const handler = createRCConfigurationHandler({
-      generateConfigurationId,
-      rccModel,
-    });
-
-    const middlewaresWrap = withRequestMiddlewares(
-      ContextMiddleware(),
-      RequiredSubscriptionIdMiddleware(),
-      RequiredUserGroupsMiddleware(),
-      RequiredUserIdMiddleware(),
-      RequiredBodyPayloadMiddleware(NewRCConfigurationPublic),
-    );
-
-    return wrapRequestHandler(
-      middlewaresWrap(
-        (_, subscriptionId, userGroups, userId, newRCConfiguration) =>
-          handler({ newRCConfiguration, subscriptionId, userGroups, userId }),
-      ),
-    );
-  };
-
-export const getCreateRCConfigurationHandlerV4 = ({
+export const getCreateRCConfigurationHandler = ({
   generateConfigurationId,
   rccModel,
 }: IGetCreateRCConfigurationHandlerParameter) => {

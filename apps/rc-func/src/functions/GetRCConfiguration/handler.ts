@@ -7,10 +7,6 @@ import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/m
 import { RequiredParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_param";
 import { retrievedRCConfigurationToPublic } from "@pagopa/io-functions-commons/dist/src/utils/rc_configuration";
 import {
-  withRequestMiddlewares,
-  wrapRequestHandler,
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
-import {
   IResponseErrorForbiddenNotAuthorized,
   IResponseErrorInternal,
   IResponseErrorNotFound,
@@ -21,7 +17,6 @@ import {
   ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
 import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
-import * as express from "express";
 import * as E from "fp-ts/lib/Either";
 import { Json } from "fp-ts/lib/Json";
 import { parse } from "fp-ts/lib/Json";
@@ -151,7 +146,7 @@ const getOrCacheMaybeRCConfigurationById = (
     ),
   );
 
-export const getRCConfigurationHandler =
+export const RCConfigurationHandler =
   ({ config, rccModel, redisClient }: IGetRCConfigurationHandlerParameter) =>
   ({
     configurationId,
@@ -208,42 +203,12 @@ interface IGetGetRCConfigurationHandlerParameter {
   readonly redisClient: RedisClientFactory;
 }
 
-type GetGetRCConfigurationHandlerReturnType = express.RequestHandler;
-
-type GetGetRCConfigurationHandler = (
-  parameter: IGetGetRCConfigurationHandlerParameter,
-) => GetGetRCConfigurationHandlerReturnType;
-
-export const getGetRCConfigurationExpressHandler: GetGetRCConfigurationHandler =
-  ({ config, rccModel, redisClient }) => {
-    const handler = getRCConfigurationHandler({
-      config,
-      rccModel,
-      redisClient,
-    });
-
-    const middlewaresWrap = withRequestMiddlewares(
-      ContextMiddleware(),
-      RequiredSubscriptionIdMiddleware(),
-      RequiredUserGroupsMiddleware(),
-      RequiredUserIdMiddleware(),
-      RequiredParamMiddleware("configurationId", Ulid),
-    );
-
-    return wrapRequestHandler(
-      middlewaresWrap(
-        (_, subscriptionId, userGroups, userId, configurationId) =>
-          handler({ configurationId, subscriptionId, userGroups, userId }),
-      ),
-    );
-  };
-
-export const getGetRCConfigurationHandlerV4 = ({
+export const getRCConfigurationHandler = ({
   config,
   rccModel,
   redisClient,
 }: IGetGetRCConfigurationHandlerParameter) => {
-  const handler = getRCConfigurationHandler({
+  const handler = RCConfigurationHandler({
     config,
     rccModel,
     redisClient,

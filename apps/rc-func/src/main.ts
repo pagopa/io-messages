@@ -10,10 +10,10 @@ import {
 import { ulidGeneratorAsUlid } from "@pagopa/io-functions-commons/dist/src/utils/strings";
 
 import { handleRemoteContentMessageConfigurationChange } from "./functions/CosmosRemoteContentMessageConfigurationChangeFeed/handler";
-import { getCreateRCConfigurationHandlerV4 } from "./functions/CreateRCConfiguration/handler";
-import { getGetRCConfigurationHandlerV4 } from "./functions/GetRCConfiguration/handler";
-import { InfoV4 } from "./functions/Info/handler";
-import { listRCConfigurationHandlerV4 } from "./functions/ListRCConfiguration/handler";
+import { getCreateRCConfigurationHandler } from "./functions/CreateRCConfiguration/handler";
+import { getRCConfigurationHandler } from "./functions/GetRCConfiguration/handler";
+import { getInfoHandler } from "./functions/Info/handler";
+import { getListRCConfigurationHandler } from "./functions/ListRCConfiguration/handler";
 import { getUpdateRCConfigurationHandlerV4 } from "./functions/UpdateRCConfiguration/handler";
 import { initTelemetryClient } from "./utils/appinsights";
 import { getConfigOrThrow } from "./utils/config";
@@ -41,14 +41,14 @@ const redisClientFactory = new RedisClientFactory(config);
 
 app.http("Info", {
   authLevel: "anonymous",
-  handler: InfoV4(cosmosdbClient, remoteContentCosmosDbClient),
+  handler: getInfoHandler(cosmosdbClient, remoteContentCosmosDbClient),
   methods: ["GET"],
   route: "v1/info",
 });
 
 app.http("CreateRCConfiguration", {
   authLevel: "function",
-  handler: getCreateRCConfigurationHandlerV4({
+  handler: getCreateRCConfigurationHandler({
     generateConfigurationId: ulidGeneratorAsUlid,
     rccModel,
   }),
@@ -58,7 +58,7 @@ app.http("CreateRCConfiguration", {
 
 app.http("GetRCConfiguration", {
   authLevel: "function",
-  handler: getGetRCConfigurationHandlerV4({
+  handler: getRCConfigurationHandler({
     config,
     rccModel,
     redisClient: redisClientFactory,
@@ -69,7 +69,7 @@ app.http("GetRCConfiguration", {
 
 app.http("ListRCConfiguration", {
   authLevel: "function",
-  handler: listRCConfigurationHandlerV4({
+  handler: getListRCConfigurationHandler({
     rcConfigurationModel: rccModel,
     userRCConfigurationModel,
   }),
