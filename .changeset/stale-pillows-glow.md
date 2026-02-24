@@ -2,4 +2,4 @@
 "pushnotif-func": patch
 ---
 
-CleanUp afet PMv4 Migration
+CleanUp after PMv4 Migration
