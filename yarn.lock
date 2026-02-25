@@ -13685,6 +13685,7 @@ __metadata:
     eslint: "npm:8.57.1"
     express: "npm:^4.15.3"
     fp-ts: "npm:^2.10.5"
+    io-messages-common: "workspace:^"
     io-ts: "npm:^2.2.16"
     modclean: "npm:^3.0.0-beta.1"
     node-fetch: "npm:^2.6.1"
@@ -13696,6 +13697,7 @@ __metadata:
     typescript: "npm:^5.8.3"
     vitest: "npm:^3.1.2"
     winston: "npm:^3.2.1"
+    zod: "npm:^4.0.0"
   languageName: unknown
   linkType: soft
 

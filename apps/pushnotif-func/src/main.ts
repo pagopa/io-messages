@@ -52,6 +52,12 @@ import { initTelemetryClient } from "./utils/appinsights";
 import { getConfigOrThrow } from "./utils/config";
 import { cosmosdbClient, cosmosdbInstance } from "./utils/cosmosdb";
 import { NotificationHubPartitionFactory } from "./utils/notificationhubServicePartition";
+import getUpdateInstallationsHandler from "./adapters/functions/update-installations";
+import {
+  Config,
+  configFromEnvironment,
+  loadConfigFromEnvironment,
+} from "./adapters/config";
 
 // ---------------------------------------------------------------------------
 // Shared configuration and Functions dependencies
@@ -197,3 +203,32 @@ app.http("Notify", {
   methods: ["POST"],
   route: "api/v1/notify",
 });
+
+// ---------------------------------------------------------------------------
+// Cosmos Triggers
+// ---------------------------------------------------------------------------
+
+const main = async (config: Config) => {
+  app.cosmosDB("UpdateInstallations", {
+    connection: "COM_COSMOS",
+    containerName: config.installationSummariesContainerName,
+    createLeaseContainerIfNotExists: false,
+    databaseName: config.databaseName,
+    handler: getUpdateInstallationsHandler({}), // TODO: Pass the use case
+    leaseContainerName: "installation-summaries-leases",
+    leaseContainerPrefix: "0-", // TODO: Take this value from the configuration
+    maxItemsPerInvocation: 50,
+    retry: {
+      maxRetryCount: 5,
+      maximumInterval: {
+        minutes: 30,
+      },
+      minimumInterval: {
+        minutes: 1,
+      },
+      strategy: "exponentialBackoff",
+    },
+  });
+};
+
+loadConfigFromEnvironment(main, configFromEnvironment).then(console.log);
