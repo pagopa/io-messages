@@ -94,7 +94,7 @@ No requirements.
 |------|-------------|------|---------|:--------:|
 | <a name="input_action_group_id"></a> [action\_group\_id](#input\_action\_group\_id) | The ID of the action group | `string` | n/a | yes |
 | <a name="input_app_settings"></a> [app\_settings](#input\_app\_settings) | n/a | <pre>object({<br/>    message_error_table_storage_uri = string,<br/>    eventhub_connection_uri         = string,<br/>  })</pre> | n/a | yes |
-| <a name="input_application_insights"></a> [application\_insights](#input\_application\_insights) | n/a | <pre>object({<br/>    connection_string   = string<br/>    instrumentation_key = string<br/>    sampling_percentage = number<br/>  })</pre> | n/a | yes |
+| <a name="input_application_insights"></a> [application\_insights](#input\_application\_insights) | n/a | <pre>object({<br/>    connection_string   = string<br/>    sampling_percentage = number<br/>  })</pre> | n/a | yes |
 | <a name="input_com_st_connectiostring"></a> [com\_st\_connectiostring](#input\_com\_st\_connectiostring) | n/a | `string` | n/a | yes |
 | <a name="input_com_st_id"></a> [com\_st\_id](#input\_com\_st\_id) | n/a | `string` | n/a | yes |
 | <a name="input_com_st_queue_uri"></a> [com\_st\_queue\_uri](#input\_com\_st\_queue\_uri) | n/a | `string` | n/a | yes |
