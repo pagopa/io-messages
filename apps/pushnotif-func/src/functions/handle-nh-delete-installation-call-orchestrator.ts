@@ -1,9 +1,9 @@
 import { Task } from "durable-functions";
 import * as t from "io-ts";
 
-import { DeleteInstallationMessage } from "../../generated/notifications/DeleteInstallationMessage";
-import * as o from "../../utils/durable/orchestrators";
-import { getCallableActivity as getDeleteInstallationCallableActivity } from "../HandleNHDeleteInstallationCallActivity/handler";
+import { DeleteInstallationMessage } from "../generated/notifications/DeleteInstallationMessage";
+import * as o from "../utils/durable/orchestrators";
+import { getCallableActivity as getDeleteInstallationCallableActivity } from "./handle-nh-delete-installation-call-activity";
 
 export const OrchestratorName = "HandleNHDeleteInstallationCallOrchestrator";
 

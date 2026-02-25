@@ -56,7 +56,6 @@ module "web_apps" {
 
   application_insights = {
     connection_string   = data.azurerm_application_insights.common.connection_string
-    instrumentation_key = data.azurerm_application_insights.common.instrumentation_key
     sampling_percentage = 5
   }
 

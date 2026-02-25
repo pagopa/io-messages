@@ -4,12 +4,12 @@ import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 
-import { NotificationMessageKindEnum } from "../../generated/notifications/NotificationMessageKind";
+import { NotificationMessageKindEnum } from "../generated/notifications/NotificationMessageKind";
 import {
   KindEnum as NotifyKind,
   NotifyMessage,
-} from "../../generated/notifications/NotifyMessage";
-import { toHash } from "../../utils/crypto";
+} from "../generated/notifications/NotifyMessage";
+import { toHash } from "../utils/crypto";
 
 export const base64EncodeObject = (_: unknown): string =>
   Buffer.from(JSON.stringify(_)).toString("base64");

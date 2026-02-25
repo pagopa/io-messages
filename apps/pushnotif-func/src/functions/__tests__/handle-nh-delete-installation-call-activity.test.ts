@@ -3,17 +3,17 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { context as contextMock } from "../../../__mocks__/durable-functions";
-import { nhPartitionFactory } from "../../../__mocks__/notification-hub";
+import { context as contextMock } from "../../__mocks__/durable-functions";
+import { nhPartitionFactory } from "../../__mocks__/notification-hub";
 import {
   ActivityResultFailure,
   createActivity,
-} from "../../../utils/durable/activities";
+} from "../../utils/durable/activities";
 import {
   ActivityInput,
   ActivityResultSuccess,
   getActivityBody,
-} from "../handler";
+} from "../handle-nh-delete-installation-call-activity";
 
 const aFiscalCodeHash =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;

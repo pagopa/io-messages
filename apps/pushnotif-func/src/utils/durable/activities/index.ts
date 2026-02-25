@@ -9,10 +9,10 @@ import {
   ActivityResultFailure,
   ActivityResultSuccess,
   failActivity,
-} from "./returnTypes";
+} from "./return-types";
 
 export { createLogger } from "./log";
-export * from "./returnTypes";
+export * from "./return-types";
 
 export type ActivityBody<
   Input = unknown,

@@ -7,9 +7,9 @@ import {
   NotificationTypeEnum,
 } from "../generated/definitions/NotificationType";
 import { messagePrinter } from "./makdown/message";
-import { reminderPaymentPrinter } from "./makdown/reminderPayment";
-import { reminderPaymentLastPrinter } from "./makdown/reminderPaymentLast";
-import { reminderReadPrinter } from "./makdown/reminderRead";
+import { reminderPaymentPrinter } from "./makdown/reminder-payment";
+import { reminderPaymentLastPrinter } from "./makdown/reminder-payment-last";
+import { reminderReadPrinter } from "./makdown/reminder-read";
 
 export const NotificationEntry = t.interface({
   organizationName: NonEmptyString,

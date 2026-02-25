@@ -104,8 +104,6 @@ module "push_notif_function" {
 
   count = 1
 
-  application_insights_key = var.application_insights.instrumentation_key
-
   resource_group_name   = var.resource_group_name
   health_check_path     = "/api/v1/info"
   has_durable_functions = true

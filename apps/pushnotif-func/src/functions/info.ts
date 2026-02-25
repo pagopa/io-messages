@@ -9,7 +9,7 @@ import {
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 
-import { HealthCheck, checkApplicationHealth } from "../../utils/healthcheck";
+import { HealthCheck, checkApplicationHealth } from "../utils/healthcheck";
 
 type InfoHandler = () => Promise<
   | IResponseErrorInternal
