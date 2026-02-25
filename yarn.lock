@@ -13825,7 +13825,7 @@ __metadata:
     "@pagopa/express-azure-functions": "npm:^2.1.1"
     "@pagopa/io-functions-commons": "npm:^30.0.0"
     "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
-    "@pagopa/ts-commons": "npm:^12.5.0"
+    "@pagopa/ts-commons": "npm:^13.1.2"
     "@types/express": "npm:^4.17.11"
     "@types/node": "npm:^20.17.30"
     "@types/node-fetch": "npm:^2.5.7"
