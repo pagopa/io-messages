@@ -1,5 +1,13 @@
 import z, { ZodError } from "zod";
 
+export const applicationInsightsSchema = z.object({
+  connectionString: z.string().min(1),
+});
+
+export type ApplicationInsightsConfig = z.TypeOf<
+  typeof applicationInsightsSchema
+>;
+
 export async function loadConfigFromEnvironment<T extends z.ZodTypeAny>(
   onSuccess: (config: z.TypeOf<T>) => Promise<void>,
   configFromEnvironment: T,
@@ -35,6 +43,12 @@ const envSchema = z.object({
   COM_COSMOS__accountEndpoint: z.url(),
   PUSH_DATABASE_NAME: z.string().min(1),
   INSTALLATION_SUMMARIES_CONTAINER_NAME: z.string().min(1),
+  INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX: z.string().min(1),
+  NOTIFICATIONS_STORAGE_CONNECTION_STRING: z.string().min(1),
+  UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH: z
+    .string()
+    .transform((val) => Number(val))
+    .pipe(z.number().int().positive()),
 });
 
 export type Env = z.TypeOf<typeof envSchema>;
@@ -43,6 +57,9 @@ export const configSchema = z.object({
   comCosmosAccountEndpoint: z.url(),
   databaseName: z.string().min(1),
   installationSummariesContainerName: z.string().min(1),
+  installationSummariesLeaseContainerPrefix: z.string().min(1),
+  notificationStorageConnectionString: z.string().min(1),
+  updateAllInstallationsTimeToReach: z.int().positive(),
 });
 
 export type Config = z.TypeOf<typeof configSchema>;
@@ -53,6 +70,12 @@ const mapEnvironmentVariablesToConfig = (env: Env): Config => {
     databaseName: env.PUSH_DATABASE_NAME,
     installationSummariesContainerName:
       env.INSTALLATION_SUMMARIES_CONTAINER_NAME,
+    installationSummariesLeaseContainerPrefix:
+      env.INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX,
+    notificationStorageConnectionString:
+      env.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
+    updateAllInstallationsTimeToReach:
+      env.UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH,
   };
 };
 

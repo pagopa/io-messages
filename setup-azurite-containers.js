@@ -31,6 +31,7 @@ const queues = [
   "notification-created",
   "webhook-notification",
   "processing-message",
+  "update-installations-dispatch",
 ];
 const tables = ["MessagesDataplanIngestionErrors"];
 

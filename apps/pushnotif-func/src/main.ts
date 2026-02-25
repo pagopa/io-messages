@@ -1,3 +1,4 @@
+import { TelemetryClient } from "./adapters/appinsights";
 import { app, output } from "@azure/functions";
 import { QueueClient } from "@azure/storage-queue";
 import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
@@ -28,36 +29,36 @@ import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
   getCallableActivity as getCreateOrUpdateCallableActivity,
-} from "./functions/HandleNHCreateOrUpdateInstallationCallActivity/handler";
-import { getHandler as getCreateOrUpdateOrchestratorHandler } from "./functions/HandleNHCreateOrUpdateInstallationCallOrchestrator/handler";
+} from "./functions/handle-nh-create-or-update-installation-call-activity";
+import { getHandler as getCreateOrUpdateOrchestratorHandler } from "./functions/handle-nh-create-or-update-installation-call-orchestrator";
 import {
   ActivityName as DeleteActivityName,
   getActivityHandler as getDeleteActivityHandler,
   getCallableActivity as getDeleteCallableActivity,
-} from "./functions/HandleNHDeleteInstallationCallActivity/handler";
-import { getHandler as getDeleteOrchestratorHandler } from "./functions/HandleNHDeleteInstallationCallOrchestrator/handler";
-import { getHandler as getNotificationCallHandler } from "./functions/HandleNHNotificationCall/handler";
-import { handle as handleNotifyMessage } from "./functions/HandleNHNotifyMessageCallActivityQueue/handler";
-import { Info } from "./functions/Info/handler";
-import { Notify } from "./functions/Notify/handler";
-import { sendNotification } from "./functions/Notify/notification";
+} from "./functions/handle-nh-delete-installation-call-activity";
+import { getHandler as getDeleteOrchestratorHandler } from "./functions/handle-nh-delete-installation-call-orchestrator";
+import { getHandler as getNotificationCallHandler } from "./functions/handle-nh-notification-call";
+import { handle as handleNotifyMessage } from "./functions/handle-nh-notify-message-call-activity-queue";
+import { Info } from "./functions/info";
+import { Notify } from "./functions/notify";
+import { createClient } from "./generated/session-manager/client";
+import { sendNotification } from "./services/notification";
 import {
   getMessageWithContent,
   getService,
   getUserProfileReader,
   getUserSessionStatusReader,
-} from "./functions/Notify/readers";
-import { createClient } from "./generated/session-manager/client";
+} from "./services/readers";
 import { initTelemetryClient } from "./utils/appinsights";
 import { getConfigOrThrow } from "./utils/config";
 import { cosmosdbClient, cosmosdbInstance } from "./utils/cosmosdb";
-import { NotificationHubPartitionFactory } from "./utils/notificationhubServicePartition";
-import getUpdateInstallationsHandler from "./adapters/functions/update-installations";
 import {
   Config,
   configFromEnvironment,
   loadConfigFromEnvironment,
 } from "./adapters/config";
+import { NotificationHubPartitionFactory } from "./utils/notificationhub-service-partition";
+import getInstallationUpdateDispatcher from "./adapters/functions/update-installations";
 
 // ---------------------------------------------------------------------------
 // Shared configuration and Functions dependencies
@@ -204,19 +205,27 @@ app.http("Notify", {
   route: "api/v1/notify",
 });
 
-// ---------------------------------------------------------------------------
-// Cosmos Triggers
-// ---------------------------------------------------------------------------
-
 const main = async (config: Config) => {
-  app.cosmosDB("UpdateInstallations", {
+  const telemetryService = new TelemetryClient(telemetryClient);
+
+  const updateInstallationDispatchQueueOutput = output.storageQueue({
+    queueName: "update-installations-dispatch",
+    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+  });
+
+  app.cosmosDB("InstallationUpdateDispatcher", {
     connection: "COM_COSMOS",
     containerName: config.installationSummariesContainerName,
     createLeaseContainerIfNotExists: false,
     databaseName: config.databaseName,
-    handler: getUpdateInstallationsHandler({}), // TODO: Pass the use case
+    extraOutputs: [updateInstallationDispatchQueueOutput],
+    handler: getInstallationUpdateDispatcher(
+      telemetryService,
+      config.updateAllInstallationsTimeToReach,
+      updateInstallationDispatchQueueOutput,
+    ),
     leaseContainerName: "installation-summaries-leases",
-    leaseContainerPrefix: "0-", // TODO: Take this value from the configuration
+    leaseContainerPrefix: config.installationSummariesLeaseContainerPrefix,
     maxItemsPerInvocation: 50,
     retry: {
       maxRetryCount: 5,
@@ -231,4 +240,4 @@ const main = async (config: Config) => {
   });
 };
 
-loadConfigFromEnvironment(main, configFromEnvironment).then(console.log);
+loadConfigFromEnvironment(main, configFromEnvironment);

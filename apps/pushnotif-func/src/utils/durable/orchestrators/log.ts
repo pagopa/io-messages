@@ -4,7 +4,7 @@ import { OrchestrationContext } from "durable-functions";
 import * as t from "io-ts";
 
 import { toString } from "../utils";
-import { OrchestratorFailure } from "./returnTypes";
+import { OrchestratorFailure } from "./return-types";
 
 const defaultNever = <T>(_: never, d: T): T => d;
 
