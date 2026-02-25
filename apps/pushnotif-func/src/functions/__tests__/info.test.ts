@@ -1,8 +1,8 @@
 import * as TE from "fp-ts/lib/TaskEither";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { HealthCheck } from "../../../utils/healthcheck";
-import { InfoHandler } from "../handler";
+import { HealthCheck } from "../../utils/healthcheck";
+import { InfoHandler } from "../info";
 
 afterEach(() => {
   vi.clearAllMocks();

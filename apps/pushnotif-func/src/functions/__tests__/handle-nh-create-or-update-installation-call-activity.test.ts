@@ -3,19 +3,19 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { context as contextMock } from "../../../__mocks__/durable-functions";
-import { nhPartitionFactory } from "../../../__mocks__/notification-hub";
+import { context as contextMock } from "../../__mocks__/durable-functions";
+import { nhPartitionFactory } from "../../__mocks__/notification-hub";
 import {
   CreateOrUpdateInstallationMessage,
   KindEnum,
-} from "../../../generated/notifications/CreateOrUpdateInstallationMessage";
-import { PlatformEnum } from "../../../generated/notifications/Platform";
-import { createActivity } from "../../../utils/durable/activities";
+} from "../../generated/notifications/CreateOrUpdateInstallationMessage";
+import { PlatformEnum } from "../../generated/notifications/Platform";
+import { createActivity } from "../../utils/durable/activities";
 import {
   ActivityInput,
   ActivityResultSuccess,
   getActivityBody,
-} from "../handler";
+} from "../handle-nh-create-or-update-installation-call-activity";
 
 const activityName = "any";
 

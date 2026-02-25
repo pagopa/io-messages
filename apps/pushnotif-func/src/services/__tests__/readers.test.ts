@@ -1,4 +1,3 @@
-import { createClient } from "@/generated/session-manager/client";
 import { ErrorResponse } from "@azure/cosmos";
 import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
@@ -14,13 +13,14 @@ import {
   aRetrievedMessage,
   aRetrievedMessageWithContent,
   aRetrievedService,
-} from "../../../__mocks__/models.mock";
+} from "../../__mocks__/models.mock";
+import { createClient } from "../../generated/session-manager/client";
+import * as messageUtils from "../../utils/readers-utils";
 import {
   getMessageWithContent,
   getService,
   getUserSessionStatusReader,
 } from "../readers";
-import * as messageUtils from "../readers.utils";
 
 const findOneByServiceIdMock = vi.fn(
   () =>

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { InstallationId } from "../../generated/notifications/InstallationId";
 import { NHClientError } from "../notification";
-import { testShaForPartitionRegex } from "../notificationhubServicePartition";
+import { testShaForPartitionRegex } from "../notificationhub-service-partition";
 
 describe("NHClientError", () => {
   it("should decode a 404 as right", () => {

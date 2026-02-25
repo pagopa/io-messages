@@ -5,13 +5,13 @@ import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { context as contextMockBase } from "../../../__mocks__/durable-functions";
+import { context as contextMockBase } from "../../__mocks__/durable-functions";
 import {
   CreateOrUpdateInstallationMessage,
   KindEnum as CreateOrUpdateKind,
-} from "../../../generated/notifications/CreateOrUpdateInstallationMessage";
-import { PlatformEnum } from "../../../generated/notifications/Platform";
-import { success } from "../../../utils/durable/activities";
+} from "../../generated/notifications/CreateOrUpdateInstallationMessage";
+import { PlatformEnum } from "../../generated/notifications/Platform";
+import { success } from "../../utils/durable/activities";
 import {
   CallableActivity,
   OrchestratorActivityFailure,
@@ -19,13 +19,13 @@ import {
   OrchestratorSuccess,
   OrchestratorUnhandledFailure,
   failureActivity,
-} from "../../../utils/durable/orchestrators";
-import { consumeGenerator } from "../../../utils/durable/utils";
-import { ActivityInput as CreateOrUpdateActivityInput } from "../../HandleNHCreateOrUpdateInstallationCallActivity";
+} from "../../utils/durable/orchestrators";
+import { consumeGenerator } from "../../utils/durable/utils";
+import { ActivityInput as CreateOrUpdateActivityInput } from "../handle-nh-create-or-update-installation-call-activity";
 import {
   NhCreateOrUpdateInstallationOrchestratorCallInput,
   getHandler,
-} from "../handler";
+} from "../handle-nh-create-or-update-installation-call-orchestrator";
 
 const aFiscalCodeHash =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;
