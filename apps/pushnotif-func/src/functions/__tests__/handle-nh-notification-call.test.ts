@@ -4,12 +4,12 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as df from "durable-functions";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { CreateOrUpdateInstallationMessage } from "../../../generated/notifications/CreateOrUpdateInstallationMessage";
-import { DeleteInstallationMessage } from "../../../generated/notifications/DeleteInstallationMessage";
-import { NotifyMessage } from "../../../generated/notifications/NotifyMessage";
-import { PlatformEnum } from "../../../generated/notifications/Platform";
-import { success } from "../../../utils/durable/activities";
-import { getHandler } from "../handler";
+import { CreateOrUpdateInstallationMessage } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
+import { DeleteInstallationMessage } from "../../generated/notifications/DeleteInstallationMessage";
+import { NotifyMessage } from "../../generated/notifications/NotifyMessage";
+import { PlatformEnum } from "../../generated/notifications/Platform";
+import { success } from "../../utils/durable/activities";
+import { getHandler } from "../handle-nh-notification-call";
 
 const dfClient = {
   startNew: vi.fn().mockImplementation(() => success()),
