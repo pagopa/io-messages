@@ -3,14 +3,14 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { envConfig } from "../../../__mocks__/env-config.mock";
-import { nhPartitionFactory } from "../../../__mocks__/notification-hub";
+import { envConfig } from "../../__mocks__/env-config.mock";
+import { nhPartitionFactory } from "../../__mocks__/notification-hub";
 import {
   KindEnum,
   NotifyMessage,
-} from "../../../generated/notifications/NotifyMessage";
-import { toSHA256 } from "../../../utils/conversions";
-import { handle } from "../handler";
+} from "../../generated/notifications/NotifyMessage";
+import { toSHA256 } from "../../utils/conversions";
+import { handle } from "../handle-nh-notify-message-call-activity-queue";
 
 const aFiscalCodeHash =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;

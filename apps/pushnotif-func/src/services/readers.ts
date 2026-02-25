@@ -28,7 +28,7 @@ import * as AP from "fp-ts/lib/Apply";
 import { flow, pipe } from "fp-ts/lib/function";
 import { match } from "ts-pattern";
 
-import { getContentFromBlob } from "./readers.utils";
+import { getContentFromBlob } from "../utils/readers-utils";
 
 export type ServiceReader = (
   serviceId: ServiceId,

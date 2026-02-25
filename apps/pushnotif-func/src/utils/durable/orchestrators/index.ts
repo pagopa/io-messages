@@ -18,10 +18,10 @@ import {
   failureInvalidInput,
   failureUnhandled,
   success,
-} from "./returnTypes";
+} from "./return-types";
 
 export { IOrchestratorLogger as OrchestratorLogger, createLogger } from "./log";
-export * from "./returnTypes";
+export * from "./return-types";
 
 // TODO: define a more specific type so that OrchestratorBody must be strict in what it yields
 type TNextDefault = unknown;

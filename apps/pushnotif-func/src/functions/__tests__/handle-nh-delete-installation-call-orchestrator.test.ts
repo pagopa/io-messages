@@ -2,20 +2,25 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { OrchestrationContext } from "durable-functions";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getMockDeleteInstallationActivity } from "../../../__mocks__/activities-mocks";
-import { context as contextMockBase } from "../../../__mocks__/durable-functions";
-import { KindEnum as DeleteKind } from "../../../generated/notifications/DeleteInstallationMessage";
-import { DeleteInstallationMessage } from "../../../generated/notifications/DeleteInstallationMessage";
+import { getMockDeleteInstallationActivity } from "../../__mocks__/activities-mocks";
+import { context as contextMockBase } from "../../__mocks__/durable-functions";
+import {
+  DeleteInstallationMessage,
+  KindEnum as DeleteKind,
+} from "../../generated/notifications/DeleteInstallationMessage";
 import {
   success as activitySuccess,
   success,
-} from "../../../utils/durable/activities";
+} from "../../utils/durable/activities";
 import {
   OrchestratorInvalidInputFailure,
   success as orchestratorSuccess,
-} from "../../../utils/durable/orchestrators";
-import { consumeGenerator } from "../../../utils/durable/utils";
-import { OrchestratorCallInput, getHandler } from "../handler";
+} from "../../utils/durable/orchestrators";
+import { consumeGenerator } from "../../utils/durable/utils";
+import {
+  OrchestratorCallInput,
+  getHandler,
+} from "../handle-nh-delete-installation-call-orchestrator";
 
 const aFiscalCodeHash =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as NonEmptyString;

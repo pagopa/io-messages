@@ -52,7 +52,6 @@ variable "subnet_cidrs" {
 variable "application_insights" {
   type = object({
     connection_string   = string
-    instrumentation_key = string
     sampling_percentage = number
   })
 }

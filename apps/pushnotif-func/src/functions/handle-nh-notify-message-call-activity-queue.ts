@@ -6,16 +6,16 @@ import * as TE from "fp-ts/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
-import { toSHA256 } from "../../utils/conversions";
+import { toSHA256 } from "../utils/conversions";
 import {
   Failure,
   throwTransientFailure,
   toPermanentFailure,
   toTransientFailure,
-} from "../../utils/errors";
-import { notify } from "../../utils/notification";
-import { NotificationHubPartitionFactory } from "../../utils/notificationhubServicePartition";
-import { NhNotifyMessageRequest } from "../../utils/types";
+} from "../utils/errors";
+import { notify } from "../utils/notification";
+import { NotificationHubPartitionFactory } from "../utils/notificationhub-service-partition";
+import { NhNotifyMessageRequest } from "../utils/types";
 
 const errorsToError = (errors: t.Errors): Error =>
   new Error(errorsToReadableMessages(errors).join(" / "));

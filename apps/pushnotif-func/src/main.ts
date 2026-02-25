@@ -28,30 +28,30 @@ import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
   getCallableActivity as getCreateOrUpdateCallableActivity,
-} from "./functions/HandleNHCreateOrUpdateInstallationCallActivity/handler";
-import { getHandler as getCreateOrUpdateOrchestratorHandler } from "./functions/HandleNHCreateOrUpdateInstallationCallOrchestrator/handler";
+} from "./functions/handle-nh-create-or-update-installation-call-activity";
+import { getHandler as getCreateOrUpdateOrchestratorHandler } from "./functions/handle-nh-create-or-update-installation-call-orchestrator";
 import {
   ActivityName as DeleteActivityName,
   getActivityHandler as getDeleteActivityHandler,
   getCallableActivity as getDeleteCallableActivity,
-} from "./functions/HandleNHDeleteInstallationCallActivity/handler";
-import { getHandler as getDeleteOrchestratorHandler } from "./functions/HandleNHDeleteInstallationCallOrchestrator/handler";
-import { getHandler as getNotificationCallHandler } from "./functions/HandleNHNotificationCall/handler";
-import { handle as handleNotifyMessage } from "./functions/HandleNHNotifyMessageCallActivityQueue/handler";
-import { Info } from "./functions/Info/handler";
-import { Notify } from "./functions/Notify/handler";
-import { sendNotification } from "./functions/Notify/notification";
+} from "./functions/handle-nh-delete-installation-call-activity";
+import { getHandler as getDeleteOrchestratorHandler } from "./functions/handle-nh-delete-installation-call-orchestrator";
+import { getHandler as getNotificationCallHandler } from "./functions/handle-nh-notification-call";
+import { handle as handleNotifyMessage } from "./functions/handle-nh-notify-message-call-activity-queue";
+import { Info } from "./functions/info";
+import { Notify } from "./functions/notify";
+import { createClient } from "./generated/session-manager/client";
+import { sendNotification } from "./services/notification";
 import {
   getMessageWithContent,
   getService,
   getUserProfileReader,
   getUserSessionStatusReader,
-} from "./functions/Notify/readers";
-import { createClient } from "./generated/session-manager/client";
+} from "./services/readers";
 import { initTelemetryClient } from "./utils/appinsights";
 import { getConfigOrThrow } from "./utils/config";
 import { cosmosdbClient, cosmosdbInstance } from "./utils/cosmosdb";
-import { NotificationHubPartitionFactory } from "./utils/notificationhubServicePartition";
+import { NotificationHubPartitionFactory } from "./utils/notificationhub-service-partition";
 
 // ---------------------------------------------------------------------------
 // Shared configuration and Functions dependencies
