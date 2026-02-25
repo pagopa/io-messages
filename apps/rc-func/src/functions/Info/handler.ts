@@ -37,7 +37,7 @@ export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
 export function getInfoHandler(
   cosmosClient: CosmosClient,
   remoteContentCosmosClient: CosmosClient,
-): ReturnType<typeof wrapHandlerV4> {
+) {
   const handler = InfoHandler(
     checkApplicationHealth(cosmosClient, remoteContentCosmosClient),
   );
