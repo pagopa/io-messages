@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.0.0
+
+### Major Changes
+
+- 7fb1c74: Migrate programming model from v3 to v4
+
 ## 1.11.9
 
 ### Patch Changes
