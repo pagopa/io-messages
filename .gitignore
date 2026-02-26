@@ -26,7 +26,6 @@ dist
 .env
 node_modules
 .turbo
-out
 
 # vitest
 coverage
