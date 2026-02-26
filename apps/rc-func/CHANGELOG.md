@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.0.2
+
+### Patch Changes
+
+- f4f6333: move required dependency from devDependencies
+
 ## 2.0.1
 
 ### Patch Changes
