@@ -15,6 +15,7 @@
     "COSMOSDB_NAME": "io-messages",
     "REMOTE_CONTENT_COSMOSDB_URI": "https://io-d-itn-common-cosno-01.documents.azure.com:443/",
     "REMOTE_CONTENT_COSMOSDB_NAME": "remote-content-cosmos-01",
+    "REMOTE_CONTENT_COSMOSDB__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443/",
     "REDIS_URL": "localhost",
     "REDIS_PASSWORD": "local",
     "REDIS_PORT": "6379",

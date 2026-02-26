@@ -1,11 +1,8 @@
 import { RCConfigurationModel } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
 import { UserRCConfigurationModel } from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { retrievedRCConfigurationToPublic } from "@pagopa/io-functions-commons/dist/src/utils/rc_configuration";
-import {
-  withRequestMiddlewares,
-  wrapRequestHandler,
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import {
   IResponseErrorForbiddenNotAuthorized,
   IResponseErrorInternal,
@@ -13,7 +10,6 @@ import {
   ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
 import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
-import * as express from "express";
 import * as RA from "fp-ts/lib/ReadonlyArray";
 import * as TE from "fp-ts/lib/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
@@ -93,31 +89,23 @@ export const listRCConfigurationHandler =
       TE.toUnion,
     )();
 
-type ListRCConfigurationHandlerReturnType = express.RequestHandler;
-
-type ListRCConfigurationHandler = (
-  parameter: IListRCConfigurationHandlerParameter,
-) => ListRCConfigurationHandlerReturnType;
-
-export const listRCConfigurationExpressHandler: ListRCConfigurationHandler = ({
+export const getListRCConfigurationHandler = ({
   rcConfigurationModel,
   userRCConfigurationModel,
-}) => {
+}: IListRCConfigurationHandlerParameter) => {
   const handler = listRCConfigurationHandler({
     rcConfigurationModel,
     userRCConfigurationModel,
   });
 
-  const middlewaresWrap = withRequestMiddlewares(
+  const middlewares = [
     ContextMiddleware(),
     RequiredSubscriptionIdMiddleware(),
     RequiredUserGroupsMiddleware(),
     RequiredUserIdMiddleware(),
-  );
+  ] as const;
 
-  return wrapRequestHandler(
-    middlewaresWrap((_, subscriptionId, userGroups, userId) =>
-      handler({ subscriptionId, userGroups, userId }),
-    ),
+  return wrapHandlerV4(middlewares, (_, subscriptionId, userGroups, userId) =>
+    handler({ subscriptionId, userGroups, userId }),
   );
 };
