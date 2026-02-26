@@ -8,5 +8,11 @@
       "direction": "in"
     }
   ],
+  "retry": {
+    "strategy": "exponentialBackoff",
+    "maxRetryCount": 5,
+    "minimumInterval": "00:00:30",
+    "maximumInterval": "00:30:00"
+  },
   "scriptFile": "../dist/functions/WebhookNotification/index.js"
 }

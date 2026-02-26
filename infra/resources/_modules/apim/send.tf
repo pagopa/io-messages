@@ -31,7 +31,7 @@ resource "azurerm_api_management_api_policy" "send_aar_api_v1_policy" {
   api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
 
-  xml_link = "https://raw.githubusercontent.com/pagopa/io-messages/2b0d3d226b95f731c4a6fdf58daff2e6dfcb4ef0/infra/resources/_modules/apim/api/send/policy.xml"
+  xml_content = file("${path.module}/api/send/policy.xml")
 }
 
 resource "azurerm_api_management_product_api" "send_aar_api_v1_product_api" {
@@ -114,7 +114,7 @@ resource "azurerm_api_management_api_policy" "send_lollipop_integration_check_ap
   api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
 
-  xml_link = "https://raw.githubusercontent.com/pagopa/io-messages/12150e581e0771e78b096cf391c6d27edff65b89/infra/resources/_modules/apim/api/send/lollipop-integration-check-policy.xml"
+  xml_content = file("${path.module}/api/send/lollipop-integration-check-policy.xml")
 }
 
 resource "azurerm_api_management_product_api" "send_lollipop_integration_check_api_v1_product_api" {
