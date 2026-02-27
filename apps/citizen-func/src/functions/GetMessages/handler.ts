@@ -1,14 +1,11 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import { defaultPageSize } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { FiscalCodeMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/fiscalcode";
 import { OptionalQueryParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/optional_query_param";
 import { PageResults } from "@pagopa/io-functions-commons/dist/src/utils/paging";
-import {
-  withRequestMiddlewares,
-  wrapRequestHandler,
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import {
   IResponseErrorQuery,
   ResponseErrorQuery,
@@ -26,7 +23,6 @@ import {
   ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import * as express from "express";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
@@ -49,7 +45,7 @@ type IGetMessagesHandlerResponse =
  *
  */
 type IGetMessagesHandler = (
-  context: Context,
+  context: InvocationContext,
   fiscalCode: FiscalCode,
   maybePageSize: O.Option<NonNegativeInteger>,
   maybeEnrichResultData: O.Option<boolean>,
@@ -141,21 +137,21 @@ export const GetMessagesHandler =
     )();
 
 /**
- * Wraps a GetMessages handler inside an Express request handler.
+ * Wraps a GetMessages handler for Azure Functions v4.
  */
 export const GetMessages = (
   functionSelector: IGetMessagesFunctionSelector,
   serviceModel: ServiceModel,
   redisClientFactory: RedisClientFactory,
   serviceCacheTtlDuration: NonNegativeInteger,
-): express.RequestHandler => {
+) => {
   const handler = GetMessagesHandler(
     functionSelector,
     serviceModel,
     redisClientFactory,
     serviceCacheTtlDuration,
   );
-  const middlewaresWrap = withRequestMiddlewares(
+  const middlewares = [
     ContextMiddleware(),
     FiscalCodeMiddleware,
     OptionalQueryParamMiddleware("page_size", NonNegativeIntegerFromString),
@@ -163,6 +159,6 @@ export const GetMessages = (
     OptionalQueryParamMiddleware("archived", BooleanFromString),
     OptionalQueryParamMiddleware("maximum_id", NonEmptyString),
     OptionalQueryParamMiddleware("minimum_id", NonEmptyString),
-  );
-  return wrapRequestHandler(middlewaresWrap(handler));
+  ] as const;
+  return wrapHandlerV4(middlewares, handler);
 };

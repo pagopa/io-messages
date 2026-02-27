@@ -124,9 +124,7 @@ export const getMessagesFromView =
       messageViewModel.queryPage(fiscalCode, maximumId, minimumId, pageSize),
 
       TE.mapLeft((err) => {
-        context.log.error(
-          `getMessagesFromView|Error building queryPage iterator`,
-        );
+        context.error(`getMessagesFromView|Error building queryPage iterator`);
         return err;
       }),
       TE.chainW(
@@ -158,7 +156,7 @@ export const getMessagesFromView =
             ),
           ),
           TE.mapLeft((err) => {
-            context.log.error(
+            context.error(
               `getMessagesFromView|Error retrieving page data from cosmos|${JSON.stringify(
                 err,
               )}`,

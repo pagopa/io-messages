@@ -1,4 +1,3 @@
-import { Context } from "@azure/functions";
 import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
@@ -69,7 +68,7 @@ import RCConfigurationUtility from "../../../utils/remoteContentConfig";
 import { createGetMessagesFunctionSelection } from "../getMessagesFunctions/getMessages.selector";
 import { toEnrichedMessageWithContent } from "../getMessagesFunctions/getMessages.view";
 import { GetMessagesHandler } from "../handler";
-
+import { context as functionsContextMock } from "../../../__mocks__/context";
 vi.stubEnv("APPLICATIONINSIGHTS_CONNECTION_STRING", "foo");
 
 const aFiscalCode = "FRLFRC74E04B157I" as FiscalCode;
@@ -205,12 +204,6 @@ const mockFindLastVersionByModelId = vi.fn(() =>
 const serviceModelMock = {
   findLastVersionByModelId: mockFindLastVersionByModelId,
 } as unknown as ServiceModel;
-
-const functionsContextMock = {
-  log: {
-    error: vi.fn(),
-  },
-} as unknown as Context;
 
 /**
  * Build a service list iterator
@@ -375,7 +368,7 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
       O.none,
     );
     expect(result.kind).toBe("IResponseErrorQuery");
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with the messages for the recipient when no parameters are given", async () => {
@@ -406,7 +399,7 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
     );
     expect(result.kind).toBe("IResponseSuccessJson");
     expect(messageIterator.next).toHaveBeenCalledTimes(2);
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond only with non-pending messages", async () => {
@@ -449,7 +442,7 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
     }
 
     expect(messageIterator.next).toHaveBeenCalledTimes(2);
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with a page of given page size", async () => {
@@ -494,7 +487,7 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
     }
 
     expect(messageIterator.next).toHaveBeenCalledTimes(1);
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with a page of messages when given maximum id", async () => {
@@ -538,7 +531,7 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
     }
 
     expect(messageIterator.next).toHaveBeenCalledTimes(1);
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with a page of messages above given minimum id", async () => {
@@ -583,7 +576,7 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
     }
 
     expect(messageIterator.next).toHaveBeenCalledTimes(1);
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with undefined next when last element of the page is the last of all", async () => {
@@ -632,7 +625,7 @@ describe("GetMessagesHandler |> Fallback |> No Enrichment", () => {
     }
 
     expect(messageIterator.next).toHaveBeenCalledTimes(2);
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 });
 /* eslint-disable max-lines-per-function*/
@@ -737,7 +730,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     expect(getTaskMock).toHaveBeenCalledTimes(1);
     // if the getTask correctly retrieve the service, the RC model is not called
     expect(mockFind).not.toHaveBeenCalled();
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should not call the RC model if the redis cache works", async () => {
@@ -828,7 +821,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     expect(getTaskMock).toHaveBeenCalledTimes(1);
     // if the getTask correctly retrieve the service, the RC model is not called
     expect(mockFind).not.toHaveBeenCalled();
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with a payment message with rptId using payee fiscal code, when payee is defined", async () => {
@@ -903,7 +896,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     expect(getTaskMock).toHaveBeenCalledTimes(1);
     // if the getTask correctly retrieve the service, the RC model is not called
     expect(mockFind).not.toHaveBeenCalled();
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with a pn message when third_party_data is defined", async () => {
@@ -983,7 +976,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     expect(getTaskMock).toHaveBeenCalledTimes(2);
     // if the getTask correctly retrieve the service, the RC model is not called
     expect(mockFind).not.toHaveBeenCalled();
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with a payment message with rptId using service fiscal code, if payee is not defined", async () => {
@@ -1058,7 +1051,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     expect(getTaskMock).toHaveBeenCalledTimes(1);
     // if the getTask correctly retrieve the service, the RC model is not called
     expect(mockFind).not.toHaveBeenCalled();
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with no messages when archived is requested", async () => {
@@ -1100,7 +1093,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     }
 
     expect(messageIterator.next).toHaveBeenCalledTimes(2);
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with archived messages only when archived filter is true", async () => {
@@ -1167,7 +1160,7 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
     }
 
     expect(messageIterator.next).toHaveBeenCalledTimes(2);
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with internal error when messages cannot be enriched with content", async () => {
@@ -1214,8 +1207,8 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
 
     expect(result.kind).toBe("IResponseErrorInternal");
     expect(messagesIter.next).toHaveBeenCalledTimes(1);
-    expect(functionsContextMock.log.error).toHaveBeenCalledTimes(1);
-    expect(functionsContextMock.log.error).toHaveBeenCalledWith(
+    expect(functionsContextMock.error).toHaveBeenCalledTimes(1);
+    expect(functionsContextMock.error).toHaveBeenCalledWith(
       `Cannot enrich message "${aSimpleList[0].id}" | Error: GENERIC_ERROR`,
     );
   });
@@ -1263,8 +1256,8 @@ describe("GetMessagesHandler |> Fallback |> Enrichment", () => {
 
     expect(result.kind).toBe("IResponseErrorInternal");
     expect(messageIterator.next).toHaveBeenCalledTimes(1);
-    expect(functionsContextMock.log.error).toHaveBeenCalledTimes(1);
-    expect(functionsContextMock.log.error).toHaveBeenCalledWith(
+    expect(functionsContextMock.error).toHaveBeenCalledTimes(1);
+    expect(functionsContextMock.error).toHaveBeenCalledWith(
       `Cannot enrich message status | Error: Error retrieving data from cosmos.`,
     );
   });
@@ -1377,7 +1370,7 @@ describe("GetMessagesHandler |> Message View", () => {
     }
 
     expect(iteratorCalls).toEqual(1);
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with a page with a PN message if the sender service id match PN one", async () => {
@@ -1446,7 +1439,7 @@ describe("GetMessagesHandler |> Message View", () => {
     }
 
     expect(dummyThirdPartyDataWithCategoryFetcher).toBeCalledWith(aServiceId);
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with no messages when archived is requested", async () => {
@@ -1490,7 +1483,7 @@ describe("GetMessagesHandler |> Message View", () => {
     }
 
     expect(iteratorCalls).toEqual(0);
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with archived messages only when archived is requested", async () => {
@@ -1564,7 +1557,7 @@ describe("GetMessagesHandler |> Message View", () => {
 
     // We expect it to loop through the whole list
     expect(iteratorCalls).toEqual(Math.round(aSimpleList.length / pageSize));
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should respond with internal error when messages cannot be enriched with service info", async () => {
@@ -1611,8 +1604,8 @@ describe("GetMessagesHandler |> Message View", () => {
     expect(result.kind).toBe("IResponseErrorInternal");
 
     expect(iteratorCalls).toEqual(1);
-    expect(functionsContextMock.log.error).toHaveBeenCalledTimes(1);
-    expect(functionsContextMock.log.error).toHaveBeenCalledWith(
+    expect(functionsContextMock.error).toHaveBeenCalledTimes(1);
+    expect(functionsContextMock.error).toHaveBeenCalledWith(
       `Cannot enrich service data | Error: COSMOS_ERROR_RESPONSE, ServiceId=${aSimpleList[0].senderServiceId}`,
     );
   });
@@ -1639,7 +1632,7 @@ describe("GetMessagesHandler |> Message View", () => {
       O.none,
     );
     expect(result.kind).toBe("IResponseErrorQuery");
-    expect(functionsContextMock.log.error).toHaveBeenCalledWith(
+    expect(functionsContextMock.error).toHaveBeenCalledWith(
       "getMessagesFromView|Error building queryPage iterator",
     );
   });
@@ -1673,7 +1666,7 @@ describe("GetMessagesHandler |> Message View", () => {
       O.none,
     );
     expect(result.kind).toBe("IResponseErrorQuery");
-    expect(functionsContextMock.log.error).toHaveBeenCalledWith(
+    expect(functionsContextMock.error).toHaveBeenCalledWith(
       `getMessagesFromView|Error retrieving page data from cosmos|{"error":{},"kind":"COSMOS_ERROR_RESPONSE"}`,
     );
   });

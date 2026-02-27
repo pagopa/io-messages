@@ -1,4 +1,4 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import { CosmosErrors } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
@@ -15,7 +15,7 @@ import { EnrichedMessageWithContent } from "./models";
 // --------------------------------
 
 interface IGetMessagesParams {
-  readonly context: Context;
+  readonly context: InvocationContext;
   readonly fiscalCode: FiscalCode;
   readonly maximumId?: NonEmptyString;
   readonly minimumId?: NonEmptyString;
