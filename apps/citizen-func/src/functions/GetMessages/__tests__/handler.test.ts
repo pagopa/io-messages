@@ -42,6 +42,7 @@ import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { context as functionsContextMock } from "../../../__mocks__/context";
 import { envConfig } from "../../../__mocks__/env-config.mock";
 import {
   aCosmosResourceMetadata,
@@ -68,7 +69,6 @@ import RCConfigurationUtility from "../../../utils/remoteContentConfig";
 import { createGetMessagesFunctionSelection } from "../getMessagesFunctions/getMessages.selector";
 import { toEnrichedMessageWithContent } from "../getMessagesFunctions/getMessages.view";
 import { GetMessagesHandler } from "../handler";
-import { context as functionsContextMock } from "../../../__mocks__/context";
 vi.stubEnv("APPLICATIONINSIGHTS_CONNECTION_STRING", "foo");
 
 const aFiscalCode = "FRLFRC74E04B157I" as FiscalCode;

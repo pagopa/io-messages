@@ -10,6 +10,7 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { context as functionsContextMock } from "../../../__mocks__/context";
 import { aRetrievedMessageWithoutContent } from "../../../__mocks__/messages";
 import { aRetrievedService } from "../../../__mocks__/mocks.service_preference";
 import { redisClientMock } from "../../../__mocks__/redis";
@@ -28,7 +29,6 @@ import { RedisClientFactory } from "../../../utils/redis";
 import RCConfigurationUtility from "../../../utils/remoteContentConfig";
 import { enrichContentData } from "../getMessagesFunctions/getMessages.fallback";
 import { EnrichedMessageWithContent } from "../getMessagesFunctions/models";
-import { context as functionsContextMock } from "../../../__mocks__/context";
 
 vi.stubEnv("APPLICATIONINSIGHTS_CONNECTION_STRING", "foo");
 

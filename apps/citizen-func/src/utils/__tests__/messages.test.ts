@@ -34,6 +34,7 @@ import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { beforeEach, describe, expect, it, test, vi } from "vitest";
 
+import { context as functionsContextMock } from "../../__mocks__/context";
 import { aCosmosResourceMetadata } from "../../__mocks__/mocks";
 import { EnrichedMessageWithContent } from "../../functions/GetMessages/getMessagesFunctions/models";
 import { IConfig } from "../config";
@@ -48,7 +49,6 @@ import {
 } from "../messages";
 import { RedisClientFactory } from "../redis";
 import * as redis from "../redis_storage";
-import { context as functionsContextMock } from "../../__mocks__/context";
 
 vi.stubEnv("APPLICATIONINSIGHTS_CONNECTION_STRING", "foo");
 
