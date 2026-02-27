@@ -18,6 +18,9 @@ export const initTelemetryClient = (env = process.env) =>
         NonEmptyString.decode,
         E.map((k) =>
           initAppInsights(k, {
+            // We need to disable tracing only when we are testing locally because
+            // interfere with azurite docker container.
+            isTracingDisabled: env.NODE_ENV !== "production",
             samplingPercentage: pipe(
               env.APPINSIGHTS_SAMPLING_PERCENTAGE,
               IntegerFromString.decode,
