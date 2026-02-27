@@ -69,14 +69,14 @@ export const getEmailNotificationHandler = (
           context,
           { content, message, notificationId, senderMetadata },
         ): Promise<EmailNotificationResult> => {
-          const logPrefix = `${context.executionContext.functionName}|MESSAGE_ID=${message.id}|NOTIFICATION_ID=${notificationId}`;
+          const logPrefix = `${context.functionName}|MESSAGE_ID=${message.id}|NOTIFICATION_ID=${notificationId}`;
 
           // Check whether the message is expired
           const errorOrActiveMessage = ActiveMessage.decode(message);
 
           if (E.isLeft(errorOrActiveMessage)) {
             // if the message is expired no more processing is necessary
-            context.log.warn(`${logPrefix}|RESULT=TTL_EXPIRED`);
+            context.warn(`${logPrefix}|RESULT=TTL_EXPIRED`);
             return EmailNotificationResult.encode({
               kind: "SUCCESS",
               result: "EXPIRED",
@@ -92,7 +92,7 @@ export const getEmailNotificationHandler = (
           if (E.isLeft(errorOrMaybeNotification)) {
             const error = errorOrMaybeNotification.left;
             // we got an error while fetching the notification
-            context.log.warn(`${logPrefix}|ERROR=${JSON.stringify(error)}`);
+            context.warn(`${logPrefix}|ERROR=${JSON.stringify(error)}`);
             throw new Error(
               `Error while fetching the notification: ${JSON.stringify(error)}`,
             );
@@ -104,7 +104,7 @@ export const getEmailNotificationHandler = (
             // it may happen that the object is not yet visible to this function due to latency
             // as the notification object is retrieved from database and we may be hitting a
             // replica that is not yet in sync - throwing an error will trigger a retry
-            context.log.warn(`${logPrefix}|RESULT=NOTIFICATION_NOT_FOUND`);
+            context.warn(`${logPrefix}|RESULT=NOTIFICATION_NOT_FOUND`);
             throw new Error(`Notification not found`);
           }
 
@@ -115,8 +115,8 @@ export const getEmailNotificationHandler = (
           if (E.isLeft(errorOrEmailNotification)) {
             // The notification object is not compatible with this code
             const error = readableReport(errorOrEmailNotification.left);
-            context.log.error(`${logPrefix}|ERROR`);
-            context.log.verbose(`${logPrefix}|ERROR_DETAILS=${error}`);
+            context.error(`${logPrefix}|ERROR`);
+            context.debug(`${logPrefix}|ERROR_DETAILS=${error}`);
             return EmailNotificationResult.encode({
               kind: "FAILURE",
               reason: "DECODE_ERROR",
@@ -161,10 +161,10 @@ export const getEmailNotificationHandler = (
             }),
             TE.bimap(
               (error) => {
-                context.log.error(`${logPrefix}|ERROR=${error.message}`);
+                context.error(`${logPrefix}|ERROR=${error.message}`);
                 throw new Error(`Error while sending email: ${error.message}`);
               },
-              () => context.log.verbose(`${logPrefix}|RESULT=SUCCESS`),
+              () => context.debug(`${logPrefix}|RESULT=SUCCESS`),
             ),
           )();
 

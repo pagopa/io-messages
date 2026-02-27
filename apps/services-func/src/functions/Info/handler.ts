@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import * as healthcheck from "@pagopa/io-functions-commons/dist/src/utils/healthcheck";
 import { toHealthProblems } from "@pagopa/io-functions-commons/dist/src/utils/healthcheck";
-import { wrapRequestHandler } from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import {
   IResponseErrorInternal,
   IResponseSuccessJson,
@@ -9,7 +9,6 @@ import {
   ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
 import { common, createBlobService, createQueueService } from "azure-storage";
-import * as express from "express";
 import * as A from "fp-ts/lib/Array";
 import * as RA from "fp-ts/lib/ReadonlyArray";
 import * as T from "fp-ts/lib/Task";
@@ -85,7 +84,7 @@ export function InfoHandler(healthCheck: HealthChecker): InfoHandler {
     )();
 }
 
-export function Info(): express.RequestHandler {
+export function Info() {
   const handler = InfoHandler(
     healthcheck.checkApplicationHealth(IConfig, [
       (c) =>
@@ -104,5 +103,5 @@ export function Info(): express.RequestHandler {
     ]),
   );
 
-  return wrapRequestHandler(handler);
+  return wrapHandlerV4([], handler);
 }

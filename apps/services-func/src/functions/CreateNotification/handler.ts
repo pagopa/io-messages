@@ -1,3 +1,4 @@
+import { FunctionOutput } from "@azure/functions";
 import { BlockedInboxOrChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/BlockedInboxOrChannel";
 import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/FiscalCode";
 import { HttpsUrl } from "@pagopa/io-functions-commons/dist/generated/definitions/HttpsUrl";
@@ -93,6 +94,8 @@ export const getCreateNotificationHandler = (
   lSandboxFiscalCode: FiscalCode,
   lEmailNotificationServiceBlackList: readonly ServiceId[],
   retrieveProcessingMessageData: DataFetcher<CommonMessageData>,
+  emailOutput: FunctionOutput,
+  webhookOutput: FunctionOutput,
   // eslint-disable-next-line max-params
 ) =>
   // eslint-disable-next-line max-lines-per-function
@@ -113,9 +116,9 @@ export const getCreateNotificationHandler = (
             senderMetadata,
           },
         ) => {
-          const logPrefix = `${context.executionContext.functionName}|MESSAGE_ID=${newMessageWithoutContent.id}`;
+          const logPrefix = `${context.functionName}|MESSAGE_ID=${newMessageWithoutContent.id}`;
 
-          context.log.verbose(`${logPrefix}|STARTING`);
+          context.debug(`${logPrefix}|STARTING`);
 
           //
           // Decide whether to send an email notification
@@ -187,7 +190,7 @@ export const getCreateNotificationHandler = (
               ? maybeNotificationEmailAddress
               : O.none;
 
-          context.log.verbose(
+          context.debug(
             `${logPrefix}|CHANNEL=EMAIL|PROFILE_ENABLED=${isEmailEnabledInProfile}|SERVICE_BLOCKED=${isEmailBlockedForService}|PROFILE_EMAIL=${O.isSome(
               maybeEmailNotificationAddress,
             )}|WILL_NOTIFY=${O.isSome(maybeEmailNotificationAddress)}`,
@@ -219,7 +222,7 @@ export const getCreateNotificationHandler = (
                 })
               : O.none;
 
-          context.log.verbose(
+          context.debug(
             `${logPrefix}|CHANNEL=WEBHOOK|CHANNEL_ENABLED=${isWebhookEnabledInProfile}|SERVICE_BLOCKED=${isWebhookBlockedForService}|WILL_NOTIFY=${O.isSome(
               maybeWebhookNotificationUrl,
             )}`,
@@ -235,7 +238,7 @@ export const getCreateNotificationHandler = (
             O.isNone(maybeWebhookNotificationUrl);
 
           if (noChannelsConfigured) {
-            context.log.warn(`${logPrefix}|RESULT=NO_CHANNELS_ENABLED`);
+            context.warn(`${logPrefix}|RESULT=NO_CHANNELS_ENABLED`);
             // return no notifications
             return;
           }
@@ -268,22 +271,26 @@ export const getCreateNotificationHandler = (
             newNotification,
           );
 
-          context.log.verbose(`${logPrefix}|RESULT=SUCCESS`);
+          context.debug(`${logPrefix}|RESULT=SUCCESS`);
 
           if (O.isSome(maybeEmailNotificationAddress)) {
-            context.bindings.notificationCreatedEmail =
+            context.extraOutputs.set(
+              emailOutput,
               NotificationCreatedEvent.encode({
                 messageId,
                 notificationId: createdNotification.notificationId,
-              });
+              }),
+            );
           }
 
           if (O.isSome(maybeWebhookNotificationUrl)) {
-            context.bindings.notificationCreatedWebhook =
+            context.extraOutputs.set(
+              webhookOutput,
               NotificationCreatedEvent.encode({
                 messageId,
                 notificationId: createdNotification.notificationId,
-              });
+              }),
+            );
           }
         },
       ),

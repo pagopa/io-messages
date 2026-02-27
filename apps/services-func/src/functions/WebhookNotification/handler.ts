@@ -139,14 +139,14 @@ export const getWebhookNotificationHandler = (
         "messageId",
         retrieveProcessingMessageData,
         async (context, { message, notificationId }) => {
-          const logPrefix = `${context.executionContext.functionName}|MESSAGE_ID=${message.id}|NOTIFICATION_ID=${notificationId}`;
+          const logPrefix = `${context.functionName}|MESSAGE_ID=${message.id}|NOTIFICATION_ID=${notificationId}`;
 
           // Check whether the message is expired
           const errorOrActiveMessage = ActiveMessage.decode(message);
 
           if (E.isLeft(errorOrActiveMessage)) {
             // if the message is expired no more processing is necessary
-            context.log.warn(`${logPrefix}|RESULT=TTL_EXPIRED`);
+            context.warn(`${logPrefix}|RESULT=TTL_EXPIRED`);
             return WebhookNotificationResult.encode({
               kind: "SUCCESS",
               result: "EXPIRED",
@@ -162,7 +162,7 @@ export const getWebhookNotificationHandler = (
           if (E.isLeft(errorOrMaybeNotification)) {
             const error = errorOrMaybeNotification.left;
             // we got an error while fetching the notification
-            context.log.warn(`${logPrefix}|ERROR=${error.kind}`);
+            context.warn(`${logPrefix}|ERROR=${error.kind}`);
             throw new Error(
               `Error while fetching the notification: ${error.kind}`,
             );
@@ -173,7 +173,7 @@ export const getWebhookNotificationHandler = (
             // it may happen that the object is not yet visible to this function due to latency
             // as the notification object is retrieved from database and we may be hitting a
             // replica that is not yet in sync - throwing an error will trigger a retry
-            context.log.warn(`${logPrefix}|RESULT=NOTIFICATION_NOT_FOUND`);
+            context.warn(`${logPrefix}|RESULT=NOTIFICATION_NOT_FOUND`);
             throw new Error(`Notification not found`);
           }
 
@@ -184,8 +184,8 @@ export const getWebhookNotificationHandler = (
           if (E.isLeft(errorOrWebhookNotification)) {
             // The notification object is not compatible with this code
             const error = readableReport(errorOrWebhookNotification.left);
-            context.log.error(`${logPrefix}|ERROR`);
-            context.log.verbose(`${logPrefix}|ERROR_DETAILS=${error}`);
+            context.error(`${logPrefix}|ERROR`);
+            context.debug(`${logPrefix}|ERROR_DETAILS=${error}`);
             return WebhookNotificationResult.encode({
               kind: "FAILURE",
               reason: "DECODE_ERROR",
@@ -199,7 +199,7 @@ export const getWebhookNotificationHandler = (
           )();
           if (E.isLeft(sendResult)) {
             const error = sendResult.left;
-            context.log.error(`${logPrefix}|ERROR=${error.message}`);
+            context.error(`${logPrefix}|ERROR=${error.message}`);
             if (isTransientError(error)) {
               throw new Error(`Error while calling webhook: ${error.message}`);
             } else {
