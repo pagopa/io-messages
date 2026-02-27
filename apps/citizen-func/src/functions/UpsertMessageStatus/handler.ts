@@ -1,4 +1,4 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import { Change_typeEnum as ArchivingChangeType } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageStatusArchivingChange";
 import { Change_typeEnum as BulkChangeType } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageStatusBulkChange";
 import { MessageStatusChange } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageStatusChange";
@@ -8,14 +8,11 @@ import {
   MessageStatus,
   MessageStatusModel,
 } from "@pagopa/io-functions-commons/dist/src/models/message_status";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { FiscalCodeMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/fiscalcode";
 import { RequiredBodyPayloadMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_body_payload";
 import { RequiredParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_param";
-import {
-  withRequestMiddlewares,
-  wrapRequestHandler,
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import {
   IResponseErrorQuery,
   ResponseErrorQuery,
@@ -29,7 +26,6 @@ import {
   ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import * as express from "express";
 import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 
@@ -60,7 +56,7 @@ const mapChange = (
  * errors.
  */
 type IUpsertMessageStatusHandler = (
-  context: Context,
+  context: InvocationContext,
   fiscalCode: FiscalCode,
   messageId: NonEmptyString,
   change: MessageStatusChange,
@@ -119,17 +115,15 @@ export const UpsertMessageStatusHandler =
     )();
 
 /**
- * Wraps a GetMessage handler inside an Express request handler.
+ * Wraps a UpsertMessageStatus handler for Azure Functions v4.
  */
-export function UpsertMessageStatus(
-  messageStatusModel: MessageStatusModel,
-): express.RequestHandler {
+export function UpsertMessageStatus(messageStatusModel: MessageStatusModel) {
   const handler = UpsertMessageStatusHandler(messageStatusModel);
-  const middlewaresWrap = withRequestMiddlewares(
+  const middlewares = [
     ContextMiddleware(),
     FiscalCodeMiddleware,
     RequiredParamMiddleware("id", NonEmptyString),
     RequiredBodyPayloadMiddleware(MessageStatusChange),
-  );
-  return wrapRequestHandler(middlewaresWrap(handler));
+  ] as const;
+  return wrapHandlerV4(middlewares, handler);
 }
