@@ -34,7 +34,7 @@ Turbo caches outputs; use `--force` to bust the cache when needed.
 
 ## Architecture
 
-This is a **Yarn workspaces + Turborepo monorepo** hosting multiple Azure Functions apps and a shared package.
+This is a **Yarn(v4 PnP) workspaces + Turborepo monorepo** hosting multiple Azure Functions apps and a shared package.
 
 **`apps/`** — Ten independent Azure Functions applications, each deployable separately:
 
