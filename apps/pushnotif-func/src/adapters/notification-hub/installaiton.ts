@@ -1,10 +1,11 @@
+import { NotificationHubsClient } from "@azure/notification-hubs";
+import { RestError } from "@azure/storage-queue";
+import { z } from "zod";
+
 import { ErrorNotFound, ErrorValidation } from "../../domain/error";
 import { Installation, installationSchema } from "../../domain/installation";
 import { JsonPatch } from "../../domain/json-patch";
 import { InstallationRepository } from "../../domain/push-service";
-import { NotificationHubsClient } from "@azure/notification-hubs";
-import { RestError } from "@azure/storage-queue";
-import { z } from "zod";
 
 export class NotificationHubInstallationAdapter
   implements InstallationRepository
@@ -38,7 +39,7 @@ export class NotificationHubInstallationAdapter
 
   async getInstallation(
     id: string,
-  ): Promise<Installation | ErrorNotFound | Error> {
+  ): Promise<Error | ErrorNotFound | Installation> {
     const nhPartition = this.getPartition(id);
 
     try {
@@ -68,7 +69,7 @@ export class NotificationHubInstallationAdapter
   async updateInstallation(
     id: string,
     patches: JsonPatch[],
-  ): Promise<string | Error> {
+  ): Promise<Error | string> {
     const nhPartition = this.getPartition(id);
 
     try {

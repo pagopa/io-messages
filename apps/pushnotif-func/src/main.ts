@@ -1,5 +1,5 @@
-import { TelemetryClient } from "./adapters/appinsights";
 import { app, output } from "@azure/functions";
+import { NotificationHubsClient } from "@azure/notification-hubs";
 import { QueueClient } from "@azure/storage-queue";
 import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 import {
@@ -25,6 +25,15 @@ import { RetryOptions } from "durable-functions";
 import { pipe } from "fp-ts/lib/function";
 import nodeFetch from "node-fetch";
 
+import { TelemetryClient } from "./adapters/appinsights";
+import {
+  Config,
+  configFromEnvironment,
+  loadConfigFromEnvironment,
+} from "./adapters/config";
+import getUpdateInstallationHandler from "./adapters/functions/update-installation";
+import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
+import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installaiton";
 import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
@@ -52,16 +61,7 @@ import {
 import { initTelemetryClient } from "./utils/appinsights";
 import { getConfigOrThrow } from "./utils/config";
 import { cosmosdbClient, cosmosdbInstance } from "./utils/cosmosdb";
-import {
-  Config,
-  configFromEnvironment,
-  loadConfigFromEnvironment,
-} from "./adapters/config";
 import { NotificationHubPartitionFactory } from "./utils/notificationhub-service-partition";
-import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
-import getUpdateInstallationHandler from "./adapters/functions/update-installation";
-import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installaiton";
-import { NotificationHubsClient } from "@azure/notification-hubs";
 
 // ---------------------------------------------------------------------------
 // Shared configuration and Functions dependencies
@@ -238,8 +238,8 @@ const main = async (config: Config) => {
     new NotificationHubInstallationAdapter(notificationHubClients);
 
   const updateInstallationDispatchQueueOutput = output.storageQueue({
-    queueName: updateInstallationDispatchQueueName,
     connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    queueName: updateInstallationDispatchQueueName,
   });
 
   app.cosmosDB("InstallationUpdateDispatcher", {

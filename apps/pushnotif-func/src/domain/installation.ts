@@ -6,6 +6,7 @@ export const supportedPlatformSchema = z.union([
 ]);
 
 export const installationSummarySchema = z.object({
+  createdAt: z.number(),
   id: z.hash("sha256"), // The installationId
   // The partition of the Notification hub where the installation is stored.
   nhPartition: z.union([
@@ -14,7 +15,6 @@ export const installationSummarySchema = z.object({
     z.literal("3"),
     z.literal("4"),
   ]),
-  createdAt: z.number(),
   platform: supportedPlatformSchema,
   updatedAt: z.number(),
 });

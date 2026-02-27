@@ -3,6 +3,6 @@ import { Installation } from "./installation";
 import { JsonPatch } from "./json-patch";
 
 export interface InstallationRepository {
-  getInstallation(id: string): Promise<Installation | ErrorNotFound | Error>;
-  updateInstallation(id: string, patches: JsonPatch[]): Promise<string | Error>;
+  getInstallation(id: string): Promise<Error | ErrorNotFound | Installation>;
+  updateInstallation(id: string, patches: JsonPatch[]): Promise<Error | string>;
 }

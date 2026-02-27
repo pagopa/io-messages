@@ -1,4 +1,3 @@
-import { installationSummarySchema } from "../../domain/installation";
 import { TelemetryService } from "@/domain/telemetry";
 import {
   CosmosDBHandler,
@@ -6,7 +5,12 @@ import {
   StorageQueueOutput,
 } from "@azure/functions";
 
-type UpdateInstallationMessage = { installationId: string; platform: string };
+import { installationSummarySchema } from "../../domain/installation";
+
+interface UpdateInstallationMessage {
+  installationId: string;
+  platform: string;
+}
 
 /**
  * Factory that creates a CosmosDBHandler to process Installation Summary changes.
@@ -29,8 +33,8 @@ const getInstallationUpdateDispatcher =
 
       if (!parsedResult.success) {
         telemetryService.trackEvent("installation.summary.validation.error", {
-          message: "Invalid installation summary",
           invalidDocument: document,
+          message: "Invalid installation summary",
           validationError: parsedResult.error.issues,
         });
         continue;

@@ -1,10 +1,11 @@
-import z from "zod";
-import { TelemetryService } from "../../domain/telemetry";
 import { StorageQueueHandler } from "@azure/functions";
-import { InstallationRepository } from "../../domain/push-service";
+import z from "zod";
+
 import { ErrorNotFound } from "../../domain/error";
-import { JsonPatch } from "../../domain/json-patch";
 import { supportedPlatformSchema } from "../../domain/installation";
+import { JsonPatch } from "../../domain/json-patch";
+import { InstallationRepository } from "../../domain/push-service";
+import { TelemetryService } from "../../domain/telemetry";
 
 const apnsNewTemplate =
   '{"aps": {"alert": {"title": "$(title)", "body": "$(message)"}}, "custom": "$(custom)", "message_id": "$(message_id)"}';
@@ -29,8 +30,8 @@ const getUpdateInstallationHandler =
       telemetryService.trackEvent(
         "installation.update.message.validation.error",
         {
-          message: "Invalid updateInstallationMessage in the queue",
           invalidDocument: queueMessage,
+          message: "Invalid updateInstallationMessage in the queue",
           validationError: parsedResult.error.issues,
         },
       );
@@ -54,7 +55,7 @@ const getUpdateInstallationHandler =
         op: "add",
         path: "/templates/massive/body",
         value:
-          parsedResult.data.platform == "Apns"
+          parsedResult.data.platform === "Apns"
             ? apnsNewTemplate
             : fcmv1NewTemplate,
       },

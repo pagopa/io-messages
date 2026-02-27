@@ -1,7 +1,7 @@
 // TODO: move this file to io-messages-common
 export class ErrorNotFound extends Error {
-  code = "404";
   cause: unknown;
+  code = "404";
 
   constructor(name: string, cause: unknown = "") {
     super(name);
@@ -10,8 +10,8 @@ export class ErrorNotFound extends Error {
 }
 
 export class ErrorValidation extends Error {
-  code = "400";
   cause: unknown;
+  code = "400";
 
   constructor(name: string, cause: unknown = "") {
     super(name);
