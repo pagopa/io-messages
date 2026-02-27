@@ -102,6 +102,8 @@ yarn workspace <workspace-name> add <package>
 yarn workspace <workspace-name> add -D <package>
 ```
 
+**Linting operations** on `apps` or `package` edit always perform a lint on modified workspaces.
+
 **Pre-commit hooks** run linting and formatting via by running `pre-commit run -a`, configuration file is `.pre-commit-config.yaml`.
 
 **Git operations** avoid executing `git add`, `git commit`, or `git push` in scripts to prevent side effects. Instead, scripts should output necessary changes and let developers review and stage them manually.
