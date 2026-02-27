@@ -58,7 +58,10 @@ import {
   loadConfigFromEnvironment,
 } from "./adapters/config";
 import { NotificationHubPartitionFactory } from "./utils/notificationhub-service-partition";
-import getInstallationUpdateDispatcher from "./adapters/functions/update-installations";
+import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
+import getUpdateInstallationHandler from "./adapters/functions/update-installation";
+import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installaiton";
+import { NotificationHubsClient } from "@azure/notification-hubs";
 
 // ---------------------------------------------------------------------------
 // Shared configuration and Functions dependencies
@@ -207,9 +210,35 @@ app.http("Notify", {
 
 const main = async (config: Config) => {
   const telemetryService = new TelemetryClient(telemetryClient);
+  const updateInstallationDispatchQueueName = "update-installations-dispatch";
+
+  const notificationHubClients = [
+    new NotificationHubsClient(
+      config.notificationHub.partition1.connectionString,
+      config.notificationHub.partition1.name,
+    ),
+
+    new NotificationHubsClient(
+      config.notificationHub.partition2.connectionString,
+      config.notificationHub.partition2.name,
+    ),
+
+    new NotificationHubsClient(
+      config.notificationHub.partition3.connectionString,
+      config.notificationHub.partition3.name,
+    ),
+
+    new NotificationHubsClient(
+      config.notificationHub.partition4.connectionString,
+      config.notificationHub.partition4.name,
+    ),
+  ];
+
+  const notifiationHubInstallationAdapter =
+    new NotificationHubInstallationAdapter(notificationHubClients);
 
   const updateInstallationDispatchQueueOutput = output.storageQueue({
-    queueName: "update-installations-dispatch",
+    queueName: updateInstallationDispatchQueueName,
     connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
   });
 
@@ -237,6 +266,15 @@ const main = async (config: Config) => {
       },
       strategy: "exponentialBackoff",
     },
+  });
+
+  app.storageQueue("UpdateInstallation", {
+    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    handler: getUpdateInstallationHandler(
+      telemetryService,
+      notifiationHubInstallationAdapter,
+    ),
+    queueName: updateInstallationDispatchQueueName,
   });
 };
 

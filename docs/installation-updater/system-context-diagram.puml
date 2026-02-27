@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Context>
+
+LAYOUT_WITH_LEGEND()
+
+title System Context Diagram - Installation Management System
+
+Person(user, "IO User")
+
+System_Boundary(c1, "Installation Management System") {
+  System(pushnotif_func, "pushnotif-func", "Handles CRUD requests and persists state.")
+}
+
+System_Ext(notification_hub, "Azure Notification Hub", "Stores device installation data for push notifications.")
+System_Ext(cosmos_db, "installations", "NoSQL storage for querying and auditing installations.")
+
+Rel(user, pushnotif_func, "Sends CRUD requests", "Create/Update/Delete")
+Rel(pushnotif_func, notification_hub, "Create/Update/Delete installations")
+Rel(pushnotif_func, cosmos_db, "Create/Update/Delete installations")
+
+Rel(cosmos_db, pushnotif_func, "Triggers on change", "Cosmos DB Change Feed")
+Rel(pushnotif_func, notification_hub, "Performs secondary update/sync")
+
+@enduml

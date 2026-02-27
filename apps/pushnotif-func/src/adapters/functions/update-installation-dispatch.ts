@@ -1,4 +1,4 @@
-import { installationSummarySchema } from "../../domain/installation-summary";
+import { installationSummarySchema } from "../../domain/installation";
 import { TelemetryService } from "@/domain/telemetry";
 import {
   CosmosDBHandler,
@@ -6,7 +6,7 @@ import {
   StorageQueueOutput,
 } from "@azure/functions";
 
-type UpdateInstallationMessage = { installationId: string };
+type UpdateInstallationMessage = { installationId: string; platform: string };
 
 /**
  * Factory that creates a CosmosDBHandler to process Installation Summary changes.
@@ -41,7 +41,10 @@ const getInstallationUpdateDispatcher =
         continue;
       }
 
-      messagesToSend.push({ installationId: parsedResult.data.id });
+      messagesToSend.push({
+        installationId: parsedResult.data.id,
+        platform: parsedResult.data.platform,
+      });
     }
 
     context.extraOutputs.set(queueOutput, messagesToSend);

@@ -1,17 +1,18 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import { RetrievedRCConfiguration } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
 import {
   UserRCConfiguration,
   UserRCConfigurationModel,
 } from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
 import { errorsToReadableMessages } from "@pagopa/ts-commons/lib/reporters";
-import { TelemetryClient } from "applicationinsights";
 import * as E from "fp-ts/lib/Either";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 
+import { TelemetryClient } from "../../utils/appinsights";
+
 const logErrorAndThrow = (
-  context: Context,
+  context: InvocationContext,
   telemetryClient: TelemetryClient,
   error: Error,
 ): void => {
@@ -24,7 +25,7 @@ const logErrorAndThrow = (
     },
     tagOverrides: { samplingEnabled: "false" },
   });
-  context.log.error(error.message);
+  context.error(error.message);
   throw error;
 };
 
@@ -40,7 +41,7 @@ const logErrorAndThrow = (
  * @param startTimeFilter
  */
 const processRecords = async (
-  context: Context,
+  context: InvocationContext,
   userRCConfigurationModel: UserRCConfigurationModel,
   telemetryClient: TelemetryClient,
   documents: readonly unknown[],
@@ -103,7 +104,7 @@ const processRecords = async (
 
 export const handleRemoteContentMessageConfigurationChange =
   (
-    context: Context,
+    context: InvocationContext,
     userRCConfigurationModel: UserRCConfigurationModel,
     telemetryClient: TelemetryClient,
     startTimeFilter: number,

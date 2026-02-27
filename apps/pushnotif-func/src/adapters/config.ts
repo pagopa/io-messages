@@ -1,4 +1,5 @@
 import z, { ZodError } from "zod";
+import { notificationHubConfigSchema } from "./notification-hub/config";
 
 export const applicationInsightsSchema = z.object({
   connectionString: z.string().min(1),
@@ -49,6 +50,18 @@ const envSchema = z.object({
     .string()
     .transform((val) => Number(val))
     .pipe(z.number().int().positive()),
+
+  NH1_ENDPOINT: z.string().min(1),
+  NH1_NAME: z.string().min(1),
+
+  NH2_ENDPOINT: z.string().min(1),
+  NH2_NAME: z.string().min(1),
+
+  NH3_ENDPOINT: z.string().min(1),
+  NH3_NAME: z.string().min(1),
+
+  NH4_ENDPOINT: z.string().min(1),
+  NH4_NAME: z.string().min(1),
 });
 
 export type Env = z.TypeOf<typeof envSchema>;
@@ -60,6 +73,7 @@ export const configSchema = z.object({
   installationSummariesLeaseContainerPrefix: z.string().min(1),
   notificationStorageConnectionString: z.string().min(1),
   updateAllInstallationsTimeToReach: z.int().positive(),
+  notificationHub: notificationHubConfigSchema,
 });
 
 export type Config = z.TypeOf<typeof configSchema>;
@@ -72,8 +86,32 @@ const mapEnvironmentVariablesToConfig = (env: Env): Config => {
       env.INSTALLATION_SUMMARIES_CONTAINER_NAME,
     installationSummariesLeaseContainerPrefix:
       env.INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX,
+
     notificationStorageConnectionString:
       env.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
+
+    notificationHub: {
+      partition1: {
+        connectionString: env.NH1_ENDPOINT,
+        name: env.NH1_NAME,
+      },
+
+      partition2: {
+        connectionString: env.NH2_ENDPOINT,
+        name: env.NH2_NAME,
+      },
+
+      partition3: {
+        connectionString: env.NH3_ENDPOINT,
+        name: env.NH3_NAME,
+      },
+
+      partition4: {
+        connectionString: env.NH4_ENDPOINT,
+        name: env.NH4_NAME,
+      },
+    },
+
     updateAllInstallationsTimeToReach:
       env.UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH,
   };
