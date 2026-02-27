@@ -55,7 +55,7 @@ const getUpdateInstallationHandler =
         op: "add",
         path: "/templates/massive/body",
         value:
-          parsedResult.data.platform === "Apns"
+          parsedResult.data.platform === "apns"
             ? apnsNewTemplate
             : fcmv1NewTemplate,
       },

@@ -2,8 +2,7 @@ import { NotificationHubsClient } from "@azure/notification-hubs";
 import { RestError } from "@azure/storage-queue";
 import { z } from "zod";
 
-import { ErrorNotFound, ErrorValidation } from "../../domain/error";
-import { Installation, installationSchema } from "../../domain/installation";
+import { ErrorNotFound } from "../../domain/error";
 import { JsonPatch } from "../../domain/json-patch";
 import { InstallationRepository } from "../../domain/push-service";
 
@@ -34,35 +33,6 @@ export class NotificationHubInstallationAdapter
         throw new Error(
           `Unexpected character [${firstChar}] in installationId: ${installationId}`,
         );
-    }
-  }
-
-  async getInstallation(
-    id: string,
-  ): Promise<Error | ErrorNotFound | Installation> {
-    const nhPartition = this.getPartition(id);
-
-    try {
-      const installation = await nhPartition.getInstallation(id);
-
-      return installationSchema.parse(installation);
-    } catch (err) {
-      if (err instanceof RestError) {
-        switch (err.statusCode) {
-          case 404:
-            return new ErrorNotFound(`Installation not found`, err);
-          default:
-            return new Error(`Unhandled error from notification hub: ${err}`);
-        }
-      }
-
-      if (err instanceof z.ZodError) {
-        return new ErrorValidation(
-          `Error parsing the installation from notification hub: ${err}`,
-        );
-      }
-
-      return new Error(`Error from notification hub: ${err}`);
     }
   }
 
