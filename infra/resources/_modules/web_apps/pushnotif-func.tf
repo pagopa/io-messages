@@ -94,6 +94,9 @@ locals {
       # Change this value when need to update the installations
       UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH = 0
 
+      # Disabled by default, enabled when needed.
+      "AzureWebJobs.InstallationUpdateDispatcher.Disabled" = "1",
+      "AzureWebJobs.UpdateInstallation.Disabled"           = "1",
 
       AzureFunctionsJobHost__extensions__durableTask__storageProvider__partitionCount = "8"
     }
