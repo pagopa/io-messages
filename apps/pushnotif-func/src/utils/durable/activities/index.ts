@@ -1,4 +1,4 @@
-import { InvocationContext } from "@azure/functions";
+import { InvocationContext, RetryContext } from "@azure/functions";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
@@ -21,6 +21,7 @@ export type ActivityBody<
 > = (p: {
   readonly input: Input;
   readonly logger: ActivityLogger;
+  readonly retryContext?: RetryContext;
 }) => TE.TaskEither<Failure, Success>;
 
 // All activity will return ActivityResultFailure, ActivityResultSuccess or some derived types
@@ -67,7 +68,9 @@ export const createActivity =
             readableReport(err),
           ) as F,
       ),
-      TE.chain((input) => body({ input, logger })),
+      TE.chain((input) =>
+        body({ input, logger, retryContext: context.retryContext }),
+      ),
       TE.map((e) => OutputCodec.encode(e)),
       TE.toUnion,
     )();

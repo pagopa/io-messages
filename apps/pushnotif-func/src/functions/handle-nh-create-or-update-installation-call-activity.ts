@@ -4,6 +4,7 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
+import { InstallationRepository } from "../domain/mirror-service";
 import { InstallationId } from "../generated/notifications/InstallationId";
 import { Platform, PlatformEnum } from "../generated/notifications/Platform";
 import { toString } from "../utils/conversions";
@@ -43,10 +44,32 @@ export const getActivityBody =
   (
     nhPartitionFactory: NotificationHubPartitionFactory,
     telemetryClient: TelemetryClient,
+    installationRepository: InstallationRepository,
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBodyImpl =>
-  ({ input, logger }) => {
+  ({ input, logger, retryContext }) => {
     logger.info(`INSTALLATION_ID=${input.installationId}`);
+
+    // Mirror create/update to cosmos, in case of error, retry activity until max retry count is reached, then log the error and proceed with NH call
+    try {
+      installationRepository.createOrUpdateInstallation({
+        installationId: input.installationId,
+        platform: getPlatformFromPlatformEnum(input.platform),
+      });
+    } catch (error) {
+      if (
+        !retryContext?.retryCount ||
+        retryContext.retryCount < retryContext.maxRetryCount
+      ) {
+        throw error; // trigger activity retry
+      } else if (error instanceof Error) {
+        telemetryClient.trackException({
+          exception: error,
+          properties: { installationId: input.installationId },
+        });
+      }
+    }
+
     return pipe(
       createOrUpdateInstallation(
         nhPartitionFactory.getPartition(input.installationId),
@@ -97,11 +120,16 @@ export const getCallableActivity = (
 export const getActivityHandler = (
   nhPartitionFactory: NotificationHubPartitionFactory,
   telemetryClient: TelemetryClient,
+  installationRepository: InstallationRepository,
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 ) =>
   createActivity(
     ActivityName,
     ActivityInput,
     ActivityResultSuccess,
-    getActivityBody(nhPartitionFactory, telemetryClient),
+    getActivityBody(
+      nhPartitionFactory,
+      telemetryClient,
+      installationRepository,
+    ),
   );

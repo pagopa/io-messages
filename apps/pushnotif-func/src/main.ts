@@ -31,6 +31,7 @@ import {
   configFromEnvironment,
   loadConfigFromEnvironment,
 } from "./adapters/config";
+import { CosmosInstallationAdapter } from "./adapters/cosmos/installation";
 import getUpdateInstallationHandler from "./adapters/functions/update-installation";
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
@@ -85,6 +86,11 @@ const nhPartitionFactory = new NotificationHubPartitionFactory(
   config.AZURE_NOTIFICATION_HUB_PARTITIONS,
 );
 
+const cosmosInstallationAdapter = new CosmosInstallationAdapter(
+  cosmosdbInstance,
+  config.INSTALLATION_SUMMARIES_CONTAINER_NAME,
+);
+
 const retryOptions = new RetryOptions(5000, config.RETRY_ATTEMPT_NUMBER);
 retryOptions.backoffCoefficient = 1.5;
 
@@ -129,11 +135,16 @@ df.app.activity(CreateOrUpdateActivityName, {
   handler: getCreateOrUpdateActivityHandler(
     nhPartitionFactory,
     telemetryClient,
+    cosmosInstallationAdapter,
   ),
 });
 
 df.app.activity(DeleteActivityName, {
-  handler: getDeleteActivityHandler(nhPartitionFactory, telemetryClient),
+  handler: getDeleteActivityHandler(
+    nhPartitionFactory,
+    telemetryClient,
+    cosmosInstallationAdapter,
+  ),
 });
 
 // ---------------------------------------------------------------------------

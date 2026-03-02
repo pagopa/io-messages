@@ -5,6 +5,7 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
+import { InstallationRepository } from "../domain/mirror-service";
 import { toString } from "../utils/conversions";
 import {
   ActivityBody,
@@ -35,11 +36,29 @@ export const getActivityBody =
   (
     nhPartitionFactory: NotificationHubPartitionFactory,
     telemetryClient: TelemetryClient,
+    installationRepository: InstallationRepository,
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBody<ActivityInput, ActivityResultSuccess> =>
-  ({ input, logger }) => {
+  ({ input, logger, retryContext }) => {
     logger.info(`INSTALLATION_ID=${input.installationId}`);
     const nhClient = nhPartitionFactory.getPartition(input.installationId);
+
+    // Mirror delete to cosmos, in case of error, retry activity until max retry count is reached, then log the error and proceed with NH call
+    try {
+      installationRepository.deleteInstallation(input.installationId);
+    } catch (error) {
+      if (
+        !retryContext?.retryCount ||
+        retryContext.retryCount < retryContext.maxRetryCount
+      ) {
+        throw error; // trigger activity retry
+      } else if (error instanceof Error) {
+        telemetryClient.trackException({
+          exception: error,
+          properties: { installationId: input.installationId },
+        });
+      }
+    }
 
     return pipe(
       deleteInstallation(nhClient, input.installationId),
@@ -83,11 +102,16 @@ export const getCallableActivity = (
 export const getActivityHandler = (
   nhPartitionFactory: NotificationHubPartitionFactory,
   telemetryClient: TelemetryClient,
+  installationRepository: InstallationRepository,
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 ) =>
   createActivity<ActivityInput>(
     ActivityName,
     ActivityInput,
     ActivityResultSuccess,
-    getActivityBody(nhPartitionFactory, telemetryClient),
+    getActivityBody(
+      nhPartitionFactory,
+      telemetryClient,
+      installationRepository,
+    ),
   );
