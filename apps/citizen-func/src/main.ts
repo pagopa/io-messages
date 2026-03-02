@@ -80,7 +80,7 @@ const rcConfigurationUtility = new RCConfigurationUtility(
   config.SERVICE_TO_RC_CONFIGURATION_MAP,
 );
 
-const categoryFecther = getThirdPartyDataWithCategoryFetcher(config);
+const categoryFetcher = getThirdPartyDataWithCategoryFetcher(config);
 
 const getMessagesFunctionSelector = createGetMessagesFunctionSelection(
   config.USE_FALLBACK,
@@ -92,9 +92,9 @@ const getMessagesFunctionSelector = createGetMessagesFunctionSelection(
     messageStatusExtendedModel,
     blobService,
     rcConfigurationUtility,
-    categoryFecther,
+    categoryFetcher,
   ],
-  [messageViewModel, rcConfigurationUtility, categoryFecther],
+  [messageViewModel, rcConfigurationUtility, categoryFetcher],
 );
 
 app.http("Info", {
@@ -114,7 +114,7 @@ app.http("GetMessage", {
     redisClientFactory,
     config.SERVICE_CACHE_TTL_DURATION,
     config.SERVICE_TO_RC_CONFIGURATION_MAP,
-    categoryFecther,
+    categoryFetcher,
   ),
   methods: ["GET"],
   route: "v1/messages/{fiscalcode}/{id}",
