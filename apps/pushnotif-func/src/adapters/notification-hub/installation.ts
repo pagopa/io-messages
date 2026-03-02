@@ -9,8 +9,8 @@ import { InstallationRepository } from "../../domain/push-service";
 export class NotificationHubInstallationAdapter
   implements InstallationRepository
 {
-  nhClientPartitions: NotificationHubsClient[];
   #nhPartitionRegexes: RegExp[];
+  nhClientPartitions: NotificationHubsClient[];
 
   constructor(
     nhClientPartitions: NotificationHubsClient[],
