@@ -1,4 +1,4 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import {
   RetrievedUserRCConfiguration,
   UserRCConfigurationModel,
@@ -16,10 +16,8 @@ import { handleRemoteContentMessageConfigurationChange } from "../handler";
 
 const mockLoggerError = vi.fn();
 const contextMock = {
-  log: {
-    error: mockLoggerError,
-  },
-} as unknown as Context;
+  error: mockLoggerError,
+} as unknown as InvocationContext;
 
 const mockTrackEvent = vi.fn();
 const telemetryClientMock = {

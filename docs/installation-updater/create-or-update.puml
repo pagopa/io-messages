@@ -1,0 +1,73 @@
+@startuml
+
+title Create/Update installation
+
+actor "IO user" as iou
+participant "IO Backend" as be
+
+queue "push-notifications" as pnq
+
+box "pushnotif-func"
+  participant "CreateOrUpdateInstallation" as pn
+end box
+
+database "installations" as ic
+
+participant "Notification Hub" as nh
+
+participant "app-insights" as ai
+
+iou -> be : Create/Update Installation
+activate iou
+activate be
+
+be --> pnq : Push the Create/Update message to the queue
+
+be -[#green]> iou
+
+deactivate be
+deactivate iou
+
+note right of pnq
+  **CreateOrUpdateInstallationMessage**
+  {
+    "installationId": "foo",
+    "kind": "CreateOrUpdateInstallation",
+    "platform": "fcmv1",
+    "pushChannel": "bar",
+    "tags": ["foo"]
+  }
+end note
+pn -> pnq : Read a CreateOrUpdateInstallation message
+activate pn
+
+pn -> ic : Create/Update the document\nrepresenting the installation
+activate ic
+
+alt "Error from cosmos"
+  ic -[#red]> pn : 5xx from cosmos
+  alt "Was last retry"
+    pn --> ai : Track an event
+  end
+  pn -[#red]>X pnq: Throw an error
+else "Success from cosmos"
+    ic -[#green]> pn
+    deactivate ic
+end
+
+pn -> nh : Create/Update the installation
+activate nh
+alt "Error from notification hub"
+  nh -[#red]> pn : Error
+  alt "Was last retry"
+    pn --> ai : Track an event
+  end
+  pn -[#red]>X pnq: Throw an error
+else "Success from notification hub"
+  nh -[#green]> pn : 201
+  deactivate nh
+end
+
+deactivate pn
+
+@enduml

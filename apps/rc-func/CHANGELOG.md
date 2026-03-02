@@ -1,5 +1,23 @@
 ### Changelog
 
+## 2.0.2
+
+### Patch Changes
+
+- f4f6333: move required dependency from devDependencies
+
+## 2.0.1
+
+### Patch Changes
+
+- de3bf84: remove unused dependency
+
+## 2.0.0
+
+### Major Changes
+
+- 7fb1c74: Migrate programming model from v3 to v4
+
 ## 1.11.9
 
 ### Patch Changes

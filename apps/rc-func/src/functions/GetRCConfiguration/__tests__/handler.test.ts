@@ -21,7 +21,7 @@ import { IConfig } from "../../../utils/config";
 import * as redis_storage from "../../../utils/redis_storage";
 import {
   RC_CONFIGURATION_REDIS_PREFIX,
-  getRCConfigurationHandler,
+  RCConfigurationHandler,
   handleEmptyErrorResponse,
 } from "../handler";
 
@@ -57,14 +57,14 @@ describe("handleEmptyErrorResponse", () => {
 });
 
 /* eslint-disable max-lines-per-function */
-describe("getRCConfigurationHandler", () => {
+describe("RCConfigurationHandler", () => {
   test("should return an IResponseSuccessJson calling the model if redis does not return a valid configuration and the userId match", async () => {
     getTaskMock.mockReturnValueOnce(TE.right(O.none));
     findByConfigurationIdMock.mockReturnValueOnce(
       TE.right(O.some(aRemoteContentConfiguration)),
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
-    const r = await getRCConfigurationHandler({
+    const r = await RCConfigurationHandler({
       config: aConfig,
       rccModel: rccModelMock,
       redisClient: redisClientMock,
@@ -89,7 +89,7 @@ describe("getRCConfigurationHandler", () => {
     getTaskMock.mockReturnValueOnce(
       TE.right(O.some(JSON.stringify(aRetrievedRCConfiguration))),
     );
-    const r = await getRCConfigurationHandler({
+    const r = await RCConfigurationHandler({
       config: aConfig,
       rccModel: rccModelMock,
       redisClient: redisClientMock,
@@ -111,7 +111,7 @@ describe("getRCConfigurationHandler", () => {
       TE.right(O.some(aRemoteContentConfiguration)),
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
-    const r = await getRCConfigurationHandler({
+    const r = await RCConfigurationHandler({
       config: aConfig,
       rccModel: rccModelMock,
       redisClient: redisClientMock,
@@ -138,7 +138,7 @@ describe("getRCConfigurationHandler", () => {
       TE.right(O.some(aRemoteContentConfiguration)),
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
-    const r = await getRCConfigurationHandler({
+    const r = await RCConfigurationHandler({
       config: aConfig,
       rccModel: rccModelMock,
       redisClient: redisClientMock,
@@ -162,7 +162,7 @@ describe("getRCConfigurationHandler", () => {
   test("should return an IResponseErrorNotFound if the model return an empty Option", async () => {
     getTaskMock.mockReturnValueOnce(TE.right(O.none));
     findByConfigurationIdMock.mockReturnValueOnce(TE.right(O.none));
-    const r = await getRCConfigurationHandler({
+    const r = await RCConfigurationHandler({
       config: aConfig,
       rccModel: rccModelMock,
       redisClient: redisClientMock,
@@ -184,7 +184,7 @@ describe("getRCConfigurationHandler", () => {
   test("should return an IResponseErrorInternal if cosmos return an error", async () => {
     getTaskMock.mockReturnValueOnce(TE.right(O.none));
     findByConfigurationIdMock.mockReturnValueOnce(TE.left(O.none));
-    const r = await getRCConfigurationHandler({
+    const r = await RCConfigurationHandler({
       config: aConfig,
       rccModel: rccModelMock,
       redisClient: redisClientMock,
@@ -204,7 +204,7 @@ describe("getRCConfigurationHandler", () => {
   });
 
   test("should return an IResponseErrorForbiddenNotAuthorized if subscription is not manage", async () => {
-    const r = await getRCConfigurationHandler({
+    const r = await RCConfigurationHandler({
       config: aConfig,
       rccModel: rccModelMock,
       redisClient: redisClientMock,
@@ -221,7 +221,7 @@ describe("getRCConfigurationHandler", () => {
   });
 
   test("should return an IResponseErrorForbiddenNotAuthorized if group is not allowed", async () => {
-    const r = await getRCConfigurationHandler({
+    const r = await RCConfigurationHandler({
       config: aConfig,
       rccModel: rccModelMock,
       redisClient: redisClientMock,
@@ -243,7 +243,7 @@ describe("getRCConfigurationHandler", () => {
       TE.right(O.some(aRemoteContentConfiguration)),
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
-    const r = await getRCConfigurationHandler({
+    const r = await RCConfigurationHandler({
       config: aConfig,
       rccModel: rccModelMock,
       redisClient: redisClientMock,
@@ -270,7 +270,7 @@ describe("getRCConfigurationHandler", () => {
       TE.right(O.some(aRemoteContentConfiguration)),
     );
     setWithExpirationTaskMock.mockReturnValueOnce(TE.right(true));
-    const r = await getRCConfigurationHandler({
+    const r = await RCConfigurationHandler({
       config: aConfig,
       rccModel: rccModelMock,
       redisClient: redisClientMock,

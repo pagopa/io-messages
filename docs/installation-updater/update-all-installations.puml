@@ -1,0 +1,110 @@
+@startuml
+
+title Update all installations
+
+database "installations" as ic
+
+box "pushnotif-func"
+  participant "UpdateAllInstallations" as uai
+  participant "UpdateInstallation" as ui
+end box
+
+participant "app-insights" as ai
+
+queue "update-installation-ims" as uiq
+queue "update-installation-ims-poison" as uiqp
+
+participant "Notification Hub" as nh
+
+uai -> ic : Read document batch\n(change feed trigger)
+activate uai
+
+loop for each document
+  uai -> uai : Parse document to Installation
+  alt Invalid document
+    uai --> ai : Track an event
+  end
+  alt Timestamp passed
+    note right of uai
+      The function's environment variables include
+      a timestamp beyond which updates to installations
+      are no longer required.
+      Here, we perform a check that prevents pushing to
+      the queue if the update is no longer necessary.
+
+      In this case we just end the execution.
+    end note
+  else Installation needs update
+    note right of uai
+      **UpdateInstallationMessage**
+      {
+        "installationId": "foo",
+      }
+    end note
+    uai -> uiq : Push message to the queue
+  end
+end
+
+deactivate uai
+
+note right of ui
+  **UpdateInstallationMessage**
+  {
+    "installationId": "foo",
+  }
+end note
+ui -> uiq : Read single message
+activate ui
+
+ui -> ui : Parse message to Installation
+alt Invalid message
+  ui --> ai : Track an event
+end
+
+ui -> nh : Get current instalation
+activate nh
+
+alt Error from Notification Hub
+  note right of ui
+    Transient error
+  end note
+  nh -[#red]x ui : Error
+  alt Was last retry
+    ui -> uiqp: Push to the poison
+  end
+  ui -[#red]x ui : Throw an error
+else 404 from Notification Hub
+  nh -[#red]> ui : 404
+  note right of ui
+    In this case we know that the installation
+    has been deleted so we skip this update.
+  end note
+else Success from Notification Hub
+  nh -[#green]> ui : Return the current installation
+end
+deactivate nh
+
+note right of ui
+  The function's environment variables include
+  a JSON representing the new structure of the installation.
+end note
+ui -> nh : Update the installation using the new structure
+activate nh
+
+alt Error from Notification Hub
+  note right of ui
+    Transient error
+  end note
+  nh -[#red]x ui : Error
+  alt Was last retry
+    ui -> uiqp: Push to the poison
+  end
+  ui -[#red]x ui : Throw an error
+else Success from Notification Hub
+  nh -[#green]> ui : 201
+end
+deactivate nh
+
+deactivate ui
+
+@enduml
