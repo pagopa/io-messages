@@ -86,7 +86,7 @@ locals {
 
       COSMOSDB_NAME               = "db"
       COSMOSDB_URI                = var.cosmosdb_account_api.endpoint
-      COM_COSMOS__accountEndpoint = var.cosmosdb_account_api.endpoint
+      COM_COSMOS__accountEndpoint = var.io_com_cosmos.endpoint
 
       PUSH_DATABASE_NAME                            = "push-notifications"
       INSTALLATION_SUMMARIES_CONTAINER_NAME         = "installation-summaries",
