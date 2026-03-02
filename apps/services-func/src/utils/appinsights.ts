@@ -1,8 +1,8 @@
 import { initAppInsights } from "@pagopa/ts-commons/lib/appinsights";
 import * as ai from "applicationinsights";
+import { env } from "process";
 
 import { IConfig } from "./config";
-import { env } from "process";
 
 // Avoid to initialize Application Insights more than once
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
