@@ -84,8 +84,16 @@ locals {
       SESSION_MANAGER_API_KEY  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=session-manager-api-key)",
       SESSION_MANAGER_BASE_URL = var.session_manager_base_url,
 
-      COSMOSDB_NAME = "db"
-      COSMOSDB_URI  = var.cosmosdb_account_api.endpoint
+      COSMOSDB_NAME               = "db"
+      COSMOSDB_URI                = var.cosmosdb_account_api.endpoint
+      COM_COSMOS__accountEndpoint = var.cosmosdb_account_api.endpoint
+
+      PUSH_DATABASE_NAME                            = "push-notifications"
+      INSTALLATION_SUMMARIES_CONTAINER_NAME         = "installation-summaries",
+      INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX = "0-",
+      # Change this value when need to update the installations
+      UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH = 0
+
 
       AzureFunctionsJobHost__extensions__durableTask__storageProvider__partitionCount = "8"
     }
@@ -233,5 +241,3 @@ resource "azurerm_cosmosdb_sql_role_assignment" "pushnotif_cosmosdb_account_api"
   role_definition_id  = "${var.cosmosdb_account_api.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = each.value
 }
-
-
