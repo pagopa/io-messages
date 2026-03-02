@@ -136,7 +136,7 @@ app.http("UpsertMessageStatus", {
   authLevel: "function",
   handler: UpsertMessageStatus(messageStatusModel),
   methods: ["PUT"],
-  route: "v1/messages/{fiscal_code}/{id}/message-status",
+  route: "v1/messages/{fiscalcode}/{id}/message-status",
 });
 
 app.http("GetRCConfiguration", {
