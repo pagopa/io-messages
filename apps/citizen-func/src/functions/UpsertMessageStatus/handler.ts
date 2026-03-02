@@ -49,10 +49,10 @@ const mapChange = (
 };
 
 /**
- * Type of a GetMessage handler.
+ * Type of a UpsertMessageStatus handler.
  *
- * GetMessage expects a FiscalCode and a Message ID as input
- * and returns a Message as output or a Not Found or Validation
+ * UpsertMessageStatus expects a FiscalCode and a Message ID as input
+ * and returns a MessageStatus as output or a Not Found or Validation
  * errors.
  */
 type IUpsertMessageStatusHandler = (
@@ -68,7 +68,7 @@ type IUpsertMessageStatusHandler = (
 >;
 
 /**
- * Handles requests for getting a single message for a recipient.
+ * Handles requests for upserting a message status for a recipient.
  */
 export const UpsertMessageStatusHandler =
   (messageStatusModel: MessageStatusModel): IUpsertMessageStatusHandler =>
@@ -115,7 +115,7 @@ export const UpsertMessageStatusHandler =
     )();
 
 /**
- * Wraps a UpsertMessageStatus handler for Azure Functions v4.
+ * Wraps an UpsertMessageStatus handler for Azure Functions v4.
  */
 export function UpsertMessageStatus(messageStatusModel: MessageStatusModel) {
   const handler = UpsertMessageStatusHandler(messageStatusModel);
