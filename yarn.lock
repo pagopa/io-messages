@@ -2901,27 +2901,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagopa/ts-commons@npm:^12.5.0":
-  version: 12.6.0
-  resolution: "@pagopa/ts-commons@npm:12.6.0"
-  dependencies:
-    abort-controller: "npm:^3.0.0"
-    agentkeepalive: "npm:^4.1.4"
-    applicationinsights: "npm:^1.8.10"
-    jose: "npm:^4.15.5"
-    json-set-map: "npm:^1.1.2"
-    jsonwebtoken: "npm:^9.0.1"
-    node-fetch: "npm:^2.6.0"
-    semver: "npm:^7.5.2"
-    ulid: "npm:^2.3.0"
-    validator: "npm:^13.7.0"
-  peerDependencies:
-    fp-ts: ^2.16.5
-    io-ts: ^2.2.21
-  checksum: 10c0/a3a8c8800a0982e7c34e23bcf2e8b422da7cde3e4d95f16225077d0eef76513d91b0b6c0189c7c650aaed9f1c2a31a7372ee3bfad54f837504a10ff391441c90
-  languageName: node
-  linkType: hard
-
 "@pagopa/ts-commons@npm:^13.0.0, @pagopa/ts-commons@npm:^13.1.1, @pagopa/ts-commons@npm:^13.1.2":
   version: 13.1.2
   resolution: "@pagopa/ts-commons@npm:13.1.2"
@@ -14797,8 +14776,9 @@ __metadata:
     "@pagopa/io-functions-admin-sdk": "npm:^1.10.1"
     "@pagopa/io-functions-commons": "npm:^30.0.0"
     "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
-    "@pagopa/ts-commons": "npm:^12.5.0"
+    "@pagopa/ts-commons": "npm:^13.1.2"
     "@types/documentdb": "npm:^1.10.13"
+    "@types/express-serve-static-core": "npm:^4.17.33"
     "@types/html-to-text": "npm:^1.4.31"
     "@types/lolex": "npm:^5.1.6"
     "@types/node": "npm:^20.17.30"
@@ -14807,11 +14787,12 @@ __metadata:
     "@types/semver": "npm:^7"
     "@vitest/coverage-v8": "npm:^3.1.2"
     abort-controller: "npm:^3.0.0"
-    applicationinsights: "npm:^1.8.10"
+    applicationinsights: "npm:^2.9.5"
     azure-storage: "npm:^2.10.3"
     date-fns: "npm:^4.1.0"
     documentdb: "npm:^1.15.3"
     eslint: "npm:8.57.1"
+    express: "npm:^4.15.3"
     fast-check: "npm:^1.16.0"
     fp-ts: "npm:^2.16.5"
     html-to-text: "npm:^4.0.0"
