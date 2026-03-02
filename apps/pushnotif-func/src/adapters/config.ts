@@ -48,17 +48,23 @@ const envSchema = z.object({
   COM_COSMOS__accountEndpoint: z.url(),
   INSTALLATION_SUMMARIES_CONTAINER_NAME: z.string().min(1),
   INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX: z.string().min(1),
+
   NH1_ENDPOINT: z.string().min(1),
   NH1_NAME: z.string().min(1),
+  NH1_PARTITION_REGEX: z.string().min(1),
+
   NH2_ENDPOINT: z.string().min(1),
-
   NH2_NAME: z.string().min(1),
+  NH2_PARTITION_REGEX: z.string().min(1),
+
   NH3_ENDPOINT: z.string().min(1),
-
   NH3_NAME: z.string().min(1),
-  NH4_ENDPOINT: z.string().min(1),
+  NH3_PARTITION_REGEX: z.string().min(1),
 
+  NH4_ENDPOINT: z.string().min(1),
   NH4_NAME: z.string().min(1),
+  NH4_PARTITION_REGEX: z.string().min(1),
+
   NOTIFICATIONS_STORAGE_CONNECTION_STRING: z.string().min(1),
 
   PUSH_DATABASE_NAME: z.string().min(1),
@@ -93,21 +99,25 @@ const mapEnvironmentVariablesToConfig = (env: Env): Config => ({
     partition1: {
       connectionString: env.NH1_ENDPOINT,
       name: env.NH1_NAME,
+      partitionRegex: env.NH1_PARTITION_REGEX,
     },
 
     partition2: {
       connectionString: env.NH2_ENDPOINT,
       name: env.NH2_NAME,
+      partitionRegex: env.NH2_PARTITION_REGEX,
     },
 
     partition3: {
       connectionString: env.NH3_ENDPOINT,
       name: env.NH3_NAME,
+      partitionRegex: env.NH3_PARTITION_REGEX,
     },
 
     partition4: {
       connectionString: env.NH4_ENDPOINT,
       name: env.NH4_NAME,
+      partitionRegex: env.NH4_PARTITION_REGEX,
     },
   },
 

@@ -3,7 +3,7 @@ import { RestError } from "@azure/storage-queue";
 import { describe, expect, test, vi } from "vitest";
 
 import { ErrorNotFound } from "../../../domain/error";
-import { NotificationHubInstallationAdapter } from "../installaiton";
+import { NotificationHubInstallationAdapter } from "../installation";
 
 const anInstallationId =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"; // starts with 'e'
@@ -32,7 +32,12 @@ const makeAdapter = (
     makeNhClientMock(),
   ],
 ) => ({
-  adapter: new NotificationHubInstallationAdapter(partitions),
+  adapter: new NotificationHubInstallationAdapter(partitions, [
+    new RegExp('^[ "0-3]'),
+    new RegExp('^[ "4-7]'),
+    new RegExp('^[ "8-b]'),
+    new RegExp('^[ "c-f]'),
+  ]),
   partitions,
 });
 

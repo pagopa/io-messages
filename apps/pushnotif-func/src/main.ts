@@ -33,7 +33,7 @@ import {
 } from "./adapters/config";
 import getUpdateInstallationHandler from "./adapters/functions/update-installation";
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
-import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installaiton";
+import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
 import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
@@ -235,7 +235,12 @@ const main = async (config: Config) => {
   ];
 
   const notifiationHubInstallationAdapter =
-    new NotificationHubInstallationAdapter(notificationHubClients);
+    new NotificationHubInstallationAdapter(notificationHubClients, [
+      new RegExp(config.notificationHub.partition1.partitionRegex),
+      new RegExp(config.notificationHub.partition2.partitionRegex),
+      new RegExp(config.notificationHub.partition3.partitionRegex),
+      new RegExp(config.notificationHub.partition4.partitionRegex),
+    ]);
 
   const updateInstallationDispatchQueueOutput = output.storageQueue({
     connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",

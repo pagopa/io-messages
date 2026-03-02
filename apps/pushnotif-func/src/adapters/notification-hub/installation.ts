@@ -10,22 +10,27 @@ export class NotificationHubInstallationAdapter
   implements InstallationRepository
 {
   nhClientPartitions: NotificationHubsClient[];
+  #nhPartitionRegexes: RegExp[];
 
-  constructor(nhClientPartitions: NotificationHubsClient[]) {
+  constructor(
+    nhClientPartitions: NotificationHubsClient[],
+    nhPartitionRegexes: RegExp[],
+  ) {
     this.nhClientPartitions = nhClientPartitions;
+    this.#nhPartitionRegexes = nhPartitionRegexes;
   }
 
   private getPartition(installationId: string): NotificationHubsClient {
     const firstChar = installationId[0].toLocaleLowerCase();
 
     switch (true) {
-      case /[0-3]/.test(firstChar):
+      case this.#nhPartitionRegexes[0].test(firstChar):
         return this.nhClientPartitions[0];
-      case /[4-7]/.test(firstChar):
+      case this.#nhPartitionRegexes[1].test(firstChar):
         return this.nhClientPartitions[1];
-      case /[8-9a-b]/.test(firstChar):
+      case this.#nhPartitionRegexes[2].test(firstChar):
         return this.nhClientPartitions[2];
-      case /[c-f]/.test(firstChar):
+      case this.#nhPartitionRegexes[3].test(firstChar):
         return this.nhClientPartitions[3];
       default:
         // This case will never happen cause we know that `installationId` is
