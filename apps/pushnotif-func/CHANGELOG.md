@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.1.1
+
+### Patch Changes
+
+- 46fdb48: Remove async from loadConfigFromEnvironment
+
 ## 2.1.0
 
 ### Minor Changes
