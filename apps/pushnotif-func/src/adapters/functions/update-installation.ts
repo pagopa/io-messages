@@ -20,7 +20,7 @@ const updateInstallationMessageSchema = z.object({
 const getUpdateInstallationHandler =
   (
     telemetryService: TelemetryService,
-    installationService: InstallationRepository,
+    installationRepository: InstallationRepository,
   ): StorageQueueHandler =>
   async (queueMessage: unknown) => {
     const parsedResult =
@@ -62,7 +62,7 @@ const getUpdateInstallationHandler =
     ];
 
     const errorOrUpdatedInstallation =
-      await installationService.updateInstallation(
+      await installationRepository.updateInstallation(
         parsedResult.data.installationId,
         patches,
       );
