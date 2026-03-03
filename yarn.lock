@@ -2698,7 +2698,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagopa/express-azure-functions@npm:^2.0.0, @pagopa/express-azure-functions@npm:^2.1.1":
+"@pagopa/express-azure-functions@npm:^2.1.1":
   version: 2.1.1
   resolution: "@pagopa/express-azure-functions@npm:2.1.1"
   peerDependencies:
@@ -5513,20 +5513,19 @@ __metadata:
   resolution: "citizen-func@workspace:apps/citizen-func"
   dependencies:
     "@azure/cosmos": "npm:^4.0.0"
-    "@azure/functions": "npm:^3.2.0"
+    "@azure/functions": "npm:^4.4.0"
     "@azure/identity": "npm:^4.5.0"
     "@pagopa/azure-storage-legacy-migration-kit": "npm:^0.0.4"
     "@pagopa/eslint-config": "npm:^4.0.3"
-    "@pagopa/express-azure-functions": "npm:^2.0.0"
-    "@pagopa/io-functions-commons": "npm:^29.3.0"
+    "@pagopa/io-functions-commons": "npm:^30.0.0"
     "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
-    "@pagopa/ts-commons": "npm:^11.0.0"
+    "@pagopa/ts-commons": "npm:^13.1.2"
     "@types/express": "npm:^4.17.11"
     "@types/html-to-text": "npm:^1.4.31"
     "@types/node": "npm:^20.17.30"
     "@types/redis": "npm:^2.8.28"
     "@vitest/coverage-v8": "npm:^3.1.2"
-    applicationinsights: "npm:^1.8.10"
+    applicationinsights: "npm:^2.9.5"
     azure-storage: "npm:^2.10.3"
     eslint: "npm:8.57.1"
     express: "npm:^4.15.3"

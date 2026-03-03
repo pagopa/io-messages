@@ -1,11 +1,8 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { RequiredParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_param";
 import { retrievedRCConfigurationToPublic } from "@pagopa/io-functions-commons/dist/src/utils/rc_configuration";
-import {
-  withRequestMiddlewares,
-  wrapRequestHandler,
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import {
   IResponseErrorInternal,
   IResponseErrorNotFound,
@@ -15,7 +12,6 @@ import {
   ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
 import { Ulid } from "@pagopa/ts-commons/lib/strings";
-import * as express from "express";
 import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 
@@ -35,7 +31,7 @@ type IGetRCConfigurationHandlerResponse =
  * errors.
  */
 type IGetRCConfigurationHandler = (
-  context: Context,
+  context: InvocationContext,
   configurationId: Ulid,
 ) => Promise<IGetRCConfigurationHandlerResponse>;
 
@@ -66,15 +62,15 @@ export const GetRCConfigurationHandler =
     )();
 
 /**
- * Wraps a GetRCConfiguration handler inside an Express request handler.
+ * Wraps a GetRCConfiguration handler for Azure Functions v4.
  */
 export const GetRCConfiguration = (
   rcConfigurationUtility: RCConfigurationUtility,
-): express.RequestHandler => {
+) => {
   const handler = GetRCConfigurationHandler(rcConfigurationUtility);
-  const middlewaresWrap = withRequestMiddlewares(
+  const middlewares = [
     ContextMiddleware(),
     RequiredParamMiddleware("id", Ulid),
-  );
-  return wrapRequestHandler(middlewaresWrap(handler));
+  ] as const;
+  return wrapHandlerV4(middlewares, handler);
 };

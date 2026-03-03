@@ -1,4 +1,4 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { InternalMessageResponseWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/InternalMessageResponseWithContent";
 import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
@@ -8,15 +8,12 @@ import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitio
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { MessageStatusModel } from "@pagopa/io-functions-commons/dist/src/models/message_status";
 import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { FiscalCodeMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/fiscalcode";
 import { OptionalQueryParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/optional_query_param";
 import { RequiredParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_param";
-import {
-  withRequestMiddlewares,
-  wrapRequestHandler,
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import {
   IResponseErrorQuery,
   ResponseErrorQuery,
@@ -37,7 +34,6 @@ import {
   Ulid,
 } from "@pagopa/ts-commons/lib/strings";
 import { withoutUndefinedValues } from "@pagopa/ts-commons/lib/types";
-import * as express from "express";
 import * as A from "fp-ts/lib/Apply";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
@@ -62,7 +58,7 @@ import { RedisClientFactory } from "../../utils/redis";
  * errors.
  */
 type IGetMessageHandler = (
-  context: Context,
+  context: InvocationContext,
   fiscalCode: FiscalCode,
   messageId: string,
   maybePublicMessage: O.Option<boolean>,
@@ -84,7 +80,7 @@ type IGetMessageHandler = (
  * @returns
  */
 const getErrorOrPaymentData = async (
-  context: Context,
+  context: InvocationContext,
   serviceModel: ServiceModel,
   redisClientFactory: RedisClientFactory,
   serviceCacheTtl: NonNegativeInteger,
@@ -111,7 +107,7 @@ const getErrorOrPaymentData = async (
                 serviceCacheTtl,
               ),
               TE.mapLeft((err) => {
-                context.log.error(`GetMessageHandler|${JSON.stringify(err)}`);
+                context.error(`GetMessageHandler|${JSON.stringify(err)}`);
                 return ResponseErrorInternal(
                   `Cannot get message Sender Service|ERROR=${err.message}`,
                 );
@@ -141,7 +137,7 @@ const getErrorOrPaymentData = async (
  * @returns
  */
 const getErrorOrMaybeThirdPartyData = async (
-  context: Context,
+  context: InvocationContext,
   senderServiceId: ServiceId,
   serviceToRCConfigurationMap: ReadonlyMap<string, string>,
   maybeThirdPartyData: O.Option<ThirdPartyData>,
@@ -162,7 +158,7 @@ const getErrorOrMaybeThirdPartyData = async (
             pipe(
               O.fromNullable(serviceToRCConfigurationMap.get(senderServiceId)),
               TE.fromOption(() => {
-                context.log.error(
+                context.error(
                   `GetMessageHandler|Error getting configuration id for the service ${senderServiceId}`,
                 );
                 return ResponseErrorInternal(
@@ -225,7 +221,7 @@ export function GetMessageHandler(
     const retrievedMessage = maybeDocument.value;
 
     if (E.isLeft(errorOrMaybeContent)) {
-      context.log.error(
+      context.error(
         `GetMessageHandler|${JSON.stringify(errorOrMaybeContent.left)}`,
       );
       return ResponseErrorInternal(
@@ -348,7 +344,7 @@ export function GetMessageHandler(
 }
 
 /**
- * Wraps a GetMessage handler inside an Express request handler.
+ * Wraps a GetMessage handler for Azure Functions v4.
  */
 export function GetMessage(
   messageModel: MessageModel,
@@ -359,7 +355,7 @@ export function GetMessage(
   serviceCacheTtl: NonNegativeInteger,
   serviceToRCConfigurationMap: ReadonlyMap<string, string>,
   categoryFetcher: ThirdPartyDataWithCategoryFetcher,
-): express.RequestHandler {
+) {
   const handler = GetMessageHandler(
     messageModel,
     messageStatusModel,
@@ -370,11 +366,11 @@ export function GetMessage(
     serviceToRCConfigurationMap,
     categoryFetcher,
   );
-  const middlewaresWrap = withRequestMiddlewares(
+  const middlewares = [
     ContextMiddleware(),
     FiscalCodeMiddleware,
     RequiredParamMiddleware("id", NonEmptyString),
     OptionalQueryParamMiddleware("public_message", BooleanFromString),
-  );
-  return wrapRequestHandler(middlewaresWrap(handler));
+  ] as const;
+  return wrapHandlerV4(middlewares, handler);
 }
