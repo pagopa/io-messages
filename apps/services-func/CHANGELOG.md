@@ -1,5 +1,11 @@
 # services-func
 
+## 2.0.0
+
+### Major Changes
+
+- fdb2a23: programming model from v3 to v4
+
 ## 1.0.10
 
 ### Patch Changes
