@@ -10,13 +10,13 @@ export type ApplicationInsightsConfig = z.TypeOf<
   typeof applicationInsightsSchema
 >;
 
-export async function loadConfigFromEnvironment<T extends z.ZodTypeAny>(
-  onSuccess: (config: z.TypeOf<T>) => Promise<void>,
+export function loadConfigFromEnvironment<T extends z.ZodTypeAny>(
+  onSuccess: (config: z.TypeOf<T>) => void,
   configFromEnvironment: T,
 ) {
   try {
     const config = configFromEnvironment.parse(process.env);
-    await onSuccess(config);
+    onSuccess(config);
   } catch (err) {
     if (err instanceof ZodError) {
       err.issues.forEach((issue) => {
