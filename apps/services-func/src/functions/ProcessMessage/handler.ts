@@ -1,6 +1,6 @@
 /* eslint-disable max-lines-per-function */
 
-import { Context } from "@azure/functions";
+import { FunctionOutput, InvocationContext } from "@azure/functions";
 import { SpecialServiceCategoryEnum } from "@pagopa/io-functions-admin-sdk/SpecialServiceCategory";
 import { BlockedInboxOrChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/BlockedInboxOrChannel";
 import { EUCovidCert } from "@pagopa/io-functions-commons/dist/generated/definitions/EUCovidCert";
@@ -216,7 +216,7 @@ const getServicePreferenceValueOrError =
 
 type BlockedInboxesForSpecialService = (params: {
   readonly blockedInboxOrChannel: readonly BlockedInboxOrChannelEnum[];
-  readonly context: Context;
+  readonly context: InvocationContext;
   readonly fiscalCode: FiscalCode;
   readonly logPrefix: string;
   readonly senderServiceId: NonEmptyString;
@@ -252,7 +252,7 @@ const getBlockedInboxesForSpecialService =
       lActivation.findLastVersionByModelId([senderServiceId, fiscalCode]),
       TE.mapLeft((activationError) => {
         // The query has failed, we consider this as a transient error.
-        context.log.error(`${logPrefix}|${activationError.kind}`);
+        context.error(`${logPrefix}|${activationError.kind}`);
         throw Error("Error while retrieving user's service Activation");
       }),
       TE.map(canSendMessageOnActivationWithGrace(pendingActivationGracePeriod)),
@@ -285,14 +285,14 @@ const getBlockedInboxesForSpecialService =
  * @param createdMessageEvent
  */
 const createMessageOrThrow = async (
-  context: Context,
+  context: InvocationContext,
   lMessageModel: MessageModel,
   messageStatusUpdater: ReturnType<typeof getMessageStatusUpdater>,
   lBlobService: BlobService,
   createdMessageEvent: CommonMessageData & CreatedMessageEvent,
 ): Promise<void> => {
   const newMessageWithoutContent = createdMessageEvent.message;
-  const logPrefix = context.executionContext.functionName;
+  const logPrefix = context.functionName;
   const logPrefixWithMessage = `${logPrefix}|MESSAGE_ID=${newMessageWithoutContent.id}`;
 
   // If a message is a payment message, we must override payee if it is not specified by sender
@@ -331,9 +331,7 @@ const createMessageOrThrow = async (
   )();
 
   if (E.isLeft(errorOrAttachment)) {
-    context.log.error(
-      `${logPrefixWithMessage}|ERROR=${errorOrAttachment.left}`,
-    );
+    context.error(`${logPrefixWithMessage}|ERROR=${errorOrAttachment.left}`);
     throw new Error("Error while storing message content");
   }
 
@@ -345,7 +343,7 @@ const createMessageOrThrow = async (
       status: NotRejectedMessageStatusValueEnum.PROCESSED,
     }),
     TE.getOrElse((e) => {
-      context.log.error(
+      context.error(
         `${logPrefixWithMessage}|UPSERT_STATUS=PROCESSED|ERROR=${JSON.stringify(
           e,
         )}`,
@@ -364,7 +362,7 @@ const createMessageOrThrow = async (
   })();
 
   if (E.isLeft(updatedMessageOrError)) {
-    context.log.error(
+    context.error(
       `${logPrefixWithMessage}|ERROR=${JSON.stringify(
         updatedMessageOrError.left,
       )}`,
@@ -384,11 +382,12 @@ export interface IProcessMessageHandlerInput {
   readonly lServicePreferencesModel: ServicesPreferencesModel;
   readonly optOutEmailSwitchDate: UTCISODateFromString;
   readonly pendingActivationGracePeriod: Second;
+  readonly processedMessageOutput: FunctionOutput;
   readonly retrieveProcessingMessageData: DataFetcher<CommonMessageData>;
   readonly telemetryClient: ReturnType<typeof initTelemetryClient>;
 }
 
-type Handler = (c: Context, i: unknown) => Promise<void>;
+type Handler = (c: InvocationContext, i: unknown) => Promise<void>;
 
 /**
  * Returns a function for handling ProcessMessage
@@ -404,6 +403,7 @@ export const getProcessMessageHandler = ({
   lServicePreferencesModel,
   optOutEmailSwitchDate,
   pendingActivationGracePeriod,
+  processedMessageOutput,
   retrieveProcessingMessageData,
   telemetryClient,
 }: IProcessMessageHandlerInput): Handler =>
@@ -416,14 +416,14 @@ export const getProcessMessageHandler = ({
         async (context, createdMessageEvent) => {
           const newMessageWithoutContent = createdMessageEvent.message;
 
-          const logPrefix = `${context.executionContext.functionName}|MESSAGE_ID=${newMessageWithoutContent.id}`;
+          const logPrefix = `${context.functionName}|MESSAGE_ID=${newMessageWithoutContent.id}`;
           const messageStatusUpdater = getMessageStatusUpdater(
             lMessageStatusModel,
             createdMessageEvent.message.id,
             newMessageWithoutContent.fiscalCode,
           );
 
-          context.log.verbose(`${logPrefix}|STARTING`);
+          context.debug(`${logPrefix}|STARTING`);
 
           // fetch user's profile associated to the fiscal code
           // of the recipient of the message
@@ -436,7 +436,7 @@ export const getProcessMessageHandler = ({
             // The query has failed, we consider this as a transient error.
             // It's *critical* to trigger a retry here, otherwise no message
             // content will be saved.
-            context.log.error(
+            context.error(
               `${logPrefix}|ERROR=${JSON.stringify(errorOrMaybeProfile.left)}`,
             );
             throw Error("Error while fetching profile");
@@ -464,7 +464,7 @@ export const getProcessMessageHandler = ({
                   },
                   tagOverrides: { samplingEnabled: "false" },
                 });
-                context.log.error(
+                context.error(
                   `${logPrefix}|PROFILE_NOT_FOUND|UPSERT_STATUS=REJECTED|ERROR=${JSON.stringify(
                     err,
                   )}`,
@@ -524,7 +524,7 @@ export const getProcessMessageHandler = ({
                 ),
               ),
               TE.getOrElse((e) => {
-                context.log.error(
+                context.error(
                   `${logPrefix}|PROFILE_NOT_FOUND|UPSERT_STATUS=REJECTED|ERROR=${JSON.stringify(
                     e,
                   )}`,
@@ -533,7 +533,7 @@ export const getProcessMessageHandler = ({
               }),
             )();
 
-            context.log.warn(`${logPrefix}|RESULT=PROFILE_NOT_FOUND`);
+            context.warn(`${logPrefix}|RESULT=PROFILE_NOT_FOUND`);
             return;
           }
 
@@ -554,7 +554,7 @@ export const getProcessMessageHandler = ({
                 status: RejectedMessageStatusValueEnum.REJECTED,
               }),
               TE.getOrElse((e) => {
-                context.log.error(
+                context.error(
                   `${logPrefix}|MASTER_INBOX_DISABLED|UPSERT_STATUS=REJECTED|ERROR=${JSON.stringify(
                     e,
                   )}`,
@@ -565,7 +565,7 @@ export const getProcessMessageHandler = ({
               }),
             )();
 
-            context.log.warn(`${logPrefix}|RESULT=MASTER_INBOX_DISABLED`);
+            context.warn(`${logPrefix}|RESULT=MASTER_INBOX_DISABLED`);
             return;
           }
 
@@ -584,9 +584,7 @@ export const getProcessMessageHandler = ({
             TE.mapLeft((servicePreferenceError) => {
               if (servicePreferenceError.kind !== "INVALID_MODE") {
                 // The query has failed, we consider this as a transient error.
-                context.log.error(
-                  `${logPrefix}|${servicePreferenceError.kind}`,
-                );
+                context.error(`${logPrefix}|${servicePreferenceError.kind}`);
                 throw Error("Error while retrieving user's service preference");
               }
 
@@ -599,7 +597,7 @@ export const getProcessMessageHandler = ({
                 O.getOrElseW(() => new Array<BlockedInboxOrChannelEnum>()),
               );
 
-              context.log.verbose(
+              context.debug(
                 `${logPrefix}|BLOCKED_CHANNELS=${JSON.stringify(result)}`,
               );
 
@@ -652,7 +650,7 @@ export const getProcessMessageHandler = ({
                 status: RejectedMessageStatusValueEnum.REJECTED,
               }),
               TE.getOrElse((e) => {
-                context.log.error(
+                context.error(
                   `${logPrefix}|SENDER_BLOCKED|UPSERT_STATUS=REJECTED|ERROR=${JSON.stringify(
                     e,
                   )}`,
@@ -663,7 +661,7 @@ export const getProcessMessageHandler = ({
               }),
             )();
 
-            context.log.warn(`${logPrefix}|RESULT=SENDER_BLOCKED`);
+            context.warn(`${logPrefix}|RESULT=SENDER_BLOCKED`);
             return;
           }
 
@@ -675,7 +673,7 @@ export const getProcessMessageHandler = ({
             createdMessageEvent,
           );
 
-          context.log.verbose(`${logPrefix}|RESULT=SUCCESS`);
+          context.debug(`${logPrefix}|RESULT=SUCCESS`);
 
           telemetryClient.trackEvent({
             name: "api.messages.processed",
@@ -700,20 +698,23 @@ export const getProcessMessageHandler = ({
             tagOverrides: { samplingEnabled: "false" },
           });
 
-          context.bindings.processedMessage = ProcessedMessageEvent.encode({
-            blockedInboxOrChannels,
-            messageId: createdMessageEvent.message.id,
-            profile: {
-              ...profile,
-              // if profile's timestamp is before email opt out switch limit date we must force isEmailEnabled to false
-              isEmailEnabled:
-                isOptInEmailEnabled &&
-                // eslint-disable-next-line no-underscore-dangle
-                isBefore(profile._ts, optOutEmailSwitchDate)
-                  ? false
-                  : profile.isEmailEnabled,
-            },
-          });
+          context.extraOutputs.set(
+            processedMessageOutput,
+            ProcessedMessageEvent.encode({
+              blockedInboxOrChannels,
+              messageId: createdMessageEvent.message.id,
+              profile: {
+                ...profile,
+                // if profile's timestamp is before email opt out switch limit date we must force isEmailEnabled to false
+                isEmailEnabled:
+                  isOptInEmailEnabled &&
+                  // eslint-disable-next-line no-underscore-dangle
+                  isBefore(profile._ts, optOutEmailSwitchDate)
+                    ? false
+                    : profile.isEmailEnabled,
+              },
+            }),
+          );
         },
       ),
     ),

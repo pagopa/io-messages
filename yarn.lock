@@ -2754,7 +2754,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagopa/io-functions-commons@npm:^29.0.4, @pagopa/io-functions-commons@npm:^29.3.0":
+"@pagopa/io-functions-commons@npm:^29.0.4":
   version: 29.4.0
   resolution: "@pagopa/io-functions-commons@npm:29.4.0"
   dependencies:
@@ -2898,27 +2898,6 @@ __metadata:
     semver: "npm:^7.3.7"
     validator: "npm:^13.7.0"
   checksum: 10c0/5bfe912a3844bf6f9cca48ddce70b2c9b4cb96e93d205cee9bf93f31d2c432b1c98cdd7ae2b9c58f23a520ad6def91536cd230902d1aeed87f1d9f01a9afddb9
-  languageName: node
-  linkType: hard
-
-"@pagopa/ts-commons@npm:^12.5.0":
-  version: 12.6.0
-  resolution: "@pagopa/ts-commons@npm:12.6.0"
-  dependencies:
-    abort-controller: "npm:^3.0.0"
-    agentkeepalive: "npm:^4.1.4"
-    applicationinsights: "npm:^1.8.10"
-    jose: "npm:^4.15.5"
-    json-set-map: "npm:^1.1.2"
-    jsonwebtoken: "npm:^9.0.1"
-    node-fetch: "npm:^2.6.0"
-    semver: "npm:^7.5.2"
-    ulid: "npm:^2.3.0"
-    validator: "npm:^13.7.0"
-  peerDependencies:
-    fp-ts: ^2.16.5
-    io-ts: ^2.2.21
-  checksum: 10c0/a3a8c8800a0982e7c34e23bcf2e8b422da7cde3e4d95f16225077d0eef76513d91b0b6c0189c7c650aaed9f1c2a31a7372ee3bfad54f837504a10ff391441c90
   languageName: node
   linkType: hard
 
@@ -14787,20 +14766,19 @@ __metadata:
   resolution: "services-func@workspace:apps/services-func"
   dependencies:
     "@azure/cosmos": "npm:^4.0.0"
-    "@azure/functions": "npm:^3.2.0"
+    "@azure/functions": "npm:^4.4.0"
     "@azure/identity": "npm:^4.5.0"
     "@azure/storage-queue": "npm:^12.4.0"
     "@pagopa/azure-storage-legacy-migration-kit": "npm:^0.0.4"
     "@pagopa/eslint-config": "npm:^4.0.3"
-    "@pagopa/express-azure-functions": "npm:^2.1.1"
     "@pagopa/io-app-email-templates": "npm:^0.7.3"
     "@pagopa/io-backend-notifications-sdk": "npm:^9.7.0"
     "@pagopa/io-functions-admin-sdk": "npm:^1.10.1"
-    "@pagopa/io-functions-commons": "npm:^29.3.0"
+    "@pagopa/io-functions-commons": "npm:^30.0.0"
     "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
-    "@pagopa/ts-commons": "npm:^12.5.0"
+    "@pagopa/ts-commons": "npm:^13.1.2"
     "@types/documentdb": "npm:^1.10.13"
-    "@types/express": "npm:^4.17.11"
+    "@types/express-serve-static-core": "npm:^4.17.33"
     "@types/html-to-text": "npm:^1.4.31"
     "@types/lolex": "npm:^5.1.6"
     "@types/node": "npm:^20.17.30"
@@ -14809,7 +14787,7 @@ __metadata:
     "@types/semver": "npm:^7"
     "@vitest/coverage-v8": "npm:^3.1.2"
     abort-controller: "npm:^3.0.0"
-    applicationinsights: "npm:^1.8.10"
+    applicationinsights: "npm:^2.9.5"
     azure-storage: "npm:^2.10.3"
     date-fns: "npm:^4.1.0"
     documentdb: "npm:^1.15.3"

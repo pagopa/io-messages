@@ -1,4 +1,4 @@
-import { Context } from "@azure/functions";
+import { FunctionOutput, InvocationContext } from "@azure/functions";
 import { HttpsUrl } from "@pagopa/io-functions-commons/dist/generated/definitions/HttpsUrl";
 import { NotificationModel } from "@pagopa/io-functions-commons/dist/src/models/notification";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
@@ -39,12 +39,18 @@ const aDefaultWebhookUrl = pipe(
 
 const aSandboxFiscalCode = "AAAAAA00A00A000A" as FiscalCode;
 
+const mockEmailOutput = {} as FunctionOutput;
+const mockWebhookOutput = {} as FunctionOutput;
+
 const createContext = () =>
   ({
-    bindings: {},
-    executionContext: { functionName: "funcname" },
-    log: { ...console, verbose: vi.fn() },
-  }) as unknown as Context;
+    debug: vi.fn(),
+    error: vi.fn(),
+    extraOutputs: { set: vi.fn() },
+    functionName: "funcname",
+    log: vi.fn(),
+    warn: vi.fn(),
+  }) as unknown as InvocationContext;
 
 const aProfileWithWebhookEnabled = {
   ...aRetrievedProfile,
@@ -77,6 +83,8 @@ describe("getCreateNotificationHandler", () => {
       aSandboxFiscalCode,
       [],
       mockRetrieveProcessingMessageData,
+      mockEmailOutput,
+      mockWebhookOutput,
     );
 
     const context = createContext();
@@ -89,14 +97,14 @@ describe("getCreateNotificationHandler", () => {
       }),
     );
 
-    expect(context.bindings.notificationCreatedEmail).toBeDefined();
+    const emailOutputValue = (
+      context.extraOutputs.set as ReturnType<typeof vi.fn>
+    ).mock.calls.find(([output]) => output === mockEmailOutput)?.[1];
+
+    expect(emailOutputValue).toBeDefined();
 
     expect(
-      pipe(
-        context.bindings.notificationCreatedEmail,
-        NotificationCreatedEvent.decode,
-        E.isRight,
-      ),
+      pipe(emailOutputValue, NotificationCreatedEvent.decode, E.isRight),
     ).toBe(true);
   });
 
@@ -107,6 +115,8 @@ describe("getCreateNotificationHandler", () => {
       aSandboxFiscalCode,
       [],
       mockRetrieveProcessingMessageData,
+      mockEmailOutput,
+      mockWebhookOutput,
     );
 
     const context = createContext();
@@ -119,14 +129,14 @@ describe("getCreateNotificationHandler", () => {
       }),
     );
 
-    expect(context.bindings.notificationCreatedWebhook).toBeDefined();
+    const webhookOutputValue = (
+      context.extraOutputs.set as ReturnType<typeof vi.fn>
+    ).mock.calls.find(([output]) => output === mockWebhookOutput)?.[1];
+
+    expect(webhookOutputValue).toBeDefined();
 
     expect(
-      pipe(
-        context.bindings.notificationCreatedWebhook,
-        NotificationCreatedEvent.decode,
-        E.isRight,
-      ),
+      pipe(webhookOutputValue, NotificationCreatedEvent.decode, E.isRight),
     ).toBe(true);
   });
 });

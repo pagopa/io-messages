@@ -35,17 +35,12 @@ import { prepareBody } from "../utils";
 beforeEach(() => vi.clearAllMocks());
 
 const mockContext = {
-  executionContext: { functionName: "funcname" },
-  log: {
-    // eslint-disable-next-line no-console
-    error: vi.fn(),
-    // eslint-disable-next-line no-console
-    info: vi.fn(),
-    // eslint-disable-next-line no-console
-    verbose: vi.fn(),
-    // eslint-disable-next-line no-console
-    warn: vi.fn(),
-  },
+  debug: vi.fn(),
+  error: vi.fn(),
+  extraOutputs: { set: vi.fn() },
+  functionName: "funcname",
+  log: vi.fn(),
+  warn: vi.fn(),
 } as any;
 
 const aMessageId = "A_MESSAGE_ID" as NonEmptyString;
