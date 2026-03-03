@@ -1,4 +1,4 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
 import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
 import { MessageCategory } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategory";
@@ -38,7 +38,7 @@ import { getTask, setWithExpirationTask } from "./redis_storage";
 import { createTracker } from "./tracking";
 
 export const trackErrorAndContinue = (
-  context: Context,
+  context: InvocationContext,
   error: Error,
   kind: "CONTENT" | "SERVICE" | "STATUS",
   fiscalCode: FiscalCode,
@@ -50,7 +50,7 @@ export const trackErrorAndContinue = (
       ? `Cannot enrich service data | ${error}`
       : `Cannot enrich message "${messageId}" | ${error}`;
 
-  context.log.error(message);
+  context.error(message);
   createTracker(initTelemetryClient()).messages.trackEnrichmentFailure(
     kind,
     fiscalCode,
@@ -182,7 +182,7 @@ const nonEmptyStringEq: Eq<NonEmptyString> = {
  */
 export const enrichServiceData =
   (
-    context: Context,
+    context: InvocationContext,
     serviceModel: ServiceModel,
     redisClientFactory: RedisClientFactory,
     serviceCacheTtl: NonNegativeInteger,
@@ -313,7 +313,10 @@ type CreatedMessageWithoutContentWithMessageId = t.TypeOf<
  * @returns
  */
 export const enrichMessagesStatus =
-  (context: Context, messageStatusModel: MessageStatusExtendedQueryModel) =>
+  (
+    context: InvocationContext,
+    messageStatusModel: MessageStatusExtendedQueryModel,
+  ) =>
   (
     messages: readonly CreatedMessageWithoutContent[],
   ): T.Task<E.Either<Error, CreatedMessageWithoutContentWithStatus>[]> =>
@@ -343,7 +346,7 @@ export const enrichMessagesStatus =
       ),
 
       TE.mapLeft((error) => {
-        context.log.error(`Cannot enrich message status | ${error}`);
+        context.error(`Cannot enrich message status | ${error}`);
         return messages.map(() => E.left(error));
       }),
 

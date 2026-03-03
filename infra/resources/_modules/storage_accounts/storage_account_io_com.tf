@@ -119,3 +119,13 @@ resource "azurerm_storage_queue" "webhook_notification_poison" {
   name                 = "webhook-notification-poison"
   storage_account_name = module.com_st.name
 }
+
+resource "azurerm_storage_queue" "update_installation_dispatch" {
+  name                 = "update-installation-dispatch"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "update_installation_dispatch_poison" {
+  name                 = "update-installation-dispatch-poison"
+  storage_account_name = module.com_st.name
+}

@@ -1,5 +1,4 @@
 import { MessageStatusExtendedQueryModel } from "@/model/message_status_query";
-import { Context } from "@azure/functions";
 import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
 import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
@@ -35,6 +34,7 @@ import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { beforeEach, describe, expect, it, test, vi } from "vitest";
 
+import { context as functionsContextMock } from "../../__mocks__/context";
 import { aCosmosResourceMetadata } from "../../__mocks__/mocks";
 import { EnrichedMessageWithContent } from "../../functions/GetMessages/getMessagesFunctions/models";
 import { IConfig } from "../config";
@@ -134,12 +134,6 @@ const messageStatusModelMock = {
   findAllVersionsByModelIdIn: findAllVersionsByModelIdInMock,
 } as unknown as MessageStatusExtendedQueryModel;
 
-const functionsContextMock = {
-  log: {
-    error: vi.fn(),
-  },
-} as unknown as Context;
-
 const messages: CreatedMessageWithoutContentWithStatus[] = [
   {
     ...retrievedMessageToPublic(aRetrievedMessageWithoutContent),
@@ -216,7 +210,7 @@ describe("enrichServiceData", () => {
     expect(getTaskMock).toHaveBeenCalledTimes(1);
     expect(findLastVersionByModelIdMock).not.toHaveBeenCalled();
     expect(setWithExpirationTaskMock).not.toHaveBeenCalled();
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should return right when  service is retrieved from Cosmos due to cache miss", async () => {
@@ -247,7 +241,7 @@ describe("enrichServiceData", () => {
       JSON.stringify(aRetrievedService),
       aServiceCacheTtl,
     );
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should return right when service is retrieved from Cosmos due to cache unavailability", async () => {
@@ -284,7 +278,7 @@ describe("enrichServiceData", () => {
       JSON.stringify(aRetrievedService),
       aServiceCacheTtl,
     );
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should return enrich rptId with organizationFiscalCode, when handling a PAYMENT message", async () => {
@@ -309,7 +303,7 @@ describe("enrichServiceData", () => {
     expect(getTaskMock).toHaveBeenCalledTimes(1);
     expect(findLastVersionByModelIdMock).not.toHaveBeenCalled();
     expect(setWithExpirationTaskMock).not.toHaveBeenCalled();
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should make one call per each serviceId", async () => {
@@ -338,7 +332,7 @@ describe("enrichServiceData", () => {
     expect(getTaskMock).toHaveBeenCalledTimes(1);
     expect(findLastVersionByModelIdMock).not.toHaveBeenCalled();
     expect(setWithExpirationTaskMock).not.toHaveBeenCalled();
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should return left when service model return a cosmos error", async () => {
@@ -357,8 +351,8 @@ describe("enrichServiceData", () => {
 
     expect(E.isLeft(enrichedMessages)).toBe(true);
 
-    expect(functionsContextMock.log.error).toHaveBeenCalledTimes(1);
-    expect(functionsContextMock.log.error).toHaveBeenCalledWith(
+    expect(functionsContextMock.error).toHaveBeenCalledTimes(1);
+    expect(functionsContextMock.error).toHaveBeenCalledWith(
       `Cannot enrich service data | Error: COSMOS_ERROR_RESPONSE, ServiceId=${aRetrievedMessageWithoutContent.senderServiceId}`,
     );
   });
@@ -377,8 +371,8 @@ describe("enrichServiceData", () => {
 
     expect(E.isLeft(enrichedMessages)).toBe(true);
 
-    expect(functionsContextMock.log.error).toHaveBeenCalledTimes(1);
-    expect(functionsContextMock.log.error).toHaveBeenCalledWith(
+    expect(functionsContextMock.error).toHaveBeenCalledTimes(1);
+    expect(functionsContextMock.error).toHaveBeenCalledWith(
       `Cannot enrich service data | Error: EMPTY_SERVICE, ServiceId=${aRetrievedMessageWithoutContent.senderServiceId}`,
     );
   });

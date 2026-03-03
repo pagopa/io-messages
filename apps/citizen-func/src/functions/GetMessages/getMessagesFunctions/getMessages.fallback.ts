@@ -1,4 +1,4 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
@@ -110,7 +110,7 @@ export const getHasPreconditionFlagForMessagesFallback = (
  */
 export const enrichContentData =
   (
-    context: Context,
+    context: InvocationContext,
     blobService: BlobServiceWithFallBack,
     rcConfigurationUtility: RCConfigurationUtility,
     categoryFetcher: ThirdPartyDataWithCategoryFetcher,

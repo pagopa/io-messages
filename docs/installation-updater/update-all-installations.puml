@@ -2,17 +2,24 @@
 
 title Update all installations
 
-database "installations" as ic
+!pragma teoz true
+box "io-p-itn-com-cosno-01 cosmos account" #LightBlue
+  box "push-notifications cosmos database"
+    database "installation-summaries" as ic
+  end box
+end box
 
 box "pushnotif-func"
-  participant "UpdateAllInstallations" as uai
+  participant "InstallationUpdateDispatcher" as uai
   participant "UpdateInstallation" as ui
 end box
 
 participant "app-insights" as ai
 
-queue "update-installation-ims" as uiq
-queue "update-installation-ims-poison" as uiqp
+box "iopitncomst01 storage account"
+  queue "update-installations-dispatch" as uiq
+  queue "update-installations-dispatch-poison" as uiqp
+end box
 
 participant "Notification Hub" as nh
 
@@ -38,7 +45,8 @@ loop for each document
     note right of uai
       **UpdateInstallationMessage**
       {
-        "installationId": "foo",
+        "installationId": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+        "platform": "FcmV1",
       }
     end note
     uai -> uiq : Push message to the queue
@@ -50,7 +58,8 @@ deactivate uai
 note right of ui
   **UpdateInstallationMessage**
   {
-    "installationId": "foo",
+    "installationId": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+    "platform": "FcmV1",
   }
 end note
 ui -> uiq : Read single message
@@ -59,39 +68,24 @@ activate ui
 ui -> ui : Parse message to Installation
 alt Invalid message
   ui --> ai : Track an event
-end
-
-ui -> nh : Get current instalation
-activate nh
-
-alt Error from Notification Hub
   note right of ui
-    Transient error
+    End the execution.
   end note
-  nh -[#red]x ui : Error
-  alt Was last retry
-    ui -> uiqp: Push to the poison
-  end
-  ui -[#red]x ui : Throw an error
-else 404 from Notification Hub
-  nh -[#red]> ui : 404
-  note right of ui
-    In this case we know that the installation
-    has been deleted so we skip this update.
-  end note
-else Success from Notification Hub
-  nh -[#green]> ui : Return the current installation
 end
-deactivate nh
 
 note right of ui
-  The function's environment variables include
-  a JSON representing the new structure of the installation.
+  The JsonPatch is hardcoded.
 end note
 ui -> nh : Update the installation using the new structure
 activate nh
 
-alt Error from Notification Hub
+alt Installation not found
+  nh -[#red]> ui : 404
+  note right of ui
+    Nothing to update.
+    End the execution.
+  end note
+else Error from Notification Hub
   note right of ui
     Transient error
   end note

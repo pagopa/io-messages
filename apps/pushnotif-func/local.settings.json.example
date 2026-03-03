@@ -35,5 +35,10 @@
     "SESSION_MANAGER_BASE_URL": "http://mock-server:3000/api/v1/messages-sending/session-manager",
     "COSMOSDB_NAME": "io-messages",
     "COSMOSDB_URI": "https://io-d-itn-common-cosno-01.documents.azure.com:443/"
+    "COM_COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
+    "PUSH_DATABASE_NAME": "io-messages",
+    "INSTALLATION_SUMMARIES_CONTAINER_NAME": "installation-summaries",
+    "INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX": "0-",
+    "UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH": "86400"
   }
 }
