@@ -1,5 +1,18 @@
 ### Changelog
 
+## 2.1.1
+
+### Patch Changes
+
+- 46fdb48: Remove async from loadConfigFromEnvironment
+
+## 2.1.0
+
+### Minor Changes
+
+- 93cfa82: Add a new "Update All Installations" background pipeline to the pushnotif-func
+  Azure Functions app.
+
 ## 2.0.2
 
 ### Patch Changes
