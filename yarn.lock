@@ -2754,7 +2754,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagopa/io-functions-commons@npm:^29.0.4, @pagopa/io-functions-commons@npm:^29.3.0":
+"@pagopa/io-functions-commons@npm:^29.0.4":
   version: 29.4.0
   resolution: "@pagopa/io-functions-commons@npm:29.4.0"
   dependencies:
