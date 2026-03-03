@@ -316,7 +316,7 @@ app.storageQueue("EmailNotification", {
 // Queue Trigger: WebhookNotification
 // ---------------------------------------------------------------------------
 
-const DEFAULT_NOTIFY_REQUEST_TIMEOUT_MS = 5000;
+const DEFAULT_NOTIFY_REQUEST_TIMEOUT_MS = 10000;
 
 const abortableFetch = AbortableFetch(agent.getHttpsFetch(process.env));
 const fetchWithTimeout = setFetchTimeout(
