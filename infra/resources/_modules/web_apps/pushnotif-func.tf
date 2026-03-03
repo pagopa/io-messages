@@ -84,8 +84,19 @@ locals {
       SESSION_MANAGER_API_KEY  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=session-manager-api-key)",
       SESSION_MANAGER_BASE_URL = var.session_manager_base_url,
 
-      COSMOSDB_NAME = "db"
-      COSMOSDB_URI  = var.cosmosdb_account_api.endpoint
+      COSMOSDB_NAME               = "db"
+      COSMOSDB_URI                = var.cosmosdb_account_api.endpoint
+      COM_COSMOS__accountEndpoint = var.io_com_cosmos.endpoint
+
+      PUSH_DATABASE_NAME                            = "push-notifications-cosmos-01"
+      INSTALLATION_SUMMARIES_CONTAINER_NAME         = "installation-summaries",
+      INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX = "0-",
+      # Change this value when need to update the installations
+      UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH = 0
+
+      # Disabled by default, enabled when needed.
+      "AzureWebJobs.InstallationUpdateDispatcher.Disabled" = "1",
+      "AzureWebJobs.UpdateInstallation.Disabled"           = "1",
 
       AzureFunctionsJobHost__extensions__durableTask__storageProvider__partitionCount = "8"
     }
@@ -104,8 +115,6 @@ module "push_notif_function" {
 
   count = 1
 
-  application_insights_key = var.application_insights.instrumentation_key
-
   resource_group_name   = var.resource_group_name
   health_check_path     = "/api/v1/info"
   has_durable_functions = true
@@ -121,6 +130,8 @@ module "push_notif_function" {
     app_name        = "pushnotif"
     instance_number = "01"
   })
+
+  node_version = 22
 
   subnet_pep_id = var.subnet_pep_id
   subnet_cidr   = var.subnet_cidrs.push_notif_func
@@ -234,4 +245,14 @@ resource "azurerm_cosmosdb_sql_role_assignment" "pushnotif_cosmosdb_account_api"
   principal_id        = each.value
 }
 
-
+resource "azurerm_cosmosdb_sql_role_assignment" "push_notifications_database_contributor" {
+  for_each = toset([
+    module.push_notif_function[0].function_app.function_app.principal_id,
+    module.push_notif_function[0].function_app.function_app.slot.principal_id
+  ])
+  resource_group_name = var.resource_group_name
+  account_name        = var.io_com_cosmos.name
+  scope               = "${var.io_com_cosmos.id}/dbs/push-notifications-cosmos-01"
+  role_definition_id  = "${var.io_com_cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = each.value
+}

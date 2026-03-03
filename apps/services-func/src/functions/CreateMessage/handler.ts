@@ -2,7 +2,7 @@
  * Implements the API handlers for the Message resource.
  */
 import { RemoteContentClient } from "@/clients/remote-content";
-import { Context } from "@azure/functions";
+import { FunctionOutput, InvocationContext } from "@azure/functions";
 import { EUCovidCert } from "@pagopa/io-functions-commons/dist/generated/definitions/EUCovidCert";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
 import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/FiscalCode";
@@ -15,6 +15,7 @@ import {
   NewMessageWithoutContent,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import {
   AzureAllowBodyPayloadMiddleware,
   IAzureApiAuthorization,
@@ -22,10 +23,6 @@ import {
 } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_api_auth";
 import { IAzureUserAttributes } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_user_attributes";
 import { ClientIp } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/client_ip_middleware";
-import {
-  withRequestMiddlewares,
-  wrapRequestHandler,
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import {
   IResponseErrorQuery,
   ResponseErrorQuery,
@@ -63,7 +60,6 @@ import {
 } from "@pagopa/ts-commons/lib/responses";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { PromiseType } from "@pagopa/ts-commons/lib/types";
-import * as express from "express";
 import * as E from "fp-ts/lib/Either";
 import { Either } from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
@@ -96,7 +92,7 @@ import { makeUpsertBlobFromObject } from "./utils";
  * further processing.
  */
 type ICreateMessageHandler = (
-  context: Context,
+  context: InvocationContext,
   auth: IAzureApiAuthorization,
   clientIp: ClientIp,
   attrs: IAzureUserAttributes,
@@ -314,6 +310,7 @@ export function CreateMessageHandler(
   generateObjectId: ObjectIdGenerator,
   saveProcessingMessage: ReturnType<typeof makeUpsertBlobFromObject>,
   sandboxFiscalCode: NonEmptyString,
+  createdMessageOutput: FunctionOutput,
 ): ICreateMessageHandler {
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, max-lines-per-function
   return async (
@@ -447,7 +444,7 @@ export function CreateMessageHandler(
       r: CreateMessageHandlerResponse,
       isSuccess: boolean,
     ): void =>
-      context.log.verbose(
+      context.debug(
         `CreateMessageHandler|SERVICE_ID=${serviceId}|RESPONSE=${
           r.kind
         }|RESULT=${isSuccess ? "SUCCESS" : "FAILURE"}`,
@@ -506,7 +503,7 @@ export function CreateMessageHandler(
             }),
           ),
           TE.mapLeft((err) => {
-            context.log.error(
+            context.error(
               `CreateMessageHandler|Error storing processing message to blob|${err.message}`,
             );
             return ResponseErrorInternal("Unable to store processing message");
@@ -530,7 +527,7 @@ export function CreateMessageHandler(
             ),
           ),
           TE.map((createdMessage) => {
-            context.bindings.createdMessage = createdMessage;
+            context.extraOutputs.set(createdMessageOutput, createdMessage);
             return redirectToNewMessage(newMessageWithoutContent);
           }),
         ),
@@ -550,9 +547,6 @@ export function CreateMessageHandler(
   };
 }
 
-/**
- * Wraps a CreateMessage handler inside an Express request handler.
- */
 // eslint-disable-next-line max-params
 export function CreateMessage(
   telemetryClient: ReturnType<typeof initAppInsights>,
@@ -561,7 +555,8 @@ export function CreateMessage(
   messageModel: MessageModel,
   saveProcessingMessage: ReturnType<typeof makeUpsertBlobFromObject>,
   sandboxFiscalCode: NonEmptyString,
-): express.RequestHandler {
+  createdMessageOutput: FunctionOutput,
+) {
   const handler = CreateMessageHandler(
     telemetryClient,
     remoteContentClient,
@@ -569,51 +564,49 @@ export function CreateMessage(
     ulidGenerator,
     saveProcessingMessage,
     sandboxFiscalCode,
+    createdMessageOutput,
   );
-  const middlewaresWrap = withRequestMiddlewares(
-    ...([
-      // Common CreateMessage Middlewares
-      ...commonCreateMessageMiddlewares(serviceModel),
-      AzureAllowBodyPayloadMiddleware(
-        ApiNewMessageWithContentOf(t.type({ eu_covid_cert: EUCovidCert })),
-        new Set([UserGroup.ApiMessageWriteEUCovidCert]),
-        "You do not have enough permissions to send an EUCovidCert message",
+  const middlewares = [
+    // Common CreateMessage Middlewares
+    ...commonCreateMessageMiddlewares(serviceModel),
+    AzureAllowBodyPayloadMiddleware(
+      ApiNewMessageWithContentOf(t.type({ eu_covid_cert: EUCovidCert })),
+      new Set([UserGroup.ApiMessageWriteEUCovidCert]),
+      "You do not have enough permissions to send an EUCovidCert message",
+    ),
+    // Ensures only users in ApiMessageWriteWithPayee group can send payment messages with payee payload
+    AzureAllowBodyPayloadMiddleware(
+      ApiNewMessageWithContentOf(
+        t.type({ payment_data: PaymentDataWithRequiredPayee }),
       ),
-      // Ensures only users in ApiMessageWriteWithPayee group can send payment messages with payee payload
-      AzureAllowBodyPayloadMiddleware(
-        ApiNewMessageWithContentOf(
-          t.type({ payment_data: PaymentDataWithRequiredPayee }),
-        ),
-        new Set([UserGroup.ApiMessageWriteWithPayee]),
-        "You do not have enough permissions to send a payment message with payee",
-      ),
-      // Allow only users in the ApiMessageWriteAdvanced group to send messages with "ADVANCED" feature_type
-      AzureAllowBodyPayloadMiddleware(
-        ApiNewMessageWithAdvancedFeatures,
-        new Set([UserGroup.ApiMessageWriteAdvanced]),
-        "You do not have enough permissions to send a Premium message",
-      ),
-      // Allow only users in the ApiThirdPartyMessageWrite group to send messages with ThirdPartyData
-      AzureAllowBodyPayloadMiddleware(
-        ApiNewThirdPartyMessage,
-        new Set([UserGroup.ApiThirdPartyMessageWrite]),
-        "You do not have enough permissions to send a third party message",
-      ),
-    ] as const),
-  );
+      new Set([UserGroup.ApiMessageWriteWithPayee]),
+      "You do not have enough permissions to send a payment message with payee",
+    ),
+    // Allow only users in the ApiMessageWriteAdvanced group to send messages with "ADVANCED" feature_type
+    AzureAllowBodyPayloadMiddleware(
+      ApiNewMessageWithAdvancedFeatures,
+      new Set([UserGroup.ApiMessageWriteAdvanced]),
+      "You do not have enough permissions to send a Premium message",
+    ),
+    // Allow only users in the ApiThirdPartyMessageWrite group to send messages with ThirdPartyData
+    AzureAllowBodyPayloadMiddleware(
+      ApiNewThirdPartyMessage,
+      new Set([UserGroup.ApiThirdPartyMessageWrite]),
+      "You do not have enough permissions to send a third party message",
+    ),
+  ] as const;
 
-  return wrapRequestHandler(
-    middlewaresWrap(
-      // eslint-disable-next-line max-params, @typescript-eslint/no-unused-vars
-      checkSourceIpForHandler(
-        handler,
-        (
-          _: Context,
-          __: IAzureApiAuthorization,
-          c: ClientIp,
-          u: IAzureUserAttributes,
-        ) => ipTuple(c, u),
-      ),
+  return wrapHandlerV4(
+    middlewares,
+    // eslint-disable-next-line max-params, @typescript-eslint/no-unused-vars
+    checkSourceIpForHandler(
+      handler,
+      (
+        _: InvocationContext,
+        __: IAzureApiAuthorization,
+        c: ClientIp,
+        u: IAzureUserAttributes,
+      ) => ipTuple(c, u),
     ),
   );
 }

@@ -1,5 +1,36 @@
 ### Changelog
 
+## 2.1.1
+
+### Patch Changes
+
+- 46fdb48: Remove async from loadConfigFromEnvironment
+
+## 2.1.0
+
+### Minor Changes
+
+- 93cfa82: Add a new "Update All Installations" background pipeline to the pushnotif-func
+  Azure Functions app.
+
+## 2.0.2
+
+### Patch Changes
+
+- b722a9c: CleanUp after PMv4 Migration
+
+## 2.0.1
+
+### Patch Changes
+
+- e2e1b60: Update and pin dependencies
+
+## 2.0.0
+
+### Major Changes
+
+- ecac005: Migrate pushnotif-func to programming model 4 and durable-function 3
+
 ## 1.2.2
 
 ### Patch Changes

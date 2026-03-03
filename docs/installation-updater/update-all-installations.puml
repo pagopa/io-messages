@@ -1,0 +1,104 @@
+@startuml
+
+title Update all installations
+
+!pragma teoz true
+box "io-p-itn-com-cosno-01 cosmos account" #LightBlue
+  box "push-notifications cosmos database"
+    database "installation-summaries" as ic
+  end box
+end box
+
+box "pushnotif-func"
+  participant "InstallationUpdateDispatcher" as uai
+  participant "UpdateInstallation" as ui
+end box
+
+participant "app-insights" as ai
+
+box "iopitncomst01 storage account"
+  queue "update-installations-dispatch" as uiq
+  queue "update-installations-dispatch-poison" as uiqp
+end box
+
+participant "Notification Hub" as nh
+
+uai -> ic : Read document batch\n(change feed trigger)
+activate uai
+
+loop for each document
+  uai -> uai : Parse document to Installation
+  alt Invalid document
+    uai --> ai : Track an event
+  end
+  alt Timestamp passed
+    note right of uai
+      The function's environment variables include
+      a timestamp beyond which updates to installations
+      are no longer required.
+      Here, we perform a check that prevents pushing to
+      the queue if the update is no longer necessary.
+
+      In this case we just end the execution.
+    end note
+  else Installation needs update
+    note right of uai
+      **UpdateInstallationMessage**
+      {
+        "installationId": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+        "platform": "FcmV1",
+      }
+    end note
+    uai -> uiq : Push message to the queue
+  end
+end
+
+deactivate uai
+
+note right of ui
+  **UpdateInstallationMessage**
+  {
+    "installationId": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+    "platform": "FcmV1",
+  }
+end note
+ui -> uiq : Read single message
+activate ui
+
+ui -> ui : Parse message to Installation
+alt Invalid message
+  ui --> ai : Track an event
+  note right of ui
+    End the execution.
+  end note
+end
+
+note right of ui
+  The JsonPatch is hardcoded.
+end note
+ui -> nh : Update the installation using the new structure
+activate nh
+
+alt Installation not found
+  nh -[#red]> ui : 404
+  note right of ui
+    Nothing to update.
+    End the execution.
+  end note
+else Error from Notification Hub
+  note right of ui
+    Transient error
+  end note
+  nh -[#red]x ui : Error
+  alt Was last retry
+    ui -> uiqp: Push to the poison
+  end
+  ui -[#red]x ui : Throw an error
+else Success from Notification Hub
+  nh -[#green]> ui : 201
+end
+deactivate nh
+
+deactivate ui
+
+@enduml

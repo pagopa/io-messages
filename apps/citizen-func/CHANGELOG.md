@@ -1,5 +1,17 @@
 ### Changelog
 
+## 6.0.0
+
+### Major Changes
+
+- 7c448b8: Migrate citizen-func to AzureFunctions Programming model V4
+
+## 5.5.11
+
+### Patch Changes
+
+- 751bfa0: Upgrade ExtensionBundle v3 -> v4
+
 ## 5.5.10
 
 ### Patch Changes

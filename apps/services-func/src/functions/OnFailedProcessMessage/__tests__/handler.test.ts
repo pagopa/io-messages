@@ -1,4 +1,4 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import * as MS from "@pagopa/io-functions-commons/dist/src/models/message_status";
 import { NonNegativeNumber } from "@pagopa/ts-commons/lib/numbers";
@@ -18,11 +18,13 @@ import { CreatedMessageEvent } from "../../../utils/events/message";
 import { getOnFailedProcessMessageHandler } from "../handler";
 
 const contextMock = {
-  bindings: {},
-  executionContext: { functionName: "funcname" },
-  // eslint-disable no-console
+  debug: vi.fn(),
+  error: vi.fn(),
+  extraOutputs: { set: vi.fn() },
+  functionName: "funcname",
   log: vi.fn(),
-} as unknown as Context;
+  warn: vi.fn(),
+} as unknown as InvocationContext;
 
 const mockTelemetryClient = {
   trackEvent: vi.fn(),

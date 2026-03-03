@@ -3,14 +3,13 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "AzureWebJobsStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;",
-    "FUNCTIONS_V2_COMPATIBILITY_MODE": false,
     "COMPOSE_PROJECT_NAME": "io-fn-template",
     "SLOT_TASK_HUBNAME": "IoFunctionsNotificationsFF",
     "AzureStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;",
     "DURABLE_FUNCTION_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;",
     "COSMOSDB_PORT": "3000",
     "API_GATEWAY_PORT": "80",
-    "APPINSIGHTS_INSTRUMENTATIONKEY": "IDoNotKnow",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "IDoNotKnow",
     "APPINSIGHTS_SAMPLING_PERCENTAGE": "20",
     "RETRY_ATTEMPT_NUMBER": "1",
     "NOTIFICATIONS_QUEUE_NAME": "push-notifications",
@@ -36,5 +35,10 @@
     "SESSION_MANAGER_BASE_URL": "http://mock-server:3000/api/v1/messages-sending/session-manager",
     "COSMOSDB_NAME": "io-messages",
     "COSMOSDB_URI": "https://io-d-itn-common-cosno-01.documents.azure.com:443/"
+    "COM_COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
+    "PUSH_DATABASE_NAME": "io-messages",
+    "INSTALLATION_SUMMARIES_CONTAINER_NAME": "installation-summaries",
+    "INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX": "0-",
+    "UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH": "86400"
   }
 }

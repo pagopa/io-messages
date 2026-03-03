@@ -1,8 +1,9 @@
 {
   "name": "pushnotif-func",
-  "version": "1.2.2",
+  "version": "2.1.1",
   "license": "MIT",
   "type": "commonjs",
+  "main": "dist/main.js",
   "scripts": {
     "build": "yarn generate && tsc",
     "start": "func start",
@@ -22,34 +23,29 @@
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
+    "@azure/functions": "^4.4.0",
     "@azure/identity": "^4.5.0",
     "@azure/notification-hubs": "^1.2.3",
     "@azure/service-bus": "^7.9.4",
     "@azure/storage-queue": "^12.4.0",
     "@pagopa/azure-storage-legacy-migration-kit": "^0.0.4",
-    "@pagopa/express-azure-functions": "^2.0.0",
-    "@pagopa/io-functions-commons": "^29.3.0",
-    "@pagopa/ts-commons": "^11.0.0",
-    "applicationinsights": "^1.8.10",
+    "@pagopa/io-functions-commons": "^30.0.0",
+    "@pagopa/ts-commons": "^13.1.2",
+    "applicationinsights": "^2.9.5",
     "azure-storage": "^2.10.3",
-    "durable-functions": "^1.4.4",
+    "durable-functions": "^3.0.0",
     "express": "^4.15.3",
     "fp-ts": "^2.10.5",
     "io-ts": "^2.2.16",
     "node-fetch": "^2.6.1",
     "ts-pattern": "^4.0.5",
-    "winston": "^3.2.1"
-  },
-  "dependenciesMeta": {
-    "express-azure-functions": {
-      "built": false
-    }
+    "winston": "^3.2.1",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
-    "@azure/functions": "^3.2.0",
     "@pagopa/eslint-config": "^4.0.3",
     "@pagopa/openapi-codegen-ts": "^14.0.0",
-    "@types/express": "^4.17.9",
+    "@types/express-serve-static-core": "^4.17.33",
     "@types/node": "^20.17.30",
     "@types/node-fetch": "^2.5.7",
     "@types/vfile-message": "^2.0.0",

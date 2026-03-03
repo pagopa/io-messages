@@ -1,5 +1,6 @@
 import { initAppInsights } from "@pagopa/ts-commons/lib/appinsights";
 import * as ai from "applicationinsights";
+import { env } from "process";
 
 import { IConfig } from "./config";
 
@@ -9,5 +10,8 @@ export const initTelemetryClient = (config: IConfig): ai.TelemetryClient =>
   ai.defaultClient
     ? ai.defaultClient
     : initAppInsights(config.APPLICATIONINSIGHTS_CONNECTION_STRING, {
+        // We need to disable tracing only when we are testing locally because
+        // interfere with azurite docker container.
+        isTracingDisabled: !env.isProduction,
         samplingPercentage: 5,
       });

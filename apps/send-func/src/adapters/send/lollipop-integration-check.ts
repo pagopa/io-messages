@@ -117,7 +117,11 @@ export default class LollipopIntegrationCheckClient
   ): Promise<LollipopLambdaSuccessResponse> {
     const response = await fetch(this.#buildUrl(query).toString(), {
       body: requestBody ? JSON.stringify(requestBody) : undefined,
-      headers: { ...headers, "content-type": "application/json" },
+      headers: {
+        ...headers,
+        "content-type": "application/json",
+        "x-api-key": this.#apiKey,
+      },
       method: "POST",
     });
 

@@ -14,10 +14,10 @@
         "includedTypes": "PageView;Trace;Dependency;Request",
         "excludedTypes": "Exception;Event;CustomEvent"
       }
-    },
-    "extensionBundle": {
-      "id": "Microsoft.Azure.Functions.ExtensionBundle",
-      "version": "[3.3.0, 4.0.0)"
     }
+  },
+  "extensionBundle": {
+    "id": "Microsoft.Azure.Functions.ExtensionBundle",
+    "version": "[4.*, 5.0.0)"
   }
 }

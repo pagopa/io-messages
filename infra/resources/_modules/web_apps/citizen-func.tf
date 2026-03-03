@@ -63,7 +63,7 @@ module "citizen_func_new" {
   health_check_path   = "/api/v1/info"
   node_version        = 20
 
-  size = "P3mv3"
+  size = "P2mv3"
 
   subnet_cidr                          = var.subnet_cidrs.citizen_func_new
   subnet_pep_id                        = var.subnet_pep_id
@@ -153,7 +153,7 @@ module "citizen_func_autoscaler_new" {
     cpu = {
       cooldown_decrease         = 20,
       cooldown_increase         = 3,
-      decrease_by               = 3,
+      decrease_by               = 1,
       increase_by               = 3,
       lower_threshold           = 20,
       statistic_decrease        = "Max",
@@ -168,23 +168,23 @@ module "citizen_func_autoscaler_new" {
 
   scheduler = {
     normal_load = {
-      default = 16,
-      minimum = 16
+      default = 11,
+      minimum = 5
     },
 
-    # low_load = {
-    #   minimum = 2,
-    #   name    = "low_load_profile",
-    #   default = 10,
-    #   start = {
-    #     hour    = 22,
-    #     minutes = 0
-    #   }
-    #   end = {
-    #     hour    = 5,
-    #     minutes = 0
-    #   },
-    # },
+    low_load = {
+      minimum = 3,
+      name    = "low_load_profile",
+      default = 10,
+      start = {
+        hour    = 22,
+        minutes = 0
+      }
+      end = {
+        hour    = 5,
+        minutes = 0
+      },
+    },
 
     maximum = 30,
   }

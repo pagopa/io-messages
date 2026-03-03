@@ -1,6 +1,6 @@
 /* eslint-disable max-lines-per-function */
 
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import { NotRejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/NotRejectedMessageStatusValue";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import {
@@ -30,7 +30,7 @@ export interface IOnFailedProcessMessageHandlerInput {
   readonly telemetryClient: ReturnType<typeof initTelemetryClient>;
 }
 
-type Handler = (c: Context, i: unknown) => Promise<void>;
+type Handler = (c: InvocationContext, i: unknown) => Promise<void>;
 
 /**
  * Returns a function for handling ProcessMessage

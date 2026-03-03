@@ -1,11 +1,15 @@
 meta {
   name: GetRCConfiguration
   type: http
-  seq: 4
+  seq: 3
 }
 
 get {
-  url: {{rc_func_url}}/api/v1/remote-contents/configurations/{{configuration_id}}
+  url: {{rc_func_url}}/api/v1/remote-contents/configurations/:configurationId
   body: none
   auth: none
+}
+
+params:path {
+  configurationId: 
 }

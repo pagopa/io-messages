@@ -1,4 +1,3 @@
-import { Context } from "@azure/functions";
 import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
 import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
@@ -11,6 +10,7 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { context as functionsContextMock } from "../../../__mocks__/context";
 import { aRetrievedMessageWithoutContent } from "../../../__mocks__/messages";
 import { aRetrievedService } from "../../../__mocks__/mocks.service_preference";
 import { redisClientMock } from "../../../__mocks__/redis";
@@ -40,12 +40,6 @@ const blobServiceMock = createBlobService(
   "UseDevelopmentStorage=true",
   "UseDevelopmentStorage=true",
 );
-
-const functionsContextMock = {
-  log: {
-    error: vi.fn(),
-  },
-} as unknown as Context;
 
 const dummyThirdPartyDataWithCategoryFetcher: ThirdPartyDataWithCategoryFetcher =
   vi.fn().mockImplementation(() => ({
@@ -120,7 +114,7 @@ describe("enrichContentData", () => {
         expect(enrichedMessage.right.has_precondition).toBeFalsy();
       }
     });
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
     expect(findLastVersionByModelIdMock).not.toHaveBeenCalled();
   });
 
@@ -148,7 +142,7 @@ describe("enrichContentData", () => {
         expect(enrichedMessage.right.has_precondition).toBeFalsy();
       }
     });
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should return right with right PAYMENT category when message content is retrieved", async () => {
@@ -186,7 +180,7 @@ describe("enrichContentData", () => {
         expect(enrichedMessage.right.has_precondition).toBeFalsy();
       }
     });
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should return right with correct third party data flags when message content is retrieved", async () => {
@@ -237,7 +231,7 @@ describe("enrichContentData", () => {
         expect(enrichedMessage.right.has_precondition).toBeTruthy();
       }
     });
-    expect(functionsContextMock.log.error).not.toHaveBeenCalled();
+    expect(functionsContextMock.error).not.toHaveBeenCalled();
   });
 
   it("should return left when message model return an error", async () => {
@@ -272,8 +266,8 @@ describe("enrichContentData", () => {
       expect(E.isLeft(enrichedMessage)).toBe(true);
     });
 
-    expect(functionsContextMock.log.error).toHaveBeenCalledTimes(1);
-    expect(functionsContextMock.log.error).toHaveBeenCalledWith(
+    expect(functionsContextMock.error).toHaveBeenCalledTimes(1);
+    expect(functionsContextMock.error).toHaveBeenCalledWith(
       `Cannot enrich message "${aRetrievedMessageWithoutContent.id}" | Error: GENERIC_ERROR`,
     );
   });

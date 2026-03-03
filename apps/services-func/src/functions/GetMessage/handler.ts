@@ -1,5 +1,5 @@
 /* eslint-disable max-lines-per-function */
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { MessageContent } from "@pagopa/io-backend-notifications-sdk/MessageContent";
 import { ExternalCreatedMessageWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/ExternalCreatedMessageWithContent";
@@ -24,6 +24,7 @@ import {
 import { NotificationModel } from "@pagopa/io-functions-commons/dist/src/models/notification";
 import { NotificationStatusModel } from "@pagopa/io-functions-commons/dist/src/models/notification_status";
 import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import {
   getMessageNotificationStatuses,
   retrievedMessageToPublic,
@@ -44,10 +45,6 @@ import {
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { FiscalCodeMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/fiscalcode";
 import { RequiredParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_param";
-import {
-  withRequestMiddlewares,
-  wrapRequestHandler,
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import {
   IResponseErrorQuery,
   ResponseErrorQuery,
@@ -71,7 +68,6 @@ import {
   getResponseErrorForbiddenNotAuthorized,
 } from "@pagopa/ts-commons/lib/responses";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import * as express from "express";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
@@ -110,7 +106,7 @@ export const retrievedMessageToExternal = (
  * errors.
  */
 type IGetMessageHandler = (
-  context: Context,
+  context: InvocationContext,
   auth: IAzureApiAuthorization,
   clientIp: ClientIp,
   attrs: IAzureUserAttributes,
@@ -343,7 +339,7 @@ export const GetMessageHandler =
     const errorOrMaybeContent = await pipe(
       getContentFromBlob(blobService, retrievedMessage.id),
       TE.mapLeft((error) => {
-        context.log.error(`GetMessageHandler|${JSON.stringify(error)}`);
+        context.error(`GetMessageHandler|${JSON.stringify(error)}`);
         return ResponseErrorInternal(`${error.name}: ${error.message}`);
       }),
       TE.chainW(
@@ -378,7 +374,7 @@ export const GetMessageHandler =
     )();
 
     if (E.isLeft(errorOrMaybeContent)) {
-      context.log.error(
+      context.error(
         `GetMessageHandler|${JSON.stringify(errorOrMaybeContent.left)}`,
       );
       return errorOrMaybeContent.left;
@@ -504,7 +500,7 @@ export function GetMessage(
   blobService: BlobServiceWithFallBack,
   canAccessMessageReadStatus: MessageReadStatusAuth,
   pagoPaEcommerceClient: PagoPaEcommerceClient,
-): express.RequestHandler {
+) {
   const handler = GetMessageHandler(
     messageModel,
     messageStatusModel,
@@ -514,7 +510,7 @@ export function GetMessage(
     canAccessMessageReadStatus,
     pagoPaEcommerceClient,
   );
-  const middlewaresWrap = withRequestMiddlewares(
+  const middlewares = [
     ContextMiddleware(),
     AzureApiAuthMiddleware(
       new Set([UserGroup.ApiMessageRead, UserGroup.ApiLegalMessageRead]),
@@ -523,13 +519,10 @@ export function GetMessage(
     AzureUserAttributesMiddleware(serviceModel),
     FiscalCodeMiddleware,
     RequiredParamMiddleware("id", NonEmptyString),
-  );
-  return wrapRequestHandler(
-    middlewaresWrap(
-      // eslint-disable-next-line max-params, @typescript-eslint/no-unused-vars
-      checkSourceIpForHandler(handler, (_, __, c, u, ___, ____) =>
-        ipTuple(c, u),
-      ),
-    ),
+  ] as const;
+  return wrapHandlerV4(
+    middlewares,
+    // eslint-disable-next-line max-params, @typescript-eslint/no-unused-vars
+    checkSourceIpForHandler(handler, (_, __, c, u, ___, ____) => ipTuple(c, u)),
   );
 }

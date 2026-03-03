@@ -1,6 +1,6 @@
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 
-import { NotificationHubPartitionFactory } from "../utils/notificationhubServicePartition";
+import { NotificationHubPartitionFactory } from "../utils/notificationhub-service-partition";
 
 export const nhPartitionFactory = new NotificationHubPartitionFactory([
   {

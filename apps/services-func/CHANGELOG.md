@@ -1,5 +1,23 @@
 # services-func
 
+## 2.0.0
+
+### Major Changes
+
+- fdb2a23: programming model from v3 to v4
+
+## 1.0.10
+
+### Patch Changes
+
+- 087ecce: Add exponentialBackoff retry policy in WebhookNotification
+
+## 1.0.9
+
+### Patch Changes
+
+- c2b1553: Upgrade ExtensionBundle v3 -> v4
+
 ## 1.0.8
 
 ### Patch Changes

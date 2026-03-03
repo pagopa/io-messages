@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { Context } from "@azure/functions";
+import { FunctionOutput, InvocationContext } from "@azure/functions";
 import { ActivationStatusEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/ActivationStatus";
 import { BlockedInboxOrChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/BlockedInboxOrChannel";
 import { RejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/RejectedMessageStatusValue";
@@ -67,13 +67,17 @@ function fail(message: string) {
 
 const TTL_FOR_USER_NOT_FOUND = 94670856 as NonNegativeInteger;
 
-const createContext = (functionName = "funcname"): Context =>
+const mockProcessedMessageOutput = {} as FunctionOutput;
+
+const createContext = (functionName = "funcname"): InvocationContext =>
   ({
-    bindings: {},
-    executionContext: { functionName },
-    // eslint-disable no-console
-    log: { ...console, error: vi.fn(), verbose: vi.fn(), warn: vi.fn() },
-  }) as unknown as Context;
+    debug: vi.fn(),
+    error: vi.fn(),
+    extraOutputs: { set: vi.fn() },
+    functionName,
+    log: vi.fn(),
+    warn: vi.fn(),
+  }) as unknown as InvocationContext;
 
 const mockTelemetryClient = {
   trackEvent: vi.fn(),
@@ -363,6 +367,7 @@ describe("getprocessMessageHandler", () => {
         optOutEmailSwitchDate,
         pendingActivationGracePeriod:
           DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
+        processedMessageOutput: mockProcessedMessageOutput,
         retrieveProcessingMessageData: mockRetrieveProcessingMessageData,
         telemetryClient: mockTelemetryClient,
       });
@@ -372,7 +377,8 @@ describe("getprocessMessageHandler", () => {
       await processMessageHandler(context, JSON.stringify(messageEvent));
 
       pipe(
-        context.bindings.processedMessage,
+        (context.extraOutputs.set as ReturnType<typeof vi.fn>).mock
+          .calls[0]?.[1],
         ProcessedMessageEvent.decode,
         E.fold(
           (err) => fail(`Wrong result: ${readableReport(err)}`),
@@ -451,6 +457,7 @@ describe("getprocessMessageHandler", () => {
         optOutEmailSwitchDate,
         pendingActivationGracePeriod:
           DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
+        processedMessageOutput: mockProcessedMessageOutput,
         retrieveProcessingMessageData: mockRetrieveProcessingMessageData,
         telemetryClient: mockTelemetryClient,
       });
@@ -460,7 +467,8 @@ describe("getprocessMessageHandler", () => {
       await processMessageHandler(context, JSON.stringify(messageEvent));
 
       pipe(
-        context.bindings.processedMessage,
+        (context.extraOutputs.set as ReturnType<typeof vi.fn>).mock
+          .calls[0]?.[1],
         ProcessedMessageEvent.decode,
         (result) => expect(E.isRight(result)).toBe(true),
       );
@@ -538,6 +546,7 @@ describe("getprocessMessageHandler", () => {
         optOutEmailSwitchDate: aPastOptOutEmailSwitchDate,
         pendingActivationGracePeriod:
           DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
+        processedMessageOutput: mockProcessedMessageOutput,
         retrieveProcessingMessageData: mockRetrieveProcessingMessageData,
         telemetryClient: mockTelemetryClient,
       });
@@ -546,7 +555,8 @@ describe("getprocessMessageHandler", () => {
 
       await processMessageHandler(context, JSON.stringify(messageEvent));
 
-      const result = context.bindings.processedMessage;
+      const result = (context.extraOutputs.set as ReturnType<typeof vi.fn>).mock
+        .calls[0]?.[1];
 
       expect(result).toBe(undefined);
 
@@ -629,6 +639,7 @@ describe("getprocessMessageHandler", () => {
         optOutEmailSwitchDate: aPastOptOutEmailSwitchDate,
         pendingActivationGracePeriod:
           DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
+        processedMessageOutput: mockProcessedMessageOutput,
         retrieveProcessingMessageData: mockRetrieveProcessingMessageData,
         telemetryClient: mockTelemetryClient,
       });
@@ -701,6 +712,7 @@ describe("getprocessMessageHandler", () => {
         optOutEmailSwitchDate: aPastOptOutEmailSwitchDate,
         pendingActivationGracePeriod:
           DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
+        processedMessageOutput: mockProcessedMessageOutput,
         retrieveProcessingMessageData: mockRetrieveProcessingMessageData,
         telemetryClient: mockTelemetryClient,
       });
@@ -717,7 +729,7 @@ describe("getprocessMessageHandler", () => {
         skipProfileMock ? 0 : 1,
       );
       // expect(getMessageStatusUpdaterMock).toBeCalledTimes(1);
-      expect(context.log.error).toHaveBeenCalledWith(
+      expect(context.error).toHaveBeenCalledWith(
         `${funcName}|MESSAGE_ID=${messageEvent.messageId}|${loggedError}`,
       );
 
@@ -748,6 +760,7 @@ describe("getprocessMessageHandler", () => {
       optOutEmailSwitchDate: aPastOptOutEmailSwitchDate,
       pendingActivationGracePeriod:
         DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
+      processedMessageOutput: mockProcessedMessageOutput,
       retrieveProcessingMessageData: mockRetrieveProcessingMessageData,
       telemetryClient: mockTelemetryClient,
     });
@@ -756,7 +769,8 @@ describe("getprocessMessageHandler", () => {
 
     await processMessageHandler(context, JSON.stringify(aCreatedMessageEvent));
 
-    const result = context.bindings.processedMessage;
+    const result = (context.extraOutputs.set as ReturnType<typeof vi.fn>).mock
+      .calls[0]?.[1];
 
     expect(result).toBe(undefined);
 
@@ -809,6 +823,7 @@ describe("getprocessMessageHandler", () => {
       optOutEmailSwitchDate: aPastOptOutEmailSwitchDate,
       pendingActivationGracePeriod:
         DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
+      processedMessageOutput: mockProcessedMessageOutput,
       retrieveProcessingMessageData: mockRetrieveProcessingMessageData,
       telemetryClient: mockTelemetryClient,
     });
@@ -840,6 +855,7 @@ describe("getprocessMessageHandler", () => {
       optOutEmailSwitchDate: aPastOptOutEmailSwitchDate,
       pendingActivationGracePeriod:
         DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
+      processedMessageOutput: mockProcessedMessageOutput,
       retrieveProcessingMessageData: mockRetrieveProcessingMessageData,
       telemetryClient: mockTelemetryClient,
     });

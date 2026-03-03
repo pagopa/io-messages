@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RemoteContentClient } from "@/clients/remote-content";
-import { Context } from "@azure/functions";
+import { FunctionOutput, InvocationContext } from "@azure/functions";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { UserGroup } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_api_auth";
@@ -40,13 +40,15 @@ import {
 } from "../handler";
 import { ApiNewMessageWithDefaults } from "../types";
 
-const createContext = (): Context =>
+const createContext = (): InvocationContext =>
   ({
-    bindings: {},
-    executionContext: { functionName: "funcname" },
-    // eslint-disable no-console
-    log: { ...console, verbose: vi.fn() },
-  }) as unknown as Context;
+    debug: vi.fn(),
+    error: vi.fn(),
+    extraOutputs: { set: vi.fn() },
+    functionName: "funcname",
+    log: vi.fn(),
+    warn: vi.fn(),
+  }) as unknown as InvocationContext;
 
 const aSandboxFiscalCode = "AAAAAA12A12A111A" as NonEmptyString;
 
@@ -263,6 +265,7 @@ describe("CreateMessageHandler", () => {
           undefined as any,
           undefined as any,
           aSandboxFiscalCode,
+          {} as FunctionOutput,
         );
 
         const response = await createMessageHandler(
@@ -289,6 +292,7 @@ describe("CreateMessageHandler", () => {
       undefined as any,
       undefined as any,
       aSandboxFiscalCode,
+      {} as FunctionOutput,
     );
 
     const response = await createMessageHandler(
@@ -315,6 +319,7 @@ describe("CreateMessageHandler", () => {
       mockGenerateObjId,
       mockSaveBlob,
       aSandboxFiscalCode,
+      {} as FunctionOutput,
     );
 
     await createMessageHandler(
@@ -353,6 +358,7 @@ describe("CreateMessageHandler", () => {
       mockGenerateObjId,
       mockSaveBlob,
       aSandboxFiscalCode,
+      {} as FunctionOutput,
     );
 
     await createMessageHandler(
@@ -393,6 +399,7 @@ describe("CreateMessageHandler", () => {
       undefined as any,
       mockSaveBlob,
       aSandboxFiscalCode,
+      {} as FunctionOutput,
     );
 
     const r = await createMessageHandler(
@@ -433,6 +440,7 @@ describe("CreateMessageHandler", () => {
       undefined as any,
       mockSaveBlob,
       aSandboxFiscalCode,
+      {} as FunctionOutput,
     );
 
     const r = await createMessageHandler(
@@ -476,6 +484,7 @@ describe("CreateMessageHandler", () => {
       mockGenerateObjId,
       mockSaveBlob,
       aSandboxFiscalCode,
+      {} as FunctionOutput,
     );
 
     const r = await createMessageHandler(
@@ -524,6 +533,7 @@ describe("CreateMessageHandler", () => {
       mockGenerateObjId,
       mockSaveBlob,
       aSandboxFiscalCode,
+      {} as FunctionOutput,
     );
 
     const r = await createMessageHandler(
@@ -559,6 +569,7 @@ describe("CreateMessageHandler", () => {
       mockGenerateObjId,
       mockSaveBlob,
       aSandboxFiscalCode,
+      {} as FunctionOutput,
     );
 
     const r = await createMessageHandler(

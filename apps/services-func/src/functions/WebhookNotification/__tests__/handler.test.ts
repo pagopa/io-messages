@@ -86,15 +86,6 @@ const aNotification: Notification = {
   messageId: aMessageId,
 };
 
-const nullLog = {
-  // eslint-disable-next-line no-console
-  error: console.error,
-  // eslint-disable-next-line no-console
-  verbose: console.log,
-  // eslint-disable-next-line no-console
-  warn: console.warn,
-};
-
 const mockFetch = <T>(status: number, json: T) =>
   //eslint-disable-next-line @typescript-eslint/no-unused-vars
   vi.fn((_1, _2) => ({
@@ -103,8 +94,12 @@ const mockFetch = <T>(status: number, json: T) =>
   }));
 
 const mockContext = {
-  executionContext: { functionName: "funcname" },
-  log: nullLog,
+  debug: vi.fn(),
+  error: vi.fn(),
+  extraOutputs: { set: vi.fn() },
+  functionName: "funcname",
+  log: vi.fn(),
+  warn: vi.fn(),
 } as any;
 
 const aCommonMessageData = {

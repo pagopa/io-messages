@@ -1,11 +1,8 @@
 import { RCConfigurationModel } from "@pagopa/io-functions-commons/dist/src/models/rc_configuration";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { RequiredBodyPayloadMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_body_payload";
 import { retrievedRCConfigurationToPublic } from "@pagopa/io-functions-commons/dist/src/utils/rc_configuration";
-import {
-  withRequestMiddlewares,
-  wrapRequestHandler,
-} from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
 import {
   IResponseErrorForbiddenNotAuthorized,
   IResponseErrorInternal,
@@ -13,7 +10,6 @@ import {
   ResponseSuccessRedirectToResource,
 } from "@pagopa/ts-commons/lib/responses";
 import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
-import * as express from "express";
 import * as TE from "fp-ts/lib/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
 
@@ -97,31 +93,26 @@ interface IGetCreateRCConfigurationHandlerParameter {
   readonly rccModel: RCConfigurationModel;
 }
 
-type GetCreateRCConfigurationHandlerReturnType = express.RequestHandler;
+export const getCreateRCConfigurationHandler = ({
+  generateConfigurationId,
+  rccModel,
+}: IGetCreateRCConfigurationHandlerParameter) => {
+  const handler = createRCConfigurationHandler({
+    generateConfigurationId,
+    rccModel,
+  });
 
-type GetCreateRCConfigurationHandler = (
-  parameter: IGetCreateRCConfigurationHandlerParameter,
-) => GetCreateRCConfigurationHandlerReturnType;
+  const middlewares = [
+    ContextMiddleware(),
+    RequiredSubscriptionIdMiddleware(),
+    RequiredUserGroupsMiddleware(),
+    RequiredUserIdMiddleware(),
+    RequiredBodyPayloadMiddleware(NewRCConfigurationPublic),
+  ] as const;
 
-export const getCreateRCConfigurationExpressHandler: GetCreateRCConfigurationHandler =
-  ({ generateConfigurationId, rccModel }) => {
-    const handler = createRCConfigurationHandler({
-      generateConfigurationId,
-      rccModel,
-    });
-
-    const middlewaresWrap = withRequestMiddlewares(
-      ContextMiddleware(),
-      RequiredSubscriptionIdMiddleware(),
-      RequiredUserGroupsMiddleware(),
-      RequiredUserIdMiddleware(),
-      RequiredBodyPayloadMiddleware(NewRCConfigurationPublic),
-    );
-
-    return wrapRequestHandler(
-      middlewaresWrap(
-        (_, subscriptionId, userGroups, userId, newRCConfiguration) =>
-          handler({ newRCConfiguration, subscriptionId, userGroups, userId }),
-      ),
-    );
-  };
+  return wrapHandlerV4(
+    middlewares,
+    (_, subscriptionId, userGroups, userId, newRCConfiguration) =>
+      handler({ newRCConfiguration, subscriptionId, userGroups, userId }),
+  );
+};

@@ -49,7 +49,7 @@
         "ms-vscode.vscode-websearchforcopilot",
         "ms-vsliveshare.vsliveshare",
         "azurite.azurite",
-        "azapi-vscode.azapi",
+        "ms-azuretools.vscode-azureterraform",
         "github.vscode-github-actions",
         "github.vscode-pull-request-github",
         "arcanis.vscode-zipfs",

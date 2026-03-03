@@ -1,10 +1,10 @@
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import * as ai from "applicationinsights";
-import { IOrchestrationFunctionContext } from "durable-functions/lib/src/classes";
+import { OrchestrationContext } from "durable-functions";
 import * as t from "io-ts";
 
 import { toString } from "../utils";
-import { OrchestratorFailure } from "./returnTypes";
+import { OrchestratorFailure } from "./return-types";
 
 const defaultNever = <T>(_: never, d: T): T => d;
 
@@ -24,17 +24,21 @@ export interface IOrchestratorLogger {
 }
 
 /**
- * Creates a logger object which is bound to an orchestrator context
+ * Creates a logger object which is bound to an orchestrator context.
+ * Log calls are suppressed during orchestrator replays via an early-return
+ * guard on `context.df.isReplaying`.
  *
- * @param {IOrchestrationFunctionContext} context the context of execution of the orchestrator
+ * @param {OrchestrationContext} context the context of execution of the orchestrator
  * @param {string} logPrefix a string to prepend to every log entry, usually the name of the orchestrator. Default: empty string
  * @returns {IOrchestratorLogger} a logger instance
  */
 export const createLogger = (
-  context: IOrchestrationFunctionContext,
+  context: OrchestrationContext,
   logPrefix = "",
 ): IOrchestratorLogger => ({
   error: (failure: OrchestratorFailure): void => {
+    if (context.df.isReplaying) return;
+
     const log = `${logPrefix}|Error executing orchestrator: ${failure.kind}`;
     const verbose: string =
       failure.kind === "FAILURE_INVALID_INPUT"
@@ -47,23 +51,27 @@ export const createLogger = (
                 failure,
                 `unknown failure kind, failure: ${toString(failure)}`,
               );
-    context.log.error(`${log}|${verbose}`);
-    context.log.verbose(`${log}|${verbose}`);
+    context.error(`${log}|${verbose}`);
+    context.trace(`${log}|${verbose}`);
   },
   info: (s: string): void => {
-    context.log.info(`${logPrefix}|${s}`);
+    if (context.df.isReplaying) return;
+
+    context.log(`${logPrefix}|${s}`);
   },
 });
 
 export const trackExceptionAndThrow =
   (
-    context: IOrchestrationFunctionContext,
+    context: OrchestrationContext,
     aiTelemetry: ai.TelemetryClient,
     logPrefix: string,
   ) =>
   (err: Error | t.Errors, name: string): never => {
     const errMessage = err instanceof Error ? err.message : readableReport(err);
-    context.log.verbose(`${logPrefix}|ERROR=${errMessage}`);
+    if (!context.df.isReplaying) {
+      context.trace(`${logPrefix}|ERROR=${errMessage}`);
+    }
     aiTelemetry.trackException({
       exception: new Error(`${logPrefix}|ERROR=${errMessage}`),
       properties: {
