@@ -1,5 +1,11 @@
 ### Changelog
 
+## 6.0.0
+
+### Major Changes
+
+- 7c448b8: Migrate citizen-func to AzureFunctions Programming model V4
+
 ## 5.5.11
 
 ### Patch Changes
