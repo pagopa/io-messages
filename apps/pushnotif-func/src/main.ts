@@ -1,4 +1,5 @@
 import { app, output } from "@azure/functions";
+import { NotificationHubsClient } from "@azure/notification-hubs";
 import { QueueClient } from "@azure/storage-queue";
 import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 import {
@@ -24,6 +25,15 @@ import { RetryOptions } from "durable-functions";
 import { pipe } from "fp-ts/lib/function";
 import nodeFetch from "node-fetch";
 
+import { TelemetryClient } from "./adapters/appinsights";
+import {
+  Config,
+  configFromEnvironment,
+  loadConfigFromEnvironment,
+} from "./adapters/config";
+import getUpdateInstallationHandler from "./adapters/functions/update-installation";
+import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
+import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
 import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
@@ -197,3 +207,80 @@ app.http("Notify", {
   methods: ["POST"],
   route: "api/v1/notify",
 });
+
+const main = async (config: Config) => {
+  const telemetryService = new TelemetryClient(telemetryClient);
+  const updateInstallationDispatchQueueName = "update-installations-dispatch";
+
+  const notificationHubClients = [
+    new NotificationHubsClient(
+      config.notificationHub.partition1.connectionString,
+      config.notificationHub.partition1.name,
+    ),
+
+    new NotificationHubsClient(
+      config.notificationHub.partition2.connectionString,
+      config.notificationHub.partition2.name,
+    ),
+
+    new NotificationHubsClient(
+      config.notificationHub.partition3.connectionString,
+      config.notificationHub.partition3.name,
+    ),
+
+    new NotificationHubsClient(
+      config.notificationHub.partition4.connectionString,
+      config.notificationHub.partition4.name,
+    ),
+  ];
+
+  const notifiationHubInstallationAdapter =
+    new NotificationHubInstallationAdapter(notificationHubClients, [
+      new RegExp(config.notificationHub.partition1.partitionRegex),
+      new RegExp(config.notificationHub.partition2.partitionRegex),
+      new RegExp(config.notificationHub.partition3.partitionRegex),
+      new RegExp(config.notificationHub.partition4.partitionRegex),
+    ]);
+
+  const updateInstallationDispatchQueueOutput = output.storageQueue({
+    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    queueName: updateInstallationDispatchQueueName,
+  });
+
+  app.cosmosDB("InstallationUpdateDispatcher", {
+    connection: "COM_COSMOS",
+    containerName: config.installationSummariesContainerName,
+    createLeaseContainerIfNotExists: false,
+    databaseName: config.databaseName,
+    extraOutputs: [updateInstallationDispatchQueueOutput],
+    handler: getInstallationUpdateDispatcher(
+      telemetryService,
+      config.updateAllInstallationsTimeToReach,
+      updateInstallationDispatchQueueOutput,
+    ),
+    leaseContainerName: "installation-summaries-leases",
+    leaseContainerPrefix: config.installationSummariesLeaseContainerPrefix,
+    maxItemsPerInvocation: 50,
+    retry: {
+      maxRetryCount: 5,
+      maximumInterval: {
+        minutes: 30,
+      },
+      minimumInterval: {
+        minutes: 1,
+      },
+      strategy: "exponentialBackoff",
+    },
+  });
+
+  app.storageQueue("UpdateInstallation", {
+    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    handler: getUpdateInstallationHandler(
+      telemetryService,
+      notifiationHubInstallationAdapter,
+    ),
+    queueName: updateInstallationDispatchQueueName,
+  });
+};
+
+loadConfigFromEnvironment(main, configFromEnvironment);

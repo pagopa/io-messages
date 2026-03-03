@@ -43,6 +43,12 @@ resource "azurerm_cosmosdb_sql_database" "remote_content" {
   account_name        = module.io_com_cosmos_account.name
 }
 
+resource "azurerm_cosmosdb_sql_database" "push_notifications" {
+  name                = "push-notifications-cosmos-01"
+  resource_group_name = var.resource_group
+  account_name        = module.io_com_cosmos_account.name
+}
+
 resource "azurerm_cosmosdb_sql_container" "messages_summary" {
   name                = "messages-summary"
   resource_group_name = var.resource_group
@@ -85,6 +91,32 @@ resource "azurerm_cosmosdb_sql_container" "remote_content_lease" {
   account_name        = module.io_com_cosmos_account.name
   database_name       = azurerm_cosmosdb_sql_database.remote_content.name
   partition_key_paths = ["/id"]
+  autoscale_settings {
+    max_throughput = 2000
+  }
+}
+
+resource "azurerm_cosmosdb_sql_container" "installation_summaries" {
+  name                = "installation-summaries"
+  resource_group_name = var.resource_group
+
+  account_name        = module.io_com_cosmos_account.name
+  database_name       = azurerm_cosmosdb_sql_database.push_notifications.name
+  partition_key_paths = ["/nhPartition"]
+
+  autoscale_settings {
+    max_throughput = 2000
+  }
+}
+
+resource "azurerm_cosmosdb_sql_container" "installation_summaries_lease" {
+  name                = "installation-summaries-leases"
+  resource_group_name = var.resource_group
+
+  account_name        = module.io_com_cosmos_account.name
+  database_name       = azurerm_cosmosdb_sql_database.push_notifications.name
+  partition_key_paths = ["/id"]
+
   autoscale_settings {
     max_throughput = 2000
   }
