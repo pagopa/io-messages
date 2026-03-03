@@ -208,7 +208,7 @@ app.http("Notify", {
   route: "api/v1/notify",
 });
 
-const main = async (config: Config) => {
+const main = (config: Config) => {
   const telemetryService = new TelemetryClient(telemetryClient);
   const updateInstallationDispatchQueueName = "update-installations-dispatch";
 
