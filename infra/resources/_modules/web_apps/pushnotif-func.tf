@@ -88,7 +88,7 @@ locals {
       COSMOSDB_URI                = var.cosmosdb_account_api.endpoint
       COM_COSMOS__accountEndpoint = var.io_com_cosmos.endpoint
 
-      PUSH_DATABASE_NAME                            = "push-notifications"
+      PUSH_DATABASE_NAME                            = "push-notifications-cosmos-01"
       INSTALLATION_SUMMARIES_CONTAINER_NAME         = "installation-summaries",
       INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX = "0-",
       # Change this value when need to update the installations
@@ -252,7 +252,7 @@ resource "azurerm_cosmosdb_sql_role_assignment" "push_notifications_database_con
   ])
   resource_group_name = var.resource_group_name
   account_name        = var.io_com_cosmos.name
-  scope               = "${var.io_com_cosmos.id}/dbs/push-notifications"
+  scope               = "${var.io_com_cosmos.id}/dbs/push-notifications-cosmos-01"
   role_definition_id  = "${var.io_com_cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = each.value
 }
