@@ -132,7 +132,7 @@ module "services_func_autoscaler" {
     cpu = {
       cooldown_decrease         = 20,
       cooldown_increase         = 3,
-      decrease_by               = 3,
+      decrease_by               = 1,
       increase_by               = 3,
       lower_threshold           = 20,
       statistic_decrease        = "Max",
@@ -148,10 +148,11 @@ module "services_func_autoscaler" {
   scheduler = {
     normal_load = {
       default = 11,
-      minimum = 2
+      minimum = 5
     },
+
     low_load = {
-      minimum = 2,
+      minimum = 3,
       name    = "low_load_profile",
       default = 10,
       start = {
