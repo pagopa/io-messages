@@ -69,7 +69,7 @@ const getUpdateInstallationHandler =
 
     if (errorOrUpdatedInstallation instanceof ErrorNotFound) {
       // If the installation is not found then we simply end the execution
-      // knowing that tere is nothing to update.
+      // knowing that there is nothing to update.
       return;
     }
 
