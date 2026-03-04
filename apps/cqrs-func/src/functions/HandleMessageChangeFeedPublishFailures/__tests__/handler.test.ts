@@ -3,10 +3,10 @@ import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/messa
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { MessageContentType } from "../../generated/avro/dto/MessageContentTypeEnum";
-import { TelemetryClient } from "../../utils/appinsights";
-import { ThirdPartyDataWithCategoryFetcher } from "../../utils/message";
+import { TelemetryClient } from "../../../utils/appinsights";
+import { ThirdPartyDataWithCategoryFetcher } from "../../../utils/message";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
-import * as messageUtils from "../../utils/message-utils";
+import * as messageUtils from "../../../utils/message-utils";
 import {
   aMessageContent,
   aRetrievedMessageWithoutContent,

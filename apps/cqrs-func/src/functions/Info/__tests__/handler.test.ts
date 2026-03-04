@@ -1,5 +1,5 @@
 import * as TE from "fp-ts/lib/TaskEither";
-import { HealthCheck, HealthProblem } from "../../utils/healthcheck";
+import { HealthCheck, HealthProblem } from "../../../utils/healthcheck";
 import { InfoHandler } from "../handler";
 import { vi, describe, test, expect, afterEach } from "vitest";
 
