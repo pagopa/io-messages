@@ -1,7 +1,8 @@
 import { QueueClient, QueueSendMessageResponse } from "@azure/storage-queue";
 import * as E from "fp-ts/Either";
-import { pipe } from "fp-ts/lib/function";
 import * as TE from "fp-ts/TaskEither";
+import { pipe } from "fp-ts/lib/function";
+
 import { TelemetryClient } from "./appinsights";
 import { Failure, TransientFailure } from "./errors";
 

@@ -8,14 +8,14 @@ import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/d
 import {
   Components,
   MessageView,
-  Status
+  Status,
 } from "@pagopa/io-functions-commons/dist/src/models/message_view";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as E from "fp-ts/lib/Either";
 import {
   MessageModel,
-  RetrievedMessageWithoutContent
+  RetrievedMessageWithoutContent,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { MessageStatusModel } from "@pagopa/io-functions-commons/dist/src/models/message_status";
 import { CosmosErrors } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
@@ -31,7 +31,7 @@ export const cosmosMetadata = {
   _etag: "_etag",
   _rid: "_rid",
   _self: "_self",
-  _ts: 1
+  _ts: 1,
 };
 
 export const aRetrievedMessageWithoutContent: RetrievedMessageWithoutContent = {
@@ -45,7 +45,7 @@ export const aRetrievedMessageWithoutContent: RetrievedMessageWithoutContent = {
   senderUserId: "u123" as NonEmptyString,
   timeToLiveSeconds: 3600 as TimeToLiveSeconds,
   createdAt: new Date(),
-  kind: "IRetrievedMessageWithoutContent"
+  kind: "IRetrievedMessageWithoutContent",
 };
 
 export const aMessageBodyMarkdown = "test".repeat(80);
@@ -54,8 +54,8 @@ export const aMessageContent = E.getOrElseW(() => {
 })(
   MessageContent.decode({
     markdown: aMessageBodyMarkdown,
-    subject: "test".repeat(10)
-  })
+    subject: "test".repeat(10),
+  }),
 );
 
 export const aMessageContentWithDueDate = E.getOrElseW(() => {
@@ -64,8 +64,8 @@ export const aMessageContentWithDueDate = E.getOrElseW(() => {
   MessageContent.decode({
     markdown: aMessageBodyMarkdown,
     subject: "test".repeat(10),
-    due_date: now
-  })
+    due_date: now,
+  }),
 );
 export const aMessageStatus: RetrievedMessageStatusWithFiscalCode = {
   ...cosmosMetadata,
@@ -77,7 +77,7 @@ export const aMessageStatus: RetrievedMessageStatusWithFiscalCode = {
   fiscalCode: aFiscalCode,
   isRead: false,
   isArchived: false,
-  kind: "IRetrievedMessageStatus"
+  kind: "IRetrievedMessageStatus",
 };
 
 export const aComponents: Components = {
@@ -85,13 +85,13 @@ export const aComponents: Components = {
   euCovidCert: { has: false },
   legalData: { has: false },
   payment: { has: false },
-  thirdParty: { has: false }
+  thirdParty: { has: false },
 };
 
 export const aStatus: Status = {
   archived: false,
   processing: NotRejectedMessageStatusValueEnum.PROCESSED,
-  read: false
+  read: false,
 };
 
 export const aMessageView: MessageView = {
@@ -102,22 +102,22 @@ export const aMessageView: MessageView = {
   messageTitle: "a-msg-title" as NonEmptyString,
   senderServiceId: "a-service-id" as ServiceId,
   status: aStatus,
-  version: 0 as NonNegativeInteger
+  version: 0 as NonNegativeInteger,
 };
 
 export const mockPatch = vi.fn(
   (): TE.TaskEither<CosmosErrors, RetrievedMessageWithoutContent> =>
-    TE.of(aRetrievedMessageWithoutContent)
+    TE.of(aRetrievedMessageWithoutContent),
 );
 
-export const mockMessageModel: MessageModel = ({
-  patch: mockPatch
-} as any) as MessageModel;
+export const mockMessageModel: MessageModel = {
+  patch: mockPatch,
+} as any as MessageModel;
 
 export const mockUpdateTTLForAllVersions = vi.fn(
-  (): TE.TaskEither<CosmosErrors, number> => TE.of(1)
+  (): TE.TaskEither<CosmosErrors, number> => TE.of(1),
 );
 
-export const mockMessageStatusModel: MessageStatusModel = ({
-  updateTTLForAllVersions: mockUpdateTTLForAllVersions
-} as unknown) as MessageStatusModel;
+export const mockMessageStatusModel: MessageStatusModel = {
+  updateTTLForAllVersions: mockUpdateTTLForAllVersions,
+} as unknown as MessageStatusModel;

@@ -11,7 +11,7 @@ describe("InfoHandler", () => {
   test("should return an internal error if the application is not healthy", async () => {
     const healthCheck: HealthCheck = TE.left([
       "failure 1" as HealthProblem<"Config">,
-      "failure 2" as HealthProblem<"Config">
+      "failure 2" as HealthProblem<"Config">,
     ]);
     const handler = InfoHandler(healthCheck);
 
