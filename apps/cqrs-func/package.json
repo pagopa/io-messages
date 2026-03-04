@@ -12,7 +12,9 @@
     "lint:check": "eslint .",
     "generate:avro": "shx rm -rf ./generated/avro && shx mkdir -p ./generated/avro && avro-to-typescript --compile ./avro ./generated/avro",
     "generate": "yarn generate:avro",
-    "dist:modules": "modclean -r -n default:safe && yarn install --production"
+    "dist:modules": "modclean -r -n default:safe && yarn install --production",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "@azure/functions": "^3.2.0",
