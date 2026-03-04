@@ -52,7 +52,7 @@ locals {
 
 module "citizen_func_new" {
   source  = "pagopa-dx/azure-function-app/azurerm"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   environment = merge(var.environment, {
     app_name        = "citizen"
