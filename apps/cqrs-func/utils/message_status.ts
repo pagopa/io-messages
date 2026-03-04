@@ -4,7 +4,7 @@ import * as t from "io-ts";
 
 export const RetrievedMessageStatusWithFiscalCode = t.intersection([
   RetrievedMessageStatus,
-  t.interface({ fiscalCode: FiscalCode })
+  t.interface({ fiscalCode: FiscalCode }),
 ]);
 export type RetrievedMessageStatusWithFiscalCode = t.TypeOf<
   typeof RetrievedMessageStatusWithFiscalCode
