@@ -12,4 +12,3 @@ docker-compose up -d --build
 docker-compose logs -f functions
 open http://localhost/some/path/test
 ```
-

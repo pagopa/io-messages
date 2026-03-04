@@ -1,23 +1,23 @@
-import * as B from "fp-ts/lib/boolean";
-import * as E from "fp-ts/lib/Either";
-import { flow, pipe } from "fp-ts/lib/function";
-import * as T from "fp-ts/lib/Task";
-import * as TE from "fp-ts/lib/TaskEither";
-import * as RA from "fp-ts/ReadonlyArray";
-
 import { QueueClient } from "@azure/storage-queue";
+import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import {
   MessageModel,
   RetrievedMessage,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
+import * as RA from "fp-ts/ReadonlyArray";
+import * as E from "fp-ts/lib/Either";
+import * as T from "fp-ts/lib/Task";
+import * as TE from "fp-ts/lib/TaskEither";
+import * as B from "fp-ts/lib/boolean";
+import { flow, pipe } from "fp-ts/lib/function";
+
 import { TelemetryClient } from "../utils/appinsights";
 import { errorsToError } from "../utils/conversions";
-import { Failure, toPermanentFailure, TransientFailure } from "../utils/errors";
+import { Failure, TransientFailure, toPermanentFailure } from "../utils/errors";
 import { enrichMessagesContent } from "../utils/message";
 import { IBulkOperationResult, publish } from "../utils/publish";
 import { toStorableError } from "../utils/storable_error";
-import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 
 const CHUNK_SIZE = 15;
 
@@ -32,7 +32,7 @@ export const handleMessageChange =
     errorStorage: QueueClient,
     telemetryClient: TelemetryClient,
     cqrsLogName: string,
-    documents: ReadonlyArray<unknown>,
+    documents: readonly unknown[],
   ): Promise<Failure | IBulkOperationResult> =>
     pipe(
       documents,

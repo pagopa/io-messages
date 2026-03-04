@@ -2,12 +2,12 @@ import * as TE from "fp-ts/lib/TaskEither";
 import * as O from "fp-ts/lib/Option";
 import {
   CosmosErrors,
-  CosmosResource
+  CosmosResource,
 } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
 import { aFiscalCode } from "./message";
 import {
   ProfileModel,
-  RetrievedProfile
+  RetrievedProfile,
 } from "@pagopa/io-functions-commons/dist/src/models/profile";
 import { ServicesPreferencesModeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/ServicesPreferencesMode";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
@@ -19,13 +19,14 @@ export const aCosmosResourceMetadata: Omit<CosmosResource, "id"> = {
   _etag: "_etag",
   _rid: "_rid",
   _self: "_self",
-  _ts: 1
+  _ts: 1,
 };
 
-export const legacyProfileServicePreferencesSettings: RetrievedProfile["servicePreferencesSettings"] = {
-  mode: ServicesPreferencesModeEnum.LEGACY,
-  version: -1
-};
+export const legacyProfileServicePreferencesSettings: RetrievedProfile["servicePreferencesSettings"] =
+  {
+    mode: ServicesPreferencesModeEnum.LEGACY,
+    version: -1,
+  };
 
 export const aRetrievedProfile: RetrievedProfile = {
   ...aCosmosResourceMetadata,
@@ -41,13 +42,13 @@ export const aRetrievedProfile: RetrievedProfile = {
   servicePreferencesSettings: legacyProfileServicePreferencesSettings,
   version: 0 as NonNegativeInteger,
   lastAppVersion: "UNKNOWN",
-  pushNotificationsContentType: "UNSET"
+  pushNotificationsContentType: "UNSET",
 };
 
 export const mockProfileFindLast = vi.fn(
   (): TE.TaskEither<CosmosErrors, O.Option<RetrievedProfile>> =>
-    TE.of(O.some(aRetrievedProfile))
+    TE.of(O.some(aRetrievedProfile)),
 );
-export const mockProfileModel = ({
-  findLastVersionByModelId: mockProfileFindLast
-} as unknown) as ProfileModel;
+export const mockProfileModel = {
+  findLastVersionByModelId: mockProfileFindLast,
+} as unknown as ProfileModel;
