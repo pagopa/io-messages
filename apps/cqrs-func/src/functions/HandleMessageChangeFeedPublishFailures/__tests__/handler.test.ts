@@ -10,7 +10,7 @@ import * as messageUtils from "../../../utils/message-utils";
 import {
   aMessageContent,
   aRetrievedMessageWithoutContent,
-} from "../../__mocks__/message";
+} from "../../../__mocks__/message";
 import {
   HandleMessageChangeFeedPublishFailureHandler,
   HandleMessagePublishFailureInput,

@@ -14,7 +14,7 @@ import { pipe } from "fp-ts/lib/function";
 import {
   aMessageContent,
   aRetrievedMessageWithoutContent,
-} from "../../__mocks__/message";
+} from "../../../__mocks__/message";
 import { handleMessageChange } from "../handler";
 import { vi, beforeEach, describe, test, expect } from "vitest";
 

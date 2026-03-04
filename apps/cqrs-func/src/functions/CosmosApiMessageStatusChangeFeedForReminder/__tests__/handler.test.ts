@@ -1,5 +1,5 @@
 import { pipe } from "fp-ts/lib/function";
-import { aMessageStatus } from "../../__mocks__/message";
+import { aMessageStatus } from "../../../__mocks__/message";
 import { handleAvroMessageStatusPublishChange as handler } from "../handler";
 import * as RA from "fp-ts/ReadonlyArray";
 import { RetrievedMessageStatus } from "@pagopa/io-functions-commons/dist/src/models/message_status";
