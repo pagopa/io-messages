@@ -39,34 +39,37 @@ export class CosmosInstallationAdapter implements InstallationRepository {
 
   async createOrUpdateInstallation(
     installation: Installation,
-  ): Promise<Error | string> {
+  ): Promise<string> {
     try {
       const container = this.getContainer();
-      await container.items.upsert(
+      const nhPartition = this.computePartitionId(installation.installationId);
+
+      const result = await container.items.upsert(
         {
           id: installation.installationId,
-          partitionKey: this.computePartitionId(installation.installationId),
-          ...installation,
+          nhPartition,
+          platform: installation.platform,
         },
         {},
       );
 
-      return installation.installationId;
+      return result.item.id;
     } catch (err) {
-      return new Error(
+      throw new Error(
         `Failed to create or update installation: ${String(err)}`,
       );
     }
   }
 
-  async deleteInstallation(id: string): Promise<Error | string> {
+  async deleteInstallation(id: string): Promise<string> {
     const container = this.getContainer();
+    const nhPartition = this.computePartitionId(id);
 
     try {
-      await container.item(id).delete();
-      return id;
+      const result = await container.item(id, nhPartition).delete();
+      return result.item.id;
     } catch (err) {
-      return new Error(`Failed to delete installation: ${String(err)}`);
+      throw new Error(`Failed to delete installation: ${String(err)}`);
     }
   }
 }

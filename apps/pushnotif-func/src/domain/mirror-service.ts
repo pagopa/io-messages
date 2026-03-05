@@ -1,9 +1,7 @@
 import { Installation } from "./installation";
 
 export interface InstallationRepository {
-  createOrUpdateInstallation(
-    installation: Installation,
-  ): Promise<Error | string>;
+  createOrUpdateInstallation(installation: Installation): Promise<string>;
 
-  deleteInstallation(id: string): Promise<Error | string>;
+  deleteInstallation(id: string): Promise<string>;
 }
