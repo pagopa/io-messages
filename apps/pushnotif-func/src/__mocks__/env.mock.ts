@@ -3,8 +3,9 @@ export const envConfig = {
   APPLICATIONINSIGHTS_CONNECTION_STRING: "Idontknow",
 
   COSMOSDB_NAME: "CosmosDBName",
-
   COSMOSDB_URI: "CosmosDBUri",
+
+  INSTALLATION_SUMMARIES_CONTAINER_NAME: "InstallationSummariesContainerName",
   MESSAGE_CONTAINER_NAME: "MessageContainerNane",
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING:
     "MessageContentStorageConnectionString",
