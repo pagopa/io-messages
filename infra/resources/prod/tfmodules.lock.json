@@ -108,10 +108,10 @@
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/1.0.1"
   },
   "web_apps.citizen_func_new": {
-    "hash": "20d1bf568efdf78dc97cf5dac105c7f30caf710e7a49a3edf7acab1ea78a4699",
-    "version": "1.0.1",
+    "hash": "0fe4632d5838f277f7eae3006428e70e046bc388e707e0c8f37bcd1814a23497",
+    "version": "5.0.1",
     "name": "azure_function_app",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/1.0.1"
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-function-app/azurerm/5.0.1"
   },
   "web_apps.citizen_func_autoscaler_new": {
     "hash": "0ce217941a45b1d47e10fd2c908ee084a98370b5ca797d57e314afc2fc7a07a3",
