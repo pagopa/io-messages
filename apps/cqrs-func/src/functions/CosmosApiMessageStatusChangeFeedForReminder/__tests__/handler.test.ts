@@ -1,9 +1,9 @@
 import { pipe } from "fp-ts/lib/function";
-import { aMessageStatus } from "../../__mocks__/message";
+import { aMessageStatus } from "../../../__mocks__/message";
 import { handleAvroMessageStatusPublishChange as handler } from "../handler";
 import * as RA from "fp-ts/ReadonlyArray";
 import { RetrievedMessageStatus } from "@pagopa/io-functions-commons/dist/src/models/message_status";
-import { avroMessageStatusFormatter } from "../../utils/formatter/messageStatusAvroFormatter";
+import { avroMessageStatusFormatter } from "../../../utils/formatter/messageStatusAvroFormatter";
 import { Producer, ProducerRecord } from "kafkajs";
 import { KafkaProducerCompact } from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import { RejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/RejectedMessageStatusValue";

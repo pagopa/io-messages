@@ -10,14 +10,14 @@ import { AzureContextTransport } from "@pagopa/io-functions-commons/dist/src/uti
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as winston from "winston";
 
-import { initTelemetryClient } from "../utils/appinsights";
-import { getConfigOrThrow } from "../utils/config";
-import { cosmosdbInstance } from "../utils/cosmosdb";
-import { Failure } from "../utils/errors";
-import { fromSas } from "../utils/event_hub";
-import { avroMessageFormatter } from "../utils/formatter/messagesAvroFormatter";
-import { getThirdPartyDataWithCategoryFetcher } from "../utils/message";
-import { IBulkOperationResult } from "../utils/publish";
+import { initTelemetryClient } from "../../utils/appinsights";
+import { getConfigOrThrow } from "../../utils/config";
+import { cosmosdbInstance } from "../../utils/cosmosdb";
+import { Failure } from "../../utils/errors";
+import { fromSas } from "../../utils/event_hub";
+import { avroMessageFormatter } from "../../utils/formatter/messagesAvroFormatter";
+import { getThirdPartyDataWithCategoryFetcher } from "../../utils/message";
+import { IBulkOperationResult } from "../../utils/publish";
 import { handleMessageChange } from "./handler";
 
 let logger: Context["log"] | undefined;

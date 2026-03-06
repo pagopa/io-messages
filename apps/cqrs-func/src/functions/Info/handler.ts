@@ -9,8 +9,8 @@ import * as express from "express";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 
-import * as packageJson from "../package.json";
-import { HealthCheck, checkApplicationHealth } from "../utils/healthcheck";
+import * as packageJson from "../../../package.json";
+import { HealthCheck, checkApplicationHealth } from "../../utils/healthcheck";
 
 interface IInfo {
   readonly name: string;

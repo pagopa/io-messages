@@ -4,7 +4,7 @@ import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 
-import * as messageUtils from "../../utils/message-utils";
+import * as messageUtils from "../../../utils/message-utils";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import {
   MessageModel,
@@ -14,7 +14,7 @@ import { pipe } from "fp-ts/lib/function";
 import {
   aMessageContent,
   aRetrievedMessageWithoutContent,
-} from "../../__mocks__/message";
+} from "../../../__mocks__/message";
 import { handleMessageChange } from "../handler";
 import { vi, beforeEach, describe, test, expect } from "vitest";
 

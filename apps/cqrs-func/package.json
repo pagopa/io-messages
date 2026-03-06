@@ -3,18 +3,20 @@
   "author": "IO team",
   "version": "1.0.8",
   "license": "UNLICENSED",
+  "type": "commonjs",
   "scripts": {
     "build": "yarn generate && tsc",
     "start": "func start --javascript",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint --fix .",
-    "lint:check": "eslint .",
-    "generate:avro": "shx rm -rf ./generated/avro && shx mkdir -p ./generated/avro && avro-to-typescript --compile ./avro ./generated/avro",
+    "lint": "eslint --fix src",
+    "lint:check": "eslint src",
+    "generate:avro": "shx rm -rf src/generated/avro && shx mkdir -p src/generated/avro && avro-to-typescript --compile ./avro src/generated/avro",
     "generate": "yarn generate:avro",
     "dist:modules": "modclean -r -n default:safe && yarn install --production",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@azure/functions": "^3.2.0",
@@ -36,7 +38,7 @@
     "oval": "^1.0.0",
     "prettier": "3.2.5",
     "shx": "^0.3.2",
-    "typescript": "^4.3.5",
+    "typescript": "^5.8.3",
     "vitest": "^2.1.8"
   },
   "dependencies": {
@@ -56,6 +58,7 @@
     "express": "^4.15.3",
     "fp-ts": "^2.10.5",
     "io-ts": "^2.2.16",
+    "kafkajs": "^2.2.4",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.7",
     "winston": "^3.2.1"

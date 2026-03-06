@@ -6,13 +6,13 @@ import {
 } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 
-import { initTelemetryClient } from "../utils/appinsights";
-import { getConfigOrThrow } from "../utils/config";
-import { cosmosdbInstance } from "../utils/cosmosdb";
-import { Failure } from "../utils/errors";
-import { fromSas } from "../utils/event_hub";
-import { avroMessageFormatter } from "../utils/formatter/messagesAvroFormatter";
-import { getThirdPartyDataWithCategoryFetcher } from "../utils/message";
+import { initTelemetryClient } from "../../utils/appinsights";
+import { getConfigOrThrow } from "../../utils/config";
+import { cosmosdbInstance } from "../../utils/cosmosdb";
+import { Failure } from "../../utils/errors";
+import { fromSas } from "../../utils/event_hub";
+import { avroMessageFormatter } from "../../utils/formatter/messagesAvroFormatter";
+import { getThirdPartyDataWithCategoryFetcher } from "../../utils/message";
 import { HandleMessageChangeFeedPublishFailureHandler } from "./handler";
 
 const config = getConfigOrThrow();
