@@ -52,7 +52,7 @@ locals {
 
 module "citizen_func_new" {
   source  = "pagopa-dx/azure-function-app/azurerm"
-  version = "~> 5.0"
+  version = "~> 1.0"
 
   environment = merge(var.environment, {
     app_name        = "citizen"
@@ -63,7 +63,7 @@ module "citizen_func_new" {
   health_check_path   = "/api/v1/info"
   node_version        = 22
 
-  size = "P2mv3"
+  tier = "xl"
 
   subnet_cidr                          = var.subnet_cidrs.citizen_func_new
   subnet_pep_id                        = var.subnet_pep_id
@@ -82,7 +82,7 @@ module "citizen_func_new" {
   application_insights_connection_string   = var.application_insights.connection_string
   application_insights_sampling_percentage = 5
 
-  action_group_ids = [var.action_group_id]
+  action_group_id = var.action_group_id
 }
 
 resource "azurerm_subnet_nat_gateway_association" "functions_messages_citizen_subnet_new" {

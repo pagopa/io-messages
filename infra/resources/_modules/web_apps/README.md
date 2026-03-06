@@ -16,7 +16,7 @@ No requirements.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_citizen_func_autoscaler_new"></a> [citizen\_func\_autoscaler\_new](#module\_citizen\_func\_autoscaler\_new) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
-| <a name="module_citizen_func_new"></a> [citizen\_func\_new](#module\_citizen\_func\_new) | pagopa-dx/azure-function-app/azurerm | ~> 5.0 |
+| <a name="module_citizen_func_new"></a> [citizen\_func\_new](#module\_citizen\_func\_new) | pagopa-dx/azure-function-app/azurerm | ~> 1.0 |
 | <a name="module_cqrs_func"></a> [cqrs\_func](#module\_cqrs\_func) | pagopa-dx/azure-function-app/azurerm | ~> 1.0 |
 | <a name="module_cqrs_func_autoscaler"></a> [cqrs\_func\_autoscaler](#module\_cqrs\_func\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
 | <a name="module_etl_func"></a> [etl\_func](#module\_etl\_func) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
