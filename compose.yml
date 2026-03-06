@@ -17,6 +17,7 @@ services:
 
   azurite:
     image: "mcr.microsoft.com/azure-storage/azurite:latest"
+    command: "azurite --blobHost 0.0.0.0 --tableHost 0.0.0.0 --queueHost 0.0.0.0 --skipApiVersionCheck"
     ports:
       - "10000:10000"
       - "10001:10001"
@@ -29,7 +30,7 @@ services:
     working_dir: /app
     volumes:
       - ./setup-azurite-containers.js:/app/setup-azurite-containers.js
-    command: sh -c "npm install @azure/storage-blob @azure/storage-queue @azure/data-tables && node setup-azurite-containers.js"
+    command: sh -c "npm install @azure/storage-blob@^12.28.0 @azure/storage-queue@^12.28.1 @azure/data-tables@^13.3.2 && node setup-azurite-containers.js"
 
   eventhubs:
     image: "mcr.microsoft.com/azure-messaging/eventhubs-emulator:latest@sha256:25ec4141efb69933a0c82e6a787fa147a3895519e7d236d4c41ba568e03100eb"

@@ -9,9 +9,11 @@ import { InstallationRepository } from "../domain/mirror-service";
 import { toString } from "../utils/conversions";
 import {
   ActivityBody,
+  ActivityResultFailure,
   ActivityResultSuccess,
   createActivity,
   failActivity,
+  retryActivity,
 } from "../utils/durable/activities";
 import * as o from "../utils/durable/orchestrators";
 import { deleteInstallation } from "../utils/notification";
@@ -39,53 +41,58 @@ export const getActivityBody =
     installationRepository: InstallationRepository,
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBody<ActivityInput, ActivityResultSuccess> =>
-  ({ input, logger, retryContext }) => {
+  ({ input, logger }) => {
     logger.info(`INSTALLATION_ID=${input.installationId}`);
     const nhClient = nhPartitionFactory.getPartition(input.installationId);
 
-    // Mirror delete to cosmos, in case of error, retry activity until max retry count is reached, then log the error and proceed with NH call
-    try {
-      installationRepository.deleteInstallation(input.installationId);
-    } catch (error) {
-      if (
-        !retryContext?.retryCount ||
-        retryContext.retryCount < retryContext.maxRetryCount
-      ) {
-        throw error; // trigger activity retry
-      } else if (error instanceof Error) {
-        telemetryClient.trackException({
-          exception: error,
-          properties: { installationId: input.installationId },
-        });
-      }
-    }
+    // Mirror delete to cosmos
+    const mirrorCall = TE.tryCatch(
+      () => installationRepository.deleteInstallation(input.installationId),
+      (e) => (e instanceof Error ? e : new Error(toString(e))),
+    );
 
     return pipe(
-      deleteInstallation(nhClient, input.installationId),
-      TE.bimap(
-        (e) => {
-          telemetryClient.trackEvent({
-            name: "api.messages.notification.deleteInstallation.failure",
-            properties: {
-              installationId: input.installationId,
-              isSuccess: "false",
-              reason: e.message,
+      mirrorCall,
+      TE.orElseW((error): TE.TaskEither<ActivityResultFailure, never> => {
+        telemetryClient.trackException({
+          exception:
+            error instanceof Error ? error : new Error(toString(error)),
+          properties: { installationId: input.installationId },
+        });
+        return retryActivity(logger, toString(error));
+      }),
+      TE.chainW(() =>
+        pipe(
+          deleteInstallation(nhClient, input.installationId),
+          TE.bimap(
+            (e) => {
+              telemetryClient.trackEvent({
+                name: "api.messages.notification.deleteInstallation.failure",
+                properties: {
+                  installationId: input.installationId,
+                  isSuccess: "false",
+                  reason: e.message,
+                },
+                tagOverrides: { samplingEnabled: "false" },
+              });
+              return failActivity(logger)(`ERROR=${toString(e)}`);
             },
-            tagOverrides: { samplingEnabled: "false" },
-          });
-          return failActivity(logger)(`ERROR=${toString(e)}`);
-        },
-        (response) => {
-          telemetryClient.trackEvent({
-            name: "api.messages.notification.deleteInstallation.success",
-            properties: {
-              installationId: input.installationId,
-              isSuccess: "true",
+            (response) => {
+              telemetryClient.trackEvent({
+                name: "api.messages.notification.deleteInstallation.success",
+                properties: {
+                  installationId: input.installationId,
+                  isSuccess: "true",
+                },
+                tagOverrides: { samplingEnabled: "false" },
+              });
+              return ActivityResultSuccess.encode({
+                kind: "SUCCESS",
+                ...response,
+              });
             },
-            tagOverrides: { samplingEnabled: "false" },
-          });
-          return ActivityResultSuccess.encode({ kind: "SUCCESS", ...response });
-        },
+          ),
+        ),
       ),
     );
   };

@@ -37,9 +37,11 @@ vi.spyOn(nhPartitionFactory, "getPartition");
 
 const mockTelemetryClient = {
   trackEvent: vi.fn(() => {}),
+  trackException: vi.fn(() => {}),
 } as unknown as TelemetryClient;
 
 const mockInstallationRepository = {
+  computePartitionId: vi.fn().mockReturnValue("4"),
   createOrUpdateInstallation: vi.fn(() => Promise.resolve(aFiscalCodeHash)),
   deleteInstallation: vi.fn(() => Promise.resolve()),
 } as unknown as InstallationRepository;

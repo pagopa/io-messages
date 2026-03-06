@@ -1,7 +1,11 @@
-import { Installation } from "./installation";
+import { InstallationSummary } from "./installation";
 
 export interface InstallationRepository {
-  createOrUpdateInstallation(installation: Installation): Promise<string>;
+  computePartitionId(installationId: string): "1" | "2" | "3" | "4";
+
+  createOrUpdateInstallation(
+    installation: InstallationSummary,
+  ): Promise<string>;
 
   deleteInstallation(id: string): Promise<string>;
 }

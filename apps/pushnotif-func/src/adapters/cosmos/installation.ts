@@ -1,6 +1,6 @@
 import { Database } from "@azure/cosmos";
 
-import { Installation } from "../../domain/installation";
+import { InstallationSummary } from "../../domain/installation";
 import { InstallationRepository } from "../../domain/mirror-service";
 
 export class CosmosInstallationAdapter implements InstallationRepository {
@@ -12,7 +12,11 @@ export class CosmosInstallationAdapter implements InstallationRepository {
     this.containerName = containerName;
   }
 
-  private computePartitionId(installationId: string): string {
+  private getContainer() {
+    return this.cosmosdbInstance.container(this.containerName);
+  }
+
+  computePartitionId(installationId: string): "1" | "2" | "3" | "4" {
     const firstChar = installationId[0].toLocaleLowerCase();
 
     switch (true) {
@@ -33,28 +37,21 @@ export class CosmosInstallationAdapter implements InstallationRepository {
     }
   }
 
-  private getContainer() {
-    return this.cosmosdbInstance.container(this.containerName);
-  }
-
   async createOrUpdateInstallation(
-    installation: Installation,
+    installation: InstallationSummary,
   ): Promise<string> {
     try {
       const container = this.getContainer();
-      const nhPartition = this.computePartitionId(installation.installationId);
 
-      const result = await container.items.upsert(
-        {
-          id: installation.installationId,
-          nhPartition,
-          platform: installation.platform,
-        },
-        {},
-      );
+      const result = await container.items.upsert(installation, {});
 
       return result.item.id;
     } catch (err) {
+      if (err instanceof Error) {
+        throw new Error(
+          `Failed to create or update installation: ${err.message}`,
+        );
+      }
       throw new Error(
         `Failed to create or update installation: ${String(err)}`,
       );
@@ -69,6 +66,13 @@ export class CosmosInstallationAdapter implements InstallationRepository {
       const result = await container.item(id, nhPartition).delete();
       return result.item.id;
     } catch (err) {
+      if (err instanceof Error) {
+        if ("code" in err && err.code === 404) {
+          // If the item is not found, we consider the deletion successful
+          return id;
+        }
+        throw new Error(`Failed to delete installation: ${err.message}`);
+      }
       throw new Error(`Failed to delete installation: ${String(err)}`);
     }
   }

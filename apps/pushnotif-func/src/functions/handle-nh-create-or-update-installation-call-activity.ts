@@ -10,6 +10,7 @@ import { Platform, PlatformEnum } from "../generated/notifications/Platform";
 import { toString } from "../utils/conversions";
 import {
   ActivityBody,
+  ActivityResultFailure,
   ActivityResultSuccess,
   createActivity,
   retryActivity,
@@ -47,63 +48,71 @@ export const getActivityBody =
     installationRepository: InstallationRepository,
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBodyImpl =>
-  ({ input, logger, retryContext }) => {
+  ({ input, logger }) => {
     logger.info(`INSTALLATION_ID=${input.installationId}`);
 
-    // Mirror create/update to cosmos, in case of error, retry activity until max retry count is reached, then log the error and proceed with NH call
-    try {
-      installationRepository.createOrUpdateInstallation({
-        installationId: input.installationId,
-        platform: getPlatformFromPlatformEnum(input.platform),
-      });
-    } catch (error) {
-      if (
-        !retryContext?.retryCount ||
-        retryContext.retryCount < retryContext.maxRetryCount
-      ) {
-        throw error; // trigger activity retry
-      } else if (error instanceof Error) {
-        telemetryClient.trackException({
-          exception: error,
-          properties: { installationId: input.installationId },
-        });
-      }
-    }
+    // Mirror create/update to cosmos
+    const mirrorCall = TE.tryCatch(
+      () =>
+        installationRepository.createOrUpdateInstallation({
+          id: input.installationId,
+          nhPartition: installationRepository.computePartitionId(
+            input.installationId,
+          ),
+          platform: getPlatformFromPlatformEnum(input.platform),
+          updatedAt: Date.now(),
+        }),
+      (e) => (e instanceof Error ? e : new Error(toString(e))),
+    );
 
     return pipe(
-      createOrUpdateInstallation(
-        nhPartitionFactory.getPartition(input.installationId),
-        input.installationId,
-        getPlatformFromPlatformEnum(input.platform),
-        input.pushChannel,
-        input.tags,
-      ),
-      TE.bimap(
-        (e) => {
-          telemetryClient.trackEvent({
-            name: "api.messages.notification.createOrUpdateInstallation.failure",
-            properties: {
-              installationId: input.installationId,
-              isSuccess: "false",
-              platform: input.platform,
-              reason: e.message,
+      mirrorCall,
+      TE.orElseW((error): TE.TaskEither<ActivityResultFailure, never> => {
+        telemetryClient.trackException({
+          exception:
+            error instanceof Error ? error : new Error(toString(error)),
+          properties: { installationId: input.installationId },
+        });
+
+        return retryActivity(logger, toString(error));
+      }),
+      TE.chainW(() =>
+        pipe(
+          createOrUpdateInstallation(
+            nhPartitionFactory.getPartition(input.installationId),
+            input.installationId,
+            getPlatformFromPlatformEnum(input.platform),
+            input.pushChannel,
+            input.tags,
+          ),
+          TE.bimap(
+            (e) => {
+              telemetryClient.trackEvent({
+                name: "api.messages.notification.createOrUpdateInstallation.failure",
+                properties: {
+                  installationId: input.installationId,
+                  isSuccess: "false",
+                  platform: input.platform,
+                  reason: e.message,
+                },
+                tagOverrides: { samplingEnabled: "false" },
+              });
+              return retryActivity(logger, toString(e));
             },
-            tagOverrides: { samplingEnabled: "false" },
-          });
-          return retryActivity(logger, toString(e));
-        },
-        () => {
-          telemetryClient.trackEvent({
-            name: "api.messages.notification.createOrUpdateInstallation.success",
-            properties: {
-              installationId: input.installationId,
-              isSuccess: "true",
-              platform: input.platform,
+            () => {
+              telemetryClient.trackEvent({
+                name: "api.messages.notification.createOrUpdateInstallation.success",
+                properties: {
+                  installationId: input.installationId,
+                  isSuccess: "true",
+                  platform: input.platform,
+                },
+                tagOverrides: { samplingEnabled: "false" },
+              });
+              return ActivityResultSuccess.encode({ kind: "SUCCESS" });
             },
-            tagOverrides: { samplingEnabled: "false" },
-          });
-          return ActivityResultSuccess.encode({ kind: "SUCCESS" });
-        },
+          ),
+        ),
       ),
     );
   };

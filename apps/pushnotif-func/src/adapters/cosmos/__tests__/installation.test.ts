@@ -1,7 +1,7 @@
 import { Container, Database, Item } from "@azure/cosmos";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Installation } from "../../../domain/installation";
+import { InstallationSummary } from "../../../domain/installation";
 import { CosmosInstallationAdapter } from "../installation";
 
 interface AdapterInternals {
@@ -68,40 +68,48 @@ describe("CosmosInstallationAdapter", () => {
 
   describe("createOrUpdateInstallation", () => {
     it("should successfully create or update installation", async () => {
-      const installation: Installation = {
-        installationId: "abc123def456",
+      const dateNow = Date.now();
+      const installation: InstallationSummary = {
+        id: "abc123def456",
+        nhPartition: "3",
         platform: "fcmv1",
-      } as Installation;
+        updatedAt: dateNow,
+      } as InstallationSummary;
 
       mockUpsert.mockResolvedValueOnce({
-        item: { id: installation.installationId },
+        item: { id: installation.id },
       } as unknown as Item);
 
       const result = await adapter.createOrUpdateInstallation(installation);
 
-      expect(result).toBe(installation.installationId);
+      expect(result).toBe(installation.id);
       expect(mockDatabase.container).toHaveBeenCalledWith(mockContainerName);
       expect(mockUpsert).toHaveBeenCalledWith(
         {
-          id: installation.installationId,
-          nhPartition: "3",
+          id: installation.id,
+          nhPartition: installation.nhPartition,
           platform: installation.platform,
+          updatedAt: installation.updatedAt,
         },
         {},
       );
     });
 
     it("should return error when upsert fails", async () => {
-      const installation: Installation = {
-        installationId: "abc123def456",
+      const installation: InstallationSummary = {
+        id: "abc123def456",
+        nhPartition: "3",
         platform: "fcmv1",
-      } as Installation;
+        updatedAt: Date.now(),
+      } as InstallationSummary;
 
       mockUpsert.mockRejectedValueOnce(new Error("Cosmos error"));
 
       await expect(
         adapter.createOrUpdateInstallation(installation),
-      ).rejects.toThrow("Failed to create or update installation");
+      ).rejects.toThrow(
+        `Failed to create or update installation: Cosmos error`,
+      );
     });
   });
 
@@ -121,13 +129,28 @@ describe("CosmosInstallationAdapter", () => {
       expect(mockDelete).toHaveBeenCalledWith();
     });
 
+    it("should not find installation but proceed without error", async () => {
+      const installationId = "abc123def456";
+      const notFoundError = new Error("Not found") as { code: number } & Error;
+      notFoundError.code = 404;
+
+      mockDelete.mockRejectedValueOnce(notFoundError);
+
+      const result = await adapter.deleteInstallation(installationId);
+
+      expect(result).toBe(installationId);
+      expect(mockDatabase.container).toHaveBeenCalledWith(mockContainerName);
+      expect(mockItem).toHaveBeenCalledWith(installationId, "3");
+      expect(mockDelete).toHaveBeenCalledWith();
+    });
+
     it("should return error when delete fails", async () => {
       const installationId = "abc123def456";
 
       mockDelete.mockRejectedValueOnce(new Error("Delete failed"));
 
       await expect(adapter.deleteInstallation(installationId)).rejects.toThrow(
-        "Failed to delete installation",
+        `Failed to delete installation: Delete failed`,
       );
     });
   });
