@@ -11,7 +11,7 @@ box "pushnotif-func"
   participant "DeleteInstallation" as pn
 end box
 
-database "installations" as ic
+database "installation-summaries" as ic
 
 participant "Notification Hub" as nh
 
@@ -38,32 +38,28 @@ end note
 pn -> pnq : Read a DeleteInstallation message
 activate pn
 
-pn -> ic : Delete the document\nrepresenting the installation
+pn -> ic : Delete the installation-summary
 activate ic
 
 alt "Error from cosmos"
   ic -[#red]> pn : 5xx from cosmos
-  alt "Was last retry"
-    pn --> ai : Track an event
-  end
+  pn --> ai : Track an event
   pn -[#red]>X pnq: Throw an error
-else "Success from cosmos"
-    ic -[#green]> pn
-    deactivate ic
 end
+
+ic -[#green]> pn
+deactivate ic
 
 pn -> nh : Delete the installation
 activate nh
 alt "Error from notification hub"
   nh -[#red]> pn : Error
-  alt "Was last retry"
-    pn --> ai : Track an event
-  end
+  pn --> ai : Track an event
   pn -[#red]>X pnq: Throw an error
-else "Success from notification hub"
-  nh -[#green]> pn : 201
-  deactivate nh
 end
+
+nh -[#green]> pn : Success
+deactivate nh
 
 deactivate pn
 
