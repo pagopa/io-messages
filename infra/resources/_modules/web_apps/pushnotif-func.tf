@@ -92,7 +92,7 @@ locals {
       INSTALLATION_SUMMARIES_CONTAINER_NAME         = "installation-summaries",
       INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX = "0-",
       # Change this value when need to update the installations
-      UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH = 0
+      UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH = 1
 
       # Disabled by default, enabled when needed.
       "AzureWebJobs.InstallationUpdateDispatcher.Disabled" = "1",

@@ -1,0 +1,64 @@
+@startuml
+
+title UpdateInstallation
+
+box "iopitncomst01 storage account"
+  queue "update-installations-dispatch-poison" as uiqp
+  queue "update-installations-dispatch" as uiq
+end box
+
+box "pushnotif-func"
+  participant "UpdateInstallation" as ui
+end box
+
+participant "app-insights" as ai
+
+participant "Notification Hub" as nh
+
+note right of ui
+  **UpdateInstallationMessage**
+  {
+    "installationId": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+    "platform": "FcmV1",
+  }
+end note
+ui -> uiq : Read single message
+activate ui
+
+ui -> ui : Parse message to Installation
+alt Invalid message
+  ui --> ai : Track an event
+  note right of ui
+    End the execution.
+  end note
+end
+
+note right of ui
+  The JsonPatch is hardcoded.
+end note
+ui -> nh : Patch the installation
+activate nh
+
+alt Installation not found
+  nh -[#red]> ui : 404
+  note right of ui
+    Nothing to update.
+    End the execution.
+  end note
+else Error from Notification Hub
+  note right of ui
+    Transient error
+  end note
+  nh -[#red]x ui : Error
+  alt Was last retry
+    ui -> uiqp: Push to the poison
+  end
+  ui -[#red]x ui : Throw an error
+else Success from Notification Hub
+  nh -[#green]> ui : 201
+end
+deactivate nh
+
+deactivate ui
+
+@enduml

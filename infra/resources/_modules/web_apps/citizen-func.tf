@@ -52,7 +52,7 @@ locals {
 
 module "citizen_func_new" {
   source  = "pagopa-dx/azure-function-app/azurerm"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   environment = merge(var.environment, {
     app_name        = "citizen"
@@ -61,7 +61,7 @@ module "citizen_func_new" {
 
   resource_group_name = var.resource_group_name
   health_check_path   = "/api/v1/info"
-  node_version        = 20
+  node_version        = 22
 
   size = "P2mv3"
 

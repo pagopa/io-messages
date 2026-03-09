@@ -1,6 +1,6 @@
 @startuml
 
-title Create/Update installation
+title CreateOrUpdateInstallation
 
 actor "IO user" as iou
 participant "IO Backend" as be
@@ -11,7 +11,7 @@ box "pushnotif-func"
   participant "CreateOrUpdateInstallation" as pn
 end box
 
-database "installations" as ic
+database "installation-summaries" as ic
 
 participant "Notification Hub" as nh
 
@@ -41,7 +41,7 @@ end note
 pn -> pnq : Read a CreateOrUpdateInstallation message
 activate pn
 
-pn -> ic : Create/Update the document\nrepresenting the installation
+pn -> ic : Create/Update installation-summary
 activate ic
 
 alt "Error from cosmos"
@@ -50,10 +50,10 @@ alt "Error from cosmos"
     pn --> ai : Track an event
   end
   pn -[#red]>X pnq: Throw an error
-else "Success from cosmos"
-    ic -[#green]> pn
-    deactivate ic
 end
+
+ic -[#green]> pn
+deactivate ic
 
 pn -> nh : Create/Update the installation
 activate nh
