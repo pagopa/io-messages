@@ -1,19 +1,16 @@
-import { Database } from "@azure/cosmos";
+import { Container, Database } from "@azure/cosmos";
 
+import { ErrorNotFound } from "../../domain/error";
 import { InstallationSummary } from "../../domain/installation";
 import { InstallationRepository } from "../../domain/mirror-service";
 
-export class CosmosInstallationAdapter implements InstallationRepository {
-  containerName: string;
-  cosmosdbInstance: Database;
+export class CosmosInstallationSummaryAdapter
+  implements InstallationRepository
+{
+  container: Container;
 
   constructor(cosmosdbInstance: Database, containerName: string) {
-    this.cosmosdbInstance = cosmosdbInstance;
-    this.containerName = containerName;
-  }
-
-  private getContainer() {
-    return this.cosmosdbInstance.container(this.containerName);
+    this.container = cosmosdbInstance.container(containerName);
   }
 
   computePartitionId(installationId: string): "1" | "2" | "3" | "4" {
@@ -37,43 +34,25 @@ export class CosmosInstallationAdapter implements InstallationRepository {
     }
   }
 
-  async createOrUpdateInstallation(
-    installation: InstallationSummary,
-  ): Promise<string> {
-    try {
-      const container = this.getContainer();
-
-      const result = await container.items.upsert(installation, {});
-
-      return result.item.id;
-    } catch (err) {
-      if (err instanceof Error) {
-        throw new Error(
-          `Failed to create or update installation: ${err.message}`,
-        );
-      }
-      throw new Error(
-        `Failed to create or update installation: ${String(err)}`,
-      );
-    }
-  }
-
-  async deleteInstallation(id: string): Promise<string> {
-    const container = this.getContainer();
+  async deleteInstallationSummary(id: string): Promise<string> {
     const nhPartition = this.computePartitionId(id);
 
     try {
-      const result = await container.item(id, nhPartition).delete();
+      const result = await this.container.item(id, nhPartition).delete();
       return result.item.id;
     } catch (err) {
-      if (err instanceof Error) {
-        if ("code" in err && err.code === 404) {
-          // If the item is not found, we consider the deletion successful
-          return id;
-        }
-        throw new Error(`Failed to delete installation: ${err.message}`);
+      if (err instanceof Error && "code" in err && err.code === 404) {
+        throw new ErrorNotFound("Installation not found", err);
       }
-      throw new Error(`Failed to delete installation: ${String(err)}`);
+      throw err;
     }
+  }
+
+  async upsertInstallationSummary(
+    installationSummary: InstallationSummary,
+  ): Promise<string> {
+    const result = await this.container.items.upsert(installationSummary, {});
+
+    return result.item.id;
   }
 }

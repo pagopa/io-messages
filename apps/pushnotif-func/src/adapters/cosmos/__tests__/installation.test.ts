@@ -1,22 +1,23 @@
 import { Container, Database, Item } from "@azure/cosmos";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ErrorNotFound } from "../../../domain/error";
 import { InstallationSummary } from "../../../domain/installation";
-import { CosmosInstallationAdapter } from "../installation";
+import { CosmosInstallationSummaryAdapter } from "../installation";
 
 interface AdapterInternals {
   computePartitionId: (installationId: string) => string;
   getContainer: () => Container;
 }
 
-describe("CosmosInstallationAdapter", () => {
+describe("CosmosInstallationSummaryAdapter", () => {
   const mockContainerName = "installations";
   let mockDatabase: Database;
   let mockContainer: Container;
   let mockItem: ReturnType<typeof vi.fn>;
   let mockDelete: ReturnType<typeof vi.fn>;
   let mockUpsert: ReturnType<typeof vi.fn>;
-  let adapter: CosmosInstallationAdapter;
+  let adapter: CosmosInstallationSummaryAdapter;
 
   const getAdapterInternals = (): AdapterInternals =>
     adapter as unknown as AdapterInternals;
@@ -41,7 +42,10 @@ describe("CosmosInstallationAdapter", () => {
       container: vi.fn().mockReturnValue(mockContainer),
     } as unknown as Database;
 
-    adapter = new CosmosInstallationAdapter(mockDatabase, mockContainerName);
+    adapter = new CosmosInstallationSummaryAdapter(
+      mockDatabase,
+      mockContainerName,
+    );
   });
 
   describe("computePartitionId", () => {
@@ -80,7 +84,7 @@ describe("CosmosInstallationAdapter", () => {
         item: { id: installation.id },
       } as unknown as Item);
 
-      const result = await adapter.createOrUpdateInstallation(installation);
+      const result = await adapter.upsertInstallationSummary(installation);
 
       expect(result).toBe(installation.id);
       expect(mockDatabase.container).toHaveBeenCalledWith(mockContainerName);
@@ -106,10 +110,8 @@ describe("CosmosInstallationAdapter", () => {
       mockUpsert.mockRejectedValueOnce(new Error("Cosmos error"));
 
       await expect(
-        adapter.createOrUpdateInstallation(installation),
-      ).rejects.toThrow(
-        `Failed to create or update installation: Cosmos error`,
-      );
+        adapter.upsertInstallationSummary(installation),
+      ).rejects.toThrow(`Cosmos error`);
     });
   });
 
@@ -121,7 +123,7 @@ describe("CosmosInstallationAdapter", () => {
         item: { id: installationId },
       } as unknown as Item);
 
-      const result = await adapter.deleteInstallation(installationId);
+      const result = await adapter.deleteInstallationSummary(installationId);
 
       expect(result).toBe(installationId);
       expect(mockDatabase.container).toHaveBeenCalledWith(mockContainerName);
@@ -136,12 +138,9 @@ describe("CosmosInstallationAdapter", () => {
 
       mockDelete.mockRejectedValueOnce(notFoundError);
 
-      const result = await adapter.deleteInstallation(installationId);
-
-      expect(result).toBe(installationId);
-      expect(mockDatabase.container).toHaveBeenCalledWith(mockContainerName);
-      expect(mockItem).toHaveBeenCalledWith(installationId, "3");
-      expect(mockDelete).toHaveBeenCalledWith();
+      await expect(
+        adapter.deleteInstallationSummary(installationId),
+      ).rejects.toThrow(ErrorNotFound);
     });
 
     it("should return error when delete fails", async () => {
@@ -149,18 +148,9 @@ describe("CosmosInstallationAdapter", () => {
 
       mockDelete.mockRejectedValueOnce(new Error("Delete failed"));
 
-      await expect(adapter.deleteInstallation(installationId)).rejects.toThrow(
-        `Failed to delete installation: Delete failed`,
-      );
-    });
-  });
-
-  describe("getContainer", () => {
-    it("should return container instance", () => {
-      const container = getAdapterInternals().getContainer();
-
-      expect(mockDatabase.container).toHaveBeenCalledWith(mockContainerName);
-      expect(container).toBe(mockContainer);
+      await expect(
+        adapter.deleteInstallationSummary(installationId),
+      ).rejects.toThrow(`Delete failed`);
     });
   });
 });

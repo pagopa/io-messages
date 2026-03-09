@@ -42,8 +42,7 @@ const mockTelemetryClient = {
 
 const mockInstallationRepository = {
   computePartitionId: vi.fn().mockReturnValue("4"),
-  createOrUpdateInstallation: vi.fn(() => Promise.resolve(aFiscalCodeHash)),
-  deleteInstallation: vi.fn(() => Promise.resolve()),
+  upsertInstallationSummary: vi.fn(() => Promise.resolve(aFiscalCodeHash)),
 } as unknown as InstallationRepository;
 
 const handler = createActivity(

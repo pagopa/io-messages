@@ -51,10 +51,10 @@ export const getActivityBody =
   ({ input, logger }) => {
     logger.info(`INSTALLATION_ID=${input.installationId}`);
 
-    // Mirror create/update to cosmos
-    const mirrorCall = TE.tryCatch(
+    // Mirror create/update to cosmos' container installationSummary in order to have a copy of the installation in our db
+    const mirrorUpsertToCosmos = TE.tryCatch(
       () =>
-        installationRepository.createOrUpdateInstallation({
+        installationRepository.upsertInstallationSummary({
           id: input.installationId,
           nhPartition: installationRepository.computePartitionId(
             input.installationId,
@@ -66,7 +66,7 @@ export const getActivityBody =
     );
 
     return pipe(
-      mirrorCall,
+      mirrorUpsertToCosmos,
       TE.orElseW((error): TE.TaskEither<ActivityResultFailure, never> => {
         telemetryClient.trackException({
           exception:

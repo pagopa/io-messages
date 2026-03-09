@@ -23,11 +23,11 @@ const anInstallationId = aFiscalCodeHash;
 
 const mockTelemetryClient = {
   trackEvent: vi.fn().mockImplementation(() => {}),
+  trackException: vi.fn().mockImplementation(() => {}),
 } as unknown as TelemetryClient;
 
 const mockInstallationRepository = {
-  createOrUpdateInstallation: vi.fn(() => Promise.resolve(aFiscalCodeHash)),
-  deleteInstallation: vi.fn(() => Promise.resolve()),
+  deleteInstallationSummary: vi.fn(() => Promise.resolve(anInstallationId)),
 } as unknown as InstallationRepository;
 
 vi.spyOn(nhPartitionFactory, "getPartition");

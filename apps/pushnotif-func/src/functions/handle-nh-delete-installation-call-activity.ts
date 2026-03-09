@@ -5,6 +5,7 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
+import { ErrorNotFound } from "../domain/error";
 import { InstallationRepository } from "../domain/mirror-service";
 import { toString } from "../utils/conversions";
 import {
@@ -45,20 +46,25 @@ export const getActivityBody =
     logger.info(`INSTALLATION_ID=${input.installationId}`);
     const nhClient = nhPartitionFactory.getPartition(input.installationId);
 
-    // Mirror delete to cosmos
-    const mirrorCall = TE.tryCatch(
-      () => installationRepository.deleteInstallation(input.installationId),
+    // Mirror delete to cosmos' container installationSummary in order to have a copy of the installation in our db
+    const mirrorDeleteToCosmos = TE.tryCatch(
+      () =>
+        installationRepository.deleteInstallationSummary(input.installationId),
       (e) => (e instanceof Error ? e : new Error(toString(e))),
     );
 
     return pipe(
-      mirrorCall,
-      TE.orElseW((error): TE.TaskEither<ActivityResultFailure, never> => {
+      mirrorDeleteToCosmos,
+      TE.orElseW((error): TE.TaskEither<ActivityResultFailure, undefined> => {
         telemetryClient.trackException({
           exception:
             error instanceof Error ? error : new Error(toString(error)),
           properties: { installationId: input.installationId },
         });
+        if (error instanceof ErrorNotFound) {
+          // If the installation summary is not found in cosmos, we can consider it already deleted and proceed with NH deletion without retrying
+          return TE.right(undefined);
+        }
         return retryActivity(logger, toString(error));
       }),
       TE.chainW(() =>

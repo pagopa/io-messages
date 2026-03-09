@@ -31,7 +31,7 @@ import {
   configFromEnvironment,
   loadConfigFromEnvironment,
 } from "./adapters/config";
-import { CosmosInstallationAdapter } from "./adapters/cosmos/installation";
+import { CosmosInstallationSummaryAdapter } from "./adapters/cosmos/installation";
 import getUpdateInstallationHandler from "./adapters/functions/update-installation";
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
@@ -86,7 +86,7 @@ const nhPartitionFactory = new NotificationHubPartitionFactory(
   config.AZURE_NOTIFICATION_HUB_PARTITIONS,
 );
 
-const cosmosInstallationAdapter = new CosmosInstallationAdapter(
+const cosmosInstallationSummaryAdapter = new CosmosInstallationSummaryAdapter(
   cosmosdbInstance,
   config.INSTALLATION_SUMMARIES_CONTAINER_NAME,
 );
@@ -135,7 +135,7 @@ df.app.activity(CreateOrUpdateActivityName, {
   handler: getCreateOrUpdateActivityHandler(
     nhPartitionFactory,
     telemetryClient,
-    cosmosInstallationAdapter,
+    cosmosInstallationSummaryAdapter,
   ),
 });
 
@@ -143,7 +143,7 @@ df.app.activity(DeleteActivityName, {
   handler: getDeleteActivityHandler(
     nhPartitionFactory,
     telemetryClient,
-    cosmosInstallationAdapter,
+    cosmosInstallationSummaryAdapter,
   ),
 });
 
