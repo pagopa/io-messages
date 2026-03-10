@@ -49,6 +49,7 @@ const NotificationHubPartitionsConfig = t.interface({
 export type BaseConfig = t.TypeOf<typeof BaseConfig>;
 const BaseConfig = t.intersection([
   t.interface({
+    COM_COSMOS__accountEndpoint: NonEmptyString,
     COSMOSDB_NAME: NonEmptyString,
     COSMOSDB_URI: NonEmptyString,
 

@@ -1,4 +1,6 @@
+import { CosmosClient } from "@azure/cosmos";
 import { app, output } from "@azure/functions";
+import { DefaultAzureCredential } from "@azure/identity";
 import { NotificationHubsClient } from "@azure/notification-hubs";
 import { QueueClient } from "@azure/storage-queue";
 import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
@@ -86,10 +88,22 @@ const nhPartitionFactory = new NotificationHubPartitionFactory(
   config.AZURE_NOTIFICATION_HUB_PARTITIONS,
 );
 
-const cosmosInstallationSummaryAdapter = new CosmosInstallationSummaryAdapter(
-  cosmosdbInstance,
-  config.INSTALLATION_SUMMARIES_CONTAINER_NAME,
+const aadCredentials = new DefaultAzureCredential();
+
+const comCosmosClient = new CosmosClient({
+  aadCredentials,
+  endpoint: config.COM_COSMOS__accountEndpoint,
+});
+
+const comCosmosInstance = comCosmosClient.database(
+  "push-notifications-cosmos-01",
 );
+
+const comCosmosInstallationSummaryAdapter =
+  new CosmosInstallationSummaryAdapter(
+    comCosmosInstance,
+    config.INSTALLATION_SUMMARIES_CONTAINER_NAME,
+  );
 
 const retryOptions = new RetryOptions(5000, config.RETRY_ATTEMPT_NUMBER);
 retryOptions.backoffCoefficient = 1.5;
@@ -135,7 +149,7 @@ df.app.activity(CreateOrUpdateActivityName, {
   handler: getCreateOrUpdateActivityHandler(
     nhPartitionFactory,
     telemetryClient,
-    cosmosInstallationSummaryAdapter,
+    comCosmosInstallationSummaryAdapter,
   ),
 });
 
@@ -143,7 +157,7 @@ df.app.activity(DeleteActivityName, {
   handler: getDeleteActivityHandler(
     nhPartitionFactory,
     telemetryClient,
-    cosmosInstallationSummaryAdapter,
+    comCosmosInstallationSummaryAdapter,
   ),
 });
 

@@ -2,6 +2,7 @@ export const envConfig = {
   APPINSIGHTS_SAMPLING_PERCENTAGE: "20",
   APPLICATIONINSIGHTS_CONNECTION_STRING: "Idontknow",
 
+  COM_COSMOS__accountEndpoint: "ComCosmosAccountEndpoint",
   COSMOSDB_NAME: "CosmosDBName",
   COSMOSDB_URI: "CosmosDBUri",
 
