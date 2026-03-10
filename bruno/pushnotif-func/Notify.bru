@@ -16,15 +16,12 @@ headers {
 
 body:json {
   {
-    "notification_type": {{notification_type}},
-    "message_id": {{message_id}},
-    "fiscal_code": {{fiscal_code}}
+    "notification_type": "MESSAGE",
+    "message_id": "01KJWA52BFSRYTAZPEWGG6W976",
+    "fiscal_code": "LVTEST00A00A199X"
   }
 }
 
 vars:pre-request {
-  notification_type: "MESSAGE"
-  message_id: "01JR0PKGGWANACX7834M8D4NNW"
-  fiscal_code: "LVTEST00A00A199X"
   user_groups: ApiNewMessageNotify
 }
