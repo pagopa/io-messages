@@ -31,6 +31,7 @@ export const envConfig: IConfig = {
       partitionRegex: /^[c-f]/,
     },
   ],
+  COM_COSMOS__accountEndpoint: "ComCosmosAccountEndpoint" as NonEmptyString,
   COSMOSDB_NAME: "CosmosDBName" as NonEmptyString,
   COSMOSDB_URI: "CosmosDBUri" as NonEmptyString,
   FISCAL_CODE_NOTIFICATION_BLACKLIST: [aBlacklistedFiscalCode],
