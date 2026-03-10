@@ -1,5 +1,15 @@
 ### Changelog
 
+## 2.2.0
+
+### Minor Changes
+
+- 42afb0b: Mirror operations on notification hub into cosmos container
+
+### Patch Changes
+
+- 2485829: Add startFromBeginning in UpdateInstallationDispatcher
+
 ## 2.1.1
 
 ### Patch Changes
