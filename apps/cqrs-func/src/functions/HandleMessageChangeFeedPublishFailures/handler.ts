@@ -10,16 +10,16 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { constVoid, flow, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
-import { TelemetryClient, trackException } from "../utils/appinsights";
-import { errorsToError } from "../utils/conversions";
+import { TelemetryClient, trackException } from "../../utils/appinsights";
+import { errorsToError } from "../../utils/conversions";
 import {
   Failure,
   PermanentFailure,
   TransientFailure,
   toPermanentFailure,
   toTransientFailure,
-} from "../utils/errors";
-import { enrichMessageContent } from "../utils/message";
+} from "../../utils/errors";
+import { enrichMessageContent } from "../../utils/message";
 
 const RetriableMessagePublishFailureInput = t.interface({
   body: RetrievedMessage,

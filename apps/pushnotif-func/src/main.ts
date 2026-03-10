@@ -282,6 +282,7 @@ const main = (config: Config) => {
       },
       strategy: "exponentialBackoff",
     },
+    startFromBeginning: true,
   });
 
   app.storageQueue("UpdateInstallation", {

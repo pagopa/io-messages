@@ -12,12 +12,16 @@ import * as TE from "fp-ts/lib/TaskEither";
 import * as B from "fp-ts/lib/boolean";
 import { flow, pipe } from "fp-ts/lib/function";
 
-import { TelemetryClient } from "../utils/appinsights";
-import { errorsToError } from "../utils/conversions";
-import { Failure, TransientFailure, toPermanentFailure } from "../utils/errors";
-import { enrichMessagesContent } from "../utils/message";
-import { IBulkOperationResult, publish } from "../utils/publish";
-import { toStorableError } from "../utils/storable_error";
+import { TelemetryClient } from "../../utils/appinsights";
+import { errorsToError } from "../../utils/conversions";
+import {
+  Failure,
+  TransientFailure,
+  toPermanentFailure,
+} from "../../utils/errors";
+import { enrichMessagesContent } from "../../utils/message";
+import { IBulkOperationResult, publish } from "../../utils/publish";
+import { toStorableError } from "../../utils/storable_error";
 
 const CHUNK_SIZE = 15;
 

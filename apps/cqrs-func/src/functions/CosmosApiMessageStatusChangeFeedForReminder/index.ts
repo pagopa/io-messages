@@ -2,9 +2,9 @@ import { Context } from "@azure/functions";
 import { AzureContextTransport } from "@pagopa/io-functions-commons/dist/src/utils/logging";
 import * as winston from "winston";
 
-import { getConfigOrThrow } from "../utils/config";
-import { fromSas } from "../utils/event_hub";
-import { avroMessageStatusFormatter } from "../utils/formatter/messageStatusAvroFormatter";
+import { getConfigOrThrow } from "../../utils/config";
+import { fromSas } from "../../utils/event_hub";
+import { avroMessageStatusFormatter } from "../../utils/formatter/messageStatusAvroFormatter";
 import { handleAvroMessageStatusPublishChange } from "./handler";
 
 let logger: Context["log"] | undefined;
