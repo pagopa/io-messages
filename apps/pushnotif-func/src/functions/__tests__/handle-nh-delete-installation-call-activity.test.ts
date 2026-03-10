@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { context as contextMock } from "../../__mocks__/durable-functions";
 import { nhPartitionFactory } from "../../__mocks__/notification-hub";
+import { InstallationSummaryRepository } from "../../domain/mirror-service";
 import {
   ActivityResultFailure,
   createActivity,
@@ -22,7 +23,13 @@ const anInstallationId = aFiscalCodeHash;
 
 const mockTelemetryClient = {
   trackEvent: vi.fn().mockImplementation(() => {}),
+  trackException: vi.fn().mockImplementation(() => {}),
 } as unknown as TelemetryClient;
+
+const mockInstallationRepository = {
+  computePartitionId: vi.fn().mockReturnValue("4"),
+  deleteInstallationSummary: vi.fn(() => Promise.resolve()),
+} as unknown as InstallationSummaryRepository;
 
 vi.spyOn(nhPartitionFactory, "getPartition");
 
@@ -30,7 +37,11 @@ const handler = createActivity(
   "HandleNHDeleteInstallationCallActivity",
   ActivityInput,
   ActivityResultSuccess,
-  getActivityBody(nhPartitionFactory, mockTelemetryClient),
+  getActivityBody(
+    nhPartitionFactory,
+    mockTelemetryClient,
+    mockInstallationRepository,
+  ),
 );
 
 describe("HandleNHDeleteInstallationCallActivity", () => {

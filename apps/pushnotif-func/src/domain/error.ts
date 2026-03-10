@@ -9,6 +9,16 @@ export class ErrorNotFound extends Error {
   }
 }
 
+export class ErrorInternal extends Error {
+  cause: unknown;
+  code = "500";
+
+  constructor(name: string, cause: unknown = "") {
+    super(name);
+    this.cause = cause;
+  }
+}
+
 export class ErrorValidation extends Error {
   cause: unknown;
   code = "400";

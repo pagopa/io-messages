@@ -52,6 +52,8 @@ const BaseConfig = t.intersection([
     COSMOSDB_NAME: NonEmptyString,
     COSMOSDB_URI: NonEmptyString,
 
+    INSTALLATION_SUMMARIES_CONTAINER_NAME: NonEmptyString,
+
     MESSAGE_CONTAINER_NAME: NonEmptyString,
     MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
 
