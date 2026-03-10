@@ -4,7 +4,7 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
-import { InstallationRepository } from "../domain/mirror-service";
+import { InstallationSummaryRepository } from "../domain/mirror-service";
 import { InstallationId } from "../generated/notifications/InstallationId";
 import { Platform, PlatformEnum } from "../generated/notifications/Platform";
 import { toString } from "../utils/conversions";
@@ -45,7 +45,7 @@ export const getActivityBody =
   (
     nhPartitionFactory: NotificationHubPartitionFactory,
     telemetryClient: TelemetryClient,
-    installationRepository: InstallationRepository,
+    installationRepository: InstallationSummaryRepository,
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBodyImpl =>
   ({ input, logger }) => {
@@ -53,15 +53,24 @@ export const getActivityBody =
 
     // Mirror create/update to cosmos' container installationSummary in order to have a copy of the installation in our db
     const mirrorUpsertToCosmos = TE.tryCatch(
-      () =>
-        installationRepository.upsertInstallationSummary({
-          id: input.installationId,
-          nhPartition: installationRepository.computePartitionId(
-            input.installationId,
-          ),
-          platform: getPlatformFromPlatformEnum(input.platform),
-          updatedAt: Date.now(),
-        }),
+      async () => {
+        const partition = installationRepository.computePartitionId(
+          input.installationId,
+        );
+
+        const upsertResult =
+          await installationRepository.upsertInstallationSummary({
+            id: input.installationId,
+            nhPartition: partition,
+            platform: getPlatformFromPlatformEnum(input.platform),
+            updatedAt: Math.floor(Date.now() / 1000),
+          });
+        if (upsertResult instanceof Error) {
+          throw upsertResult;
+        }
+
+        return upsertResult;
+      },
       (e) => (e instanceof Error ? e : new Error(toString(e))),
     );
 
@@ -129,7 +138,7 @@ export const getCallableActivity = (
 export const getActivityHandler = (
   nhPartitionFactory: NotificationHubPartitionFactory,
   telemetryClient: TelemetryClient,
-  installationRepository: InstallationRepository,
+  installationRepository: InstallationSummaryRepository,
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 ) =>
   createActivity(

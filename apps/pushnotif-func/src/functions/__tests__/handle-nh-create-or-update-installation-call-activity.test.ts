@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { context as contextMock } from "../../__mocks__/durable-functions";
 import { nhPartitionFactory } from "../../__mocks__/notification-hub";
-import { InstallationRepository } from "../../domain/mirror-service";
+import { InstallationSummaryRepository } from "../../domain/mirror-service";
 import {
   CreateOrUpdateInstallationMessage,
   KindEnum,
@@ -43,7 +43,7 @@ const mockTelemetryClient = {
 const mockInstallationRepository = {
   computePartitionId: vi.fn().mockReturnValue("4"),
   upsertInstallationSummary: vi.fn(() => Promise.resolve(aFiscalCodeHash)),
-} as unknown as InstallationRepository;
+} as unknown as InstallationSummaryRepository;
 
 const handler = createActivity(
   activityName,

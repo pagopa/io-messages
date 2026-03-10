@@ -64,9 +64,9 @@ describe("CosmosInstallationSummaryAdapter", () => {
     });
 
     it("should throw error for unexpected character", () => {
-      expect(() => getAdapterInternals().computePartitionId("g123456")).toThrow(
-        "Unexpected character [g] in installationId: g123456",
-      );
+      expect(() =>
+        getAdapterInternals().computePartitionId("g123456"),
+      ).toThrowError("Unexpected character [g] in installationId: g123456");
     });
   });
 
@@ -109,9 +109,10 @@ describe("CosmosInstallationSummaryAdapter", () => {
 
       mockUpsert.mockRejectedValueOnce(new Error("Cosmos error"));
 
-      await expect(
-        adapter.upsertInstallationSummary(installation),
-      ).rejects.toThrow(`Cosmos error`);
+      const result = await adapter.upsertInstallationSummary(installation);
+
+      expect(result).toBeInstanceOf(Error);
+      expect(result).toHaveProperty("message", "Failed to upsert installation");
     });
   });
 
@@ -123,7 +124,10 @@ describe("CosmosInstallationSummaryAdapter", () => {
         item: { id: installationId },
       } as unknown as Item);
 
-      const result = await adapter.deleteInstallationSummary(installationId);
+      const result = await adapter.deleteInstallationSummary(
+        installationId,
+        "3",
+      );
 
       expect(result).toBe(installationId);
       expect(mockDatabase.container).toHaveBeenCalledWith(mockContainerName);
@@ -138,9 +142,12 @@ describe("CosmosInstallationSummaryAdapter", () => {
 
       mockDelete.mockRejectedValueOnce(notFoundError);
 
-      await expect(
-        adapter.deleteInstallationSummary(installationId),
-      ).rejects.toThrow(ErrorNotFound);
+      const result = await adapter.deleteInstallationSummary(
+        installationId,
+        "3",
+      );
+
+      expect(result).toBeInstanceOf(ErrorNotFound);
     });
 
     it("should return error when delete fails", async () => {
@@ -148,9 +155,13 @@ describe("CosmosInstallationSummaryAdapter", () => {
 
       mockDelete.mockRejectedValueOnce(new Error("Delete failed"));
 
-      await expect(
-        adapter.deleteInstallationSummary(installationId),
-      ).rejects.toThrow(`Delete failed`);
+      const result = await adapter.deleteInstallationSummary(
+        installationId,
+        "3",
+      );
+
+      expect(result).toBeInstanceOf(Error);
+      expect(result).toHaveProperty("message", "Failed to delete installation");
     });
   });
 });

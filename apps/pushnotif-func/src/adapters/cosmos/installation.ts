@@ -1,11 +1,11 @@
 import { Container, Database } from "@azure/cosmos";
 
-import { ErrorNotFound } from "../../domain/error";
+import { ErrorInternal, ErrorNotFound } from "../../domain/error";
 import { InstallationSummary } from "../../domain/installation";
-import { InstallationRepository } from "../../domain/mirror-service";
+import { InstallationSummaryRepository } from "../../domain/mirror-service";
 
 export class CosmosInstallationSummaryAdapter
-  implements InstallationRepository
+  implements InstallationSummaryRepository
 {
   container: Container;
 
@@ -13,7 +13,7 @@ export class CosmosInstallationSummaryAdapter
     this.container = cosmosdbInstance.container(containerName);
   }
 
-  computePartitionId(installationId: string): "1" | "2" | "3" | "4" {
+  computePartitionId(installationId: string) {
     const firstChar = installationId[0].toLocaleLowerCase();
 
     switch (true) {
@@ -28,31 +28,44 @@ export class CosmosInstallationSummaryAdapter
       default:
         // This case will never happen cause we know that `installationId` is
         // sha256
-        throw new Error(
+        throw new ErrorInternal(
           `Unexpected character [${firstChar}] in installationId: ${installationId}`,
         );
     }
   }
 
-  async deleteInstallationSummary(id: string): Promise<string> {
-    const nhPartition = this.computePartitionId(id);
-
+  async deleteInstallationSummary(id: string, nhPartition: string) {
     try {
       const result = await this.container.item(id, nhPartition).delete();
       return result.item.id;
     } catch (err) {
-      if (err instanceof Error && "code" in err && err.code === 404) {
-        throw new ErrorNotFound("Installation not found", err);
+      if (err instanceof Error) {
+        switch (true) {
+          case "code" in err && err.code === 404:
+            return new ErrorNotFound("Installation not found", err);
+
+          default:
+            return new ErrorInternal("Failed to delete installation", err);
+        }
       }
-      throw err;
+
+      return new ErrorInternal("Failed to delete installation", err);
     }
   }
 
-  async upsertInstallationSummary(
-    installationSummary: InstallationSummary,
-  ): Promise<string> {
-    const result = await this.container.items.upsert(installationSummary, {});
+  async upsertInstallationSummary(installationSummary: InstallationSummary) {
+    try {
+      const result = await this.container.items.upsert(installationSummary, {});
+      return result.item.id;
+    } catch (err) {
+      if (err instanceof Error) {
+        switch (true) {
+          default:
+            return new ErrorInternal("Failed to upsert installation", err);
+        }
+      }
 
-    return result.item.id;
+      return new ErrorInternal("Failed to upsert installation", err);
+    }
   }
 }

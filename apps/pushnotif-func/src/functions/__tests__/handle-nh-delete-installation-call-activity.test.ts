@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { context as contextMock } from "../../__mocks__/durable-functions";
 import { nhPartitionFactory } from "../../__mocks__/notification-hub";
-import { InstallationRepository } from "../../domain/mirror-service";
+import { InstallationSummaryRepository } from "../../domain/mirror-service";
 import {
   ActivityResultFailure,
   createActivity,
@@ -27,8 +27,9 @@ const mockTelemetryClient = {
 } as unknown as TelemetryClient;
 
 const mockInstallationRepository = {
-  deleteInstallationSummary: vi.fn(() => Promise.resolve(anInstallationId)),
-} as unknown as InstallationRepository;
+  computePartitionId: vi.fn().mockReturnValue("4"),
+  deleteInstallationSummary: vi.fn(() => Promise.resolve()),
+} as unknown as InstallationSummaryRepository;
 
 vi.spyOn(nhPartitionFactory, "getPartition");
 

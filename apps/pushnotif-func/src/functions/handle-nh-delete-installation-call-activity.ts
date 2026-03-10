@@ -6,7 +6,7 @@ import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
 import { ErrorNotFound } from "../domain/error";
-import { InstallationRepository } from "../domain/mirror-service";
+import { InstallationSummaryRepository } from "../domain/mirror-service";
 import { toString } from "../utils/conversions";
 import {
   ActivityBody,
@@ -39,7 +39,7 @@ export const getActivityBody =
   (
     nhPartitionFactory: NotificationHubPartitionFactory,
     telemetryClient: TelemetryClient,
-    installationRepository: InstallationRepository,
+    installationRepository: InstallationSummaryRepository,
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ): ActivityBody<ActivityInput, ActivityResultSuccess> =>
   ({ input, logger }) => {
@@ -48,8 +48,21 @@ export const getActivityBody =
 
     // Mirror delete to cosmos' container installationSummary in order to have a copy of the installation in our db
     const mirrorDeleteToCosmos = TE.tryCatch(
-      () =>
-        installationRepository.deleteInstallationSummary(input.installationId),
+      async () => {
+        const nhPartition = installationRepository.computePartitionId(
+          input.installationId,
+        );
+
+        const deleteResult =
+          await installationRepository.deleteInstallationSummary(
+            input.installationId,
+            nhPartition,
+          );
+        if (deleteResult instanceof Error) {
+          throw deleteResult;
+        }
+        return deleteResult;
+      },
       (e) => (e instanceof Error ? e : new Error(toString(e))),
     );
 
@@ -115,7 +128,7 @@ export const getCallableActivity = (
 export const getActivityHandler = (
   nhPartitionFactory: NotificationHubPartitionFactory,
   telemetryClient: TelemetryClient,
-  installationRepository: InstallationRepository,
+  installationRepository: InstallationSummaryRepository,
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 ) =>
   createActivity<ActivityInput>(
