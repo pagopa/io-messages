@@ -1,21 +1,19 @@
 import { Context } from "@azure/functions";
+import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
-import { MessageContentType } from "../../generated/avro/dto/MessageContentTypeEnum";
-import { TelemetryClient } from "../../utils/appinsights";
-import { ThirdPartyDataWithCategoryFetcher } from "../../utils/message";
-import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
-import * as messageUtils from "../../utils/message-utils";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
   aMessageContent,
   aRetrievedMessageWithoutContent,
-} from "../../__mocks__/message";
+} from "../../../__mocks__/message";
+import { TelemetryClient } from "../../../utils/appinsights";
+import * as messageUtils from "../../../utils/message-utils";
 import {
   HandleMessageChangeFeedPublishFailureHandler,
   HandleMessagePublishFailureInput,
 } from "../handler";
-import { vi, beforeEach, describe, test, expect } from "vitest";
 
 const functionsContextMock = {
   bindings: {},

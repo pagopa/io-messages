@@ -19,5 +19,5 @@
     "maxRetryCount": -1,
     "delayInterval": "00:00:10"
   },
-  "scriptFile": "../dist/CosmosApiMessageStatusChangeFeedForReminder/index.js"
+  "scriptFile": "../dist/functions/CosmosApiMessageStatusChangeFeedForReminder/index.js"
 }
