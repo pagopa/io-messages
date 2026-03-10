@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.2.1
+
+### Patch Changes
+
+- 852c59d: Fix correct cosmos for installation summary
+
 ## 2.2.0
 
 ### Minor Changes
