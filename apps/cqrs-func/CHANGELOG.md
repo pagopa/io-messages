@@ -1,5 +1,12 @@
 # cqrs-func
 
+## 1.0.9
+
+### Patch Changes
+
+- d26a76f: Reorganize Project structure, matching other projects in monorepo
+- b7950aa: Configure Linting and formatter
+
 ## 1.0.8
 
 ### Patch Changes
