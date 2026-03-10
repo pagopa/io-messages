@@ -1,4 +1,4 @@
-import { Container, Database, Item } from "@azure/cosmos";
+import { Container, Database, ErrorResponse, Item } from "@azure/cosmos";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ErrorNotFound } from "../../../domain/error";
@@ -137,7 +137,9 @@ describe("CosmosInstallationSummaryAdapter", () => {
 
     it("should not find installation but proceed without error", async () => {
       const installationId = "abc123def456";
-      const notFoundError = new Error("Not found") as { code: number } & Error;
+      const notFoundError = new ErrorResponse("Not found") as {
+        code: number;
+      } & Error;
       notFoundError.code = 404;
 
       mockDelete.mockRejectedValueOnce(notFoundError);
