@@ -1,4 +1,4 @@
-import { Container, Database } from "@azure/cosmos";
+import { Container, Database, ErrorResponse } from "@azure/cosmos";
 
 import { ErrorInternal, ErrorNotFound } from "../../domain/error";
 import { InstallationSummary } from "../../domain/installation";
@@ -39,9 +39,9 @@ export class CosmosInstallationSummaryAdapter
       const result = await this.container.item(id, nhPartition).delete();
       return result.item.id;
     } catch (err) {
-      if (err instanceof Error) {
-        switch (true) {
-          case "code" in err && err.code === 404:
+      if (err instanceof ErrorResponse) {
+        switch (err.code) {
+          case 404:
             return new ErrorNotFound("Installation not found", err);
 
           default:
@@ -58,13 +58,6 @@ export class CosmosInstallationSummaryAdapter
       const result = await this.container.items.upsert(installationSummary, {});
       return result.item.id;
     } catch (err) {
-      if (err instanceof Error) {
-        switch (true) {
-          default:
-            return new ErrorInternal("Failed to upsert installation", err);
-        }
-      }
-
       return new ErrorInternal("Failed to upsert installation", err);
     }
   }
