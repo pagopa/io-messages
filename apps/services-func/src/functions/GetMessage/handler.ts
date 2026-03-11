@@ -84,7 +84,6 @@ import {
   FaultCodeCategoryEnum,
   PaymentDuplicatedStatusFaultPaymentProblemJson,
 } from "../../generated/pagopa-ecommerce/PaymentDuplicatedStatusFaultPaymentProblemJson";
-import { getContentFromBlob } from "../../utils/message-content";
 import { errorsToError } from "../../utils/responses";
 import { MessageReadStatusAuth } from "./userPreferenceChecker/messageReadStatusAuth";
 
@@ -337,7 +336,7 @@ export const GetMessageHandler =
 
     // fetch the content of the message from the blob storage
     const errorOrMaybeContent = await pipe(
-      getContentFromBlob(blobService, retrievedMessage.id),
+      messageModel.getContentFromBlob(blobService, retrievedMessage.id),
       TE.mapLeft((error) => {
         context.error(`GetMessageHandler|${JSON.stringify(error)}`);
         return ResponseErrorInternal(`${error.name}: ${error.message}`);
