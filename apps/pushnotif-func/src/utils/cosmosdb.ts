@@ -16,9 +16,6 @@ const aadCredentials = new DefaultAzureCredential();
 
 export const cosmosdbClient = new CosmosClient({
   aadCredentials,
-  connectionPolicy: {
-    preferredLocations: ["Spain Central", "Italy North"],
-  },
   endpoint: config.COSMOSDB_URI,
 });
 
