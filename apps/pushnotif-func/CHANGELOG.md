@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.2.2
+
+### Patch Changes
+
+- 5786da3: Try to read from Spain Central first
+
 ## 2.2.1
 
 ### Patch Changes
