@@ -1,5 +1,4 @@
 import { app, output } from "@azure/functions";
-import { createBlobService as createMigrationBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/FiscalCode";
 import { HttpsUrl } from "@pagopa/io-functions-commons/dist/generated/definitions/HttpsUrl";
 import { getMailerTransporter } from "@pagopa/io-functions-commons/dist/src/mailer";
@@ -145,12 +144,6 @@ const blobServiceForMessageContent = createBlobService(
   config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
 );
 
-// Migration-kit blob service for GetMessage (supports both old and new storage)
-const blobServiceGetMessage = createMigrationBlobService(
-  config.IO_COM_STORAGE_CONNECTION_STRING,
-  config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
-);
-
 // ---------------------------------------------------------------------------
 // Shared utilities
 // ---------------------------------------------------------------------------
@@ -225,7 +218,7 @@ app.http("GetMessage", {
     messageStatusModel,
     notificationModel,
     notificationStatusModel,
-    blobServiceGetMessage,
+    blobServiceForMessageContent,
     canAccessMessageReadStatus(
       profileModel,
       servicePreferencesModel,
