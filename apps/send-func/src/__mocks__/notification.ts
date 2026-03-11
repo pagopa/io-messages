@@ -196,6 +196,11 @@ export const aSendHeaders = sendHeadersSchema.parse({
   ...aLollipopHeaders,
 });
 
+export const aSendHeadersWithoutPnIoSrc = sendHeadersSchema.parse({
+  "x-pagopa-cx-taxid": aFiscalCode,
+  ...aLollipopHeaders,
+});
+
 export const aCIEValidationdata = CIEValidationDataSchema.parse({
   mrtdData: {
     dg1: "dg1",
