@@ -5,7 +5,7 @@
   "license": "UNLICENSED",
   "type": "commonjs",
   "scripts": {
-    "build": "yarn generate && tsc",
+    "build": "yarn openapi:bundle && yarn generate && tsc",
     "start": "func start --javascript",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
