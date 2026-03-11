@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.2.3
+
+### Patch Changes
+
+- 3cb5bbb: Revert Read from Spain Central in pushnotif-func
+
 ## 2.2.2
 
 ### Patch Changes
