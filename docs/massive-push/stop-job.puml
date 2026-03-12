@@ -16,12 +16,6 @@ box "io-p-itn-com-cosno-01 cosmos account" #LightBlue
   end box
 end box
 
-box "iopitncomst01 Blob Storage account" #LightBlue
-  box "Queues"
-    database "check-job-message" as cjmq
-  end box
-end box
-
 box "Notification Hubs"
   participant "Notification Hub" as nh1
 end box
