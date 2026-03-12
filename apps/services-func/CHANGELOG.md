@@ -1,5 +1,11 @@
 # services-func
 
+## 2.0.1
+
+### Patch Changes
+
+- c4d2e27: Fix applicationInsight Initialization
+
 ## 2.0.0
 
 ### Major Changes
