@@ -13,12 +13,12 @@ System_Boundary(pushnotif_microservice, "Pushnotif Microservice") {
 
   Container(create_or_update_installation, "CreateOrUpdateInstallation", "Azure Function")
   Container(delete_installation, "DeleteInstallation", "Azure Function")
-  Container(update_all_installations, "UpdateAllInstallations", "Azure Function")
+  Container(update_all_installations, "InstallationUpdateDispatcher", "Azure Function")
 
-  ContainerDb(cosmos_container, "installations", "Cosmos DB", "Stores installation documents; source for Change Feed.")
+  ContainerDb(cosmos_container, "installation-summaries", "Cosmos DB", "Stores installation summaries documents; source for Change Feed.")
 
-  ContainerQueue(update_installation_ims, "update-installation-ims", "Azure Storage Queue")
-  ContainerQueue(update_installation_ims_poison, "update-installation-ims-poison", "Azure Storage Queue")
+  ContainerQueue(update_installation_ims, "update-installations-dispatch", "Azure Storage Queue")
+  ContainerQueue(update_installation_ims_poison, "update-installations-dispatch", "Azure Storage Queue")
 
   Container(update_installation, "UpdateInstallation", "Azure Function")
 }
