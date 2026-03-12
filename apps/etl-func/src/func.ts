@@ -2,7 +2,6 @@ import { CosmosClient } from "@azure/cosmos";
 import { TableClient } from "@azure/data-tables";
 import { app } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
-import { BlobServiceClientWithFallBack } from "@pagopa/azure-storage-migration-kit";
 import { loadConfigFromEnvironment } from "io-messages-common/adapters/config";
 import { pino } from "pino";
 import { createClient } from "redis";
@@ -12,10 +11,7 @@ import {
   initNoSamplingClient,
 } from "./adapters/appinsights/appinsights.js";
 import { messageSchema, messageStatusAvroSchema } from "./adapters/avro.js";
-import {
-  makeStorageAccountClient,
-  makeTempStorageAccountClient,
-} from "./adapters/blob-storage/index.js";
+import { makeStorageAccountClient } from "./adapters/blob-storage/index.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
 import { EventHubEventProducer } from "./adapters/eventhub/event.js";
@@ -41,17 +37,6 @@ const main = async (config: Config) => {
   const telemetryService = new TelemetryEventService(telemetryClient);
 
   const blobServiceClient = makeStorageAccountClient(config, azureCredentials);
-
-  // Temporary storage account for itn migration purpose
-  const blobServiceClientItn = makeTempStorageAccountClient(
-    config,
-    azureCredentials,
-  );
-
-  const blobServiceClientWithFallBack = new BlobServiceClientWithFallBack(
-    blobServiceClientItn,
-    blobServiceClient,
-  );
 
   const messageProducerClient = makeEventHubProducerClient(
     config.messagesEventHub,
@@ -84,7 +69,7 @@ const main = async (config: Config) => {
   );
 
   const blobMessageContentProvider = new BlobMessageContent(
-    blobServiceClientWithFallBack,
+    blobServiceClient,
     config.messageContentStorage.containerName,
   );
 
@@ -140,10 +125,6 @@ const main = async (config: Config) => {
       try {
         // check for storage availability or throw
         await blobServiceClient
-          .getContainerClient(config.messageContentStorage.containerName)
-          .getProperties();
-        // check for storage availability or throw
-        await blobServiceClientItn
           .getContainerClient(config.messageContentStorage.containerName)
           .getProperties();
         // check for cosmos availability
