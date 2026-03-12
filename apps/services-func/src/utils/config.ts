@@ -10,6 +10,7 @@ import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitio
 import { MailerConfig } from "@pagopa/io-functions-commons/dist/src/mailer";
 import { DateFromTimestamp } from "@pagopa/ts-commons/lib/dates";
 import {
+  IntegerFromString,
   NonNegativeIntegerFromString,
   NumberFromString,
 } from "@pagopa/ts-commons/lib/numbers";
@@ -48,6 +49,8 @@ export const IConfig = t.intersection([
   t.type({
     APIM_BASE_URL: NonEmptyString,
     APIM_SUBSCRIPTION_KEY: NonEmptyString,
+
+    APPINSIGHTS_SAMPLING_PERCENTAGE: IntegerFromString,
 
     APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
