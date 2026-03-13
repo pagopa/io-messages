@@ -1,5 +1,4 @@
 import { InvocationContext } from "@azure/functions";
-import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { InternalMessageResponseWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/InternalMessageResponseWithContent";
 import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
 import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
@@ -34,6 +33,7 @@ import {
   Ulid,
 } from "@pagopa/ts-commons/lib/strings";
 import { withoutUndefinedValues } from "@pagopa/ts-commons/lib/types";
+import { BlobService } from "azure-storage";
 import * as A from "fp-ts/lib/Apply";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
@@ -42,7 +42,7 @@ import * as B from "fp-ts/lib/boolean";
 import { flow, pipe } from "fp-ts/lib/function";
 
 import { ThirdPartyData } from "../../generated/definitions/ThirdPartyData";
-import { getContentFromBlob } from "../../utils/message-content";
+
 import {
   ThirdPartyDataWithCategoryFetcher,
   getOrCacheService,
@@ -183,7 +183,7 @@ const getErrorOrMaybeThirdPartyData = async (
 export function GetMessageHandler(
   messageModel: MessageModel,
   messageStatusModel: MessageStatusModel,
-  blobService: BlobServiceWithFallBack,
+  blobService: BlobService,
   serviceModel: ServiceModel,
   redisClientFactory: RedisClientFactory,
   serviceCacheTtl: NonNegativeInteger,
@@ -198,7 +198,7 @@ export function GetMessageHandler(
         fiscalCode,
         messageId as NonEmptyString,
       )(), // FIXME: decode instead of cast
-      getContentFromBlob(blobService, messageId)(),
+      messageModel.getContentFromBlob(blobService, messageId)(),
     ]);
 
     if (E.isLeft(errorOrMaybeDocument)) {
@@ -349,7 +349,7 @@ export function GetMessageHandler(
 export function GetMessage(
   messageModel: MessageModel,
   messageStatusModel: MessageStatusModel,
-  blobService: BlobServiceWithFallBack,
+  blobService: BlobService,
   serviceModel: ServiceModel,
   redisClientFactory: RedisClientFactory,
   serviceCacheTtl: NonNegativeInteger,

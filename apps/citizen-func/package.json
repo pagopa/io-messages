@@ -41,7 +41,6 @@
     "@azure/cosmos": "^4.0.0",
     "@azure/functions": "^4.4.0",
     "@azure/identity": "^4.5.0",
-    "@pagopa/azure-storage-legacy-migration-kit": "^0.0.4",
     "@pagopa/io-functions-commons": "^30.0.0",
     "@pagopa/ts-commons": "^13.1.2",
     "applicationinsights": "^2.9.5",
