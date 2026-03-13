@@ -1,6 +1,7 @@
 import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
 import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
+import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
 import { Ulid } from "@pagopa/ts-commons/lib/strings";
 import { createBlobService } from "azure-storage";
@@ -20,7 +21,6 @@ import {
 } from "../../../__mocks__/remote-content";
 import { HasPreconditionEnum } from "../../../generated/definitions/HasPrecondition";
 import { aMessageContent } from "../../../utils/__tests__/messages.test";
-import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import {
   CreatedMessageWithoutContentWithStatus,
   ThirdPartyDataWithCategoryFetcher,

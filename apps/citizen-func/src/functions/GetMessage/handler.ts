@@ -42,7 +42,6 @@ import * as B from "fp-ts/lib/boolean";
 import { flow, pipe } from "fp-ts/lib/function";
 
 import { ThirdPartyData } from "../../generated/definitions/ThirdPartyData";
-
 import {
   ThirdPartyDataWithCategoryFetcher,
   getOrCacheService,
