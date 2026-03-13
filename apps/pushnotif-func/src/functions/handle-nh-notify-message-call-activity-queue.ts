@@ -1,12 +1,10 @@
 import { errorsToReadableMessages } from "@pagopa/ts-commons/lib/reporters";
-import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
 import { TelemetryClient } from "applicationinsights";
 import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
-import { toSHA256 } from "../utils/conversions";
 import {
   Failure,
   throwTransientFailure,
@@ -26,7 +24,6 @@ export type NhNotifyMessageResponse = Promise<
 
 export const handle = (
   inputRequest: unknown,
-  fiscalCodeNotificationBlacklist: readonly FiscalCode[],
   telemetryClient: TelemetryClient,
   nhPartitionFactory: NotificationHubPartitionFactory,
 ): NhNotifyMessageResponse =>
@@ -43,25 +40,13 @@ export const handle = (
     TE.bindTo("request"),
     TE.chain(({ request: { message } }) =>
       pipe(
-        { kind: "SUCCESS", skipped: true },
-        TE.fromPredicate(
-          () =>
-            fiscalCodeNotificationBlacklist
-              .map(toSHA256)
-              .includes(message.installationId),
-          () => "execute notify",
+        notify(
+          nhPartitionFactory.getPartition(message.installationId),
+          message.payload,
+          message.installationId,
+          telemetryClient,
         ),
-        TE.orElseW(() =>
-          pipe(
-            notify(
-              nhPartitionFactory.getPartition(message.installationId),
-              message.payload,
-              message.installationId,
-              telemetryClient,
-            ),
-            TE.map(() => ({ kind: "SUCCESS", skipped: false })),
-          ),
-        ),
+        TE.map(() => ({ kind: "SUCCESS", skipped: false })),
         TE.mapLeft(toTransientFailure),
         TE.mapLeft((error) => {
           telemetryClient.trackEvent({

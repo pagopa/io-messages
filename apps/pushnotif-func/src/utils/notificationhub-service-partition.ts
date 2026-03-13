@@ -1,9 +1,7 @@
 import { NotificationHubsClient } from "@azure/notification-hubs";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { strict as assert } from "node:assert";
 
-import { InstallationId } from "../generated/notifications/InstallationId";
-import { DisjoitedNotificationHubPartitionArray } from "./types";
+import { NotificationHubPartition } from "../adapters/notification-hub/config";
 
 /**
  * @param sha The sha to test
@@ -11,14 +9,14 @@ import { DisjoitedNotificationHubPartitionArray } from "./types";
  */
 export const testShaForPartitionRegex = (
   regex: RegExp | string,
-  sha: InstallationId,
+  sha: string,
 ): boolean => (typeof regex === "string" ? new RegExp(regex) : regex).test(sha);
 
 export class NotificationHubPartitionFactory {
-  #hash: (installationId: NonEmptyString) => string | undefined;
+  #hash: (installationId: string) => string | undefined;
   #m: Map<string, NotificationHubsClient>;
 
-  constructor(partitions: DisjoitedNotificationHubPartitionArray) {
+  constructor(partitions: NotificationHubPartition[]) {
     this.#m = new Map(
       partitions.map((p) => [
         p.name,
@@ -26,7 +24,7 @@ export class NotificationHubPartitionFactory {
       ]),
     );
 
-    this.#hash = (installationId: NonEmptyString) => {
+    this.#hash = (installationId: string) => {
       const partition = partitions.find((p) =>
         testShaForPartitionRegex(p.partitionRegex, installationId),
       );
@@ -35,7 +33,7 @@ export class NotificationHubPartitionFactory {
     };
   }
 
-  getPartition(installationId: NonEmptyString): NotificationHubsClient {
+  getPartition(installationId: string): NotificationHubsClient {
     const partitionName = this.#hash(installationId);
     assert(
       partitionName,
