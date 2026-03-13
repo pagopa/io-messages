@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.2.4
+
+### Patch Changes
+
+- eceb9f4: Remove message_id from the massive push notification template.
+
 ## 2.2.3
 
 ### Patch Changes
