@@ -8,9 +8,9 @@ import { InstallationRepository } from "../../domain/push-service";
 import { TelemetryService } from "../../domain/telemetry";
 
 const apnsNewTemplate =
-  '{"aps": {"alert": {"title": "$(title)", "body": "$(message)"}}, "custom": "$(custom)", "message_id": "$(message_id)"}';
+  '{"aps": {"alert": {"title": "$(title)", "body": "$(message)"}}, "custom": "$(custom)"}';
 const fcmv1NewTemplate =
-  '{"message": {"notification": {"title": "$(title)", "body": "$(message)"}, "android": {"data": {"message_id": "$(message_id)", "custom": "$(custom)"}, "notification": {"icon": "ic_notification"}}}}';
+  '{"message": {"notification": {"title": "$(title)", "body": "$(message)"}, "android": {"data": {"custom": "$(custom)"}, "notification": {"icon": "ic_notification"}}}}';
 
 const updateInstallationMessageSchema = z.object({
   installationId: z.hash("sha256"),
