@@ -48,7 +48,6 @@
     "@azure/functions": "^4.4.0",
     "@azure/identity": "^4.5.0",
     "@azure/storage-queue": "^12.4.0",
-    "@pagopa/azure-storage-legacy-migration-kit": "^0.0.4",
     "@pagopa/io-app-email-templates": "^0.7.3",
     "@pagopa/io-backend-notifications-sdk": "^9.7.0",
     "@pagopa/io-functions-admin-sdk": "^1.10.1",
