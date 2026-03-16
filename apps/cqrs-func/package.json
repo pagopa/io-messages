@@ -7,7 +7,7 @@
   "main": "dist/main.js",
   "scripts": {
     "build": "yarn generate && tsc",
-    "start": "func start --javascript",
+    "start": "func start --port 7075",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint --fix src",
