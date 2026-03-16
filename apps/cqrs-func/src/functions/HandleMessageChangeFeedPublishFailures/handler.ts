@@ -1,4 +1,4 @@
-﻿import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import {
@@ -41,7 +41,7 @@ export type HandleMessagePublishFailureInput = t.TypeOf<
 >;
 
 export const HandleMessageChangeFeedPublishFailureHandler = (
-  context: Context,
+  context: InvocationContext,
   message: unknown,
   telemetryClient: TelemetryClient,
   messageModel: MessageModel,
@@ -104,7 +104,7 @@ export const HandleMessageChangeFeedPublishFailureHandler = (
         },
         tagOverrides: { samplingEnabled: String(isTransient) },
       });
-      context.log.error(error);
+      context.error(error);
       if (isTransient) {
         // Trigger a retry in case of temporary failures
         throw new Error(error);
@@ -113,3 +113,24 @@ export const HandleMessageChangeFeedPublishFailureHandler = (
     }),
     TE.toUnion,
   )();
+
+export const queueFailureHandler =
+  (
+    telemetryClient: TelemetryClient,
+    messageModel: MessageModel,
+    messageContentBlobService: BlobServiceWithFallBack,
+    kafkaClient: KP.KafkaProducerCompact<RetrievedMessage>,
+  ) =>
+  async (
+    message: unknown,
+    context: InvocationContext,
+  ): Promise<Failure | void> => {
+    return HandleMessageChangeFeedPublishFailureHandler(
+      context,
+      message,
+      telemetryClient,
+      messageModel,
+      messageContentBlobService,
+      kafkaClient,
+    );
+  };
