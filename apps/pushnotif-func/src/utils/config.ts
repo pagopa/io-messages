@@ -7,7 +7,6 @@
 
 import { CommaSeparatedListOf } from "@pagopa/ts-commons/lib/comma-separated-list";
 import { IntegerFromString } from "@pagopa/ts-commons/lib/numbers";
-import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { withDefault } from "@pagopa/ts-commons/lib/types";
 import * as E from "fp-ts/lib/Either";
@@ -173,39 +172,3 @@ const WithComputedNHPartitions = new t.Type<
     } as BaseConfig & NotificationHubPartitionsConfig; // cast needed because TS cannot understand types when we compose keys with strings
   },
 );
-
-export type IConfig = t.TypeOf<typeof IConfig>;
-export const IConfig = t
-  .intersection([BaseConfig, NotificationHubPartitionsConfig])
-  .pipe(WithComputedNHPartitions);
-
-export const envConfig = {
-  ...process.env,
-  isProduction: process.env.NODE_ENV === "production",
-};
-
-// No need to re-evaluate this object for each call
-const errorOrConfig: t.Validation<IConfig> = IConfig.decode(envConfig);
-
-/**
- * Read the application configuration and check for invalid values.
- * Configuration is eagerly evalued when the application starts.
- *
- * @returns either the configuration values or a list of validation errors
- */
-export const getConfig = (): t.Validation<IConfig> => errorOrConfig;
-
-/**
- * Read the application configuration and check for invalid values.
- * If the application is not valid, raises an exception.
- *
- * @returns the configuration values
- * @throws validation errors found while parsing the application configuration
- */
-export const getConfigOrThrow = (): IConfig =>
-  pipe(
-    errorOrConfig,
-    E.getOrElseW((errors) => {
-      throw new Error(`Invalid configuration: ${readableReport(errors)}`);
-    }),
-  );

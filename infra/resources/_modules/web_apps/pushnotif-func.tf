@@ -44,8 +44,7 @@ locals {
 
       FISCAL_CODE_NOTIFICATION_BLACKLIST = join(",", local.test_users_internal_load)
 
-      NOTIFICATIONS_QUEUE_NAME = "push-notifications"
-      # NOTIFICATIONS_STORAGE_CONNECTION_STRING = data.azurerm_storage_account.push_notifications_storage.primary_connection_string
+      NOTIFICATIONS_QUEUE_NAME                = "push-notifications"
       NOTIFICATIONS_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
 
       NOTIFY_MESSAGE_QUEUE_NAME = "notify-message"

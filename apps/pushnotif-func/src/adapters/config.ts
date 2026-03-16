@@ -2,9 +2,17 @@ import z, { ZodError } from "zod";
 
 import { notificationHubConfigSchema } from "./notification-hub/config";
 
+// TODO: Move this to io-messages-common
 export const applicationInsightsSchema = z.object({
   connectionString: z.string().min(1),
+  samplingPercentage: z.int().min(1).max(100),
 });
+
+// TODO: Move this to io-messages-common
+const nodeEnvSchema = z.union([
+  z.literal("production"),
+  z.literal("development"),
+]);
 
 export type ApplicationInsightsConfig = z.TypeOf<
   typeof applicationInsightsSchema
@@ -21,7 +29,11 @@ export function loadConfigFromEnvironment<T extends z.ZodTypeAny>(
     if (err instanceof ZodError) {
       err.issues.forEach((issue) => {
         // eslint-disable-next-line no-console
-        console.error({ issue }, "Error parsing environment variable");
+        console.error(
+          "Error parsing environment variable",
+          issue.message,
+          issue.path,
+        );
       });
     } else if (err instanceof Error) {
       // eslint-disable-next-line no-console
@@ -45,29 +57,44 @@ export function loadConfigFromEnvironment<T extends z.ZodTypeAny>(
 
 // envSchema represents the local.settings.json.
 const envSchema = z.object({
+  APPINSIGHTS_SAMPLING_PERCENTAGE: z
+    .string()
+    .transform((val) => Number(val))
+    .pipe(z.number().int().min(1).max(100)),
+  APPLICATIONINSIGHTS_CONNECTION_STRING: z.string().min(1),
+
   COM_COSMOS__accountEndpoint: z.url(),
+
+  COSMOSDB_URI: z.url(),
   INSTALLATION_SUMMARIES_CONTAINER_NAME: z.string().min(1),
   INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX: z.string().min(1),
 
+  MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: z.string().min(1),
   NH1_ENDPOINT: z.string().min(1),
   NH1_NAME: z.string().min(1),
-  NH1_PARTITION_REGEX: z.string().min(1),
 
+  NH1_PARTITION_REGEX: z.string().min(1),
   NH2_ENDPOINT: z.string().min(1),
   NH2_NAME: z.string().min(1),
-  NH2_PARTITION_REGEX: z.string().min(1),
 
+  NH2_PARTITION_REGEX: z.string().min(1),
   NH3_ENDPOINT: z.string().min(1),
   NH3_NAME: z.string().min(1),
-  NH3_PARTITION_REGEX: z.string().min(1),
 
+  NH3_PARTITION_REGEX: z.string().min(1),
   NH4_ENDPOINT: z.string().min(1),
   NH4_NAME: z.string().min(1),
+
   NH4_PARTITION_REGEX: z.string().min(1),
 
+  NODE_ENV: nodeEnvSchema,
   NOTIFICATIONS_STORAGE_CONNECTION_STRING: z.string().min(1),
 
   PUSH_DATABASE_NAME: z.string().min(1),
+
+  SESSION_MANAGER_API_KEY: z.string().min(1),
+  SESSION_MANAGER_BASE_URL: z.url(),
+
   UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH: z
     .string()
     .transform((val) => Number(val))
@@ -77,45 +104,63 @@ const envSchema = z.object({
 export type Env = z.TypeOf<typeof envSchema>;
 
 export const configSchema = z.object({
+  apiCosmosAccountEndpoint: z.url(),
+  apiStorageAccountConnectionString: z.string().min(1),
+  applicationInsights: applicationInsightsSchema,
   comCosmosAccountEndpoint: z.url(),
   databaseName: z.string().min(1),
   installationSummariesContainerName: z.string().min(1),
   installationSummariesLeaseContainerPrefix: z.string().min(1),
+  nodeEnv: nodeEnvSchema,
   notificationHub: notificationHubConfigSchema,
   notificationStorageConnectionString: z.string().min(1),
+  sessionManager: z.object({
+    apiKey: z.string().min(1),
+    baseUrl: z.url(),
+  }),
   updateAllInstallationsTimeToReach: z.int().positive(),
 });
 
 export type Config = z.TypeOf<typeof configSchema>;
 
 const mapEnvironmentVariablesToConfig = (env: Env): Config => ({
+  apiCosmosAccountEndpoint: env.COSMOSDB_URI,
+  apiStorageAccountConnectionString:
+    env.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+  applicationInsights: {
+    connectionString: env.APPLICATIONINSIGHTS_CONNECTION_STRING,
+    samplingPercentage: env.APPINSIGHTS_SAMPLING_PERCENTAGE,
+  },
   comCosmosAccountEndpoint: env.COM_COSMOS__accountEndpoint,
   databaseName: env.PUSH_DATABASE_NAME,
   installationSummariesContainerName: env.INSTALLATION_SUMMARIES_CONTAINER_NAME,
+
   installationSummariesLeaseContainerPrefix:
     env.INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX,
 
+  nodeEnv: env.NODE_ENV,
+
   notificationHub: {
     partition1: {
-      connectionString: env.NH1_ENDPOINT,
+      endpoint: env.NH1_ENDPOINT,
       name: env.NH1_NAME,
       partitionRegex: env.NH1_PARTITION_REGEX,
     },
 
     partition2: {
-      connectionString: env.NH2_ENDPOINT,
+      endpoint: env.NH2_ENDPOINT,
       name: env.NH2_NAME,
       partitionRegex: env.NH2_PARTITION_REGEX,
     },
 
     partition3: {
-      connectionString: env.NH3_ENDPOINT,
+      endpoint: env.NH3_ENDPOINT,
       name: env.NH3_NAME,
       partitionRegex: env.NH3_PARTITION_REGEX,
     },
 
     partition4: {
-      connectionString: env.NH4_ENDPOINT,
+      endpoint: env.NH4_ENDPOINT,
       name: env.NH4_NAME,
       partitionRegex: env.NH4_PARTITION_REGEX,
     },
@@ -123,6 +168,11 @@ const mapEnvironmentVariablesToConfig = (env: Env): Config => ({
 
   notificationStorageConnectionString:
     env.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
+
+  sessionManager: {
+    apiKey: env.SESSION_MANAGER_API_KEY,
+    baseUrl: env.SESSION_MANAGER_BASE_URL,
+  },
 
   updateAllInstallationsTimeToReach: env.UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH,
 });
