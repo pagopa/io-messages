@@ -12,7 +12,7 @@ System_Boundary(c1, "Installation Management System") {
 }
 
 System_Ext(notification_hub, "Azure Notification Hub", "Stores device installation data for push notifications.")
-System_Ext(cosmos_db, "installations", "NoSQL storage for querying and auditing installations.")
+System_Ext(cosmos_db, "push-notifications-cosmos-01", "NoSQL storage for querying and auditing installations.")
 
 Rel(user, pushnotif_func, "Sends CRUD requests", "Create/Update/Delete")
 Rel(pushnotif_func, notification_hub, "Create/Update/Delete installations")

@@ -1,5 +1,4 @@
 import { Container } from "@azure/cosmos";
-import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
 import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
@@ -30,6 +29,7 @@ import {
   NonEmptyString,
   OrganizationFiscalCode,
 } from "@pagopa/ts-commons/lib/strings";
+import { createBlobService } from "azure-storage";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -45,7 +45,6 @@ import {
   aRetrievedService,
   aServiceId,
 } from "../../../__mocks__/mocks.service_preference";
-import * as mc from "../../../utils/message-content";
 import * as msgUtil from "../../../utils/messages";
 import { RedisClientFactory } from "../../../utils/redis";
 import { GetMessageHandler } from "../handler";
@@ -109,10 +108,7 @@ const anEnrichedMessageResponse: EnrichedMessage = {
 };
 
 const mockServiceModel = new ServiceModel({} as Container);
-const mockBlobServiceModel = createBlobService(
-  "UseDevelopmentStorage=true",
-  "UseDevelopmentStorage=true",
-);
+const mockBlobServiceModel = createBlobService("UseDevelopmentStorage=true");
 
 const findMessageForRecipientMock = vi
   .fn()
@@ -172,9 +168,7 @@ describe("GetMessageHandler", () => {
     vi.clearAllMocks();
   });
   it("should fail if any error occurs trying to retrieve the message content", async () => {
-    vi.spyOn(mc, "getContentFromBlob").mockReturnValueOnce(
-      TE.left(new Error()),
-    );
+    getContentFromBlobMock.mockReturnValueOnce(TE.left(new Error()));
 
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
@@ -194,7 +188,7 @@ describe("GetMessageHandler", () => {
       O.none,
     );
 
-    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -205,9 +199,7 @@ describe("GetMessageHandler", () => {
   });
 
   it("should fail if any error occurs trying to retrieve message status while requesting an enriched message", async () => {
-    vi.spyOn(mc, "getContentFromBlob").mockReturnValueOnce(
-      TE.of(O.some(aMessageContent)),
-    );
+    getContentFromBlobMock.mockReturnValueOnce(TE.of(O.some(aMessageContent)));
 
     findLastVersionByModelIdMessageStatusMock.mockImplementationOnce(() =>
       TE.left(
@@ -233,7 +225,7 @@ describe("GetMessageHandler", () => {
       O.some(true),
     );
 
-    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -248,9 +240,7 @@ describe("GetMessageHandler", () => {
       TE.left(new Error("Cannot query services")),
     );
 
-    vi.spyOn(mc, "getContentFromBlob").mockReturnValueOnce(
-      TE.of(O.some(aMessageContent)),
-    );
+    getContentFromBlobMock.mockReturnValueOnce(TE.of(O.some(aMessageContent)));
 
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
@@ -271,14 +261,14 @@ describe("GetMessageHandler", () => {
     );
 
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
-    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
     expect(getOrCacheServiceMock).toHaveBeenCalledTimes(1);
 
     expect(result.kind).toBe("IResponseErrorInternal");
   });
 
   it("should respond with an enriched message", async () => {
-    vi.spyOn(mc, "getContentFromBlob").mockReturnValueOnce(
+    getContentFromBlobMock.mockReturnValueOnce(
       TE.of(
         O.some({
           ...aMessageContent,
@@ -305,7 +295,7 @@ describe("GetMessageHandler", () => {
       O.some(true),
     );
 
-    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -342,7 +332,7 @@ describe("GetMessageHandler", () => {
       category: serviceId === aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
     });
 
-    vi.spyOn(mc, "getContentFromBlob").mockReturnValueOnce(
+    getContentFromBlobMock.mockReturnValueOnce(
       TE.of(
         O.some({
           ...aMessageContent,
@@ -369,7 +359,7 @@ describe("GetMessageHandler", () => {
       O.some(true),
     );
 
-    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -400,9 +390,7 @@ describe("GetMessageHandler", () => {
   });
 
   it("should respond with a message", async () => {
-    vi.spyOn(mc, "getContentFromBlob").mockReturnValueOnce(
-      TE.of(O.some(aMessageContent)),
-    );
+    getContentFromBlobMock.mockReturnValueOnce(TE.of(O.some(aMessageContent)));
 
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
@@ -422,7 +410,7 @@ describe("GetMessageHandler", () => {
       O.none,
     );
 
-    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -456,7 +444,7 @@ describe("GetMessageHandler", () => {
     findMessageForRecipientMock.mockImplementationOnce(() =>
       TE.of(O.some(aRetrievedMessageWithEuCovidCert)),
     );
-    vi.spyOn(mc, "getContentFromBlob").mockImplementationOnce(() =>
+    getContentFromBlobMock.mockImplementationOnce(() =>
       TE.of(O.some(aRetrievedMessageWithEuCovidCert.content as MessageContent)),
     );
 
@@ -478,7 +466,7 @@ describe("GetMessageHandler", () => {
       O.none,
     );
 
-    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithEuCovidCert.fiscalCode,
@@ -522,7 +510,7 @@ describe("GetMessageHandler", () => {
   });
 
   it("should respond with a message payment data overriden with payee if original content does not have a payee", async () => {
-    vi.spyOn(mc, "getContentFromBlob").mockImplementationOnce(() =>
+    getContentFromBlobMock.mockImplementationOnce(() =>
       TE.of(
         O.some({
           ...aMessageContent,
@@ -550,7 +538,7 @@ describe("GetMessageHandler", () => {
     );
 
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
-    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
     expect(getOrCacheServiceMock).toHaveBeenCalledTimes(1);
 
     const expected = {
@@ -573,7 +561,7 @@ describe("GetMessageHandler", () => {
   });
 
   it("should respond with an internal error if message sender cannot be retrieved", async () => {
-    vi.spyOn(mc, "getContentFromBlob").mockImplementationOnce(() =>
+    getContentFromBlobMock.mockImplementationOnce(() =>
       TE.of(
         O.some({
           ...aMessageContent,
@@ -605,14 +593,14 @@ describe("GetMessageHandler", () => {
     );
 
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
-    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
     expect(getOrCacheServiceMock).toHaveBeenCalledTimes(1);
 
     expect(result.kind).toBe("IResponseErrorInternal");
   });
 
   it("should respond with an internal error if message sender cannot be found", async () => {
-    vi.spyOn(mc, "getContentFromBlob").mockImplementationOnce(() =>
+    getContentFromBlobMock.mockImplementationOnce(() =>
       TE.of(
         O.some({
           ...aMessageContent,
@@ -643,7 +631,7 @@ describe("GetMessageHandler", () => {
     );
 
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
-    expect(mc.getContentFromBlob).toHaveBeenCalledTimes(1);
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
     expect(getOrCacheServiceMock).toHaveBeenCalledTimes(1);
 
     expect(result.kind).toBe("IResponseErrorInternal");

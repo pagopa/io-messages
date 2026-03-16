@@ -1,16 +1,20 @@
 import { StorageQueueHandler } from "@azure/functions";
 import z from "zod";
 
-import { ErrorNotFound } from "../../domain/error";
+import {
+  ErrorInternal,
+  ErrorNotFound,
+  ErrorTooManyRequests,
+} from "../../domain/error";
 import { supportedPlatformSchema } from "../../domain/installation";
 import { JsonPatch } from "../../domain/json-patch";
 import { InstallationRepository } from "../../domain/push-service";
 import { TelemetryService } from "../../domain/telemetry";
 
 const apnsNewTemplate =
-  '{"aps": {"alert": {"title": "$(title)", "body": "$(message)"}}, "custom": "$(custom)", "message_id": "$(message_id)"}';
+  '{"aps": {"alert": {"title": "$(title)", "body": "$(message)"}}, "custom": "$(custom)"}';
 const fcmv1NewTemplate =
-  '{"message": {"notification": {"title": "$(title)", "body": "$(message)"}, "android": {"data": {"message_id": "$(message_id)", "custom": "$(custom)"}, "notification": {"icon": "ic_notification"}}}}';
+  '{"message": {"notification": {"title": "$(title)", "body": "$(message)"}, "android": {"data": {"custom": "$(custom)"}, "notification": {"icon": "ic_notification"}}}}';
 
 const updateInstallationMessageSchema = z.object({
   installationId: z.hash("sha256"),
@@ -73,7 +77,11 @@ const getUpdateInstallationHandler =
       return;
     }
 
-    if (errorOrUpdatedInstallation instanceof Error) {
+    if (
+      errorOrUpdatedInstallation instanceof ErrorInternal ||
+      errorOrUpdatedInstallation instanceof ErrorTooManyRequests
+    ) {
+      // In those cases we want to retry the operation.
       throw errorOrUpdatedInstallation;
     }
   };

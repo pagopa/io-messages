@@ -18,20 +18,3 @@ export const makeStorageAccountClient = (
     : BlobServiceClient.fromConnectionString(
         config.messageContentStorage.connectionString,
       );
-
-// Temporary duplicated of the above function to connect to the second storage
-// account (itn migration purpose).
-//
-// This function will be removed once the itn migration will end.
-export const makeTempStorageAccountClient = (
-  config: Config,
-  credentials: DefaultAzureCredential,
-): BlobServiceClient =>
-  config.environment === "production"
-    ? new BlobServiceClient(
-        config.messageContentStorage.accountUriItn,
-        credentials,
-      )
-    : BlobServiceClient.fromConnectionString(
-        config.messageContentStorage.itnConnectionString,
-      );

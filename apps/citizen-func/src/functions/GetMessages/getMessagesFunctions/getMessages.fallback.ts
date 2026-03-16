@@ -1,5 +1,4 @@
 import { InvocationContext } from "@azure/functions";
-import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
 import {
@@ -15,6 +14,7 @@ import { CosmosErrors } from "@pagopa/io-functions-commons/dist/src/utils/cosmos
 import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
 import { toPageResults } from "@pagopa/io-functions-commons/dist/src/utils/paging";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { BlobService } from "azure-storage";
 import * as AP from "fp-ts/lib/Apply";
 import * as A from "fp-ts/lib/Array";
 import * as E from "fp-ts/lib/Either";
@@ -25,7 +25,6 @@ import { flow, pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
 import { MessageStatusExtendedQueryModel } from "../../../model/message_status_query";
-import { getContentFromBlob } from "../../../utils/message-content";
 import {
   CreatedMessageWithoutContentWithStatus,
   computeFlagFromHasPrecondition,
@@ -111,7 +110,8 @@ export const getHasPreconditionFlagForMessagesFallback = (
 export const enrichContentData =
   (
     context: InvocationContext,
-    blobService: BlobServiceWithFallBack,
+    messageModel: MessageModel,
+    blobService: BlobService,
     rcConfigurationUtility: RCConfigurationUtility,
     categoryFetcher: ThirdPartyDataWithCategoryFetcher,
   ) =>
@@ -122,7 +122,7 @@ export const enrichContentData =
       pipe(
         {
           content: pipe(
-            getContentFromBlob(blobService, message.id),
+            messageModel.getContentFromBlob(blobService, message.id),
             TE.chain(TE.fromOption(() => new Error("Content not found"))),
             TE.mapLeft((e) =>
               trackErrorAndContinue(
@@ -162,7 +162,7 @@ export const getMessagesFromFallback =
   (
     messageModel: MessageModel,
     messageStatusModel: MessageStatusExtendedQueryModel,
-    blobService: BlobServiceWithFallBack,
+    blobService: BlobService,
     rcConfigurationUtility: RCConfigurationUtility,
     categoryFetcher: ThirdPartyDataWithCategoryFetcher,
   ): IGetMessagesFunction =>
@@ -218,6 +218,7 @@ export const getMessagesFromFallback =
                 A.rights(x),
                 enrichContentData(
                   context,
+                  messageModel,
                   blobService,
                   rcConfigurationUtility,
                   categoryFetcher,

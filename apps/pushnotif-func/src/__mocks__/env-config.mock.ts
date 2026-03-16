@@ -40,13 +40,14 @@ export const envConfig: IConfig = {
   MESSAGE_CONTAINER_NAME: "MessageContainerNane" as NonEmptyString,
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING:
     "MessageContentStorageConnectionString" as NonEmptyString,
-
   NOTIFICATIONS_QUEUE_NAME: "notification-queue-name" as NonEmptyString,
 
   NOTIFICATIONS_STORAGE_CONNECTION_STRING:
     "Endpoint=sb://host.docker.internal:30000;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=foobar" as NonEmptyString,
 
   NOTIFY_MESSAGE_QUEUE_NAME: "notify-queue-name" as NonEmptyString,
+
+  PUSH_DATABASE_NAME: "PushDatabaseName" as NonEmptyString,
 
   RETRY_ATTEMPT_NUMBER: "1" as unknown as IntegerFromString,
   SESSION_MANAGER_API_KEY: "SessionManagerAPIKey" as NonEmptyString,

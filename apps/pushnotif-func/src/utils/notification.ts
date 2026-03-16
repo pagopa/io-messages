@@ -31,6 +31,11 @@ const APNSTemplate =
 const FCMV1Template =
   '{"message": {"notification": {"title": "$(title)", "body": "$(message)"}, "android": {"data": {"message_id": "$(message_id)"}, "notification": {"icon": "ic_notification"}}}}';
 
+const apnsGenericBodyTemplate =
+  '{"aps": {"alert": {"title": "$(title)", "body": "$(message)"}}, "custom": "$(custom)"}';
+const fcmv1GenericBodyTemplate =
+  '{"message": {"notification": {"title": "$(title)", "body": "$(message)"}, "android": {"data": {"custom": "$(custom)"}, "notification": {"icon": "ic_notification"}}}}';
+
 // when the createOrUpdateInstallation is called we only support apns and gcm
 export const Platform = t.union([
   t.literal("apns"),
@@ -147,6 +152,20 @@ export const createOrUpdateInstallation = (
         platform,
         pushChannel,
         templates: {
+          massive: {
+            body:
+              platform === "apns"
+                ? apnsGenericBodyTemplate
+                : fcmv1GenericBodyTemplate,
+            headers:
+              platform === "apns"
+                ? {
+                    ["apns-priority"]: "10",
+                    ["apns-push-type"]: APNSPushType.ALERT,
+                  }
+                : {},
+            tags: [installationId.substring(0, 3)],
+          },
           template: {
             body: platform === "apns" ? APNSTemplate : FCMV1Template,
             headers:

@@ -1,4 +1,4 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import * as O from "fp-ts/lib/Option";
@@ -18,10 +18,8 @@ import {
 const functionsContextMock = {
   bindings: {},
   done: vi.fn(),
-  log: {
-    error: vi.fn(),
-  },
-} as unknown as Context;
+  error: vi.fn(),
+} as unknown as InvocationContext;
 
 const telemetryClientMock = {
   trackException: vi.fn((_) => void 0),

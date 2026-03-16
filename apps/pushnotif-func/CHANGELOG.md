@@ -1,5 +1,46 @@
 ### Changelog
 
+## 2.3.2
+
+### Patch Changes
+
+- 8ad97d2: Update error types for the notification repository.
+
+  - Add `ErrorTooManyRequests`
+  - Make updateInstallation return `ErrorTooManyRequests`
+  - Make updateInstallation return `ErrorInternal`
+  - Remove `ZodError` as return type of updateInstallation (never happens)
+
+## 2.3.1
+
+### Patch Changes
+
+- e4a3508: Obtain database name for installation summary from config
+
+## 2.3.0
+
+### Minor Changes
+
+- f496785: Add new generic template in createOrUpdateInstallation operation
+
+## 2.2.4
+
+### Patch Changes
+
+- eceb9f4: Remove message_id from the massive push notification template.
+
+## 2.2.3
+
+### Patch Changes
+
+- 3cb5bbb: Revert Read from Spain Central in pushnotif-func
+
+## 2.2.2
+
+### Patch Changes
+
+- 5786da3: Try to read from Spain Central first
+
 ## 2.2.1
 
 ### Patch Changes

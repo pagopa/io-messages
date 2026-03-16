@@ -49,26 +49,15 @@ const getExpectedMessageStatusBuffer = (
 ) => pipe(messageStatuses, RA.fromArray, RA.map(avroMessageStatusFormatter()));
 
 // ----------------------
-// Mocks
-// ----------------------
-
-const mockContext = { bindings: {}, done: vi.fn() } as any;
-
-const resetBindings = () => {
-  mockContext.bindings = {};
-};
-
-// ----------------------
 // Tests
 // ----------------------
 
 describe("CosmosApiMessageStatusChangeFeedForReminder", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    resetBindings();
   });
   test("should send all retrieved message status", async () => {
-    await handler(mockContext, producerMock, aListOfMessageStatus);
+    await handler(producerMock, aListOfMessageStatus);
 
     expect(mockSendMessage).toHaveBeenCalledWith({
       messageFormatter,
@@ -78,7 +67,7 @@ describe("CosmosApiMessageStatusChangeFeedForReminder", () => {
   });
 
   test("should send only retrieved message status that can be decoded", async () => {
-    await handler(mockContext, producerMock, [
+    await handler(producerMock, [
       { ...aMessageStatus, status: "WRONG_STATUS" },
       ...aListOfMessageStatus,
     ]);
@@ -91,7 +80,7 @@ describe("CosmosApiMessageStatusChangeFeedForReminder", () => {
   });
 
   test("should send only PROCESSED retrieved message status", async () => {
-    await handler(mockContext, producerMock, [
+    await handler(producerMock, [
       { ...aMessageStatus, status: RejectedMessageStatusValueEnum.REJECTED },
       ...aListOfMessageStatus,
     ]);
@@ -104,7 +93,7 @@ describe("CosmosApiMessageStatusChangeFeedForReminder", () => {
   });
 
   test("should call sendMessage only if PROCESSED retrieved message status array is not empty", async () => {
-    await handler(mockContext, producerMock, [
+    await handler(producerMock, [
       { ...aMessageStatus, status: RejectedMessageStatusValueEnum.REJECTED },
     ]);
 

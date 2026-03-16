@@ -300,17 +300,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/functions@npm:^3.2.0":
-  version: 3.5.1
-  resolution: "@azure/functions@npm:3.5.1"
-  dependencies:
-    iconv-lite: "npm:^0.6.3"
-    long: "npm:^4.0.0"
-    uuid: "npm:^8.3.0"
-  checksum: 10c0/1fc0723304b7a1defa273ff1f897bacb9ea4395865fe8bf5ef738cce870749c6afb5e873a00e46f83503f0e8512b28435085ebf8b48ca448b3ce4671d95f5642
-  languageName: node
-  linkType: hard
-
 "@azure/functions@npm:^4.0.0":
   version: 4.11.2
   resolution: "@azure/functions@npm:4.11.2"
@@ -485,28 +474,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/storage-blob@npm:12.28.0":
-  version: 12.28.0
-  resolution: "@azure/storage-blob@npm:12.28.0"
-  dependencies:
-    "@azure/abort-controller": "npm:^2.1.2"
-    "@azure/core-auth": "npm:^1.9.0"
-    "@azure/core-client": "npm:^1.9.3"
-    "@azure/core-http-compat": "npm:^2.2.0"
-    "@azure/core-lro": "npm:^2.2.0"
-    "@azure/core-paging": "npm:^1.6.2"
-    "@azure/core-rest-pipeline": "npm:^1.19.1"
-    "@azure/core-tracing": "npm:^1.2.0"
-    "@azure/core-util": "npm:^1.11.0"
-    "@azure/core-xml": "npm:^1.4.5"
-    "@azure/logger": "npm:^1.1.4"
-    "@azure/storage-common": "npm:^12.0.0-beta.2"
-    events: "npm:^3.0.0"
-    tslib: "npm:^2.8.1"
-  checksum: 10c0/a97f43193da9c5fbb58492156ad6dd3f0c9f1bf2fdf72cbc5a1fdfe16a586b0a4bb7bfaa7e24de63d689927c2a606d4ca65332594e0f2278c55d48f7c90d1a54
-  languageName: node
-  linkType: hard
-
 "@azure/storage-blob@npm:^12.26.0":
   version: 12.29.1
   resolution: "@azure/storage-blob@npm:12.29.1"
@@ -529,7 +496,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/storage-common@npm:^12.0.0-beta.2, @azure/storage-common@npm:^12.1.1":
+"@azure/storage-common@npm:^12.1.1":
   version: 12.1.1
   resolution: "@azure/storage-common@npm:12.1.1"
   dependencies:
@@ -2194,32 +2161,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagopa/azure-storage-migration-kit@npm:0.0.1":
-  version: 0.0.1
-  resolution: "@pagopa/azure-storage-migration-kit@npm:0.0.1"
-  dependencies:
-    "@azure/core-auth": "npm:^1.7.2"
-    "@azure/storage-blob": "npm:^12.24.0"
-    fp-ts: "npm:^2.13.1"
-    io-ts: "npm:^2.2.20"
-    tsup: "npm:^6.6.3"
-  checksum: 10c0/9d56caf95aaf547be3d7e1791a25d0df136319eb012d3d2c533abd0d21fe762d5753a5155af8bc744b3b102d7ef19f4e5af30df4f0d4834c64c21523ce1b9a12
-  languageName: node
-  linkType: hard
-
-"@pagopa/azure-storage-migration-kit@patch:@pagopa/azure-storage-migration-kit@npm%3A0.0.1#~/.yarn/patches/@pagopa-azure-storage-migration-kit-npm-0.0.1-49e19fea6a.patch":
-  version: 0.0.1
-  resolution: "@pagopa/azure-storage-migration-kit@patch:@pagopa/azure-storage-migration-kit@npm%3A0.0.1#~/.yarn/patches/@pagopa-azure-storage-migration-kit-npm-0.0.1-49e19fea6a.patch::version=0.0.1&hash=43b156"
-  dependencies:
-    "@azure/core-auth": "npm:^1.7.2"
-    "@azure/storage-blob": "npm:^12.24.0"
-    fp-ts: "npm:^2.13.1"
-    io-ts: "npm:^2.2.20"
-    tsup: "npm:^6.6.3"
-  checksum: 10c0/e04338ca8d3785612672c893d10c5aac433cc3fbc87af80fc3ed4ad9dc3e2f5d5ebc48fc4d9a323e1104e9771ef197c90198b41e4ac0845503084614f8c53cf8
-  languageName: node
-  linkType: hard
-
 "@pagopa/danger-custom-rules@npm:^2.0.3":
   version: 2.0.3
   resolution: "@pagopa/danger-custom-rules@npm:2.0.3"
@@ -2247,15 +2188,6 @@ __metadata:
   peerDependencies:
     eslint: ^8.57.0
   checksum: 10c0/3f8488912b4bc1ad11429520df4b77aebf5531816ac7f306947b07ace94900b3b3dbdac893b6c4afb6a4ae42297f115712b16c11dc26019e53bfe679aee58499
-  languageName: node
-  linkType: hard
-
-"@pagopa/express-azure-functions@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "@pagopa/express-azure-functions@npm:2.1.1"
-  peerDependencies:
-    express: ^4.17.2
-  checksum: 10c0/28dbe67c43c5c566226cd9df11771689e4b23e7f99dc3c4aa16257b4895df1ac28840ad755a390910c563f3b49b9ff298af47a059769d2125c76e45ebbf16f8d
   languageName: node
   linkType: hard
 
@@ -2303,39 +2235,6 @@ __metadata:
     fp-ts: "npm:^2.10.5"
     io-ts: "npm:^2.2.16"
   checksum: 10c0/a5a9e2d931e933a6c4b013e1f61c6b1d1e64e3e01d86c56f3592e6ffb3b6cdbe5f1a4d69f17995235435359146e72c0caa4e9e08868346486b2d3ce96ae47fa7
-  languageName: node
-  linkType: hard
-
-"@pagopa/io-functions-commons@npm:^29.0.4":
-  version: 29.4.0
-  resolution: "@pagopa/io-functions-commons@npm:29.4.0"
-  dependencies:
-    "@azure/cosmos": "npm:^4.0.0"
-    "@azure/data-tables": "npm:^13.2.2"
-    "@pagopa/ts-commons": "npm:^13.1.1"
-    applicationinsights: "npm:^2.9.5"
-    azure-storage: "npm:^2.10.5"
-    cidr-matcher: "npm:^2.1.1"
-    helmet: "npm:^4.6.0"
-    helmet-csp: "npm:^2.5.1"
-    node-fetch: "npm:^2.6.1"
-    nodemailer: "npm:^6.9.13"
-    nodemailer-sendgrid: "npm:^1.0.3"
-    referrer-policy: "npm:^1.1.0"
-    rehype-stringify: "npm:^3.0.0"
-    remark-frontmatter: "npm:^2.0.0"
-    remark-parse: "npm:^5.0.0"
-    remark-rehype: "npm:^3.0.0"
-    request-ip: "npm:^3.3.0"
-    ulid: "npm:^2.3.0"
-    unified: "npm:^9.2.2"
-    winston: "npm:^3.1.0"
-  peerDependencies:
-    "@azure/functions": ^3.2.0
-    express: ^4.15.3
-    fp-ts: ^2.16.5
-    io-ts: ^2.2.21
-  checksum: 10c0/f9477a7e4e539fc3e2254ba864e745ec1ecdbaf8febc99d2ab31749c305e9933f9b12bb41ac2bc1f8de0168900ae5430e096cad9f62488d730c3c2390f37db50
   languageName: node
   linkType: hard
 
@@ -2435,25 +2334,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagopa/ts-commons@npm:^11.0.0":
-  version: 11.0.0
-  resolution: "@pagopa/ts-commons@npm:11.0.0"
-  dependencies:
-    abort-controller: "npm:^3.0.0"
-    agentkeepalive: "npm:^4.1.4"
-    applicationinsights: "npm:^1.8.10"
-    fp-ts: "npm:^2.11.0"
-    io-ts: "npm:^2.2.16"
-    jose: "npm:^4.11.2"
-    json-set-map: "npm:^1.1.2"
-    node-fetch: "npm:^2.6.0"
-    semver: "npm:^7.3.7"
-    validator: "npm:^13.7.0"
-  checksum: 10c0/5bfe912a3844bf6f9cca48ddce70b2c9b4cb96e93d205cee9bf93f31d2c432b1c98cdd7ae2b9c58f23a520ad6def91536cd230902d1aeed87f1d9f01a9afddb9
-  languageName: node
-  linkType: hard
-
-"@pagopa/ts-commons@npm:^13.0.0, @pagopa/ts-commons@npm:^13.1.1, @pagopa/ts-commons@npm:^13.1.2":
+"@pagopa/ts-commons@npm:^13.0.0, @pagopa/ts-commons@npm:^13.1.2":
   version: 13.1.2
   resolution: "@pagopa/ts-commons@npm:13.1.2"
   dependencies:
@@ -3690,7 +3571,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"applicationinsights@npm:^1.7.4, applicationinsights@npm:^1.8.10":
+"applicationinsights@npm:^1.8.10":
   version: 1.8.10
   resolution: "applicationinsights@npm:1.8.10"
   dependencies:
@@ -4428,7 +4309,6 @@ __metadata:
     "@azure/cosmos": "npm:^4.0.0"
     "@azure/functions": "npm:^4.4.0"
     "@azure/identity": "npm:^4.5.0"
-    "@pagopa/azure-storage-legacy-migration-kit": "npm:^0.0.4"
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@pagopa/io-functions-commons": "npm:^30.0.0"
     "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
@@ -4780,24 +4660,23 @@ __metadata:
   resolution: "cqrs-func@workspace:apps/cqrs-func"
   dependencies:
     "@azure/cosmos": "npm:^4.0.0"
-    "@azure/functions": "npm:^3.2.0"
+    "@azure/functions": "npm:^4.4.0"
     "@azure/identity": "npm:^4.5.0"
     "@azure/storage-queue": "npm:^12.8.0"
     "@chasdevs/avro-to-typescript": "npm:^1.4.0"
     "@pagopa/azure-storage-legacy-migration-kit": "npm:^0.0.4"
     "@pagopa/danger-custom-rules": "npm:^2.0.3"
     "@pagopa/eslint-config": "npm:^4.0.3"
-    "@pagopa/express-azure-functions": "npm:^2.1.1"
     "@pagopa/fp-ts-kafkajs": "npm:^0.3.0"
-    "@pagopa/io-functions-commons": "npm:^29.0.4"
+    "@pagopa/io-functions-commons": "npm:^30.0.0"
     "@pagopa/openapi-codegen-ts": "npm:^11.1.0"
-    "@pagopa/ts-commons": "npm:^11.0.0"
+    "@pagopa/ts-commons": "npm:^13.1.2"
     "@types/express": "npm:^4.17.12"
     "@types/lodash": "npm:^4.14.173"
     "@types/node": "npm:^20.17.12"
     "@types/node-fetch": "npm:^2.5.7"
     "@types/vfile-message": "npm:^2.0.0"
-    applicationinsights: "npm:^1.7.4"
+    applicationinsights: "npm:^2.9.5"
     auto-changelog: "npm:2.2.1"
     avsc: "npm:^5.7.3"
     azure-storage: "npm:^2.10.5"
@@ -6160,7 +6039,6 @@ __metadata:
     "@azure/functions": "npm:^4.4.0"
     "@azure/identity": "npm:^4.5.0"
     "@azure/storage-blob": "npm:^12.26.0"
-    "@pagopa/azure-storage-migration-kit": "patch:@pagopa/azure-storage-migration-kit@npm%3A0.0.1#~/.yarn/patches/@pagopa-azure-storage-migration-kit-npm-0.0.1-49e19fea6a.patch"
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@types/node": "npm:^20.17.30"
     "@vitest/coverage-v8": "npm:^3.1.2"
@@ -7432,7 +7310,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"iconv-lite@npm:^0.6.2, iconv-lite@npm:^0.6.3":
+"iconv-lite@npm:^0.6.2":
   version: 0.6.3
   resolution: "iconv-lite@npm:0.6.3"
   dependencies:
@@ -11368,7 +11246,6 @@ __metadata:
     "@azure/functions": "npm:^4.4.0"
     "@azure/identity": "npm:^4.5.0"
     "@azure/storage-queue": "npm:^12.4.0"
-    "@pagopa/azure-storage-legacy-migration-kit": "npm:^0.0.4"
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@pagopa/io-app-email-templates": "npm:^0.7.3"
     "@pagopa/io-backend-notifications-sdk": "npm:^9.7.0"
