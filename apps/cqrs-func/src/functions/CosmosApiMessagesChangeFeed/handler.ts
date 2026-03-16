@@ -97,8 +97,8 @@ export const cosmosMessagesHandler =
   async (
     documents: unknown[],
     _context: InvocationContext,
-  ): Promise<Failure | IBulkOperationResult> => {
-    return handleMessageChange(
+  ): Promise<Failure | IBulkOperationResult> =>
+    handleMessageChange(
       messageModel,
       messageContentBlobService,
       config.MESSAGE_CHANGE_FEED_START_TIME,
@@ -109,4 +109,3 @@ export const cosmosMessagesHandler =
       "messageForPaymentUpdater",
       documents,
     );
-  };

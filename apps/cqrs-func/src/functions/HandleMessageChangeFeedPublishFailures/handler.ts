@@ -124,8 +124,9 @@ export const queueFailureHandler =
   async (
     message: unknown,
     context: InvocationContext,
-  ): Promise<Failure | void> => {
-    return HandleMessageChangeFeedPublishFailureHandler(
+    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+  ): Promise<Failure | void> =>
+    HandleMessageChangeFeedPublishFailureHandler(
       context,
       message,
       telemetryClient,
@@ -133,4 +134,3 @@ export const queueFailureHandler =
       messageContentBlobService,
       kafkaClient,
     );
-  };

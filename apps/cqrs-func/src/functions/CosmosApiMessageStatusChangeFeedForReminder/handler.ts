@@ -31,6 +31,5 @@ export const handleAvroMessageStatusPublishChange = async (
 
 export const cosmosMessageStatusHandler =
   (client: KP.KafkaProducerCompact<RetrievedMessageStatus>) =>
-  async (documents: unknown[], _context: InvocationContext): Promise<void> => {
-    return handleAvroMessageStatusPublishChange(client, documents);
-  };
+  async (documents: unknown[], _context: InvocationContext): Promise<void> =>
+    handleAvroMessageStatusPublishChange(client, documents);
