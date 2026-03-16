@@ -95,9 +95,7 @@ const comCosmosClient = new CosmosClient({
   endpoint: config.COM_COSMOS__accountEndpoint,
 });
 
-const comCosmosInstance = comCosmosClient.database(
-  "push-notifications-cosmos-01",
-);
+const comCosmosInstance = comCosmosClient.database(config.PUSH_DATABASE_NAME);
 
 const comCosmosInstallationSummaryAdapter =
   new CosmosInstallationSummaryAdapter(
