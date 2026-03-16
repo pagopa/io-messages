@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.3.1
+
+### Patch Changes
+
+- e4a3508: Obtain database name for installation summary from config
+
 ## 2.3.0
 
 ### Minor Changes
