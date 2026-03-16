@@ -1,5 +1,11 @@
 ### Changelog
 
+## 6.0.1
+
+### Patch Changes
+
+- ff3f29e: remove legacy migration toolkit
+
 ## 6.0.0
 
 ### Major Changes
