@@ -7,7 +7,10 @@
 
 import { AzureEventhubSasFromString } from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import { BooleanFromString } from "@pagopa/ts-commons/lib/booleans";
-import { NumberFromString } from "@pagopa/ts-commons/lib/numbers";
+import {
+  IntegerFromString,
+  NumberFromString,
+} from "@pagopa/ts-commons/lib/numbers";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { withDefault } from "@pagopa/ts-commons/lib/types";
@@ -25,6 +28,7 @@ export type IConfig = t.TypeOf<typeof IConfig>;
 export const IConfig = t.intersection([
   t.type({
     APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
+    APPINSIGHTS_SAMPLING_PERCENTAGE: withDefault(IntegerFromString, 5),
 
     COM_STORAGE_CONNECTION_STRING: NonEmptyString,
     COSMOSDB__accountEndpoint: NonEmptyString,
@@ -43,12 +47,18 @@ export const IConfig = t.intersection([
     PN_SERVICE_ID: NonEmptyString,
 
     QueueStorageConnection: NonEmptyString,
+    isProduction: t.boolean,
   }),
   MessageChangeFeedConfig,
 ]);
 
+export const envConfig = {
+  ...process.env,
+  isProduction: process.env.NODE_ENV === "production",
+};
+
 // No need to re-evaluate this object for each call
-const errorOrConfig: t.Validation<IConfig> = IConfig.decode(process.env);
+const errorOrConfig: t.Validation<IConfig> = IConfig.decode(envConfig);
 
 /**
  * Read the application configuration and check for invalid values.

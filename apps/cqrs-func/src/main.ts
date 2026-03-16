@@ -25,9 +25,7 @@ import { getThirdPartyDataWithCategoryFetcher } from "./utils/message";
 
 const config = getConfigOrThrow();
 
-const telemetryClient = initTelemetryClient(
-  config.APPLICATIONINSIGHTS_CONNECTION_STRING,
-);
+const telemetryClient = initTelemetryClient(config);
 
 const kafkaMessagesClient = fromSas(
   config.MESSAGES_TOPIC_CONNECTION_STRING,
