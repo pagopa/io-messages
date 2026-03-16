@@ -1,4 +1,4 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import { NotRejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/NotRejectedMessageStatusValue";
 import { RetrievedMessageStatus } from "@pagopa/io-functions-commons/dist/src/models/message_status";
@@ -8,7 +8,6 @@ import * as TE from "fp-ts/TaskEither";
 import { constVoid, pipe } from "fp-ts/lib/function";
 
 export const handleAvroMessageStatusPublishChange = async (
-  _: Context,
   client: KP.KafkaProducerCompact<RetrievedMessageStatus>,
   rawMessageStatus: readonly unknown[],
 ): Promise<void> =>
@@ -29,3 +28,9 @@ export const handleAvroMessageStatusPublishChange = async (
     }),
     T.map(constVoid),
   )();
+
+export const cosmosMessageStatusHandler =
+  (client: KP.KafkaProducerCompact<RetrievedMessageStatus>) =>
+  async (documents: unknown[], _context: InvocationContext): Promise<void> => {
+    return handleAvroMessageStatusPublishChange(client, documents);
+  };
