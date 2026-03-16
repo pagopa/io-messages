@@ -5,21 +5,13 @@ meta {
 }
 
 get {
-  url: {{citizen_func_url}}/api/v1/messages/:fiscal_code?enrich_result_data=true
+  url: {{citizen_func_url}}/api/v1/messages/{{fiscal_code}}?enrich_result_data=true
   body: none
   auth: none
 }
 
 params:query {
   enrich_result_data: true
-}
-
-params:path {
-  fiscal_code: {{fiscal_code}}
-}
-
-vars:pre-request {
-  fiscal_code: LVTEST00A00A199X
 }
 
 vars:post-response {
