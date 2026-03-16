@@ -1,8 +1,5 @@
 import { MessageContent, messageContentSchema } from "@/domain/message.js";
-import {
-  BaseContainerClientWithFallback,
-  BlobServiceClientWithFallBack,
-} from "@pagopa/azure-storage-migration-kit";
+import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { z } from "zod";
 
 import { BlobNotFoundError, downloadBlobContent } from "./blob.js";
@@ -19,12 +16,9 @@ export interface MessageContentProvider {
 }
 
 export class BlobMessageContent implements MessageContentProvider {
-  #messageContainer: BaseContainerClientWithFallback;
+  #messageContainer: ContainerClient;
 
-  constructor(
-    blobClient: BlobServiceClientWithFallBack,
-    messageContainerName: string,
-  ) {
+  constructor(blobClient: BlobServiceClient, messageContainerName: string) {
     this.#messageContainer =
       blobClient.getContainerClient(messageContainerName);
   }

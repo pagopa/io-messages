@@ -33,7 +33,6 @@ export const envSchema = common.and(
     z.object({
       // Eventhubs
       EVENTHUB_CONNECTION_URI: z.string().min(1),
-      IOCOM_STORAGE_URI: z.url(),
       //storage
       MESSAGE_CONTENT_STORAGE_URI: z.url(),
       MESSAGE_EVENTHUB_NAME: z.string().min(1),
@@ -42,7 +41,6 @@ export const envSchema = common.and(
     }),
     z.object({
       EVENTHUB_CONNECTION_STRING: z.string(),
-      IOCOM_STORAGE_CONNECTION_STRING: z.string().min(1),
       //storage
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: z.string().min(1),
       MESSAGE_ERROR_TABLE_STORAGE_CONENCTION_STRING: z.string().min(1),

@@ -5,23 +5,14 @@ meta {
 }
 
 put {
-  url: {{citizen_func_url}}/api/v1/messages/:fiscal_code/:message_id/message-status
+  url: {{citizen_func_url}}/api/v1/messages/{{fiscal_code}}/01KKV4T39HGAY3278B8GRP9KG2/message-status
   body: json
   auth: none
 }
 
-params:path {
-  message_id: {{message_id}}
-  fiscal_code: {{fiscal_code}}
-}
-
 body:json {
   {
-    "change_type": "reading",
-    "is_read": true
+    "change_type": "archiving",
+    "is_archived": true
   }
-}
-
-vars:pre-request {
-  fiscal_code: LVTEST00A00A199X
 }

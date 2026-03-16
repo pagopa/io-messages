@@ -83,13 +83,11 @@ const mapEnvironmentVariablesToConfig = (env: Env) => {
     env.NODE_ENV === "production"
       ? {
           accountUri: env.MESSAGE_CONTENT_STORAGE_URI,
-          accountUriItn: env.IOCOM_STORAGE_URI,
           containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
         }
       : {
           connectionString: env.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
           containerName: env.MESSAGE_CONTENT_CONTAINER_NAME,
-          itnConnectionString: env.IOCOM_STORAGE_CONNECTION_STRING,
         };
 
   const messageIngestionErrorTable =

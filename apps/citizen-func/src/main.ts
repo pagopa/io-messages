@@ -1,5 +1,4 @@
 import { app } from "@azure/functions";
-import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 import {
   MESSAGE_COLLECTION_NAME,
   MessageModel,
@@ -17,6 +16,7 @@ import {
   SERVICE_COLLECTION_NAME,
   ServiceModel,
 } from "@pagopa/io-functions-commons/dist/src/models/service";
+import { createBlobService } from "azure-storage";
 
 import { GetMessage } from "./functions/GetMessage/handler";
 import { createGetMessagesFunctionSelection } from "./functions/GetMessages/getMessagesFunctions/getMessages.selector";
@@ -65,7 +65,6 @@ const messageViewModel = new MessageViewExtendedQueryModel(
 );
 
 const blobService = createBlobService(
-  config.IO_COM_STORAGE_CONNECTION_STRING,
   config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
 );
 

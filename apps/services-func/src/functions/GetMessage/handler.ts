@@ -1,6 +1,5 @@
 /* eslint-disable max-lines-per-function */
 import { InvocationContext } from "@azure/functions";
-import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { MessageContent } from "@pagopa/io-backend-notifications-sdk/MessageContent";
 import { ExternalCreatedMessageWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/ExternalCreatedMessageWithContent";
 import { ExternalCreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/ExternalCreatedMessageWithoutContent";
@@ -68,6 +67,7 @@ import {
   getResponseErrorForbiddenNotAuthorized,
 } from "@pagopa/ts-commons/lib/responses";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { BlobService } from "azure-storage";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
@@ -84,7 +84,6 @@ import {
   FaultCodeCategoryEnum,
   PaymentDuplicatedStatusFaultPaymentProblemJson,
 } from "../../generated/pagopa-ecommerce/PaymentDuplicatedStatusFaultPaymentProblemJson";
-import { getContentFromBlob } from "../../utils/message-content";
 import { errorsToError } from "../../utils/responses";
 import { MessageReadStatusAuth } from "./userPreferenceChecker/messageReadStatusAuth";
 
@@ -275,7 +274,7 @@ export const GetMessageHandler =
     messageStatusModel: MessageStatusModel,
     notificationModel: NotificationModel,
     notificationStatusModel: NotificationStatusModel,
-    blobService: BlobServiceWithFallBack,
+    blobService: BlobService,
     canAccessMessageReadStatus: MessageReadStatusAuth,
     pagoPaEcommerceClient: PagoPaEcommerceClient,
   ): IGetMessageHandler =>
@@ -337,7 +336,7 @@ export const GetMessageHandler =
 
     // fetch the content of the message from the blob storage
     const errorOrMaybeContent = await pipe(
-      getContentFromBlob(blobService, retrievedMessage.id),
+      messageModel.getContentFromBlob(blobService, retrievedMessage.id),
       TE.mapLeft((error) => {
         context.error(`GetMessageHandler|${JSON.stringify(error)}`);
         return ResponseErrorInternal(`${error.name}: ${error.message}`);
@@ -497,7 +496,7 @@ export function GetMessage(
   messageStatusModel: MessageStatusModel,
   notificationModel: NotificationModel,
   notificationStatusModel: NotificationStatusModel,
-  blobService: BlobServiceWithFallBack,
+  blobService: BlobService,
   canAccessMessageReadStatus: MessageReadStatusAuth,
   pagoPaEcommerceClient: PagoPaEcommerceClient,
 ) {

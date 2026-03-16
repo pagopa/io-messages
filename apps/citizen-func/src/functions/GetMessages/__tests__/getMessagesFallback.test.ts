@@ -1,9 +1,10 @@
-import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
 import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
+import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
 import { Ulid } from "@pagopa/ts-commons/lib/strings";
+import { createBlobService } from "azure-storage";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
@@ -20,7 +21,6 @@ import {
 } from "../../../__mocks__/remote-content";
 import { HasPreconditionEnum } from "../../../generated/definitions/HasPrecondition";
 import { aMessageContent } from "../../../utils/__tests__/messages.test";
-import * as mc from "../../../utils/message-content";
 import {
   CreatedMessageWithoutContentWithStatus,
   ThirdPartyDataWithCategoryFetcher,
@@ -36,10 +36,12 @@ const findLastVersionByModelIdMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aRetrievedService)));
 
-const blobServiceMock = createBlobService(
-  "UseDevelopmentStorage=true",
-  "UseDevelopmentStorage=true",
-);
+const blobServiceMock = createBlobService("UseDevelopmentStorage=true");
+
+const getContentFromBlobMock = vi.fn();
+const messageModelMock = {
+  getContentFromBlob: getContentFromBlobMock,
+} as unknown as MessageModel;
 
 const dummyThirdPartyDataWithCategoryFetcher: ThirdPartyDataWithCategoryFetcher =
   vi.fn().mockImplementation(() => ({
@@ -91,11 +93,12 @@ describe("enrichContentData", () => {
   });
 
   it("should return right when message blob is retrieved", async () => {
-    vi.spyOn(mc, "getContentFromBlob").mockImplementationOnce(() =>
+    getContentFromBlobMock.mockImplementationOnce(() =>
       TE.of(O.some(aMessageContent as MessageContent)),
     );
     const enrichMessages = enrichContentData(
       functionsContextMock,
+      messageModelMock,
       blobServiceMock,
       mockRCConfigurationUtility,
       dummyThirdPartyDataWithCategoryFetcher,
@@ -119,11 +122,12 @@ describe("enrichContentData", () => {
   });
 
   it("should return right with right message EU_COVID_CERT category when message content is retrieved", async () => {
-    vi.spyOn(mc, "getContentFromBlob").mockImplementationOnce(() =>
+    getContentFromBlobMock.mockImplementationOnce(() =>
       TE.of(O.some(mockedGreenPassContent)),
     );
     const enrichMessages = enrichContentData(
       functionsContextMock,
+      messageModelMock,
       blobServiceMock,
       mockRCConfigurationUtility,
       dummyThirdPartyDataWithCategoryFetcher,
@@ -146,11 +150,12 @@ describe("enrichContentData", () => {
   });
 
   it("should return right with right PAYMENT category when message content is retrieved", async () => {
-    vi.spyOn(mc, "getContentFromBlob").mockImplementationOnce(() =>
+    getContentFromBlobMock.mockImplementationOnce(() =>
       TE.of(O.some(mockedPaymentContent)),
     );
     const enrichMessages = enrichContentData(
       functionsContextMock,
+      messageModelMock,
       blobServiceMock,
       mockRCConfigurationUtility,
       dummyThirdPartyDataWithCategoryFetcher,
@@ -184,7 +189,7 @@ describe("enrichContentData", () => {
   });
 
   it("should return right with correct third party data flags when message content is retrieved", async () => {
-    vi.spyOn(mc, "getContentFromBlob").mockImplementationOnce(() =>
+    getContentFromBlobMock.mockImplementationOnce(() =>
       TE.of(
         O.some({
           ...aMessageContent,
@@ -197,6 +202,7 @@ describe("enrichContentData", () => {
     );
     const enrichMessages = enrichContentData(
       functionsContextMock,
+      messageModelMock,
       blobServiceMock,
       mockRCConfigurationUtility,
       dummyThirdPartyDataWithCategoryFetcher,
@@ -239,12 +245,13 @@ describe("enrichContentData", () => {
       TE.right(O.some(aRetrievedService)),
     );
 
-    vi.spyOn(mc, "getContentFromBlob").mockImplementationOnce(() =>
+    getContentFromBlobMock.mockImplementationOnce(() =>
       TE.left(new Error("GENERIC_ERROR")),
     );
 
     const enrichMessages = enrichContentData(
       functionsContextMock,
+      messageModelMock,
       blobServiceMock,
       mockRCConfigurationUtility,
       dummyThirdPartyDataWithCategoryFetcher,
