@@ -1,5 +1,16 @@
 ### Changelog
 
+## 2.3.2
+
+### Patch Changes
+
+- 8ad97d2: Update error types for the notification repository.
+
+  - Add `ErrorTooManyRequests`
+  - Make updateInstallation return `ErrorTooManyRequests`
+  - Make updateInstallation return `ErrorInternal`
+  - Remove `ZodError` as return type of updateInstallation (never happens)
+
 ## 2.3.1
 
 ### Patch Changes
