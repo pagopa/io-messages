@@ -4380,7 +4380,6 @@ __metadata:
     "@azure/cosmos": "npm:^4.0.0"
     "@azure/functions": "npm:^4.4.0"
     "@azure/identity": "npm:^4.5.0"
-    "@pagopa/azure-storage-legacy-migration-kit": "npm:^0.0.4"
     "@pagopa/eslint-config": "npm:^4.0.3"
     "@pagopa/io-functions-commons": "npm:^30.0.0"
     "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
