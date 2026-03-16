@@ -1,3 +1,4 @@
+import { InvocationContext } from "@azure/functions";
 import { QueueClient } from "@azure/storage-queue";
 import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
@@ -83,3 +84,29 @@ export const handleMessageChange =
       ),
       TE.toUnion,
     )();
+
+export const cosmosMessagesHandler =
+  (
+    messageModel: MessageModel,
+    messageContentBlobService: BlobServiceWithFallBack,
+    config: { MESSAGE_CHANGE_FEED_START_TIME: number },
+    kafkaClient: KP.KafkaProducerCompact<RetrievedMessage>,
+    errorStorage: QueueClient,
+    telemetryClient: TelemetryClient,
+  ) =>
+  async (
+    documents: unknown[],
+    _context: InvocationContext,
+  ): Promise<Failure | IBulkOperationResult> => {
+    return handleMessageChange(
+      messageModel,
+      messageContentBlobService,
+      config.MESSAGE_CHANGE_FEED_START_TIME,
+    )(
+      kafkaClient,
+      errorStorage,
+      telemetryClient,
+      "messageForPaymentUpdater",
+      documents,
+    );
+  };
