@@ -1,11 +1,10 @@
-import { wrapRequestHandler } from "@pagopa/io-functions-commons/dist/src/utils/request_middleware";
+import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import {
   IResponseErrorInternal,
   IResponseSuccessJson,
   ResponseErrorInternal,
   ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
-import * as express from "express";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 
@@ -38,8 +37,8 @@ export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
     )();
 }
 
-export function Info(): express.RequestHandler {
+export function Info() {
   const handler = InfoHandler(checkApplicationHealth());
 
-  return wrapRequestHandler(handler);
+  return wrapHandlerV4([], handler);
 }

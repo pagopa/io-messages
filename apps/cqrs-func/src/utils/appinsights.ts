@@ -1,32 +1,26 @@
 import { initAppInsights } from "@pagopa/ts-commons/lib/appinsights";
-import { IntegerFromString } from "@pagopa/ts-commons/lib/numbers";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as ai from "applicationinsights";
 import {
   EventTelemetry,
   ExceptionTelemetry,
 } from "applicationinsights/out/Declarations/Contracts";
-import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/function";
 
-// the internal function runtime has MaxTelemetryItem per second set to 20 by default
-// @see https://github.com/Azure/azure-functions-host/blob/master/src/WebJobs.Script/Config/ApplicationInsightsLoggerOptionsSetup.cs#L29
-const DEFAULT_SAMPLING_PERCENTAGE = 5;
+import { IConfig } from "./config";
 
 // Avoid to initialize Application Insights more than once
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const initTelemetryClient = (
-  connectionString: NonEmptyString,
-  env = process.env,
-) =>
+// Avoid to initialize Application Insights more than once
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const initTelemetryClient = (config: IConfig): ai.TelemetryClient =>
   ai.defaultClient
     ? ai.defaultClient
-    : initAppInsights(connectionString, {
-        samplingPercentage: pipe(
-          IntegerFromString.decode(env.APPINSIGHTS_SAMPLING_PERCENTAGE),
-          E.getOrElse(() => DEFAULT_SAMPLING_PERCENTAGE),
-        ),
+    : initAppInsights(config.APPLICATIONINSIGHTS_CONNECTION_STRING, {
+        // We need to disable tracing only when we are testing locally because
+        // interfere with azurite docker container.
+        isTracingDisabled: !config.isProduction,
+        samplingPercentage: config.APPINSIGHTS_SAMPLING_PERCENTAGE,
       });
 
 export type TelemetryClient = ReturnType<typeof initTelemetryClient>;

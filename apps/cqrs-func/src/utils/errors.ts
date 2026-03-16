@@ -1,4 +1,4 @@
-import { Context } from "@azure/functions";
+import { InvocationContext } from "@azure/functions";
 import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
@@ -56,7 +56,11 @@ export const toPermanentFailure =
     );
 
 export const trackFailure =
-  (telemetryClient: TelemetryClient, context: Context, logPrefix: string) =>
+  (
+    telemetryClient: TelemetryClient,
+    context: InvocationContext,
+    logPrefix: string,
+  ) =>
   (err: Failure): Failure => {
     const error = TransientFailure.is(err)
       ? `${logPrefix}|TRANSIENT_ERROR=${err.reason}`
@@ -70,7 +74,7 @@ export const trackFailure =
         name: `cgn.exception.${logPrefix}.failure`,
       },
     });
-    context.log.error(error);
+    context.error(error);
     if (TransientFailure.is(err)) {
       throw new Error(err.reason);
     }
