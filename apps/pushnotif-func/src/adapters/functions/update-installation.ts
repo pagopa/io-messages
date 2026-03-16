@@ -1,7 +1,11 @@
 import { StorageQueueHandler } from "@azure/functions";
 import z from "zod";
 
-import { ErrorNotFound } from "../../domain/error";
+import {
+  ErrorInternal,
+  ErrorNotFound,
+  ErrorTooManyRequests,
+} from "../../domain/error";
 import { supportedPlatformSchema } from "../../domain/installation";
 import { JsonPatch } from "../../domain/json-patch";
 import { InstallationRepository } from "../../domain/push-service";
@@ -73,7 +77,11 @@ const getUpdateInstallationHandler =
       return;
     }
 
-    if (errorOrUpdatedInstallation instanceof Error) {
+    if (
+      errorOrUpdatedInstallation instanceof ErrorInternal ||
+      errorOrUpdatedInstallation instanceof ErrorTooManyRequests
+    ) {
+      // In those cases we want to retry the operation.
       throw errorOrUpdatedInstallation;
     }
   };

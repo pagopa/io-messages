@@ -1,8 +1,11 @@
 import { NotificationHubsClient } from "@azure/notification-hubs";
 import { RestError } from "@azure/storage-queue";
-import { z } from "zod";
 
-import { ErrorNotFound } from "../../domain/error";
+import {
+  ErrorInternal,
+  ErrorNotFound,
+  ErrorTooManyRequests,
+} from "../../domain/error";
 import { JsonPatch } from "../../domain/json-patch";
 import { InstallationRepository } from "../../domain/push-service";
 
@@ -41,10 +44,7 @@ export class NotificationHubInstallationAdapter
     }
   }
 
-  async updateInstallation(
-    id: string,
-    patches: JsonPatch[],
-  ): Promise<Error | string> {
+  async updateInstallation(id: string, patches: JsonPatch[]) {
     const nhPartition = this.getPartition(id);
 
     try {
@@ -57,19 +57,17 @@ export class NotificationHubInstallationAdapter
           case 404:
             return new ErrorNotFound(`Installation not found`, err);
           case 429:
-            return new Error(`Too many request to notification hub`);
+            return new ErrorTooManyRequests(
+              `Too many request to notification hub`,
+            );
           default:
-            return new Error(`Generic error from notification hub ${err}`);
+            return new ErrorInternal(
+              `Generic error from notification hub: ${err.message}`,
+            );
         }
       }
 
-      if (err instanceof z.ZodError) {
-        return new Error(
-          `Error parsing the installation from notification hub ${err}`,
-        );
-      }
-
-      return new Error(`Error from notification hub: ${err}`);
+      return new ErrorInternal(`Error from notification hub: ${err}`);
     }
   }
 }
