@@ -27,8 +27,8 @@ export type MessageChangeFeedConfig = t.TypeOf<typeof MessageChangeFeedConfig>;
 export type IConfig = t.TypeOf<typeof IConfig>;
 export const IConfig = t.intersection([
   t.type({
-    APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
     APPINSIGHTS_SAMPLING_PERCENTAGE: withDefault(IntegerFromString, 5),
+    APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
 
     COM_STORAGE_CONNECTION_STRING: NonEmptyString,
     COSMOSDB__accountEndpoint: NonEmptyString,
