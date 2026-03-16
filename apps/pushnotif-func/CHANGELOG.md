@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.3.0
+
+### Minor Changes
+
+- f496785: Add new generic template in createOrUpdateInstallation operation
+
 ## 2.2.4
 
 ### Patch Changes
