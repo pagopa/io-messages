@@ -1,11 +1,11 @@
 version: "3.2"
 
 services:
-  functions-node-20:
-    image: functions-node-20
-    container_name: functions-node-20
+  functions-node-22:
+    image: functions-node-22
+    container_name: functions-node-22
     build:
-      context: ./docker-files/functions-node-20
+      context: ./docker-files/functions-node-22
       dockerfile: ./Dockerfile
     command: /bin/true
 
@@ -61,7 +61,7 @@ services:
       - redis
       - storage-account
     depends_on:
-      - functions-node-20
+      - functions-node-22
 
   citizen-func:
     image: citizen-func
@@ -83,11 +83,11 @@ services:
       - redis
       - storage-account
     depends_on:
-      - functions-node-20
+      - functions-node-22
 
   testagent-rc-func:
     container_name: testagent-rc-func
-    image: node:20.11.1-alpine@sha256:bf77dc26e48ea95fca9d1aceb5acfa69d2e546b765ec2abfb502975f1a2d4def
+    image: node:22.22.1-alpine@sha256:8094c002d08262dba12645a3b4a15cd6cd627d30bc782f53229a2ec13ee22a00
     working_dir: /usr/src/app
     command: tail -f /dev/null # to keep it up&running
     env_file:
@@ -107,7 +107,7 @@ services:
 
   testagent-citizen-func:
     container_name: testagent-citizen-func
-    image: node:20.11.1-alpine@sha256:bf77dc26e48ea95fca9d1aceb5acfa69d2e546b765ec2abfb502975f1a2d4def
+    image: node:22.22.1-alpine@sha256:8094c002d08262dba12645a3b4a15cd6cd627d30bc782f53229a2ec13ee22a00
     working_dir: /usr/src/app
     command: tail -f /dev/null # to keep it up&running
     env_file:

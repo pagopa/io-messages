@@ -27,7 +27,7 @@
     "@pagopa/io-functions-commons": "^29.0.4",
     "@pagopa/ts-commons": "^10.10.0",
     "@types/jest": "^29.5.12",
-    "@types/node": "^18.11.18",
+    "@types/node": "^22.19.15",
     "azure-storage": "^2.10.5",
     "dotenv": "^16.4.5",
     "jest": "^29.7.0",

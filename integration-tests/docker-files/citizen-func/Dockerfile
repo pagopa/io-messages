@@ -1,4 +1,4 @@
-FROM functions-node-20
+FROM functions-node-22
 
 COPY . /usr/src/app
 

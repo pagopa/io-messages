@@ -2822,12 +2822,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.17.12, @types/node@npm:^20.17.30":
-  version: 20.19.25
-  resolution: "@types/node@npm:20.19.25"
+"@types/node@npm:^22.19.15":
+  version: 22.19.15
+  resolution: "@types/node@npm:22.19.15"
   dependencies:
     undici-types: "npm:~6.21.0"
-  checksum: 10c0/992f18cb03264e8dc2fd3cb64f428ee4997cb6d928dad68bf4b752eacac73062697ce7ce6a0e71a6d15af510814397a20597a72332dfec638e02fb3a382ad014
+  checksum: 10c0/f17eaf3d0d1da5e93ad9e287efb78201f8a5282973c004c5f70d91675c5c6b926a23acaa7b158a42b3d7e27e36b349d65a531710c91c308fca53dd7fa280ef98
   languageName: node
   linkType: hard
 
@@ -4315,7 +4315,7 @@ __metadata:
     "@pagopa/ts-commons": "npm:^13.1.2"
     "@types/express": "npm:^4.17.11"
     "@types/html-to-text": "npm:^1.4.31"
-    "@types/node": "npm:^20.17.30"
+    "@types/node": "npm:^22.19.15"
     "@types/redis": "npm:^2.8.28"
     "@vitest/coverage-v8": "npm:^3.1.2"
     applicationinsights: "npm:^2.9.5"
@@ -4673,7 +4673,7 @@ __metadata:
     "@pagopa/ts-commons": "npm:^13.1.2"
     "@types/express": "npm:^4.17.12"
     "@types/lodash": "npm:^4.14.173"
-    "@types/node": "npm:^20.17.12"
+    "@types/node": "npm:^22.19.15"
     "@types/node-fetch": "npm:^2.5.7"
     "@types/vfile-message": "npm:^2.0.0"
     applicationinsights: "npm:^2.9.5"
@@ -6040,7 +6040,7 @@ __metadata:
     "@azure/identity": "npm:^4.5.0"
     "@azure/storage-blob": "npm:^12.26.0"
     "@pagopa/eslint-config": "npm:^4.0.3"
-    "@types/node": "npm:^20.17.30"
+    "@types/node": "npm:^22.19.15"
     "@vitest/coverage-v8": "npm:^3.1.2"
     applicationinsights: "npm:^2.9.5"
     avsc: "npm:^5.7.7"
@@ -7458,7 +7458,7 @@ __metadata:
   dependencies:
     "@azure/functions": "npm:^4.4.0"
     "@pagopa/eslint-config": "npm:^4.0.3"
-    "@types/node": "npm:^20.17.30"
+    "@types/node": "npm:^22.19.15"
     "@vitest/coverage-v8": "npm:^3.1.2"
     eslint: "npm:8.57.1"
     pino: "npm:^9.6.0"
@@ -9617,7 +9617,7 @@ __metadata:
     "@azure/logger": "npm:^1.1.4"
     "@azure/storage-blob": "npm:^12.26.0"
     "@pagopa/eslint-config": "npm:^4.0.3"
-    "@types/node": "npm:^20.17.30"
+    "@types/node": "npm:^22.19.15"
     "@vitest/coverage-v8": "npm:^3.1.2"
     esbuild: "npm:^0.25.2"
     eslint: "npm:8.57.1"
@@ -10392,7 +10392,7 @@ __metadata:
     "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
     "@pagopa/ts-commons": "npm:^13.1.2"
     "@types/express-serve-static-core": "npm:^4.17.33"
-    "@types/node": "npm:^20.17.30"
+    "@types/node": "npm:^22.19.15"
     "@types/node-fetch": "npm:^2.5.7"
     "@types/vfile-message": "npm:^2.0.0"
     "@vitest/coverage-v8": "npm:^3.1.2"
@@ -10514,7 +10514,7 @@ __metadata:
     "@pagopa/openapi-codegen-ts": "npm:^14.0.0"
     "@pagopa/ts-commons": "npm:^13.1.2"
     "@types/express": "npm:^4.17.11"
-    "@types/node": "npm:^20.17.30"
+    "@types/node": "npm:^22.19.15"
     "@types/node-fetch": "npm:^2.5.7"
     "@vitest/coverage-v8": "npm:^3.1.2"
     abort-controller: "npm:^3.0.0"
@@ -11192,7 +11192,7 @@ __metadata:
   dependencies:
     "@azure/functions": "npm:^4.4.0"
     "@pagopa/eslint-config": "npm:^4.0.3"
-    "@types/node": "npm:^20.17.30"
+    "@types/node": "npm:^22.19.15"
     "@vitest/coverage-v8": "npm:^3.1.2"
     applicationinsights: "npm:^2.9.5"
     esbuild: "npm:^0.25.2"
@@ -11257,7 +11257,7 @@ __metadata:
     "@types/express-serve-static-core": "npm:^4.17.33"
     "@types/html-to-text": "npm:^1.4.31"
     "@types/lolex": "npm:^5.1.6"
-    "@types/node": "npm:^20.17.30"
+    "@types/node": "npm:^22.19.15"
     "@types/node-fetch": "npm:^2.5.7"
     "@types/nodemailer": "npm:^4.6.2"
     "@types/semver": "npm:^7"
