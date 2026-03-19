@@ -1,11 +1,11 @@
 version: "3.2"
 
 services:
-  functions-node-20:
-    image: functions-node-20
-    container_name: functions-node-20
+  functions-node-22:
+    image: functions-node-22
+    container_name: functions-node-22
     build:
-      context: ./docker-files/functions-node-20
+      context: ./docker-files/functions-node-22
       dockerfile: ./Dockerfile
     command: /bin/true
 
@@ -61,7 +61,7 @@ services:
       - redis
       - storage-account
     depends_on:
-      - functions-node-20
+      - functions-node-22
 
   citizen-func:
     image: citizen-func
@@ -83,7 +83,7 @@ services:
       - redis
       - storage-account
     depends_on:
-      - functions-node-20
+      - functions-node-22
 
   testagent-rc-func:
     container_name: testagent-rc-func
