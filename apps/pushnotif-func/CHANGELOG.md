@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.3.3
+
+### Patch Changes
+
+- e59ed9d: Update @types/node devDependecies to v22
+
 ## 2.3.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 ### Changelog
 
+## 6.0.2
+
+### Patch Changes
+
+- e59ed9d: Update @types/node devDependecies to v22
+
 ## 6.0.1
 
 ### Patch Changes
