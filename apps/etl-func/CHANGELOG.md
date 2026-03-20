@@ -1,5 +1,13 @@
 # etl-func
 
+## 1.0.9
+
+### Patch Changes
+
+- e59ed9d: Update @types/node devDependecies to v22
+- Updated dependencies [e59ed9d]
+  - io-messages-common@1.4.1
+
 ## 1.0.8
 
 ### Patch Changes
