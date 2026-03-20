@@ -35,9 +35,20 @@ module "ops_func" {
 
   health_check_path = "/api/health"
 
-  app_settings = local.app_settings
+  app_settings = merge(local.app_settings, {
+    "AzureWebJobs.DeleteMessages.Disabled"           = "0",
+    "AzureWebJobs.SplitDeleteMessageChunks.Disabled" = "0"
+  })
 
-  sticky_app_setting_names = ["NODE_ENV"]
+  sticky_app_setting_names = [
+    "AzureWebJobs.DeleteMessages.Disabled",
+    "AzureWebJobs.SplitDeleteMessageChunks.Disabled"
+  ]
+
+  slot_app_settings = merge(local.app_settings, {
+    "AzureWebJobs.DeleteMessages.Disabled"           = "1",
+    "AzureWebJobs.SplitDeleteMessageChunks.Disabled" = "1"
+  })
 
   virtual_network = var.virtual_network
 
