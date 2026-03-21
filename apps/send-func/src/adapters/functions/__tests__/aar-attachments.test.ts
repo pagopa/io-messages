@@ -3,6 +3,7 @@ import {
   aPaymentAttachmentParams,
   aProblem,
   aSendHeaders,
+  aSendHeadersWithoutPnIoSrc,
   anAttachmentMetadata,
   anAttachmentUrl,
   anIvalidMandateId,
@@ -62,8 +63,9 @@ describe("GetAttachment", () => {
     vi.clearAllMocks();
   });
 
-  it("returns 200 status code if the request is well-formed", async () => {
+  it("returns 200 and passes x-pagopa-pn-io-src when the header is provided", async () => {
     const request = new HttpRequest({
+      headers: { "x-pagopa-pn-io-src": "QR_CODE" },
       method: "GET",
       params: { attachmentUrl: anEncodedAttachmentUrl },
       url: "http://localhost",
@@ -83,19 +85,28 @@ describe("GetAttachment", () => {
       undefined,
     );
 
-    const mandateId = crypto.randomUUID();
-    request.query.set("mandateId", mandateId);
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns 200 and omits x-pagopa-pn-io-src when the header is not provided", async () => {
+    const request = new HttpRequest({
+      method: "GET",
+      params: { attachmentUrl: anEncodedAttachmentUrl },
+      url: "http://localhost",
+    });
+
     await expect(
       getAttachmentHandler(request, context, aLollipopHeaders),
     ).resolves.toEqual({
       jsonBody: anAttachmentMetadata,
       status: 200,
     });
+
     expect(executeSpy).toHaveBeenCalledWith(
       aPaymentAttachmentParams,
-      aSendHeaders,
+      aSendHeadersWithoutPnIoSrc,
       false,
-      mandateId,
+      undefined,
     );
 
     expect(telemetryTrackEventMock).not.toHaveBeenCalled();

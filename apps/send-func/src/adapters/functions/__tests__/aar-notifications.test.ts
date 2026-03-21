@@ -3,6 +3,7 @@ import {
   aLollipopHeaders,
   aProblem,
   aSendHeaders,
+  aSendHeadersWithoutPnIoSrc,
   aThirdPartyMessage,
   anIvalidMandateId,
   mockNotificationClient,
@@ -43,8 +44,9 @@ describe("GetAARNotification", () => {
     vi.clearAllMocks();
   });
 
-  it("returns 200 status code if the request is well-formed", async () => {
+  it("returns 200 and passes x-pagopa-pn-io-src when the header is provided", async () => {
     const request = new HttpRequest({
+      headers: { "x-pagopa-pn-io-src": "QR_CODE" },
       method: "GET",
       params: { iun: aIun },
       url: "http://localhost",
@@ -62,18 +64,28 @@ describe("GetAARNotification", () => {
       undefined,
     );
 
-    const mandateId = crypto.randomUUID();
-    request.query.set("mandateId", mandateId);
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns 200 and omits x-pagopa-pn-io-src when the header is not provided", async () => {
+    const request = new HttpRequest({
+      method: "GET",
+      params: { iun: aIun },
+      url: "http://localhost",
+    });
+
     await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
       jsonBody: aThirdPartyMessage,
       status: 200,
     });
+
     expect(getNotifiationExecuteSpy).toHaveBeenCalledWith(
       false,
-      aSendHeaders,
+      aSendHeadersWithoutPnIoSrc,
       aIun,
-      mandateId,
+      undefined,
     );
+
     expect(telemetryTrackEventMock).not.toHaveBeenCalled();
   });
 

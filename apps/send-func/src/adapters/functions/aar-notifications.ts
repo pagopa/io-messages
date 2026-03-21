@@ -23,10 +23,11 @@ export const getNotification =
     lollipopHeaders: LollipopHeaders,
   ): Promise<AarGetNotificationResponse> => {
     const isTest = request.query.get("isTest") === "true";
+    const pnIoSrc = request.headers.get("x-pagopa-pn-io-src");
 
     const sendHeaders = {
       "x-pagopa-cx-taxid": lollipopHeaders["x-pagopa-lollipop-user-id"],
-      "x-pagopa-pn-io-src": "QR_CODE",
+      ...(pnIoSrc !== null ? { "x-pagopa-pn-io-src": pnIoSrc } : {}),
       ...lollipopHeaders,
     };
 
