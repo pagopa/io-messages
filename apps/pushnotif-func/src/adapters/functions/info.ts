@@ -1,4 +1,24 @@
 import { HttpHandler } from "@azure/functions";
+import { readFile } from "fs/promises";
+import { join } from "path";
 
-// TODO: Add healthcheck to resources
-export const getInfoHandler = (): HttpHandler => () => ({ body: "It works" });
+export const getInfoHandler = (): HttpHandler => async () => {
+  try {
+    const packageJsonPath = join(process.cwd(), "package.json");
+    const pkgRaw = await readFile(packageJsonPath, "utf-8");
+    const pkg = JSON.parse(pkgRaw);
+    return {
+      body: JSON.stringify({
+        name: pkg.name,
+        version: pkg.version,
+      }),
+      headers: { "Content-Type": "application/json" },
+      status: 200,
+    };
+  } catch {
+    return {
+      body: JSON.stringify({ error: "Could not read function info" }),
+      status: 500,
+    };
+  }
+};

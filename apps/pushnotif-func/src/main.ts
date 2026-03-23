@@ -65,6 +65,7 @@ import {
 import { initTelemetryClient } from "./utils/appinsights";
 import { NotificationHubPartitionFactory } from "./utils/notificationhub-service-partition";
 
+// eslint-disable-next-line max-lines-per-function
 const main = (config: Config) => {
   // Generic HTTP/HTTPS fetch with optional keepalive agent
   // @see https://github.com/pagopa/io-ts-commons/blob/master/src/agent.ts#L10
@@ -78,45 +79,41 @@ const main = (config: Config) => {
 
   const aadCredentials = new DefaultAzureCredential();
 
-  const comCosmosClient = new CosmosClient({
+  const apiCosmosdb = new CosmosClient({
     aadCredentials,
-    endpoint: config.comCosmosAccountEndpoint,
-  });
+    endpoint: config.apiCosmos.accountEndpoint,
+  }).database(config.apiCosmos.databaseName);
 
-  const cosmosdbClient = new CosmosClient({
+  const pushCosmosDb = new CosmosClient({
     aadCredentials,
-    endpoint: config.apiCosmosAccountEndpoint,
-  });
-
-  //TODO: Read the value from the config
-  const cosmosdbInstance = cosmosdbClient.database("io-messages");
-  const comCosmosInstance = comCosmosClient.database("io-messages");
+    endpoint: config.comCosmos.accountEndpoint,
+  }).database(config.comCosmos.pushDatabaseName);
 
   const retryOptions = new RetryOptions(5000, 10);
   retryOptions.backoffCoefficient = 1.5;
 
   const comCosmosInstallationSummaryAdapter =
     new CosmosInstallationSummaryAdapter(
-      comCosmosInstance,
+      pushCosmosDb,
       config.installationSummariesContainerName,
     );
 
   const messageModel = new MessageModel(
-    cosmosdbInstance.container(MESSAGE_COLLECTION_NAME),
+    apiCosmosdb.container(MESSAGE_COLLECTION_NAME),
     "messages" as NonEmptyString,
   );
 
   const blobService = createBlobService(
-    config.notificationStorageConnectionString,
+    config.comStorageConnectionString,
     config.apiStorageAccountConnectionString,
   );
 
   const serviceModel = new ServiceModel(
-    cosmosdbInstance.container(SERVICE_COLLECTION_NAME),
+    apiCosmosdb.container(SERVICE_COLLECTION_NAME),
   );
 
   const profileModel = new ProfileModel(
-    cosmosdbInstance.container(PROFILE_COLLECTION_NAME),
+    apiCosmosdb.container(PROFILE_COLLECTION_NAME),
   );
 
   const sessionManagerClient = createClient<"ApiKeyAuth">({
@@ -130,10 +127,11 @@ const main = (config: Config) => {
   });
 
   const notifyQueueClient = new QueueClient(
-    config.notificationStorageConnectionString,
+    config.comStorageConnectionString,
     "push-notifications",
   );
 
+  // TODO: This factory breaks clean architecture, remove this in future.
   const nhPartitionFactory = new NotificationHubPartitionFactory([
     config.notificationHub.partition1,
     config.notificationHub.partition2,

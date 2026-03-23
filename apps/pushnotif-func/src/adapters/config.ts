@@ -64,6 +64,7 @@ const envSchema = z.object({
   APPLICATIONINSIGHTS_CONNECTION_STRING: z.string().min(1),
 
   COM_COSMOS__accountEndpoint: z.url(),
+  COSMOSDB_NAME: z.string().min(1),
 
   COSMOSDB_URI: z.url(),
   INSTALLATION_SUMMARIES_CONTAINER_NAME: z.string().min(1),
@@ -104,16 +105,22 @@ const envSchema = z.object({
 export type Env = z.TypeOf<typeof envSchema>;
 
 export const configSchema = z.object({
-  apiCosmosAccountEndpoint: z.url(),
+  apiCosmos: z.object({
+    accountEndpoint: z.url(),
+    databaseName: z.string().min(1),
+  }),
   apiStorageAccountConnectionString: z.string().min(1),
   applicationInsights: applicationInsightsSchema,
-  comCosmosAccountEndpoint: z.url(),
+  comCosmos: z.object({
+    accountEndpoint: z.url(),
+    pushDatabaseName: z.string().min(1),
+  }),
+  comStorageConnectionString: z.string().min(1),
   databaseName: z.string().min(1),
   installationSummariesContainerName: z.string().min(1),
   installationSummariesLeaseContainerPrefix: z.string().min(1),
   nodeEnv: nodeEnvSchema,
   notificationHub: notificationHubConfigSchema,
-  notificationStorageConnectionString: z.string().min(1),
   sessionManager: z.object({
     apiKey: z.string().min(1),
     baseUrl: z.url(),
@@ -124,15 +131,23 @@ export const configSchema = z.object({
 export type Config = z.TypeOf<typeof configSchema>;
 
 const mapEnvironmentVariablesToConfig = (env: Env): Config => ({
-  apiCosmosAccountEndpoint: env.COSMOSDB_URI,
+  apiCosmos: {
+    accountEndpoint: env.COSMOSDB_URI,
+    databaseName: env.COSMOSDB_NAME,
+  },
   apiStorageAccountConnectionString:
     env.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
   applicationInsights: {
     connectionString: env.APPLICATIONINSIGHTS_CONNECTION_STRING,
     samplingPercentage: env.APPINSIGHTS_SAMPLING_PERCENTAGE,
   },
-  comCosmosAccountEndpoint: env.COM_COSMOS__accountEndpoint,
+  comCosmos: {
+    accountEndpoint: env.COM_COSMOS__accountEndpoint,
+    pushDatabaseName: env.PUSH_DATABASE_NAME,
+  },
+  comStorageConnectionString: env.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
   databaseName: env.PUSH_DATABASE_NAME,
+
   installationSummariesContainerName: env.INSTALLATION_SUMMARIES_CONTAINER_NAME,
 
   installationSummariesLeaseContainerPrefix:
@@ -165,9 +180,6 @@ const mapEnvironmentVariablesToConfig = (env: Env): Config => ({
       partitionRegex: env.NH4_PARTITION_REGEX,
     },
   },
-
-  notificationStorageConnectionString:
-    env.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
 
   sessionManager: {
     apiKey: env.SESSION_MANAGER_API_KEY,
