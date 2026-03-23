@@ -1,5 +1,4 @@
-import { RestError } from "@azure/storage-blob";
-import { BlobClientWithFallback } from "@pagopa/azure-storage-migration-kit";
+import { BlobClient, RestError } from "@azure/storage-blob";
 
 export class BlobNotFoundError extends Error {
   constructor() {
@@ -8,7 +7,7 @@ export class BlobNotFoundError extends Error {
 }
 
 export async function downloadBlobContent(
-  blobClient: BlobClientWithFallback,
+  blobClient: BlobClient,
 ): Promise<string> {
   try {
     const downloadBlockBlobResponse = await blobClient.downloadToBuffer();

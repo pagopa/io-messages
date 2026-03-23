@@ -1,7 +1,11 @@
 import { InvocationContext } from "@azure/functions";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { ErrorNotFound } from "../../../domain/error";
+import {
+  ErrorInternal,
+  ErrorNotFound,
+  ErrorTooManyRequests,
+} from "../../../domain/error";
 import { InstallationRepository } from "../../../domain/push-service";
 import { TelemetryService } from "../../../domain/telemetry";
 import getUpdateInstallationHandler from "../update-installation";
@@ -111,15 +115,31 @@ describe("getUpdateInstallationHandler", () => {
     ).toHaveBeenCalledOnce();
   });
 
-  test("should throw when updateInstallation returns a generic error", async () => {
+  test("should throw when updateInstallation returns a ErrorInternal", async () => {
     vi.mocked(
       installationRepositoryMock.updateInstallation,
-    ).mockResolvedValueOnce(new Error("Update failed"));
+    ).mockResolvedValueOnce(new ErrorInternal("Update failed"));
 
     const message = { installationId: aValidInstallationId, platform: "Apns" };
 
     await expect(handler(message, invocationContext)).rejects.toThrow(
       "Update failed",
+    );
+
+    expect(
+      installationRepositoryMock.updateInstallation,
+    ).toHaveBeenCalledOnce();
+  });
+
+  test("should throw when updateInstallation returns a ErrorTooManyRequests", async () => {
+    vi.mocked(
+      installationRepositoryMock.updateInstallation,
+    ).mockResolvedValueOnce(new ErrorTooManyRequests("Too many requests"));
+
+    const message = { installationId: aValidInstallationId, platform: "Apns" };
+
+    await expect(handler(message, invocationContext)).rejects.toThrow(
+      "Too many requests",
     );
 
     expect(

@@ -1,5 +1,17 @@
 ### Changelog
 
+## 6.0.2
+
+### Patch Changes
+
+- e59ed9d: Update @types/node devDependecies to v22
+
+## 6.0.1
+
+### Patch Changes
+
+- ff3f29e: remove legacy migration toolkit
+
 ## 6.0.0
 
 ### Major Changes

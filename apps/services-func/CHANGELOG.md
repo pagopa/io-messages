@@ -1,5 +1,17 @@
 # services-func
 
+## 2.0.3
+
+### Patch Changes
+
+- e59ed9d: Update @types/node devDependecies to v22
+
+## 2.0.2
+
+### Patch Changes
+
+- ea8c8f8: remove azure-storage-legacy-migration-kit
+
 ## 2.0.1
 
 ### Patch Changes

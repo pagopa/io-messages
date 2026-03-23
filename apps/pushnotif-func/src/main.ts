@@ -65,7 +65,6 @@ import {
 import { initTelemetryClient } from "./utils/appinsights";
 import { NotificationHubPartitionFactory } from "./utils/notificationhub-service-partition";
 
-// eslint-disable-next-line max-lines-per-function
 const main = (config: Config) => {
   // Generic HTTP/HTTPS fetch with optional keepalive agent
   // @see https://github.com/pagopa/io-ts-commons/blob/master/src/agent.ts#L10

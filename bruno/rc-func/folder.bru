@@ -1,11 +1,10 @@
 meta {
   name: rc-func
-  seq: 7
 }
 
 headers {
   X-Functions-Key: {{rc_func_key}}
-  X-User-Id: {{user_id}}
-  X-User-Groups: {{user_groups}}
-  X-Subscription-Id: {{subscription_id}}
+  X-User-Id: {{sender_user_id}}
+  X-User-Groups: ApiRemoteContentConfigurationWrite
+  X-Subscription-Id: {{rc_subscription_id}}
 }

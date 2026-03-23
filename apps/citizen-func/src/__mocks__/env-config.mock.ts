@@ -14,8 +14,6 @@ export const envConfig: IConfig = {
   FF_CANARY_USERS_REGEX: "XYZ" as NonEmptyString,
   FF_TYPE: "none",
 
-  IO_COM_STORAGE_CONNECTION_STRING: "aaa" as NonEmptyString,
-
   MESSAGE_CONTAINER_NAME: "aaa" as NonEmptyString,
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: "aaa" as NonEmptyString,
 

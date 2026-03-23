@@ -81,8 +81,6 @@ export const IConfig = t.intersection([
 
     FF_TYPE: withDefault(t.string, "none").pipe(FeatureFlagType),
 
-    IO_COM_STORAGE_CONNECTION_STRING: NonEmptyString,
-
     MESSAGE_CONTAINER_NAME: NonEmptyString,
     MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
 

@@ -1,5 +1,17 @@
 # cqrs-func
 
+## 2.0.1
+
+### Patch Changes
+
+- e59ed9d: Update @types/node devDependecies to v22
+
+## 2.0.0
+
+### Major Changes
+
+- 9479207: Migrate cqrs-func to Programming Model v4
+
 ## 1.0.9
 
 ### Patch Changes

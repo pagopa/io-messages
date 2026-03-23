@@ -1,5 +1,11 @@
 # io-messages-common
 
+## 1.4.1
+
+### Patch Changes
+
+- e59ed9d: Update @types/node devDependecies to v22
+
 ## 1.4.0
 
 ### Minor Changes

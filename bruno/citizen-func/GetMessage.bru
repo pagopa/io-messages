@@ -5,16 +5,7 @@ meta {
 }
 
 get {
-  url: {{citizen_func_url}}/api/v1/messages/:fiscal_code/:message_id
+  url: {{citizen_func_url}}/api/v1/messages/{{fiscal_code}}/01KKV4T39HGAY3278B8GRP9KG2
   body: none
   auth: none
-}
-
-params:path {
-  fiscal_code: {{fiscal_code}}
-  message_id: {{message_id}}
-}
-
-vars:pre-request {
-  fiscal_code: LVTEST00A00A199X
 }

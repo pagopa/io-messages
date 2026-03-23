@@ -5,9 +5,9 @@
   "files": [
     "host.json"
   ],
-  "version": "1.0.7",
+  "version": "1.0.9",
   "scripts": {
-    "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node20 --outdir=dist --packages=external",
+    "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node22 --outdir=dist --packages=external",
     "build:watch": "yarn build --watch",
     "start": "func start",
     "format": "prettier --write .",
@@ -25,7 +25,6 @@
     "@azure/functions": "^4.4.0",
     "@azure/identity": "^4.5.0",
     "@azure/storage-blob": "^12.26.0",
-    "@pagopa/azure-storage-migration-kit": "patch:@pagopa/azure-storage-migration-kit@npm%3A0.0.1#~/.yarn/patches/@pagopa-azure-storage-migration-kit-npm-0.0.1-49e19fea6a.patch",
     "applicationinsights": "^2.9.5",
     "avsc": "^5.7.7",
     "io-messages-common": "workspace:^",
@@ -36,7 +35,7 @@
   },
   "devDependencies": {
     "@pagopa/eslint-config": "^4.0.3",
-    "@types/node": "^20.17.30",
+    "@types/node": "^22.19.15",
     "@vitest/coverage-v8": "^3.1.2",
     "esbuild": "^0.25.2",
     "eslint": "8.57.1",
