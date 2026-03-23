@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.3.4
+
+### Patch Changes
+
+- d46126c: Update CreateOrUpdate flow to also accept fcmv1 as valid platform
+
 ## 2.3.3
 
 ### Patch Changes
