@@ -6,9 +6,9 @@ import * as T from "fp-ts/Task";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
-import { DeleteInstallationMessage } from "../generated/notifications/DeleteInstallationMessage";
-import { KindEnum as CreateOrUpdateKind } from "../generated/notifications/CreateOrUpdateInstallationMessage";
 import { CreateOrUpdateInstallationMessage } from "../generated/notifications/CreateOrUpdateInstallationMessage";
+import { KindEnum as CreateOrUpdateKind } from "../generated/notifications/CreateOrUpdateInstallationMessage";
+import { DeleteInstallationMessage } from "../generated/notifications/DeleteInstallationMessage";
 import { KindEnum as DeleteKind } from "../generated/notifications/DeleteInstallationMessage";
 import { NotifyMessage } from "../generated/notifications/NotifyMessage";
 import { KindEnum as NotifyKind } from "../generated/notifications/NotifyMessage";
