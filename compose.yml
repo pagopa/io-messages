@@ -24,7 +24,7 @@ services:
       - "10002:10002"
 
   azurite-setup:
-    image: node:20-alpine
+    image: node:22-alpine
     depends_on:
       - azurite
     working_dir: /app

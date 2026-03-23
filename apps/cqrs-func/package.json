@@ -1,7 +1,7 @@
 {
   "name": "cqrs-func",
   "author": "IO team",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "license": "UNLICENSED",
   "type": "commonjs",
   "main": "dist/main.js",
@@ -25,7 +25,7 @@
     "@pagopa/openapi-codegen-ts": "^11.1.0",
     "@types/express": "^4.17.12",
     "@types/lodash": "^4.14.173",
-    "@types/node": "^20.17.12",
+    "@types/node": "^22.19.15",
     "@types/node-fetch": "^2.5.7",
     "@types/vfile-message": "^2.0.0",
     "auto-changelog": "2.2.1",

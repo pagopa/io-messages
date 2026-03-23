@@ -5,9 +5,9 @@
   "files": [
     "host.json"
   ],
-  "version": "1.5.6",
+  "version": "1.5.7",
   "scripts": {
-    "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node20 --outdir=dist --packages=external",
+    "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node22 --outdir=dist --packages=external",
     "build:watch": "yarn build --watch",
     "start": "func start --port 7074",
     "format": "prettier --write .",
@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@pagopa/eslint-config": "^4.0.3",
-    "@types/node": "^20.17.30",
+    "@types/node": "^22.19.15",
     "@vitest/coverage-v8": "^3.1.2",
     "esbuild": "^0.25.2",
     "eslint": "8.57.1",

@@ -1,5 +1,13 @@
 # send-func
 
+## 1.5.7
+
+### Patch Changes
+
+- e59ed9d: Update @types/node devDependecies to v22
+- Updated dependencies [e59ed9d]
+  - io-messages-common@1.4.1
+
 ## 1.5.6
 
 ### Patch Changes
