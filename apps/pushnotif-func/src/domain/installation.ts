@@ -2,7 +2,7 @@ import z from "zod";
 
 export const supportedPlatformSchema = z.preprocess(
   (val) => (typeof val === "string" ? val.toLowerCase() : val),
-  z.union([z.literal("apns"), z.literal("fcmv1")]),
+  z.union([z.literal("apns"), z.literal("fcmv1"), z.literal("gcm")]),
 );
 
 export const installationSummarySchema = z.object({
