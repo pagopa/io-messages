@@ -5,6 +5,7 @@ import {
   aLollipopHeaders,
   aProblem,
   aSendHeaders,
+  aSendHeadersWithoutPnIoSrc,
   anAarQrCodeValue,
   anInvalidAarQrCodeValue,
   anIvalidMandateId,
@@ -201,7 +202,30 @@ describe("AcceptNotificationMandate", () => {
     vi.clearAllMocks();
   });
 
-  it("returns 204 status code if the request is well-formed", async () => {
+  it("returns 204 and passes x-pagopa-pn-io-src when the header is provided", async () => {
+    const request = new HttpRequest({
+      body: { string: aCIEValidationdataBodyString },
+      headers: { "x-pagopa-pn-io-src": "QR_CODE" },
+      method: "PATCH",
+      params: { mandateId: aMandateId },
+      url: "http://localhost",
+    });
+
+    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
+      status: 204,
+    });
+
+    expect(acceptNotificationMandateExecuteSpy).toHaveBeenCalledWith(
+      false,
+      aMandateId,
+      aCIEValidationdata,
+      aSendHeaders,
+    );
+
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns 204 and omits x-pagopa-pn-io-src when the header is not provided", async () => {
     const request = new HttpRequest({
       body: { string: aCIEValidationdataBodyString },
       method: "PATCH",
@@ -217,7 +241,7 @@ describe("AcceptNotificationMandate", () => {
       false,
       aMandateId,
       aCIEValidationdata,
-      aSendHeaders,
+      aSendHeadersWithoutPnIoSrc,
     );
 
     expect(telemetryTrackEventMock).not.toHaveBeenCalled();
