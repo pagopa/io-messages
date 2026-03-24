@@ -73,19 +73,18 @@ const envSchema = z.object({
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: z.string().min(1),
   NH1_ENDPOINT: z.string().min(1),
   NH1_NAME: z.string().min(1),
-
   NH1_PARTITION_REGEX: z.string().min(1),
+
   NH2_ENDPOINT: z.string().min(1),
   NH2_NAME: z.string().min(1),
-
   NH2_PARTITION_REGEX: z.string().min(1),
+
   NH3_ENDPOINT: z.string().min(1),
   NH3_NAME: z.string().min(1),
-
   NH3_PARTITION_REGEX: z.string().min(1),
+
   NH4_ENDPOINT: z.string().min(1),
   NH4_NAME: z.string().min(1),
-
   NH4_PARTITION_REGEX: z.string().min(1),
 
   NODE_ENV: nodeEnvSchema,
