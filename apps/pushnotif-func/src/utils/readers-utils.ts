@@ -1,9 +1,3 @@
-import {
-  BlobNotFoundCode,
-  BlobServiceWithFallBack,
-  FallbackTracker,
-  GenericCode,
-} from "@pagopa/azure-storage-legacy-migration-kit";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import * as AS from "azure-storage";
@@ -11,14 +5,17 @@ import * as J from "fp-ts/Json";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
-import { constVoid, constant, flow, pipe } from "fp-ts/lib/function";
+import { constant, flow, pipe } from "fp-ts/lib/function";
+
+const BlobNotFoundCode = "BlobNotFound";
+const GenericCode = "GenericError";
 
 const MESSAGE_BLOB_STORAGE_SUFFIX = ".json";
 const blobIdFromMessageId = (messageId: string): string =>
   `${messageId}${MESSAGE_BLOB_STORAGE_SUFFIX}`;
 
 export const getContentFromBlob = (
-  blobService: BlobServiceWithFallBack,
+  blobService: AS.BlobService,
   messageId: string,
 ): TE.TaskEither<Error, O.Option<MessageContent>> =>
   // Retrieve blob content and deserialize
@@ -76,15 +73,14 @@ const isBlobNotFound = (err: AS.StorageError) =>
 
 export const getBlobAsTextWithError =
   (
-    blobService: BlobServiceWithFallBack,
+    blobService: AS.BlobService,
     containerName: string,
     options: AS.BlobService.GetBlobRequestOptions = {},
-    tracker?: FallbackTracker,
   ) =>
   (blobName: string): TE.TaskEither<AS.StorageError, O.Option<string>> =>
     pipe(
       new Promise<E.Either<AS.StorageError, O.Option<string>>>((resolve) =>
-        blobService.primary.getBlobToText(
+        blobService.getBlobToText(
           containerName,
           blobName,
           options,
@@ -93,51 +89,12 @@ export const getBlobAsTextWithError =
             if (!err) {
               return resolve(E.right(O.fromNullable(result)));
             }
-
-            if (!isBlobNotFound(err)) {
-              return resolve(E.left(err));
+            if (isBlobNotFound(err)) {
+              return resolve(E.right(O.none));
             }
-
-            pipe(
-              blobService.secondary,
-              O.fromNullable,
-              O.map((fallback) =>
-                fallback.getBlobToText(
-                  containerName,
-                  blobName,
-                  options,
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                  (e, r, __) =>
-                    pipe(
-                      consumeFallbackTracker(containerName, blobName, tracker),
-                      () => {
-                        if (!e) {
-                          return resolve(E.right(O.fromNullable(r)));
-                        }
-                        if (isBlobNotFound(e)) {
-                          return resolve(E.right(O.none));
-                        }
-                        return resolve(E.left(e));
-                      },
-                    ),
-                ),
-              ),
-              O.getOrElse(() => resolve(E.right(O.none))),
-            );
+            return resolve(E.left(err));
           },
         ),
       ),
       constant,
     );
-
-const consumeFallbackTracker = (
-  containerName: string,
-  blobName: string,
-  tracker?: FallbackTracker,
-) =>
-  pipe(
-    tracker,
-    O.fromNullable,
-    O.map((fallbackTracker) => fallbackTracker(containerName, blobName)),
-    O.getOrElse(constVoid),
-  );

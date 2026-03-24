@@ -3,7 +3,6 @@ import { app, output } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
 import { NotificationHubsClient } from "@azure/notification-hubs";
 import { QueueClient } from "@azure/storage-queue";
-import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 import {
   MESSAGE_COLLECTION_NAME,
   MessageModel,
@@ -22,6 +21,7 @@ import {
   toFetch,
 } from "@pagopa/ts-commons/lib/fetch";
 import { Millisecond } from "@pagopa/ts-commons/lib/units";
+import { createBlobService } from "azure-storage";
 import * as df from "durable-functions";
 import { RetryOptions } from "durable-functions";
 import { pipe } from "fp-ts/lib/function";
@@ -113,7 +113,6 @@ const messageModel = new MessageModel(
 );
 
 const blobService = createBlobService(
-  config.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
   config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
 );
 
