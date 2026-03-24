@@ -179,7 +179,12 @@ const main = (config: Config) => {
 
   app.http("Info", {
     authLevel: "anonymous",
-    handler: getInfoHandler(),
+    handler: getInfoHandler(
+      apiCosmosdb,
+      pushCosmosDb,
+      blobService,
+      notificationHubClients,
+    ),
     methods: ["GET"],
     route: "api/v1/info",
   });
