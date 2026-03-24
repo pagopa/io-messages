@@ -1,5 +1,11 @@
 # send-func
 
+## 1.5.8
+
+### Patch Changes
+
+- f760500: Remove x-pagopa-pn-io-src header hardcoded value
+
 ## 1.5.7
 
 ### Patch Changes
