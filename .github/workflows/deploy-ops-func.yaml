@@ -8,7 +8,7 @@ on:
 
 jobs:
   ops_func_deploy:
-    uses: pagopa/dx/.github/workflows/web_app_deploy.yaml@1a293db2ffa9121e95250a6ad7382b7608b41f05
+    uses: pagopa/dx/.github/workflows/release-azure-appsvc-v1.yaml@036f374aa1642e539f4856696cafdf0c723ae0ab
     name: Deploy
     secrets: inherit
     with:
@@ -16,5 +16,9 @@ jobs:
       environment: app-prod
       resource_group_name: io-p-itn-com-rg-01
       web_app_name: io-p-itn-com-ops-func-01
-      use_staging_slot: true
       use_private_agent: true
+      disable_auto_staging_deploy: true
+    permissions:
+      attestations: write
+      contents: read
+      id-token: write

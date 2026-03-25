@@ -4,29 +4,29 @@
 
 ```bash
 # Build all workspaces (from root)
-yarn build
+pnpm build
 
 # Run all tests (from root)
-yarn test
+pnpm test
 
 # Lint all workspaces (from root) [Prefer linting single workspaces to get more focused feedback]
-yarn lint
+pnpm lint
 
 # Run the full code review check (typecheck + format + lint + coverage)
-yarn code-review
+pnpm code-review
 
 # Run tests for a single workspace
-yarn workspace <workspace-name> test
-# e.g.: yarn workspace send-func run test
+pnpm --filter <workspace-name> test
+# e.g.: pnpm --filter send-func run test
 
 # Run a single test file
-yarn workspace <workspace-name> test -- src/<apps/package>/workspace-name/\*\*/__tests__/my-use-case.test.ts
+pnpm --filter <workspace-name> test -- src/<apps/package>/workspace-name/\*\*/__tests__/my-use-case.test.ts
 
 # Typecheck a single workspace
-yarn workspace <workspace-name> typecheck
+pnpm --filter <workspace-name> typecheck
 
 # Lint a single workspace
-yarn workspace <workspace-name> lint
+pnpm --filter <workspace-name> lint
 
 ```
 
@@ -90,16 +90,16 @@ This is a **Yarn(v4 PnP) workspaces + Turborepo monorepo** hosting multiple Azur
 **Changesets**: Every PR with a version-bumping change must include a changeset file:
 
 ```bash
-yarn changeset
+pnpm changeset
 ```
 
 **Adding dependencies**:
 
 ```bash
 # Add to a specific app
-yarn workspace <workspace-name> add <package>
+pnpm --filter <workspace-name> add <package>
 # Add dev dependency
-yarn workspace <workspace-name> add -D <package>
+pnpm --filter <workspace-name> add -D <package>
 ```
 
 **Perform Linting**: On modified `apps` or `package` always perform a lint on modified workspaces.

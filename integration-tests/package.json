@@ -5,12 +5,12 @@
   "license": "MIT",
   "scripts": {
     "container-start": "echo 'container starting' && docker compose --env-file environments/env.base up -d",
-    "integrations": "yarn run container-start && yarn run integrations-citizen && yarn run integrations-rc",
-    "integrations-rc": "docker exec testagent-rc-func yarn test ./rc-func/__tests__/",
-    "integrations-citizen": "docker exec testagent-citizen-func yarn test ./citizen-func/__tests__/",
+    "integrations": "pnpm run container-start && pnpm run integrations-citizen && pnpm run integrations-rc",
+    "integrations-rc": "docker exec testagent-rc-func pnpm test ./rc-func/__tests__/",
+    "integrations-citizen": "docker exec testagent-citizen-func pnpm test ./citizen-func/__tests__/",
     "container-stop": "echo 'container stopping' && docker compose --env-file environments/env.base down",
     "definitions-rc-func-generate": "gen-api-models --api-spec ../apps/rc-func/openapi/index.yaml --no-strict --out-dir ./rc-func/generated/definitions",
-    "definitions-generate": "yarn run definitions-rc-func-generate",
+    "definitions-generate": "pnpm run definitions-rc-func-generate",
     "env-clean": "rm -rf environments/generated/**",
     "definitions-clean": "rm -rf ./generated/definitions/*",
     "env-generate-cosmosdb": "echo 'generating cosmosdb environment' && dotenv -e environments/env.base envsub environments/env.cosmosdb environments/generated/env.cosmosdb",
@@ -18,7 +18,7 @@
     "env-generate-citizen-func": "echo 'generating citizen-func environment' && dotenv -e environments/env.base envsub environments/env.citizen-func environments/generated/env.citizen-func",
     "env-generate-testagent-rc-func": "echo 'generating testagent-rc-func' && dotenv -e environments/env.base envsub environments/env.testagent-rc-func environments/generated/env.testagent-rc-func",
     "env-generate-testagent-citizen-func": "echo 'generating testagent-citizen-func' && dotenv -e environments/env.base envsub environments/env.testagent-citizen-func environments/generated/env.testagent-citizen-func",
-    "env-generate": "mkdir environments/generated & yarn run env-generate-cosmosdb & yarn run env-generate-rc-func & yarn run env-generate-citizen-func & yarn run env-generate-testagent-rc-func & yarn run env-generate-testagent-citizen-func",
+    "env-generate": "mkdir environments/generated & pnpm run env-generate-cosmosdb & pnpm run env-generate-rc-func & pnpm run env-generate-citizen-func & pnpm run env-generate-testagent-rc-func & pnpm run env-generate-testagent-citizen-func",
     "test": "jest --verbose --runInBand"
   },
   "dependencies": {
