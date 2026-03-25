@@ -118,6 +118,6 @@ resource "azurerm_cosmosdb_sql_container" "installation_summaries_lease" {
   partition_key_paths = ["/id"]
 
   autoscale_settings {
-    max_throughput = 2000
+    max_throughput = 1000
   }
 }

@@ -87,9 +87,9 @@ locals {
 
       PUSH_DATABASE_NAME                            = "push-notifications-cosmos-01"
       INSTALLATION_SUMMARIES_CONTAINER_NAME         = "installation-summaries",
-      INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX = "0-",
+      INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX = "1-",
       # Change this value when need to update the installations
-      UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH = 1
+      UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH = 1773705600
 
       # Disabled by default, enabled when needed.
       "AzureWebJobs.InstallationUpdateDispatcher.Disabled" = "1",

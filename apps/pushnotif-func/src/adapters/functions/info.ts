@@ -25,12 +25,12 @@ const blobServiceHealthcheck = async (
   service: BlobService,
 ): Promise<ErrorInternal | undefined> => {
   try {
-    await new Promise((resolve) => {
+    await new Promise((resolve, reject) => {
       service.getServiceProperties((error, _, response) => {
         if (!error && response.statusCode === 200) {
           resolve(true);
         } else {
-          resolve(false);
+          reject(error);
         }
       });
     });

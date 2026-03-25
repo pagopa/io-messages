@@ -3,6 +3,7 @@ import {
   aLollipopHeaders,
   aProblem,
   aSendHeaders,
+  aSendHeadersWithoutPnIoSrc,
   anAarQrCodeValue,
   anInvalidAarQrCodeValue,
   mockNotificationClient,
@@ -50,7 +51,29 @@ describe("AARQrCodeCheck", () => {
     vi.clearAllMocks();
   });
 
-  it("returns 200 status code if the request is well-formed", async () => {
+  it("returns 200 and passes x-pagopa-pn-io-src when the header is provided", async () => {
+    const request = new HttpRequest({
+      body: { string: anAarBodyString },
+      headers: { "x-pagopa-pn-io-src": "QR_CODE" },
+      method: "POST",
+      url: "http://localhost",
+    });
+
+    await expect(handler(request, context, aLollipopHeaders)).resolves.toEqual({
+      jsonBody: aCheckQrMandateResponse,
+      status: 200,
+    });
+
+    expect(qrCodeCheckExecuteSpy).toHaveBeenCalledWith(
+      false,
+      aSendHeaders,
+      anAarQrCodeValue,
+    );
+
+    expect(telemetryTrackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns 200 and omits x-pagopa-pn-io-src when the header is not provided", async () => {
     const request = new HttpRequest({
       body: { string: anAarBodyString },
       method: "POST",
@@ -64,7 +87,7 @@ describe("AARQrCodeCheck", () => {
 
     expect(qrCodeCheckExecuteSpy).toHaveBeenCalledWith(
       false,
-      aSendHeaders,
+      aSendHeadersWithoutPnIoSrc,
       anAarQrCodeValue,
     );
 
