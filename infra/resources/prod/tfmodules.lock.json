@@ -1,9 +1,9 @@
 {
   "container_apps.com_cae": {
-    "hash": "bb4129102be875e2e51b3e54c63cbd9f4aff9a2e2a2a8866291a4af1de747a44",
-    "version": "1.1.1",
+    "hash": "12b7790aabb912ffe88608b881dd1c77270b6115f14ba477907fea1b95dc97e2",
+    "version": "1.2.0",
     "name": "azure_container_app_environment",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app-environment/azurerm/1.1.1"
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app-environment/azurerm/1.2.0"
   },
   "container_apps.reminder_ca_itn_01": {
     "hash": "f40ba13e4318b7b6a4ca8da9104573e699a138b55ad750f48bce7c14687c6edd",
