@@ -21,6 +21,7 @@ import {
   setFetchTimeout,
   toFetch,
 } from "@pagopa/ts-commons/lib/fetch";
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { Millisecond } from "@pagopa/ts-commons/lib/units";
 import * as df from "durable-functions";
 import { RetryOptions } from "durable-functions";
@@ -34,6 +35,7 @@ import {
   loadConfigFromEnvironment,
 } from "./adapters/config";
 import { CosmosInstallationSummaryAdapter } from "./adapters/cosmos/installation";
+import { getInfoHandler } from "./adapters/functions/info";
 import getUpdateInstallationHandler from "./adapters/functions/update-installation";
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
@@ -51,7 +53,6 @@ import {
 import { getHandler as getDeleteOrchestratorHandler } from "./functions/handle-nh-delete-installation-call-orchestrator";
 import { getHandler as getNotificationCallHandler } from "./functions/handle-nh-notification-call";
 import { handle as handleNotifyMessage } from "./functions/handle-nh-notify-message-call-activity-queue";
-import { Info } from "./functions/info";
 import { Notify } from "./functions/notify";
 import { createClient } from "./generated/session-manager/client";
 import { sendNotification } from "./services/notification";
@@ -62,200 +63,106 @@ import {
   getUserSessionStatusReader,
 } from "./services/readers";
 import { initTelemetryClient } from "./utils/appinsights";
-import { getConfigOrThrow } from "./utils/config";
-import { cosmosdbClient, cosmosdbInstance } from "./utils/cosmosdb";
 import { NotificationHubPartitionFactory } from "./utils/notificationhub-service-partition";
 
-// ---------------------------------------------------------------------------
-// Shared configuration and Functions dependencies
-// ---------------------------------------------------------------------------
-
-const DEFAULT_REQUEST_TIMEOUT_MS = 10000 as Millisecond;
-
-const config = getConfigOrThrow();
-const telemetryClient = initTelemetryClient(config);
-
-// Generic HTTP/HTTPS fetch with optional keepalive agent
-// @see https://github.com/pagopa/io-ts-commons/blob/master/src/agent.ts#L10
-const httpOrHttpsApiFetch = pipe(
-  AbortableFetch(nodeFetch as unknown as typeof fetch),
-  (abortableFetch) =>
-    setFetchTimeout(DEFAULT_REQUEST_TIMEOUT_MS, abortableFetch),
-  (fetchWithTimeout) => toFetch(fetchWithTimeout),
-);
-
-const nhPartitionFactory = new NotificationHubPartitionFactory(
-  config.AZURE_NOTIFICATION_HUB_PARTITIONS,
-);
-
-const aadCredentials = new DefaultAzureCredential();
-
-const comCosmosClient = new CosmosClient({
-  aadCredentials,
-  endpoint: config.COM_COSMOS__accountEndpoint,
-});
-
-const comCosmosInstance = comCosmosClient.database(config.PUSH_DATABASE_NAME);
-
-const comCosmosInstallationSummaryAdapter =
-  new CosmosInstallationSummaryAdapter(
-    comCosmosInstance,
-    config.INSTALLATION_SUMMARIES_CONTAINER_NAME,
+// eslint-disable-next-line max-lines-per-function
+const main = (config: Config) => {
+  // Generic HTTP/HTTPS fetch with optional keepalive agent
+  // @see https://github.com/pagopa/io-ts-commons/blob/master/src/agent.ts#L10
+  const httpOrHttpsApiFetch = pipe(
+    AbortableFetch(nodeFetch as unknown as typeof fetch),
+    (abortableFetch) => setFetchTimeout(10000 as Millisecond, abortableFetch),
+    (fetchWithTimeout) => toFetch(fetchWithTimeout),
   );
 
-const retryOptions = new RetryOptions(5000, config.RETRY_ATTEMPT_NUMBER);
-retryOptions.backoffCoefficient = 1.5;
+  const telemetryClient = initTelemetryClient(config);
 
-// Models
-const messageModel = new MessageModel(
-  cosmosdbInstance.container(MESSAGE_COLLECTION_NAME),
-  config.MESSAGE_CONTAINER_NAME,
-);
+  const aadCredentials = new DefaultAzureCredential();
 
-const blobService = createBlobService(
-  config.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
-  config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
-);
+  const apiCosmosdb = new CosmosClient({
+    aadCredentials,
+    endpoint: config.apiCosmos.accountEndpoint,
+  }).database(config.apiCosmos.databaseName);
 
-const serviceModel = new ServiceModel(
-  cosmosdbInstance.container(SERVICE_COLLECTION_NAME),
-);
+  const pushCosmosDb = new CosmosClient({
+    aadCredentials,
+    endpoint: config.comCosmos.accountEndpoint,
+  }).database(config.comCosmos.pushDatabaseName);
 
-const profileModel = new ProfileModel(
-  cosmosdbInstance.container(PROFILE_COLLECTION_NAME),
-);
+  const retryOptions = new RetryOptions(5000, 10);
+  retryOptions.backoffCoefficient = 1.5;
 
-const sessionManagerClient = createClient<"ApiKeyAuth">({
-  baseUrl: config.SESSION_MANAGER_BASE_URL,
-  fetchApi: httpOrHttpsApiFetch,
-  withDefaults: (op) => (params) =>
-    op({
-      ...params,
-      ApiKeyAuth: config.SESSION_MANAGER_API_KEY,
-    }),
-});
+  const comCosmosInstallationSummaryAdapter =
+    new CosmosInstallationSummaryAdapter(
+      pushCosmosDb,
+      config.installationSummariesContainerName,
+    );
 
-const notifyQueueClient = new QueueClient(
-  config.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
-  config.NOTIFICATIONS_QUEUE_NAME,
-);
+  const messageModel = new MessageModel(
+    apiCosmosdb.container(MESSAGE_COLLECTION_NAME),
+    "messages" as NonEmptyString,
+  );
 
-// ---------------------------------------------------------------------------
-// Durable Functions — Activities
-// ---------------------------------------------------------------------------
-df.app.activity(CreateOrUpdateActivityName, {
-  handler: getCreateOrUpdateActivityHandler(
-    nhPartitionFactory,
-    telemetryClient,
-    comCosmosInstallationSummaryAdapter,
-  ),
-});
+  const blobService = createBlobService(
+    config.comStorageConnectionString,
+    config.apiStorageAccountConnectionString,
+  );
 
-df.app.activity(DeleteActivityName, {
-  handler: getDeleteActivityHandler(
-    nhPartitionFactory,
-    telemetryClient,
-    comCosmosInstallationSummaryAdapter,
-  ),
-});
+  const serviceModel = new ServiceModel(
+    apiCosmosdb.container(SERVICE_COLLECTION_NAME),
+  );
 
-// ---------------------------------------------------------------------------
-// Durable Functions — Orchestrators
-// ---------------------------------------------------------------------------
-df.app.orchestration(
-  "HandleNHCreateOrUpdateInstallationCallOrchestrator",
-  getCreateOrUpdateOrchestratorHandler({
-    createOrUpdateActivity: getCreateOrUpdateCallableActivity(retryOptions),
-  }),
-);
+  const profileModel = new ProfileModel(
+    apiCosmosdb.container(PROFILE_COLLECTION_NAME),
+  );
 
-df.app.orchestration(
-  "HandleNHDeleteInstallationCallOrchestrator",
-  getDeleteOrchestratorHandler({
-    deleteInstallationActivity: getDeleteCallableActivity(retryOptions),
-  }),
-);
+  const sessionManagerClient = createClient<"ApiKeyAuth">({
+    baseUrl: config.sessionManager.baseUrl,
+    fetchApi: httpOrHttpsApiFetch,
+    withDefaults: (op) => (params) =>
+      op({
+        ...params,
+        ApiKeyAuth: config.sessionManager.apiKey,
+      }),
+  });
 
-// ---------------------------------------------------------------------------
-// Queue Triggers
-// ---------------------------------------------------------------------------
+  const notifyQueueClient = new QueueClient(
+    config.comStorageConnectionString,
+    "push-notifications",
+  );
 
-// Output binding for the notify-message queue (used by HandleNHNotificationCall)
-const notifyQueueOutput = output.storageQueue({
-  connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
-  queueName: config.NOTIFY_MESSAGE_QUEUE_NAME,
-});
-
-app.storageQueue("HandleNHNotificationCall", {
-  connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
-  extraInputs: [df.input.durableClient()],
-  extraOutputs: [notifyQueueOutput],
-  handler: getNotificationCallHandler(notifyQueueOutput),
-  queueName: config.NOTIFICATIONS_QUEUE_NAME,
-});
-
-app.storageQueue("HandleNHNotifyMessageCallActivityQueue", {
-  connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
-  handler: (notifyRequest) =>
-    handleNotifyMessage(
-      notifyRequest,
-      config.FISCAL_CODE_NOTIFICATION_BLACKLIST,
-      telemetryClient,
-      nhPartitionFactory,
-    ),
-  queueName: config.NOTIFY_MESSAGE_QUEUE_NAME,
-});
-
-// ---------------------------------------------------------------------------
-// HTTP Triggers
-// ---------------------------------------------------------------------------
-
-app.http("Info", {
-  authLevel: "anonymous",
-  handler: Info(cosmosdbClient),
-  methods: ["GET"],
-  route: "api/v1/info",
-});
-
-app.http("Notify", {
-  authLevel: "function",
-  handler: Notify(
-    getUserProfileReader(profileModel),
-    getUserSessionStatusReader(sessionManagerClient),
-    getMessageWithContent(messageModel, blobService),
-    getService(serviceModel),
-    sendNotification(notifyQueueClient),
-    telemetryClient,
-  ),
-  methods: ["POST"],
-  route: "api/v1/notify",
-});
-
-const main = (config: Config) => {
-  const telemetryService = new TelemetryClient(telemetryClient);
-  const updateInstallationDispatchQueueName = "update-installations-dispatch";
+  // TODO: This factory breaks clean architecture, remove this in future.
+  const nhPartitionFactory = new NotificationHubPartitionFactory([
+    config.notificationHub.partition1,
+    config.notificationHub.partition2,
+    config.notificationHub.partition3,
+    config.notificationHub.partition4,
+  ]);
 
   const notificationHubClients = [
     new NotificationHubsClient(
-      config.notificationHub.partition1.connectionString,
+      config.notificationHub.partition1.endpoint,
       config.notificationHub.partition1.name,
     ),
 
     new NotificationHubsClient(
-      config.notificationHub.partition2.connectionString,
+      config.notificationHub.partition2.endpoint,
       config.notificationHub.partition2.name,
     ),
 
     new NotificationHubsClient(
-      config.notificationHub.partition3.connectionString,
+      config.notificationHub.partition3.endpoint,
       config.notificationHub.partition3.name,
     ),
 
     new NotificationHubsClient(
-      config.notificationHub.partition4.connectionString,
+      config.notificationHub.partition4.endpoint,
       config.notificationHub.partition4.name,
     ),
   ];
+
+  const telemetryService = new TelemetryClient(telemetryClient);
+  const updateInstallationDispatchQueueName = "update-installations-dispatch";
 
   const notifiationHubInstallationAdapter =
     new NotificationHubInstallationAdapter(notificationHubClients, [
@@ -269,6 +176,82 @@ const main = (config: Config) => {
     connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
     queueName: updateInstallationDispatchQueueName,
   });
+
+  app.http("Info", {
+    authLevel: "anonymous",
+    handler: getInfoHandler(
+      apiCosmosdb,
+      pushCosmosDb,
+      blobService,
+      notificationHubClients,
+    ),
+    methods: ["GET"],
+    route: "api/v1/info",
+  });
+
+  df.app.orchestration(
+    "HandleNHCreateOrUpdateInstallationCallOrchestrator",
+    getCreateOrUpdateOrchestratorHandler({
+      createOrUpdateActivity: getCreateOrUpdateCallableActivity(retryOptions),
+    }),
+  );
+
+  const notifyQueueOutput = output.storageQueue({
+    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    queueName: "notify-messages",
+  });
+
+  app.storageQueue("HandleNHNotificationCall", {
+    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    extraInputs: [df.input.durableClient()],
+    extraOutputs: [notifyQueueOutput],
+    handler: getNotificationCallHandler(notifyQueueOutput),
+    queueName: "push-notifications",
+  });
+
+  app.storageQueue("HandleNHNotifyMessageCallActivityQueue", {
+    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    handler: (notifyRequest) =>
+      handleNotifyMessage(notifyRequest, telemetryClient, nhPartitionFactory),
+    queueName: "notify-messages",
+  });
+
+  app.http("Notify", {
+    authLevel: "function",
+    handler: Notify(
+      getUserProfileReader(profileModel),
+      getUserSessionStatusReader(sessionManagerClient),
+      getMessageWithContent(messageModel, blobService),
+      getService(serviceModel),
+      sendNotification(notifyQueueClient),
+      telemetryClient,
+    ),
+    methods: ["POST"],
+    route: "api/v1/notify",
+  });
+
+  df.app.activity(CreateOrUpdateActivityName, {
+    handler: getCreateOrUpdateActivityHandler(
+      nhPartitionFactory,
+      telemetryClient,
+      comCosmosInstallationSummaryAdapter,
+    ),
+  });
+
+  df.app.activity(DeleteActivityName, {
+    handler: getDeleteActivityHandler(
+      nhPartitionFactory,
+      telemetryClient,
+      comCosmosInstallationSummaryAdapter,
+    ),
+  });
+
+  df.app.orchestration(
+    "HandleNHDeleteInstallationCallOrchestrator",
+    getDeleteOrchestratorHandler({
+      deleteInstallationActivity: getDeleteCallableActivity(retryOptions),
+    }),
+  );
 
   app.cosmosDB("InstallationUpdateDispatcher", {
     connection: "COM_COSMOS",
