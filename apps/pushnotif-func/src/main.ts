@@ -64,6 +64,8 @@ import {
 } from "./services/readers";
 import { initTelemetryClient } from "./utils/appinsights";
 import { NotificationHubPartitionFactory } from "./utils/notificationhub-service-partition";
+import { createMassiveNotificationJob } from "./adapters/functions/create-massive-notification-job";
+import { CosmosMassiveJobsAdapter } from "./adapters/cosmos/massive-jobs";
 
 // eslint-disable-next-line max-lines-per-function
 const main = (config: Config) => {
@@ -287,6 +289,18 @@ const main = (config: Config) => {
       notifiationHubInstallationAdapter,
     ),
     queueName: updateInstallationDispatchQueueName,
+  });
+
+  const massiveJobsRepository = new CosmosMassiveJobsAdapter(
+    pushCosmosDb,
+    config.massiveJobsContainerName,
+  );
+
+  app.http("CreateMassiveNotificationJob", {
+    authLevel: "admin",
+    handler: createMassiveNotificationJob(massiveJobsRepository),
+    methods: ["POST"],
+    route: "api/v1/massive-notification-job",
   });
 };
 
