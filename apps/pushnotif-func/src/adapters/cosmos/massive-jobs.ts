@@ -1,6 +1,7 @@
-import { ErrorInternal, ErrorNotFound } from "@/domain/error";
-import { MassiveJob, MassiveJobsRepository } from "@/domain/massive-jobs";
 import { Container, Database, ErrorResponse } from "@azure/cosmos";
+
+import { ErrorInternal, ErrorNotFound } from "../../domain/error";
+import { MassiveJob, MassiveJobsRepository } from "../../domain/massive-jobs";
 
 export class CosmosMassiveJobsAdapter implements MassiveJobsRepository {
   container: Container;

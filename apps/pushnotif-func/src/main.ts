@@ -35,10 +35,13 @@ import {
   loadConfigFromEnvironment,
 } from "./adapters/config";
 import { CosmosInstallationSummaryAdapter } from "./adapters/cosmos/installation";
+import { CosmosMassiveJobsAdapter } from "./adapters/cosmos/massive-jobs";
+import { createMassiveNotificationJobHandler } from "./adapters/functions/create-massive-notification-job";
 import { getInfoHandler } from "./adapters/functions/info";
 import getUpdateInstallationHandler from "./adapters/functions/update-installation";
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
+import { CreateMassiveNotificationJob } from "./domain/use-cases/create-massive-notification-job";
 import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
@@ -64,8 +67,6 @@ import {
 } from "./services/readers";
 import { initTelemetryClient } from "./utils/appinsights";
 import { NotificationHubPartitionFactory } from "./utils/notificationhub-service-partition";
-import { createMassiveNotificationJob } from "./adapters/functions/create-massive-notification-job";
-import { CosmosMassiveJobsAdapter } from "./adapters/cosmos/massive-jobs";
 
 // eslint-disable-next-line max-lines-per-function
 const main = (config: Config) => {
@@ -295,10 +296,15 @@ const main = (config: Config) => {
     pushCosmosDb,
     config.massiveJobsContainerName,
   );
+  const createMassiveNotificationJobUseCase = new CreateMassiveNotificationJob(
+    massiveJobsRepository,
+  );
 
   app.http("CreateMassiveNotificationJob", {
     authLevel: "admin",
-    handler: createMassiveNotificationJob(massiveJobsRepository),
+    handler: createMassiveNotificationJobHandler(
+      createMassiveNotificationJobUseCase,
+    ),
     methods: ["POST"],
     route: "api/v1/massive-notification-job",
   });

@@ -19,7 +19,7 @@ export const MassiveJobSchema = z.object({
     .number()
     .int()
     .positive()
-    .default(() => Date.now() + 60 * 60 * 1000), // default to 1 hour from now
+    .default(() => Math.floor((Date.now() + 60 * 60 * 1000) / 1000)), // default to 1 hour from now
   status: MassiveJobStatusEnum,
   title: z.string().min(1),
 });

@@ -1,15 +1,12 @@
-import { ErrorInternal } from "@/domain/error";
-import { MassiveJobSchema, MassiveJobsRepository } from "@/domain/massive-jobs";
 import { HttpHandler } from "@azure/functions";
-import { randomUUID } from "crypto";
 
-const CreateMassiveJobPayloadSchema = MassiveJobSchema.omit({
-  id: true,
-  status: true,
-});
+import { ErrorInternal, ErrorValidation } from "../../domain/error";
+import { CreateMassiveNotificationJob } from "../../domain/use-cases/create-massive-notification-job";
 
-export const createMassiveNotificationJob =
-  (repository: MassiveJobsRepository): HttpHandler =>
+export const createMassiveNotificationJobHandler =
+  (
+    createMassiveNotificationJobUseCase: CreateMassiveNotificationJob,
+  ): HttpHandler =>
   async (request) => {
     let rawBody: unknown;
     try {
@@ -22,31 +19,31 @@ export const createMassiveNotificationJob =
       };
     }
 
-    const parsed = CreateMassiveJobPayloadSchema.safeParse(rawBody);
-    if (!parsed.success) {
-      return {
-        body: JSON.stringify({
-          details: parsed.error.issues,
-          error: "Bad Request",
-        }),
-        headers: { "Content-Type": "application/json" },
-        status: 400,
-      };
-    }
+    const result = await createMassiveNotificationJobUseCase.execute(rawBody);
 
-    const job = {
-      ...parsed.data,
-      id: randomUUID(),
-      status: "CREATED" as const,
-    };
-
-    const result = await repository.createMassiveJob(job);
-    if (result instanceof ErrorInternal) {
-      return {
-        body: JSON.stringify({ error: result.message }),
-        headers: { "Content-Type": "application/json" },
-        status: 500,
-      };
+    if (result instanceof Error) {
+      if (result instanceof ErrorValidation) {
+        return {
+          body: JSON.stringify({
+            details: result.issues,
+            error: "Bad Request",
+          }),
+          headers: { "Content-Type": "application/json" },
+          status: 400,
+        };
+      } else if (result instanceof ErrorInternal) {
+        return {
+          body: JSON.stringify({ error: result.message }),
+          headers: { "Content-Type": "application/json" },
+          status: 500,
+        };
+      } else {
+        return {
+          body: JSON.stringify({ error: "Unexpected error" }),
+          headers: { "Content-Type": "application/json" },
+          status: 500,
+        };
+      }
     }
 
     return {
