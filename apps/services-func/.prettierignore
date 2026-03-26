@@ -1,5 +1,7 @@
+bin
+coverage
 dist
 generated
 openapi
+node_modules
 vitest.config.mjs*
-coverage

@@ -1,3 +1,7 @@
-dist
+bin
 coverage
-vitest.config.js*
+dist
+generated
+openapi
+node_modules
+vitest.config.mjs*

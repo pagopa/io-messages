@@ -1,4 +1,7 @@
+bin
+coverage
 dist
 generated
 openapi
-coverage
+node_modules
+vitest.config.mjs*
