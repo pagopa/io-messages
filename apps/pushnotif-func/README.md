@@ -10,9 +10,6 @@ It uses the Azure Notification Hub to enable the push notifications and the devi
 cp local.settings.json.example local.settings.json
 pnpm install
 
-#if you are using devContainer than execute this command before pnpm extensions:install
-export FUNCTIONS_WORKER_RUNTIME=node
-
 #requires .net installed on your machine. Tested with v8.0 and 9.0
 pnpm build
 pnpm start
