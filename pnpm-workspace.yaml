@@ -21,9 +21,6 @@ packageExtensions:
   "@pagopa/openapi-codegen-ts@*":
     dependencies:
       fp-ts: ^2.10.5
-  "@pagopa/express-azure-functions@*":
-    dependencies:
-      "@azure/functions": ^3.2.0
 
 cleanupUnusedCatalogs: false
 
