@@ -82,6 +82,7 @@
     },
     "//#test:coverage": {
       "dependsOn": [
+        "^build",
         "^generate"
       ],
       "inputs": [
