@@ -1,7 +1,6 @@
 import { Database } from "@azure/cosmos";
 import { HttpHandler } from "@azure/functions";
 import { NotificationHubsClient } from "@azure/notification-hubs";
-import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { BlobService } from "azure-storage";
 import { readFile } from "fs/promises";
 import { join } from "path";
@@ -53,21 +52,16 @@ export const getInfoHandler =
   (
     apiCosmosdb: Database,
     pushCosmosdb: Database,
-    blobService: BlobServiceWithFallBack,
+    blobService: BlobService,
     notificationHubClients: NotificationHubsClient[],
   ): HttpHandler =>
   async () => {
     const healthChecks = [
       cosmosHealthcheck(apiCosmosdb),
       cosmosHealthcheck(pushCosmosdb),
-      blobServiceHealthcheck(blobService.primary),
+      blobServiceHealthcheck(blobService),
       ...notificationHubClients.map(notificationHubHealthcheck),
     ];
-
-    // This is temporary, we will remove migration toolkit soon.
-    if (blobService.secondary) {
-      healthChecks.push(blobServiceHealthcheck(blobService.secondary));
-    }
 
     const healthChecksResults = await Promise.all(healthChecks);
 
