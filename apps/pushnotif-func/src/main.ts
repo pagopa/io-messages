@@ -41,11 +41,6 @@ import getUpdateInstallationHandler from "./adapters/functions/update-installati
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
 import {
-  blobServiceHealthcheck,
-  cosmosHealthcheck,
-  notificationHubHealthcheck,
-} from "./domain/health";
-import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
   getCallableActivity as getCreateOrUpdateCallableActivity,
@@ -70,6 +65,9 @@ import {
 } from "./services/readers";
 import { initTelemetryClient } from "./utils/appinsights";
 import { NotificationHubPartitionFactory } from "./utils/notificationhub-service-partition";
+import { cosmosHealthcheck } from "./adapters/cosmos/health";
+import { blobServiceHealthcheck } from "./adapters/blob-service/health";
+import { notificationHubHealthcheck } from "./adapters/notification-hub/health";
 
 // eslint-disable-next-line max-lines-per-function
 const main = (config: Config) => {

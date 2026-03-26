@@ -7,9 +7,7 @@ export const getHealthHandler =
   (healthChecks: HealthCheck[]): HttpHandler =>
   async () => {
     try {
-      const healthChecksResults = await Promise.all(
-        healthChecks.map((hc) => hc()),
-      );
+      const healthChecksResults = await Promise.all(healthChecks);
 
       const errors = healthChecksResults.filter(
         (result) => result instanceof ErrorInternal,
