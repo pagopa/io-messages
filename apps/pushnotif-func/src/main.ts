@@ -29,16 +29,22 @@ import { pipe } from "fp-ts/lib/function";
 import nodeFetch from "node-fetch";
 
 import { TelemetryClient } from "./adapters/appinsights";
+import { blobServiceHealthcheck } from "./adapters/blob-service/health";
 import {
   Config,
   configFromEnvironment,
   loadConfigFromEnvironment,
 } from "./adapters/config";
+import { cosmosHealthcheck } from "./adapters/cosmos/health";
 import { CosmosInstallationSummaryAdapter } from "./adapters/cosmos/installation";
+import { getHealthHandler } from "./adapters/functions/health";
 import { getInfoHandler } from "./adapters/functions/info";
 import getUpdateInstallationHandler from "./adapters/functions/update-installation";
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
+import { notificationHubHealthcheck } from "./adapters/notification-hub/health";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
+import { HealthCheckUseCase } from "./domain/use-cases/health";
+import { InfoUseCase } from "./domain/use-cases/info";
 import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
@@ -177,16 +183,33 @@ const main = (config: Config) => {
     queueName: updateInstallationDispatchQueueName,
   });
 
+  const infoUseCase = new InfoUseCase();
   app.http("Info", {
     authLevel: "anonymous",
-    handler: getInfoHandler(
-      apiCosmosdb,
-      pushCosmosDb,
-      blobService,
-      notificationHubClients,
-    ),
+    handler: getInfoHandler(infoUseCase),
     methods: ["GET"],
     route: "api/v1/info",
+  });
+
+  const healthChecks = [
+    () => cosmosHealthcheck(apiCosmosdb),
+    () => cosmosHealthcheck(pushCosmosDb),
+    () => blobServiceHealthcheck(blobService.primary),
+    ...notificationHubClients.map(
+      (client, i) => () => notificationHubHealthcheck(client, i + 1),
+    ),
+  ];
+  // This is temporary, we will remove migration toolkit soon.
+  const secondaryBlobService = blobService.secondary;
+  if (secondaryBlobService) {
+    healthChecks.push(() => blobServiceHealthcheck(secondaryBlobService));
+  }
+  const healthCheckUseCase = new HealthCheckUseCase(healthChecks);
+  app.http("Health", {
+    authLevel: "anonymous",
+    handler: getHealthHandler(healthCheckUseCase),
+    methods: ["GET"],
+    route: "api/v1/health",
   });
 
   df.app.orchestration(
