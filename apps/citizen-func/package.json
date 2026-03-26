@@ -24,13 +24,13 @@
     "start": "func start --port 7072"
   },
   "devDependencies": {
-    "@pagopa/eslint-config": "^4.0.3",
-    "@pagopa/openapi-codegen-ts": "^14.0.0",
-    "@types/express": "^4.17.11",
-    "@types/html-to-text": "^1.4.31",
-    "@types/node": "^22.19.15",
-    "@types/redis": "^2.8.28",
-    "@vitest/coverage-v8": "^3.1.2",
+    "@pagopa/eslint-config": "catalog:",
+    "@pagopa/openapi-codegen-ts": "catalog:",
+    "@types/express": "catalog:",
+    "@types/html-to-text": "catalog:",
+    "@types/node": "catalog:",
+    "@types/redis": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "eslint": "8.57.1",
     "modclean": "^3.0.0-beta.1",
     "prettier": "3.2.5",
@@ -42,14 +42,14 @@
   "dependencies": {
     "@azure/cosmos": "catalog:",
     "@azure/functions": "catalog:",
-    "@azure/identity": "^4.5.0",
-    "@pagopa/io-functions-commons": "^30.0.0",
-    "@pagopa/ts-commons": "^13.1.2",
-    "applicationinsights": "^2.9.5",
-    "azure-storage": "^2.10.3",
-    "express": "^4.15.3",
-    "fp-ts": "^2.10.5",
-    "io-ts": "^2.2.16",
-    "redis": "^4.6.15"
+    "@azure/identity": "catalog:",
+    "@pagopa/io-functions-commons": "catalog:",
+    "@pagopa/ts-commons": "catalog:",
+    "applicationinsights": "catalog:",
+    "azure-storage": "catalog:",
+    "express": "catalog:",
+    "fp-ts": "catalog:",
+    "io-ts": "catalog:",
+    "redis": "catalog:"
   }
 }

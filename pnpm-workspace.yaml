@@ -28,3 +28,20 @@ packageExtensions:
 catalog:
   '@azure/cosmos': ^4.0.0
   '@azure/functions': ^4.4.0
+  '@azure/identity': ^4.5.0
+  '@pagopa/eslint-config': ^4.0.3
+  '@pagopa/io-functions-commons': ^30.0.0
+  '@pagopa/openapi-codegen-ts': ^14.0.0
+  '@types/redis': ^2.8.28
+  '@vitest/coverage-v8': ^3.1.2
+  '@pagopa/ts-commons': ^13.1.2
+  '@types/express': ^4.17.12
+  '@types/html-to-text': ^1.4.31
+  '@types/node': ^22.19.15
+  'abort-controller': ^3.0.0
+  'applicationinsights': ^2.9.5
+  'azure-storage': ^2.10.5
+  'express': ^4.15.3
+  'fp-ts': ^2.16.11
+  'io-ts': ^2.2.22
+  'redis': ^4.7.1
