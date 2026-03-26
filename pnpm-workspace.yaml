@@ -1,5 +1,8 @@
-cleanupUnusedCatalogs: true
-linkWorkspacePackages: true
+packages:
+  - apps/*
+  - bruno
+  - packages/*
+
 packageExtensions:
   "@azure/cosmos@*":
     dependencies:
@@ -21,7 +24,9 @@ packageExtensions:
   "@pagopa/express-azure-functions@*":
     dependencies:
       "@azure/functions": ^3.2.0
+
+cleanupUnusedCatalogs: false
+
+linkWorkspacePackages: true
+
 packageImportMethod: clone-or-copy
-packages:
-  - apps/*
-  - packages/*
