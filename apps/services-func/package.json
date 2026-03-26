@@ -5,7 +5,9 @@
   "type": "commonjs",
   "main": "dist/main.js",
   "scripts": {
-    "build": "pnpm bump:openapi && pnpm generate && tsc",
+    "clean": "shx rm -rf dist",
+    "clean:generated": "shx rm -rf ./src/generated",
+    "build": "tsc",
     "watch": "tsc --w",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -14,7 +16,7 @@
     "start": "func start --port 7073",
     "version": "pnpm bump:openapi",
     "bump:openapi": "pnpm node copy-commons-definitions.js && bundle-api-spec -i openapi/index.yaml -o openapi/index.yaml -V $npm_package_version && git add openapi/index.yaml",
-    "generate": "pnpm generate:definitions && pnpm generate:pagopa-ecommerce && pnpm generate:notify && pnpm generate:remote-content",
+    "generate": "pnpm bump:openapi && pnpm generate:definitions && pnpm generate:pagopa-ecommerce && pnpm generate:notify && pnpm generate:remote-content",
     "generate:definitions": "rimraf ./src/generated/definitions && shx mkdir -p ./src/generated/definitions && gen-api-models --api-spec ./openapi/index.yaml --no-strict --out-dir ./src/generated/definitions",
     "generate:remote-content": "rimraf src/generated/remote-content && gen-api-models --api-spec https://raw.githubusercontent.com/pagopa/io-functions-services-messages/master/openapi/index_external.yaml --no-strict --out-dir src/generated/remote-content --request-types --response-decoders --client",
     "generate:pagopa-ecommerce": "rimraf src/generated/pagopa-ecommerce && shx mkdir -p src/generated/pagopa-ecommerce && gen-api-models --api-spec ./openapi/pagopa-ecommerce.yaml --no-strict --out-dir ./src/generated/pagopa-ecommerce --request-types --response-decoders --client",
@@ -38,7 +40,6 @@
     "eslint": "8.57.1",
     "prettier": "3.2.5",
     "rimraf": "^6.0.1",
-    "shx": "^0.3.4",
     "typescript": "^5.8.3",
     "vite": "^6.3.2",
     "vitest": "^3.1.2"

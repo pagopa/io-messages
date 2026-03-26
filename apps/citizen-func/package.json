@@ -5,7 +5,9 @@
   "type": "commonjs",
   "main": "dist/main.js",
   "scripts": {
-    "build": "pnpm openapi:bundle && pnpm generate && tsc",
+    "clean": "shx rm -rf dist",
+    "clean:generated": "shx rm -rf ./src/generated",
+    "build": "tsc",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "openapi:bundle": "pnpm bundle-api-spec -i openapi/index.yaml -o openapi/index.yaml -V $npm_package_version",
@@ -13,7 +15,7 @@
     "version": "pnpm openapi:bundle",
     "lint": "eslint --fix src",
     "lint:check": "eslint src",
-    "generate": "pnpm generate:definitions",
+    "generate": "pnpm openapi:bundle && pnpm generate:definitions",
     "generate:definitions": "shx rm -rf src/generated/definitions && shx mkdir -p src/generated/definitions && gen-api-models --api-spec ./openapi/index.yaml --no-strict --out-dir ./src/generated/definitions",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -32,7 +34,6 @@
     "modclean": "^3.0.0-beta.1",
     "prettier": "3.2.5",
     "rimraf": "^6.0.1",
-    "shx": "^0.3.4",
     "typescript": "^5.8.3",
     "vite": "^6.3.2",
     "vitest": "^3.1.2"
