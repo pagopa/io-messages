@@ -2,49 +2,27 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build",
-        "^typecheck"
-      ],
-      "inputs": [
-        "src/**/*.ts"
-      ],
-      "outputs": [
-        "dist/**"
-      ],
+      "dependsOn": ["^build", "^typecheck"],
+      "inputs": ["src/**/*.ts"],
+      "outputs": ["dist/**"],
       "outputLogs": "errors-only"
     },
     "lint": {
-      "inputs": [
-        "src/**/*.ts"
-      ],
+      "inputs": ["src/**/*.ts"],
       "outputLogs": "errors-only"
     },
     "lint:check": {
-      "inputs": [
-        "src/**/*.ts"
-      ],
+      "inputs": ["src/**/*.ts"],
       "outputLogs": "errors-only"
     },
     "test": {
-      "dependsOn": [
-        "^test"
-      ],
-      "inputs": [
-        "src/**/*.spec.ts",
-        "src/**/*.test.ts"
-      ],
+      "dependsOn": ["^test"],
+      "inputs": ["src/**/*.spec.ts", "src/**/*.test.ts"],
       "outputLogs": "errors-only"
     },
     "test:coverage": {
-      "dependsOn": [
-        "^test",
-        "build"
-      ],
-      "inputs": [
-        "src/**/*.spec.ts",
-        "src/**/*.test.ts"
-      ],
+      "dependsOn": ["^test", "build"],
+      "inputs": ["src/**/*.spec.ts", "src/**/*.test.ts"],
       "outputLogs": "full"
     },
     "format": {
@@ -54,44 +32,22 @@
       "outputLogs": "errors-only"
     },
     "typecheck": {
-      "dependsOn": [
-        "^build",
-        "generate"
-      ],
-      "inputs": [
-        "src/**/*.ts"
-      ],
+      "dependsOn": ["^build", "generate"],
+      "inputs": ["src/**/*.ts"],
       "outputLogs": "errors-only"
     },
     "openapi:bundle": {
-      "inputs": [
-        "openapi/index.yaml.template"
-      ],
-      "outputs": [
-        "openapi/index.yaml",
-        "openapi/common-definitions.yaml"
-      ]
+      "inputs": ["openapi/index.yaml.template"],
+      "outputs": ["openapi/index.yaml", "openapi/common-definitions.yaml"]
     },
     "generate": {
-      "dependsOn": [
-        "openapi:bundle"
-      ],
-      "outputs": [
-        "src/generated/**"
-      ]
+      "dependsOn": ["openapi:bundle"],
+      "outputs": ["src/generated/**"]
     },
     "//#test:coverage": {
-      "dependsOn": [
-        "^build",
-        "^generate"
-      ],
-      "inputs": [
-        "apps/**/src/**/*.ts",
-        "packages/**/src/**/*.ts"
-      ],
-      "outputs": [
-        "coverage"
-      ],
+      "dependsOn": ["^build", "^generate"],
+      "inputs": ["apps/**/src/**/*.ts", "packages/**/src/**/*.ts"],
+      "outputs": ["coverage"],
       "outputLogs": "errors-only"
     },
     "version": {}
