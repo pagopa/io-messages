@@ -34,7 +34,7 @@ Turbo caches outputs; use `--force` to bust the cache when needed.
 
 ## Architecture
 
-This is a **Yarn(v4 PnP) workspaces + Turborepo monorepo** hosting multiple Azure Functions apps and a shared package.
+This is a **PNPM workspaces + Turborepo monorepo** hosting multiple Azure Functions apps and a shared package.
 
 **`apps/`** — Ten independent Azure Functions applications, each deployable separately:
 
@@ -56,15 +56,7 @@ This is a **Yarn(v4 PnP) workspaces + Turborepo monorepo** hosting multiple Azur
 
 ## Three Coexisting Architectural Styles
 
-### Older style (e.g., `citizen-func`, `services-func`)
-
-- Uses **`fp-ts`** (`pipe`, `flow`, `TaskEither`, `Option`, `Either`) and **`io-ts`** for runtime validation
-- Azure Functions registered via `@pagopa/express-azure-functions` wrapping Express handlers
-- Function entrypoints in `src/functions/<FunctionName>/index.ts` + `handler.ts`
-- Models from `@pagopa/io-functions-commons`
-- Entrypoint: per-function `index.ts`
-
-### Mixed style (e.g., `pushnotif-func`, `rc-func`)
+### Older style (e.g., `pushnotif-func`, `rc-func`)
 
 - Uses **`fp-ts`** (`pipe`, `flow`, `TaskEither`, `Option`, `Either`) and **`io-ts`** for runtime validation
 - Azure Functions v4 SDK (`@azure/functions`) registered directly in `src/main.ts`
@@ -78,6 +70,8 @@ This is a **Yarn(v4 PnP) workspaces + Turborepo monorepo** hosting multiple Azur
 - Domain use-cases are plain classes with `execute()` methods; dependencies injected via constructor
 - `zod` used in `io-messages-common`; newer apps may use it too
 - `@` path alias resolves to `./src`
+
+### Java Application(Springboot) adapted to be compatibile with turborepo (e.g., `payment-updater`, `reminder`)
 
 ## Key Conventions
 
