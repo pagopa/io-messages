@@ -9,6 +9,7 @@
     "clean": "shx rm -rf dist",
     "clean:generated": "shx rm -rf ./src/generated",
     "build": "tsc",
+    "build:watch": "pnpm run build --watch",
     "start": "func start --port 7075",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",

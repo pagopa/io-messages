@@ -8,7 +8,7 @@
     "clean": "shx rm -rf dist",
     "clean:generated": "shx rm -rf ./src/generated",
     "build": "tsc",
-    "watch": "tsc --w",
+    "build:watch": "pnpm run build --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint --fix src",

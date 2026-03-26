@@ -8,6 +8,7 @@
     "clean": "shx rm -rf dist",
     "clean:generated": "shx rm -rf ./src/generated",
     "build": "tsc",
+    "build:watch": "pnpm run build --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "openapi:bundle": "pnpm bundle-api-spec -i openapi/index.yaml -o openapi/index.yaml -V $npm_package_version",
