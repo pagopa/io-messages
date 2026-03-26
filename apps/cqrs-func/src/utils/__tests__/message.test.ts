@@ -7,7 +7,6 @@ import {
   aRetrievedMessageWithoutContent,
 } from "../../__mocks__/message";
 
-import * as messageUtils from "../message-utils";
 import { enrichMessageContent } from "../message";
 import { vi, beforeEach, describe, test, expect } from "vitest";
 
@@ -35,10 +34,6 @@ describe("enrichMessageContent", () => {
   });
 
   test("should enrich a message with its' related content", async () => {
-    vi.spyOn(messageUtils, "getContentFromBlob").mockImplementation(() =>
-      TE.right(O.some(aMessageContent)),
-    );
-
     const result = await enrichMessageContent(
       mockMessageModel as any,
       mockBlobService as any,
@@ -56,7 +51,7 @@ describe("enrichMessageContent", () => {
   });
 
   test("should return a retriable error if blob storage cannot retrieve the message content", async () => {
-    vi.spyOn(messageUtils, "getContentFromBlob").mockImplementation(() =>
+    getContentFromBlobMock.mockImplementation(() =>
       TE.left(new Error("cannot reach blob storage")),
     );
 
@@ -77,9 +72,7 @@ describe("enrichMessageContent", () => {
   });
 
   test("should return a not retriable error if message content cannot be found", async () => {
-    vi.spyOn(messageUtils, "getContentFromBlob").mockImplementation(() =>
-      TE.right(O.none),
-    );
+    getContentFromBlobMock.mockImplementation(() => TE.right(O.none));
 
     const result = await enrichMessageContent(
       mockMessageModel as any,

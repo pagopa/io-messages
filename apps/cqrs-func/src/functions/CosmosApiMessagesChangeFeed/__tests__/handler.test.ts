@@ -4,7 +4,6 @@ import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 
-import * as messageUtils from "../../../utils/message-utils";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import {
   MessageModel,
@@ -70,7 +69,7 @@ const defaultStartTime = 0;
 describe("CosmosApiMessagesChangeFeed", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(messageUtils, "getContentFromBlob").mockImplementation(() =>
+    getContentFromBlobMock.mockImplementation(() =>
       TE.right(O.some(aMessageContent)),
     );
   });
@@ -90,7 +89,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       aListOfRightMessages,
     );
 
-    expect(messageUtils.getContentFromBlob).toHaveBeenCalledTimes(
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(
       aListOfRightMessages.length,
     );
 
@@ -120,7 +119,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       })),
     );
 
-    expect(messageUtils.getContentFromBlob).not.toHaveBeenCalled();
+    expect(getContentFromBlobMock).not.toHaveBeenCalled();
 
     expect(mockQueueClient.sendMessage).not.toHaveBeenCalled();
     expect(res).toMatchObject(
@@ -148,7 +147,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       ],
     );
 
-    expect(messageUtils.getContentFromBlob).toHaveBeenCalledTimes(
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(
       aListOfRightMessages.length,
     );
 
@@ -184,7 +183,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       ],
     );
 
-    expect(messageUtils.getContentFromBlob).toHaveBeenCalledTimes(
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(
       aListOfRightMessages.length,
     );
 
@@ -209,9 +208,7 @@ describe("CosmosApiMessagesChangeFeed - Errors", () => {
   `(
     "should store error if a content cannot be retrieved",
     async ({ getContentResult }) => {
-      vi.spyOn(messageUtils, "getContentFromBlob").mockImplementationOnce(
-        () => getContentResult,
-      );
+      getContentFromBlobMock.mockImplementationOnce(() => getContentResult);
 
       const handler = handleMessageChange(
         mockMessageModel,
@@ -227,7 +224,7 @@ describe("CosmosApiMessagesChangeFeed - Errors", () => {
         aListOfRightMessages,
       );
 
-      expect(messageUtils.getContentFromBlob).toHaveBeenCalledTimes(
+      expect(getContentFromBlobMock).toHaveBeenCalledTimes(
         aListOfRightMessages.length,
       );
 
@@ -242,7 +239,7 @@ describe("CosmosApiMessagesChangeFeed - Errors", () => {
   );
 
   test("should send only decoded retrieved messages", async () => {
-    vi.spyOn(messageUtils, "getContentFromBlob").mockImplementation(() =>
+    getContentFromBlobMock.mockImplementation(() =>
       TE.right(O.some(aMessageContent)),
     );
     const handler = handleMessageChange(
@@ -259,7 +256,7 @@ describe("CosmosApiMessagesChangeFeed - Errors", () => {
       [...aListOfRightMessages, { error: "error" }],
     );
 
-    expect(messageUtils.getContentFromBlob).toHaveBeenCalledTimes(
+    expect(getContentFromBlobMock).toHaveBeenCalledTimes(
       aListOfRightMessages.length,
     );
 
