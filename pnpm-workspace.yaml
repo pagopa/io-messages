@@ -1,3 +1,6 @@
+cleanupUnusedCatalogs: false
+linkWorkspacePackages: true
+packageImportMethod: clone-or-copy
 packages:
   - apps/*
   - bruno
@@ -22,8 +25,5 @@ packageExtensions:
     dependencies:
       fp-ts: ^2.10.5
 
-cleanupUnusedCatalogs: false
-
-linkWorkspacePackages: true
-
-packageImportMethod: clone-or-copy
+catalog:
+  '@azure/cosmos': ^4.0.0

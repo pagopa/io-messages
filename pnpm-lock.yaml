@@ -4,7 +4,13 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-packageExtensionsChecksum: sha256-JIwZifm/7wBcV801o/tkWR9okCGC9/BCkmwQTXxsNIg=
+catalogs:
+  default:
+    '@azure/cosmos':
+      specifier: ^4.0.0
+      version: 4.9.0
+
+packageExtensionsChecksum: sha256-gQUzjD9AFPUBzPI/RqxGSDK6bMlEBpqmUNsHscwSUVg=
 
 importers:
 
@@ -38,7 +44,7 @@ importers:
   apps/citizen-func:
     dependencies:
       '@azure/cosmos':
-        specifier: ^4.0.0
+        specifier: 'catalog:'
         version: 4.9.0
       '@azure/functions':
         specifier: ^4.4.0
@@ -117,7 +123,7 @@ importers:
   apps/cqrs-func:
     dependencies:
       '@azure/cosmos':
-        specifier: ^4.0.0
+        specifier: 'catalog:'
         version: 4.9.0
       '@azure/functions':
         specifier: ^4.4.0
@@ -226,7 +232,7 @@ importers:
   apps/etl-func:
     dependencies:
       '@azure/cosmos':
-        specifier: ^4.0.0
+        specifier: 'catalog:'
         version: 4.9.0
       '@azure/data-tables':
         specifier: ^13.3.0
@@ -293,7 +299,7 @@ importers:
   apps/ops-func:
     dependencies:
       '@azure/cosmos':
-        specifier: ^4.2.0
+        specifier: 'catalog:'
         version: 4.9.0
       '@azure/functions':
         specifier: ^4.4.0
@@ -344,7 +350,7 @@ importers:
   apps/pushnotif-func:
     dependencies:
       '@azure/cosmos':
-        specifier: ^4.0.0
+        specifier: 'catalog:'
         version: 4.9.0
       '@azure/functions':
         specifier: ^4.4.0
@@ -447,7 +453,7 @@ importers:
   apps/rc-func:
     dependencies:
       '@azure/cosmos':
-        specifier: ^4.0.0
+        specifier: 'catalog:'
         version: 4.9.0
       '@azure/functions':
         specifier: ^4.4.0
@@ -577,7 +583,7 @@ importers:
   apps/services-func:
     dependencies:
       '@azure/cosmos':
-        specifier: ^4.0.0
+        specifier: 'catalog:'
         version: 4.9.0
       '@azure/functions':
         specifier: ^4.4.0
