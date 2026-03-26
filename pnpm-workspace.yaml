@@ -27,3 +27,4 @@ packageExtensions:
 
 catalog:
   '@azure/cosmos': ^4.0.0
+  '@azure/functions': ^4.4.0

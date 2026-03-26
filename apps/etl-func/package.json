@@ -23,7 +23,7 @@
     "@azure/cosmos": "catalog:",
     "@azure/data-tables": "^13.3.0",
     "@azure/event-hubs": "^5.12.2",
-    "@azure/functions": "^4.4.0",
+    "@azure/functions": "catalog:",
     "@azure/identity": "^4.5.0",
     "@azure/storage-blob": "^12.26.0",
     "applicationinsights": "^2.9.5",

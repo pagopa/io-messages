@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@azure/cosmos": "catalog:",
-    "@azure/functions": "^4.4.0",
+    "@azure/functions": "catalog:",
     "@azure/identity": "^4.5.0",
     "@azure/logger": "^1.1.4",
     "@azure/storage-blob": "^12.26.0",

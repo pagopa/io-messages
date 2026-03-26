@@ -9,6 +9,9 @@ catalogs:
     '@azure/cosmos':
       specifier: ^4.0.0
       version: 4.9.0
+    '@azure/functions':
+      specifier: ^4.4.0
+      version: 4.11.2
 
 packageExtensionsChecksum: sha256-gQUzjD9AFPUBzPI/RqxGSDK6bMlEBpqmUNsHscwSUVg=
 
@@ -47,7 +50,7 @@ importers:
         specifier: 'catalog:'
         version: 4.9.0
       '@azure/functions':
-        specifier: ^4.4.0
+        specifier: 'catalog:'
         version: 4.11.2
       '@azure/identity':
         specifier: ^4.5.0
@@ -126,7 +129,7 @@ importers:
         specifier: 'catalog:'
         version: 4.9.0
       '@azure/functions':
-        specifier: ^4.4.0
+        specifier: 'catalog:'
         version: 4.11.2
       '@azure/identity':
         specifier: ^4.5.0
@@ -241,7 +244,7 @@ importers:
         specifier: ^5.12.2
         version: 5.12.2
       '@azure/functions':
-        specifier: ^4.4.0
+        specifier: 'catalog:'
         version: 4.11.2
       '@azure/identity':
         specifier: ^4.5.0
@@ -302,7 +305,7 @@ importers:
         specifier: 'catalog:'
         version: 4.9.0
       '@azure/functions':
-        specifier: ^4.4.0
+        specifier: 'catalog:'
         version: 4.11.2
       '@azure/identity':
         specifier: ^4.5.0
@@ -353,7 +356,7 @@ importers:
         specifier: 'catalog:'
         version: 4.9.0
       '@azure/functions':
-        specifier: ^4.4.0
+        specifier: 'catalog:'
         version: 4.11.2
       '@azure/identity':
         specifier: ^4.5.0
@@ -456,7 +459,7 @@ importers:
         specifier: 'catalog:'
         version: 4.9.0
       '@azure/functions':
-        specifier: ^4.4.0
+        specifier: 'catalog:'
         version: 4.11.2
       '@azure/identity':
         specifier: ^4.5.0
@@ -543,7 +546,7 @@ importers:
   apps/send-func:
     dependencies:
       '@azure/functions':
-        specifier: ^4.4.0
+        specifier: 'catalog:'
         version: 4.11.2
       applicationinsights:
         specifier: ^2.9.5
@@ -586,7 +589,7 @@ importers:
         specifier: 'catalog:'
         version: 4.9.0
       '@azure/functions':
-        specifier: ^4.4.0
+        specifier: 'catalog:'
         version: 4.11.2
       '@azure/identity':
         specifier: ^4.5.0
@@ -728,7 +731,7 @@ importers:
   packages/io-messages-common:
     dependencies:
       '@azure/functions':
-        specifier: ^4.4.0
+        specifier: 'catalog:'
         version: 4.11.2
       pino:
         specifier: ^9.6.0

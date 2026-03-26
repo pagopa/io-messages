@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@azure/cosmos": "catalog:",
-    "@azure/functions": "^4.4.0",
+    "@azure/functions": "catalog:",
     "@azure/identity": "^4.5.0",
     "@azure/notification-hubs": "^1.2.3",
     "@azure/service-bus": "^7.9.4",
