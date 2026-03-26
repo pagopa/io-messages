@@ -6,8 +6,7 @@
   "scripts": {
     "build": "mvn clean package",
     "test": "mvn test",
-    "test:coverage": "echo 1",
-    "coverage": "mvn test jacoco:report",
+    "test:coverage": "mvn test jacoco:report",
     "start": "mvn spring-boot:run",
     "format": "mvn fmt:format",
     "format:check": "mvn fmt:check",
