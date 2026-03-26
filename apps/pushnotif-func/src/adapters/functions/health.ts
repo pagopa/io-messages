@@ -1,17 +1,11 @@
-import { HealthCheck } from "@/domain/health";
+import { HealthCheckUseCase } from "@/domain/use-cases/health";
 import { HttpHandler } from "@azure/functions";
 
-import { ErrorInternal } from "../../domain/error";
-
 export const getHealthHandler =
-  (healthChecks: HealthCheck[]): HttpHandler =>
+  (healthChecks: HealthCheckUseCase): HttpHandler =>
   async () => {
     try {
-      const healthChecksResults = await Promise.all(healthChecks);
-
-      const errors = healthChecksResults.filter(
-        (result) => result instanceof ErrorInternal,
-      );
+      const errors = await healthChecks.execute();
 
       return {
         body:

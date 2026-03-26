@@ -1,5 +1,6 @@
-import { ErrorInternal } from "../../domain/error";
 import { Database } from "@azure/cosmos";
+
+import { ErrorInternal } from "../../domain/error";
 
 export const cosmosHealthcheck = async (
   db: Database,

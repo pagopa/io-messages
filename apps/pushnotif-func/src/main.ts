@@ -29,17 +29,22 @@ import { pipe } from "fp-ts/lib/function";
 import nodeFetch from "node-fetch";
 
 import { TelemetryClient } from "./adapters/appinsights";
+import { blobServiceHealthcheck } from "./adapters/blob-service/health";
 import {
   Config,
   configFromEnvironment,
   loadConfigFromEnvironment,
 } from "./adapters/config";
+import { cosmosHealthcheck } from "./adapters/cosmos/health";
 import { CosmosInstallationSummaryAdapter } from "./adapters/cosmos/installation";
 import { getHealthHandler } from "./adapters/functions/health";
 import { getInfoHandler } from "./adapters/functions/info";
 import getUpdateInstallationHandler from "./adapters/functions/update-installation";
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
+import { notificationHubHealthcheck } from "./adapters/notification-hub/health";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
+import { HealthCheckUseCase } from "./domain/use-cases/health";
+import { InfoUseCase } from "./domain/use-cases/info";
 import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
@@ -65,9 +70,6 @@ import {
 } from "./services/readers";
 import { initTelemetryClient } from "./utils/appinsights";
 import { NotificationHubPartitionFactory } from "./utils/notificationhub-service-partition";
-import { cosmosHealthcheck } from "./adapters/cosmos/health";
-import { blobServiceHealthcheck } from "./adapters/blob-service/health";
-import { notificationHubHealthcheck } from "./adapters/notification-hub/health";
 
 // eslint-disable-next-line max-lines-per-function
 const main = (config: Config) => {
@@ -181,9 +183,10 @@ const main = (config: Config) => {
     queueName: updateInstallationDispatchQueueName,
   });
 
+  const infoUseCase = new InfoUseCase();
   app.http("Info", {
     authLevel: "anonymous",
-    handler: getInfoHandler(),
+    handler: getInfoHandler(infoUseCase),
     methods: ["GET"],
     route: "api/v1/info",
   });
@@ -193,7 +196,7 @@ const main = (config: Config) => {
     () => cosmosHealthcheck(pushCosmosDb),
     () => blobServiceHealthcheck(blobService.primary),
     ...notificationHubClients.map(
-      (client) => () => notificationHubHealthcheck(client),
+      (client, i) => () => notificationHubHealthcheck(client, i + 1),
     ),
   ];
   // This is temporary, we will remove migration toolkit soon.
@@ -201,9 +204,10 @@ const main = (config: Config) => {
   if (secondaryBlobService) {
     healthChecks.push(() => blobServiceHealthcheck(secondaryBlobService));
   }
+  const healthCheckUseCase = new HealthCheckUseCase(healthChecks);
   app.http("Health", {
     authLevel: "anonymous",
-    handler: getHealthHandler(healthChecks),
+    handler: getHealthHandler(healthCheckUseCase),
     methods: ["GET"],
     route: "api/v1/health",
   });

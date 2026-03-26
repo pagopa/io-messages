@@ -1,5 +1,6 @@
-import { ErrorInternal } from "../../domain/error";
 import { BlobService } from "azure-storage";
+
+import { ErrorInternal } from "../../domain/error";
 
 export const blobServiceHealthcheck = async (
   service: BlobService,
