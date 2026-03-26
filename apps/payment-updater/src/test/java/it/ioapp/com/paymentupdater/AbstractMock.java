@@ -20,6 +20,7 @@ import it.ioapp.com.paymentupdater.model.Payment;
 import it.ioapp.com.paymentupdater.model.PaymentRetry;
 import it.ioapp.com.paymentupdater.repository.PaymentRepository;
 import it.ioapp.com.paymentupdater.repository.PaymentRetryRepository;
+import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.ApiClient;
 import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.api.PaymentRequestsApi;
 import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFault;
 import it.ioapp.com.paymentupdater.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFaultPaymentProblemJson;
@@ -111,6 +112,7 @@ public abstract class AbstractMock {
   public void mockGetPaymentInfo() {
     PaymentRequestsGetResponse paymentRequest = new PaymentRequestsGetResponse();
     paymentRequest.setDueDate("2022-05-15");
+    Mockito.when(mockPaymentApi.getApiClient()).thenReturn(Mockito.mock(ApiClient.class));
     Mockito.when(mockPaymentApi.getPaymentRequestInfo(Mockito.anyString()))
         .thenReturn(paymentRequest);
   }
@@ -129,6 +131,7 @@ public abstract class AbstractMock {
             mapper.writeValueAsString(problem).getBytes(),
             Charset.defaultCharset());
 
+    Mockito.when(mockPaymentApi.getApiClient()).thenReturn(Mockito.mock(ApiClient.class));
     Mockito.when(mockPaymentApi.getPaymentRequestInfo(Mockito.anyString()))
         .thenThrow(errorResponse);
   }
@@ -144,6 +147,7 @@ public abstract class AbstractMock {
             mapper.writeValueAsString(ecommerceResponse).getBytes(),
             Charset.defaultCharset());
 
+    Mockito.when(mockPaymentApi.getApiClient()).thenReturn(Mockito.mock(ApiClient.class));
     Mockito.when(mockPaymentApi.getPaymentRequestInfo(Mockito.anyString()))
         .thenThrow(errorResponse);
   }
