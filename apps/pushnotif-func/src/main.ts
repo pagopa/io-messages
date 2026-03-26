@@ -35,10 +35,16 @@ import {
   loadConfigFromEnvironment,
 } from "./adapters/config";
 import { CosmosInstallationSummaryAdapter } from "./adapters/cosmos/installation";
+import { getHealthHandler } from "./adapters/functions/health";
 import { getInfoHandler } from "./adapters/functions/info";
 import getUpdateInstallationHandler from "./adapters/functions/update-installation";
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
+import {
+  blobServiceHealthcheck,
+  cosmosHealthcheck,
+  notificationHubHealthcheck,
+} from "./domain/health";
 import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
@@ -179,14 +185,29 @@ const main = (config: Config) => {
 
   app.http("Info", {
     authLevel: "anonymous",
-    handler: getInfoHandler(
-      apiCosmosdb,
-      pushCosmosDb,
-      blobService,
-      notificationHubClients,
-    ),
+    handler: getInfoHandler(),
     methods: ["GET"],
     route: "api/v1/info",
+  });
+
+  const healthChecks = [
+    () => cosmosHealthcheck(apiCosmosdb),
+    () => cosmosHealthcheck(pushCosmosDb),
+    () => blobServiceHealthcheck(blobService.primary),
+    ...notificationHubClients.map(
+      (client) => () => notificationHubHealthcheck(client),
+    ),
+  ];
+  // This is temporary, we will remove migration toolkit soon.
+  const secondaryBlobService = blobService.secondary;
+  if (secondaryBlobService) {
+    healthChecks.push(() => blobServiceHealthcheck(secondaryBlobService));
+  }
+  app.http("Health", {
+    authLevel: "anonymous",
+    handler: getHealthHandler(healthChecks),
+    methods: ["GET"],
+    route: "api/v1/health",
   });
 
   df.app.orchestration(
