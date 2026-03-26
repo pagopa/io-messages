@@ -22,14 +22,15 @@ If you use a code editor that doesn't support Dev Container, you can still run i
 
 1. Follow the instruction of the following chapter ("Using local machine") to setup your local environment
 2. Run devcontainer from your terminal
+
    ```bash
-   pnpm devcontainer up --workspace-folder .
-   pnpm devcontainer exec -- workspace-folder . /bin/bash
+   pnpm exec devcontainer up --workspace-folder .
+   pnpm exec devcontainer exec -- workspace-folder . /bin/bash
    ```
 
 ### Using local machine
 
-This project use specific versions of `node`, `yarn` and `terraform`. To make sure your development setup matches with production follow the recommended installation methods.
+This project use specific versions of `node`, `pnpm` and `terraform`. To make sure your development setup matches with production follow the recommended installation methods.
 
 1. Install and configure the follow tool in your machine
 
@@ -46,10 +47,7 @@ This project use specific versions of `node`, `yarn` and `terraform`. To make su
     nodenv install
    ```
 
-3. Install `yarn` using [corepack](https://nodejs.org/api/corepack.html) (Node Package Manager version manager, it is distributed with `node`). This step will also install all the required dependencies
-
-   > [!IMPORTANT]
-   > pnpm uses Plug and Play for dependency management. For more information, see: [Yarn Plug’n’Play](https://pnpm.io/features/pnp)
+3. Install `pnpm` using [corepack](https://nodejs.org/api/corepack.html) (Node Package Manager version manager, it is distributed with `node`). This step will also install all the required dependencies
 
    ```bash
    corepack enable
@@ -57,6 +55,7 @@ This project use specific versions of `node`, `yarn` and `terraform`. To make su
    ```
 
 4. Build all the workspaces contained by this repo
+
    ```bash
    pnpm build
    ```
@@ -75,7 +74,7 @@ pnpm changeset
 
 ## Useful commands
 
-This project uses `yarn` and `turbo` with workspaces to manage projects and dependencies. Here is a list of useful commands to work in this repo.
+This project uses `pnpm` and `turbo` with workspaces to manage projects and dependencies. Here is a list of useful commands to work in this repo.
 
 ### Work with workspaces
 
@@ -88,7 +87,7 @@ pnpm turbo build
 # to execute COMMAND on WORKSPACE_NAME
 pnpm --filter WORKSPACE_NAME run command
 # to execute COMMAD on all workspaces
-pnpm --filter foreach run command
+pnpm -r run command
 
 # run unit tests on citizen-func
 pnpm --filter citizen-func run test
@@ -109,5 +108,5 @@ pnpm add turbo
 pnpm --filter citizen-func add -D vitest
 
 # add zod as dependency on each workspace
-pnpm --filter foreach add zod
+pnpm -r add zod
 ```
