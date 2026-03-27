@@ -19,17 +19,17 @@
     "@pagopa/eslint-config": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "eslint": "8.57.1",
+    "eslint": "catalog:",
     "prettier": "^3.2.5",
     "tsc-alias": "^1.8.10",
-    "typescript": "^5.8.3",
-    "vitest": "^3.1.2"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "dependencies": {
     "@azure/functions": "catalog:",
-    "pino": "^9.6.0",
-    "ulid": "^3.0.0",
-    "zod": "^4.0.0"
+    "pino": "catalog:",
+    "ulid": "catalog:",
+    "zod": "catalog:"
   },
   "scripts": {
     "build": "tsc && tsc-alias",

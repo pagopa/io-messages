@@ -21,28 +21,28 @@
   },
   "dependencies": {
     "@azure/cosmos": "catalog:",
-    "@azure/data-tables": "^13.3.0",
-    "@azure/event-hubs": "^5.12.2",
+    "@azure/data-tables": "catalog:",
+    "@azure/event-hubs": "catalog:",
     "@azure/functions": "catalog:",
     "@azure/identity": "catalog:",
-    "@azure/storage-blob": "^12.26.0",
+    "@azure/storage-blob": "catalog:",
     "applicationinsights": "catalog:",
-    "avsc": "^5.7.7",
+    "avsc": "catalog:",
     "io-messages-common": "workspace:^",
-    "pino": "^9.6.0",
+    "pino": "catalog:",
     "redis": "catalog:",
-    "ulid": "^3.0.0",
-    "zod": "^4.0.0"
+    "ulid": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@pagopa/eslint-config": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "esbuild": "^0.25.2",
-    "eslint": "8.57.1",
-    "prettier": "3.2.5",
-    "typescript": "^5.8.3",
-    "vitest": "^3.1.2"
+    "esbuild": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "license": "UNLICENSED"
 }

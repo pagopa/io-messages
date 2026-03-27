@@ -31,13 +31,13 @@
     "@types/node": "catalog:",
     "@types/redis": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "eslint": "8.57.1",
-    "modclean": "^3.0.0-beta.1",
-    "prettier": "3.2.5",
+    "eslint": "catalog:",
+    "modclean": "catalog:",
+    "prettier": "catalog:",
     "rimraf": "^6.0.1",
-    "typescript": "^5.8.3",
-    "vite": "^6.3.2",
-    "vitest": "^3.1.2"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   },
   "dependencies": {
     "@azure/cosmos": "catalog:",
