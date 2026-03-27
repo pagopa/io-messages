@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     name: Deploy
-    uses: pagopa/dx/.github/workflows/release-azure-appsvc-v1.yaml@036f374aa1642e539f4856696cafdf0c723ae0ab
+    uses: pagopa/dx/.github/workflows/release-azure-appsvc-v1.yaml@af75138d40e08b98e63696e26ce545004a769565
     secrets: inherit
     with:
       workspace_name: rc-func
