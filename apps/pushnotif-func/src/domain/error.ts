@@ -1,12 +1,14 @@
 // TODO: move this file to io-messages-common
 
 export class ErrorValidation extends Error {
-  cause: unknown;
   code = "400";
 
-  constructor(name: string, cause: unknown = "") {
+  constructor(
+    name: string,
+    private cause: unknown = "",
+    public issues?: unknown[],
+  ) {
     super(name);
-    this.cause = cause;
   }
 }
 
