@@ -20,19 +20,19 @@
     "@azure/cosmos": "catalog:",
     "@azure/functions": "catalog:",
     "@azure/identity": "catalog:",
-    "@azure/logger": "^1.1.4",
-    "@azure/storage-blob": "^12.26.0",
+    "@azure/logger": "catalog:",
+    "@azure/storage-blob": "catalog:",
     "io-messages-common": "workspace:^",
-    "zod": "^4.0.0"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@pagopa/eslint-config": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "esbuild": "^0.25.2",
-    "eslint": "8.57.1",
-    "prettier": "3.2.5",
-    "typescript": "^5.8.3",
-    "vitest": "^3.1.2"
+    "esbuild": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

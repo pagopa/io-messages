@@ -30,20 +30,20 @@
     "@pagopa/openapi-codegen-ts": "catalog:",
     "@types/express": "catalog:",
     "@types/node": "catalog:",
-    "@types/node-fetch": "^2.5.7",
+    "@types/node-fetch": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "eslint": "8.57.1",
-    "prettier": "3.2.5",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
     "rimraf": "^6.0.1",
-    "typescript": "^5.8.3",
-    "vite": "^6.3.2",
-    "vitest": "^3.1.2"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   },
   "dependencies": {
     "@azure/cosmos": "catalog:",
     "@azure/functions": "catalog:",
     "@azure/identity": "catalog:",
-    "@azure/storage-queue": "^12.4.0",
+    "@azure/storage-queue": "catalog:",
     "@pagopa/io-functions-commons": "catalog:",
     "@pagopa/ts-commons": "catalog:",
     "abort-controller": "catalog:",
@@ -52,9 +52,9 @@
     "express": "catalog:",
     "fp-ts": "catalog:",
     "io-ts": "catalog:",
-    "node-fetch": "^2.6.7",
+    "node-fetch": "catalog:",
     "redis": "catalog:",
-    "ts-pattern": "^4.0.5",
-    "winston": "^3.2.1"
+    "ts-pattern": "catalog:",
+    "winston": "catalog:"
   }
 }
