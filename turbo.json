@@ -2,9 +2,21 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": ["^build", "^typecheck"],
-      "inputs": ["src/**/*.ts"],
+      "dependsOn": ["^clean", "clean", "^generate", "generate", "^build"],
+      "inputs": ["src/**/*.ts", "package.json", "tsconfig.json"],
       "outputs": ["dist/**"],
+      "outputLogs": "errors-only"
+    },
+    "typecheck": {
+      "dependsOn": ["^build", "^typecheck"],
+      "inputs": ["src/**/*.ts", "package.json", "tsconfig.json"],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "format": {
+      "outputLogs": "errors-only"
+    },
+    "format:check": {
       "outputLogs": "errors-only"
     },
     "lint": {
@@ -16,40 +28,29 @@
       "outputLogs": "errors-only"
     },
     "test": {
-      "dependsOn": ["^test"],
-      "inputs": ["src/**/*.spec.ts"],
-      "outputLogs": "errors-only"
-    },
-    "test:coverage": {
-      "dependsOn": ["^test", "build"],
-      "inputs": ["src/**/*.spec.ts"],
+      "dependsOn": ["^build", "^test"],
+      "inputs": ["src/**/*.ts"],
       "outputLogs": "full"
     },
-    "format": {
-      "outputLogs": "errors-only"
-    },
-    "format:check": {
-      "outputLogs": "errors-only"
-    },
-    "typecheck": {
-      "dependsOn": ["^build", "generate"],
+    "test:coverage": {
+      "dependsOn": ["^build", "^test"],
       "inputs": ["src/**/*.ts"],
+      "outputs": ["coverage/**"],
       "outputLogs": "errors-only"
-    },
-    "openapi:bundle": {
-      "inputs": ["openapi/index.yaml.template"],
-      "outputs": ["openapi/index.yaml", "openapi/common-definitions.yaml"]
     },
     "generate": {
-      "dependsOn": ["openapi:bundle"],
-      "outputs": ["src/generated/**"]
-    },
-    "//#test:coverage": {
-      "dependsOn": ["^generate"],
-      "inputs": ["apps/**/src/**/*.ts", "packages/**/src/**/*.ts"],
-      "outputs": ["coverage"],
+      "inputs": [
+        "avro/**/*.json",
+        "openapi/**/*.yaml",
+        "openapi/**/*.yaml.template"
+      ],
+      "outputs": ["src/generated/**/*.ts"],
       "outputLogs": "errors-only"
     },
-    "version": {}
+    "version": {},
+    "clean": {
+      "inputs": ["dist/**"],
+      "cache": false
+    }
   }
 }

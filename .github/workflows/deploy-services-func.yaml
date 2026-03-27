@@ -8,11 +8,15 @@ on:
 
 jobs:
   services_func_deploy:
-    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@763c7a410ae0ede3c259b57666b047aaf27cf7cc
+    uses: pagopa/dx/.github/workflows/release-azure-appsvc-v1.yaml@af75138d40e08b98e63696e26ce545004a769565
     secrets: inherit
     with:
       workspace_name: services-func
       environment: app-prod
       resource_group_name: io-p-itn-com-rg-01
-      function_app_name: io-p-itn-com-services-func-01
-      use_staging_slot: true
+      web_app_name: io-p-itn-com-services-func-01
+      disable_auto_staging_deploy: true
+    permissions:
+      attestations: write
+      contents: read
+      id-token: write

@@ -4,7 +4,7 @@ COPY . /usr/src/app
 
 RUN func extensions install
 
-RUN yarn install
-RUN yarn build
+RUN pnpm install
+RUN pnpm build
 
 CMD ["func", "start", "--javascript"]

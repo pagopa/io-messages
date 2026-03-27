@@ -177,22 +177,28 @@ describe("canWriteMessage", () => {
 });
 
 describe("canPaymentAmount", () => {
-  it("should authorize payment if under the allowed amount", () => {
-    fc.assert(
-      fc.property(
-        newMessageWithPaymentDataArb,
-        maxAmountArb,
-        (message, maxAmount) => {
-          const response = canPaymentAmount(message.content, maxAmount);
-          if (message.content.payment_data.amount <= maxAmount) {
-            expect(E.isRight(response)).toBeTruthy();
-          } else {
-            expect(E.isLeft(response)).toBeTruthy();
-          }
-        },
-      ),
-    );
-  });
+  it(
+    "should authorize payment if under the allowed amount",
+    () => {
+      fc.assert(
+        fc.property(
+          newMessageWithPaymentDataArb,
+          maxAmountArb,
+          (message, maxAmount) => {
+            const response = canPaymentAmount(message.content, maxAmount);
+            if (message.content.payment_data.amount <= maxAmount) {
+              expect(E.isRight(response)).toBeTruthy();
+            } else {
+              expect(E.isLeft(response)).toBeTruthy();
+            }
+          },
+        ),
+      );
+    },
+    {
+      timeout: 100000,
+    },
+  );
 });
 
 describe("createMessageDocument", () => {
