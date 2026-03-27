@@ -16,7 +16,7 @@ services:
       REDIS_ARGS: "--requirepass local"
 
   azurite:
-    image: "mcr.microsoft.com/azure-storage/azurite:latest"
+    image: "mcr.microsoft.com/azure-storage/azurite:latest@sha256:647c63a91102a9d8e8000aab803436e1fc85fbb285e7ce830a82ee5d6661cf37"
     command: "azurite --blobHost 0.0.0.0 --tableHost 0.0.0.0 --queueHost 0.0.0.0 --skipApiVersionCheck"
     ports:
       - "10000:10000"
@@ -24,7 +24,7 @@ services:
       - "10002:10002"
 
   azurite-setup:
-    image: node:22-alpine
+    image: node:22-alpine@sha256:4d64b49e6c891c8fc821007cb1cdc6c0db7773110ac2c34bf2e6960adef62ed3
     depends_on:
       - azurite
     working_dir: /app
