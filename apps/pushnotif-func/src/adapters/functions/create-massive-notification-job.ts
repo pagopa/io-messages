@@ -1,11 +1,11 @@
 import { HttpHandler } from "@azure/functions";
 
 import { ErrorInternal, ErrorValidation } from "../../domain/error";
-import { CreateMassiveNotificationJob } from "../../domain/use-cases/create-massive-notification-job";
+import { CreateMassiveNotificationJobUseCase } from "../../domain/use-cases/create-massive-notification-job";
 
 export const createMassiveNotificationJobHandler =
   (
-    createMassiveNotificationJobUseCase: CreateMassiveNotificationJob,
+    createMassiveNotificationJobUseCase: CreateMassiveNotificationJobUseCase,
   ): HttpHandler =>
   async (request) => {
     let rawBody: unknown;

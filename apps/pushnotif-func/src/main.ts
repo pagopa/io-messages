@@ -41,7 +41,7 @@ import { getInfoHandler } from "./adapters/functions/info";
 import getUpdateInstallationHandler from "./adapters/functions/update-installation";
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
-import { CreateMassiveNotificationJob } from "./domain/use-cases/create-massive-notification-job";
+import { CreateMassiveNotificationJobUseCase } from "./domain/use-cases/create-massive-notification-job";
 import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
@@ -296,9 +296,8 @@ const main = (config: Config) => {
     pushCosmosDb,
     config.massiveJobsContainerName,
   );
-  const createMassiveNotificationJobUseCase = new CreateMassiveNotificationJob(
-    massiveJobsRepository,
-  );
+  const createMassiveNotificationJobUseCase =
+    new CreateMassiveNotificationJobUseCase(massiveJobsRepository);
 
   app.http("CreateMassiveNotificationJob", {
     authLevel: "admin",

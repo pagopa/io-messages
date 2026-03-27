@@ -8,7 +8,7 @@ const CreateMassiveJobPayloadSchema = MassiveJobSchema.omit({
   status: true,
 });
 
-export class CreateMassiveNotificationJob {
+export class CreateMassiveNotificationJobUseCase {
   constructor(private repository: MassiveJobsRepository) {}
 
   async execute(
