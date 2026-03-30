@@ -3,6 +3,11 @@
   "main": "dist/func.js",
   "version": "1.0.2",
   "type": "module",
+  "files": [
+    "dist/*",
+    "host.json",
+    "package.json"
+  ],
   "scripts": {
     "clean": "shx rm -rf dist",
     "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node22 --outdir=dist --packages=external",

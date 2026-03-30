@@ -4,6 +4,11 @@
   "version": "2.0.3",
   "license": "UNLICENSED",
   "type": "commonjs",
+  "files": [
+    "dist/*",
+    "host.json",
+    "package.json"
+  ],
   "scripts": {
     "clean": "shx rm -rf dist",
     "clean:generated": "shx rm -rf ./src/generated",

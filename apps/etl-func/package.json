@@ -3,7 +3,9 @@
   "main": "dist/func.js",
   "type": "module",
   "files": [
-    "host.json"
+    "dist/*",
+    "host.json",
+    "package.json"
   ],
   "version": "1.0.9",
   "scripts": {

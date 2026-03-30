@@ -5,6 +5,11 @@
   "license": "UNLICENSED",
   "type": "commonjs",
   "main": "dist/main.js",
+  "files": [
+    "dist/*",
+    "host.json",
+    "package.json"
+  ],
   "scripts": {
     "clean": "shx rm -rf dist",
     "clean:generated": "shx rm -rf ./src/generated",
