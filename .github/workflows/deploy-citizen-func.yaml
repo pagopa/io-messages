@@ -8,11 +8,15 @@ on:
 
 jobs:
   citizen_func_deploy:
-    uses: pagopa/dx/.github/workflows/function_app_deploy.yaml@1a293db2ffa9121e95250a6ad7382b7608b41f05
+    uses: pagopa/dx/.github/workflows/release-azure-appsvc-v1.yaml@af75138d40e08b98e63696e26ce545004a769565
     secrets: inherit
     with:
       workspace_name: citizen-func
       environment: app-prod
       resource_group_name: io-p-itn-com-rg-01
-      function_app_name: io-p-itn-com-citizen-func-02
-      use_staging_slot: true
+      web_app_name: io-p-itn-com-citizen-func-02
+      disable_auto_staging_deploy: true
+    permissions:
+      attestations: write
+      contents: read
+      id-token: write

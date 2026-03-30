@@ -8,14 +8,11 @@ It uses the Azure Notification Hub to enable the push notifications and the devi
 
 ```shell
 cp local.settings.json.example local.settings.json
-yarn install
-
-#if you are using devContainer than execute this command before yarn extensions:install
-export FUNCTIONS_WORKER_RUNTIME=node
+pnpm install
 
 #requires .net installed on your machine. Tested with v8.0 and 9.0
-yarn build
-yarn start
+pnpm build
+pnpm start
 ```
 
 ## Environment variables

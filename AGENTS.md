@@ -4,29 +4,29 @@
 
 ```bash
 # Build all workspaces (from root)
-yarn build
+pnpm build
 
 # Run all tests (from root)
-yarn test
+pnpm test
 
 # Lint all workspaces (from root) [Prefer linting single workspaces to get more focused feedback]
-yarn lint
+pnpm lint
 
 # Run the full code review check (typecheck + format + lint + coverage)
-yarn code-review
+pnpm code-review
 
 # Run tests for a single workspace
-yarn workspace <workspace-name> test
-# e.g.: yarn workspace send-func run test
+pnpm --filter <workspace-name> test
+# e.g.: pnpm --filter send-func run test
 
 # Run a single test file
-yarn workspace <workspace-name> test -- src/<apps/package>/workspace-name/\*\*/__tests__/my-use-case.test.ts
+pnpm --filter <workspace-name> test -- src/<apps/package>/workspace-name/\*\*/__tests__/my-use-case.test.ts
 
 # Typecheck a single workspace
-yarn workspace <workspace-name> typecheck
+pnpm --filter <workspace-name> typecheck
 
 # Lint a single workspace
-yarn workspace <workspace-name> lint
+pnpm --filter <workspace-name> lint
 
 ```
 
@@ -34,7 +34,7 @@ Turbo caches outputs; use `--force` to bust the cache when needed.
 
 ## Architecture
 
-This is a **Yarn(v4 PnP) workspaces + Turborepo monorepo** hosting multiple Azure Functions apps and a shared package.
+This is a **PNPM workspaces + Turborepo monorepo** hosting multiple Azure Functions apps and a shared package.
 
 **`apps/`** — Ten independent Azure Functions applications, each deployable separately:
 
@@ -56,15 +56,7 @@ This is a **Yarn(v4 PnP) workspaces + Turborepo monorepo** hosting multiple Azur
 
 ## Three Coexisting Architectural Styles
 
-### Older style (e.g., `citizen-func`, `services-func`)
-
-- Uses **`fp-ts`** (`pipe`, `flow`, `TaskEither`, `Option`, `Either`) and **`io-ts`** for runtime validation
-- Azure Functions registered via `@pagopa/express-azure-functions` wrapping Express handlers
-- Function entrypoints in `src/functions/<FunctionName>/index.ts` + `handler.ts`
-- Models from `@pagopa/io-functions-commons`
-- Entrypoint: per-function `index.ts`
-
-### Mixed style (e.g., `pushnotif-func`, `rc-func`)
+### Older style (e.g., `pushnotif-func`, `rc-func`)
 
 - Uses **`fp-ts`** (`pipe`, `flow`, `TaskEither`, `Option`, `Either`) and **`io-ts`** for runtime validation
 - Azure Functions v4 SDK (`@azure/functions`) registered directly in `src/main.ts`
@@ -79,6 +71,8 @@ This is a **Yarn(v4 PnP) workspaces + Turborepo monorepo** hosting multiple Azur
 - `zod` used in `io-messages-common`; newer apps may use it too
 - `@` path alias resolves to `./src`
 
+### Java Application(Springboot) adapted to be compatibile with turborepo (e.g., `payment-updater`, `reminder`)
+
 ## Key Conventions
 
 **OpenAPI codegen**: Many apps generate TypeScript types from OpenAPI specs. The pipeline is `openapi:bundle` → `generate` → types land in `src/generated/definitions/`. Never edit generated files manually.
@@ -90,16 +84,16 @@ This is a **Yarn(v4 PnP) workspaces + Turborepo monorepo** hosting multiple Azur
 **Changesets**: Every PR with a version-bumping change must include a changeset file:
 
 ```bash
-yarn changeset
+pnpm changeset
 ```
 
 **Adding dependencies**:
 
 ```bash
 # Add to a specific app
-yarn workspace <workspace-name> add <package>
+pnpm --filter <workspace-name> add <package>
 # Add dev dependency
-yarn workspace <workspace-name> add -D <package>
+pnpm --filter <workspace-name> add -D <package>
 ```
 
 **Perform Linting**: On modified `apps` or `package` always perform a lint on modified workspaces.
