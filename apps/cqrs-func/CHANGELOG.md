@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 2.0.2
+
+### Patch Changes
+
+- 0555a04: Migrate Monorepo from Yarn PnP to pnpm
+
 ## 2.0.1
 
 ### Patch Changes

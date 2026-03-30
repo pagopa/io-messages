@@ -1,5 +1,11 @@
 # io-messages-common
 
+## 1.4.2
+
+### Patch Changes
+
+- 0555a04: Migrate Monorepo from Yarn PnP to pnpm
+
 ## 1.4.1
 
 ### Patch Changes

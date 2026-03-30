@@ -1,11 +1,16 @@
 ### Changelog
 
+## 2.3.6
+
+### Patch Changes
+
+- 0555a04: Migrate Monorepo from Yarn PnP to pnpm
+
 ## 2.3.5
 
 ### Patch Changes
 
 - 7833aa3: Move all the dependency initialization in main function.
-
   - Removed the legacy IConfig type (io-ts) in favour of the new Zod-based Config
     schema, including all required environment variables
   - Moved all dependencies and function initializations inside the main function
@@ -32,7 +37,6 @@
 ### Patch Changes
 
 - 8ad97d2: Update error types for the notification repository.
-
   - Add `ErrorTooManyRequests`
   - Make updateInstallation return `ErrorTooManyRequests`
   - Make updateInstallation return `ErrorInternal`
