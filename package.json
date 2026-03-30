@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "clean": "turbo run clean",
-    "code-review": "turbo run generate && turbo run typecheck format:check lint:check test:coverage",
+    "code-review": "turbo run typecheck format:check lint:check test:coverage",
     "lint": "turbo run lint",
     "format": "turbo run format",
     "test": "turbo run test",

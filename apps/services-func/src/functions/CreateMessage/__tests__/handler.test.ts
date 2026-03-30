@@ -8,8 +8,8 @@ import { initAppInsights } from "@pagopa/ts-commons/lib/appinsights";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as fc from "fast-check";
 import * as E from "fp-ts/lib/Either";
-import { none, some } from "fp-ts/lib/Option";
 import * as O from "fp-ts/lib/Option";
+import { none, some } from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { describe, expect, it, vi } from "vitest";
 
@@ -177,28 +177,22 @@ describe("canWriteMessage", () => {
 });
 
 describe("canPaymentAmount", () => {
-  it(
-    "should authorize payment if under the allowed amount",
-    () => {
-      fc.assert(
-        fc.property(
-          newMessageWithPaymentDataArb,
-          maxAmountArb,
-          (message, maxAmount) => {
-            const response = canPaymentAmount(message.content, maxAmount);
-            if (message.content.payment_data.amount <= maxAmount) {
-              expect(E.isRight(response)).toBeTruthy();
-            } else {
-              expect(E.isLeft(response)).toBeTruthy();
-            }
-          },
-        ),
-      );
-    },
-    {
-      timeout: 100000,
-    },
-  );
+  it("should authorize payment if under the allowed amount", () => {
+    fc.assert(
+      fc.property(
+        newMessageWithPaymentDataArb,
+        maxAmountArb,
+        (message, maxAmount) => {
+          const response = canPaymentAmount(message.content, maxAmount);
+          if (message.content.payment_data.amount <= maxAmount) {
+            expect(E.isRight(response)).toBeTruthy();
+          } else {
+            expect(E.isLeft(response)).toBeTruthy();
+          }
+        },
+      ),
+    );
+  });
 });
 
 describe("createMessageDocument", () => {

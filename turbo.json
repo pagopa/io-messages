@@ -2,21 +2,9 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": ["^clean", "clean", "^generate", "generate", "^build"],
+      "dependsOn": ["^generate", "generate", "^build"],
       "inputs": ["src/**/*.ts", "package.json", "tsconfig.json"],
       "outputs": ["dist/**"],
-      "outputLogs": "errors-only"
-    },
-    "typecheck": {
-      "dependsOn": ["^build", "^typecheck"],
-      "inputs": ["src/**/*.ts", "package.json", "tsconfig.json"],
-      "outputs": [],
-      "outputLogs": "errors-only"
-    },
-    "format": {
-      "outputLogs": "errors-only"
-    },
-    "format:check": {
       "outputLogs": "errors-only"
     },
     "lint": {
@@ -28,14 +16,20 @@
       "outputLogs": "errors-only"
     },
     "test": {
-      "dependsOn": ["^build", "^test"],
+      "dependsOn": ["generate", "^build"],
       "inputs": ["src/**/*.ts"],
       "outputLogs": "full"
     },
-    "test:coverage": {
-      "dependsOn": ["^build", "^test"],
-      "inputs": ["src/**/*.ts"],
-      "outputs": ["coverage/**"],
+    "format": {
+      "outputLogs": "errors-only"
+    },
+    "format:check": {
+      "outputLogs": "errors-only"
+    },
+    "typecheck": {
+      "dependsOn": ["generate", "^build"],
+      "inputs": ["src/**/*.ts", "package.json", "tsconfig.json"],
+      "outputs": [],
       "outputLogs": "errors-only"
     },
     "generate": {
@@ -47,9 +41,14 @@
       "outputs": ["src/generated/**/*.ts"],
       "outputLogs": "errors-only"
     },
+    "test:coverage": {
+      "dependsOn": ["generate", "^build"],
+      "inputs": ["src/**/*.ts"],
+      "outputs": ["coverage/**"],
+      "outputLogs": "errors-only"
+    },
     "version": {},
     "clean": {
-      "inputs": ["dist/**"],
       "cache": false
     }
   }
