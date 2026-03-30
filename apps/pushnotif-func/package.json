@@ -9,7 +9,7 @@
     "clean:generated": "shx rm -rf ./src/generated",
     "build": "tsc",
     "build:watch": "pnpm run build --watch",
-    "start": "func start",
+    "start": "func start --port 7076",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "generate": "pnpm generate:backend-notification-hub && pnpm generate:definitions && pnpm generate:session-manager",
