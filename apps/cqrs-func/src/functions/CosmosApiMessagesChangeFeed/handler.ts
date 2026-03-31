@@ -1,11 +1,11 @@
 import { InvocationContext } from "@azure/functions";
 import { QueueClient } from "@azure/storage-queue";
-import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import {
   MessageModel,
   RetrievedMessage,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
+import * as AS from "azure-storage";
 import * as RA from "fp-ts/ReadonlyArray";
 import * as E from "fp-ts/lib/Either";
 import * as T from "fp-ts/lib/Task";
@@ -29,7 +29,7 @@ const CHUNK_SIZE = 15;
 export const handleMessageChange =
   (
     messageModel: MessageModel,
-    blobService: BlobServiceWithFallBack,
+    blobService: AS.BlobService,
     startTimeFilter: number,
   ) =>
   (
@@ -88,7 +88,7 @@ export const handleMessageChange =
 export const cosmosMessagesHandler =
   (
     messageModel: MessageModel,
-    messageContentBlobService: BlobServiceWithFallBack,
+    messageContentBlobService: AS.BlobService,
     config: { MESSAGE_CHANGE_FEED_START_TIME: number },
     kafkaClient: KP.KafkaProducerCompact<RetrievedMessage>,
     errorStorage: QueueClient,

@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.3.8
+
+### Patch Changes
+
+- fb3b5b6: remove legacy migration toolkit
+
 ## 2.3.7
 
 ### Patch Changes

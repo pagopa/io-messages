@@ -339,9 +339,6 @@ importers:
       '@chasdevs/avro-to-typescript':
         specifier: 'catalog:'
         version: 1.4.0
-      '@pagopa/azure-storage-legacy-migration-kit':
-        specifier: ^0.0.4
-        version: 0.0.4(postcss@8.5.6)(typescript@5.9.3)
       '@pagopa/fp-ts-kafkajs':
         specifier: 'catalog:'
         version: 0.3.0(typescript@5.9.3)
@@ -566,9 +563,6 @@ importers:
       '@azure/storage-queue':
         specifier: 'catalog:'
         version: 12.28.1
-      '@pagopa/azure-storage-legacy-migration-kit':
-        specifier: ^0.0.4
-        version: 0.0.4(postcss@8.5.6)(typescript@5.9.3)
       '@pagopa/io-functions-commons':
         specifier: 'catalog:'
         version: 30.0.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))

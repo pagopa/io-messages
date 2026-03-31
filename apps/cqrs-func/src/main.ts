@@ -1,11 +1,11 @@
 import { app } from "@azure/functions";
 import { QueueClient } from "@azure/storage-queue";
-import { createBlobService } from "@pagopa/azure-storage-legacy-migration-kit";
 import {
   MESSAGE_COLLECTION_NAME,
   MessageModel,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { createBlobService } from "azure-storage";
 
 import { cosmosMessageStatusHandler } from "./functions/CosmosApiMessageStatusChangeFeedForReminder/handler";
 import { cosmosMessagesHandler } from "./functions/CosmosApiMessagesChangeFeed/handler";
@@ -50,7 +50,6 @@ const messageModel = new MessageModel(
 );
 
 const messageContentBlobService = createBlobService(
-  config.COM_STORAGE_CONNECTION_STRING,
   config.MESSAGE_CONTENT_STORAGE_CONNECTION,
 );
 
