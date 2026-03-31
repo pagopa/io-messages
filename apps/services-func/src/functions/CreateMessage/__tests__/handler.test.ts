@@ -8,8 +8,8 @@ import { initAppInsights } from "@pagopa/ts-commons/lib/appinsights";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as fc from "fast-check";
 import * as E from "fp-ts/lib/Either";
-import { none, some } from "fp-ts/lib/Option";
 import * as O from "fp-ts/lib/Option";
+import { none, some } from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { describe, expect, it, vi } from "vitest";
 
