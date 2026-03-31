@@ -9,7 +9,6 @@ import {
   aRetrievedMessageWithoutContent,
 } from "../../../__mocks__/message";
 import { TelemetryClient } from "../../../utils/appinsights";
-import * as messageUtils from "../../../utils/message-utils";
 import {
   HandleMessageChangeFeedPublishFailureHandler,
   HandleMessagePublishFailureInput,
@@ -68,7 +67,7 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
   });
 
   test("should write an avro message on kafka client", async () => {
-    vi.spyOn(messageUtils, "getContentFromBlob").mockImplementation(() =>
+    getContentFromBlobMock.mockImplementation(() =>
       TE.right(O.some(aMessageContent)),
     );
     const res = await HandleMessageChangeFeedPublishFailureHandler(
@@ -91,9 +90,7 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
   });
 
   test("should throw if Transient failure occurs", async () => {
-    vi.spyOn(messageUtils, "getContentFromBlob").mockImplementation(() =>
-      TE.right(O.none),
-    );
+    getContentFromBlobMock.mockImplementation(() => TE.right(O.none));
     await expect(
       HandleMessageChangeFeedPublishFailureHandler(
         functionsContextMock,

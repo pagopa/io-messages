@@ -1,6 +1,7 @@
-import { DeleteMessageUseCase } from "@/domain/use-cases/delete-message.js";
 import { StorageQueueHandler } from "@azure/functions";
 import { z } from "zod";
+
+import { DeleteMessageUseCase } from "../../domain/use-cases/delete-message.js";
 
 const payloadSchema = z.object({
   fiscalCode: z.string().nonempty().trim(),

@@ -72,6 +72,7 @@ const envSchema = z.object({
 
   MASSIVE_JOBS_CONTAINER_NAME: z.string().min(1),
 
+  MESSAGE_CONTAINER_NAME: z.string().min(1),
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: z.string().min(1),
   NH1_ENDPOINT: z.string().min(1),
   NH1_NAME: z.string().min(1),
@@ -121,6 +122,7 @@ export const configSchema = z.object({
   installationSummariesContainerName: z.string().min(1),
   installationSummariesLeaseContainerPrefix: z.string().min(1),
   massiveJobsContainerName: z.string().min(1),
+  messageContentContainerName: z.string().min(1),
   nodeEnv: nodeEnvSchema,
   notificationHub: notificationHubConfigSchema,
   sessionManager: z.object({
@@ -149,13 +151,13 @@ const mapEnvironmentVariablesToConfig = (env: Env): Config => ({
   },
   comStorageConnectionString: env.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
   databaseName: env.PUSH_DATABASE_NAME,
-
   installationSummariesContainerName: env.INSTALLATION_SUMMARIES_CONTAINER_NAME,
 
   installationSummariesLeaseContainerPrefix:
     env.INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX,
 
   massiveJobsContainerName: env.MASSIVE_JOBS_CONTAINER_NAME,
+  messageContentContainerName: env.MESSAGE_CONTAINER_NAME,
 
   nodeEnv: env.NODE_ENV,
 

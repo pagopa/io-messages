@@ -1,5 +1,5 @@
-import { AuditLogger, deleteMessageAuditLog } from "@/domain/audit.js";
-import { MessageRepository } from "@/domain/message.js";
+import { AuditLogger, deleteMessageAuditLog } from "../audit.js";
+import { MessageRepository } from "../message.js";
 
 export class DeleteMessageUseCase {
   constructor(

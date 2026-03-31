@@ -9,10 +9,6 @@
     "outDir": "dist",
     "strict": true,
     "resolveJsonModule": true,
-    "paths": {
-      "@/*": ["./src/*", "./avro/*"]
-    },
-    "noEmit": true,
     "skipLibCheck": true
   }
 }
