@@ -1,5 +1,11 @@
 # services-func
 
+## 2.0.6
+
+### Patch Changes
+
+- 3ee702f: Remove unnecessary dependencies.
+
 ## 2.0.5
 
 ### Patch Changes
