@@ -1,5 +1,17 @@
 ### Changelog
 
+## 2.0.5
+
+### Patch Changes
+
+- 76cb4f7: Upgrade Github Actions
+
+## 2.0.4
+
+### Patch Changes
+
+- 0555a04: Migrate Monorepo from Yarn PnP to pnpm
+
 ## 2.0.3
 
 ### Patch Changes

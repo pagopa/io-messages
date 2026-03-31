@@ -1,4 +1,9 @@
+bin
+CHANGELOG.md
+coverage
 dist
 generated
 openapi
+local.settings.json*
+node_modules
 vitest.config.mjs*
