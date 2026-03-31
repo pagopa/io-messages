@@ -36,7 +36,6 @@
     "@azure/notification-hubs": "catalog:",
     "@azure/service-bus": "catalog:",
     "@azure/storage-queue": "catalog:",
-    "@pagopa/azure-storage-legacy-migration-kit": "^0.0.4",
     "@pagopa/io-functions-commons": "catalog:",
     "@pagopa/ts-commons": "catalog:",
     "applicationinsights": "catalog:",
