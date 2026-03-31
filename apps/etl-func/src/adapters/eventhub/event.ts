@@ -1,8 +1,9 @@
 import type * as avro from "avsc";
 
-import { EventProducer } from "@/domain/event.js";
 import { EventHubProducerClient } from "@azure/event-hubs";
 import * as assert from "node:assert/strict";
+
+import { EventProducer } from "../../domain/event.js";
 
 export class EventHubEventProducer<T> implements EventProducer<T> {
   #producerClient: EventHubProducerClient;

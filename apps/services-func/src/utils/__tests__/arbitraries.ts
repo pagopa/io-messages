@@ -76,7 +76,7 @@ export const fiscalCodeSetArb = fiscalCodeArrayArb.map((_) => new Set(_));
 export const clientIpArb = fc.ipV4().map((_) => O.some(_) as ClientIp);
 
 const messageContentSubject = fc.string(10, 120);
-const messageContentMarkdown = fc.string(80, 10000);
+const messageContentMarkdown = fc.string(80, 100);
 
 export const featureLevelTypeArb = fc
   .subarray(

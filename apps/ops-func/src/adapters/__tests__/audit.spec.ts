@@ -1,7 +1,7 @@
-import { deleteMessageAuditLog } from "@/domain/audit.js";
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { describe, expect, test, vi } from "vitest";
 
+import { deleteMessageAuditLog } from "../../domain/audit.js";
 import { BlobStorageAuditLogger } from "../audit.js";
 
 const blobClient = BlobServiceClient.fromConnectionString(

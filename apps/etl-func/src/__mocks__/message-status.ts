@@ -1,4 +1,4 @@
-import { messageStatusSchema } from "@/domain/message-status.js";
+import { messageStatusSchema } from "../domain/message-status.js";
 
 export const aFiscalCode = "RMLGNN97R06F158N";
 
