@@ -10,7 +10,7 @@
   "version": "1.0.9",
   "scripts": {
     "clean": "shx rm -rf dist",
-    "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node22 --outdir=dist --packages=external",
+    "build": "tsc",
     "build:watch": "pnpm run build --watch",
     "start": "func start",
     "format": "prettier --write .",
@@ -40,7 +40,6 @@
     "@pagopa/eslint-config": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "esbuild": "catalog:",
     "eslint": "catalog:",
     "prettier": "catalog:",
     "typescript": "catalog:",

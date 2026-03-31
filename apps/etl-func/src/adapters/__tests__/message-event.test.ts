@@ -1,5 +1,5 @@
 import { aSimpleMessageEvent } from "@/__mocks__/message-event.js";
-import { MessageEvent } from "@/domain/message-event.js";
+import { MessageEvent } from "../../domain/message-event.js";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { messageSchema } from "../avro.js";

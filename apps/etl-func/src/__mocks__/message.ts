@@ -2,7 +2,7 @@ import {
   Message,
   messageContentSchema,
   messageMetadataSchema,
-} from "@/domain/message.js";
+} from "../domain/message.js";
 import { FiscalCode } from "io-messages-common/domain/fiscal-code";
 
 export const aFiscalCode = "RMLGNN97R06F158N" as FiscalCode;

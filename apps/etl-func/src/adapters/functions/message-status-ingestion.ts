@@ -1,7 +1,7 @@
-import { EventErrorRepository, EventErrorTypesEnum } from "@/domain/event.js";
-import { MessageStatus, messageStatusSchema } from "@/domain/message-status.js";
-import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
-import { IngestMessageStatusUseCase } from "@/domain/use-cases/ingest-message-status.js";
+import { EventErrorRepository, EventErrorTypesEnum } from "../../domain/event.js";
+import { MessageStatus, messageStatusSchema } from "../../domain/message-status.js";
+import { TelemetryEventName, TelemetryService } from "../../domain/telemetry.js";
+import { IngestMessageStatusUseCase } from "../../domain/use-cases/ingest-message-status.js";
 import { CosmosDBHandler, InvocationContext } from "@azure/functions";
 import { ZodError } from "zod";
 

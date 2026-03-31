@@ -1,4 +1,4 @@
-import { MessageContent, messageContentSchema } from "@/domain/message.js";
+import { MessageContent, messageContentSchema } from "../../domain/message.js";
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { z } from "zod";
 

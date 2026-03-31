@@ -1,4 +1,4 @@
-import { TelemetryService } from "@/domain/telemetry.js";
+import { TelemetryService } from "../../domain/telemetry.js";
 import { TelemetryClient } from "applicationinsights";
 import appInsight from "applicationinsights";
 

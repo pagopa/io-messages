@@ -1,4 +1,4 @@
-import { MessageStatus } from "@/domain/message-status.js";
+import { MessageStatus } from "../message-status.js";
 
 import { EventProducer } from "../event.js";
 import {

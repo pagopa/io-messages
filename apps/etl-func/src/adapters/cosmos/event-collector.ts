@@ -1,5 +1,5 @@
-import { EventCollector, EventsSummary } from "@/domain/event.js";
-import { TelemetryEventName, TelemetryService } from "@/domain/telemetry.js";
+import { EventCollector, EventsSummary } from "../../domain/event.js";
+import { TelemetryEventName, TelemetryService } from "../../domain/telemetry.js";
 import { Container, ItemResponse } from "@azure/cosmos";
 import { ulid } from "ulid";
 

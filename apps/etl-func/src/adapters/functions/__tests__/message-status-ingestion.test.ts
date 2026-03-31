@@ -1,7 +1,7 @@
 import { aValidMessageStatus } from "@/__mocks__/message-status.js";
 import { TelemetryEventService } from "@/adapters/appinsights/appinsights.js";
 import { EventErrorTableStorage } from "@/adapters/table-storage/event-error-table-storage.js";
-import { IngestMessageStatusUseCase } from "@/domain/use-cases/ingest-message-status.js";
+import { IngestMessageStatusUseCase } from "../../../domain/use-cases/ingest-message-status.js";
 import { InvocationContext } from "@azure/functions";
 import { afterEach, describe, expect, test, vi } from "vitest";
 

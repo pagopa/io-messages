@@ -10,7 +10,7 @@ import { EventHubEventProducer } from "@/adapters/eventhub/event.js";
 import { MessageAdapter } from "@/adapters/message.js";
 import { EventErrorTableStorage } from "@/adapters/table-storage/event-error-table-storage.js";
 import PDVTokenizerClient from "@/adapters/tokenizer/pdv-tokenizer-client.js";
-import { IngestMessageUseCase } from "@/domain/use-cases/ingest-message.js";
+import { IngestMessageUseCase } from "../../../domain/use-cases/ingest-message.js";
 import { InvocationContext } from "@azure/functions";
 import { pino } from "pino";
 import { afterEach, describe, expect, test, vi } from "vitest";

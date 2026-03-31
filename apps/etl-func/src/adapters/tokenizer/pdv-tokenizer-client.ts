@@ -1,4 +1,4 @@
-import { TokenizerClient } from "@/domain/tokenizer.js";
+import { TokenizerClient } from "../../domain/tokenizer.js";
 import { FiscalCode } from "io-messages-common/domain/fiscal-code";
 import { z } from "zod";
 

@@ -7,8 +7,8 @@ import {
 import {
   messageEventSchema,
   transformMessageToMessageEvent,
-} from "@/domain/message-event.js";
-import { TokenizerClient } from "@/domain/tokenizer.js";
+} from "../../domain/message-event.js";
+import { TokenizerClient } from "../../domain/tokenizer.js";
 import { Logger } from "pino";
 import { Mocked, afterEach, describe, expect, test, vi } from "vitest";
 
