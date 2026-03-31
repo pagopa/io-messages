@@ -3,27 +3,7 @@ linkWorkspacePackages: true
 packageImportMethod: clone-or-copy
 packages:
   - apps/*
-  - bruno
   - packages/*
-
-packageExtensions:
-  "@azure/cosmos@*":
-    dependencies:
-      "@azure/logger": "*"
-  eslint-plugin-perfectionist@*:
-    dependencies:
-      "@typescript-eslint/types": "*"
-  "@pagopa/ts-commons@*":
-    dependencies:
-      express: ^4.15.3
-  "@pagopa/io-functions-commons@*":
-    dependencies:
-      "@types/express-serve-static-core": ^4.17.33
-      winston-transport: ^4.9.0
-      json-set-map: ^1.1.2
-  "@pagopa/openapi-codegen-ts@*":
-    dependencies:
-      fp-ts: ^2.10.5
 
 catalog:
   "@azure/cosmos": ^4.9.0

@@ -214,8 +214,6 @@ catalogs:
       specifier: ^4.1.13
       version: 4.1.13
 
-packageExtensionsChecksum: sha256-gQUzjD9AFPUBzPI/RqxGSDK6bMlEBpqmUNsHscwSUVg=
-
 importers:
 
   .:
@@ -6605,7 +6603,6 @@ snapshots:
       typedoc: 0.20.37(typescript@5.9.3)
     transitivePeerDependencies:
       - encoding
-      - supports-color
       - typescript
 
   '@pagopa/io-app-email-templates@0.7.3':
@@ -6626,7 +6623,6 @@ snapshots:
       io-ts: 2.2.22(fp-ts@2.16.11)
     transitivePeerDependencies:
       - encoding
-      - supports-color
 
   '@pagopa/io-functions-admin-sdk@1.10.1':
     dependencies:
@@ -6635,7 +6631,6 @@ snapshots:
       io-ts: 2.2.22(fp-ts@2.16.11)
     transitivePeerDependencies:
       - encoding
-      - supports-color
 
   '@pagopa/io-functions-commons@30.0.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))':
     dependencies:
@@ -6643,7 +6638,6 @@ snapshots:
       '@azure/data-tables': 13.3.2
       '@azure/functions': 4.11.2
       '@pagopa/ts-commons': 13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
-      '@types/express-serve-static-core': 4.19.7
       applicationinsights: 2.9.8
       azure-storage: 2.10.7
       cidr-matcher: 2.1.1
@@ -6652,7 +6646,6 @@ snapshots:
       helmet: 4.6.0
       helmet-csp: 2.10.0
       io-ts: 2.2.22(fp-ts@2.16.11)
-      json-set-map: 1.1.2
       node-fetch: 2.7.0
       nodemailer: 6.10.1
       nodemailer-sendgrid: 1.0.3
@@ -6665,7 +6658,6 @@ snapshots:
       ulid: 2.4.0
       unified: 9.2.2
       winston: 3.18.3
-      winston-transport: 4.9.0
     transitivePeerDependencies:
       - applicationinsights-native-metrics
       - encoding
@@ -6674,7 +6666,6 @@ snapshots:
   '@pagopa/openapi-codegen-ts@11.3.0(chokidar@3.6.0)':
     dependencies:
       '@pagopa/ts-commons': 10.15.0
-      fp-ts: 2.16.11
       fs-extra: 6.0.1
       nunjucks: 3.2.4(chokidar@3.6.0)
       openapi-types: 10.0.0
@@ -6686,7 +6677,6 @@ snapshots:
     transitivePeerDependencies:
       - chokidar
       - encoding
-      - supports-color
 
   '@pagopa/openapi-codegen-ts@14.0.1(chokidar@3.6.0)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))':
     dependencies:
@@ -6704,14 +6694,12 @@ snapshots:
     transitivePeerDependencies:
       - chokidar
       - encoding
-      - supports-color
 
   '@pagopa/ts-commons@10.15.0':
     dependencies:
       abort-controller: 3.0.0
       agentkeepalive: 4.6.0
       applicationinsights: 1.8.10
-      express: 4.21.2
       fp-ts: 2.16.11
       io-ts: 2.2.22(fp-ts@2.16.11)
       jose: 4.15.9
@@ -6721,14 +6709,12 @@ snapshots:
       validator: 13.15.26
     transitivePeerDependencies:
       - encoding
-      - supports-color
 
   '@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))':
     dependencies:
       abort-controller: 3.0.0
       agentkeepalive: 4.6.0
       applicationinsights: 2.9.8
-      express: 4.21.2
       fp-ts: 2.16.11
       io-ts: 2.2.22(fp-ts@2.16.11)
       jose: 4.15.9
@@ -8057,7 +8043,6 @@ snapshots:
 
   eslint-plugin-perfectionist@2.11.0(eslint@8.57.1)(typescript@5.8.3):
     dependencies:
-      '@typescript-eslint/types': 8.48.0
       '@typescript-eslint/utils': 7.18.0(eslint@8.57.1)(typescript@5.8.3)
       eslint: 8.57.1
       minimatch: 9.0.5

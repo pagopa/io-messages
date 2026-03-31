@@ -7,7 +7,7 @@
     "host.json",
     "package.json"
   ],
-  "version": "1.0.9",
+  "version": "1.0.10",
   "scripts": {
     "clean": "shx rm -rf dist",
     "build": "tsc",

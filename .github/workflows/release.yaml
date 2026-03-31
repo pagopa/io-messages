@@ -20,24 +20,22 @@ jobs:
           fetch-depth: 0
 
       # Corepack is an official tool by Node.js that manages package managers versions
-      - name: Setup yarn
+      - name: Setup pnpm
         run: corepack enable
 
       - name: Setup Node.js environment
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version-file: ".node-version"
-          cache: "yarn"
-          cache-dependency-path: "yarn.lock"
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: pnpm install --frozen-lockfile
 
       - name: Create Release Pull Request or Tag
         id: changesets
         uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
         with:
-          version: yarn run version
-          publish: yarn run release
+          version: pnpm run version
+          publish: pnpm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

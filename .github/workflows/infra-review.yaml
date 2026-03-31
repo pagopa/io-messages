@@ -19,7 +19,7 @@ on:
 
 jobs:
   infra_review:
-    uses: pagopa/dx/.github/workflows/infra_plan.yaml@af75138d40e08b98e63696e26ce545004a769565
+    uses: pagopa/dx/.github/workflows/infra_plan.yaml@7e6e88cf29984e3a54589e1ed51a335e016b3f47
     name: PR Prod WestEurope
     secrets: inherit
     with:

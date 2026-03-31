@@ -8,7 +8,7 @@ on:
 
 jobs:
   services_func_deploy:
-    uses: pagopa/dx/.github/workflows/release-azure-appsvc-v1.yaml@af75138d40e08b98e63696e26ce545004a769565
+    uses: pagopa/dx/.github/workflows/release-azure-appsvc-v1.yaml@7e6e88cf29984e3a54589e1ed51a335e016b3f47
     secrets: inherit
     with:
       workspace_name: services-func
