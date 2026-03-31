@@ -1,7 +1,6 @@
 import { Database } from "@azure/cosmos";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { NotificationHubsClient } from "@azure/notification-hubs";
-import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { BlobService } from "azure-storage";
 import { readFile } from "fs/promises";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -37,8 +36,7 @@ const makeNotificationHubClient = () =>
 describe("getInfoHandler", () => {
   const apiCosmosdb = makeDatabase("api");
   const pushCosmosdb = makeDatabase("push");
-  const primaryBlobService = makeBlobService();
-  const secondaryBlobService = makeBlobService();
+
   const firstNotificationHubClient = makeNotificationHubClient();
 
   afterEach(() => {
@@ -46,10 +44,7 @@ describe("getInfoHandler", () => {
   });
 
   test("should return package name and version when all healthchecks succeed", async () => {
-    const blobService = {
-      primary: primaryBlobService,
-      secondary: secondaryBlobService,
-    } as BlobServiceWithFallBack;
+    const blobService = makeBlobService();
 
     vi.mocked(readFile).mockResolvedValueOnce(
       JSON.stringify({ name: "pushnotif-func", version: "2.3.4" }),
@@ -75,8 +70,7 @@ describe("getInfoHandler", () => {
 
     expect(apiCosmosdb.read).toHaveBeenCalledOnce();
     expect(pushCosmosdb.read).toHaveBeenCalledOnce();
-    expect(primaryBlobService.getServiceProperties).toHaveBeenCalledOnce();
-    expect(secondaryBlobService.getServiceProperties).toHaveBeenCalledOnce();
+    expect(blobService.getServiceProperties).toHaveBeenCalledOnce();
     expect(firstNotificationHubClient.deleteInstallation).toHaveBeenCalledWith(
       "test",
     );
@@ -87,9 +81,7 @@ describe("getInfoHandler", () => {
   });
 
   test("should return 500 with collected healthcheck errors and not read package.json when a healthcheck fails", async () => {
-    const blobService = {
-      primary: primaryBlobService,
-    } as BlobServiceWithFallBack;
+    const blobService = makeBlobService();
 
     const notificationHubClient = makeNotificationHubClient();
 
@@ -117,7 +109,7 @@ describe("getInfoHandler", () => {
 
     expect(apiCosmosdb.read).toHaveBeenCalledOnce();
     expect(pushCosmosdb.read).toHaveBeenCalledOnce();
-    expect(primaryBlobService.getServiceProperties).toHaveBeenCalledOnce();
+    expect(blobService.getServiceProperties).toHaveBeenCalledOnce();
     expect(notificationHubClient.deleteInstallation).toHaveBeenCalledWith(
       "test",
     );
@@ -125,9 +117,7 @@ describe("getInfoHandler", () => {
   });
 
   test("should return 500 when package.json cannot be read after successful healthchecks", async () => {
-    const blobService = {
-      primary: primaryBlobService,
-    } as BlobServiceWithFallBack;
+    const blobService = makeBlobService();
 
     vi.mocked(readFile).mockRejectedValueOnce(new Error("missing file"));
 
@@ -140,7 +130,7 @@ describe("getInfoHandler", () => {
 
     expect(apiCosmosdb.read).toHaveBeenCalledOnce();
     expect(pushCosmosdb.read).toHaveBeenCalledOnce();
-    expect(primaryBlobService.getServiceProperties).toHaveBeenCalledOnce();
+    expect(blobService.getServiceProperties).toHaveBeenCalledOnce();
     expect(readFile).toHaveBeenCalledOnce();
   });
 });

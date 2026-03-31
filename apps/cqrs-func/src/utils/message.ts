@@ -1,9 +1,9 @@
-import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
 import {
   MessageModel,
   RetrievedMessage,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
+import * as AS from "azure-storage";
 import * as RA from "fp-ts/ReadonlyArray";
 import * as E from "fp-ts/lib/Either";
 import * as T from "fp-ts/lib/Task";
@@ -13,7 +13,6 @@ import { flow, pipe } from "fp-ts/lib/function";
 import { MessageContentType } from "../generated/avro/dto/MessageContentTypeEnum";
 import { IConfig } from "./config";
 import { toPermanentFailure, toTransientFailure } from "./errors";
-import { getContentFromBlob } from "./message-utils";
 import { IStorableError, toStorableError } from "./storable_error";
 
 /**
@@ -21,11 +20,11 @@ import { IStorableError, toStorableError } from "./storable_error";
  */
 export const enrichMessageContent = (
   messageModel: MessageModel,
-  blobService: BlobServiceWithFallBack,
+  blobService: AS.BlobService,
   message: RetrievedMessage,
 ): TE.TaskEither<IStorableError<RetrievedMessage>, RetrievedMessage> =>
   pipe(
-    getContentFromBlob(blobService, message.id),
+    messageModel.getContentFromBlob(blobService, message.id),
     TE.mapLeft((e) =>
       toTransientFailure(
         e,
@@ -53,7 +52,7 @@ export const enrichMessagesContent =
   (
     messageModel: MessageModel,
     messageContentChunkSize: number,
-    blobService: BlobServiceWithFallBack,
+    blobService: AS.BlobService,
   ) =>
   (
     messages: readonly RetrievedMessage[],

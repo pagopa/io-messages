@@ -1,10 +1,10 @@
 import { InvocationContext } from "@azure/functions";
-import { BlobServiceWithFallBack } from "@pagopa/azure-storage-legacy-migration-kit";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import {
   MessageModel,
   RetrievedMessage,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
+import * as AS from "azure-storage";
 import * as RA from "fp-ts/lib/ReadonlyArray";
 import * as TE from "fp-ts/lib/TaskEither";
 import { constVoid, flow, pipe } from "fp-ts/lib/function";
@@ -45,7 +45,7 @@ export const HandleMessageChangeFeedPublishFailureHandler = (
   message: unknown,
   telemetryClient: TelemetryClient,
   messageModel: MessageModel,
-  blobService: BlobServiceWithFallBack,
+  blobService: AS.BlobService,
   client: KP.KafkaProducerCompact<RetrievedMessage>,
   // eslint-disable-next-line max-params, @typescript-eslint/no-invalid-void-type
 ): Promise<Failure | void> =>
@@ -118,7 +118,7 @@ export const queueFailureHandler =
   (
     telemetryClient: TelemetryClient,
     messageModel: MessageModel,
-    messageContentBlobService: BlobServiceWithFallBack,
+    messageContentBlobService: AS.BlobService,
     kafkaClient: KP.KafkaProducerCompact<RetrievedMessage>,
   ) =>
   async (
