@@ -46,6 +46,7 @@
     "io-ts": "catalog:",
     "node-fetch": "catalog:",
     "ts-pattern": "catalog:",
+    "ulid": "catalog:",
     "winston": "catalog:",
     "zod": "catalog:"
   },

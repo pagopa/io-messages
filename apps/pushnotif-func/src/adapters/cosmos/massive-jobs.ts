@@ -21,14 +21,13 @@ export class CosmosMassiveJobsAdapter implements MassiveJobsRepository {
 
   async updateMassiveJob(job: MassiveJob) {
     try {
-      const result = await this.container.items.upsert(job, {});
+      const result = await this.container.item(job.id).replace(job);
       return result.item.id;
     } catch (err) {
       if (err instanceof ErrorResponse) {
         switch (err.code) {
           case 404:
             return new ErrorNotFound("Massive job not found", err);
-
           default:
             return new ErrorInternal("Failed to update massive job", err);
         }

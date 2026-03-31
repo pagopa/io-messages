@@ -1,6 +1,8 @@
 import { HttpHandler } from "@azure/functions";
 
 import { ErrorInternal, ErrorValidation } from "../../domain/error";
+import { parseRequestBodyToJson } from "../../domain/http-request";
+import { CreateMassiveJobPayloadSchema } from "../../domain/massive-jobs";
 import { CreateMassiveNotificationJobUseCase } from "../../domain/use-cases/create-massive-notification-job";
 
 export const createMassiveNotificationJobHandler =
@@ -8,42 +10,36 @@ export const createMassiveNotificationJobHandler =
     createMassiveNotificationJobUseCase: CreateMassiveNotificationJobUseCase,
   ): HttpHandler =>
   async (request) => {
-    let rawBody: unknown;
-    try {
-      rawBody = await request.json();
-    } catch {
+    const rawBody = await parseRequestBodyToJson(request);
+    if (rawBody instanceof ErrorValidation) {
       return {
-        body: JSON.stringify({ error: "Invalid JSON body" }),
+        body: JSON.stringify({ error: rawBody.message }),
         headers: { "Content-Type": "application/json" },
         status: 400,
       };
     }
 
-    const result = await createMassiveNotificationJobUseCase.execute(rawBody);
+    const parsed = CreateMassiveJobPayloadSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      return {
+        body: JSON.stringify({
+          details: parsed.error.issues,
+          error: "Bad Request",
+        }),
+        headers: { "Content-Type": "application/json" },
+        status: 400,
+      };
+    }
 
-    if (result instanceof Error) {
-      if (result instanceof ErrorValidation) {
-        return {
-          body: JSON.stringify({
-            details: result.issues,
-            error: "Bad Request",
-          }),
-          headers: { "Content-Type": "application/json" },
-          status: 400,
-        };
-      } else if (result instanceof ErrorInternal) {
-        return {
-          body: JSON.stringify({ error: result.message }),
-          headers: { "Content-Type": "application/json" },
-          status: 500,
-        };
-      } else {
-        return {
-          body: JSON.stringify({ error: "Unexpected error" }),
-          headers: { "Content-Type": "application/json" },
-          status: 500,
-        };
-      }
+    const result = await createMassiveNotificationJobUseCase.execute(
+      parsed.data,
+    );
+    if (result instanceof ErrorInternal) {
+      return {
+        body: JSON.stringify({ error: result.message }),
+        headers: { "Content-Type": "application/json" },
+        status: 500,
+      };
     }
 
     return {
