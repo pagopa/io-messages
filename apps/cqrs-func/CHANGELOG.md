@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 2.0.3
+
+### Patch Changes
+
+- 76cb4f7: Upgrade Github Actions
+
 ## 2.0.2
 
 ### Patch Changes

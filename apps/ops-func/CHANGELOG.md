@@ -1,5 +1,13 @@
 # ops-func
 
+## 1.0.4
+
+### Patch Changes
+
+- 76cb4f7: Upgrade Github Actions
+- Updated dependencies [76cb4f7]
+  - io-messages-common@1.4.3
+
 ## 1.0.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 ### Changelog
 
+## 6.0.4
+
+### Patch Changes
+
+- 76cb4f7: Upgrade Github Actions
+
 ## 6.0.3
 
 ### Patch Changes

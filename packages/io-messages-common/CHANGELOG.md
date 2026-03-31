@@ -1,5 +1,11 @@
 # io-messages-common
 
+## 1.4.3
+
+### Patch Changes
+
+- 76cb4f7: Upgrade Github Actions
+
 ## 1.4.2
 
 ### Patch Changes
