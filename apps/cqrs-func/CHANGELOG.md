@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 2.0.4
+
+### Patch Changes
+
+- 00ff90a: remove legacy migration toolkit
+
 ## 2.0.3
 
 ### Patch Changes
