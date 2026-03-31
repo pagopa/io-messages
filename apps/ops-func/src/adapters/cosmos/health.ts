@@ -1,4 +1,4 @@
-import { HealthChecker } from "@/domain/use-cases/health.js";
+import { HealthChecker } from "../../domain/use-cases/health.js";
 import { Database } from "@azure/cosmos";
 
 export class CosmosHealthchecker implements HealthChecker {

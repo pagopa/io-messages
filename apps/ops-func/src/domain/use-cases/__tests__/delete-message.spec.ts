@@ -1,5 +1,5 @@
-import { AuditLogger } from "@/domain/audit.js";
-import { MessageRepository } from "@/domain/message.js";
+import { AuditLogger } from "../../audit.js";
+import { MessageRepository } from "../../message.js";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { DeleteMessageUseCase } from "../delete-message.js";

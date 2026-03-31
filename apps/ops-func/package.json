@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "clean": "shx rm -rf dist",
-    "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node22 --outdir=dist --packages=external",
+    "build": "tsc",
     "build:watch": "pnpm run build --watch",
     "start": "func start",
     "format": "prettier --write .",

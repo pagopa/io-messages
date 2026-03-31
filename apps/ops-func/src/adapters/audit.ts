@@ -1,4 +1,4 @@
-import { AuditLog, AuditLogger } from "@/domain/audit.js";
+import { AuditLog, AuditLogger } from "../domain/audit.js";
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 
 export class BlobStorageAuditLogger implements AuditLogger {

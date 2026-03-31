@@ -1,4 +1,4 @@
-import { deleteMessageAuditLog } from "@/domain/audit.js";
+import { deleteMessageAuditLog } from "../../domain/audit.js";
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { describe, expect, test, vi } from "vitest";
 

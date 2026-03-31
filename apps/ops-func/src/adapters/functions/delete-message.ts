@@ -1,4 +1,4 @@
-import { DeleteMessageUseCase } from "@/domain/use-cases/delete-message.js";
+import { DeleteMessageUseCase } from "../../domain/use-cases/delete-message.js";
 import { StorageQueueHandler } from "@azure/functions";
 import { z } from "zod";
 

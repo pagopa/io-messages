@@ -1,4 +1,4 @@
-import { MessageRepository } from "@/domain/message.js";
+import { MessageRepository } from "../domain/message.js";
 import { Container, Database, ErrorResponse } from "@azure/cosmos";
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import * as assert from "node:assert/strict";
