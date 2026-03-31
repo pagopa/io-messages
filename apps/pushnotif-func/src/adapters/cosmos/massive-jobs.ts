@@ -32,6 +32,7 @@ export class CosmosMassiveJobsAdapter implements MassiveJobsRepository {
             return new ErrorInternal("Failed to update massive job", err);
         }
       }
+
       return new ErrorInternal("Failed to update massive job", err);
     }
   }
