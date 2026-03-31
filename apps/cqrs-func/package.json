@@ -1,7 +1,7 @@
 {
   "name": "cqrs-func",
   "author": "IO team",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "license": "UNLICENSED",
   "type": "commonjs",
   "main": "dist/main.js",
