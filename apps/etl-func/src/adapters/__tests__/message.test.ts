@@ -4,14 +4,14 @@ import {
   aSimpleMessageContent,
   aSimpleMessageMetadata,
 } from "@/__mocks__/message.js";
-import {
-  messageEventSchema,
-  transformMessageToMessageEvent,
-} from "@/domain/message-event.js";
-import { TokenizerClient } from "@/domain/tokenizer.js";
 import { Logger } from "pino";
 import { Mocked, afterEach, describe, expect, test, vi } from "vitest";
 
+import {
+  messageEventSchema,
+  transformMessageToMessageEvent,
+} from "../../domain/message-event.js";
+import { TokenizerClient } from "../../domain/tokenizer.js";
 import { TelemetryEventService } from "../appinsights/appinsights.js";
 import {
   MessageContentError,

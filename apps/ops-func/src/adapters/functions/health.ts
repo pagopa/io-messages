@@ -1,5 +1,6 @@
-import { HealthUseCase } from "@/domain/use-cases/health.js";
 import { HttpHandler } from "@azure/functions";
+
+import { HealthUseCase } from "../../domain/use-cases/health.js";
 
 export const healthcheck =
   (healthUseCase: HealthUseCase): HttpHandler =>

@@ -1,7 +1,8 @@
-import { EventErrorRepository } from "@/domain/event.js";
 import { TableClient } from "@azure/data-tables";
 import { ulid } from "ulid";
 import { z } from "zod";
+
+import { EventErrorRepository } from "../../domain/event.js";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const messageErrorTableEntitySchema = z.object({
