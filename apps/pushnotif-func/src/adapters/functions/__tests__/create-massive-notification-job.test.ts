@@ -1,13 +1,13 @@
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { ErrorInternal, ErrorValidation } from "../../../domain/error";
+import { ErrorInternal } from "../../../domain/error";
 import { CreateMassiveNotificationJobUseCase } from "../../../domain/use-cases/create-massive-notification-job";
 import { createMassiveNotificationJobHandler } from "../create-massive-notification-job";
 
 const context = new InvocationContext();
 
-const makeRequest = (jsonFn: () => Promise<unknown>): HttpRequest =>
+const makeRequest = (jsonFn: () => Promise<unknown> | unknown): HttpRequest =>
   ({ json: jsonFn }) as unknown as HttpRequest;
 
 const useCaseMock = {
@@ -29,9 +29,9 @@ describe("createMassiveNotificationJobHandler", () => {
   });
 
   test("should return 400 when the request body is not valid JSON", async () => {
-    const request = makeRequest(() =>
-      Promise.reject(new SyntaxError("Unexpected token")),
-    );
+    const request = makeRequest(() => {
+      throw new SyntaxError("Unexpected token");
+    });
 
     const response = await handler(request, context);
 
@@ -42,22 +42,36 @@ describe("createMassiveNotificationJobHandler", () => {
     expect(useCaseMock.execute).not.toHaveBeenCalled();
   });
 
-  test("should return 400 with validation details when use case returns ErrorValidation", async () => {
-    const issues = [{ code: "too_small", message: "Required" }];
-    const error = new ErrorValidation("Invalid payload", { issues });
-    error.issues = issues;
-
-    vi.mocked(useCaseMock.execute).mockResolvedValueOnce(error);
-
-    const request = makeRequest(() => Promise.resolve(aValidPayload));
+  test("should return 400 with validation details when payload is invalid", async () => {
+    const request = makeRequest(() =>
+      Promise.resolve({
+        ...aValidPayload,
+        title: "",
+      }),
+    );
 
     const response = await handler(request, context);
 
     expect(response).toMatchObject({
-      body: JSON.stringify({ details: issues, error: "Bad Request" }),
+      body: expect.stringContaining("Bad Request"),
       status: 400,
     });
-    expect(useCaseMock.execute).toHaveBeenCalledWith(aValidPayload);
+    const responseBody = JSON.parse(response.body as string);
+    expect(responseBody).toEqual(
+      expect.objectContaining({
+        details: expect.any(Array),
+        error: "Bad Request",
+      }),
+    );
+    expect(responseBody.details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "too_small",
+          path: ["title"],
+        }),
+      ]),
+    );
+    expect(useCaseMock.execute).not.toHaveBeenCalled();
   });
 
   test("should return 500 with error message when use case returns ErrorInternal", async () => {
@@ -72,7 +86,14 @@ describe("createMassiveNotificationJobHandler", () => {
       body: JSON.stringify({ error: "Something went wrong" }),
       status: 500,
     });
-    expect(useCaseMock.execute).toHaveBeenCalledWith(aValidPayload);
+    expect(useCaseMock.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        body: aValidPayload.body,
+        executionTimeInHours: 2,
+        startTimeTimestamp: expect.any(Number),
+        title: aValidPayload.title,
+      }),
+    );
   });
 
   test("should return 500 with generic message when use case returns an unexpected error", async () => {
@@ -101,6 +122,13 @@ describe("createMassiveNotificationJobHandler", () => {
       body: JSON.stringify({ id: aJobId }),
       status: 201,
     });
-    expect(useCaseMock.execute).toHaveBeenCalledWith(aValidPayload);
+    expect(useCaseMock.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        body: aValidPayload.body,
+        executionTimeInHours: 2,
+        startTimeTimestamp: expect.any(Number),
+        title: aValidPayload.title,
+      }),
+    );
   });
 });

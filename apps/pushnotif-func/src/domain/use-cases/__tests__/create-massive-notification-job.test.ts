@@ -1,11 +1,13 @@
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { ErrorInternal, ErrorValidation } from "../../error";
+import { ErrorInternal } from "../../error";
 import { MassiveJobsRepository } from "../../massive-jobs";
 import { CreateMassiveNotificationJobUseCase } from "../create-massive-notification-job";
 
 const aValidPayload = {
   body: "Notification body",
+  executionTimeInHours: 4,
+  startTimeTimestamp: 1700000000,
   title: "Notification title",
 };
 
@@ -19,25 +21,8 @@ const repositoryMock: MassiveJobsRepository = {
 const useCase = new CreateMassiveNotificationJobUseCase(repositoryMock);
 
 describe("CreateMassiveNotificationJobUseCase", () => {
-  test("should return ErrorValidation when payload is missing required fields", async () => {
-    const result = await useCase.execute({});
-
-    expect(result).toBeInstanceOf(ErrorValidation);
-  });
-
-  test("should return ErrorValidation when payload has invalid field types", async () => {
-    const result = await useCase.execute({
-      body: 123,
-      title: "",
-    });
-
-    expect(result).toBeInstanceOf(ErrorValidation);
-  });
-
-  test("should return ErrorValidation when payload is not an object", async () => {
-    const result = await useCase.execute("invalid");
-
-    expect(result).toBeInstanceOf(ErrorValidation);
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
   test("should return ErrorInternal when repository fails", async () => {
@@ -58,7 +43,9 @@ describe("CreateMassiveNotificationJobUseCase", () => {
     expect(repositoryMock.createMassiveJob).toHaveBeenCalledWith(
       expect.objectContaining({
         body: aValidPayload.body,
+        executionTimeInHours: aValidPayload.executionTimeInHours,
         id: expect.any(String),
+        startTimeTimestamp: aValidPayload.startTimeTimestamp,
         status: "CREATED",
         title: aValidPayload.title,
       }),
@@ -73,34 +60,17 @@ describe("CreateMassiveNotificationJobUseCase", () => {
     expect(result).toBe(aJobId);
   });
 
-  test("should apply default values for optional fields when not provided", async () => {
+  test("should not set optional fields when they are not provided", async () => {
     vi.mocked(repositoryMock.createMassiveJob).mockResolvedValueOnce(aJobId);
 
     await useCase.execute(aValidPayload);
 
     expect(repositoryMock.createMassiveJob).toHaveBeenCalledWith(
       expect.objectContaining({
-        executionTimeInHours: 2,
-        startTimeTimestamp: expect.any(Number),
-      }),
-    );
-  });
-
-  test("should use provided optional fields when given", async () => {
-    vi.mocked(repositoryMock.createMassiveJob).mockResolvedValueOnce(aJobId);
-
-    const payloadWithOptionals = {
-      ...aValidPayload,
-      executionTimeInHours: 6,
-      startTimeTimestamp: 1900000000,
-    };
-
-    await useCase.execute(payloadWithOptionals);
-
-    expect(repositoryMock.createMassiveJob).toHaveBeenCalledWith(
-      expect.objectContaining({
-        executionTimeInHours: 6,
-        startTimeTimestamp: 1900000000,
+        body: aValidPayload.body,
+        executionTimeInHours: aValidPayload.executionTimeInHours,
+        startTimeTimestamp: aValidPayload.startTimeTimestamp,
+        title: aValidPayload.title,
       }),
     );
   });

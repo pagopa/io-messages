@@ -19,17 +19,19 @@ describe("CosmosMassiveJobsAdapter", () => {
   let mockDatabase: Database;
   let mockContainer: Container;
   let mockCreate: ReturnType<typeof vi.fn>;
-  let mockUpsert: ReturnType<typeof vi.fn>;
+  let mockReplace: ReturnType<typeof vi.fn>;
+  let mockItem: ReturnType<typeof vi.fn>;
   let adapter: CosmosMassiveJobsAdapter;
 
   beforeEach(() => {
     mockCreate = vi.fn();
-    mockUpsert = vi.fn();
+    mockReplace = vi.fn();
+    mockItem = vi.fn().mockReturnValue({ replace: mockReplace });
 
     mockContainer = {
+      item: mockItem,
       items: {
         create: mockCreate,
-        upsert: mockUpsert,
       },
     } as unknown as Container;
 
@@ -65,7 +67,7 @@ describe("CosmosMassiveJobsAdapter", () => {
 
   describe("updateMassiveJob", () => {
     it("should return the item id on success", async () => {
-      mockUpsert.mockResolvedValueOnce({
+      mockReplace.mockResolvedValueOnce({
         item: { id: mockJob.id },
       } as unknown as Item);
 
@@ -73,13 +75,14 @@ describe("CosmosMassiveJobsAdapter", () => {
 
       expect(result).toBe(mockJob.id);
       expect(mockDatabase.container).toHaveBeenCalledWith(mockContainerName);
-      expect(mockUpsert).toHaveBeenCalledWith(mockJob, {});
+      expect(mockItem).toHaveBeenCalledWith(mockJob.id);
+      expect(mockReplace).toHaveBeenCalledWith(mockJob);
     });
 
     it("should return ErrorNotFound when cosmos responds with 404", async () => {
       const notFoundError = new ErrorResponse("Not Found");
       notFoundError.code = 404;
-      mockUpsert.mockRejectedValueOnce(notFoundError);
+      mockReplace.mockRejectedValueOnce(notFoundError);
 
       const result = await adapter.updateMassiveJob(mockJob);
 
@@ -90,7 +93,7 @@ describe("CosmosMassiveJobsAdapter", () => {
     it("should return ErrorInternal when cosmos responds with non-404 ErrorResponse", async () => {
       const serverError = new ErrorResponse("Internal Server Error");
       serverError.code = 500;
-      mockUpsert.mockRejectedValueOnce(serverError);
+      mockReplace.mockRejectedValueOnce(serverError);
 
       const result = await adapter.updateMassiveJob(mockJob);
 
@@ -98,8 +101,8 @@ describe("CosmosMassiveJobsAdapter", () => {
       expect((result as ErrorInternal).code).toBe("500");
     });
 
-    it("should return ErrorInternal when upsert throws a generic error", async () => {
-      mockUpsert.mockRejectedValueOnce(new Error("unexpected failure"));
+    it("should return ErrorInternal when replace throws a generic error", async () => {
+      mockReplace.mockRejectedValueOnce(new Error("unexpected failure"));
 
       const result = await adapter.updateMassiveJob(mockJob);
 
