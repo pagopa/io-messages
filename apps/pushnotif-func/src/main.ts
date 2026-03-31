@@ -100,7 +100,7 @@ const main = (config: Config) => {
 
   const messageModel = new MessageModel(
     apiCosmosdb.container(MESSAGE_COLLECTION_NAME),
-    "messages" as NonEmptyString,
+    config.messageContentContainerName as NonEmptyString,
   );
 
   const blobService = createBlobService(
