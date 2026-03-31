@@ -481,9 +481,6 @@ importers:
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 3.2.4(vitest@3.2.4(@types/node@22.19.15))
-      esbuild:
-        specifier: 'catalog:'
-        version: 0.25.12
       eslint:
         specifier: 'catalog:'
         version: 8.57.1
@@ -530,9 +527,6 @@ importers:
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 3.2.4(vitest@3.2.4(@types/node@22.19.15))
-      esbuild:
-        specifier: 'catalog:'
-        version: 0.25.12
       eslint:
         specifier: 'catalog:'
         version: 8.57.1
