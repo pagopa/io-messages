@@ -1,7 +1,7 @@
-import { TelemetryService } from "../../domain/telemetry.js";
 import { TelemetryClient } from "applicationinsights";
 import appInsight from "applicationinsights";
 
+import { TelemetryService } from "../../domain/telemetry.js";
 import { ApplicationInsightsConfig } from "./config.js";
 
 export class TelemetryEventService implements TelemetryService {

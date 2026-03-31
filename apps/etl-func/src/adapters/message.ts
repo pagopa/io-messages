@@ -1,3 +1,5 @@
+import { Logger } from "pino";
+
 import { EventErrorRepository, EventErrorTypesEnum } from "../domain/event.js";
 import {
   Message,
@@ -6,8 +8,6 @@ import {
   messageSchema,
 } from "../domain/message.js";
 import { TelemetryEventName, TelemetryService } from "../domain/telemetry.js";
-import { Logger } from "pino";
-
 import {
   MessageContentError,
   MessageContentProvider,

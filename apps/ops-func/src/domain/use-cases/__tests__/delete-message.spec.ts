@@ -1,7 +1,7 @@
-import { AuditLogger } from "../../audit.js";
-import { MessageRepository } from "../../message.js";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import { AuditLogger } from "../../audit.js";
+import { MessageRepository } from "../../message.js";
 import { DeleteMessageUseCase } from "../delete-message.js";
 
 const repo: MessageRepository = {

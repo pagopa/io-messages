@@ -1,9 +1,9 @@
-import { AuditLogger } from "../../../domain/audit.js";
-import { MessageRepository } from "../../../domain/message.js";
-import { DeleteMessageUseCase } from "../../../domain/use-cases/delete-message.js";
 import { InvocationContext } from "@azure/functions";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import { AuditLogger } from "../../../domain/audit.js";
+import { MessageRepository } from "../../../domain/message.js";
+import { DeleteMessageUseCase } from "../../../domain/use-cases/delete-message.js";
 import { deleteMessage } from "../delete-message.js";
 
 const repo: MessageRepository = {
