@@ -47,29 +47,26 @@
     },
     {
       "name": "feature_level_type",
-      "type": ["null", {
-        "type": "enum",
-        "name": "FeatureLevelType",
-        "symbols": [
-          "STANDARD",
-          "ADVANCED"
-        ]
-      }],
+      "type": [
+        "null",
+        {
+          "type": "enum",
+          "name": "FeatureLevelType",
+          "symbols": ["STANDARD", "ADVANCED"]
+        }
+      ],
       "default": null
     },
     {
       "name": "content_type",
-      "type": ["null", {
-        "type": "enum",
-        "name": "MessageContentType",
-        "symbols": [
-          "GENERIC",
-          "PAYMENT",
-          "EU_COVID_CERT",
-          "LEGAL",
-          "PN"
-        ]
-      }],
+      "type": [
+        "null",
+        {
+          "type": "enum",
+          "name": "MessageContentType",
+          "symbols": ["GENERIC", "PAYMENT", "EU_COVID_CERT", "LEGAL", "PN"]
+        }
+      ],
       "default": null
     },
     {

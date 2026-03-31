@@ -9,6 +9,7 @@ import it.ioapp.com.reminder.dto.PaymentMessage;
 import it.ioapp.com.reminder.model.Reminder;
 import it.ioapp.com.reminder.producer.ReminderProducer;
 import it.ioapp.com.reminder.repository.ReminderRepository;
+import it.ioapp.com.reminder.restclient.pagopaecommerce.ApiClient;
 import it.ioapp.com.reminder.restclient.pagopaecommerce.api.PaymentRequestsApi;
 import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFault;
 import it.ioapp.com.reminder.restclient.pagopaecommerce.model.PaymentDuplicatedStatusFaultPaymentProblemJson;
@@ -95,6 +96,7 @@ public class AbstractMock {
             "",
             mapper.writeValueAsString(dto).getBytes(),
             Charset.defaultCharset());
+    Mockito.when(mockPaymentApi.getApiClient()).thenReturn(Mockito.mock(ApiClient.class));
     Mockito.when(mockPaymentApi.getPaymentRequestInfo(ArgumentMatchers.anyString()))
         .thenThrow(errorResponse);
   }
@@ -105,6 +107,7 @@ public class AbstractMock {
       mockPaymentRequestsGetResponse.setDueDate("2022-05-16");
     }
     mockPaymentRequestsGetResponse.setAmount(80);
+    Mockito.when(mockPaymentApi.getApiClient()).thenReturn(Mockito.mock(ApiClient.class));
     Mockito.when(mockPaymentApi.getPaymentRequestInfo(ArgumentMatchers.anyString()))
         .thenReturn(mockPaymentRequestsGetResponse);
   }

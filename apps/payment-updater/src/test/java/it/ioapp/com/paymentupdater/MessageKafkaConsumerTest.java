@@ -177,8 +177,8 @@ public class MessageKafkaConsumerTest extends AbstractMock {
     Assertions.assertEquals(0L, messageKafkaConsumer.getLatch().getCount());
   }
 
-  public void test_messageEventKafkaConsumer_toThrow(Payment payment, String idPaymentMessage)
-      throws Throwable {
+  public void test_messageEventKafkaConsumer_HttpError_TreatedAsNotPaid(
+      Payment payment, String idPaymentMessage) throws Throwable {
 
     Payment paymentMessage =
         selectReminderMockObject(
@@ -204,8 +204,9 @@ public class MessageKafkaConsumerTest extends AbstractMock {
     mockGetPaymentByRptId(payments);
     mockSaveWithResponse(payment);
 
-    Assertions.assertThrows(
-        RuntimeException.class, () -> messageKafkaConsumer.messageKafkaListener(paymentMessage));
+    messageKafkaConsumer.messageKafkaListener(paymentMessage);
+    Assertions.assertTrue(messageKafkaConsumer.getPayload().contains("paidFlag=false"));
+    Assertions.assertEquals(0L, messageKafkaConsumer.getLatch().getCount());
   }
 
   @Test
@@ -258,7 +259,7 @@ public class MessageKafkaConsumerTest extends AbstractMock {
   }
 
   @Test
-  public void test_messageEventKafkaConsumer_Throw() throws Throwable {
+  public void test_messageEventKafkaConsumer_HttpError_TreatedAsNotPaid() throws Throwable {
     Payment payment =
         selectReminderMockObject(
             "",
@@ -269,7 +270,7 @@ public class MessageKafkaConsumerTest extends AbstractMock {
             "ALSDKdcoekroicjre200",
             "ALSDKdcoek",
             "roicjre200");
-    test_messageEventKafkaConsumer_toThrow(payment, "2");
+    test_messageEventKafkaConsumer_HttpError_TreatedAsNotPaid(payment, "2");
   }
 
   @Test

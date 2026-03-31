@@ -1,5 +1,13 @@
 # etl-func
 
+## 1.0.10
+
+### Patch Changes
+
+- 0555a04: Migrate Monorepo from Yarn PnP to pnpm
+- Updated dependencies [0555a04]
+  - io-messages-common@1.4.2
+
 ## 1.0.9
 
 ### Patch Changes
