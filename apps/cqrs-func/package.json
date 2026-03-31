@@ -50,7 +50,6 @@
     "@azure/identity": "catalog:",
     "@azure/storage-queue": "catalog:",
     "@chasdevs/avro-to-typescript": "catalog:",
-    "@pagopa/azure-storage-legacy-migration-kit": "^0.0.4",
     "@pagopa/fp-ts-kafkajs": "catalog:",
     "@pagopa/io-functions-commons": "catalog:",
     "@pagopa/ts-commons": "catalog:",
