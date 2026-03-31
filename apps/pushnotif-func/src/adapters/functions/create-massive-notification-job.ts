@@ -1,7 +1,7 @@
 import { HttpHandler } from "@azure/functions";
 
 import { ErrorInternal, ErrorValidation } from "../../domain/error";
-import { parseRequestBodyToJson } from "../../domain/http-request";
+import { parseRequestBody } from "../../domain/http-request";
 import { CreateMassiveJobPayloadSchema } from "../../domain/massive-jobs";
 import { CreateMassiveNotificationJobUseCase } from "../../domain/use-cases/create-massive-notification-job";
 
@@ -10,30 +10,25 @@ export const createMassiveNotificationJobHandler =
     createMassiveNotificationJobUseCase: CreateMassiveNotificationJobUseCase,
   ): HttpHandler =>
   async (request) => {
-    const rawBody = await parseRequestBodyToJson(request);
-    if (rawBody instanceof ErrorValidation) {
-      return {
-        body: JSON.stringify({ error: rawBody.message }),
-        headers: { "Content-Type": "application/json" },
-        status: 400,
-      };
-    }
+    const parsedBody = await parseRequestBody(
+      request,
+      CreateMassiveJobPayloadSchema,
+    );
 
-    const parsed = CreateMassiveJobPayloadSchema.safeParse(rawBody);
-    if (!parsed.success) {
+    if (parsedBody instanceof ErrorValidation) {
       return {
         body: JSON.stringify({
-          details: parsed.error.issues,
-          error: "Bad Request",
+          error: parsedBody.message,
+          issues: parsedBody.issues,
         }),
         headers: { "Content-Type": "application/json" },
         status: 400,
       };
     }
 
-    const result = await createMassiveNotificationJobUseCase.execute(
-      parsed.data,
-    );
+    const result =
+      await createMassiveNotificationJobUseCase.execute(parsedBody);
+
     if (result instanceof ErrorInternal) {
       return {
         body: JSON.stringify({ error: result.message }),

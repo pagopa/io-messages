@@ -53,17 +53,19 @@ describe("createMassiveNotificationJobHandler", () => {
     const response = await handler(request, context);
 
     expect(response).toMatchObject({
-      body: expect.stringContaining("Bad Request"),
+      body: expect.stringContaining(
+        '{"error":"Invalid request body","issues":[{"origin":"string","code":"too_small","minimum":1,"inclusive":true,"path":["title"],"message":"Too small: expected string to have >=1 characters"}]}',
+      ),
       status: 400,
     });
     const responseBody = JSON.parse(response.body as string);
     expect(responseBody).toEqual(
       expect.objectContaining({
-        details: expect.any(Array),
-        error: "Bad Request",
+        error: "Invalid request body",
+        issues: expect.any(Array),
       }),
     );
-    expect(responseBody.details).toEqual(
+    expect(responseBody.issues).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           code: "too_small",

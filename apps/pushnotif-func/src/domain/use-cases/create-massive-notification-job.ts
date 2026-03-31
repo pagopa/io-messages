@@ -14,12 +14,12 @@ export class CreateMassiveNotificationJobUseCase {
     massiveJob: CreateMassiveJobPayload,
   ): Promise<ErrorInternal | ErrorValidation | string> {
     const job = {
-      id: ulid(),
       body: massiveJob.body,
-      title: massiveJob.title,
-      status: "CREATED" as MassiveJobStatus,
       executionTimeInHours: massiveJob.executionTimeInHours,
+      id: ulid(),
       startTimeTimestamp: massiveJob.startTimeTimestamp,
+      status: "CREATED" as MassiveJobStatus,
+      title: massiveJob.title,
     };
 
     return this.repository.createMassiveJob(job);
