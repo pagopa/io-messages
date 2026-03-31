@@ -223,7 +223,7 @@ public class ReminderServiceImpl implements ReminderService {
         reminder.getDueDate() == null ? null : reminder.getDueDate().toLocalDate();
 
     PaymentInfo paymentInfo = null;
-    if (reminder.getContent_subject().equals("TEST_REMINDER_NOTIFY_TRUE_759864")) {
+    if ("TEST_REMINDER_NOTIFY_TRUE_759864".equals(reminder.getContent_subject())) {
       paymentInfo = new PaymentInfo();
       paymentInfo.setPaid(false);
       paymentInfo.setDueDate(reminderDueDate);

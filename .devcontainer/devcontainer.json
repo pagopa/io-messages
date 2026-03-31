@@ -31,8 +31,7 @@
   },
   "shutdownAction": "stopCompose",
   "postStartCommand": {
-    "set-workspace-as-safe-dir": "git config --global --add safe.directory ${containerWorkspaceFolder}",
-    "install-yarn-and-deps": "yarn install"
+    "set-workspace-as-safe-dir": "git config --global --add safe.directory ${containerWorkspaceFolder}"
   },
   "containerEnv": {
     "NODE_ENV": "development",

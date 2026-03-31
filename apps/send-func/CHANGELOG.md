@@ -1,5 +1,21 @@
 # send-func
 
+## 1.5.10
+
+### Patch Changes
+
+- 76cb4f7: Upgrade Github Actions
+- Updated dependencies [76cb4f7]
+  - io-messages-common@1.4.3
+
+## 1.5.9
+
+### Patch Changes
+
+- 0555a04: Migrate Monorepo from Yarn PnP to pnpm
+- Updated dependencies [0555a04]
+  - io-messages-common@1.4.2
+
 ## 1.5.8
 
 ### Patch Changes
