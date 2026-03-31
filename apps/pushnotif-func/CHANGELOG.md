@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.3.7
+
+### Patch Changes
+
+- 76cb4f7: Upgrade Github Actions
+
 ## 2.3.6
 
 ### Patch Changes
