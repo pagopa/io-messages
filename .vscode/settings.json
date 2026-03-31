@@ -5,11 +5,9 @@
     "editor.defaultFormatter": "hashicorp.terraform"
   },
   "search.exclude": {
-    "**/.yarn": true,
+    "**/.pnpm-store": true,
     "**/.pnp.*": true
   },
-  "prettier.prettierPath": ".yarn/sdks/prettier/index.cjs",
-  "typescript.tsdk": ".yarn/sdks/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "java.configuration.updateBuildConfiguration": "interactive",
   "[xml]": {

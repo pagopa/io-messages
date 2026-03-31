@@ -36,13 +36,13 @@ or simply change the values accordingly to your needs.
 Install dependencies using the node version inside the .node-version file:
 
 ```bash
-yarn install
+pnpm install
 ```
 
 Build the code:
 
 ```bash
-yarn build
+pnpm build
 ```
 
 Azure authentication. Its needed for the usage of remote azure resources:
@@ -54,7 +54,7 @@ az login
 Start the function with azure function core tools.
 
 ```bash
-yarn start
+pnpm start
 ```
 
 ### Call the healthcheck
