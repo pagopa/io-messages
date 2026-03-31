@@ -22,10 +22,10 @@
     "version": "pnpm bump:openapi",
     "bump:openapi": "pnpm node copy-commons-definitions.js && bundle-api-spec -i openapi/index.yaml -o openapi/index.yaml -V $npm_package_version && git add openapi/index.yaml",
     "generate": "pnpm bump:openapi && pnpm generate:definitions && pnpm generate:pagopa-ecommerce && pnpm generate:notify && pnpm generate:remote-content",
-    "generate:definitions": "rimraf ./src/generated/definitions && shx mkdir -p ./src/generated/definitions && gen-api-models --api-spec ./openapi/index.yaml --no-strict --out-dir ./src/generated/definitions",
-    "generate:remote-content": "rimraf src/generated/remote-content && gen-api-models --api-spec https://raw.githubusercontent.com/pagopa/io-functions-services-messages/master/openapi/index_external.yaml --no-strict --out-dir src/generated/remote-content --request-types --response-decoders --client",
-    "generate:pagopa-ecommerce": "rimraf src/generated/pagopa-ecommerce && shx mkdir -p src/generated/pagopa-ecommerce && gen-api-models --api-spec ./openapi/pagopa-ecommerce.yaml --no-strict --out-dir ./src/generated/pagopa-ecommerce --request-types --response-decoders --client",
-    "generate:notify": "rimraf src/generated/notify && shx mkdir -p src/generated/notify && gen-api-models --api-spec ./openapi/notify.yaml --no-strict --out-dir ./src/generated/notify --request-types --response-decoders --client",
+    "generate:definitions": "shx rm -rf ./src/generated/definitions && shx rm -rf mkdir -p ./src/generated/definitions && gen-api-models --api-spec ./openapi/index.yaml --no-strict --out-dir ./src/generated/definitions",
+    "generate:remote-content": "shx rm -rf src/generated/remote-content && gen-api-models --api-spec https://raw.githubusercontent.com/pagopa/io-functions-services-messages/master/openapi/index_external.yaml --no-strict --out-dir src/generated/remote-content --request-types --response-decoders --client",
+    "generate:pagopa-ecommerce": "shx rm -rf src/generated/pagopa-ecommerce && shx rm -rf mkdir -p src/generated/pagopa-ecommerce && gen-api-models --api-spec ./openapi/pagopa-ecommerce.yaml --no-strict --out-dir ./src/generated/pagopa-ecommerce --request-types --response-decoders --client",
+    "generate:notify": "shx rm -rf src/generated/notify && shx rm -rf mkdir -p src/generated/notify && gen-api-models --api-spec ./openapi/notify.yaml --no-strict --out-dir ./src/generated/notify --request-types --response-decoders --client",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit"
@@ -44,7 +44,6 @@
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
     "prettier": "catalog:",
-    "rimraf": "^6.0.1",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"

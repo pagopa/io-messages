@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{services_func_url}}/api/v1/messages/{{fiscal_code}}/01KFBA0RM9WEV034X56HWXMM0X
+  url: {{services_func_url}}/api/v1/messages/{{fiscal_code}}/01KN1PPDCYSVZ9EY4H13YZ8BSN
   body: none
   auth: inherit
 }
@@ -15,6 +15,7 @@ headers {
   x-user-email: {{sender_email}}
   x-subscription-id: {{sender_subscription_id}}
   x-user-id: {{sender_user_id}}
+  x-forwarded-for: {{receipt_id}}
 }
 
 vars:pre-request {

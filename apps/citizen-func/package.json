@@ -39,7 +39,6 @@
     "eslint": "catalog:",
     "modclean": "catalog:",
     "prettier": "catalog:",
-    "rimraf": "^6.0.1",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
