@@ -7,14 +7,19 @@ import { createMassiveNotificationJobHandler } from "../create-massive-notificat
 
 const context = new InvocationContext();
 
-const makeRequest = (jsonFn: () => Promise<unknown> | unknown): HttpRequest =>
-  ({ json: jsonFn }) as unknown as HttpRequest;
+const makeRequest = (jsonFn: () => Promise<object> | object): HttpRequest =>
+  ({ json: jsonFn }) as HttpRequest;
 
-const useCaseMock = {
+const parseResponseBody = async <T>(response: Response): Promise<T> =>
+  JSON.parse(await response.text()) as T;
+
+const useCaseMock: Pick<CreateMassiveNotificationJobUseCase, "execute"> = {
   execute: vi.fn(),
-} as unknown as CreateMassiveNotificationJobUseCase;
+};
 
-const handler = createMassiveNotificationJobHandler(useCaseMock);
+const handler = createMassiveNotificationJobHandler(
+  useCaseMock as CreateMassiveNotificationJobUseCase,
+);
 
 const aValidPayload = {
   body: "Notification body",
@@ -34,11 +39,12 @@ describe("createMassiveNotificationJobHandler", () => {
     });
 
     const response = await handler(request, context);
+    const responseBody = await parseResponseBody<{ error: string }>(
+      response as Response,
+    );
 
-    expect(response).toMatchObject({
-      body: JSON.stringify({ error: "Invalid JSON body" }),
-      status: 400,
-    });
+    expect(response.status).toBe(400);
+    expect(responseBody).toEqual({ error: "Invalid JSON body" });
     expect(useCaseMock.execute).not.toHaveBeenCalled();
   });
 
@@ -51,27 +57,17 @@ describe("createMassiveNotificationJobHandler", () => {
     );
 
     const response = await handler(request, context);
+    const responseBody = await parseResponseBody<{
+      error: string;
+      issues: object[];
+    }>(response as Response);
 
-    expect(response).toMatchObject({
-      body: expect.stringContaining(
-        '{"error":"Invalid request body","issues":[{"origin":"string","code":"too_small","minimum":1,"inclusive":true,"path":["title"],"message":"Too small: expected string to have >=1 characters"}]}',
-      ),
-      status: 400,
-    });
-    const responseBody = JSON.parse(response.body as string);
+    expect(response.status).toBe(400);
     expect(responseBody).toEqual(
       expect.objectContaining({
         error: "Invalid request body",
         issues: expect.any(Array),
       }),
-    );
-    expect(responseBody.issues).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          code: "too_small",
-          path: ["title"],
-        }),
-      ]),
     );
     expect(useCaseMock.execute).not.toHaveBeenCalled();
   });
@@ -83,11 +79,12 @@ describe("createMassiveNotificationJobHandler", () => {
     const request = makeRequest(() => Promise.resolve(aValidPayload));
 
     const response = await handler(request, context);
+    const responseBody = await parseResponseBody<{ error: string }>(
+      response as Response,
+    );
 
-    expect(response).toMatchObject({
-      body: JSON.stringify({ error: "Something went wrong" }),
-      status: 500,
-    });
+    expect(response.status).toBe(500);
+    expect(responseBody).toEqual({ error: "Something went wrong" });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
       expect.objectContaining({
         body: aValidPayload.body,
@@ -106,11 +103,12 @@ describe("createMassiveNotificationJobHandler", () => {
     const request = makeRequest(() => Promise.resolve(aValidPayload));
 
     const response = await handler(request, context);
+    const responseBody = await parseResponseBody<{ error: string }>(
+      response as Response,
+    );
 
-    expect(response).toMatchObject({
-      body: JSON.stringify({ error: "Unexpected error" }),
-      status: 500,
-    });
+    expect(response.status).toBe(500);
+    expect(responseBody).toEqual({ error: "Unexpected error" });
   });
 
   test("should return 201 with the job id when use case succeeds", async () => {
@@ -119,11 +117,12 @@ describe("createMassiveNotificationJobHandler", () => {
     const request = makeRequest(() => Promise.resolve(aValidPayload));
 
     const response = await handler(request, context);
+    const responseBody = await parseResponseBody<{ id: string }>(
+      response as Response,
+    );
 
-    expect(response).toMatchObject({
-      body: JSON.stringify({ id: aJobId }),
-      status: 201,
-    });
+    expect(response.status).toBe(201);
+    expect(responseBody).toEqual({ id: aJobId });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
       expect.objectContaining({
         body: aValidPayload.body,

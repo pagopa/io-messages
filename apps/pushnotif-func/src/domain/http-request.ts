@@ -1,12 +1,10 @@
 // TODO: move this file to io-messages-common
-
-import { HttpRequest } from "@azure/functions";
-import { ZodObject } from "zod/v4/classic/external.cjs";
+import { HttpRequest, HttpResponse } from "@azure/functions";
+import z from "zod";
 
 import { ErrorValidation } from "./error";
 
-//eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const parseRequestBody = async <T extends ZodObject<any>>(
+export const parseHttpRequestBody = async <T extends z.ZodTypeAny>(
   request: HttpRequest,
   schema: T,
 ): Promise<ErrorValidation | T["_output"]> => {
@@ -28,3 +26,13 @@ export const parseRequestBody = async <T extends ZodObject<any>>(
     return new ErrorValidation("Invalid JSON body");
   }
 };
+
+export const createHttpResponse = (
+  status: number,
+  body: unknown,
+): HttpResponse =>
+  new HttpResponse({
+    body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json" },
+    status,
+  });

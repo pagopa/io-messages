@@ -1,6 +1,6 @@
 import { ulid } from "ulid";
 
-import { ErrorInternal, ErrorValidation } from "../error";
+import { ErrorInternal } from "../error";
 import {
   CreateMassiveJobPayload,
   MassiveJobStatus,
@@ -12,14 +12,11 @@ export class CreateMassiveNotificationJobUseCase {
 
   async execute(
     massiveJob: CreateMassiveJobPayload,
-  ): Promise<ErrorInternal | ErrorValidation | string> {
+  ): Promise<ErrorInternal | string> {
     const job = {
-      body: massiveJob.body,
-      executionTimeInHours: massiveJob.executionTimeInHours,
+      ...massiveJob,
       id: ulid(),
-      startTimeTimestamp: massiveJob.startTimeTimestamp,
       status: "CREATED" as MassiveJobStatus,
-      title: massiveJob.title,
     };
 
     return this.repository.createMassiveJob(job);

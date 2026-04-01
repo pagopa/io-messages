@@ -14,7 +14,7 @@ export type MassiveJobStatus = z.infer<typeof MassiveJobStatusEnum>;
 export const MassiveJobSchema = z.object({
   body: z.string().min(1),
   executionTimeInHours: z.number().int().min(2).max(12).default(2),
-  id: z.uuid(),
+  id: z.ulid(),
   startTimeTimestamp: z
     .number()
     .int()
