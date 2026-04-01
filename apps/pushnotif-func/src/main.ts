@@ -193,16 +193,11 @@ const main = (config: Config) => {
   const healthChecks = [
     () => cosmosHealthcheck(apiCosmosdb),
     () => cosmosHealthcheck(pushCosmosDb),
-    () => blobServiceHealthcheck(blobService.primary),
+    () => blobServiceHealthcheck(blobService),
     ...notificationHubClients.map(
       (client, i) => () => notificationHubHealthcheck(client, i + 1),
     ),
   ];
-  // This is temporary, we will remove migration toolkit soon.
-  const secondaryBlobService = blobService.secondary;
-  if (secondaryBlobService) {
-    healthChecks.push(() => blobServiceHealthcheck(secondaryBlobService));
-  }
   const healthCheckUseCase = new HealthCheckUseCase(healthChecks);
   app.http("Health", {
     authLevel: "anonymous",
