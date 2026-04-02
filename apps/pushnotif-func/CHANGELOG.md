@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.4.0
+
+### Minor Changes
+
+- c853294: Add CreateMassiveJob function
+
 ## 2.3.8
 
 ### Patch Changes
