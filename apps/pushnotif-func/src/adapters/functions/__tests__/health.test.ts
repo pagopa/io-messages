@@ -1,5 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
 
+import {
+  createMockContext,
+  createMockRequest,
+} from "../../../__mocks__/httptrigger.mock";
 import { ErrorInternal } from "../../../domain/error";
 import { HealthCheckUseCase } from "../../../domain/use-cases/health";
 import { getHealthHandler } from "../health";
@@ -12,12 +16,16 @@ const makeHealthCheckUseCase = (
   }) as unknown as HealthCheckUseCase;
 
 describe("getHealthHandler", () => {
+  const mockRequest = createMockRequest();
+  const mockContext = createMockContext();
+
   test("should return ok status when all healthchecks succeed", async () => {
     const healthChecks = makeHealthCheckUseCase();
     const handler = getHealthHandler(healthChecks);
 
-    await expect(handler()).resolves.toEqual({
+    await expect(handler(mockRequest, mockContext)).resolves.toEqual({
       body: JSON.stringify({ status: "ok" }),
+      headers: { "Content-Type": "application/json" },
       status: 200,
     });
 
@@ -38,7 +46,7 @@ describe("getHealthHandler", () => {
     const healthChecks = makeHealthCheckUseCase(errors);
     const handler = getHealthHandler(healthChecks);
 
-    await expect(handler()).resolves.toEqual({
+    await expect(handler(mockRequest, mockContext)).resolves.toEqual({
       body: JSON.stringify({
         errors: [
           "Cosmos Healthcheck failed for database push Error: Cosmos error",
@@ -46,6 +54,7 @@ describe("getHealthHandler", () => {
         ],
         status: "ko",
       }),
+      headers: { "Content-Type": "application/json" },
       status: 500,
     });
 
@@ -58,8 +67,9 @@ describe("getHealthHandler", () => {
     } as unknown as HealthCheckUseCase;
     const handler = getHealthHandler(healthChecks);
 
-    await expect(handler()).resolves.toEqual({
+    await expect(handler(mockRequest, mockContext)).resolves.toEqual({
       body: JSON.stringify({ error: "Could not perform health checks" }),
+      headers: { "Content-Type": "application/json" },
       status: 500,
     });
   });
