@@ -17,6 +17,7 @@ export const getInfoHandler =
     } catch {
       return {
         body: JSON.stringify({ error: "Could not read function info" }),
+        headers: { "Content-Type": "application/json" },
         status: 500,
       };
     }

@@ -5,7 +5,9 @@ export class HealthCheckUseCase {
   constructor(private healthChecks: HealthCheck[]) {}
 
   public async execute(): Promise<ErrorInternal[]> {
-    const healthChecksResults = await Promise.all(this.healthChecks);
+    const healthChecksResults = await Promise.all(
+      this.healthChecks.map((healthCheck) => healthCheck()),
+    );
 
     const errors = healthChecksResults.filter(
       (result) => result instanceof ErrorInternal,

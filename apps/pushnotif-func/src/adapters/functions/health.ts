@@ -15,11 +15,13 @@ export const getHealthHandler =
                 status: "ko",
               })
             : JSON.stringify({ status: "ok" }),
+        headers: { "Content-Type": "application/json" },
         status: errors.length > 0 ? 500 : 200,
       };
     } catch {
       return {
         body: JSON.stringify({ error: "Could not perform health checks" }),
+        headers: { "Content-Type": "application/json" },
         status: 500,
       };
     }
