@@ -31,6 +31,9 @@ export interface MassiveJobsRepository {
   updateMassiveJob: (
     job: MassiveJob,
   ) => Promise<ErrorInternal | ErrorNotFound | string>;
+  getMassiveJobById: (
+    id: string,
+  ) => Promise<ErrorInternal | ErrorNotFound | MassiveJob>;
 }
 
 export const CreateMassiveJobPayloadSchema = MassiveJobSchema.omit({
@@ -40,4 +43,12 @@ export const CreateMassiveJobPayloadSchema = MassiveJobSchema.omit({
 
 export type CreateMassiveJobPayload = z.infer<
   typeof CreateMassiveJobPayloadSchema
+>;
+
+export const StartMassiveNotificationJobPayloadSchema = z.object({
+  id: z.ulid(),
+});
+
+export type StartMassiveNotificationJobPayload = z.infer<
+  typeof StartMassiveNotificationJobPayloadSchema
 >;

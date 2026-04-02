@@ -36,4 +36,27 @@ export class CosmosMassiveJobsAdapter implements MassiveJobsRepository {
       return new ErrorInternal("Failed to update massive job", err);
     }
   }
+
+  async getMassiveJobById(
+    id: string,
+  ): Promise<ErrorInternal | ErrorNotFound | MassiveJob> {
+    try {
+      const result = await this.container.item(id).read<MassiveJob>();
+      if (!result.resource) {
+        return new ErrorNotFound("Massive job not found");
+      }
+      return result.resource;
+    } catch (err) {
+      if (err instanceof ErrorResponse) {
+        switch (err.code) {
+          case 404:
+            return new ErrorNotFound("Massive job not found", err);
+          default:
+            return new ErrorInternal("Failed to get massive job", err);
+        }
+      }
+
+      return new ErrorInternal("Failed to get massive job", err);
+    }
+  }
 }
