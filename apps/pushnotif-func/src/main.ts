@@ -35,10 +35,13 @@ import {
   loadConfigFromEnvironment,
 } from "./adapters/config";
 import { CosmosInstallationSummaryAdapter } from "./adapters/cosmos/installation";
+import { CosmosMassiveJobsAdapter } from "./adapters/cosmos/massive-jobs";
+import { createMassiveNotificationJobHandler } from "./adapters/functions/create-massive-notification-job";
 import { getInfoHandler } from "./adapters/functions/info";
 import getUpdateInstallationHandler from "./adapters/functions/update-installation";
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
+import { CreateMassiveNotificationJobUseCase } from "./domain/use-cases/create-massive-notification-job";
 import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
@@ -286,6 +289,24 @@ const main = (config: Config) => {
       notifiationHubInstallationAdapter,
     ),
     queueName: updateInstallationDispatchQueueName,
+  });
+
+  const massiveJobsContainer = pushCosmosDb.container(
+    config.massiveJobsContainerName,
+  );
+  const massiveJobsRepository = new CosmosMassiveJobsAdapter(
+    massiveJobsContainer,
+  );
+  const createMassiveNotificationJobUseCase =
+    new CreateMassiveNotificationJobUseCase(massiveJobsRepository);
+
+  app.http("CreateMassiveNotificationJob", {
+    authLevel: "admin",
+    handler: createMassiveNotificationJobHandler(
+      createMassiveNotificationJobUseCase,
+    ),
+    methods: ["POST"],
+    route: "api/v1/massive-notification-job",
   });
 };
 
