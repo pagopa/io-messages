@@ -1,6 +1,6 @@
 {
   "name": "pushnotif-func",
-  "version": "2.3.8",
+  "version": "2.4.0",
   "license": "MIT",
   "type": "commonjs",
   "main": "dist/main.js",
@@ -46,6 +46,7 @@
     "io-ts": "catalog:",
     "node-fetch": "catalog:",
     "ts-pattern": "catalog:",
+    "ulid": "catalog:",
     "winston": "catalog:",
     "zod": "catalog:"
   },
