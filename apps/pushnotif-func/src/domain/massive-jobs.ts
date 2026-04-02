@@ -2,7 +2,7 @@ import z from "zod";
 
 import { ErrorInternal, ErrorNotFound } from "./error";
 
-const MassiveJobStatusEnum = z.enum([
+export const MassiveJobStatusEnum = z.enum([
   "CREATED",
   "PROCESSING",
   "COMPLETED",
@@ -12,7 +12,7 @@ const MassiveJobStatusEnum = z.enum([
 export type MassiveJobStatus = z.infer<typeof MassiveJobStatusEnum>;
 
 export const MassiveJobSchema = z.object({
-  body: z.string().min(1),
+  body: z.string().min(1).max(1000),
   executionTimeInHours: z.number().int().min(2).max(12).default(2),
   id: z.ulid(),
   startTimeTimestamp: z
@@ -21,7 +21,7 @@ export const MassiveJobSchema = z.object({
     .positive()
     .default(() => Math.floor((Date.now() + 60 * 60 * 1000) / 1000)), // default to 1 hour from now
   status: MassiveJobStatusEnum,
-  title: z.string().min(1),
+  title: z.string().min(1).max(500),
 });
 
 export type MassiveJob = z.infer<typeof MassiveJobSchema>;

@@ -291,9 +291,11 @@ const main = (config: Config) => {
     queueName: updateInstallationDispatchQueueName,
   });
 
-  const massiveJobsRepository = new CosmosMassiveJobsAdapter(
-    pushCosmosDb,
+  const massiveJobsContainer = pushCosmosDb.container(
     config.massiveJobsContainerName,
+  );
+  const massiveJobsRepository = new CosmosMassiveJobsAdapter(
+    massiveJobsContainer,
   );
   const createMassiveNotificationJobUseCase =
     new CreateMassiveNotificationJobUseCase(massiveJobsRepository);
