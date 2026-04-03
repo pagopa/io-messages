@@ -1,0 +1,127 @@
+@startuml
+
+title Get Massive Notification Job
+
+actor "IO Admin" as admin
+
+box "pushnotif-func"
+  participant "GetMassiveJob" as gmj
+end box
+
+
+!pragma teoz true
+box "io-p-itn-com-cosno-01 cosmos account" #LightBlue
+  box "push-notifications-cosmos-01 cosmos database"
+    database "massive-jobs" as mj
+    database "massive-progress" as mjp
+  end box
+end box
+
+participant "app-insights" as ai
+
+activate admin
+admin -> gmj : GET /api/v1/massive-notification-job/{id}
+activate gmj
+
+gmj -> gmj : Validate id from path
+
+alt Invalid id
+  gmj -[#red]x admin : 400 Bad request
+end
+
+gmj -> mj : Get massive job
+activate mj
+
+alt Document not found
+  mj -[#red]> gmj : 404
+  gmj -[#red]x admin : 404
+else Error from cosmos
+  mj -[#red]> gmj : 5xx
+  gmj -[#red]x admin : 500
+end
+
+note right of gmj
+  **Job Document**
+  {
+    "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "title": "Push notification title",
+    "body": "Push notification body",
+    "status": "PROCESSING",
+    "executionTimeInHours": 6,
+    "startTimeTimestamp": 1771492295
+  }
+end note
+mj -[#green]> gmj : Return the job
+deactivate mj
+
+alt Status is CREATED
+  note right of admin
+    If the status is `CREATED` or `COMPLETED`
+    there is no need to check for the progress.
+
+    Simply return the document.
+  end note
+  gmj -[#green]> admin : Return the job
+end
+
+note right of gmj
+  If the status is `PROCESSING`, `STOPPED` or
+  "FAILED" we need to check the progress of the job.
+end note
+
+gmj -> mjp : Get all the progress using the jobId
+activate mjp
+alt Document not found
+  mjp -[#red]> gmj : 404
+  note right of gmj
+    This case should never happen.
+  end note
+  gmj --> ai: Track an event
+else Error from cosmos
+  mjp -[#red]> gmj : 5xx
+  gmj -[#red]x admin : 500
+end
+
+note right of gmj
+  **Job Progress Document List**
+  [
+    {
+      "notificationId": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0",
+      "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+      "scheduledTimestamp": 123456789,
+      "completed": false,
+      "tags": ["aaa", "aab", "aac"]
+    },
+    ...
+  ]
+end note
+mjp -[#green]> gmj : 200
+deactivate mjp
+
+note right of admin
+  **Job Document**
+  {
+    "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "title": "Push notification title",
+    "body": "Push notification body",
+    "status": "PROCESSING",
+    "executionTimeInHours": 6,
+    "startTimeTimestamp": 1771492295,
+    "progress": [
+      {
+        "notificationId": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0",
+        "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+        "scheduledTimestamp": 123456789,
+        "completed": false,
+        "tags": ["aaa", "aab", "aac"]
+      },
+      ...
+    ]
+  }
+end note
+gmj -> admin : Return the Job
+
+deactivate gmj
+deactivate admin
+
+@enduml
