@@ -1,10 +1,42 @@
+import { z } from "zod";
 import { Container, ErrorResponse } from "@azure/cosmos";
 
 import { ErrorInternal, ErrorNotFound } from "../../domain/error";
-import { MassiveJob, MassiveJobsRepository } from "../../domain/massive-jobs";
+import {
+  MassiveJob,
+  MassiveJobID,
+  MassiveJobSchema,
+  MassiveJobsRepository,
+} from "../../domain/massive-jobs";
 
 export class CosmosMassiveJobsAdapter implements MassiveJobsRepository {
   constructor(private container: Container) {}
+
+  async getMassiveJob(jobId: MassiveJobID) {
+    try {
+      const { resource, statusCode } = await this.container
+        .item(jobId, jobId)
+        .read();
+
+      if (statusCode === 404) {
+        return new ErrorNotFound(
+          "Massive job not found",
+          `Massive job with ID ${jobId} not found`,
+        );
+      }
+
+      return MassiveJobSchema.parse(resource);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return new ErrorInternal(
+          "Invalid Massive Job obtained from cosmos",
+          err.issues,
+        );
+      }
+
+      return new ErrorInternal("Failed to get Massive Job", err);
+    }
+  }
 
   async createMassiveJob(job: MassiveJob) {
     try {

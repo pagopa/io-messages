@@ -73,6 +73,9 @@ import {
 } from "./services/readers";
 import { initTelemetryClient } from "./utils/appinsights";
 import { NotificationHubPartitionFactory } from "./utils/notificationhub-service-partition";
+import { getGetMassiveNotificationJobHandler } from "./adapters/functions/get-massive-notification-job";
+import { CosmosMassiveProgressAdapter } from "./adapters/cosmos/massive-progress";
+import { GetMassiveNotificationJobUseCase } from "./domain/use-cases/get-massive-notification-job";
 
 // eslint-disable-next-line max-lines-per-function
 const main = (config: Config) => {
@@ -318,6 +321,17 @@ const main = (config: Config) => {
   const createMassiveNotificationJobUseCase =
     new CreateMassiveNotificationJobUseCase(massiveJobsRepository);
 
+  const massiveProgressContainer = pushCosmosDb.container(
+    config.massiveProgressContainerName,
+  );
+  const massiveProgressRepository = new CosmosMassiveProgressAdapter(
+    massiveProgressContainer,
+  );
+  const getMassiveNotificationJobUseCase = new GetMassiveNotificationJobUseCase(
+    massiveJobsRepository,
+    massiveProgressRepository,
+  );
+
   app.http("CreateMassiveNotificationJob", {
     authLevel: "admin",
     handler: createMassiveNotificationJobHandler(
@@ -325,6 +339,15 @@ const main = (config: Config) => {
     ),
     methods: ["POST"],
     route: "api/v1/massive-notification-job",
+  });
+
+  app.http("GetMassiveNotificationJob", {
+    authLevel: "admin",
+    handler: getGetMassiveNotificationJobHandler(
+      getMassiveNotificationJobUseCase,
+    ),
+    methods: ["GET"],
+    route: "api/v1/massive-notification-job/{id}",
   });
 };
 
