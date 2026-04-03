@@ -75,9 +75,6 @@ catalogs:
     '@types/html-to-text':
       specifier: ^1.4.31
       version: 1.4.31
-    '@types/lodash':
-      specifier: ^4.17.21
-      version: 4.17.21
     '@types/lolex':
       specifier: ^5.1.6
       version: 5.1.6
@@ -150,9 +147,6 @@ catalogs:
     kafkajs:
       specifier: ^2.2.4
       version: 2.2.4
-    lodash:
-      specifier: ^4.17.21
-      version: 4.17.21
     lolex:
       specifier: ^6.0.0
       version: 6.0.0
@@ -366,9 +360,6 @@ importers:
       kafkajs:
         specifier: 'catalog:'
         version: 2.2.4
-      lodash:
-        specifier: 'catalog:'
-        version: 4.17.21
       node-fetch:
         specifier: 'catalog:'
         version: 2.7.0
@@ -385,9 +376,6 @@ importers:
       '@types/express':
         specifier: 'catalog:'
         version: 4.17.25
-      '@types/lodash':
-        specifier: 'catalog:'
-        version: 4.17.21
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.15
@@ -1825,9 +1813,6 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
-
-  '@types/lodash@4.17.21':
-    resolution: {integrity: sha512-FOvQ0YPD5NOfPgMzJihoT+Za5pdkDJWcbpuj1DjaKZIr/gxodQjY/uWEFlTNqW2ugXHUiL8lRQgw63dzKHZdeQ==}
 
   '@types/lolex@5.1.6':
     resolution: {integrity: sha512-AF7zULzxsNsec/28vstUsUjOy+bKWHjGD6BT6emyS8xD0mB7GybtHxFZfhyC2djRQdJUtFYc4cDgjB2uCrQDqA==}
@@ -6551,8 +6536,6 @@ snapshots:
       '@types/node': 24.10.1
 
   '@types/json-schema@7.0.15': {}
-
-  '@types/lodash@4.17.21': {}
 
   '@types/lolex@5.1.6': {}
 
