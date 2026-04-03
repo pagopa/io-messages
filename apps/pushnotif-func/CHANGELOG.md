@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.4.1
+
+### Patch Changes
+
+- df9ca11: Separate health checks from info endpoint
+
 ## 2.4.0
 
 ### Minor Changes
