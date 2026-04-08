@@ -16,16 +16,16 @@ const adapter = new CosmosMassiveProgressAdapter(container);
 
 describe("CosmosMassiveProgressAdapter", () => {
   it("should return parsed massive progress entries on success", async () => {
+    const resource = {
+      completed: false,
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      jobId,
+      scheduledTimestamp: 1700000100,
+      tags: ["aaa"],
+    };
+
     const fetchAll = vi.fn().mockResolvedValueOnce({
-      resources: [
-        {
-          completed: false,
-          id: "550e8400-e29b-41d4-a716-446655440000",
-          jobId,
-          scheduledTimestamp: 1700000100,
-          tags: ["aaa"],
-        },
-      ],
+      resources: [resource],
     });
     const querySpy = vi
       .spyOn(container.items, "query")
@@ -33,15 +33,7 @@ describe("CosmosMassiveProgressAdapter", () => {
 
     const result = await adapter.listMassiveJobProgress(jobId);
 
-    expect(result).toEqual([
-      {
-        completed: false,
-        id: "550e8400-e29b-41d4-a716-446655440000",
-        jobId,
-        scheduledTimestamp: 1700000100,
-        tags: ["aaa"],
-      },
-    ]);
+    expect(result).toEqual([resource]);
 
     expect(querySpy).toHaveBeenCalledWith(
       {
