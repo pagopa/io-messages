@@ -1,19 +1,13 @@
+import { CheckJobMessageQueue } from "../check-job-message";
 import { ErrorInternal, ErrorNotFound } from "../error";
 import {
   MassiveJobStatus,
   MassiveJobsRepository,
   StartMassiveNotificationJobPayload,
 } from "../massive-jobs";
-import { CheckJobMessageQueue } from "../check-job-message";
 import { SendNotificationMessageQueue } from "../send-notification";
 
 export class StartMassiveNotificationJobUseCase {
-  constructor(
-    private repository: MassiveJobsRepository,
-    private checkJobMessageQueue: CheckJobMessageQueue,
-    private sendNotificationMessageQueue: SendNotificationMessageQueue,
-  ) {}
-
   private generateAllTags = (n: number): string[] => {
     const total = 16 ** n;
     const tags = new Array<string>(total);
@@ -22,6 +16,12 @@ export class StartMassiveNotificationJobUseCase {
     }
     return tags;
   };
+
+  constructor(
+    private repository: MassiveJobsRepository,
+    private checkJobMessageQueue: CheckJobMessageQueue,
+    private sendNotificationMessageQueue: SendNotificationMessageQueue,
+  ) {}
 
   async execute(
     jobId: StartMassiveNotificationJobPayload,
@@ -83,8 +83,8 @@ export class StartMassiveNotificationJobUseCase {
       );
       const sendNotificationMessage = {
         jobId: massiveJob.id,
-        tags,
         scheduledTimestamp: Math.floor(scheduledTimestamp.getTime() / 1000),
+        tags,
       };
       const sendNotificationResult =
         await this.sendNotificationMessageQueue.sendMessage(

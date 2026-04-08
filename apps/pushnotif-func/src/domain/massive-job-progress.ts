@@ -13,8 +13,8 @@ export type MassiveJobProgressStatus = z.infer<
 >;
 
 export const MassiveJobProgressSchema = z.object({
-  jobId: z.ulid(),
   id: z.ulid(),
+  jobId: z.ulid(),
   scheduledTimestamp: z.number().int().positive(),
   status: MassiveJobProgressStatusEnum,
   tags: z.array(z.string()).default([]),

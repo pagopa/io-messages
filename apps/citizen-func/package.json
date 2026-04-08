@@ -1,6 +1,6 @@
 {
   "name": "citizen-func",
-  "version": "6.0.4",
+  "version": "6.0.5",
   "license": "UNLICENSED",
   "type": "commonjs",
   "main": "dist/main.js",

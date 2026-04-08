@@ -1,9 +1,10 @@
+import { QueueClient } from "@azure/storage-queue";
+
+import { ErrorInternal } from "../../domain/error";
 import {
   SendNotificationMessage,
   SendNotificationMessageQueue,
 } from "../../domain/send-notification";
-import { ErrorInternal } from "../../domain/error";
-import { QueueClient } from "@azure/storage-queue";
 
 export class SendNotificationQueueAdapter
   implements SendNotificationMessageQueue
@@ -12,7 +13,7 @@ export class SendNotificationQueueAdapter
 
   public async sendMessage(
     sendNotificationMessage: SendNotificationMessage,
-  ): Promise<string | ErrorInternal> {
+  ): Promise<ErrorInternal | string> {
     try {
       const result = await this.queueClient.sendMessage(
         Buffer.from(JSON.stringify(sendNotificationMessage)).toString("base64"),

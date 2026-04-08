@@ -3,7 +3,7 @@ import { ulid } from "ulid";
 import { ErrorInternal } from "../error";
 import {
   CreateMassiveJobPayload,
-  MassiveJobStatus,
+  MassiveJobStatusEnum,
   MassiveJobsRepository,
 } from "../massive-jobs";
 
@@ -16,7 +16,7 @@ export class CreateMassiveNotificationJobUseCase {
     const job = {
       ...massiveJob,
       id: ulid(),
-      status: "CREATED" as MassiveJobStatus,
+      status: MassiveJobStatusEnum.enum.CREATED,
     };
 
     return this.repository.createMassiveJob(job);

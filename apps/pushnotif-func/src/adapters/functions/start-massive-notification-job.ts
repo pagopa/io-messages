@@ -1,3 +1,4 @@
+import { StartMassiveNotificationJobUseCase } from "@/domain/use-cases/start-massive-notification-job";
 import { HttpHandler } from "@azure/functions";
 
 import { ErrorInternal, ErrorValidation } from "../../domain/error";
@@ -6,7 +7,6 @@ import {
   parseHttpRequestBody,
 } from "../../domain/http-request";
 import { StartMassiveNotificationJobPayloadSchema } from "../../domain/massive-jobs";
-import { StartMassiveNotificationJobUseCase } from "@/domain/use-cases/start-massive-notification-job";
 
 export const startMassiveNotificationJobHandler =
   (

@@ -31,7 +31,6 @@
     "@pagopa/eslint-config": "catalog:",
     "@pagopa/openapi-codegen-ts": "^11.1.0",
     "@types/express": "catalog:",
-    "@types/lodash": "catalog:",
     "@types/node": "catalog:",
     "@types/node-fetch": "catalog:",
     "@types/vfile-message": "catalog:",
@@ -60,7 +59,6 @@
     "fp-ts": "catalog:",
     "io-ts": "catalog:",
     "kafkajs": "catalog:",
-    "lodash": "catalog:",
     "node-fetch": "catalog:",
     "winston": "catalog:"
   }

@@ -1,10 +1,11 @@
 import { z } from "zod";
+
 import { ErrorInternal } from "./error";
 
 export const SendNotificationMessageSchema = z.object({
   jobId: z.ulid(),
-  tags: z.array(z.string()).default([]),
   scheduledTimestamp: z.number().int().positive(),
+  tags: z.array(z.string()).default([]),
 });
 
 export type SendNotificationMessage = z.infer<
@@ -14,5 +15,5 @@ export type SendNotificationMessage = z.infer<
 export interface SendNotificationMessageQueue {
   sendMessage: (
     sendNotificationMessage: SendNotificationMessage,
-  ) => Promise<string | ErrorInternal>;
+  ) => Promise<ErrorInternal | string>;
 }

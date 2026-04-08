@@ -1,5 +1,11 @@
 ### Changelog
 
+## 6.0.5
+
+### Patch Changes
+
+- 3ee702f: Remove unnecessary dependencies.
+
 ## 6.0.4
 
 ### Patch Changes

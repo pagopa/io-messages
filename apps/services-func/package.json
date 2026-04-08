@@ -1,14 +1,14 @@
 {
   "name": "services-func",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "license": "UNLICENSED",
-  "type": "commonjs",
-  "main": "dist/main.js",
   "files": [
     "dist/*",
     "host.json",
     "package.json"
   ],
+  "type": "commonjs",
+  "main": "dist/main.js",
   "scripts": {
     "clean": "shx rm -rf dist",
     "clean:generated": "shx rm -rf ./src/generated",
@@ -29,24 +29,6 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit"
-  },
-  "devDependencies": {
-    "@pagopa/eslint-config": "catalog:",
-    "@pagopa/openapi-codegen-ts": "catalog:",
-    "@types/documentdb": "catalog:",
-    "@types/express-serve-static-core": "catalog:",
-    "@types/html-to-text": "catalog:",
-    "@types/lolex": "catalog:",
-    "@types/node": "catalog:",
-    "@types/node-fetch": "catalog:",
-    "@types/nodemailer": "catalog:",
-    "@types/semver": "catalog:",
-    "@vitest/coverage-v8": "catalog:",
-    "eslint": "catalog:",
-    "prettier": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:",
-    "vitest": "catalog:"
   },
   "dependencies": {
     "@azure/cosmos": "catalog:",
@@ -79,5 +61,23 @@
     "semver": "catalog:",
     "ts-pattern": "catalog:",
     "winston": "catalog:"
+  },
+  "devDependencies": {
+    "@pagopa/eslint-config": "catalog:",
+    "@pagopa/openapi-codegen-ts": "catalog:",
+    "@types/documentdb": "catalog:",
+    "@types/express-serve-static-core": "catalog:",
+    "@types/html-to-text": "catalog:",
+    "@types/lolex": "catalog:",
+    "@types/node": "catalog:",
+    "@types/node-fetch": "catalog:",
+    "@types/nodemailer": "catalog:",
+    "@types/semver": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

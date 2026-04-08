@@ -1,5 +1,17 @@
 ### Changelog
 
+## 2.4.1
+
+### Patch Changes
+
+- df9ca11: Separate health checks from info endpoint
+
+## 2.4.0
+
+### Minor Changes
+
+- c853294: Add CreateMassiveJob function
+
 ## 2.3.8
 
 ### Patch Changes

@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { ErrorInternal } from "./error";
 
 export const CheckJobMessageSchema = z.object({
@@ -11,5 +12,5 @@ export type CheckJobMessage = z.infer<typeof CheckJobMessageSchema>;
 export interface CheckJobMessageQueue {
   sendMessage: (
     checkJobMessage: CheckJobMessage,
-  ) => Promise<string | ErrorInternal>;
+  ) => Promise<ErrorInternal | string>;
 }

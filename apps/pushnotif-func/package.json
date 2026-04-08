@@ -1,6 +1,6 @@
 {
   "name": "pushnotif-func",
-  "version": "2.3.8",
+  "version": "2.4.1",
   "license": "MIT",
   "type": "commonjs",
   "main": "dist/main.js",

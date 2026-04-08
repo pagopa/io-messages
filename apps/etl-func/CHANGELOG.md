@@ -1,5 +1,11 @@
 # etl-func
 
+## 1.0.11
+
+### Patch Changes
+
+- 3ee702f: Remove unnecessary dependencies.
+
 ## 1.0.10
 
 ### Patch Changes
