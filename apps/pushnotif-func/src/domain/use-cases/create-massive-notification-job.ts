@@ -5,6 +5,7 @@ import {
   CreateMassiveJobPayload,
   MassiveJobStatusEnum,
   MassiveJobsRepository,
+  massiveJobIDSchema,
 } from "../massive-jobs";
 
 export class CreateMassiveNotificationJobUseCase {
@@ -15,7 +16,7 @@ export class CreateMassiveNotificationJobUseCase {
   ): Promise<ErrorInternal | string> {
     const job = {
       ...massiveJob,
-      id: ulid(),
+      id: massiveJobIDSchema.parse(ulid()),
       status: MassiveJobStatusEnum.enum.CREATED,
     };
 

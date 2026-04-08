@@ -13,6 +13,7 @@
     "APPINSIGHTS_SAMPLING_PERCENTAGE": "20",
     "RETRY_ATTEMPT_NUMBER": "1",
     "MASSIVE_JOBS_CONTAINER_NAME": "massive-jobs",
+    "MASSIVE_PROGRESS_CONTAINER_NAME": "massive-progress",
     "NOTIFICATIONS_QUEUE_NAME": "push-notifications",
     "NOTIFICATIONS_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;",
     "NH1_ENDPOINT": "NotificationHubPartitionConnectionString",
