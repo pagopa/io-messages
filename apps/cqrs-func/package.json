@@ -54,7 +54,7 @@
     "@pagopa/ts-commons": "catalog:",
     "applicationinsights": "catalog:",
     "avsc": "catalog:",
-    "azure-storage": "catalog:",
+    "@azure/storage-blob": "catalog:",
     "express": "catalog:",
     "fp-ts": "catalog:",
     "io-ts": "catalog:",

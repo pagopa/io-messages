@@ -5,10 +5,7 @@ import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
-import {
-  MessageModel,
-  RetrievedMessage,
-} from "@pagopa/io-functions-commons/dist/src/models/message";
+import { RetrievedMessage } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { pipe } from "fp-ts/lib/function";
 import {
   aMessageContent,
@@ -43,13 +40,15 @@ const mockQueueClient = {
   sendMessage: vi.fn().mockImplementation(() => Promise.resolve(void 0)),
 } as any;
 
-const getContentFromBlobMock = vi
+const downloadToBufferMock = vi
   .fn()
-  .mockImplementation(() => TE.of(O.some(aMessageContent)));
+  .mockResolvedValue(Buffer.from(JSON.stringify(aMessageContent)));
 
-const mockMessageModel = {
-  getContentFromBlob: getContentFromBlobMock,
-} as any as MessageModel;
+const mockContainerClient = {
+  getBlobClient: vi.fn().mockImplementation(() => ({
+    downloadToBuffer: downloadToBufferMock,
+  })),
+} as any;
 
 const mockKafkaProducerKompact: KP.KafkaProducerCompact<
   RetrievedMessage
@@ -69,17 +68,13 @@ const defaultStartTime = 0;
 describe("CosmosApiMessagesChangeFeed", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getContentFromBlobMock.mockImplementation(() =>
-      TE.right(O.some(aMessageContent)),
+    downloadToBufferMock.mockResolvedValue(
+      Buffer.from(JSON.stringify(aMessageContent)),
     );
   });
 
   test("should send all retrieved messages", async () => {
-    const handler = handleMessageChange(
-      mockMessageModel,
-      {} as any,
-      defaultStartTime,
-    );
+    const handler = handleMessageChange(mockContainerClient, defaultStartTime);
 
     const res = await handler(
       mockKafkaProducerKompact,
@@ -89,7 +84,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       aListOfRightMessages,
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(
+    expect(downloadToBufferMock).toHaveBeenCalledTimes(
       aListOfRightMessages.length,
     );
 
@@ -102,11 +97,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
   });
 
   test("should not call sendMessages on Kafka producer if all messages are pending", async () => {
-    const handler = handleMessageChange(
-      mockMessageModel,
-      {} as any,
-      defaultStartTime,
-    );
+    const handler = handleMessageChange(mockContainerClient, defaultStartTime);
 
     const res = await handler(
       mockKafkaProducerKompact,
@@ -119,7 +110,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       })),
     );
 
-    expect(getContentFromBlobMock).not.toHaveBeenCalled();
+    expect(downloadToBufferMock).not.toHaveBeenCalled();
 
     expect(mockQueueClient.sendMessage).not.toHaveBeenCalled();
     expect(res).toMatchObject(
@@ -130,11 +121,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
   });
 
   test("should send only non pending messages", async () => {
-    const handler = handleMessageChange(
-      mockMessageModel,
-      {} as any,
-      defaultStartTime,
-    );
+    const handler = handleMessageChange(mockContainerClient, defaultStartTime);
 
     const res = await handler(
       mockKafkaProducerKompact,
@@ -147,7 +134,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       ],
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(
+    expect(downloadToBufferMock).toHaveBeenCalledTimes(
       aListOfRightMessages.length,
     );
 
@@ -161,8 +148,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
 
   test("should send only non pending messages that are created after startTimeFilter", async () => {
     const handler = handleMessageChange(
-      mockMessageModel,
-      {} as any,
+      mockContainerClient,
       aRetrievedMessageWithoutContent.createdAt.getTime(),
     );
 
@@ -183,7 +169,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       ],
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(
+    expect(downloadToBufferMock).toHaveBeenCalledTimes(
       aListOfRightMessages.length,
     );
 
@@ -199,20 +185,22 @@ describe("CosmosApiMessagesChangeFeed", () => {
 describe("CosmosApiMessagesChangeFeed - Errors", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    downloadToBufferMock.mockResolvedValue(
+      Buffer.from(JSON.stringify(aMessageContent)),
+    );
   });
 
   test.each`
-    getContentResult
-    ${TE.left(Error("An error occurred"))}
-    ${TE.of(O.none)}
+    downloadError
+    ${new Error("An error occurred")}
+    ${Object.assign(new Error("BlobNotFound"), { statusCode: 404 })}
   `(
     "should store error if a content cannot be retrieved",
-    async ({ getContentResult }) => {
-      getContentFromBlobMock.mockImplementationOnce(() => getContentResult);
+    async ({ downloadError }) => {
+      downloadToBufferMock.mockRejectedValueOnce(downloadError);
 
       const handler = handleMessageChange(
-        mockMessageModel,
-        {} as any,
+        mockContainerClient,
         defaultStartTime,
       );
 
@@ -224,7 +212,7 @@ describe("CosmosApiMessagesChangeFeed - Errors", () => {
         aListOfRightMessages,
       );
 
-      expect(getContentFromBlobMock).toHaveBeenCalledTimes(
+      expect(downloadToBufferMock).toHaveBeenCalledTimes(
         aListOfRightMessages.length,
       );
 
@@ -239,14 +227,7 @@ describe("CosmosApiMessagesChangeFeed - Errors", () => {
   );
 
   test("should send only decoded retrieved messages", async () => {
-    getContentFromBlobMock.mockImplementation(() =>
-      TE.right(O.some(aMessageContent)),
-    );
-    const handler = handleMessageChange(
-      mockMessageModel,
-      {} as any,
-      defaultStartTime,
-    );
+    const handler = handleMessageChange(mockContainerClient, defaultStartTime);
 
     const res = await handler(
       mockKafkaProducerKompact,
@@ -256,7 +237,7 @@ describe("CosmosApiMessagesChangeFeed - Errors", () => {
       [...aListOfRightMessages, { error: "error" }],
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(
+    expect(downloadToBufferMock).toHaveBeenCalledTimes(
       aListOfRightMessages.length,
     );
 

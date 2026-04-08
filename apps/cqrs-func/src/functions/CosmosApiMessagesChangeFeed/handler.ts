@@ -1,11 +1,8 @@
 import { InvocationContext } from "@azure/functions";
+import { ContainerClient } from "@azure/storage-blob";
 import { QueueClient } from "@azure/storage-queue";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
-import {
-  MessageModel,
-  RetrievedMessage,
-} from "@pagopa/io-functions-commons/dist/src/models/message";
-import * as AS from "azure-storage";
+import { RetrievedMessage } from "@pagopa/io-functions-commons/dist/src/models/message";
 import * as RA from "fp-ts/ReadonlyArray";
 import * as E from "fp-ts/lib/Either";
 import * as T from "fp-ts/lib/Task";
@@ -27,11 +24,7 @@ import { toStorableError } from "../../utils/storable_error";
 const CHUNK_SIZE = 15;
 
 export const handleMessageChange =
-  (
-    messageModel: MessageModel,
-    blobService: AS.BlobService,
-    startTimeFilter: number,
-  ) =>
+  (containerClient: ContainerClient, startTimeFilter: number) =>
   (
     client: KP.KafkaProducerCompact<RetrievedMessage>,
     errorStorage: QueueClient,
@@ -63,7 +56,7 @@ export const handleMessageChange =
               msg.isPending === false &&
               msg.createdAt.getTime() >= startTimeFilter,
           ),
-          enrichMessagesContent(messageModel, CHUNK_SIZE, blobService),
+          enrichMessagesContent(CHUNK_SIZE, containerClient),
           T.map((enrichResults) => [
             ...pipe(retrievedMessages, RA.filter(E.isLeft)),
             ...enrichResults,
@@ -87,8 +80,7 @@ export const handleMessageChange =
 
 export const cosmosMessagesHandler =
   (
-    messageModel: MessageModel,
-    messageContentBlobService: AS.BlobService,
+    messageContentContainerClient: ContainerClient,
     config: { MESSAGE_CHANGE_FEED_START_TIME: number },
     kafkaClient: KP.KafkaProducerCompact<RetrievedMessage>,
     errorStorage: QueueClient,
@@ -99,8 +91,7 @@ export const cosmosMessagesHandler =
     _context: InvocationContext,
   ): Promise<Failure | IBulkOperationResult> =>
     handleMessageChange(
-      messageModel,
-      messageContentBlobService,
+      messageContentContainerClient,
       config.MESSAGE_CHANGE_FEED_START_TIME,
     )(
       kafkaClient,

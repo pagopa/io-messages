@@ -1,4 +1,3 @@
-import { RetrievedMessage } from "@pagopa/io-functions-commons/dist/src/models/message";
 import * as E from "fp-ts/Either";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/TaskEither";
@@ -9,19 +8,17 @@ import {
 
 import { enrichMessageContent } from "../message";
 import { vi, beforeEach, describe, test, expect } from "vitest";
+import { RetrievedMessage } from "@pagopa/io-functions-commons/dist/src/models/message";
 
-const getContentFromBlobMock = vi
+const downloadToBufferMock = vi
   .fn()
-  .mockImplementation(() => TE.right(O.some(aMessageContent)));
-const mockMessageModel = {
-  find: vi.fn(),
-  getContentFromBlob: getContentFromBlobMock,
-};
+  .mockResolvedValue(Buffer.from(JSON.stringify(aMessageContent)));
 
-const mockBlobService = {
-  primary: {},
-  secondary: {},
-};
+const mockBlobClient = { downloadToBuffer: downloadToBufferMock };
+
+const mockContainerClient = {
+  getBlobClient: vi.fn().mockReturnValue(mockBlobClient),
+} as any;
 
 const aRetrievedMessage: RetrievedMessage = {
   ...aRetrievedMessageWithoutContent,
@@ -35,8 +32,7 @@ describe("enrichMessageContent", () => {
 
   test("should enrich a message with its' related content", async () => {
     const result = await enrichMessageContent(
-      mockMessageModel as any,
-      mockBlobService as any,
+      mockContainerClient,
       aRetrievedMessage,
     )();
 
@@ -51,13 +47,12 @@ describe("enrichMessageContent", () => {
   });
 
   test("should return a retriable error if blob storage cannot retrieve the message content", async () => {
-    getContentFromBlobMock.mockImplementation(() =>
-      TE.left(new Error("cannot reach blob storage")),
+    downloadToBufferMock.mockRejectedValueOnce(
+      new Error("cannot reach blob storage"),
     );
 
     const result = await enrichMessageContent(
-      mockMessageModel as any,
-      mockBlobService as any,
+      mockContainerClient,
       aRetrievedMessage,
     )();
 
@@ -72,11 +67,12 @@ describe("enrichMessageContent", () => {
   });
 
   test("should return a not retriable error if message content cannot be found", async () => {
-    getContentFromBlobMock.mockImplementation(() => TE.right(O.none));
+    downloadToBufferMock.mockRejectedValueOnce(
+      Object.assign(new Error("BlobNotFound"), { statusCode: 404 }),
+    );
 
     const result = await enrichMessageContent(
-      mockMessageModel as any,
-      mockBlobService as any,
+      mockContainerClient,
       aRetrievedMessage,
     )();
 
