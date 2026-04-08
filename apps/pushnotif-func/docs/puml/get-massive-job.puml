@@ -71,13 +71,7 @@ end note
 
 gmj -> mjp : Get all the progress using the jobId
 activate mjp
-alt Document not found
-  mjp -[#red]> gmj : 404
-  note right of gmj
-    This case should never happen.
-  end note
-  gmj --> ai: Track an event
-else Error from cosmos
+alt Error from cosmos
   mjp -[#red]> gmj : 5xx
   gmj -[#red]x admin : 500
 end
