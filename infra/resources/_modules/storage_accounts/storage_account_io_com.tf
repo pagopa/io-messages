@@ -129,3 +129,13 @@ resource "azurerm_storage_queue" "update_installations_dispatch_poison" {
   name                 = "update-installations-dispatch-poison"
   storage_account_name = module.com_st.name
 }
+
+resource "azurerm_storage_queue" "check_massive_job" {
+  name                 = "check-massive-job"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "check_massive_job_messages" {
+  name                 = "check-massive-job-poison"
+  storage_account_name = module.com_st.name
+}
