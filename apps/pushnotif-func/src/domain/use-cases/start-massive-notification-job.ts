@@ -1,8 +1,10 @@
+import { TelemetryClient } from "applicationinsights";
+
 import { CheckJobMessageQueue } from "../check-job-message";
 import { ErrorInternal, ErrorNotFound } from "../error";
 import {
   MassiveJobID,
-  MassiveJobStatus,
+  MassiveJobStatusEnum,
   MassiveJobsRepository,
 } from "../massive-jobs";
 import { SendNotificationMessageQueue } from "../send-notification";
@@ -21,77 +23,100 @@ export class StartMassiveNotificationJobUseCase {
     private repository: MassiveJobsRepository,
     private checkJobMessageQueue: CheckJobMessageQueue,
     private sendNotificationMessageQueue: SendNotificationMessageQueue,
+    private telemetryClient: TelemetryClient,
   ) {}
 
   async execute(
     massiveJobId: MassiveJobID,
+    startTimeTimestamp: number,
   ): Promise<ErrorInternal | ErrorNotFound | string> {
     const massiveJob = await this.repository.getMassiveJob(massiveJobId);
 
-    if (massiveJob instanceof ErrorInternal) {
+    if (
+      massiveJob instanceof ErrorInternal ||
+      massiveJob instanceof ErrorNotFound
+    ) {
       return massiveJob;
     }
-    if (massiveJob instanceof ErrorNotFound) {
-      return massiveJob;
-    }
+
     if (massiveJob.status !== "CREATED") {
       return new ErrorInternal(
         `Massive job with id ${massiveJobId} is not in CREATED status`,
       );
     }
 
+    // we set the visibility timeout to the expected execution time of the job plus 5 minutes
     const visibilityTimeoutInSeconds =
-      massiveJob.startTimeTimestamp +
+      startTimeTimestamp +
+      5 * 60 +
       massiveJob.executionTimeInHours * 3600 -
       Math.floor(Date.now() / 1000);
+
     const checkNotificationStatusMessage = {
       jobId: massiveJob.id,
       visibilityTimeoutInSeconds: visibilityTimeoutInSeconds,
     };
+
     const checkJobMessageResult = await this.checkJobMessageQueue.sendMessage(
       checkNotificationStatusMessage,
     );
+
     if (checkJobMessageResult instanceof ErrorInternal) {
       return checkJobMessageResult;
     }
 
     const updatedJob = {
       ...massiveJob,
-      status: "PROCESSING" as MassiveJobStatus,
+      startTimeTimestamp,
+      status: MassiveJobStatusEnum.enum.PROCESSING,
     };
 
     const updateResult = await this.repository.updateMassiveJob(updatedJob);
 
-    if (updateResult instanceof ErrorInternal) {
-      return updateResult;
-    }
-    if (updateResult instanceof ErrorNotFound) {
+    if (
+      updateResult instanceof ErrorInternal ||
+      updateResult instanceof ErrorNotFound
+    ) {
       return updateResult;
     }
 
     const allTags = this.generateAllTags(3); // generates 4096 tags from "000" to "fff"
-    const batchSize = 10;
+    const batchSize = 10; // we want to process 10 tags for each batch
+    // we calculate the delay between batches to ensure that all notifications are sent within the expected execution time of the job
     const delayBetweenBatchesInSeconds =
-      (massiveJob.executionTimeInHours * 3600) / (allTags.length / batchSize); // we want to process 10 tags every batch
+      (massiveJob.executionTimeInHours * 3600) / (allTags.length / batchSize);
 
     for (let index = 0; index < allTags.length; index += batchSize) {
       const tags = allTags.slice(index, index + batchSize);
-      const scheduledTimestamp = new Date(
-        Date.now() +
-          (1000 * delayBetweenBatchesInSeconds * (index + batchSize)) /
-            batchSize,
-      );
+
+      const scheduledTimestamp =
+        Math.floor(
+          Date.now() +
+            (1000 * delayBetweenBatchesInSeconds * (index + batchSize)) /
+              batchSize,
+        ) / 1000;
+
       const sendNotificationMessage = {
         jobId: massiveJob.id,
-        scheduledTimestamp: Math.floor(scheduledTimestamp.getTime() / 1000),
+        scheduledTimestamp,
         tags,
       };
+
       const sendNotificationResult =
         await this.sendNotificationMessageQueue.sendMessage(
           sendNotificationMessage,
         );
+
       if (sendNotificationResult instanceof ErrorInternal) {
-        // Log the error into application insights and continue with the next batch
+        this.telemetryClient.trackException({
+          exception: sendNotificationResult,
+          properties: {
+            batchIndex: index,
+            jobId: massiveJob.id,
+            scheduledTimestamp,
+            tags,
+          },
+        });
       }
     }
 

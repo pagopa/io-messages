@@ -43,14 +43,18 @@ import { createMassiveNotificationJobHandler } from "./adapters/functions/create
 import { getGetMassiveNotificationJobHandler } from "./adapters/functions/get-massive-notification-job";
 import { getHealthHandler } from "./adapters/functions/health";
 import { getInfoHandler } from "./adapters/functions/info";
+import { startMassiveNotificationJobHandler } from "./adapters/functions/start-massive-notification-job";
 import getUpdateInstallationHandler from "./adapters/functions/update-installation";
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
 import { notificationHubHealthcheck } from "./adapters/notification-hub/health";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
+import { CheckJobMessageQueueAdapter } from "./adapters/storage-queue/check-job-message";
+import { SendNotificationQueueAdapter } from "./adapters/storage-queue/send-notification";
 import { CreateMassiveNotificationJobUseCase } from "./domain/use-cases/create-massive-notification-job";
 import { GetMassiveNotificationJobUseCase } from "./domain/use-cases/get-massive-notification-job";
 import { HealthCheckUseCase } from "./domain/use-cases/health";
 import { InfoUseCase } from "./domain/use-cases/info";
+import { StartMassiveNotificationJobUseCase } from "./domain/use-cases/start-massive-notification-job";
 import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
@@ -140,6 +144,14 @@ const main = (config: Config) => {
   const notifyQueueClient = new QueueClient(
     config.comStorageConnectionString,
     "push-notifications",
+  );
+  const checkJobMessageQueue = new QueueClient(
+    config.comStorageConnectionString,
+    "check-job-messages",
+  );
+  const sendNotificationMessageQueue = new QueueClient(
+    config.comStorageConnectionString,
+    "send-notification-messages",
   );
 
   // TODO: This factory breaks clean architecture, remove this in future.
@@ -331,6 +343,19 @@ const main = (config: Config) => {
     massiveJobsRepository,
     massiveProgressRepository,
   );
+  const checkJobMessageQueueAdapter = new CheckJobMessageQueueAdapter(
+    checkJobMessageQueue,
+  );
+  const sendNotificationQueueAdapter = new SendNotificationQueueAdapter(
+    sendNotificationMessageQueue,
+  );
+  const startMassiveNotificationJobUseCase =
+    new StartMassiveNotificationJobUseCase(
+      massiveJobsRepository,
+      checkJobMessageQueueAdapter,
+      sendNotificationQueueAdapter,
+      telemetryClient,
+    );
 
   app.http("CreateMassiveNotificationJob", {
     authLevel: "admin",
@@ -339,6 +364,15 @@ const main = (config: Config) => {
     ),
     methods: ["POST"],
     route: "api/v1/massive-notification-job",
+  });
+
+  app.http("StartMassiveNotificationJob", {
+    authLevel: "admin",
+    handler: startMassiveNotificationJobHandler(
+      startMassiveNotificationJobUseCase,
+    ),
+    methods: ["POST"],
+    route: "api/v1/massive-notification-job/{id}",
   });
 
   app.http("GetMassiveNotificationJob", {

@@ -28,7 +28,7 @@ export const MassiveJobSchema = z.object({
   executionTimeInHours: z.number().int().min(2).max(12),
   id: massiveJobIDSchema,
   progress: z.array(massiveProgressSchema).optional(),
-  startTimeTimestamp: z.number().int().positive(),
+  startTimeTimestamp: z.number().int().positive().optional(),
   status: MassiveJobStatusEnum,
   title: z.string().min(1).max(500),
 });
@@ -51,14 +51,24 @@ export interface MassiveProgressRepository {
   ) => Promise<ErrorInternal | MassiveProgress[]>;
 }
 
-export const CreateMassiveJobPayloadSchema = z.object({
-  body: z.string().min(1).max(1000),
-  executionTimeInHours: z.number().int().min(2).max(12).default(2),
+export const StartMassiveJobPayloadSchema = z.object({
   startTimeTimestamp: z
     .number()
     .int()
     .positive()
+    .refine((value) => value >= Math.floor(Date.now() / 1000) + 60 * 30, {
+      message: "startTimeTimestamp must be at least 30 minutes in the future",
+    })
     .default(() => Math.floor((Date.now() + 60 * 60 * 1000) / 1000)), // default to 1 hour from now
+});
+
+export type StartMassiveJobPayload = z.infer<
+  typeof StartMassiveJobPayloadSchema
+>;
+
+export const CreateMassiveJobPayloadSchema = z.object({
+  body: z.string().min(1).max(1000),
+  executionTimeInHours: z.number().int().min(2).max(12).default(2),
   title: z.string().min(1).max(500),
 });
 

@@ -1,9 +1,15 @@
 import { StartMassiveNotificationJobUseCase } from "@/domain/use-cases/start-massive-notification-job";
 import { HttpHandler } from "@azure/functions";
 
-import { ErrorInternal } from "../../domain/error";
-import { createHttpResponse } from "../../domain/http-request";
-import { massiveJobIDSchema } from "../../domain/massive-jobs";
+import { ErrorInternal, ErrorValidation } from "../../domain/error";
+import {
+  createHttpResponse,
+  parseHttpRequestBody,
+} from "../../domain/http-request";
+import {
+  StartMassiveJobPayloadSchema,
+  massiveJobIDSchema,
+} from "../../domain/massive-jobs";
 
 export const startMassiveNotificationJobHandler =
   (
@@ -21,8 +27,21 @@ export const startMassiveNotificationJobHandler =
       });
     }
 
+    const parsedBody = await parseHttpRequestBody(
+      request,
+      StartMassiveJobPayloadSchema,
+    );
+
+    if (parsedBody instanceof ErrorValidation) {
+      return createHttpResponse(400, {
+        error: parsedBody.message,
+        issues: parsedBody.issues,
+      });
+    }
+
     const result = await startMassiveNotificationJobUseCase.execute(
       parsedIdParameter.data,
+      parsedBody.startTimeTimestamp,
     );
 
     if (result instanceof ErrorInternal) {
