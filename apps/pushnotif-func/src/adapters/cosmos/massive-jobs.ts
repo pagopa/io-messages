@@ -1,7 +1,13 @@
 import { Container, ErrorResponse } from "@azure/cosmos";
+import { z } from "zod";
 
 import { ErrorInternal, ErrorNotFound } from "../../domain/error";
-import { MassiveJob, MassiveJobsRepository } from "../../domain/massive-jobs";
+import {
+  MassiveJob,
+  MassiveJobID,
+  MassiveJobSchema,
+  MassiveJobsRepository,
+} from "../../domain/massive-jobs";
 
 export class CosmosMassiveJobsAdapter implements MassiveJobsRepository {
   constructor(private container: Container) {}
@@ -15,26 +21,29 @@ export class CosmosMassiveJobsAdapter implements MassiveJobsRepository {
     }
   }
 
-  async getMassiveJobById(
-    id: string,
-  ): Promise<ErrorInternal | ErrorNotFound | MassiveJob> {
+  async getMassiveJob(jobId: MassiveJobID) {
     try {
-      const result = await this.container.item(id).read<MassiveJob>();
-      if (!result.resource) {
-        return new ErrorNotFound("Massive job not found");
-      }
-      return result.resource;
-    } catch (err) {
-      if (err instanceof ErrorResponse) {
-        switch (err.code) {
-          case 404:
-            return new ErrorNotFound("Massive job not found", err);
-          default:
-            return new ErrorInternal("Failed to get massive job", err);
-        }
+      const { resource, statusCode } = await this.container
+        .item(jobId, jobId)
+        .read();
+
+      if (statusCode === 404) {
+        return new ErrorNotFound(
+          "Massive job not found",
+          `Massive job with ID ${jobId} not found`,
+        );
       }
 
-      return new ErrorInternal("Failed to get massive job", err);
+      return MassiveJobSchema.parse(resource);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return new ErrorInternal(
+          "Invalid Massive Job obtained from cosmos",
+          err.issues,
+        );
+      }
+
+      return new ErrorInternal("Failed to get Massive Job", err);
     }
   }
 

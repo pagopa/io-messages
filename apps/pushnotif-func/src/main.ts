@@ -38,7 +38,9 @@ import {
 import { cosmosHealthcheck } from "./adapters/cosmos/health";
 import { CosmosInstallationSummaryAdapter } from "./adapters/cosmos/installation";
 import { CosmosMassiveJobsAdapter } from "./adapters/cosmos/massive-jobs";
+import { CosmosMassiveProgressAdapter } from "./adapters/cosmos/massive-progress";
 import { createMassiveNotificationJobHandler } from "./adapters/functions/create-massive-notification-job";
+import { getGetMassiveNotificationJobHandler } from "./adapters/functions/get-massive-notification-job";
 import { getHealthHandler } from "./adapters/functions/health";
 import { getInfoHandler } from "./adapters/functions/info";
 import getUpdateInstallationHandler from "./adapters/functions/update-installation";
@@ -46,6 +48,7 @@ import getInstallationUpdateDispatcher from "./adapters/functions/update-install
 import { notificationHubHealthcheck } from "./adapters/notification-hub/health";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
 import { CreateMassiveNotificationJobUseCase } from "./domain/use-cases/create-massive-notification-job";
+import { GetMassiveNotificationJobUseCase } from "./domain/use-cases/get-massive-notification-job";
 import { HealthCheckUseCase } from "./domain/use-cases/health";
 import { InfoUseCase } from "./domain/use-cases/info";
 import {
@@ -318,6 +321,17 @@ const main = (config: Config) => {
   const createMassiveNotificationJobUseCase =
     new CreateMassiveNotificationJobUseCase(massiveJobsRepository);
 
+  const massiveProgressContainer = pushCosmosDb.container(
+    config.massiveProgressContainerName,
+  );
+  const massiveProgressRepository = new CosmosMassiveProgressAdapter(
+    massiveProgressContainer,
+  );
+  const getMassiveNotificationJobUseCase = new GetMassiveNotificationJobUseCase(
+    massiveJobsRepository,
+    massiveProgressRepository,
+  );
+
   app.http("CreateMassiveNotificationJob", {
     authLevel: "admin",
     handler: createMassiveNotificationJobHandler(
@@ -325,6 +339,15 @@ const main = (config: Config) => {
     ),
     methods: ["POST"],
     route: "api/v1/massive-notification-job",
+  });
+
+  app.http("GetMassiveNotificationJob", {
+    authLevel: "admin",
+    handler: getGetMassiveNotificationJobHandler(
+      getMassiveNotificationJobUseCase,
+    ),
+    methods: ["GET"],
+    route: "api/v1/massive-notification-job/{id}",
   });
 };
 

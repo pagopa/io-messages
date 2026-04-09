@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.5.0
+
+### Minor Changes
+
+- 9dc23c5: Adds GET `/api/v1/massive-notification-job/{id}` including job-progress retrieval when applicable.
+
 ## 2.4.1
 
 ### Patch Changes

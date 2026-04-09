@@ -1,9 +1,9 @@
 import { CheckJobMessageQueue } from "../check-job-message";
 import { ErrorInternal, ErrorNotFound } from "../error";
 import {
+  MassiveJobID,
   MassiveJobStatus,
   MassiveJobsRepository,
-  StartMassiveNotificationJobPayload,
 } from "../massive-jobs";
 import { SendNotificationMessageQueue } from "../send-notification";
 
@@ -24,9 +24,9 @@ export class StartMassiveNotificationJobUseCase {
   ) {}
 
   async execute(
-    jobId: StartMassiveNotificationJobPayload,
+    massiveJobId: MassiveJobID,
   ): Promise<ErrorInternal | ErrorNotFound | string> {
-    const massiveJob = await this.repository.getMassiveJobById(jobId.id);
+    const massiveJob = await this.repository.getMassiveJob(massiveJobId);
 
     if (massiveJob instanceof ErrorInternal) {
       return massiveJob;
@@ -36,7 +36,7 @@ export class StartMassiveNotificationJobUseCase {
     }
     if (massiveJob.status !== "CREATED") {
       return new ErrorInternal(
-        `Massive job with id ${jobId.id} is not in CREATED status`,
+        `Massive job with id ${massiveJobId} is not in CREATED status`,
       );
     }
 

@@ -1,31 +1,29 @@
 import { StartMassiveNotificationJobUseCase } from "@/domain/use-cases/start-massive-notification-job";
 import { HttpHandler } from "@azure/functions";
 
-import { ErrorInternal, ErrorValidation } from "../../domain/error";
-import {
-  createHttpResponse,
-  parseHttpRequestBody,
-} from "../../domain/http-request";
-import { StartMassiveNotificationJobPayloadSchema } from "../../domain/massive-jobs";
+import { ErrorInternal } from "../../domain/error";
+import { createHttpResponse } from "../../domain/http-request";
+import { massiveJobIDSchema } from "../../domain/massive-jobs";
 
 export const startMassiveNotificationJobHandler =
   (
     startMassiveNotificationJobUseCase: StartMassiveNotificationJobUseCase,
   ): HttpHandler =>
   async (request) => {
-    const parsedBody = await parseHttpRequestBody(
-      request,
-      StartMassiveNotificationJobPayloadSchema,
+    const parsedIdParameter = massiveJobIDSchema.safeParse(
+      request.params["id"],
     );
 
-    if (parsedBody instanceof ErrorValidation) {
+    if (!parsedIdParameter.success) {
       return createHttpResponse(400, {
-        error: parsedBody.message,
-        issues: parsedBody.issues,
+        error: "Invalid job id in request params",
+        issues: parsedIdParameter.error.issues,
       });
     }
 
-    const result = await startMassiveNotificationJobUseCase.execute(parsedBody);
+    const result = await startMassiveNotificationJobUseCase.execute(
+      parsedIdParameter.data,
+    );
 
     if (result instanceof ErrorInternal) {
       return createHttpResponse(500, { error: result.message });
