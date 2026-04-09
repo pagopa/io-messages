@@ -1,7 +1,7 @@
 export enum MessageContentType {
-    GENERIC = 'GENERIC',
-    PAYMENT = 'PAYMENT',
-    EU_COVID_CERT = 'EU_COVID_CERT',
-    LEGAL = 'LEGAL',
-    PN = 'PN',
+  EU_COVID_CERT = "EU_COVID_CERT",
+  GENERIC = "GENERIC",
+  LEGAL = "LEGAL",
+  PAYMENT = "PAYMENT",
+  PN = "PN",
 }

@@ -1,4 +1,4 @@
 export enum FeatureLevelType {
-    STANDARD = 'STANDARD',
-    ADVANCED = 'ADVANCED',
+  ADVANCED = "ADVANCED",
+  STANDARD = "STANDARD",
 }
