@@ -5,8 +5,16 @@ import { ErrorInternal, ErrorNotFound } from "./error";
 export const massiveJobIDSchema = z.ulid().brand("MassiveJobID");
 export type MassiveJobID = z.infer<typeof massiveJobIDSchema>;
 
+export const MassiveProgressStatusEnum = z.enum([
+  "PENDING",
+  "FAILED",
+  "SENT",
+  "CANCELED",
+]);
+export type MassiveProgressStatus = z.infer<typeof MassiveProgressStatusEnum>;
+
 export const massiveProgressSchema = z.object({
-  completed: z.boolean(),
+  status: MassiveProgressStatusEnum,
   id: z.uuid(), // Equal to the notificationId returned from the notification hub.
   jobId: massiveJobIDSchema,
   scheduledTimestamp: z.number().int().positive(),
