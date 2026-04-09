@@ -65,7 +65,7 @@ alt Status is CREATED
 end
 
 note right of gmj
-  If the status is `PROCESSING`, `STOPPED`, `FAILED`
+  If the status is `PROCESSING`, `CANCELED`, `FAILED`
   or `COMPLETED` we need to check the progress of the job.
 end note
 

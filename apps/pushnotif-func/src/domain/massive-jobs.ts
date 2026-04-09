@@ -26,7 +26,7 @@ export const MassiveJobStatusEnum = z.enum([
   "CREATED",
   "PROCESSING",
   "COMPLETED",
-  "STOPPED",
+  "CANCELED",
   "FAILED",
 ]);
 export type MassiveJobStatus = z.infer<typeof MassiveJobStatusEnum>;
