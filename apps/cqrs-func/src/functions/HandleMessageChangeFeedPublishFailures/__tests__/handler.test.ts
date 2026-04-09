@@ -1,6 +1,7 @@
 import { InvocationContext } from "@azure/functions";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import * as TE from "fp-ts/lib/TaskEither";
+import { Readable } from "stream";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
   aMessageContent,
@@ -22,14 +23,19 @@ const telemetryClientMock = {
   trackException: vi.fn((_) => void 0),
 } as unknown as TelemetryClient;
 
-const downloadToBufferMock = vi
-  .fn()
-  .mockResolvedValue(Buffer.from(JSON.stringify(aMessageContent)));
+const makeStream = (content: string): NodeJS.ReadableStream => {
+  const readable = new Readable({ read() {} });
+  readable.push(Buffer.from(content, "utf-8"));
+  readable.push(null);
+  return readable;
+};
+
+const downloadMock = vi.fn().mockImplementation(async () => ({
+  readableStreamBody: makeStream(JSON.stringify(aMessageContent)),
+}));
 
 const mockContainerClient = {
-  getBlobClient: vi.fn().mockImplementation(() => ({
-    downloadToBuffer: downloadToBufferMock,
-  })),
+  getBlobClient: vi.fn().mockReturnValue({ download: downloadMock }),
 } as any;
 
 const inputMessage = {
@@ -62,6 +68,9 @@ vi.spyOn(KP, "sendMessages").mockImplementation((_) => sendMessagesMock);
 describe("HandleMessageChangeFeedPublishFailureHandler", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    downloadMock.mockImplementation(async () => ({
+      readableStreamBody: makeStream(JSON.stringify(aMessageContent)),
+    }));
   });
 
   test("should write an avro message on kafka client", async () => {
@@ -84,8 +93,11 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
   });
 
   test("should throw if Transient failure occurs", async () => {
-    downloadToBufferMock.mockRejectedValueOnce(
-      Object.assign(new Error("BlobNotFound"), { statusCode: 404 }),
+    downloadMock.mockRejectedValueOnce(
+      Object.assign(new Error("BlobNotFound"), {
+        name: "RestError",
+        statusCode: 404,
+      }),
     );
     await expect(
       HandleMessageChangeFeedPublishFailureHandler(

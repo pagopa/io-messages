@@ -1,4 +1,5 @@
 import * as t from "io-ts";
+import { Readable } from "stream";
 
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
@@ -40,14 +41,19 @@ const mockQueueClient = {
   sendMessage: vi.fn().mockImplementation(() => Promise.resolve(void 0)),
 } as any;
 
-const downloadToBufferMock = vi
-  .fn()
-  .mockResolvedValue(Buffer.from(JSON.stringify(aMessageContent)));
+const makeStream = (content: string): NodeJS.ReadableStream => {
+  const readable = new Readable({ read() {} });
+  readable.push(Buffer.from(content, "utf-8"));
+  readable.push(null);
+  return readable;
+};
+
+const downloadMock = vi.fn().mockImplementation(async () => ({
+  readableStreamBody: makeStream(JSON.stringify(aMessageContent)),
+}));
 
 const mockContainerClient = {
-  getBlobClient: vi.fn().mockImplementation(() => ({
-    downloadToBuffer: downloadToBufferMock,
-  })),
+  getBlobClient: vi.fn().mockReturnValue({ download: downloadMock }),
 } as any;
 
 const mockKafkaProducerKompact: KP.KafkaProducerCompact<
@@ -68,9 +74,9 @@ const defaultStartTime = 0;
 describe("CosmosApiMessagesChangeFeed", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    downloadToBufferMock.mockResolvedValue(
-      Buffer.from(JSON.stringify(aMessageContent)),
-    );
+    downloadMock.mockResolvedValue({
+      readableStreamBody: makeStream(JSON.stringify(aMessageContent)),
+    });
   });
 
   test("should send all retrieved messages", async () => {
@@ -84,9 +90,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       aListOfRightMessages,
     );
 
-    expect(downloadToBufferMock).toHaveBeenCalledTimes(
-      aListOfRightMessages.length,
-    );
+    expect(downloadMock).toHaveBeenCalledTimes(aListOfRightMessages.length);
 
     expect(mockQueueClient.sendMessage).not.toHaveBeenCalled();
     expect(res).toMatchObject(
@@ -110,7 +114,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       })),
     );
 
-    expect(downloadToBufferMock).not.toHaveBeenCalled();
+    expect(downloadMock).not.toHaveBeenCalled();
 
     expect(mockQueueClient.sendMessage).not.toHaveBeenCalled();
     expect(res).toMatchObject(
@@ -134,9 +138,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       ],
     );
 
-    expect(downloadToBufferMock).toHaveBeenCalledTimes(
-      aListOfRightMessages.length,
-    );
+    expect(downloadMock).toHaveBeenCalledTimes(aListOfRightMessages.length);
 
     expect(mockQueueClient.sendMessage).not.toHaveBeenCalled();
     expect(res).toMatchObject(
@@ -169,9 +171,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       ],
     );
 
-    expect(downloadToBufferMock).toHaveBeenCalledTimes(
-      aListOfRightMessages.length,
-    );
+    expect(downloadMock).toHaveBeenCalledTimes(aListOfRightMessages.length);
 
     expect(mockQueueClient.sendMessage).not.toHaveBeenCalled();
     expect(res).toMatchObject(
@@ -185,19 +185,19 @@ describe("CosmosApiMessagesChangeFeed", () => {
 describe("CosmosApiMessagesChangeFeed - Errors", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    downloadToBufferMock.mockResolvedValue(
-      Buffer.from(JSON.stringify(aMessageContent)),
-    );
+    downloadMock.mockResolvedValue({
+      readableStreamBody: makeStream(JSON.stringify(aMessageContent)),
+    });
   });
 
   test.each`
     downloadError
     ${new Error("An error occurred")}
-    ${Object.assign(new Error("BlobNotFound"), { statusCode: 404 })}
+    ${Object.assign(new Error("BlobNotFound"), { name: "RestError", statusCode: 404 })}
   `(
     "should store error if a content cannot be retrieved",
     async ({ downloadError }) => {
-      downloadToBufferMock.mockRejectedValueOnce(downloadError);
+      downloadMock.mockRejectedValueOnce(downloadError);
 
       const handler = handleMessageChange(
         mockContainerClient,
@@ -212,9 +212,7 @@ describe("CosmosApiMessagesChangeFeed - Errors", () => {
         aListOfRightMessages,
       );
 
-      expect(downloadToBufferMock).toHaveBeenCalledTimes(
-        aListOfRightMessages.length,
-      );
+      expect(downloadMock).toHaveBeenCalledTimes(aListOfRightMessages.length);
 
       expect(mockQueueClient.sendMessage).toHaveBeenCalledTimes(1);
       expect(res).toMatchObject(
@@ -237,9 +235,7 @@ describe("CosmosApiMessagesChangeFeed - Errors", () => {
       [...aListOfRightMessages, { error: "error" }],
     );
 
-    expect(downloadToBufferMock).toHaveBeenCalledTimes(
-      aListOfRightMessages.length,
-    );
+    expect(downloadMock).toHaveBeenCalledTimes(aListOfRightMessages.length);
 
     expect(mockQueueClient.sendMessage).toHaveBeenCalledTimes(1);
     expect(res).toMatchObject(

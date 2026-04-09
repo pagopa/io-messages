@@ -1,4 +1,4 @@
-import { ContainerClient } from "@azure/storage-blob";
+import { ContainerClient, RestError } from "@azure/storage-blob";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
 import { RetrievedMessage } from "@pagopa/io-functions-commons/dist/src/models/message";
@@ -24,33 +24,68 @@ interface BlobStorageError {
   readonly message: string;
 }
 
-const downloadBlobAsText =
+const isRestError: (u: unknown) => u is RestError = (u): u is RestError =>
+  typeof u === "object" &&
+  u !== null &&
+  u !== undefined &&
+  (u as RestError).name === RestError.name;
+
+const downloadBlob =
   (containerClient: ContainerClient) =>
-  (blobName: string): TE.TaskEither<BlobStorageError, O.Option<string>> =>
-    TE.tryCatch(
-      async () =>
-        O.some(
-          (
-            await containerClient.getBlobClient(blobName).downloadToBuffer()
-          ).toString("utf-8"),
-        ),
-      (e): BlobStorageError => ({
-        code:
-          e !== null &&
-          typeof e === "object" &&
-          (e as { statusCode?: number }).statusCode === 404
-            ? BLOB_NOT_FOUND_CODE
-            : GENERIC_CODE,
-        message: E.toError(e).message,
-      }),
+  (
+    blobName: string,
+  ): TE.TaskEither<BlobStorageError, O.Option<NodeJS.ReadableStream>> =>
+    pipe(
+      TE.tryCatch(
+        () => containerClient.getBlobClient(blobName).download(),
+        (e): BlobStorageError => ({
+          code:
+            isRestError(e) && e.statusCode === 404
+              ? BLOB_NOT_FOUND_CODE
+              : GENERIC_CODE,
+          message: E.toError(e).message,
+        }),
+      ),
+      TE.map(({ readableStreamBody }) => O.fromNullable(readableStreamBody)),
     );
+
+export const streamToText = (
+  readable: NodeJS.ReadableStream,
+): TE.TaskEither<BlobStorageError, string> =>
+  TE.tryCatch(
+    () =>
+      new Promise<string>((resolve, reject) => {
+        const chunks: Buffer[] = [];
+        readable.on("data", (chunk: Buffer | string) =>
+          chunks.push(
+            Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, "utf-8"),
+          ),
+        );
+        readable.on("end", () =>
+          resolve(Buffer.concat(chunks).toString("utf-8")),
+        );
+        readable.on("error", reject);
+      }),
+    (e): BlobStorageError => ({
+      code: GENERIC_CODE,
+      message: E.toError(e).message,
+    }),
+  );
 
 const getMessageContentFromBlob = (
   containerClient: ContainerClient,
   messageId: string,
 ): TE.TaskEither<Error, O.Option<MessageContent>> =>
   pipe(
-    downloadBlobAsText(containerClient)(`${messageId}.json`),
+    downloadBlob(containerClient)(`${messageId}.json`),
+    TE.chain(
+      // If O.none → return TE.right(O.none)
+      // If O.some(stream) → convert to text and wrap back into Some
+      O.fold(
+        () => TE.right(O.none),
+        (stream) => pipe(streamToText(stream), TE.map(O.some)),
+      ),
+    ),
     TE.chain(
       TE.fromOption(
         (): BlobStorageError => ({
