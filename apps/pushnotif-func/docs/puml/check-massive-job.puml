@@ -1,0 +1,258 @@
+@startuml
+
+title "Check job progress"
+
+queue "check-massive-job" as cjq
+
+queue "check-massive-job-poison" as cjqp
+
+box "pushnotif-func"
+  participant "CheckJobProgress" as cjp
+end box
+
+!pragma teoz true
+box "io-p-itn-com-cosno-01 cosmos account" #LightBlue
+  box "push-notifications cosmos database"
+    database "massive-jobs" as mj
+    database "massive-job-progress" as mjp
+  end box
+end box
+
+participant "app-insights" as ai
+
+participant "Notification Hub" as nh
+
+note right of cjq
+  **CheckNotificationStatusMessage**
+  {
+    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B"
+  }
+end note
+cjp -> cjq : Read the check message from the queue
+activate cjp
+
+cjp -> cjp : Parse the message
+
+alt Invalid CheckNotificationStatusMessage
+  cjp --> ai : Track an event
+
+  cjp -[#red]x cjp : End the execution
+end
+
+note right of cjp
+  {
+    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+  }
+end note
+cjp -> mj : Get the job
+activate mj
+
+alt Transient error from cosmos
+  mj -[#red]> cjp : Transient error
+
+  alt Was last retry
+    cjp -> cjqp : Push to the poison
+  end
+
+  cjp -[#red]x cjp : Throw error
+else Job not found
+  mj -[#red]> cjp : 404
+  cjp --> ai : Track an event.
+  cjp -[#red]x cjp : End the execution
+end
+
+note right of cjp
+  **Job Document**
+  {
+    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "title": "Push notification title",
+    "body": "Push notification body",
+    "status": "PROCESSING",
+    "executionTimeInHour": 6,
+    "startTime": 1771492295
+  }
+end note
+mj -[#green]> cjp : Success
+
+deactivate mj
+
+
+cjp -> cjp : Check the status
+alt Status != PROCESSING
+  note right of cjp
+    In this case the status can be:
+    - CANCELED
+    - COMPLETED
+    - CREATED
+    - FAILED
+    Nothing to do.
+  end note
+
+  cjp -[#red]x cjp : End the execution
+end
+
+cjp -> mjp : Get the list of progresses with status `PENDING`
+
+activate mjp
+alt Transient error from cosmos
+  mjp -[#red]> cjp : Transient error
+
+  alt Was last retry
+    cjp -> cjqp : Push to the poison
+  end
+
+  cjp -[#red]x cjp : Throw error
+else Empty array
+  mjp -[#green]> cjp : Empty array response
+  note right of cjp
+    Everything was updated, we can consider this job COMPLETED.
+  end note
+
+  cjp -> mj : Set status to COMPLETED
+  activate mj
+
+  alt Transient error from cosmos
+    mj -[#red]> cjp : Transient error
+
+    alt Was last retry
+      cjp -> cjqp : Push to the poison
+    end
+
+    cjp -[#red]x cjp : Throw error
+  end
+
+  mj -[#green]> cjp : Success
+  deactivate mj
+
+  cjp -[#red]x cjp : End the execution
+end
+
+note right of cjp
+  [
+    {
+      "notificationId": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0",
+      "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+      "scheduleTimestamp": 123456789,
+      "status": "PENDING",
+      "tags": ["aaa", "aab", "aac"]
+    },
+    ...
+  ]
+
+  Note: the jobId is the partition key of the container.
+end note
+mjp -[#green]> cjp : 200
+deactivate mjp
+
+loop For each progress document
+  cjp -> nh : Check notification status
+  activate nh
+  alt Transient error from notfication hub
+    nh -[#red]> cjp : Transient
+
+    alt Was last retry
+      note left of cjp
+        **CheckNotificationStatusMessage**
+        {
+          "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B"
+        }
+      end note
+      cjp --> cjqp : Push the item to the poison
+    end
+
+    cjp -[#red]x cjp : Throw an error
+
+  else Notification not found
+    cjp --> ai : Track an event
+    cjp -> mjp : Set status to `FAILED`
+
+    activate mjp
+    alt Transient error from cosmos
+      mjp -[#red]> cjp : Transient error
+
+      alt Was last retry
+        cjp -> cjqp : Push to the poison
+      end
+
+      cjp -[#red]x cjp : Throw error
+    end
+
+    mjp -[#green]> cjp : 200
+
+    deactivate mjp
+
+      cjp -[#red]x cjp : Skip the iteration.
+  end
+
+  nh -[#green]> cjp : Success
+  deactivate nh
+
+  alt Status PENDING
+      note left of cjp
+        **CheckNotificationStatusMessage**
+        {
+          "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+          "visibilityTimeout": 300
+        }
+
+      end note
+    cjp -> cjq : Push the item back in the queue\nto perform the check again in the future.
+
+    cjp -[#red]x cjp : End the execution
+  else Status ERROR
+
+    cjp -> mjp : Set status to `FAILED`
+
+    activate mjp
+    alt Transient error from cosmos
+      mjp -[#red]> cjp : Transient error
+
+      alt Was last retry
+        cjp -> cjqp : Push to the poison
+      end
+
+      cjp -[#red]x cjp : Throw error
+    end
+
+    mjp -[#green]> cjp : 200
+    deactivate mjp
+
+    cjp -[#red]x cjp : Skip (continue loop)
+  end
+
+  note right of cjp
+    Now we know that the notification was sent.
+  end note
+  cjp -> mjp : Set status: `SENT`
+
+  activate mjp
+  alt Transient from cosmos
+    mjp -[#red]> cjp : Transient
+
+    alt Was last retry
+      cjp -> cjqp : Push to the poison
+  end
+
+    cjp -[#red]x cjp : Throw an error
+  end
+  mjp -[#green]> cjp : Success
+  deactivate mjp
+end
+
+cjp -> mj : Set the status to COMPLETED
+activate mj
+alt Transient from cosmos
+  mj -[#red]> cjp : Transient
+
+  alt Was last retry
+    cjp -> cjqp : Push to the poison
+end
+
+  cjp -[#red]x cjp : Throw an error
+end
+mj -[#green]> cjp : Success
+deactivate mj
+
+deactivate cjp
+
+@enduml
