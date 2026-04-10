@@ -1,7 +1,8 @@
-import { MessageContent } from "../types/MessageContent";
-import { readableReport } from "@pagopa/ts-commons/lib/reporters";
-import { BlobServiceClient, RestError } from "@azure/storage-blob";
 import { MessageContentRepository } from "@/domain/message-content";
+import { BlobServiceClient, RestError } from "@azure/storage-blob";
+import { readableReport } from "@pagopa/ts-commons/lib/reporters";
+
+import { MessageContent } from "../types/MessageContent";
 
 interface BlobStorageError {
   readonly code: string;
@@ -38,12 +39,32 @@ const isRestError: (u: unknown) => u is RestError = (u): u is RestError =>
   (u as RestError).name === RestError.name;
 
 export class MessageContentRepo implements MessageContentRepository {
-  private repository: BlobServiceClient;
   private messageContainerName: string;
+  private repository: BlobServiceClient;
 
   constructor(repository: BlobServiceClient, messageContainerName: string) {
     this.repository = repository;
     this.messageContainerName = messageContainerName;
+  }
+
+  private async downloadBlobContent(
+    blobName: string,
+  ): Promise<BlobStorageError | NodeJS.ReadableStream> {
+    try {
+      const response = await this.repository
+        .getContainerClient(this.messageContainerName)
+        .getBlobClient(blobName)
+        .download();
+      return response.readableStreamBody as NodeJS.ReadableStream;
+    } catch (e) {
+      const code =
+        isRestError(e) && e.statusCode === 404
+          ? BLOB_NOT_FOUND_CODE
+          : GENERIC_CODE;
+      const message =
+        isRestError(e) && e.message !== undefined ? e.message : "Unknown error";
+      throw new BlobStorageErrorException(code, message);
+    }
   }
 
   private streamToText(readable: NodeJS.ReadableStream): Promise<string> {
@@ -61,26 +82,6 @@ export class MessageContentRepo implements MessageContentRepository {
         reject(err);
       });
     });
-  }
-
-  private async downloadBlobContent(
-    blobName: string,
-  ): Promise<NodeJS.ReadableStream | BlobStorageError> {
-    try {
-      const response = await this.repository
-        .getContainerClient(this.messageContainerName)
-        .getBlobClient(blobName)
-        .download();
-      return response.readableStreamBody as NodeJS.ReadableStream;
-    } catch (e) {
-      const code =
-        isRestError(e) && e.statusCode === 404
-          ? BLOB_NOT_FOUND_CODE
-          : GENERIC_CODE;
-      const message =
-        isRestError(e) && e.message !== undefined ? e.message : "Unknown error";
-      throw new BlobStorageErrorException(code, message);
-    }
   }
 
   async getByMessageContentById(messageId: string): Promise<MessageContent> {

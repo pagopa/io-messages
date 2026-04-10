@@ -1,4 +1,6 @@
-import * as t from "io-ts";
+import { UTCISODateFromString } from "@pagopa/ts-commons/lib/dates";
+import { WithinRangeInteger } from "@pagopa/ts-commons/lib/numbers";
+import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import {
   FiscalCode,
   NonEmptyString,
@@ -7,10 +9,8 @@ import {
   Ulid,
   WithinRangeString,
 } from "@pagopa/ts-commons/lib/strings";
-import { WithinRangeInteger } from "@pagopa/ts-commons/lib/numbers";
 import { enumType, withDefault } from "@pagopa/ts-commons/lib/types";
-import { UTCISODateFromString } from "@pagopa/ts-commons/lib/dates";
-import { readableReport } from "@pagopa/ts-commons/lib/reporters";
+import * as t from "io-ts";
 
 // --- Timestamp ---
 export const Timestamp = UTCISODateFromString;
@@ -26,8 +26,8 @@ export type MessageBodyMarkdown = t.TypeOf<typeof MessageBodyMarkdown>;
 
 // --- MessageContentBase ---
 const MessageContentBaseR = t.interface({
-  subject: MessageSubject,
   markdown: MessageBodyMarkdown,
+  subject: MessageSubject,
 });
 const MessageContentBaseO = t.partial({
   require_secure_channels: t.boolean,
@@ -113,9 +113,9 @@ export type PrescriptionData = t.TypeOf<typeof PrescriptionData>;
 
 // --- LegalData ---
 const LegalDataR = t.interface({
-  sender_mail_from: NonEmptyString,
   has_attachment: withDefault(t.boolean, false),
   message_unique_id: NonEmptyString,
+  sender_mail_from: NonEmptyString,
 });
 const LegalDataO = t.partial({
   original_message_url: NonEmptyString,
@@ -139,8 +139,8 @@ export type EUCovidCert = t.TypeOf<typeof EUCovidCert>;
 // --- HasPrecondition ---
 export enum HasPreconditionEnum {
   ALWAYS = "ALWAYS",
-  ONCE = "ONCE",
   NEVER = "NEVER",
+  ONCE = "ONCE",
 }
 export const HasPrecondition = enumType<HasPreconditionEnum>(
   HasPreconditionEnum,
@@ -153,13 +153,13 @@ const ThirdPartyDataR = t.interface({
   id: NonEmptyString,
 });
 const ThirdPartyDataO = t.partial({
-  original_sender: NonEmptyString,
-  original_receipt_date: Timestamp,
-  has_attachments: withDefault(t.boolean, false),
-  has_remote_content: withDefault(t.boolean, false),
-  has_precondition: HasPrecondition,
-  summary: NonEmptyString,
   configuration_id: Ulid,
+  has_attachments: withDefault(t.boolean, false),
+  has_precondition: HasPrecondition,
+  has_remote_content: withDefault(t.boolean, false),
+  original_receipt_date: Timestamp,
+  original_sender: NonEmptyString,
+  summary: NonEmptyString,
 });
 export const ThirdPartyData = t.exact(
   t.intersection([ThirdPartyDataR, ThirdPartyDataO], "ThirdPartyData"),
@@ -169,12 +169,12 @@ export type ThirdPartyData = t.TypeOf<typeof ThirdPartyData>;
 // --- MessageContent ---
 const MessageContent2R = t.interface({});
 const MessageContent2O = t.partial({
+  due_date: Timestamp,
+  eu_covid_cert: EUCovidCert,
+  legal_data: LegalData,
   payment_data: PaymentData,
   prescription_data: PrescriptionData,
-  legal_data: LegalData,
-  eu_covid_cert: EUCovidCert,
   third_party_data: ThirdPartyData,
-  due_date: Timestamp,
 });
 export const MessageContent2 = t.exact(
   t.intersection([MessageContent2R, MessageContent2O], "MessageContent2"),
