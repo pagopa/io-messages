@@ -354,6 +354,9 @@ importers:
       fp-ts:
         specifier: 'catalog:'
         version: 2.16.11
+      io-messages-common-legacy:
+        specifier: workspace:*
+        version: link:../../packages/io-messages-common-legacy
       io-ts:
         specifier: 'catalog:'
         version: 2.2.22(fp-ts@2.16.11)
@@ -908,6 +911,46 @@ importers:
       zod:
         specifier: 'catalog:'
         version: 4.1.13
+    devDependencies:
+      '@pagopa/eslint-config':
+        specifier: 'catalog:'
+        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@22.19.15))
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.19.15
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 3.2.4(vitest@3.2.4(@types/node@22.19.15))
+      eslint:
+        specifier: 'catalog:'
+        version: 8.57.1
+      prettier:
+        specifier: ^3.2.5
+        version: 3.6.2
+      tsc-alias:
+        specifier: ^1.8.10
+        version: 1.8.16
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.4(@types/node@22.19.15)
+
+  packages/io-messages-common-legacy:
+    dependencies:
+      '@azure/storage-blob':
+        specifier: 'catalog:'
+        version: 12.29.1
+      '@pagopa/io-functions-commons':
+        specifier: 'catalog:'
+        version: 30.0.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
+      '@pagopa/ts-commons':
+        specifier: 'catalog:'
+        version: 13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
+      io-ts:
+        specifier: 'catalog:'
+        version: 2.2.22(fp-ts@2.16.11)
     devDependencies:
       '@pagopa/eslint-config':
         specifier: 'catalog:'

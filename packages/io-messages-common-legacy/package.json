@@ -1,0 +1,43 @@
+{
+  "name": "io-messages-common-legacy",
+  "license": "UNLICENSED",
+  "version": "0.0.1",
+  "private": true,
+  "type": "commonjs",
+  "exports": {
+    "./*": "./dist/*.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*"
+      ]
+    }
+  },
+  "dependencies": {
+    "@azure/storage-blob": "catalog:",
+    "@pagopa/io-functions-commons": "catalog:",
+    "@pagopa/ts-commons": "catalog:",
+    "io-ts": "catalog:"
+  },
+  "devDependencies": {
+    "@pagopa/eslint-config": "catalog:",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "^3.2.5",
+    "tsc-alias": "^1.8.10",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "scripts": {
+    "build": "tsc && tsc-alias",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint --fix src",
+    "lint:check": "eslint src",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "test:coverage": "vitest run --coverage"
+  }
+}
