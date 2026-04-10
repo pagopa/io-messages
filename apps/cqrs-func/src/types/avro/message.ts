@@ -1,8 +1,8 @@
-import { BaseAvroRecord } from "../BaseAvroRecord";
+import { BaseAvroRecord } from "./BaseAvroRecord";
 import { FeatureLevelType } from "./FeatureLevelTypeEnum";
 import { MessageContentType } from "./MessageContentTypeEnum";
 
-export interface messageInterface {
+export interface MessageInterface {
   content_paymentData_amount: number;
   content_paymentData_invalidAfterDueDate: boolean;
   content_paymentData_noticeNumber: string;
@@ -20,7 +20,7 @@ export interface messageInterface {
   timeToLiveSeconds: number;
 }
 
-export class message extends BaseAvroRecord implements messageInterface {
+export class Message extends BaseAvroRecord implements MessageInterface {
   public static readonly schema: object = {
     doc: "Kafka JS schema for cosmos api container 'messages'",
     fields: [
@@ -139,10 +139,10 @@ export class message extends BaseAvroRecord implements messageInterface {
   public timeToLiveSeconds = 3600;
 
   public schema(): object {
-    return message.schema;
+    return Message.schema;
   }
 
   public subject(): string {
-    return message.subject;
+    return Message.subject;
   }
 }

@@ -1,6 +1,6 @@
-import { BaseAvroRecord } from "../BaseAvroRecord";
+import { BaseAvroRecord } from "./BaseAvroRecord";
 
-export interface messageStatusInterface {
+export interface MessageStatusInterface {
   id: string;
   isArchived: boolean;
   isRead: boolean;
@@ -10,9 +10,9 @@ export interface messageStatusInterface {
   version: number;
 }
 
-export class messageStatus
+export class MessageStatus
   extends BaseAvroRecord
-  implements messageStatusInterface
+  implements MessageStatusInterface
 {
   public static readonly schema: object = {
     doc: "Kafka JS schema for cosmos api container 'message-status'",
@@ -70,10 +70,10 @@ export class messageStatus
   public version = 0;
 
   public schema(): object {
-    return messageStatus.schema;
+    return MessageStatus.schema;
   }
 
   public subject(): string {
-    return messageStatus.subject;
+    return MessageStatus.subject;
   }
 }

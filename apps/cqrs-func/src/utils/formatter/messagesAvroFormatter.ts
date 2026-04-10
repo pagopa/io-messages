@@ -18,9 +18,9 @@ import * as RA from "fp-ts/ReadonlyArray";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
-import { FeatureLevelType } from "../../types/avro/dto/FeatureLevelTypeEnum";
-import { MessageContentType } from "../../types/avro/dto/MessageContentTypeEnum";
-import { message as avroMessage } from "../../types/avro/dto/message";
+import { FeatureLevelType } from "../../types/avro/FeatureLevelTypeEnum";
+import { MessageContentType } from "../../types/avro/MessageContentTypeEnum";
+import { Message as avroMessage } from "../../types/avro/message";
 import { ThirdPartyDataWithCategoryFetcher } from "../message";
 interface IMessageCategoryMapping {
   readonly pattern: t.Type<Partial<MessageContent>>;
