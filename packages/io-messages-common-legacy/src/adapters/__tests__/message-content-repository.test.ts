@@ -12,8 +12,8 @@ const makeStream = (content: string): NodeJS.ReadableStream => {
 };
 
 const aValidMessageContent = {
-  markdown: "a markdown",
-  subject: "a subject",
+  markdown: "x".repeat(80),
+  subject: "y".repeat(10),
 };
 
 const downloadMock = vi.fn();
