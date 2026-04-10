@@ -89,7 +89,6 @@ describe("createMassiveNotificationJobHandler", () => {
       expect.objectContaining({
         body: aValidPayload.body,
         executionTimeInHours: 2,
-        startTimeTimestamp: expect.any(Number),
         title: aValidPayload.title,
       }),
     );
@@ -127,7 +126,6 @@ describe("createMassiveNotificationJobHandler", () => {
       expect.objectContaining({
         body: aValidPayload.body,
         executionTimeInHours: 2,
-        startTimeTimestamp: expect.any(Number),
         title: aValidPayload.title,
       }),
     );

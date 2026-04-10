@@ -147,11 +147,11 @@ const main = (config: Config) => {
   );
   const checkJobMessageQueue = new QueueClient(
     config.comStorageConnectionString,
-    "check-job-messages",
+    "check-job-message",
   );
   const sendNotificationMessageQueue = new QueueClient(
     config.comStorageConnectionString,
-    "send-notification-messages",
+    "send-notification",
   );
 
   // TODO: This factory breaks clean architecture, remove this in future.
