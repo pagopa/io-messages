@@ -1,7 +1,6 @@
 import { InvocationContext } from "@azure/functions";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import * as TE from "fp-ts/lib/TaskEither";
-import { Readable } from "stream";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
   aMessageContent,
@@ -23,20 +22,10 @@ const telemetryClientMock = {
   trackException: vi.fn((_) => void 0),
 } as unknown as TelemetryClient;
 
-const makeStream = (content: string): NodeJS.ReadableStream => {
-  const readable = new Readable({ read() {} });
-  readable.push(Buffer.from(content, "utf-8"));
-  readable.push(null);
-  return readable;
+const getByMessageContentByIdMock = vi.fn().mockResolvedValue(aMessageContent);
+const mockMessageContentRepository = {
+  getByMessageContentById: getByMessageContentByIdMock,
 };
-
-const downloadMock = vi.fn().mockImplementation(async () => ({
-  readableStreamBody: makeStream(JSON.stringify(aMessageContent)),
-}));
-
-const mockContainerClient = {
-  getBlobClient: vi.fn().mockReturnValue({ download: downloadMock }),
-} as any;
 
 const inputMessage = {
   body: {
@@ -68,9 +57,7 @@ vi.spyOn(KP, "sendMessages").mockImplementation((_) => sendMessagesMock);
 describe("HandleMessageChangeFeedPublishFailureHandler", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    downloadMock.mockImplementation(async () => ({
-      readableStreamBody: makeStream(JSON.stringify(aMessageContent)),
-    }));
+    getByMessageContentByIdMock.mockResolvedValue(aMessageContent);
   });
 
   test("should write an avro message on kafka client", async () => {
@@ -78,7 +65,7 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
       functionsContextMock,
       aRetriableInput,
       telemetryClientMock,
-      mockContainerClient,
+      mockMessageContentRepository,
       kafkaClient,
     );
     expect(res).toEqual(void 0);
@@ -93,18 +80,15 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
   });
 
   test("should throw if Transient failure occurs", async () => {
-    downloadMock.mockRejectedValueOnce(
-      Object.assign(new Error("BlobNotFound"), {
-        name: "RestError",
-        statusCode: 404,
-      }),
+    getByMessageContentByIdMock.mockRejectedValueOnce(
+      new Error("cannot reach blob storage"),
     );
     await expect(
       HandleMessageChangeFeedPublishFailureHandler(
         functionsContextMock,
         aRetriableInput,
         telemetryClientMock,
-        mockContainerClient,
+        mockMessageContentRepository,
         kafkaClient,
       ),
     ).rejects.toBeDefined();
@@ -121,7 +105,7 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
         functionsContextMock,
         { wrongInput: true },
         telemetryClientMock,
-        mockContainerClient,
+        mockMessageContentRepository,
         kafkaClient,
       ),
     ).resolves.toEqual(
@@ -138,7 +122,7 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
         functionsContextMock,
         aNotRetriableInput,
         telemetryClientMock,
-        mockContainerClient,
+        mockMessageContentRepository,
         kafkaClient,
       ),
     ).resolves.toEqual(

@@ -1,10 +1,10 @@
 import { InvocationContext } from "@azure/functions";
-import { ContainerClient } from "@azure/storage-blob";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import { RetrievedMessage } from "@pagopa/io-functions-commons/dist/src/models/message";
 import * as RA from "fp-ts/lib/ReadonlyArray";
 import * as TE from "fp-ts/lib/TaskEither";
 import { constVoid, flow, pipe } from "fp-ts/lib/function";
+import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
 import * as t from "io-ts";
 
 import { TelemetryClient, trackException } from "../../utils/appinsights";
@@ -41,7 +41,7 @@ export const HandleMessageChangeFeedPublishFailureHandler = (
   context: InvocationContext,
   message: unknown,
   telemetryClient: TelemetryClient,
-  containerClient: ContainerClient,
+  messageContentRepository: MessageContentRepository,
   client: KP.KafkaProducerCompact<RetrievedMessage>,
   // eslint-disable-next-line max-params, @typescript-eslint/no-invalid-void-type
 ): Promise<Failure | void> =>
@@ -63,7 +63,7 @@ export const HandleMessageChangeFeedPublishFailureHandler = (
     ),
     TE.chain((retrievedMessage) =>
       pipe(
-        enrichMessageContent(containerClient, retrievedMessage),
+        enrichMessageContent(messageContentRepository, retrievedMessage),
         TE.mapLeft((_) =>
           toTransientFailure(Error("Cannot Enrich MessageContent"))(),
         ),
@@ -113,7 +113,7 @@ export const HandleMessageChangeFeedPublishFailureHandler = (
 export const queueFailureHandler =
   (
     telemetryClient: TelemetryClient,
-    messageContentContainerClient: ContainerClient,
+    messageContentRepository: MessageContentRepository,
     kafkaClient: KP.KafkaProducerCompact<RetrievedMessage>,
   ) =>
   async (
@@ -125,6 +125,6 @@ export const queueFailureHandler =
       context,
       message,
       telemetryClient,
-      messageContentContainerClient,
+      messageContentRepository,
       kafkaClient,
     );

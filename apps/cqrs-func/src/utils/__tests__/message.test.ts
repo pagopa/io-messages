@@ -1,7 +1,4 @@
-import { Readable } from "stream";
 import * as E from "fp-ts/Either";
-import * as O from "fp-ts/lib/Option";
-import * as TE from "fp-ts/TaskEither";
 import {
   aMessageContent,
   aRetrievedMessageWithoutContent,
@@ -11,20 +8,10 @@ import { enrichMessageContent } from "../message";
 import { vi, beforeEach, describe, test, expect } from "vitest";
 import { RetrievedMessage } from "@pagopa/io-functions-commons/dist/src/models/message";
 
-const makeStream = (content: string): NodeJS.ReadableStream => {
-  const readable = new Readable({ read() {} });
-  readable.push(Buffer.from(content, "utf-8"));
-  readable.push(null);
-  return readable;
+const getByMessageContentByIdMock = vi.fn().mockResolvedValue(aMessageContent);
+const mockMessageContentRepository = {
+  getByMessageContentById: getByMessageContentByIdMock,
 };
-
-const downloadMock = vi.fn().mockImplementation(async () => ({
-  readableStreamBody: makeStream(JSON.stringify(aMessageContent)),
-}));
-
-const mockContainerClient = {
-  getBlobClient: vi.fn().mockReturnValue({ download: downloadMock }),
-} as any;
 
 const aRetrievedMessage: RetrievedMessage = {
   ...aRetrievedMessageWithoutContent,
@@ -34,14 +21,12 @@ const aRetrievedMessage: RetrievedMessage = {
 describe("enrichMessageContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    downloadMock.mockImplementation(async () => ({
-      readableStreamBody: makeStream(JSON.stringify(aMessageContent)),
-    }));
+    getByMessageContentByIdMock.mockResolvedValue(aMessageContent);
   });
 
   test("should enrich a message with its' related content", async () => {
     const result = await enrichMessageContent(
-      mockContainerClient,
+      mockMessageContentRepository,
       aRetrievedMessage,
     )();
 
@@ -56,10 +41,12 @@ describe("enrichMessageContent", () => {
   });
 
   test("should return a retriable error if blob storage cannot retrieve the message content", async () => {
-    downloadMock.mockRejectedValueOnce(new Error("cannot reach blob storage"));
+    getByMessageContentByIdMock.mockRejectedValueOnce(
+      new Error("cannot reach blob storage"),
+    );
 
     const result = await enrichMessageContent(
-      mockContainerClient,
+      mockMessageContentRepository,
       aRetrievedMessage,
     )();
 
@@ -73,16 +60,13 @@ describe("enrichMessageContent", () => {
     }
   });
 
-  test("should return a not retriable error if message content cannot be found", async () => {
-    downloadMock.mockRejectedValueOnce(
-      Object.assign(new Error("BlobNotFound"), {
-        name: "RestError",
-        statusCode: 404,
-      }),
+  test("should return a retriable error if message content cannot be found", async () => {
+    getByMessageContentByIdMock.mockRejectedValueOnce(
+      new Error("BlobNotFound"),
     );
 
     const result = await enrichMessageContent(
-      mockContainerClient,
+      mockMessageContentRepository,
       aRetrievedMessage,
     )();
 
@@ -90,7 +74,7 @@ describe("enrichMessageContent", () => {
     if (E.isLeft(result)) {
       expect(result.left).toEqual(
         expect.objectContaining({
-          retriable: false,
+          retriable: true,
         }),
       );
     }

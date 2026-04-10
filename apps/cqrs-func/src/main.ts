@@ -1,6 +1,7 @@
 import { app } from "@azure/functions";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { QueueClient } from "@azure/storage-queue";
+import { MessageContentRepo } from "io-messages-common-legacy/adapters/message-content-repository";
 
 import { cosmosMessageStatusHandler } from "./functions/CosmosApiMessageStatusChangeFeedForReminder/handler";
 import { cosmosMessagesHandler } from "./functions/CosmosApiMessagesChangeFeed/handler";
@@ -38,10 +39,16 @@ const errorStorage = new QueueClient(
   config.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME,
 );
 
-const messageContentContainerClient = BlobServiceClient.fromConnectionString(
-  config.MESSAGE_CONTENT_STORAGE_CONNECTION,
-).getContainerClient("message-content");
+// const messageContentContainerClient = BlobServiceClient.fromConnectionString(
+//   config.MESSAGE_CONTENT_STORAGE_CONNECTION,
+// ).getContainerClient("message-content");
 
+const messageContentRepository = new MessageContentRepo(
+  BlobServiceClient.fromConnectionString(
+    config.MESSAGE_CONTENT_STORAGE_CONNECTION,
+  ),
+  "message-content",
+);
 // ---------------------------------------------------------------------------
 // HTTP Triggers
 // ---------------------------------------------------------------------------
@@ -63,7 +70,7 @@ app.cosmosDB("CosmosApiMessagesChangeFeed", {
   createLeaseContainerIfNotExists: true,
   databaseName: config.COSMOSDB_NAME,
   handler: cosmosMessagesHandler(
-    messageContentContainerClient,
+    messageContentRepository,
     config,
     kafkaMessagesClient,
     errorStorage,
@@ -97,7 +104,7 @@ app.storageQueue("HandleMessageChangeFeedPublishFailures", {
   connection: "COM_STORAGE_CONNECTION_STRING",
   handler: queueFailureHandler(
     telemetryClient,
-    messageContentContainerClient,
+    messageContentRepository,
     kafkaMessagesClient,
   ),
   queueName: config.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME,

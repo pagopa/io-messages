@@ -51,6 +51,7 @@
     "@chasdevs/avro-to-typescript": "catalog:",
     "@pagopa/fp-ts-kafkajs": "catalog:",
     "@pagopa/io-functions-commons": "catalog:",
+    "io-messages-common-legacy": "workspace:*",
     "@pagopa/ts-commons": "catalog:",
     "applicationinsights": "catalog:",
     "avsc": "catalog:",

@@ -1,5 +1,4 @@
 import { InvocationContext } from "@azure/functions";
-import { ContainerClient } from "@azure/storage-blob";
 import { QueueClient } from "@azure/storage-queue";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
 import { RetrievedMessage } from "@pagopa/io-functions-commons/dist/src/models/message";
@@ -9,6 +8,7 @@ import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as B from "fp-ts/lib/boolean";
 import { flow, pipe } from "fp-ts/lib/function";
+import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
 
 import { TelemetryClient } from "../../utils/appinsights";
 import { errorsToError } from "../../utils/conversions";
@@ -24,7 +24,10 @@ import { toStorableError } from "../../utils/storable_error";
 const CHUNK_SIZE = 15;
 
 export const handleMessageChange =
-  (containerClient: ContainerClient, startTimeFilter: number) =>
+  (
+    messageContentRepository: MessageContentRepository,
+    startTimeFilter: number,
+  ) =>
   (
     client: KP.KafkaProducerCompact<RetrievedMessage>,
     errorStorage: QueueClient,
@@ -56,7 +59,7 @@ export const handleMessageChange =
               msg.isPending === false &&
               msg.createdAt.getTime() >= startTimeFilter,
           ),
-          enrichMessagesContent(CHUNK_SIZE, containerClient),
+          enrichMessagesContent(CHUNK_SIZE, messageContentRepository),
           T.map((enrichResults) => [
             ...pipe(retrievedMessages, RA.filter(E.isLeft)),
             ...enrichResults,
@@ -80,7 +83,7 @@ export const handleMessageChange =
 
 export const cosmosMessagesHandler =
   (
-    messageContentContainerClient: ContainerClient,
+    messageContentRepository: MessageContentRepository,
     config: { MESSAGE_CHANGE_FEED_START_TIME: number },
     kafkaClient: KP.KafkaProducerCompact<RetrievedMessage>,
     errorStorage: QueueClient,
@@ -91,7 +94,7 @@ export const cosmosMessagesHandler =
     _context: InvocationContext,
   ): Promise<Failure | IBulkOperationResult> =>
     handleMessageChange(
-      messageContentContainerClient,
+      messageContentRepository,
       config.MESSAGE_CHANGE_FEED_START_TIME,
     )(
       kafkaClient,
