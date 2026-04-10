@@ -15,7 +15,7 @@ export const startMassiveNotificationJobHandler =
   (
     startMassiveNotificationJobUseCase: StartMassiveNotificationJobUseCase,
   ): HttpHandler =>
-  async (request) => {
+  async (request, context) => {
     const parsedIdParameter = massiveJobIDSchema.safeParse(
       request.params["id"],
     );
@@ -40,6 +40,7 @@ export const startMassiveNotificationJobHandler =
     }
 
     const result = await startMassiveNotificationJobUseCase.execute(
+      context,
       parsedIdParameter.data,
       parsedBody.startTimeTimestamp,
     );

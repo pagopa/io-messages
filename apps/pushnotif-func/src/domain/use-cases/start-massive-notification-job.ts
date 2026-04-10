@@ -1,4 +1,4 @@
-import { TelemetryClient } from "applicationinsights";
+import { InvocationContext, StorageQueueOutput } from "@azure/functions";
 
 import { CheckJobMessageQueue } from "../check-job-message";
 import { ErrorInternal, ErrorNotFound } from "../error";
@@ -7,7 +7,7 @@ import {
   MassiveJobStatusEnum,
   MassiveJobsRepository,
 } from "../massive-jobs";
-import { SendNotificationMessageQueue } from "../send-notification";
+import { TelemetryService } from "../telemetry";
 
 export class StartMassiveNotificationJobUseCase {
   private generateAllTags = (n: number): string[] => {
@@ -22,11 +22,12 @@ export class StartMassiveNotificationJobUseCase {
   constructor(
     private repository: MassiveJobsRepository,
     private checkJobMessageQueue: CheckJobMessageQueue,
-    private sendNotificationMessageQueue: SendNotificationMessageQueue,
-    private telemetryClient: TelemetryClient,
+    private sendNotificationMessageQueueOutput: StorageQueueOutput,
+    private telemetryClient: TelemetryService,
   ) {}
 
   async execute(
+    context: InvocationContext,
     massiveJobId: MassiveJobID,
     startTimeTimestamp: number,
   ): Promise<ErrorInternal | ErrorNotFound | string> {
@@ -86,6 +87,7 @@ export class StartMassiveNotificationJobUseCase {
     const delayBetweenBatchesInSeconds =
       (massiveJob.executionTimeInHours * 3600) / (allTags.length / batchSize);
 
+    const sendNotificationMessages = [];
     for (let index = 0; index < allTags.length; index += batchSize) {
       const tags = allTags.slice(index, index + batchSize);
 
@@ -102,22 +104,21 @@ export class StartMassiveNotificationJobUseCase {
         tags,
       };
 
-      const sendNotificationResult =
-        await this.sendNotificationMessageQueue.sendMessage(
-          sendNotificationMessage,
-        );
+      sendNotificationMessages.push(sendNotificationMessage);
+    }
 
-      if (sendNotificationResult instanceof ErrorInternal) {
-        this.telemetryClient.trackException({
-          exception: sendNotificationResult,
-          properties: {
-            batchIndex: index,
-            jobId: massiveJob.id,
-            scheduledTimestamp,
-            tags,
-          },
-        });
-      }
+    try {
+      context.extraOutputs.set(
+        this.sendNotificationMessageQueueOutput,
+        sendNotificationMessages,
+      );
+    } catch (error) {
+      this.telemetryClient.trackException({
+        exception: error instanceof Error ? error : new Error("Unknown error"),
+        properties: {
+          jobId: massiveJob.id,
+        },
+      });
     }
 
     return massiveJob.id;

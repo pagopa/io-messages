@@ -131,6 +131,7 @@ describe("startMassiveNotificationJobHandler", () => {
     expect(response.status).toBe(500);
     expect(responseBody).toEqual({ error: "Something went wrong" });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
+      context,
       validJobId,
       futureTimestamp,
     );
@@ -151,6 +152,7 @@ describe("startMassiveNotificationJobHandler", () => {
     expect(response.status).toBe(201);
     expect(responseBody).toEqual({ id: newJobId });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
+      context,
       validJobId,
       futureTimestamp,
     );
@@ -172,11 +174,12 @@ describe("startMassiveNotificationJobHandler", () => {
     expect(response.status).toBe(201);
     expect(responseBody).toEqual({ id: newJobId });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
+      context,
       validJobId,
       expect.any(Number),
     );
     // Verify the timestamp is roughly 1 hour from now
-    const callTimestamp = vi.mocked(useCaseMock.execute).mock.calls[0][1];
+    const callTimestamp = vi.mocked(useCaseMock.execute).mock.calls[0][2];
     const oneHourFromNow = Math.floor((Date.now() + 60 * 60 * 1000) / 1000);
     expect(callTimestamp).toBeGreaterThanOrEqual(oneHourFromNow - 2);
     expect(callTimestamp).toBeLessThanOrEqual(oneHourFromNow + 2);

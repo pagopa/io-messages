@@ -1,3 +1,4 @@
+import { InvocationContext, StorageQueueOutput } from "@azure/functions";
 import { TelemetryClient } from "applicationinsights";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
@@ -9,7 +10,6 @@ import {
   MassiveJobsRepository,
   massiveJobIDSchema,
 } from "../../massive-jobs";
-import { SendNotificationMessageQueue } from "../../send-notification";
 import { StartMassiveNotificationJobUseCase } from "../start-massive-notification-job";
 
 const jobId = massiveJobIDSchema.parse("01ARZ3NDEKTSV4RRFFQ69G5FAV");
@@ -35,20 +35,26 @@ const checkJobMessageQueueMock: CheckJobMessageQueue = {
   sendMessage: vi.fn(),
 };
 
-const sendNotificationMessageQueueMock: SendNotificationMessageQueue = {
-  sendMessage: vi.fn(),
-};
+const queueOutputMock = {} as StorageQueueOutput;
 
 const telemetryClientMock: Pick<TelemetryClient, "trackException"> = {
   trackException: vi.fn(),
 };
 
-const useCase = new StartMassiveNotificationJobUseCase(
-  repositoryMock,
-  checkJobMessageQueueMock,
-  sendNotificationMessageQueueMock,
-  telemetryClientMock as TelemetryClient,
-);
+const createUseCase = () =>
+  new StartMassiveNotificationJobUseCase(
+    repositoryMock,
+    checkJobMessageQueueMock,
+    queueOutputMock,
+    telemetryClientMock as TelemetryClient,
+  );
+
+const createInvocationContext = () => {
+  const context = new InvocationContext();
+  const setSpy = vi.spyOn(context.extraOutputs, "set");
+
+  return { context, setSpy };
+};
 
 describe("StartMassiveNotificationJobUseCase", () => {
   afterEach(() => {
@@ -57,26 +63,38 @@ describe("StartMassiveNotificationJobUseCase", () => {
   });
 
   test("should propagate repository lookup errors", async () => {
+    const { context, setSpy } = createInvocationContext();
+    const useCase = createUseCase();
     const repositoryError = new ErrorInternal("Repository error");
     vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce(
       repositoryError,
     );
 
-    const result = await useCase.execute(jobId, requestedStartTimeTimestamp);
+    const result = await useCase.execute(
+      context,
+      jobId,
+      requestedStartTimeTimestamp,
+    );
 
     expect(result).toBe(repositoryError);
     expect(checkJobMessageQueueMock.sendMessage).not.toHaveBeenCalled();
     expect(repositoryMock.updateMassiveJob).not.toHaveBeenCalled();
-    expect(sendNotificationMessageQueueMock.sendMessage).not.toHaveBeenCalled();
+    expect(setSpy).not.toHaveBeenCalled();
   });
 
   test("should return an internal error when the job is not in CREATED status", async () => {
+    const { context, setSpy } = createInvocationContext();
+    const useCase = createUseCase();
     vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce({
       ...baseJob,
       status: MassiveJobStatusEnum.enum.PROCESSING,
     });
 
-    const result = await useCase.execute(jobId, requestedStartTimeTimestamp);
+    const result = await useCase.execute(
+      context,
+      jobId,
+      requestedStartTimeTimestamp,
+    );
 
     expect(result).toBeInstanceOf(ErrorInternal);
     expect(result).toMatchObject({
@@ -84,10 +102,12 @@ describe("StartMassiveNotificationJobUseCase", () => {
     });
     expect(checkJobMessageQueueMock.sendMessage).not.toHaveBeenCalled();
     expect(repositoryMock.updateMassiveJob).not.toHaveBeenCalled();
-    expect(sendNotificationMessageQueueMock.sendMessage).not.toHaveBeenCalled();
+    expect(setSpy).not.toHaveBeenCalled();
   });
 
   test("should propagate check-job queue failures before updating the job", async () => {
+    const { context, setSpy } = createInvocationContext();
+    const useCase = createUseCase();
     vi.spyOn(Date, "now").mockReturnValue(fixedNowMilliseconds);
     vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce(baseJob);
 
@@ -96,7 +116,11 @@ describe("StartMassiveNotificationJobUseCase", () => {
       queueError,
     );
 
-    const result = await useCase.execute(jobId, requestedStartTimeTimestamp);
+    const result = await useCase.execute(
+      context,
+      jobId,
+      requestedStartTimeTimestamp,
+    );
 
     expect(result).toBe(queueError);
     expect(checkJobMessageQueueMock.sendMessage).toHaveBeenCalledWith({
@@ -104,10 +128,12 @@ describe("StartMassiveNotificationJobUseCase", () => {
       visibilityTimeoutInSeconds: 11100,
     });
     expect(repositoryMock.updateMassiveJob).not.toHaveBeenCalled();
-    expect(sendNotificationMessageQueueMock.sendMessage).not.toHaveBeenCalled();
+    expect(setSpy).not.toHaveBeenCalled();
   });
 
   test("should propagate update failures after scheduling the status check message", async () => {
+    const { context, setSpy } = createInvocationContext();
+    const useCase = createUseCase();
     vi.spyOn(Date, "now").mockReturnValue(fixedNowMilliseconds);
     vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce(baseJob);
     vi.mocked(checkJobMessageQueueMock.sendMessage).mockResolvedValueOnce(
@@ -119,7 +145,11 @@ describe("StartMassiveNotificationJobUseCase", () => {
       updateError,
     );
 
-    const result = await useCase.execute(jobId, requestedStartTimeTimestamp);
+    const result = await useCase.execute(
+      context,
+      jobId,
+      requestedStartTimeTimestamp,
+    );
 
     expect(result).toBe(updateError);
     expect(repositoryMock.updateMassiveJob).toHaveBeenCalledWith({
@@ -127,21 +157,24 @@ describe("StartMassiveNotificationJobUseCase", () => {
       startTimeTimestamp: requestedStartTimeTimestamp,
       status: MassiveJobStatusEnum.enum.PROCESSING,
     });
-    expect(sendNotificationMessageQueueMock.sendMessage).not.toHaveBeenCalled();
+    expect(setSpy).not.toHaveBeenCalled();
   });
 
   test("should schedule all notification batches and return the job id on success", async () => {
+    const { context, setSpy } = createInvocationContext();
+    const useCase = createUseCase();
     vi.spyOn(Date, "now").mockReturnValue(fixedNowMilliseconds);
     vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce(baseJob);
     vi.mocked(checkJobMessageQueueMock.sendMessage).mockResolvedValueOnce(
       "check-message-id",
     );
     vi.mocked(repositoryMock.updateMassiveJob).mockResolvedValueOnce(jobId);
-    vi.mocked(sendNotificationMessageQueueMock.sendMessage).mockResolvedValue(
-      "notification-message-id",
-    );
 
-    const result = await useCase.execute(jobId, requestedStartTimeTimestamp);
+    const result = await useCase.execute(
+      context,
+      jobId,
+      requestedStartTimeTimestamp,
+    );
 
     expect(result).toBe(jobId);
     expect(checkJobMessageQueueMock.sendMessage).toHaveBeenCalledWith({
@@ -153,12 +186,17 @@ describe("StartMassiveNotificationJobUseCase", () => {
       startTimeTimestamp: requestedStartTimeTimestamp,
       status: MassiveJobStatusEnum.enum.PROCESSING,
     });
-    expect(sendNotificationMessageQueueMock.sendMessage).toHaveBeenCalledTimes(
-      410,
-    );
-    expect(
-      sendNotificationMessageQueueMock.sendMessage,
-    ).toHaveBeenNthCalledWith(1, {
+    expect(setSpy).toHaveBeenCalledTimes(1);
+    expect(setSpy.mock.calls[0]?.[0]).toBe(queueOutputMock);
+
+    const queuedMessages = setSpy.mock.calls[0]?.[1] as {
+      jobId: typeof jobId;
+      scheduledTimestamp: number;
+      tags: string[];
+    }[];
+
+    expect(queuedMessages).toHaveLength(410);
+    expect(queuedMessages[0]).toEqual({
       jobId,
       scheduledTimestamp: 1700000017.578,
       tags: [
@@ -174,9 +212,7 @@ describe("StartMassiveNotificationJobUseCase", () => {
         "009",
       ],
     });
-    expect(
-      sendNotificationMessageQueueMock.sendMessage,
-    ).toHaveBeenLastCalledWith({
+    expect(queuedMessages.at(-1)).toEqual({
       jobId,
       scheduledTimestamp: 1700007207.031,
       tags: ["ffa", "ffb", "ffc", "ffd", "ffe", "fff"],
@@ -184,7 +220,9 @@ describe("StartMassiveNotificationJobUseCase", () => {
     expect(telemetryClientMock.trackException).not.toHaveBeenCalled();
   });
 
-  test("should track notification batch failures and continue processing remaining batches", async () => {
+  test("should track telemetry when queue output assignment fails", async () => {
+    const { context, setSpy } = createInvocationContext();
+    const useCase = createUseCase();
     vi.spyOn(Date, "now").mockReturnValue(fixedNowMilliseconds);
     vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce(baseJob);
     vi.mocked(checkJobMessageQueueMock.sendMessage).mockResolvedValueOnce(
@@ -192,36 +230,24 @@ describe("StartMassiveNotificationJobUseCase", () => {
     );
     vi.mocked(repositoryMock.updateMassiveJob).mockResolvedValueOnce(jobId);
 
-    const sendError = new ErrorInternal("Notification queue error");
-    vi.mocked(sendNotificationMessageQueueMock.sendMessage)
-      .mockResolvedValueOnce(sendError)
-      .mockResolvedValue("notification-message-id");
+    const queueWriteError = new Error("Queue output failure");
+    setSpy.mockImplementationOnce(() => {
+      throw queueWriteError;
+    });
 
-    const result = await useCase.execute(jobId, requestedStartTimeTimestamp);
+    const result = await useCase.execute(
+      context,
+      jobId,
+      requestedStartTimeTimestamp,
+    );
 
     expect(result).toBe(jobId);
-    expect(sendNotificationMessageQueueMock.sendMessage).toHaveBeenCalledTimes(
-      410,
-    );
+    expect(setSpy).toHaveBeenCalledTimes(1);
     expect(telemetryClientMock.trackException).toHaveBeenCalledTimes(1);
     expect(telemetryClientMock.trackException).toHaveBeenCalledWith({
-      exception: sendError,
+      exception: queueWriteError,
       properties: {
-        batchIndex: 0,
         jobId,
-        scheduledTimestamp: 1700000017.578,
-        tags: [
-          "000",
-          "001",
-          "002",
-          "003",
-          "004",
-          "005",
-          "006",
-          "007",
-          "008",
-          "009",
-        ],
       },
     });
   });

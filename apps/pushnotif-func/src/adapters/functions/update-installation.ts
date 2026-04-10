@@ -31,14 +31,14 @@ const getUpdateInstallationHandler =
       updateInstallationMessageSchema.safeParse(queueMessage);
 
     if (!parsedResult.success) {
-      telemetryService.trackEvent(
-        "installation.update.message.validation.error",
-        {
+      telemetryService.trackEvent({
+        name: "installation.update.message.validation.error",
+        properties: {
           invalidDocument: queueMessage,
           message: "Invalid updateInstallationMessage in the queue",
           validationError: parsedResult.error.issues,
         },
-      );
+      });
 
       return;
     }

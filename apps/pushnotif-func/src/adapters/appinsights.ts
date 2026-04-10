@@ -1,4 +1,8 @@
-import { TelemetryService } from "@/domain/telemetry";
+import {
+  TelemetryService,
+  TrackEventProperties,
+  TrackExceptionProperties,
+} from "@/domain/telemetry";
 import * as ai from "applicationinsights";
 
 export class TelemetryClient implements TelemetryService {
@@ -8,11 +12,23 @@ export class TelemetryClient implements TelemetryService {
     this.#telemetryClient = appInsightsTelemetryClient;
   }
 
-  trackEvent(name: string, properties: object): void {
+  trackEvent({ name, properties, tagOverrides }: TrackEventProperties): void {
     this.#telemetryClient.trackEvent({
       name,
       properties,
-      tagOverrides: { samplingEnabled: "false" },
+      tagOverrides: { samplingEnabled: "false", ...tagOverrides },
+    });
+  }
+
+  trackException({
+    exception,
+    properties,
+    tagOverrides,
+  }: TrackExceptionProperties): void {
+    this.#telemetryClient.trackException({
+      exception,
+      properties,
+      tagOverrides: { samplingEnabled: "false", ...tagOverrides },
     });
   }
 }

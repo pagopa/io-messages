@@ -49,7 +49,6 @@ import getInstallationUpdateDispatcher from "./adapters/functions/update-install
 import { notificationHubHealthcheck } from "./adapters/notification-hub/health";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
 import { CheckJobMessageQueueAdapter } from "./adapters/storage-queue/check-job-message";
-import { SendNotificationQueueAdapter } from "./adapters/storage-queue/send-notification";
 import { CreateMassiveNotificationJobUseCase } from "./domain/use-cases/create-massive-notification-job";
 import { GetMassiveNotificationJobUseCase } from "./domain/use-cases/get-massive-notification-job";
 import { HealthCheckUseCase } from "./domain/use-cases/health";
@@ -149,10 +148,10 @@ const main = (config: Config) => {
     config.comStorageConnectionString,
     "check-job-message",
   );
-  const sendNotificationMessageQueue = new QueueClient(
-    config.comStorageConnectionString,
-    "send-notification",
-  );
+  const sendNotificationMessageQueueOutput = output.storageQueue({
+    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    queueName: "send-notification",
+  });
 
   // TODO: This factory breaks clean architecture, remove this in future.
   const nhPartitionFactory = new NotificationHubPartitionFactory([
@@ -346,15 +345,12 @@ const main = (config: Config) => {
   const checkJobMessageQueueAdapter = new CheckJobMessageQueueAdapter(
     checkJobMessageQueue,
   );
-  const sendNotificationQueueAdapter = new SendNotificationQueueAdapter(
-    sendNotificationMessageQueue,
-  );
   const startMassiveNotificationJobUseCase =
     new StartMassiveNotificationJobUseCase(
       massiveJobsRepository,
       checkJobMessageQueueAdapter,
-      sendNotificationQueueAdapter,
-      telemetryClient,
+      sendNotificationMessageQueueOutput,
+      telemetryService,
     );
 
   app.http("CreateMassiveNotificationJob", {
@@ -368,6 +364,7 @@ const main = (config: Config) => {
 
   app.http("StartMassiveNotificationJob", {
     authLevel: "admin",
+    extraOutputs: [sendNotificationMessageQueueOutput],
     handler: startMassiveNotificationJobHandler(
       startMassiveNotificationJobUseCase,
     ),
