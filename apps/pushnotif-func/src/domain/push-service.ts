@@ -1,5 +1,26 @@
+import { z } from "zod";
+
 import { ErrorInternal, ErrorNotFound, ErrorTooManyRequests } from "./error";
 import { JsonPatch } from "./json-patch";
+
+export const notificationDetailStatusEnum = z.enum([
+  "Enqueued",
+  "Processing",
+  "Completed",
+  "Abandoned",
+  "Cancelled",
+  "NoTargetFound",
+  "Unknown",
+]);
+export type NotificationDetailStatus = z.TypeOf<
+  typeof notificationDetailStatusEnum
+>;
+
+export const notificationDetailSchema = z.object({
+  notificationId: z.string().min(1),
+  state: notificationDetailStatusEnum,
+});
+export type NotificationDetails = z.TypeOf<typeof notificationDetailSchema>;
 
 export interface InstallationRepository {
   /**
@@ -10,4 +31,13 @@ export interface InstallationRepository {
     id: string,
     patches: JsonPatch[],
   ): Promise<ErrorInternal | ErrorNotFound | ErrorTooManyRequests | string>;
+}
+
+export interface PushNotificationRepository {
+  getMassiveNotificationDetail(
+    notificationId: string,
+    tag: string,
+  ): Promise<
+    ErrorInternal | ErrorNotFound | ErrorTooManyRequests | NotificationDetails
+  >;
 }

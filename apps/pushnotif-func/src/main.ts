@@ -39,6 +39,7 @@ import { cosmosHealthcheck } from "./adapters/cosmos/health";
 import { CosmosInstallationSummaryAdapter } from "./adapters/cosmos/installation";
 import { CosmosMassiveJobsAdapter } from "./adapters/cosmos/massive-jobs";
 import { CosmosMassiveProgressAdapter } from "./adapters/cosmos/massive-progress";
+import { getCheckMassiveJobHandler } from "./adapters/functions/check-massive-job";
 import { createMassiveNotificationJobHandler } from "./adapters/functions/create-massive-notification-job";
 import { getGetMassiveNotificationJobHandler } from "./adapters/functions/get-massive-notification-job";
 import { getHealthHandler } from "./adapters/functions/health";
@@ -47,6 +48,8 @@ import getUpdateInstallationHandler from "./adapters/functions/update-installati
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
 import { notificationHubHealthcheck } from "./adapters/notification-hub/health";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
+import { NotificationHubPushNotificationAdapter } from "./adapters/notification-hub/push-notification";
+import { CheckMassiveJobStatusUseCase } from "./domain/use-cases/check-massive-job";
 import { CreateMassiveNotificationJobUseCase } from "./domain/use-cases/create-massive-notification-job";
 import { GetMassiveNotificationJobUseCase } from "./domain/use-cases/get-massive-notification-job";
 import { HealthCheckUseCase } from "./domain/use-cases/health";
@@ -172,21 +175,28 @@ const main = (config: Config) => {
     ),
   ];
 
+  const notificationHubRegexList = [
+    new RegExp(config.notificationHub.partition1.partitionRegex),
+    new RegExp(config.notificationHub.partition2.partitionRegex),
+    new RegExp(config.notificationHub.partition3.partitionRegex),
+    new RegExp(config.notificationHub.partition4.partitionRegex),
+  ];
+
   const telemetryService = new TelemetryClient(telemetryClient);
   const updateInstallationDispatchQueueName = "update-installations-dispatch";
 
   const notifiationHubInstallationAdapter =
-    new NotificationHubInstallationAdapter(notificationHubClients, [
-      new RegExp(config.notificationHub.partition1.partitionRegex),
-      new RegExp(config.notificationHub.partition2.partitionRegex),
-      new RegExp(config.notificationHub.partition3.partitionRegex),
-      new RegExp(config.notificationHub.partition4.partitionRegex),
-    ]);
+    new NotificationHubInstallationAdapter(
+      notificationHubClients,
+      notificationHubRegexList,
+    );
 
   const updateInstallationDispatchQueueOutput = output.storageQueue({
     connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
     queueName: updateInstallationDispatchQueueName,
   });
+
+  const checkMassiveJobQueueName = "check-massive-job";
 
   const infoUseCase = new InfoUseCase();
   app.http("Info", {
@@ -332,6 +342,18 @@ const main = (config: Config) => {
     massiveProgressRepository,
   );
 
+  const pushNotificationRepository = new NotificationHubPushNotificationAdapter(
+    notificationHubClients,
+    notificationHubRegexList,
+  );
+
+  const checkMassiveJobStatusUseCase = new CheckMassiveJobStatusUseCase(
+    massiveJobsRepository,
+    massiveProgressRepository,
+    pushNotificationRepository,
+    telemetryService,
+  );
+
   app.http("CreateMassiveNotificationJob", {
     authLevel: "admin",
     handler: createMassiveNotificationJobHandler(
@@ -348,6 +370,15 @@ const main = (config: Config) => {
     ),
     methods: ["GET"],
     route: "api/v1/massive-notification-job/{id}",
+  });
+
+  app.storageQueue("CheckMassiveJob", {
+    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    handler: getCheckMassiveJobHandler(
+      telemetryService,
+      checkMassiveJobStatusUseCase,
+    ),
+    queueName: checkMassiveJobQueueName,
   });
 };
 

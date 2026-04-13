@@ -17,10 +17,10 @@ const adapter = new CosmosMassiveProgressAdapter(container);
 describe("CosmosMassiveProgressAdapter", () => {
   it("should return parsed massive progress entries on success", async () => {
     const resource = {
-      status: "SENT",
       id: "550e8400-e29b-41d4-a716-446655440000",
       jobId,
       scheduledTimestamp: 1700000100,
+      status: "SENT",
       tags: ["aaa"],
     };
 

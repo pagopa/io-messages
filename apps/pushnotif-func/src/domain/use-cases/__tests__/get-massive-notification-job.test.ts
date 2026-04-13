@@ -22,10 +22,10 @@ const baseJob: Omit<MassiveJob, "status"> = {
 
 const progress: MassiveProgress[] = [
   {
-    status: "PENDING",
     id: "550e8400-e29b-41d4-a716-446655440000",
     jobId,
     scheduledTimestamp: 1700000100,
+    status: "PENDING",
     tags: ["aaa"],
   },
 ];

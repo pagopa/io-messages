@@ -1,6 +1,6 @@
 import z from "zod";
 
-import { ErrorInternal, ErrorNotFound } from "./error";
+import { ErrorInternal, ErrorNotFound, ErrorTooManyRequests } from "./error";
 
 export const massiveJobIDSchema = z.ulid().brand("MassiveJobID");
 export type MassiveJobID = z.infer<typeof massiveJobIDSchema>;
@@ -14,11 +14,11 @@ export const MassiveProgressStatusEnum = z.enum([
 export type MassiveProgressStatus = z.infer<typeof MassiveProgressStatusEnum>;
 
 export const massiveProgressSchema = z.object({
-  status: MassiveProgressStatusEnum,
-  id: z.uuid(), // Equal to the notificationId returned from the notification hub.
+  id: z.string().min(1), // Equal to the notificationId returned from the notification hub.
   jobId: massiveJobIDSchema,
   scheduledTimestamp: z.number().int().positive(),
-  tags: z.array(z.string().min(1)),
+  status: MassiveProgressStatusEnum,
+  tags: z.array(z.string().min(1)).min(1), // Non empty array.
 });
 export type MassiveProgress = z.infer<typeof massiveProgressSchema>;
 
@@ -27,7 +27,6 @@ export const MassiveJobStatusEnum = z.enum([
   "PROCESSING",
   "COMPLETED",
   "CANCELED",
-  "FAILED",
 ]);
 export type MassiveJobStatus = z.infer<typeof MassiveJobStatusEnum>;
 
@@ -48,15 +47,27 @@ export interface MassiveJobsRepository {
   getMassiveJob: (
     job: MassiveJobID,
   ) => Promise<ErrorInternal | ErrorNotFound | MassiveJob>;
+  setStatus: (
+    jobID: MassiveJobID,
+    newStatus: MassiveJobStatus,
+  ) => Promise<ErrorInternal | ErrorNotFound | string>;
   updateMassiveJob: (
     job: MassiveJob,
   ) => Promise<ErrorInternal | ErrorNotFound | string>;
 }
 
 export interface MassiveProgressRepository {
+  listMassiveJobPendingProgress: (
+    jobID: MassiveJobID,
+  ) => Promise<ErrorInternal | MassiveProgress[]>;
   listMassiveJobProgress: (
     job: MassiveJobID,
   ) => Promise<ErrorInternal | MassiveProgress[]>;
+  setStatus: (
+    notificationID: string,
+    jobID: string,
+    newStatus: MassiveProgressStatus,
+  ) => Promise<ErrorInternal | ErrorNotFound | ErrorTooManyRequests | string>;
 }
 
 export const CreateMassiveJobPayloadSchema = z.object({
