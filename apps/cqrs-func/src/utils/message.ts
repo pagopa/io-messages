@@ -7,7 +7,7 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
 import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
 
-import { MessageContentType } from "../generated/avro/dto/MessageContentTypeEnum";
+import { MessageContentType } from "../types/avro/MessageContentTypeEnum";
 import { IConfig } from "./config";
 import { toTransientFailure } from "./errors";
 import { IStorableError, toStorableError } from "./storable_error";

@@ -134,3 +134,16 @@ resource "azurerm_cosmosdb_sql_container" "massive_jobs" {
     max_throughput = 2000
   }
 }
+
+resource "azurerm_cosmosdb_sql_container" "massive_progress" {
+  name                = "massive-progress"
+  resource_group_name = var.resource_group
+
+  account_name        = module.io_com_cosmos_account.name
+  database_name       = azurerm_cosmosdb_sql_database.push_notifications.name
+  partition_key_paths = ["/jobId"]
+
+  autoscale_settings {
+    max_throughput = 2000
+  }
+}
