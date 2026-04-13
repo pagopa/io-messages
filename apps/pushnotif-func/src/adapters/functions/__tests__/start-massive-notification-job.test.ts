@@ -1,7 +1,7 @@
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { ErrorInternal } from "../../../domain/error";
+import { ErrorInternal, ErrorNotFound } from "../../../domain/error";
 import { massiveJobIDSchema } from "../../../domain/massive-jobs";
 import { StartMassiveNotificationJobUseCase } from "../../../domain/use-cases/start-massive-notification-job";
 import { startMassiveNotificationJobHandler } from "../start-massive-notification-job";
@@ -137,20 +137,24 @@ describe("startMassiveNotificationJobHandler", () => {
     );
   });
 
-  test("should return 201 with the new job id when use case succeeds", async () => {
-    vi.mocked(useCaseMock.execute).mockResolvedValueOnce(newJobId);
+  test("should return 200 with the new job id and status when use case succeeds", async () => {
+    vi.mocked(useCaseMock.execute).mockResolvedValueOnce({
+      id: newJobId,
+      status: "PROCESSING",
+    });
 
     const request = makeRequest({ id: validJobId }, () =>
       Promise.resolve({ startTimeTimestamp: futureTimestamp }),
     );
 
     const response = await handler(request, context);
-    const responseBody = await parseResponseBody<{ id: string }>(
-      response as Response,
-    );
+    const responseBody = await parseResponseBody<{
+      id: string;
+      status: string;
+    }>(response as Response);
 
-    expect(response.status).toBe(201);
-    expect(responseBody).toEqual({ id: newJobId });
+    expect(response.status).toBe(200);
+    expect(responseBody).toEqual({ id: newJobId, status: "PROCESSING" });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
       context,
       validJobId,
@@ -158,8 +162,34 @@ describe("startMassiveNotificationJobHandler", () => {
     );
   });
 
+  test("should return 404 with error message when use case returns ErrorNotFound", async () => {
+    const error = new ErrorNotFound("Massive job not found");
+    vi.mocked(useCaseMock.execute).mockResolvedValueOnce(error);
+
+    const request = makeRequest({ id: validJobId }, () =>
+      Promise.resolve({ startTimeTimestamp: futureTimestamp }),
+    );
+
+    const response = await handler(request, context);
+    const responseBody = await parseResponseBody<{ error: string }>(
+      response as Response,
+    );
+
+    expect(response.status).toBe(404);
+    expect(responseBody).toEqual({ error: "Massive job not found" });
+  });
+});
+
+describe("startMassiveNotificationJobHandler - timestamp handling", () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   test("should use default startTimeTimestamp (1 hour from now) when not provided", async () => {
-    vi.mocked(useCaseMock.execute).mockResolvedValueOnce(newJobId);
+    vi.mocked(useCaseMock.execute).mockResolvedValueOnce({
+      id: newJobId,
+      status: "PROCESSING",
+    });
 
     const request = makeRequest(
       { id: validJobId },
@@ -167,12 +197,13 @@ describe("startMassiveNotificationJobHandler", () => {
     );
 
     const response = await handler(request, context);
-    const responseBody = await parseResponseBody<{ id: string }>(
-      response as Response,
-    );
+    const responseBody = await parseResponseBody<{
+      id: string;
+      status: string;
+    }>(response as Response);
 
-    expect(response.status).toBe(201);
-    expect(responseBody).toEqual({ id: newJobId });
+    expect(response.status).toBe(200);
+    expect(responseBody).toEqual({ id: newJobId, status: "PROCESSING" });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
       context,
       validJobId,
@@ -183,5 +214,33 @@ describe("startMassiveNotificationJobHandler", () => {
     const oneHourFromNow = Math.floor((Date.now() + 60 * 60 * 1000) / 1000);
     expect(callTimestamp).toBeGreaterThanOrEqual(oneHourFromNow - 2);
     expect(callTimestamp).toBeLessThanOrEqual(oneHourFromNow + 2);
+  });
+
+  test("should normalize millisecond startTimeTimestamp to floored unix seconds", async () => {
+    vi.mocked(useCaseMock.execute).mockResolvedValueOnce({
+      id: newJobId,
+      status: "PROCESSING",
+    });
+
+    const futureTimestampInMilliseconds =
+      Math.floor((Date.now() + 60 * 60 * 1000) / 1000) * 1000 + 789;
+
+    const request = makeRequest({ id: validJobId }, () =>
+      Promise.resolve({ startTimeTimestamp: futureTimestampInMilliseconds }),
+    );
+
+    const response = await handler(request, context);
+    const responseBody = await parseResponseBody<{
+      id: string;
+      status: string;
+    }>(response as Response);
+
+    expect(response.status).toBe(200);
+    expect(responseBody).toEqual({ id: newJobId, status: "PROCESSING" });
+    expect(useCaseMock.execute).toHaveBeenCalledWith(
+      context,
+      validJobId,
+      Math.floor(futureTimestampInMilliseconds / 1000),
+    );
   });
 });

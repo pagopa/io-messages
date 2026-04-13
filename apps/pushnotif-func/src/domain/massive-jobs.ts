@@ -68,10 +68,13 @@ export interface MassiveProgressRepository {
 }
 
 export const StartMassiveJobPayloadSchema = z.object({
-  startTimeTimestamp: z
+  startTimeTimestamp: z.coerce
     .number()
     .int()
     .positive()
+    .transform((value) =>
+      value >= 1_000_000_000_000 ? Math.floor(value / 1000) : value,
+    )
     .refine((value) => value >= Math.floor(Date.now() / 1000) + 60 * 30, {
       message: "startTimeTimestamp must be at least 30 minutes in the future",
     })
@@ -91,3 +94,10 @@ export const CreateMassiveJobPayloadSchema = z.object({
 export type CreateMassiveJobPayload = z.infer<
   typeof CreateMassiveJobPayloadSchema
 >;
+
+export const MassiveJobResponseSchema = z.object({
+  id: massiveJobIDSchema,
+  status: MassiveJobStatusEnum,
+});
+
+export type MassiveJobResponse = z.infer<typeof MassiveJobResponseSchema>;

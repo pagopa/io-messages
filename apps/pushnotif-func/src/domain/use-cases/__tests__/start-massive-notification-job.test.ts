@@ -98,7 +98,7 @@ describe("StartMassiveNotificationJobUseCase", () => {
 
     expect(result).toBeInstanceOf(ErrorInternal);
     expect(result).toMatchObject({
-      message: `Massive job with id ${jobId} is not in CREATED status`,
+      message: `Cannot start massive job with id ${jobId} because it is not in CREATED status`,
     });
     expect(checkJobMessageQueueMock.sendMessage).not.toHaveBeenCalled();
     expect(repositoryMock.updateMassiveJob).not.toHaveBeenCalled();
@@ -160,7 +160,7 @@ describe("StartMassiveNotificationJobUseCase", () => {
     expect(setSpy).not.toHaveBeenCalled();
   });
 
-  test("should schedule all notification batches and return the job id on success", async () => {
+  test("should schedule all notification batches and return job id and status on success", async () => {
     const { context, setSpy } = createInvocationContext();
     const useCase = createUseCase();
     vi.spyOn(Date, "now").mockReturnValue(fixedNowMilliseconds);
@@ -176,7 +176,10 @@ describe("StartMassiveNotificationJobUseCase", () => {
       requestedStartTimeTimestamp,
     );
 
-    expect(result).toBe(jobId);
+    expect(result).toEqual({
+      id: jobId,
+      status: MassiveJobStatusEnum.enum.PROCESSING,
+    });
     expect(checkJobMessageQueueMock.sendMessage).toHaveBeenCalledWith({
       jobId,
       visibilityTimeoutInSeconds: 11100,
@@ -198,7 +201,7 @@ describe("StartMassiveNotificationJobUseCase", () => {
     expect(queuedMessages).toHaveLength(410);
     expect(queuedMessages[0]).toEqual({
       jobId,
-      scheduledTimestamp: 1700000017.578,
+      scheduledTimestamp: 1700000017,
       tags: [
         "000",
         "001",
@@ -214,10 +217,17 @@ describe("StartMassiveNotificationJobUseCase", () => {
     });
     expect(queuedMessages.at(-1)).toEqual({
       jobId,
-      scheduledTimestamp: 1700007207.031,
+      scheduledTimestamp: 1700007207,
       tags: ["ffa", "ffb", "ffc", "ffd", "ffe", "fff"],
     });
     expect(telemetryClientMock.trackException).not.toHaveBeenCalled();
+  });
+});
+
+describe("StartMassiveNotificationJobUseCase - telemetry", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   test("should track telemetry when queue output assignment fails", async () => {
@@ -241,7 +251,10 @@ describe("StartMassiveNotificationJobUseCase", () => {
       requestedStartTimeTimestamp,
     );
 
-    expect(result).toBe(jobId);
+    expect(result).toEqual({
+      id: jobId,
+      status: MassiveJobStatusEnum.enum.PROCESSING,
+    });
     expect(setSpy).toHaveBeenCalledTimes(1);
     expect(telemetryClientMock.trackException).toHaveBeenCalledTimes(1);
     expect(telemetryClientMock.trackException).toHaveBeenCalledWith({

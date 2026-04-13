@@ -32,5 +32,5 @@ export const createMassiveNotificationJobHandler =
       return createHttpResponse(500, { error: result.message });
     }
 
-    return createHttpResponse(201, { id: result });
+    return createHttpResponse(201, { id: result.id, status: result.status });
   };

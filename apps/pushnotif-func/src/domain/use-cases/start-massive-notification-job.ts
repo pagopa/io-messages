@@ -4,6 +4,7 @@ import { CheckJobMessageQueue } from "../check-job-message";
 import { ErrorInternal, ErrorNotFound } from "../error";
 import {
   MassiveJobID,
+  MassiveJobResponse,
   MassiveJobStatusEnum,
   MassiveJobsRepository,
 } from "../massive-jobs";
@@ -30,7 +31,7 @@ export class StartMassiveNotificationJobUseCase {
     context: InvocationContext,
     massiveJobId: MassiveJobID,
     startTimeTimestamp: number,
-  ): Promise<ErrorInternal | ErrorNotFound | string> {
+  ): Promise<ErrorInternal | ErrorNotFound | MassiveJobResponse> {
     const massiveJob = await this.repository.getMassiveJob(massiveJobId);
 
     if (
@@ -42,16 +43,17 @@ export class StartMassiveNotificationJobUseCase {
 
     if (massiveJob.status !== "CREATED") {
       return new ErrorInternal(
-        `Massive job with id ${massiveJobId} is not in CREATED status`,
+        `Cannot start massive job with id ${massiveJobId} because it is not in CREATED status`,
       );
     }
 
     // we set the visibility timeout to the expected execution time of the job plus 5 minutes
-    const visibilityTimeoutInSeconds =
+    const visibilityTimeoutInSeconds = Math.floor(
       startTimeTimestamp +
-      5 * 60 +
-      massiveJob.executionTimeInHours * 3600 -
-      Math.floor(Date.now() / 1000);
+        5 * 60 +
+        massiveJob.executionTimeInHours * 3600 -
+        Date.now() / 1000,
+    );
 
     const checkNotificationStatusMessage = {
       jobId: massiveJob.id,
@@ -91,12 +93,12 @@ export class StartMassiveNotificationJobUseCase {
     for (let index = 0; index < allTags.length; index += batchSize) {
       const tags = allTags.slice(index, index + batchSize);
 
-      const scheduledTimestamp =
-        Math.floor(
-          Date.now() +
-            (1000 * delayBetweenBatchesInSeconds * (index + batchSize)) /
-              batchSize,
-        ) / 1000;
+      const scheduledTimestamp = Math.floor(
+        (Date.now() +
+          (1000 * delayBetweenBatchesInSeconds * (index + batchSize)) /
+            batchSize) /
+          1000,
+      );
 
       const sendNotificationMessage = {
         jobId: massiveJob.id,
@@ -121,6 +123,6 @@ export class StartMassiveNotificationJobUseCase {
       });
     }
 
-    return massiveJob.id;
+    return { id: massiveJob.id, status: MassiveJobStatusEnum.enum.PROCESSING };
   }
 }

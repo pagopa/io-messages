@@ -110,18 +110,22 @@ describe("createMassiveNotificationJobHandler", () => {
     expect(responseBody).toEqual({ error: "Unexpected error" });
   });
 
-  test("should return 201 with the job id when use case succeeds", async () => {
-    vi.mocked(useCaseMock.execute).mockResolvedValueOnce(aJobId);
+  test("should return 201 with the job id and status when use case succeeds", async () => {
+    vi.mocked(useCaseMock.execute).mockResolvedValueOnce({
+      id: aJobId,
+      status: "CREATED",
+    });
 
     const request = makeRequest(() => Promise.resolve(aValidPayload));
 
     const response = await handler(request, context);
-    const responseBody = await parseResponseBody<{ id: string }>(
-      response as Response,
-    );
+    const responseBody = await parseResponseBody<{
+      id: string;
+      status: string;
+    }>(response as Response);
 
     expect(response.status).toBe(201);
-    expect(responseBody).toEqual({ id: aJobId });
+    expect(responseBody).toEqual({ id: aJobId, status: "CREATED" });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
       expect.objectContaining({
         body: aValidPayload.body,

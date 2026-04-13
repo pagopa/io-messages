@@ -15,6 +15,7 @@ const aJobId = "550e8400-e29b-41d4-a716-446655440000";
 
 const repositoryMock: MassiveJobsRepository = {
   createMassiveJob: vi.fn(),
+  getMassiveJob: vi.fn(),
   updateMassiveJob: vi.fn(),
 };
 
@@ -52,12 +53,17 @@ describe("CreateMassiveNotificationJobUseCase", () => {
     );
   });
 
-  test("should return the job id string on success", async () => {
+  test("should return job id and status on success", async () => {
     vi.mocked(repositoryMock.createMassiveJob).mockResolvedValueOnce(aJobId);
 
     const result = await useCase.execute(aValidPayload);
 
-    expect(result).toBe(aJobId);
+    expect(result).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        status: "CREATED",
+      }),
+    );
   });
 
   test("should not set optional fields when they are not provided", async () => {

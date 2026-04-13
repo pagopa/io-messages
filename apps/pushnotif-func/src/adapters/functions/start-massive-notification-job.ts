@@ -1,7 +1,11 @@
 import { StartMassiveNotificationJobUseCase } from "@/domain/use-cases/start-massive-notification-job";
 import { HttpHandler } from "@azure/functions";
 
-import { ErrorInternal, ErrorValidation } from "../../domain/error";
+import {
+  ErrorInternal,
+  ErrorNotFound,
+  ErrorValidation,
+} from "../../domain/error";
 import {
   createHttpResponse,
   parseHttpRequestBody,
@@ -48,6 +52,9 @@ export const startMassiveNotificationJobHandler =
     if (result instanceof ErrorInternal) {
       return createHttpResponse(500, { error: result.message });
     }
+    if (result instanceof ErrorNotFound) {
+      return createHttpResponse(404, { error: result.message });
+    }
 
-    return createHttpResponse(201, { id: result });
+    return createHttpResponse(200, { id: result.id, status: result.status });
   };
