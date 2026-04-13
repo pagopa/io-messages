@@ -17,6 +17,7 @@ const aValidInstallationId =
 
 const telemetryServiceMock: TelemetryService = {
   trackEvent: vi.fn(),
+  trackException: vi.fn(),
 };
 
 const installationRepositoryMock: InstallationRepository = {

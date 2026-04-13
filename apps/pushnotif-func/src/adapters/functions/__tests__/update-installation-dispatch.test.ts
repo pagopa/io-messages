@@ -19,6 +19,7 @@ const aValidDocument = {
 
 const telemetryServiceMock: TelemetryService = {
   trackEvent: vi.fn(),
+  trackException: vi.fn(),
 };
 
 const queueOutputMock = {} as StorageQueueOutput;

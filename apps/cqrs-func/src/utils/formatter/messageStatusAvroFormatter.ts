@@ -4,7 +4,7 @@ import { RetrievedMessageStatus } from "@pagopa/io-functions-commons/dist/src/mo
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as avro from "avsc";
 
-import { messageStatus as avroMessage } from "../../generated/avro/dto/messageStatus";
+import { MessageStatus as avroMessage } from "../../types/avro/messageStatus";
 
 export const buildAvroMessageStatusObject = (
   retrievedMessageStatus: RetrievedMessageStatus,
