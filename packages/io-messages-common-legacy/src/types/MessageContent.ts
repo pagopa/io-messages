@@ -1,6 +1,5 @@
 import { UTCISODateFromString } from "@pagopa/ts-commons/lib/dates";
 import { WithinRangeInteger } from "@pagopa/ts-commons/lib/numbers";
-import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import {
   FiscalCode,
   NonEmptyString,
@@ -186,11 +185,3 @@ export const MessageContent = t.intersection(
   "MessageContent",
 );
 export type MessageContent = t.TypeOf<typeof MessageContent>;
-
-export const parseMessageContent = (raw: unknown): MessageContent => {
-  const decoded = MessageContent.decode(raw);
-  if (decoded._tag === "Left") {
-    throw new Error(`Invalid MessageContent: ${readableReport(decoded.left)}`);
-  }
-  return decoded.right;
-};

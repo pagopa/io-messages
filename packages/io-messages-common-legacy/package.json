@@ -15,6 +15,7 @@
     }
   },
   "dependencies": {
+    "@azure/core-rest-pipeline": "^1.23.0",
     "@azure/storage-blob": "catalog:",
     "@pagopa/io-functions-commons": "catalog:",
     "@pagopa/ts-commons": "catalog:",

@@ -24,7 +24,7 @@ export const enrichMessageContent = (
       () => messageContentRepository.getByMessageContentById(message.id),
       (e) =>
         toTransientFailure(
-          e as Error,
+          E.toError(e),
           "Cannot read message content from storage",
         )(message.id),
     ),
