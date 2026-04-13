@@ -5,6 +5,7 @@ resource "azurerm_api_management_api_version_set" "communications_v1" {
   display_name        = "Communications AppBackend v1"
   versioning_scheme   = "Segment"
 }
+
 resource "azurerm_api_management_api" "communications" {
   name                  = "io-p-communications-api"
   api_management_name   = data.azurerm_api_management.apim_itn_platform_api.name
@@ -66,3 +67,27 @@ resource "azurerm_api_management_api_tag" "io_communications_api_tag" {
   name   = azurerm_api_management_tag.io_communications_tag.name
 }
 
+# Override the attachment_url with *attachment_url
+resource "azurerm_api_management_api_operation" "wildcard_attachment" {
+  operation_id        = "get-attachment-wildcard"
+  api_name            = azurerm_api_management_api.communications.name
+  api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
+
+  display_name = "Get Attachment (Wildcard Override)"
+  method       = "GET"
+
+  url_template = "/third-party-messages/{id}/attachments/{*attachment_url}"
+
+  template_parameter {
+    name     = "id"
+    type     = "string"
+    required = true
+  }
+
+  template_parameter {
+    name     = "attachment_url"
+    type     = "string"
+    required = true
+  }
+}
