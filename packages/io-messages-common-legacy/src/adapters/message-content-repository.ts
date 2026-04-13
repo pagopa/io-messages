@@ -62,16 +62,14 @@ export class MessageContentRepo implements MessageContentRepository {
     const blobName = `${messageId}.json`;
     const blobContent = await this.downloadBlobContent(blobName);
     const content = await readableStreamToUtf8(blobContent);
-    let parsedContent;
     try {
-      parsedContent = JSON.parse(content);
+      const parsedContent = JSON.parse(content);
+      return parseMessageContent(parsedContent);
     } catch (e) {
       throw {
         code: GENERIC_CODE,
         message: `Cannot parse content text into object: ${e instanceof Error ? e.message : "Unknown error"}`,
       };
     }
-
-    return parseMessageContent(parsedContent);
   }
 }
