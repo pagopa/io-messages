@@ -1,15 +1,23 @@
 import z from "zod";
 
-import { ErrorInternal, ErrorNotFound } from "./error";
+import { ErrorInternal, ErrorNotFound, ErrorTooManyRequests } from "./error";
 
 export const massiveJobIDSchema = z.ulid().brand("MassiveJobID");
 export type MassiveJobID = z.infer<typeof massiveJobIDSchema>;
 
+export const MassiveProgressStatusEnum = z.enum([
+  "PENDING",
+  "FAILED",
+  "SENT",
+  "CANCELED",
+]);
+export type MassiveProgressStatus = z.infer<typeof MassiveProgressStatusEnum>;
+
 export const massiveProgressSchema = z.object({
-  completed: z.boolean(),
   id: z.uuid(), // Equal to the notificationId returned from the notification hub.
   jobId: massiveJobIDSchema,
   scheduledTimestamp: z.number().int().positive(),
+  status: MassiveProgressStatusEnum,
   tags: z.array(z.string().min(1)),
 });
 export type MassiveProgress = z.infer<typeof massiveProgressSchema>;
@@ -46,9 +54,17 @@ export interface MassiveJobsRepository {
 }
 
 export interface MassiveProgressRepository {
+  listMassiveJobPendingProgress: (
+    jobID: MassiveJobID,
+  ) => Promise<ErrorInternal | MassiveProgress[]>;
   listMassiveJobProgress: (
     job: MassiveJobID,
   ) => Promise<ErrorInternal | MassiveProgress[]>;
+  setStatus: (
+    notificationID: string,
+    jobID: string,
+    newStatus: MassiveProgressStatus,
+  ) => Promise<ErrorInternal | ErrorNotFound | ErrorTooManyRequests | string>;
 }
 
 export const CreateMassiveJobPayloadSchema = z.object({
