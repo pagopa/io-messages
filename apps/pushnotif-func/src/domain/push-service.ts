@@ -40,6 +40,10 @@ export interface InstallationRepository {
 }
 
 export interface PushNotificationRepository {
+  cancelScheduledNotification(
+    notificationId: string,
+    tag: string,
+  ): Promise<ErrorInternal | ErrorNotFound | ErrorTooManyRequests | string>;
   getMassiveNotificationDetail(
     notificationId: string,
     tag: string,
