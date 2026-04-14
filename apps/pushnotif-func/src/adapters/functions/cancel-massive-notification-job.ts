@@ -1,4 +1,3 @@
-import { CancelMassiveNotificationJobUseCase } from "@/domain/use-cases/cancel-massive-notification-job";
 import { HttpHandler } from "@azure/functions";
 
 import {
@@ -8,6 +7,7 @@ import {
 } from "../../domain/error";
 import { createHttpResponse } from "../../domain/http-request";
 import { massiveJobIDSchema } from "../../domain/massive-jobs";
+import { CancelMassiveNotificationJobUseCase } from "../../domain/use-cases/cancel-massive-notification-job";
 
 export const cancelMassiveNotificationJobHandler =
   (
