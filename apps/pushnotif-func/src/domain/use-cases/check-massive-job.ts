@@ -146,7 +146,7 @@ export class CheckMassiveJobStatusUseCase {
         );
       }
 
-      // Here we can ignore the Canceled state cause thit is handled by the
+      // Here we can ignore the Canceled state since this is handled by the
       // CancelMassiveJob function.
       if (this.isNotificationFailed(notificationDetails.state)) {
         const setStatusResponse =

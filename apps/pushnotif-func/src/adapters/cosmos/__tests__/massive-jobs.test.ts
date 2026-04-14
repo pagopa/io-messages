@@ -1,14 +1,19 @@
+import { RestError } from "@azure/core-rest-pipeline";
 import { CosmosClient, ErrorResponse, ItemResponse } from "@azure/cosmos";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ErrorInternal, ErrorNotFound } from "../../../domain/error";
-import { MassiveJob } from "../../../domain/massive-jobs";
+import {
+  ErrorInternal,
+  ErrorNotFound,
+  ErrorTooManyRequests,
+} from "../../../domain/error";
+import { MassiveJob, MassiveJobID } from "../../../domain/massive-jobs";
 import { CosmosMassiveJobsAdapter } from "../massive-jobs";
 
 const mockJob: MassiveJob = {
   body: "test body",
   executionTimeInHours: 2,
-  id: "00000000-0000-0000-0000-000000000001",
+  id: "01ARZ3NDEKTSV4RRFFQ69G5FAV" as MassiveJobID,
   startTimeTimestamp: 1000000000,
   status: "CREATED",
   title: "test title",
@@ -28,7 +33,7 @@ describe("CosmosMassiveJobsAdapter", () => {
     it("should return the item id on success", async () => {
       vi.spyOn(container.items, "create").mockResolvedValueOnce({
         item: { id: mockJob.id },
-      } as ItemResponse<MassiveJob>);
+      } as unknown as ItemResponse<MassiveJob>);
 
       const result = await adapter.createMassiveJob(mockJob);
 
@@ -51,7 +56,7 @@ describe("CosmosMassiveJobsAdapter", () => {
     it("should return the item id on success", async () => {
       const mockReplace = vi.fn().mockResolvedValueOnce({
         item: { id: mockJob.id },
-      } as ItemResponse<MassiveJob>);
+      } as unknown as ItemResponse<MassiveJob>);
       const mockItem = vi.fn().mockReturnValue({ replace: mockReplace });
       vi.spyOn(container, "item").mockReturnValueOnce(mockItem());
 
@@ -101,6 +106,72 @@ describe("CosmosMassiveJobsAdapter", () => {
 
       expect(result).toBeInstanceOf(ErrorInternal);
       expect((result as ErrorInternal).code).toBe("500");
+    });
+  });
+
+  describe("getMassiveJob", () => {
+    it("should return the parsed job on success", async () => {
+      const read = vi.fn().mockResolvedValueOnce({
+        resource: mockJob,
+        statusCode: 200,
+      });
+      vi.spyOn(container, "item").mockReturnValueOnce({ read } as never);
+
+      const result = await adapter.getMassiveJob(mockJob.id);
+
+      expect(result).toEqual(mockJob);
+      expect(container.item).toHaveBeenCalledWith(mockJob.id, mockJob.id);
+    });
+
+    it("should return ErrorNotFound when the item is missing", async () => {
+      const read = vi.fn().mockResolvedValueOnce({
+        resource: undefined,
+        statusCode: 404,
+      });
+      vi.spyOn(container, "item").mockReturnValueOnce({ read } as never);
+
+      const result = await adapter.getMassiveJob(mockJob.id);
+
+      expect(result).toBeInstanceOf(ErrorNotFound);
+    });
+  });
+
+  describe("setStatus", () => {
+    it("should return the activity id on success", async () => {
+      const patch = vi.fn().mockResolvedValueOnce({
+        activityId: "activity-id",
+      });
+      vi.spyOn(container, "item").mockReturnValueOnce({ patch } as never);
+
+      const result = await adapter.setStatus(mockJob.id, "COMPLETED");
+
+      expect(result).toBe("activity-id");
+      expect(container.item).toHaveBeenCalledWith(mockJob.id, mockJob.id);
+      expect(patch).toHaveBeenCalledWith({
+        operations: [{ op: "set", path: "/status", value: "COMPLETED" }],
+      });
+    });
+
+    it("should return ErrorNotFound when patch receives a 404 response", async () => {
+      const restError = new RestError("not found");
+      restError.statusCode = 404;
+      const patch = vi.fn().mockRejectedValueOnce(restError);
+      vi.spyOn(container, "item").mockReturnValueOnce({ patch } as never);
+
+      const result = await adapter.setStatus(mockJob.id, "COMPLETED");
+
+      expect(result).toBeInstanceOf(ErrorNotFound);
+    });
+
+    it("should return ErrorTooManyRequests when patch receives a 429 response", async () => {
+      const restError = new RestError("too many requests");
+      restError.statusCode = 429;
+      const patch = vi.fn().mockRejectedValueOnce(restError);
+      vi.spyOn(container, "item").mockReturnValueOnce({ patch } as never);
+
+      const result = await adapter.setStatus(mockJob.id, "COMPLETED");
+
+      expect(result).toBeInstanceOf(ErrorTooManyRequests);
     });
   });
 });
