@@ -39,10 +39,6 @@ const errorStorage = new QueueClient(
   config.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME,
 );
 
-// const messageContentContainerClient = BlobServiceClient.fromConnectionString(
-//   config.MESSAGE_CONTENT_STORAGE_CONNECTION,
-// ).getContainerClient("message-content");
-
 const messageContentRepository = new MessageContentRepo(
   BlobServiceClient.fromConnectionString(
     config.MESSAGE_CONTENT_STORAGE_CONNECTION,
