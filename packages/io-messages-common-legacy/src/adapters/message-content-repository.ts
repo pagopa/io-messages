@@ -6,7 +6,7 @@ import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { MessageContent } from "../types/MessageContent";
 import { readableStreamToUtf8 } from "./utils";
 
-const BLOB_NOT_FOUND_CODE = "BlobNotFoundCode";
+const BLOB_NOT_FOUND_CODE = "BlobNotFound";
 const GENERIC_CODE = "GenericCode";
 
 export class BlobStorageErrorException extends Error {
@@ -49,7 +49,7 @@ export class MessageContentRepo implements MessageContentRepository {
       return response.readableStreamBody as NodeJS.ReadableStream;
     } catch (e) {
       const code =
-        isRestError(e) && e.statusCode === 404
+        isRestError(e) && e.code === BLOB_NOT_FOUND_CODE
           ? BLOB_NOT_FOUND_CODE
           : GENERIC_CODE;
       const message =

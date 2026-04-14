@@ -63,6 +63,7 @@ describe("MessageContentRepo.getByMessageContentById", () => {
 
   test("should return null on 404 (blob not found)", async () => {
     const restError = new RestError("The specified blob does not exist.", {
+      code: "BlobNotFound",
       statusCode: 404,
     });
     downloadMock.mockRejectedValueOnce(restError);
@@ -71,7 +72,7 @@ describe("MessageContentRepo.getByMessageContentById", () => {
 
     // also verify via direct downloadBlobContent mock
     const blobNotFoundError = new BlobStorageErrorException(
-      "BlobNotFoundCode",
+      "BlobNotFound",
       "The specified blob does not exist.",
     );
     vi.spyOn(repo as never, "downloadBlobContent").mockResolvedValueOnce(
