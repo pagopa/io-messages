@@ -6,10 +6,11 @@ import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
 import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
+import { MessageContent } from "io-messages-common-legacy/types/MessageContent";
 
 import { MessageContentType } from "../types/avro/MessageContentTypeEnum";
 import { IConfig } from "./config";
-import { toTransientFailure } from "./errors";
+import { toPermanentFailure, toTransientFailure } from "./errors";
 import { IStorableError, toStorableError } from "./storable_error";
 
 /**
@@ -27,6 +28,15 @@ export const enrichMessageContent = (
           E.toError(e),
           "Cannot read message content from storage",
         )(message.id),
+    ),
+    TE.chain((content) =>
+      content === null
+        ? TE.left(
+            toPermanentFailure(new Error("Message Content Blob not found"))(
+              message.id,
+            ),
+          )
+        : TE.right(content as MessageContent),
     ),
     TE.mapLeft(toStorableError(message)),
     TE.map((content) => ({

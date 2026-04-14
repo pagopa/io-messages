@@ -2,7 +2,10 @@ import { BlobServiceClient, RestError } from "@azure/storage-blob";
 import { Readable } from "stream";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { MessageContentRepo } from "../message-content-repository";
+import {
+  BlobStorageErrorException,
+  MessageContentRepo,
+} from "../message-content-repository";
 
 const makeStream = (content: string): NodeJS.ReadableStream => {
   const readable = new Readable({ read() {} });
@@ -58,48 +61,65 @@ describe("MessageContentRepo.getByMessageContentById", () => {
     expect(getContainerClientMock).toHaveBeenCalledWith(CONTAINER_NAME);
   });
 
-  test("should throw BlobStorageErrorException with BlobNotFound code on 404", async () => {
-    const restError = Object.assign(
-      new Error("The specified blob does not exist."),
-      {
-        name: "RestError",
-        statusCode: 404,
-      } as Partial<RestError>,
+  test("should return null on 404 (blob not found)", async () => {
+    const restError = new RestError("The specified blob does not exist.", {
+      statusCode: 404,
+    });
+    downloadMock.mockRejectedValueOnce(restError);
+    const result = await repo.getByMessageContentById(MESSAGE_ID);
+    expect(result).toBeNull();
+
+    // also verify via direct downloadBlobContent mock
+    const blobNotFoundError = new BlobStorageErrorException(
+      "BlobNotFoundCode",
+      "The specified blob does not exist.",
     );
-    downloadMock.mockRejectedValueOnce(restError);
-
-    await expect(
-      repo.getByMessageContentById(MESSAGE_ID),
-    ).rejects.toMatchObject({
-      code: "BlobNotFound",
-      name: "BlobStorageErrorException",
-    });
+    vi.spyOn(repo as never, "downloadBlobContent").mockResolvedValueOnce(
+      blobNotFoundError,
+    );
+    const result2 = await repo.getByMessageContentById(MESSAGE_ID);
+    expect(result2).toBeNull();
   });
 
-  test("should throw BlobStorageErrorException with GenericError code on non-404 storage errors", async () => {
-    const restError = Object.assign(new Error("Internal server error"), {
-      name: "RestError",
+  test("should throw on non-404 storage errors", async () => {
+    const restError = new RestError("Internal server error", {
       statusCode: 500,
-    } as Partial<RestError>);
-    downloadMock.mockRejectedValueOnce(restError);
-
-    await expect(
-      repo.getByMessageContentById(MESSAGE_ID),
-    ).rejects.toMatchObject({
-      code: "GenericError",
-      name: "BlobStorageErrorException",
     });
+    downloadMock.mockRejectedValueOnce(restError);
+    await expect(repo.getByMessageContentById(MESSAGE_ID)).rejects.toThrow(
+      "Internal server error",
+    );
+
+    // also verify via direct downloadBlobContent mock
+    const genericError = new BlobStorageErrorException(
+      "GenericCode",
+      "Something went wrong",
+    );
+    vi.spyOn(repo as never, "downloadBlobContent").mockResolvedValueOnce(
+      genericError,
+    );
+    await expect(repo.getByMessageContentById(MESSAGE_ID)).rejects.toThrow(
+      "Something went wrong",
+    );
   });
 
-  test("should throw BlobStorageErrorException with GenericError code on unexpected download errors", async () => {
+  test("should throw on unexpected download errors", async () => {
     downloadMock.mockRejectedValueOnce(new Error("network timeout"));
+    await expect(repo.getByMessageContentById(MESSAGE_ID)).rejects.toThrow(
+      "Unknown error",
+    );
 
-    await expect(
-      repo.getByMessageContentById(MESSAGE_ID),
-    ).rejects.toMatchObject({
-      code: "GenericError",
-      name: "BlobStorageErrorException",
-    });
+    // also verify any non-BlobNotFound code preserves the message
+    const customError = new BlobStorageErrorException(
+      "AuthorizationFailure",
+      "Access denied to blob storage",
+    );
+    vi.spyOn(repo as never, "downloadBlobContent").mockResolvedValueOnce(
+      customError,
+    );
+    await expect(repo.getByMessageContentById(MESSAGE_ID)).rejects.toThrow(
+      "Access denied to blob storage",
+    );
   });
 
   test("should throw if the blob body stream emits an error", async () => {
@@ -118,12 +138,9 @@ describe("MessageContentRepo.getByMessageContentById", () => {
       readableStreamBody: makeStream("not-valid-json{{{"),
     });
 
-    await expect(
-      repo.getByMessageContentById(MESSAGE_ID),
-    ).rejects.toMatchObject({
-      code: "GenericError",
-      message: expect.stringContaining("Cannot parse content text"),
-    });
+    await expect(repo.getByMessageContentById(MESSAGE_ID)).rejects.toThrow(
+      "Cannot parse content text",
+    );
   });
 
   test("should throw if the parsed JSON does not match MessageContent schema", async () => {

@@ -6,8 +6,8 @@ import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { MessageContent } from "../types/MessageContent";
 import { readableStreamToUtf8 } from "./utils";
 
-const BLOB_NOT_FOUND_CODE = "BlobNotFound";
-const GENERIC_CODE = "GenericError";
+const BLOB_NOT_FOUND_CODE = "BlobNotFoundCode";
+const GENERIC_CODE = "GenericCode";
 
 export class BlobStorageErrorException extends Error {
   readonly code: string;
@@ -40,7 +40,7 @@ export class MessageContentRepo implements MessageContentRepository {
 
   private async downloadBlobContent(
     blobName: string,
-  ): Promise<NodeJS.ReadableStream> {
+  ): Promise<BlobStorageErrorException | NodeJS.ReadableStream> {
     try {
       const response = await this.repository
         .getContainerClient(this.messageContainerName)
@@ -54,22 +54,33 @@ export class MessageContentRepo implements MessageContentRepository {
           : GENERIC_CODE;
       const message =
         isRestError(e) && e.message !== undefined ? e.message : "Unknown error";
-      throw new BlobStorageErrorException(code, message);
+      return new BlobStorageErrorException(code, message);
     }
   }
 
-  async getByMessageContentById(messageId: string): Promise<MessageContent> {
+  async getByMessageContentById(
+    messageId: string,
+  ): Promise<MessageContent | null> {
     const blobName = `${messageId}.json`;
-    const blobContent = await this.downloadBlobContent(blobName);
-    const content = await readableStreamToUtf8(blobContent);
+    const blobRespose = await this.downloadBlobContent(blobName);
+    if (blobRespose instanceof BlobStorageErrorException) {
+      if (blobRespose.code === BLOB_NOT_FOUND_CODE) {
+        return null;
+      }
+      throw new Error(blobRespose.message);
+    }
+    const content = await readableStreamToUtf8(blobRespose);
+    if (!content || content.length === 0) {
+      throw new Error("Cannot get stored message content from empty blob");
+    }
+
     try {
       const parsedContent = JSON.parse(content);
       return parseMessageContent(parsedContent);
     } catch (e) {
-      throw {
-        code: GENERIC_CODE,
-        message: `Cannot parse content text into object: ${e instanceof Error ? e.message : "Unknown error"}`,
-      };
+      throw new Error(
+        `Cannot parse content text into object: ${e instanceof Error ? e.message : "Unknown error"}`,
+      );
     }
   }
 }
