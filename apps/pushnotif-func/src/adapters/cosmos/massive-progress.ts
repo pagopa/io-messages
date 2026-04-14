@@ -88,8 +88,8 @@ export class CosmosMassiveProgressAdapter implements MassiveProgressRepository {
   }
 
   async setStatus(
-    jobID: string,
     notificationID: string,
+    jobID: string,
     newStatus: MassiveProgressStatus,
   ) {
     try {
@@ -105,7 +105,7 @@ export class CosmosMassiveProgressAdapter implements MassiveProgressRepository {
         switch (err.statusCode) {
           case 404:
             return new ErrorNotFound(
-              `Could nod find any progress with notificationId ${notificationID} and jobId: ${jobID}`,
+              `Could not find any progress with notificationId ${notificationID} and jobId: ${jobID}`,
               err.message,
             );
           case 429:
@@ -113,14 +113,14 @@ export class CosmosMassiveProgressAdapter implements MassiveProgressRepository {
 
           default:
             return new ErrorInternal(
-              `Error while pathing the progress with notificationId: ${notificationID}`,
+              `Error while patching the progress with notificationId: ${notificationID}`,
               err.message,
             );
         }
       }
 
       return new ErrorInternal(
-        `Error while pathing the progress with notificationId: ${notificationID}: ${err}`,
+        `Error while patching the progress with notificationId: ${notificationID}: ${err}`,
       );
     }
   }
