@@ -1,15 +1,10 @@
 import { HttpHandler } from "@azure/functions";
 
-import {
-  ErrorConflict,
-  ErrorInternal,
-  ErrorNotFound,
-} from "../../domain/error";
 import { createHttpResponse } from "../../domain/http-request";
 import { massiveJobIDSchema } from "../../domain/massive-jobs";
 import { CancelMassiveNotificationJobUseCase } from "../../domain/use-cases/cancel-massive-notification-job";
 
-export const cancelMassiveNotificationJobHandler =
+export const makeCancelMassiveNotificationJobHandler =
   (
     cancelMassiveNotificationJobUseCase: CancelMassiveNotificationJobUseCase,
   ): HttpHandler =>
@@ -29,21 +24,11 @@ export const cancelMassiveNotificationJobHandler =
       parsedIdParameter.data,
     );
 
-    if (result instanceof ErrorConflict) {
-      return createHttpResponse(409, {
-        error: result.message,
-        jobId: parsedIdParameter.data,
-      });
-    }
-
-    if (result instanceof ErrorNotFound) {
-      return createHttpResponse(404, { error: result.message });
-    }
-
-    if (result instanceof ErrorInternal) {
-      return createHttpResponse(500, {
+    if (result instanceof Error) {
+      return createHttpResponse(Number(result.code), {
         cause: result.cause,
         error: result.message,
+        jobID: parsedIdParameter.data,
       });
     }
 

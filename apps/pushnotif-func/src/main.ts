@@ -39,7 +39,7 @@ import { cosmosHealthcheck } from "./adapters/cosmos/health";
 import { CosmosInstallationSummaryAdapter } from "./adapters/cosmos/installation";
 import { CosmosMassiveJobsAdapter } from "./adapters/cosmos/massive-jobs";
 import { CosmosMassiveProgressAdapter } from "./adapters/cosmos/massive-progress";
-import { cancelMassiveNotificationJobHandler } from "./adapters/functions/cancel-massive-notification-job";
+import { makeCancelMassiveNotificationJobHandler } from "./adapters/functions/cancel-massive-notification-job";
 import { makeCheckMassiveJobHandler } from "./adapters/functions/check-massive-job";
 import { createMassiveNotificationJobHandler } from "./adapters/functions/create-massive-notification-job";
 import { getGetMassiveNotificationJobHandler } from "./adapters/functions/get-massive-notification-job";
@@ -383,7 +383,7 @@ const main = (config: Config) => {
 
   app.http("CancelMassiveNotificationJob", {
     authLevel: "admin",
-    handler: cancelMassiveNotificationJobHandler(
+    handler: makeCancelMassiveNotificationJobHandler(
       cancelMassiveNotificationJobUseCase,
     ),
     methods: ["DELETE"],

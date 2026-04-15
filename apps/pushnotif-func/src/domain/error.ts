@@ -42,11 +42,11 @@ export class ErrorInternal extends Error {
   }
 }
 
-export class ErrorConflict extends Error {
+export class ErrorNotAccepted extends Error {
   cause: unknown;
-  code = "409";
+  code = "406";
 
-  constructor(name: string, cause: unknown = "") {
+  constructor(name: string, cause?: unknown) {
     super(name);
     this.cause = cause;
   }
