@@ -23,10 +23,7 @@ export class GetMassiveNotificationJobUseCase {
       return massiveJob;
     }
 
-    if (
-      massiveJob.status === MassiveJobStatusEnum.enum.CREATED ||
-      massiveJob.status === MassiveJobStatusEnum.enum.COMPLETED
-    ) {
+    if (massiveJob.status === MassiveJobStatusEnum.enum.CREATED) {
       return massiveJob;
     }
 

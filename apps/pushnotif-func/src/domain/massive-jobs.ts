@@ -14,11 +14,11 @@ export const MassiveProgressStatusEnum = z.enum([
 export type MassiveProgressStatus = z.infer<typeof MassiveProgressStatusEnum>;
 
 export const massiveProgressSchema = z.object({
-  id: z.string().min(1), // Equal to the notificationId returned from the notification hub.
+  id: z.string().min(1), // Equal to the notificationId.
   jobId: massiveJobIDSchema,
   scheduledTimestamp: z.number().int().positive(),
   status: MassiveProgressStatusEnum,
-  tags: z.array(z.string().min(1)),
+  tags: z.array(z.string().min(1)).min(1), // Non empty array.
 });
 export type MassiveProgress = z.infer<typeof massiveProgressSchema>;
 
@@ -26,8 +26,7 @@ export const MassiveJobStatusEnum = z.enum([
   "CREATED",
   "PROCESSING",
   "COMPLETED",
-  "CANCELED", // TODO: this is correct, but NH use the USA spelling "CANCELED", we should check if we want to align with NH or use the correct spelling, this applies to all the codebase
-  "FAILED",
+  "CANCELED",
 ]);
 export type MassiveJobStatus = z.infer<typeof MassiveJobStatusEnum>;
 
@@ -49,7 +48,7 @@ export interface MassiveJobsRepository {
     job: MassiveJobID,
   ) => Promise<ErrorInternal | ErrorNotFound | MassiveJob>;
   setStatus: (
-    jobId: MassiveJobID,
+    jobID: MassiveJobID,
     newStatus: MassiveJobStatus,
   ) => Promise<ErrorInternal | ErrorNotFound | string>;
   updateMassiveJob: (

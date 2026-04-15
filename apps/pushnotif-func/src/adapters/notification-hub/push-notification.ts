@@ -123,7 +123,7 @@ export class NotificationHubPushNotificationAdapter
       }
 
       return new ErrorInternal(
-        `Error while getting the notification from notification hub ${err}`,
+        `Error while getting the notification from notification hub ${JSON.stringify(err)}`,
       );
     }
   }

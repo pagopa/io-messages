@@ -47,88 +47,6 @@ describe("NotificationHubPushNotificationAdapter", () => {
     vi.clearAllMocks();
   });
 
-  describe("cancelScheduledNotification", () => {
-    test("should return the notificationId on success", async () => {
-      const { adapter, partitions } = makeAdapter();
-      vi.mocked(
-        partitions[2].cancelScheduledNotification,
-      ).mockResolvedValueOnce({} as never);
-
-      const result = await adapter.cancelScheduledNotification(
-        notificationId,
-        tag,
-      );
-
-      expect(result).toBe(notificationId);
-      expect(partitions[2].cancelScheduledNotification).toHaveBeenCalledWith(
-        notificationId,
-      );
-    });
-
-    test("should return ErrorNotFound on RestError 404", async () => {
-      const { adapter, partitions } = makeAdapter();
-      vi.mocked(
-        partitions[2].cancelScheduledNotification,
-      ).mockRejectedValueOnce(makeRestError(404, "not found"));
-
-      const result = await adapter.cancelScheduledNotification(
-        notificationId,
-        tag,
-      );
-
-      expect(result).toBeInstanceOf(ErrorNotFound);
-      expect((result as ErrorNotFound).message).toContain(notificationId);
-    });
-
-    test("should return ErrorTooManyRequests on RestError 429", async () => {
-      const { adapter, partitions } = makeAdapter();
-      vi.mocked(
-        partitions[2].cancelScheduledNotification,
-      ).mockRejectedValueOnce(makeRestError(429, "too many requests"));
-
-      const result = await adapter.cancelScheduledNotification(
-        notificationId,
-        tag,
-      );
-
-      expect(result).toBeInstanceOf(ErrorTooManyRequests);
-    });
-
-    test("should return ErrorInternal on other RestError status codes", async () => {
-      const { adapter, partitions } = makeAdapter();
-      vi.mocked(
-        partitions[2].cancelScheduledNotification,
-      ).mockRejectedValueOnce(makeRestError(500, "internal error"));
-
-      const result = await adapter.cancelScheduledNotification(
-        notificationId,
-        tag,
-      );
-
-      expect(result).toBeInstanceOf(ErrorInternal);
-      expect((result as ErrorInternal).message).toContain(
-        "Error while canceling the scheduled notification from notification hub",
-      );
-    });
-
-    test("should return ErrorInternal on unexpected errors", async () => {
-      const { adapter, partitions } = makeAdapter();
-      vi.mocked(
-        partitions[2].cancelScheduledNotification,
-      ).mockRejectedValueOnce(new Error("unexpected"));
-
-      const result = await adapter.cancelScheduledNotification(
-        notificationId,
-        tag,
-      );
-
-      expect(result).toBeInstanceOf(ErrorInternal);
-      expect((result as ErrorInternal).message).toContain(
-        "Error while canceling the scheduled notification from notification hub",
-      );
-    });
-  });
-
   describe("getMassiveNotificationDetail", () => {
     test("should return parsed notification details from the matched partition", async () => {
       const { adapter, partitions } = makeAdapter();
@@ -215,6 +133,88 @@ describe("NotificationHubPushNotificationAdapter", () => {
       expect(result).toBeInstanceOf(ErrorInternal);
       expect((result as ErrorInternal).message).toContain(
         "Error while getting the notification from notification hub",
+      );
+    });
+  });
+
+  describe("cancelScheduledNotification", () => {
+    test("should return the notificationId on success", async () => {
+      const { adapter, partitions } = makeAdapter();
+      vi.mocked(
+        partitions[2].cancelScheduledNotification,
+      ).mockResolvedValueOnce({} as never);
+
+      const result = await adapter.cancelScheduledNotification(
+        notificationId,
+        tag,
+      );
+
+      expect(result).toBe(notificationId);
+      expect(partitions[2].cancelScheduledNotification).toHaveBeenCalledWith(
+        notificationId,
+      );
+    });
+
+    test("should return ErrorNotFound on RestError 404", async () => {
+      const { adapter, partitions } = makeAdapter();
+      vi.mocked(
+        partitions[2].cancelScheduledNotification,
+      ).mockRejectedValueOnce(makeRestError(404, "not found"));
+
+      const result = await adapter.cancelScheduledNotification(
+        notificationId,
+        tag,
+      );
+
+      expect(result).toBeInstanceOf(ErrorNotFound);
+      expect((result as ErrorNotFound).message).toContain(notificationId);
+    });
+
+    test("should return ErrorTooManyRequests on RestError 429", async () => {
+      const { adapter, partitions } = makeAdapter();
+      vi.mocked(
+        partitions[2].cancelScheduledNotification,
+      ).mockRejectedValueOnce(makeRestError(429, "too many requests"));
+
+      const result = await adapter.cancelScheduledNotification(
+        notificationId,
+        tag,
+      );
+
+      expect(result).toBeInstanceOf(ErrorTooManyRequests);
+    });
+
+    test("should return ErrorInternal on other RestError status codes", async () => {
+      const { adapter, partitions } = makeAdapter();
+      vi.mocked(
+        partitions[2].cancelScheduledNotification,
+      ).mockRejectedValueOnce(makeRestError(500, "internal error"));
+
+      const result = await adapter.cancelScheduledNotification(
+        notificationId,
+        tag,
+      );
+
+      expect(result).toBeInstanceOf(ErrorInternal);
+      expect((result as ErrorInternal).message).toContain(
+        "Error while canceling the scheduled notification from notification hub",
+      );
+    });
+
+    test("should return ErrorInternal on unexpected errors", async () => {
+      const { adapter, partitions } = makeAdapter();
+      vi.mocked(
+        partitions[2].cancelScheduledNotification,
+      ).mockRejectedValueOnce(new Error("unexpected"));
+
+      const result = await adapter.cancelScheduledNotification(
+        notificationId,
+        tag,
+      );
+
+      expect(result).toBeInstanceOf(ErrorInternal);
+      expect((result as ErrorInternal).message).toContain(
+        "Error while canceling the scheduled notification from notification hub",
       );
     });
   });

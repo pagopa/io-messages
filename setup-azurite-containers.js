@@ -33,6 +33,8 @@ const queues = [
   "processing-message",
   "update-installations-dispatch",
   "update-installations-dispatch-poison",
+  "check-massive-job",
+  "check-massive-job-poison",
 ];
 const tables = ["MessagesDataplanIngestionErrors"];
 

@@ -1,4 +1,5 @@
-import { Container, RestError, SqlQuerySpec } from "@azure/cosmos";
+import { RestError } from "@azure/core-rest-pipeline";
+import { Container, SqlQuerySpec } from "@azure/cosmos";
 import { z } from "zod";
 
 import {

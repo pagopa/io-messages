@@ -40,6 +40,7 @@ import { CosmosInstallationSummaryAdapter } from "./adapters/cosmos/installation
 import { CosmosMassiveJobsAdapter } from "./adapters/cosmos/massive-jobs";
 import { CosmosMassiveProgressAdapter } from "./adapters/cosmos/massive-progress";
 import { cancelMassiveNotificationJobHandler } from "./adapters/functions/cancel-massive-notification-job";
+import { makeCheckMassiveJobHandler } from "./adapters/functions/check-massive-job";
 import { createMassiveNotificationJobHandler } from "./adapters/functions/create-massive-notification-job";
 import { getGetMassiveNotificationJobHandler } from "./adapters/functions/get-massive-notification-job";
 import { getHealthHandler } from "./adapters/functions/health";
@@ -50,6 +51,7 @@ import { notificationHubHealthcheck } from "./adapters/notification-hub/health";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
 import { NotificationHubPushNotificationAdapter } from "./adapters/notification-hub/push-notification";
 import { CancelMassiveNotificationJobUseCase } from "./domain/use-cases/cancel-massive-notification-job";
+import { CheckMassiveJobStatusUseCase } from "./domain/use-cases/check-massive-job";
 import { CreateMassiveNotificationJobUseCase } from "./domain/use-cases/create-massive-notification-job";
 import { GetMassiveNotificationJobUseCase } from "./domain/use-cases/get-massive-notification-job";
 import { HealthCheckUseCase } from "./domain/use-cases/health";
@@ -195,6 +197,8 @@ const main = (config: Config) => {
     connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
     queueName: updateInstallationDispatchQueueName,
   });
+
+  const checkMassiveJobQueueName = "check-massive-job";
 
   const infoUseCase = new InfoUseCase();
   app.http("Info", {
@@ -352,6 +356,13 @@ const main = (config: Config) => {
       pushNotificationRepository,
     );
 
+  const checkMassiveJobStatusUseCase = new CheckMassiveJobStatusUseCase(
+    massiveJobsRepository,
+    massiveProgressRepository,
+    pushNotificationRepository,
+    telemetryService,
+  );
+
   app.http("CreateMassiveNotificationJob", {
     authLevel: "admin",
     handler: createMassiveNotificationJobHandler(
@@ -377,6 +388,15 @@ const main = (config: Config) => {
     ),
     methods: ["DELETE"],
     route: "api/v1/massive-notification-job/{id}",
+  });
+
+  app.storageQueue("CheckMassiveJob", {
+    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    handler: makeCheckMassiveJobHandler(
+      telemetryService,
+      checkMassiveJobStatusUseCase,
+    ),
+    queueName: checkMassiveJobQueueName,
   });
 };
 
