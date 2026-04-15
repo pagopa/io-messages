@@ -5,7 +5,7 @@ import { ErrorInternal } from "../../../domain/error";
 import { massiveJobIDSchema } from "../../../domain/massive-jobs";
 import { TelemetryService } from "../../../domain/telemetry";
 import { CheckMassiveJobStatusUseCase } from "../../../domain/use-cases/check-massive-job";
-import { getCheckMassiveJobHandler } from "../check-massive-job";
+import { makeCheckMassiveJobHandler } from "../check-massive-job";
 
 const validJobId = massiveJobIDSchema.parse("01ARZ3NDEKTSV4RRFFQ69G5FAV");
 
@@ -19,7 +19,7 @@ const useCaseMock: Pick<CheckMassiveJobStatusUseCase, "execute"> = {
 
 const context = new InvocationContext();
 
-const handler = getCheckMassiveJobHandler(
+const handler = makeCheckMassiveJobHandler(
   telemetryServiceMock,
   useCaseMock as CheckMassiveJobStatusUseCase,
 );

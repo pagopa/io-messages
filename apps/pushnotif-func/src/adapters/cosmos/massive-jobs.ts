@@ -1,11 +1,7 @@
 import { Container, ErrorResponse, RestError } from "@azure/cosmos";
 import { z } from "zod";
 
-import {
-  ErrorInternal,
-  ErrorNotFound,
-  ErrorTooManyRequests,
-} from "../../domain/error";
+import { ErrorInternal, ErrorNotFound } from "../../domain/error";
 import {
   MassiveJob,
   MassiveJobID,

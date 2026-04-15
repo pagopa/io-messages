@@ -2,11 +2,7 @@ import { RestError } from "@azure/core-rest-pipeline";
 import { CosmosClient, ErrorResponse, ItemResponse } from "@azure/cosmos";
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  ErrorInternal,
-  ErrorNotFound,
-  ErrorTooManyRequests,
-} from "../../../domain/error";
+import { ErrorInternal, ErrorNotFound } from "../../../domain/error";
 import { MassiveJob, MassiveJobID } from "../../../domain/massive-jobs";
 import { CosmosMassiveJobsAdapter } from "../massive-jobs";
 
@@ -184,17 +180,6 @@ describe("CosmosMassiveJobsAdapter.setStatus", () => {
     const result = await adapter.setStatus(mockJob.id, "COMPLETED");
 
     expect(result).toBeInstanceOf(ErrorNotFound);
-  });
-
-  it("should return ErrorTooManyRequests when patch receives a 429 response", async () => {
-    const restError = new RestError("too many requests");
-    restError.statusCode = 429;
-    const patch = vi.fn().mockRejectedValueOnce(restError);
-    vi.spyOn(container, "item").mockReturnValueOnce({ patch } as never);
-
-    const result = await adapter.setStatus(mockJob.id, "COMPLETED");
-
-    expect(result).toBeInstanceOf(ErrorTooManyRequests);
   });
 
   it("should return ErrorInternal when patch receives an unexpected rest error", async () => {
