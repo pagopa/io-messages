@@ -107,6 +107,11 @@ export class CheckMassiveJobStatusUseCase {
           );
 
         if (setStatusResponse instanceof Error) {
+          // We assume the error cannot be `ErrorNotFound` because we just
+          // retrieved the entity from the repository.
+          //
+          // For any other types of errors, we want to trigger a retry, so we
+          // simply return the error here.
           return setStatusResponse;
         }
 
@@ -148,11 +153,12 @@ export class CheckMassiveJobStatusUseCase {
             MassiveProgressStatusEnum.enum.FAILED,
           );
 
-        if (
-          setStatusResponse instanceof ErrorInternal ||
-          setStatusResponse instanceof ErrorTooManyRequests
-        ) {
-          // In this case we want the handler to trigger a retry.
+        if (setStatusResponse instanceof Error) {
+          // We assume the error cannot be `ErrorNotFound` because we just
+          // retrieved the entity from the repository.
+          //
+          // For any other types of errors, we want to trigger a retry, so we
+          // simply return the error here.
           return new ErrorInternal(
             setStatusResponse.name,
             setStatusResponse.cause,
@@ -175,11 +181,12 @@ export class CheckMassiveJobStatusUseCase {
             MassiveProgressStatusEnum.enum.SENT,
           );
 
-        if (
-          setStatusResponse instanceof ErrorInternal ||
-          setStatusResponse instanceof ErrorTooManyRequests
-        ) {
-          // In this case we want the handler to trigger a retry.
+        if (setStatusResponse instanceof Error) {
+          // We assume the error cannot be `ErrorNotFound` because we just
+          // retrieved the entity from the repository.
+          //
+          // For any other types of errors, we want to trigger a retry, so we
+          // simply return the error here.
           return new ErrorInternal(
             setStatusResponse.name,
             setStatusResponse.cause,
