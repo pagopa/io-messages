@@ -20,8 +20,6 @@ box "Notification Hubs"
   participant "Notification Hub" as nh1
 end box
 
-participant "app-insights" as ai
-
 note right of admin
   **Path Params**
     "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B"
@@ -84,7 +82,7 @@ alt status != PROCESSING
         "error": "Jobs with status 'CREATED' cannot be canceled"
     }
     end note
-    httpfunc -[#red]x admin : 409
+    httpfunc -[#red]x admin : 406
 end
 
 note right of httpfunc
@@ -100,27 +98,6 @@ activate mnjp
 alt Error from comos
   mnjp -[#red]> httpfunc : Transient error
   httpfunc -[#red]x admin : 500
-else List is empty
-  mnjp -[#green]> httpfunc : 200
-
-  httpfunc -> mnj : Set status to canceled
-  activate mnj
-  alt Error from comos
-    mnj -[#red]> httpfunc : Transient error
-    httpfunc -[#red]x admin : 500
-  end
-
-  mnj -[#green]> httpfunc : 200
-  deactivate mnj
-
-  note right of admin
-    **Response Body**
-    {
-        "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
-        "status": "CANCELED"
-    }
-    end note
-  httpfunc -[#green]> admin : 200
 end
 
 note right of httpfunc
@@ -144,6 +121,13 @@ loop notificationId
     alt Transient from the Notification Hub
         nh1 -[#red]> httpfunc : Transient
         httpfunc -[#red]x admin : 500
+    else Notification not found
+        httpfunc -> mnjp : Set status to "FAILED"
+        activate mnjp
+        alt Error from comos
+          mnjp -[#red]> httpfunc : Transient error
+          httpfunc -[#red]x admin : 500
+        end
     end
 
     note right of httpfunc
@@ -184,8 +168,6 @@ note right of admin
   }
 end note
 httpfunc -[#green]> admin : 200
-
-httpfunc --> ai : Track a success event
 
 deactivate httpfunc
 deactivate admin
