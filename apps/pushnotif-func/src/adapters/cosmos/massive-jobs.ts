@@ -67,8 +67,6 @@ export class CosmosMassiveJobsAdapter implements MassiveJobsRepository {
               `Could not find any massive job with id: ${jobID}`,
               err.message,
             );
-          case 429:
-            return new ErrorTooManyRequests(`Too many requests`, err.message);
 
           default:
             return new ErrorInternal(

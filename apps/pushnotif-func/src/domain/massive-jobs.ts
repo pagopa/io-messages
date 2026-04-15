@@ -50,7 +50,7 @@ export interface MassiveJobsRepository {
   setStatus: (
     jobID: MassiveJobID,
     newStatus: MassiveJobStatus,
-  ) => Promise<ErrorInternal | ErrorNotFound | ErrorTooManyRequests | string>;
+  ) => Promise<ErrorInternal | ErrorNotFound | string>;
   updateMassiveJob: (
     job: MassiveJob,
   ) => Promise<ErrorInternal | ErrorNotFound | string>;

@@ -64,7 +64,7 @@ export class CheckMassiveJobStatusUseCase {
 
   async execute(
     jobID: MassiveJobID,
-  ): Promise<ErrorInternal | MassiveJobStatus> {
+  ): Promise<ErrorInternal | ErrorNotFound | MassiveJobStatus> {
     const massiveJob = await this.massiveJobRepository.getMassiveJob(jobID);
 
     if (massiveJob instanceof Error) {
@@ -112,7 +112,10 @@ export class CheckMassiveJobStatusUseCase {
           //
           // For any other types of errors, we want to trigger a retry, so we
           // simply return the error here.
-          return setStatusResponse;
+          return new ErrorInternal(
+            setStatusResponse.name,
+            setStatusResponse.cause,
+          );
         }
 
         // Once we set the status to FAILED, we can skip this iteration and go

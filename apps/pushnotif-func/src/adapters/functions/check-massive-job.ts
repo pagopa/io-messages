@@ -3,7 +3,7 @@ import { CheckMassiveJobStatusUseCase } from "@/domain/use-cases/check-massive-j
 import { StorageQueueHandler } from "@azure/functions";
 import { z } from "zod";
 
-import { ErrorInternal } from "../../domain/error";
+import { ErrorInternal, ErrorNotFound } from "../../domain/error";
 import { massiveJobIDSchema } from "../../domain/massive-jobs";
 
 const checkNotificationStatusMessageSchema = z.object({
@@ -31,6 +31,13 @@ export const makeCheckMassiveJobHandler =
     const massiveJob = await checkMassiveJobStatusUseCase.execute(
       checkNotificationStatusMessage.data.jobId,
     );
+
+    if (massiveJob instanceof ErrorNotFound) {
+      // TODO: Find a better name.
+      telemetryService.trackEvent("massiveJobs.massiveJobNotFound", {
+        id: checkNotificationStatusMessage.data.jobId,
+      });
+    }
 
     if (massiveJob instanceof ErrorInternal) {
       throw massiveJob;
