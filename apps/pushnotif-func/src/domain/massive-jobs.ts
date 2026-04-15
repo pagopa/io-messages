@@ -9,7 +9,7 @@ export const MassiveProgressStatusEnum = z.enum([
   "PENDING",
   "FAILED",
   "SENT",
-  "CANCELED", // TODO: this is correct, but NH use the USA spelling "CANCELED", we should check if we want to align with NH or use the correct spelling, this applies to all the codebase
+  "CANCELED",
 ]);
 export type MassiveProgressStatus = z.infer<typeof MassiveProgressStatusEnum>;
 
