@@ -22,10 +22,10 @@ const baseJob: Omit<MassiveJob, "status"> = {
 
 const progress: MassiveProgress[] = [
   {
-    completed: false,
     id: "550e8400-e29b-41d4-a716-446655440000",
     jobId,
     scheduledTimestamp: 1700000100,
+    status: "PENDING",
     tags: ["aaa"],
   },
 ];
@@ -85,18 +85,24 @@ describe("GetMassiveNotificationJobUseCase", () => {
     ).not.toHaveBeenCalled();
   });
 
-  test("should return job without progress when status is COMPLETED", async () => {
-    const completedJob: MassiveJob = { ...baseJob, status: "COMPLETED" };
+  test("should return job with progress when status is COMPLETED", async () => {
+    const completedJob: MassiveJob = {
+      ...baseJob,
+      status: "COMPLETED",
+    };
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce(
       completedJob,
     );
+    vi.mocked(
+      massiveProgressRepositoryMock.listMassiveJobProgress,
+    ).mockResolvedValueOnce(progress);
 
     const result = await useCase.execute(jobId);
 
-    expect(result).toEqual(completedJob);
+    expect(result).toEqual({ ...completedJob, progress });
     expect(
       massiveProgressRepositoryMock.listMassiveJobProgress,
-    ).not.toHaveBeenCalled();
+    ).toHaveBeenCalledWith(jobId);
   });
 
   test("should propagate ErrorNotFound from massive job repository", async () => {
