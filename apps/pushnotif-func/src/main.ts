@@ -39,7 +39,7 @@ import { cosmosHealthcheck } from "./adapters/cosmos/health";
 import { CosmosInstallationSummaryAdapter } from "./adapters/cosmos/installation";
 import { CosmosMassiveJobsAdapter } from "./adapters/cosmos/massive-jobs";
 import { CosmosMassiveProgressAdapter } from "./adapters/cosmos/massive-progress";
-import { getCheckMassiveJobHandler } from "./adapters/functions/check-massive-job";
+import { makeCheckMassiveJobHandler } from "./adapters/functions/check-massive-job";
 import { createMassiveNotificationJobHandler } from "./adapters/functions/create-massive-notification-job";
 import { getGetMassiveNotificationJobHandler } from "./adapters/functions/get-massive-notification-job";
 import { getHealthHandler } from "./adapters/functions/health";
@@ -374,7 +374,7 @@ const main = (config: Config) => {
 
   app.storageQueue("CheckMassiveJob", {
     connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
-    handler: getCheckMassiveJobHandler(
+    handler: makeCheckMassiveJobHandler(
       telemetryService,
       checkMassiveJobStatusUseCase,
     ),

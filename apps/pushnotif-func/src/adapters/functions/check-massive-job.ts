@@ -10,7 +10,7 @@ const checkNotificationStatusMessageSchema = z.object({
   jobId: massiveJobIDSchema,
 });
 
-export const getCheckMassiveJobHandler =
+export const makeCheckMassiveJobHandler =
   (
     telemetryService: TelemetryService,
     checkMassiveJobStatusUseCase: CheckMassiveJobStatusUseCase,
