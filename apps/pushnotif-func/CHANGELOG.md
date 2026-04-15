@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.6.0
+
+### Minor Changes
+
+- 238e25b: Add CheckMassiveJob function
+
 ## 2.5.0
 
 ### Minor Changes
