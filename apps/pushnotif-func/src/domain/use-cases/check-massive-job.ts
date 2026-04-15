@@ -83,14 +83,6 @@ export class CheckMassiveJobStatusUseCase {
       return massivePendingProgress;
     }
 
-    // If there is no pending progress we consider the job to be completed.
-    if (massivePendingProgress.length === 0) {
-      return this.setMassiveJobStatus(
-        massiveJob.id,
-        MassiveJobStatusEnum.enum.COMPLETED,
-      );
-    }
-
     // For each pending progress we can use the `id` to check the notification status.
     for (const progress of massivePendingProgress) {
       const notificationDetails =

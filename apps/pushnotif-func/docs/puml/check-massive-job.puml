@@ -102,29 +102,6 @@ alt Transient error from cosmos
   end
 
   cjp -[#red]x cjp : Throw error
-else Empty array
-  mjp -[#green]> cjp : Empty array response
-  note right of cjp
-    Everything was updated, we can consider this job COMPLETED.
-  end note
-
-  cjp -> mj : Set status to COMPLETED
-  activate mj
-
-  alt Transient error from cosmos
-    mj -[#red]> cjp : Transient error
-
-    alt Was last retry
-      cjp -> cjqp : Push to the poison
-    end
-
-    cjp -[#red]x cjp : Throw error
-  end
-
-  mj -[#green]> cjp : Success
-  deactivate mj
-
-  cjp -[#red]x cjp : End the execution
 end
 
 note right of cjp
