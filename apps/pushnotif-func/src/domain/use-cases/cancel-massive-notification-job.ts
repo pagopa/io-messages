@@ -1,4 +1,9 @@
-import { ErrorConflict, ErrorInternal, ErrorNotFound } from "../error";
+import {
+  ErrorInternal,
+  ErrorNotAccepted,
+  ErrorNotFound,
+  ErrorTooManyRequests,
+} from "../error";
 import {
   CancelMassiveJobResult,
   MassiveJobID,
@@ -19,7 +24,7 @@ export class CancelMassiveNotificationJobUseCase {
   async execute(
     jobId: MassiveJobID,
   ): Promise<
-    CancelMassiveJobResult | ErrorConflict | ErrorInternal | ErrorNotFound
+    CancelMassiveJobResult | ErrorInternal | ErrorNotAccepted | ErrorNotFound
   > {
     const massiveJob = await this.massiveJobRepository.getMassiveJob(jobId);
 
@@ -28,7 +33,7 @@ export class CancelMassiveNotificationJobUseCase {
     }
 
     if (massiveJob.status !== MassiveJobStatusEnum.enum.PROCESSING) {
-      return new ErrorConflict(
+      return new ErrorNotAccepted(
         `Jobs with status '${massiveJob.status}' cannot be canceled`,
       );
     }
@@ -47,14 +52,19 @@ export class CancelMassiveNotificationJobUseCase {
           progress.tags[0],
         );
 
-      if (cancelResult instanceof Error) {
+      if (
+        cancelResult instanceof ErrorInternal ||
+        cancelResult instanceof ErrorTooManyRequests
+      ) {
         return cancelResult;
       }
 
       const setStatusResult = await this.massiveProgressRepository.setStatus(
         progress.id,
         jobId,
-        MassiveProgressStatusEnum.enum.CANCELED,
+        cancelResult instanceof ErrorNotFound
+          ? MassiveProgressStatusEnum.enum.FAILED
+          : MassiveProgressStatusEnum.enum.CANCELED,
       );
 
       if (setStatusResult instanceof Error) {

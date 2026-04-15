@@ -1,6 +1,7 @@
+/* eslint-disable max-lines-per-function */
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { ErrorConflict, ErrorInternal, ErrorNotFound } from "../../error";
+import { ErrorInternal, ErrorNotAccepted, ErrorNotFound } from "../../error";
 import {
   MassiveJob,
   MassiveJobsRepository,
@@ -89,8 +90,8 @@ describe("CancelMassiveNotificationJobUseCase", () => {
     expect(result).toBe(internalError);
   });
 
-  test.each(["CREATED", "CANCELED", "COMPLETED", "FAILED"] as const)(
-    "should return ErrorConflict when job status is %s",
+  test.each(["CREATED", "CANCELED", "COMPLETED"] as const)(
+    "should return ErrorNotAccepted when job status is %s",
     async (status) => {
       vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
         ...baseJob,
@@ -99,14 +100,14 @@ describe("CancelMassiveNotificationJobUseCase", () => {
 
       const result = await useCase.execute(jobId);
 
-      expect(result).toBeInstanceOf(ErrorConflict);
-      expect((result as ErrorConflict).message).toBe(
+      expect(result).toBeInstanceOf(ErrorNotAccepted);
+      expect((result as ErrorNotAccepted).message).toBe(
         `Jobs with status '${status}' cannot be canceled`,
       );
     },
   );
 
-  test("should stop job with no pending progress", async () => {
+  test("should cancel job with no pending progress", async () => {
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
       ...baseJob,
       status: "PROCESSING",
@@ -130,7 +131,7 @@ describe("CancelMassiveNotificationJobUseCase", () => {
     ).not.toHaveBeenCalled();
   });
 
-  test("should cancel all pending notifications and stop job", async () => {
+  test("should cancel all pending notifications and cancel the job", async () => {
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
       ...baseJob,
       status: "PROCESSING",
@@ -192,7 +193,47 @@ describe("CancelMassiveNotificationJobUseCase", () => {
     expect(result).toBe(internalError);
   });
 
-  test("should fail fast when cancelScheduledNotification fails", async () => {
+  test("should set progress to FAILED and continue when NH returns 404", async () => {
+    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
+      ...baseJob,
+      status: "PROCESSING",
+    });
+    vi.mocked(
+      massiveProgressRepositoryMock.listMassiveJobPendingProgress,
+    ).mockResolvedValueOnce(pendingProgress);
+    vi.mocked(pushNotificationRepositoryMock.cancelScheduledNotification)
+      .mockResolvedValueOnce(new ErrorNotFound("Notification not found"))
+      .mockResolvedValueOnce("notification-id");
+    vi.mocked(massiveProgressRepositoryMock.setStatus).mockResolvedValue(
+      "activity-id",
+    );
+    vi.mocked(massiveJobsRepositoryMock.setStatus).mockResolvedValueOnce(
+      "activity-id",
+    );
+
+    const result = await useCase.execute(jobId);
+
+    expect(result).toEqual({ jobId, status: "CANCELED" });
+    expect(
+      pushNotificationRepositoryMock.cancelScheduledNotification,
+    ).toHaveBeenCalledTimes(2);
+    expect(massiveProgressRepositoryMock.setStatus).toHaveBeenCalledWith(
+      pendingProgress[0].id,
+      jobId,
+      "FAILED",
+    );
+    expect(massiveProgressRepositoryMock.setStatus).toHaveBeenCalledWith(
+      pendingProgress[1].id,
+      jobId,
+      "CANCELED",
+    );
+    expect(massiveJobsRepositoryMock.setStatus).toHaveBeenCalledWith(
+      jobId,
+      "CANCELED",
+    );
+  });
+
+  test("should fail fast when cancelScheduledNotification returns ErrorInternal", async () => {
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
       ...baseJob,
       status: "PROCESSING",

@@ -118,34 +118,41 @@ loop notificationId
     httpfunc -> nh1 : Stop push notification
     activate nh1
 
-    alt Transient from the Notification Hub
+    alt Transient/TooManyRequests from the Notification Hub
         nh1 -[#red]> httpfunc : Transient
+
         httpfunc -[#red]x admin : 500
-    else Notification not found
+    end
+
+    alt Notification not found (404)
+        nh1 -[#red]> httpfunc : 404
+
+
         httpfunc -> mnjp : Set status to "FAILED"
         activate mnjp
-        alt Error from comos
+        alt Error from cosmos
+          mnjp -[#red]> httpfunc : Transient error
+          httpfunc -[#red]x admin : 500
+        end
+        mnjp -[#green]> httpfunc : Success
+        deactivate mnjp
+    else Notification Succesfully canceled
+        note right of httpfunc
+        **Response Body**
+        {
+            "notificationId": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0"
+        }
+        end note
+        nh1 -[#green]> httpfunc : 200
+        deactivate nh1
+
+        httpfunc -> mnjp : Set status to "CANCELED"
+        activate mnjp
+        alt Error from cosmos
           mnjp -[#red]> httpfunc : Transient error
           httpfunc -[#red]x admin : 500
         end
     end
-
-    note right of httpfunc
-    **Response Body**
-    {
-        "notificationId": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0"
-    }
-    end note
-    nh1 -[#green]> httpfunc : 200
-    deactivate nh1
-
-    httpfunc -> mnjp : Set status to "CANCELED"
-    activate mnjp
-    alt Error from comos
-      mnjp -[#red]> httpfunc : Transient error
-      httpfunc -[#red]x admin : 500
-    end
-
     mnjp -[#green]> httpfunc : Success
     deactivate mnjp
 end
