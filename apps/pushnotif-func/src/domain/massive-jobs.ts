@@ -14,7 +14,7 @@ export const MassiveProgressStatusEnum = z.enum([
 export type MassiveProgressStatus = z.infer<typeof MassiveProgressStatusEnum>;
 
 export const massiveProgressSchema = z.object({
-  id: z.string().min(1), // Equal to the notificationId returned from the notification hub.
+  id: z.string().min(1), // Equal to the notificationId.
   jobId: massiveJobIDSchema,
   scheduledTimestamp: z.number().int().positive(),
   status: MassiveProgressStatusEnum,
