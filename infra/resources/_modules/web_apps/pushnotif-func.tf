@@ -94,8 +94,7 @@ locals {
       UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH = 1773705600
 
       # Disabled by default, enabled when needed.
-      "AzureWebJobs.InstallationUpdateDispatcher.Disabled" = "1",
-      "AzureWebJobs.UpdateInstallation.Disabled"           = "1",
+
 
       AzureFunctionsJobHost__extensions__durableTask__storageProvider__partitionCount = "8"
     }
@@ -138,20 +137,38 @@ module "push_notif_function" {
 
   app_settings = merge(
     local.function_push_notif.app_settings_common, {
+      "AzureWebJobs.CancelMassiveNotificationJob.Disabled"           = "1",
+      "AzureWebJobs.CheckMassiveJob.Disabled"                        = "1",
+      "AzureWebJobs.CreateMassiveNotificationJob.Disabled"           = "1",
+      "AzureWebJobs.GetMassiveNotificationJob.Disabled"              = "1",
       "AzureWebJobs.HandleNHNotificationCall.Disabled"               = "0",
       "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled" = "0"
+      "AzureWebJobs.InstallationUpdateDispatcher.Disabled"           = "1",
+      "AzureWebJobs.UpdateInstallation.Disabled"                     = "1",
     }
   )
 
   sticky_app_setting_names = [
+    "AzureWebJobs.CancelMassiveNotificationJob.Disabled",
+    "AzureWebJobs.CheckMassiveJob.Disabled",
+    "AzureWebJobs.CreateMassiveNotificationJob.Disabled",
+    "AzureWebJobs.GetMassiveNotificationJob.Disabled",
     "AzureWebJobs.HandleNHNotificationCall.Disabled",
-    "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled"
+    "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled",
+    "AzureWebJobs.InstallationUpdateDispatcher.Disabled",
+    "AzureWebJobs.UpdateInstallation.Disabled",
   ]
 
   slot_app_settings = merge(
     local.function_push_notif.app_settings_common, {
+      "AzureWebJobs.CancelMassiveNotificationJob.Disabled"           = "1",
+      "AzureWebJobs.CheckMassiveJob.Disabled"                        = "1",
+      "AzureWebJobs.CreateMassiveNotificationJob.Disabled"           = "1",
+      "AzureWebJobs.GetMassiveNotificationJob.Disabled"              = "1",
       "AzureWebJobs.HandleNHNotificationCall.Disabled"               = "1",
       "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled" = "1"
+      "AzureWebJobs.InstallationUpdateDispatcher.Disabled"           = "1",
+      "AzureWebJobs.UpdateInstallation.Disabled"                     = "1",
     }
   )
 

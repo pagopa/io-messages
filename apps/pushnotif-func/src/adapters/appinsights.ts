@@ -12,23 +12,19 @@ export class TelemetryClient implements TelemetryService {
     this.#telemetryClient = appInsightsTelemetryClient;
   }
 
-  trackEvent({ name, properties, tagOverrides }: TrackEventProperties): void {
+  trackEvent({ name, properties }: TrackEventProperties): void {
     this.#telemetryClient.trackEvent({
       name,
       properties,
-      tagOverrides: { samplingEnabled: "false", ...tagOverrides },
+      tagOverrides: { samplingEnabled: "false" },
     });
   }
 
-  trackException({
-    exception,
-    properties,
-    tagOverrides,
-  }: TrackExceptionProperties): void {
+  trackException({ exception, properties }: TrackExceptionProperties): void {
     this.#telemetryClient.trackException({
       exception,
       properties,
-      tagOverrides: { samplingEnabled: "false", ...tagOverrides },
+      tagOverrides: { samplingEnabled: "false" },
     });
   }
 }

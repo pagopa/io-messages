@@ -17,13 +17,7 @@ export type NotificationDetailStatus = z.TypeOf<
 >;
 
 export const notificationDetailSchema = z.object({
-  endTime: z.string(),
-  // TODO: find better type for this kind of date (2026-04-10T13:24:54.491Z).
-  enqueueTime: z.string(),
-  location: z.string().min(1),
-
   notificationId: z.string().min(1),
-  startTime: z.string(),
   state: notificationDetailStatusEnum,
 });
 export type NotificationDetails = z.TypeOf<typeof notificationDetailSchema>;
@@ -40,6 +34,10 @@ export interface InstallationRepository {
 }
 
 export interface PushNotificationRepository {
+  cancelScheduledNotification(
+    notificationId: string,
+    tag: string,
+  ): Promise<ErrorInternal | ErrorNotFound | ErrorTooManyRequests | string>;
   getMassiveNotificationDetail(
     notificationId: string,
     tag: string,
