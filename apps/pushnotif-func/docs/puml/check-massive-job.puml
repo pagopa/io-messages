@@ -1,20 +1,20 @@
 @startuml
 
-title "Check job progress"
+title "Check massive job"
 
 queue "check-massive-job" as cjq
 
 queue "check-massive-job-poison" as cjqp
 
 box "pushnotif-func"
-  participant "CheckJobProgress" as cjp
+  participant "CheckMassiveJob" as cjp
 end box
 
 !pragma teoz true
 box "io-p-itn-com-cosno-01 cosmos account" #LightBlue
   box "push-notifications cosmos database"
     database "massive-jobs" as mj
-    database "massive-job-progress" as mjp
+    database "massive-progress" as mjp
   end box
 end box
 
