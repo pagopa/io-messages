@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.7.0
+
+### Minor Changes
+
+- 7561786: Add CancelMassiveJob Function
+
 ## 2.6.0
 
 ### Minor Changes
