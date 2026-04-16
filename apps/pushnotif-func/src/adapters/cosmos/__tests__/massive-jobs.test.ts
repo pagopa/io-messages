@@ -69,8 +69,6 @@ describe("CosmosMassiveJobsAdapter", () => {
       const mockItem = vi.fn().mockReturnValue({ replace: mockReplace });
       vi.spyOn(container, "item").mockReturnValueOnce(mockItem());
 
-      mockReplace.mockRejectedValueOnce(notFoundError);
-
       const result = await adapter.updateMassiveJob(mockJob);
 
       expect(result).toBeInstanceOf(ErrorNotFound);

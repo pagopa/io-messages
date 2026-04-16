@@ -49,11 +49,12 @@ import getInstallationUpdateDispatcher from "./adapters/functions/update-install
 import { notificationHubHealthcheck } from "./adapters/notification-hub/health";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
 import { CheckJobMessageQueueAdapter } from "./adapters/storage-queue/check-job-message";
-import { CreateMassiveNotificationJobUseCase } from "./domain/use-cases/create-massive-notification-job";
+import { SendNotificationMessageQueueAdapter } from "./adapters/storage-queue/send-notification-message";
+import { MakeCreateMassiveNotificationJobUseCase } from "./domain/use-cases/create-massive-notification-job";
 import { GetMassiveNotificationJobUseCase } from "./domain/use-cases/get-massive-notification-job";
 import { HealthCheckUseCase } from "./domain/use-cases/health";
 import { InfoUseCase } from "./domain/use-cases/info";
-import { StartMassiveNotificationJobUseCase } from "./domain/use-cases/start-massive-notification-job";
+import { MakeStartMassiveNotificationJobUseCase } from "./domain/use-cases/start-massive-notification-job";
 import {
   ActivityName as CreateOrUpdateActivityName,
   getActivityHandler as getCreateOrUpdateActivityHandler,
@@ -148,10 +149,10 @@ const main = (config: Config) => {
     config.comStorageConnectionString,
     "check-job-message",
   );
-  const sendNotificationMessageQueueOutput = output.storageQueue({
-    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
-    queueName: "send-notification",
-  });
+  const sendNotificationMessageQueue = new QueueClient(
+    config.comStorageConnectionString,
+    "send-notification",
+  );
 
   // TODO: This factory breaks clean architecture, remove this in future.
   const nhPartitionFactory = new NotificationHubPartitionFactory([
@@ -330,7 +331,7 @@ const main = (config: Config) => {
     massiveJobsContainer,
   );
   const createMassiveNotificationJobUseCase =
-    new CreateMassiveNotificationJobUseCase(massiveJobsRepository);
+    new MakeCreateMassiveNotificationJobUseCase(massiveJobsRepository);
 
   const massiveProgressContainer = pushCosmosDb.container(
     config.massiveProgressContainerName,
@@ -345,11 +346,14 @@ const main = (config: Config) => {
   const checkJobMessageQueueAdapter = new CheckJobMessageQueueAdapter(
     checkJobMessageQueue,
   );
+  const sendNotificationMessageQueueAdapter =
+    new SendNotificationMessageQueueAdapter(sendNotificationMessageQueue);
+
   const startMassiveNotificationJobUseCase =
-    new StartMassiveNotificationJobUseCase(
+    new MakeStartMassiveNotificationJobUseCase(
       massiveJobsRepository,
+      sendNotificationMessageQueueAdapter,
       checkJobMessageQueueAdapter,
-      sendNotificationMessageQueueOutput,
       telemetryService,
     );
 
@@ -364,7 +368,6 @@ const main = (config: Config) => {
 
   app.http("StartMassiveNotificationJob", {
     authLevel: "admin",
-    extraOutputs: [sendNotificationMessageQueueOutput],
     handler: startMassiveNotificationJobHandler(
       startMassiveNotificationJobUseCase,
     ),

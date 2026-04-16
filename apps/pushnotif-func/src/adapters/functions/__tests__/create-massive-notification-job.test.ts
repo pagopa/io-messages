@@ -2,7 +2,7 @@ import { HttpRequest, InvocationContext } from "@azure/functions";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { ErrorInternal } from "../../../domain/error";
-import { CreateMassiveNotificationJobUseCase } from "../../../domain/use-cases/create-massive-notification-job";
+import { MakeCreateMassiveNotificationJobUseCase } from "../../../domain/use-cases/create-massive-notification-job";
 import { createMassiveNotificationJobHandler } from "../create-massive-notification-job";
 
 const context = new InvocationContext();
@@ -13,12 +13,12 @@ const makeRequest = (jsonFn: () => Promise<object> | object): HttpRequest =>
 const parseResponseBody = async <T>(response: Response): Promise<T> =>
   JSON.parse(await response.text()) as T;
 
-const useCaseMock: Pick<CreateMassiveNotificationJobUseCase, "execute"> = {
+const useCaseMock: Pick<MakeCreateMassiveNotificationJobUseCase, "execute"> = {
   execute: vi.fn(),
 };
 
 const handler = createMassiveNotificationJobHandler(
-  useCaseMock as CreateMassiveNotificationJobUseCase,
+  useCaseMock as MakeCreateMassiveNotificationJobUseCase,
 );
 
 const aValidPayload = {
@@ -86,11 +86,9 @@ describe("createMassiveNotificationJobHandler", () => {
     expect(response.status).toBe(500);
     expect(responseBody).toEqual({ error: "Something went wrong" });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
-      expect.objectContaining({
-        body: aValidPayload.body,
-        executionTimeInHours: 2,
-        title: aValidPayload.title,
-      }),
+      aValidPayload.body,
+      2,
+      aValidPayload.title,
     );
   });
 
@@ -127,11 +125,9 @@ describe("createMassiveNotificationJobHandler", () => {
     expect(response.status).toBe(201);
     expect(responseBody).toEqual({ id: aJobId, status: "CREATED" });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
-      expect.objectContaining({
-        body: aValidPayload.body,
-        executionTimeInHours: 2,
-        title: aValidPayload.title,
-      }),
+      aValidPayload.body,
+      2,
+      aValidPayload.title,
     );
   });
 });

@@ -2,23 +2,26 @@ import { ulid } from "ulid";
 
 import { ErrorInternal } from "../error";
 import {
-  CreateMassiveJobPayload,
-  MassiveJobResponse,
+  CreateMassiveJobResponse,
   MassiveJobStatusEnum,
   MassiveJobsRepository,
   massiveJobIDSchema,
 } from "../massive-jobs";
 
-export class CreateMassiveNotificationJobUseCase {
+export class MakeCreateMassiveNotificationJobUseCase {
   constructor(private repository: MassiveJobsRepository) {}
 
   async execute(
-    massiveJob: CreateMassiveJobPayload,
-  ): Promise<ErrorInternal | MassiveJobResponse> {
+    body: string,
+    executionTimeInHours: number,
+    title: string,
+  ): Promise<CreateMassiveJobResponse | ErrorInternal> {
     const job = {
-      ...massiveJob,
+      body,
+      executionTimeInHours,
       id: massiveJobIDSchema.parse(ulid()),
       status: MassiveJobStatusEnum.enum.CREATED,
+      title,
     };
 
     const result = await this.repository.createMassiveJob(job);

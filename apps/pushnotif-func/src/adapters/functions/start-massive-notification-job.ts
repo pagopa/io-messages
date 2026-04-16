@@ -1,5 +1,5 @@
-import { StartMassiveNotificationJobUseCase } from "@/domain/use-cases/start-massive-notification-job";
 import { HttpHandler } from "@azure/functions";
+import z from "zod";
 
 import {
   ErrorInternal,
@@ -10,16 +10,29 @@ import {
   createHttpResponse,
   parseHttpRequestBody,
 } from "../../domain/http-request";
-import {
-  StartMassiveJobPayloadSchema,
-  massiveJobIDSchema,
-} from "../../domain/massive-jobs";
+import { massiveJobIDSchema } from "../../domain/massive-jobs";
+import { MakeStartMassiveNotificationJobUseCase } from "../../domain/use-cases/start-massive-notification-job";
+
+const StartMassiveJobPayloadSchema = z.object({
+  startTimeTimestamp: z.coerce
+    .number()
+    .int()
+    .positive()
+    .transform((value) =>
+      // If the value is in milliseconds, convert it to seconds
+      value >= 1_000_000_000_000 ? Math.floor(value / 1000) : value,
+    )
+    .refine((value) => value >= Math.floor(Date.now() / 1000) + 60 * 30, {
+      message: "startTimeTimestamp must be at least 30 minutes in the future",
+    })
+    .default(() => Math.floor((Date.now() + 60 * 60 * 1000) / 1000)), // default to 1 hour from now
+});
 
 export const startMassiveNotificationJobHandler =
   (
-    startMassiveNotificationJobUseCase: StartMassiveNotificationJobUseCase,
+    startMassiveNotificationJobUseCase: MakeStartMassiveNotificationJobUseCase,
   ): HttpHandler =>
-  async (request, context) => {
+  async (request) => {
     const parsedIdParameter = massiveJobIDSchema.safeParse(
       request.params["id"],
     );
@@ -44,16 +57,14 @@ export const startMassiveNotificationJobHandler =
     }
 
     const result = await startMassiveNotificationJobUseCase.execute(
-      context,
       parsedIdParameter.data,
       parsedBody.startTimeTimestamp,
     );
 
-    if (result instanceof ErrorInternal) {
-      return createHttpResponse(500, { error: result.message });
-    }
-    if (result instanceof ErrorNotFound) {
-      return createHttpResponse(404, { error: result.message });
+    if (result instanceof ErrorInternal || result instanceof ErrorNotFound) {
+      return createHttpResponse(Number.parseInt(result.code, 10), {
+        error: result.message,
+      });
     }
 
     return createHttpResponse(200, { id: result.id, status: result.status });

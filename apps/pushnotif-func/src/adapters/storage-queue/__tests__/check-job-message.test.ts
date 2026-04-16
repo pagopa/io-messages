@@ -46,8 +46,8 @@ describe("CheckJobMessageQueueAdapter", () => {
 
     expect(result).toBeInstanceOf(ErrorInternal);
     expect(result).toMatchObject({
-      cause: queueError,
       message: "Failed to send message to check job queue",
     });
+    expect((result as ErrorInternal).cause).toBe(JSON.stringify(queueError));
   });
 });

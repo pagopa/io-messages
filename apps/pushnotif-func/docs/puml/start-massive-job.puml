@@ -103,11 +103,11 @@ httpfunc -> mnj : Update job status
 activate mnj
 
 /'
-'  totalTags: Numero totale dei tag. (fisso a livello di function)
-'  groupSize: Numero di tag (batch) per ogni invio singolo. (fisso a livello di function)
-'  executionTime: Delta tra l'invio della prima e dell'ultima notfica in secondi. (ottenuto dal job)
+'  totalTags: Total number of tags. (fixed at function level)
+'  groupSize: Number of tags per batch. (fixed at function level)
+'  executionTime: Delta between the first and the last notification sent, in seconds.
 '
-'  delay: Delta tra l'invio di una batch e la successiva.
+'  delay: Delta between the first and the last notification sent.
 '
 '  delay = executionTime / (totalTags / groupSize)
 ' '/

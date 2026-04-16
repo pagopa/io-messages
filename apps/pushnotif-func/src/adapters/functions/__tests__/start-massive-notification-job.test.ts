@@ -3,7 +3,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { ErrorInternal, ErrorNotFound } from "../../../domain/error";
 import { massiveJobIDSchema } from "../../../domain/massive-jobs";
-import { StartMassiveNotificationJobUseCase } from "../../../domain/use-cases/start-massive-notification-job";
+import { MakeStartMassiveNotificationJobUseCase } from "../../../domain/use-cases/start-massive-notification-job";
 import { startMassiveNotificationJobHandler } from "../start-massive-notification-job";
 
 const context = new InvocationContext();
@@ -16,12 +16,12 @@ const makeRequest = (
 const parseResponseBody = async <T>(response: Response): Promise<T> =>
   JSON.parse(await response.text()) as T;
 
-const useCaseMock: Pick<StartMassiveNotificationJobUseCase, "execute"> = {
+const useCaseMock: Pick<MakeStartMassiveNotificationJobUseCase, "execute"> = {
   execute: vi.fn(),
 };
 
 const handler = startMassiveNotificationJobHandler(
-  useCaseMock as StartMassiveNotificationJobUseCase,
+  useCaseMock as MakeStartMassiveNotificationJobUseCase,
 );
 
 const validJobId = massiveJobIDSchema.parse("01ARZ3NDEKTSV4RRFFQ69G5FAV");
@@ -131,7 +131,6 @@ describe("startMassiveNotificationJobHandler", () => {
     expect(response.status).toBe(500);
     expect(responseBody).toEqual({ error: "Something went wrong" });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
-      context,
       validJobId,
       futureTimestamp,
     );
@@ -156,7 +155,6 @@ describe("startMassiveNotificationJobHandler", () => {
     expect(response.status).toBe(200);
     expect(responseBody).toEqual({ id: newJobId, status: "PROCESSING" });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
-      context,
       validJobId,
       futureTimestamp,
     );
@@ -205,12 +203,11 @@ describe("startMassiveNotificationJobHandler - timestamp handling", () => {
     expect(response.status).toBe(200);
     expect(responseBody).toEqual({ id: newJobId, status: "PROCESSING" });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
-      context,
       validJobId,
       expect.any(Number),
     );
     // Verify the timestamp is roughly 1 hour from now
-    const callTimestamp = vi.mocked(useCaseMock.execute).mock.calls[0][2];
+    const callTimestamp = vi.mocked(useCaseMock.execute).mock.calls[0][1];
     const oneHourFromNow = Math.floor((Date.now() + 60 * 60 * 1000) / 1000);
     expect(callTimestamp).toBeGreaterThanOrEqual(oneHourFromNow - 2);
     expect(callTimestamp).toBeLessThanOrEqual(oneHourFromNow + 2);
@@ -238,7 +235,6 @@ describe("startMassiveNotificationJobHandler - timestamp handling", () => {
     expect(response.status).toBe(200);
     expect(responseBody).toEqual({ id: newJobId, status: "PROCESSING" });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
-      context,
       validJobId,
       Math.floor(futureTimestampInMilliseconds / 1000),
     );

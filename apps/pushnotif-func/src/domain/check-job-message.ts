@@ -9,7 +9,7 @@ export const CheckJobMessageSchema = z.object({
 
 export type CheckJobMessage = z.infer<typeof CheckJobMessageSchema>;
 
-export interface CheckJobMessageQueue {
+export interface CheckJobMessageRepository {
   sendMessage: (
     checkJobMessage: CheckJobMessage,
   ) => Promise<ErrorInternal | string>;

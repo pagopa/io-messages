@@ -67,37 +67,20 @@ export interface MassiveProgressRepository {
   ) => Promise<ErrorInternal | ErrorNotFound | ErrorTooManyRequests | string>;
 }
 
-export const StartMassiveJobPayloadSchema = z.object({
-  startTimeTimestamp: z.coerce
-    .number()
-    .int()
-    .positive()
-    .transform((value) =>
-      value >= 1_000_000_000_000 ? Math.floor(value / 1000) : value,
-    )
-    .refine((value) => value >= Math.floor(Date.now() / 1000) + 60 * 30, {
-      message: "startTimeTimestamp must be at least 30 minutes in the future",
-    })
-    .default(() => Math.floor((Date.now() + 60 * 60 * 1000) / 1000)), // default to 1 hour from now
-});
-
-export type StartMassiveJobPayload = z.infer<
-  typeof StartMassiveJobPayloadSchema
->;
-
-export const CreateMassiveJobPayloadSchema = z.object({
-  body: z.string().min(1).max(1000),
-  executionTimeInHours: z.number().int().min(2).max(12).default(2),
-  title: z.string().min(1).max(500),
-});
-
-export type CreateMassiveJobPayload = z.infer<
-  typeof CreateMassiveJobPayloadSchema
->;
-
-export const MassiveJobResponseSchema = z.object({
+export const CreateMassiveJobResponseSchema = z.object({
   id: massiveJobIDSchema,
   status: MassiveJobStatusEnum,
 });
 
-export type MassiveJobResponse = z.infer<typeof MassiveJobResponseSchema>;
+export type CreateMassiveJobResponse = z.infer<
+  typeof CreateMassiveJobResponseSchema
+>;
+
+export const StartMassiveJobResponseSchema = z.object({
+  id: massiveJobIDSchema,
+  status: MassiveJobStatusEnum,
+});
+
+export type StartMassiveJobResponse = z.infer<
+  typeof StartMassiveJobResponseSchema
+>;

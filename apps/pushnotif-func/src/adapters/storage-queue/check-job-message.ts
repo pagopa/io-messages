@@ -2,11 +2,11 @@ import { QueueClient } from "@azure/storage-queue";
 
 import {
   CheckJobMessage,
-  CheckJobMessageQueue,
+  CheckJobMessageRepository,
 } from "../../domain/check-job-message";
 import { ErrorInternal } from "../../domain/error";
 
-export class CheckJobMessageQueueAdapter implements CheckJobMessageQueue {
+export class CheckJobMessageQueueAdapter implements CheckJobMessageRepository {
   constructor(private readonly queueClient: QueueClient) {}
 
   public async sendMessage({
@@ -24,7 +24,7 @@ export class CheckJobMessageQueueAdapter implements CheckJobMessageQueue {
     } catch (err) {
       return new ErrorInternal(
         "Failed to send message to check job queue",
-        err,
+        err instanceof Error ? JSON.stringify(err) : err,
       );
     }
   }
