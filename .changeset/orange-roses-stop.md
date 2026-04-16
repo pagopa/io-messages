@@ -2,4 +2,4 @@
 "services-func": patch
 ---
 
-Remove legacy no logner used "Message Forward" E-Mail template
+Remove the legacy unused "Message Forward" email template
