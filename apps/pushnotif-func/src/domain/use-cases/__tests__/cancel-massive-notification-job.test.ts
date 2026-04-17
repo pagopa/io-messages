@@ -1,7 +1,12 @@
 /* eslint-disable max-lines-per-function */
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { ErrorInternal, ErrorNotAccepted, ErrorNotFound, ErrorValidation } from "../../error";
+import {
+  ErrorInternal,
+  ErrorNotAccepted,
+  ErrorNotFound,
+  ErrorValidation,
+} from "../../error";
 import {
   MassiveJob,
   MassiveJobsRepository,
