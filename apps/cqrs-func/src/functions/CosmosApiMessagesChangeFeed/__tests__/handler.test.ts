@@ -1,14 +1,10 @@
 import * as t from "io-ts";
 
 import * as E from "fp-ts/lib/Either";
-import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
-import {
-  MessageModel,
-  RetrievedMessage,
-} from "@pagopa/io-functions-commons/dist/src/models/message";
+import { RetrievedMessage } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { pipe } from "fp-ts/lib/function";
 import {
   aMessageContent,
@@ -43,13 +39,10 @@ const mockQueueClient = {
   sendMessage: vi.fn().mockImplementation(() => Promise.resolve(void 0)),
 } as any;
 
-const getContentFromBlobMock = vi
-  .fn()
-  .mockImplementation(() => TE.of(O.some(aMessageContent)));
-
-const mockMessageModel = {
-  getContentFromBlob: getContentFromBlobMock,
-} as any as MessageModel;
+const getByMessageContentByIdMock = vi.fn().mockResolvedValue(aMessageContent);
+const mockMessageContentRepository = {
+  getByMessageContentById: getByMessageContentByIdMock,
+};
 
 const mockKafkaProducerKompact: KP.KafkaProducerCompact<
   RetrievedMessage
@@ -69,15 +62,11 @@ const defaultStartTime = 0;
 describe("CosmosApiMessagesChangeFeed", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getContentFromBlobMock.mockImplementation(() =>
-      TE.right(O.some(aMessageContent)),
-    );
   });
 
   test("should send all retrieved messages", async () => {
     const handler = handleMessageChange(
-      mockMessageModel,
-      {} as any,
+      mockMessageContentRepository,
       defaultStartTime,
     );
 
@@ -89,7 +78,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       aListOfRightMessages,
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(
       aListOfRightMessages.length,
     );
 
@@ -103,8 +92,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
 
   test("should not call sendMessages on Kafka producer if all messages are pending", async () => {
     const handler = handleMessageChange(
-      mockMessageModel,
-      {} as any,
+      mockMessageContentRepository,
       defaultStartTime,
     );
 
@@ -119,7 +107,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       })),
     );
 
-    expect(getContentFromBlobMock).not.toHaveBeenCalled();
+    expect(getByMessageContentByIdMock).not.toHaveBeenCalled();
 
     expect(mockQueueClient.sendMessage).not.toHaveBeenCalled();
     expect(res).toMatchObject(
@@ -131,8 +119,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
 
   test("should send only non pending messages", async () => {
     const handler = handleMessageChange(
-      mockMessageModel,
-      {} as any,
+      mockMessageContentRepository,
       defaultStartTime,
     );
 
@@ -147,7 +134,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       ],
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(
       aListOfRightMessages.length,
     );
 
@@ -161,8 +148,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
 
   test("should send only non pending messages that are created after startTimeFilter", async () => {
     const handler = handleMessageChange(
-      mockMessageModel,
-      {} as any,
+      mockMessageContentRepository,
       aRetrievedMessageWithoutContent.createdAt.getTime(),
     );
 
@@ -183,7 +169,7 @@ describe("CosmosApiMessagesChangeFeed", () => {
       ],
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(
       aListOfRightMessages.length,
     );
 
@@ -202,17 +188,16 @@ describe("CosmosApiMessagesChangeFeed - Errors", () => {
   });
 
   test.each`
-    getContentResult
-    ${TE.left(Error("An error occurred"))}
-    ${TE.of(O.none)}
+    repoError
+    ${new Error("An error occurred")}
+    ${new Error("BlobNotFound")}
   `(
     "should store error if a content cannot be retrieved",
-    async ({ getContentResult }) => {
-      getContentFromBlobMock.mockImplementationOnce(() => getContentResult);
+    async ({ repoError }) => {
+      getByMessageContentByIdMock.mockRejectedValueOnce(repoError);
 
       const handler = handleMessageChange(
-        mockMessageModel,
-        {} as any,
+        mockMessageContentRepository,
         defaultStartTime,
       );
 
@@ -224,7 +209,7 @@ describe("CosmosApiMessagesChangeFeed - Errors", () => {
         aListOfRightMessages,
       );
 
-      expect(getContentFromBlobMock).toHaveBeenCalledTimes(
+      expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(
         aListOfRightMessages.length,
       );
 
@@ -239,12 +224,8 @@ describe("CosmosApiMessagesChangeFeed - Errors", () => {
   );
 
   test("should send only decoded retrieved messages", async () => {
-    getContentFromBlobMock.mockImplementation(() =>
-      TE.right(O.some(aMessageContent)),
-    );
     const handler = handleMessageChange(
-      mockMessageModel,
-      {} as any,
+      mockMessageContentRepository,
       defaultStartTime,
     );
 
@@ -256,7 +237,7 @@ describe("CosmosApiMessagesChangeFeed - Errors", () => {
       [...aListOfRightMessages, { error: "error" }],
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(
       aListOfRightMessages.length,
     );
 

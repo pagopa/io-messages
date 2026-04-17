@@ -6,6 +6,7 @@ packages:
   - packages/*
 
 catalog:
+  "@azure/core-rest-pipeline": ^1.23.0
   "@azure/cosmos": ^4.9.0
   "@azure/data-tables": ^13.3.2
   "@azure/event-hubs": ^5.12.2
@@ -68,6 +69,7 @@ catalog:
   "remove-markdown": ^0.5.5
   "semver": ^7.7.3
   "ts-pattern": ^4.3.0
+  "tsc-alias": ^1.8.10
   "typescript": ^5.8.3
   "ulid": ^3.0.1
   "vite": ^6.4.1
