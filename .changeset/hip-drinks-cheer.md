@@ -1,4 +1,5 @@
 ---
+"io-messages-common-legacy": patch
 "cqrs-func": patch
 ---
 
