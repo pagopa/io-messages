@@ -70,23 +70,21 @@ export interface MassiveProgressRepository {
   ) => Promise<ErrorInternal | ErrorNotFound | ErrorTooManyRequests | string>;
 }
 
-export const CreateMassiveJobResponseSchema = z.object({
+export const CreateMassiveJobResultSchema = z.object({
   id: massiveJobIDSchema,
   status: MassiveJobStatusEnum,
 });
 
-export type CreateMassiveJobResponse = z.infer<
-  typeof CreateMassiveJobResponseSchema
+export type CreateMassiveJobResult = z.infer<
+  typeof CreateMassiveJobResultSchema
 >;
 
-export const StartMassiveJobResponseSchema = z.object({
+export const StartMassiveJobResultSchema = z.object({
   id: massiveJobIDSchema,
   status: MassiveJobStatusEnum,
 });
 
-export type StartMassiveJobResponse = z.infer<
-  typeof StartMassiveJobResponseSchema
->;
+export type StartMassiveJobResult = z.infer<typeof StartMassiveJobResultSchema>;
 
 export const CancelMassiveJobResultSchema = z.object({
   jobId: massiveJobIDSchema,

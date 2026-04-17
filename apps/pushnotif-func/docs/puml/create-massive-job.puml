@@ -33,7 +33,7 @@ alt Invalid request
   cj -[#red]x admin : 400
 end
 
-cj -> cj : Generate jobId
+cj -> cj : Generate job id
 
 note right of cj
   **Job Document**

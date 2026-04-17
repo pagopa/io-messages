@@ -61,7 +61,11 @@ export const startMassiveNotificationJobHandler =
       parsedBody.startTimeTimestamp,
     );
 
-    if (result instanceof ErrorInternal || result instanceof ErrorNotFound) {
+    if (
+      result instanceof ErrorInternal ||
+      result instanceof ErrorNotFound ||
+      result instanceof ErrorValidation
+    ) {
       return createHttpResponse(Number.parseInt(result.code, 10), {
         error: result.message,
       });

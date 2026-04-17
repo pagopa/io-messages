@@ -2,7 +2,7 @@ import { ulid } from "ulid";
 
 import { ErrorInternal } from "../error";
 import {
-  CreateMassiveJobResponse,
+  CreateMassiveJobResult,
   MassiveJobStatusEnum,
   MassiveJobsRepository,
   massiveJobIDSchema,
@@ -15,7 +15,7 @@ export class MakeCreateMassiveNotificationJobUseCase {
     body: string,
     executionTimeInHours: number,
     title: string,
-  ): Promise<CreateMassiveJobResponse | ErrorInternal> {
+  ): Promise<CreateMassiveJobResult | ErrorInternal> {
     const job = {
       body,
       executionTimeInHours,

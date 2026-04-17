@@ -1,16 +1,22 @@
 import { CheckJobMessageRepository } from "../check-job-message";
-import { ErrorInternal, ErrorNotFound } from "../error";
+import { ErrorInternal, ErrorNotFound, ErrorValidation } from "../error";
 import {
   MassiveJob,
   MassiveJobID,
   MassiveJobStatusEnum,
   MassiveJobsRepository,
-  StartMassiveJobResponse,
+  StartMassiveJobResult,
 } from "../massive-jobs";
 import { SendNotificationMessageRepository } from "../send-notification";
 import { TelemetryService } from "../telemetry";
 
 export class MakeStartMassiveNotificationJobUseCase {
+  /**
+   * This function generates all possible combinations of hexadecimal tags of a given length.
+   * If n is 3, it will generate tags from "000" to "fff" (4096 tags).
+   * This way we cover all possible tags for the installations, ensuring that the notifications are sent to all of them.
+   * The number of generated tags is 16^n.
+   */
   private generateAllTags = (n: number): string[] => {
     const total = 16 ** n;
     const tags = new Array<string>(total);
@@ -31,7 +37,8 @@ export class MakeStartMassiveNotificationJobUseCase {
     massiveJob: MassiveJob,
     startTimeTimestamp: number,
   ): Promise<ErrorInternal | string> {
-    // we set the visibility timeout to the expected execution time of the job plus 5 minutes
+    // we set the visibility timeout to the expected execution time of the job
+    // plus 5 minutes
     const visibilityTimeoutInSeconds = Math.floor(
       startTimeTimestamp +
         5 * 60 +
@@ -54,7 +61,12 @@ export class MakeStartMassiveNotificationJobUseCase {
   ): Promise<void> {
     const batchSize = 10; // we want to process 10 tags for each batch
     const allTags = this.generateAllTags(3); // generates 4096 tags from "000" to "fff"
-    // we calculate the delay between batches to ensure that all notifications are sent within the expected execution time of the job
+    // we calculate the delay between batches to ensure that all notifications are sent
+    // within the expected execution time of the job
+    // for example, if the job is expected to run for 2 hours and we have 4096 tags
+    // with a batch size of 10, we will have 410 batches to process
+    // therefore, we need to send a batch approximately every 17.5 seconds to ensure
+    // that all notifications are sent within the 2 hours
     const delayBetweenBatchesInSeconds =
       (massiveJob.executionTimeInHours * 3600) / (allTags.length / batchSize);
 
@@ -98,25 +110,27 @@ export class MakeStartMassiveNotificationJobUseCase {
   async execute(
     massiveJobId: MassiveJobID,
     startTimeTimestamp: number,
-  ): Promise<ErrorInternal | ErrorNotFound | StartMassiveJobResponse> {
-    const massiveJob =
+  ): Promise<
+    ErrorInternal | ErrorNotFound | ErrorValidation | StartMassiveJobResult
+  > {
+    const getMassiveJobResult =
       await this.massiveJobsRepository.getMassiveJob(massiveJobId);
 
     if (
-      massiveJob instanceof ErrorInternal ||
-      massiveJob instanceof ErrorNotFound
+      getMassiveJobResult instanceof ErrorInternal ||
+      getMassiveJobResult instanceof ErrorNotFound
     ) {
-      return massiveJob;
+      return getMassiveJobResult;
     }
 
-    if (massiveJob.status !== "CREATED") {
-      return new ErrorInternal(
-        `Cannot start massive job with id ${massiveJobId} because it is not in CREATED status`,
+    if (getMassiveJobResult.status !== "CREATED") {
+      return new ErrorValidation(
+        `Cannot start massive job with id ${massiveJobId} because it is in ${getMassiveJobResult.status} status`,
       );
     }
 
     const checkJobMessageResult = await this.sendCheckJobMessage(
-      massiveJob,
+      getMassiveJobResult,
       startTimeTimestamp,
     );
 
@@ -125,7 +139,7 @@ export class MakeStartMassiveNotificationJobUseCase {
     }
 
     const updatedJob = {
-      ...massiveJob,
+      ...getMassiveJobResult,
       startTimeTimestamp,
       status: MassiveJobStatusEnum.enum.PROCESSING,
     };
@@ -140,10 +154,10 @@ export class MakeStartMassiveNotificationJobUseCase {
       return updateResult;
     }
 
-    await this.sendNotificationMessages(massiveJob);
+    await this.sendNotificationMessages(getMassiveJobResult);
 
     return {
-      id: massiveJob.id,
+      id: getMassiveJobResult.id,
       status: MassiveJobStatusEnum.enum.PROCESSING,
     };
   }

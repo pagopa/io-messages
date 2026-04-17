@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { CheckJobMessageRepository } from "../../check-job-message";
-import { ErrorInternal, ErrorNotFound } from "../../error";
+import { ErrorInternal, ErrorNotFound, ErrorValidation } from "../../error";
 import {
   MassiveJob,
   MassiveJobStatusEnum,
@@ -85,9 +85,9 @@ describe("StartMassiveNotificationJobUseCase", () => {
 
     const result = await useCase.execute(jobId, requestedStartTimeTimestamp);
 
-    expect(result).toBeInstanceOf(ErrorInternal);
+    expect(result).toBeInstanceOf(ErrorValidation);
     expect(result).toMatchObject({
-      message: `Cannot start massive job with id ${jobId} because it is not in CREATED status`,
+      message: `Cannot start massive job with id ${jobId} because it is in PROCESSING status`,
     });
     expect(checkJobMessageQueueMock.sendMessage).not.toHaveBeenCalled();
     expect(repositoryMock.updateMassiveJob).not.toHaveBeenCalled();
