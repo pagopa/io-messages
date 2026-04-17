@@ -41,3 +41,13 @@ export class ErrorInternal extends Error {
     this.cause = cause;
   }
 }
+
+export class ErrorNotAccepted extends Error {
+  cause: unknown;
+  code = "406";
+
+  constructor(name: string, cause?: unknown) {
+    super(name);
+    this.cause = cause;
+  }
+}

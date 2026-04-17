@@ -62,7 +62,6 @@ const defaultStartTime = 0;
 describe("CosmosApiMessagesChangeFeed", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getByMessageContentByIdMock.mockResolvedValue(aMessageContent);
   });
 
   test("should send all retrieved messages", async () => {
@@ -186,7 +185,6 @@ describe("CosmosApiMessagesChangeFeed", () => {
 describe("CosmosApiMessagesChangeFeed - Errors", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getByMessageContentByIdMock.mockResolvedValue(aMessageContent);
   });
 
   test.each`

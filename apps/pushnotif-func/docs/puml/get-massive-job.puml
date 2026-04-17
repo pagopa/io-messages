@@ -56,8 +56,8 @@ deactivate mj
 
 alt Status is CREATED
   note right of admin
-    If the status is `CREATED` or `COMPLETED`
-    there is no need to check for the progress.
+    If the status is `CREATED` there is
+    no need to check for the progress.
 
     Simply return the document.
   end note
@@ -65,8 +65,8 @@ alt Status is CREATED
 end
 
 note right of gmj
-  If the status is `PROCESSING`, `STOPPED` or
-  "FAILED" we need to check the progress of the job.
+  If the status is `PROCESSING`, `CANCELED`, `FAILED`
+  or `COMPLETED` we need to check the progress of the job.
 end note
 
 gmj -> mjp : Get all the progress using the jobId

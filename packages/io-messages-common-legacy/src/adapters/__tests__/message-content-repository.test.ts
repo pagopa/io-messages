@@ -32,12 +32,11 @@ const mockBlobServiceClient = {
 const CONTAINER_NAME = "message-content";
 const MESSAGE_ID = "A_MESSAGE_ID";
 
-describe("MessageContentRepo.getByMessageContentById", () => {
-  let repo: MessageContentRepo;
+const repo = new MessageContentRepo(mockBlobServiceClient, CONTAINER_NAME);
 
+describe("MessageContentRepo.getByMessageContentById", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    repo = new MessageContentRepo(mockBlobServiceClient, CONTAINER_NAME);
   });
 
   test("should return parsed MessageContent for a valid blob", async () => {
@@ -151,6 +150,14 @@ describe("MessageContentRepo.getByMessageContentById", () => {
 
     await expect(repo.getByMessageContentById(MESSAGE_ID)).rejects.toThrow(
       "Cannot deserialize stored message content",
+    );
+  });
+
+  test("should throw if readableStreamBody is undefined", async () => {
+    downloadMock.mockResolvedValueOnce({ readableStreamBody: undefined });
+
+    await expect(repo.getByMessageContentById(MESSAGE_ID)).rejects.toThrow(
+      "Unexpected: readableStreamBody is undefined",
     );
   });
 });

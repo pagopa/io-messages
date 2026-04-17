@@ -15,7 +15,7 @@
     }
   },
   "dependencies": {
-    "@azure/core-rest-pipeline": "^1.23.0",
+    "@azure/core-rest-pipeline": "catalog:",
     "@azure/storage-blob": "catalog:",
     "@pagopa/io-functions-commons": "catalog:",
     "@pagopa/ts-commons": "catalog:",
@@ -26,8 +26,8 @@
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
-    "prettier": "^3.2.5",
-    "tsc-alias": "^1.8.10",
+    "prettier": "catalog:",
+    "tsc-alias": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
