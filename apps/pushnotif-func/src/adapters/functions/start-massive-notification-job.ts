@@ -3,6 +3,7 @@ import z from "zod";
 
 import {
   ErrorInternal,
+  ErrorNotAccepted,
   ErrorNotFound,
   ErrorValidation,
 } from "../../domain/error";
@@ -50,7 +51,7 @@ export const startMassiveNotificationJobHandler =
     );
 
     if (parsedBody instanceof ErrorValidation) {
-      return createHttpResponse(400, {
+      return createHttpResponse(Number.parseInt(parsedBody.code, 10), {
         error: parsedBody.message,
         issues: parsedBody.issues,
       });
@@ -64,7 +65,7 @@ export const startMassiveNotificationJobHandler =
     if (
       result instanceof ErrorInternal ||
       result instanceof ErrorNotFound ||
-      result instanceof ErrorValidation
+      result instanceof ErrorNotAccepted
     ) {
       return createHttpResponse(Number.parseInt(result.code, 10), {
         error: result.message,

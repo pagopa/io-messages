@@ -17,8 +17,8 @@ end box
 
 box "iopitncomst01 Blob Storage account" #LightBlue
   box "Queues"
-    database "send-notification" as smq
-    database "check-job-message" as cjmq
+    queue "process-massive-job" as smq
+    queue "check-massive-job" as cjmq
   end box
 end box
 
@@ -74,10 +74,10 @@ deactivate mnj
 
 httpfunc -> httpfunc : Check if status is valid
 alt Status != CREATED
-  httpfunc -[#red]x admin : 400
+  httpfunc -[#red]x admin : 406
 end
 
-httpfunc -> httpfunc : Calculate check's visibilityTimeout as\nstartTime + executionTime + 5 * 60 - Date.now()
+httpfunc -> httpfunc : Calculate check's visibilityTimeout as\nexecutionTime + 5 minutes of tolerance
 note right of httpfunc
   **CheckNotificationStatusMessage**
   {
@@ -88,7 +88,7 @@ end note
 httpfunc -> cjmq : Push message with visibilityTimeout
 alt Transient from the queue
   cjmq -[#red]> httpfunc : Transient
-  httpfunc --> ai : Track an event with the message payload.
+  httpfunc -[#red]x admin : 500
 end
 
 note right of httpfunc
@@ -121,19 +121,20 @@ mnj -[#green]> httpfunc : Success
 deactivate mnj
 
 note right of httpfunc
-  delay = executionTime / (totalTags / groupSize)
+  delay = executionTime / (totalTags / batchSize)
 end note
 httpfunc -> httpfunc : Calculate delay
-loop tags / groups of tags
+loop tags / batches of tags
   note right of httpfunc
     scheduledTimestamp = startTime + (delay * iteration)
   end note
   httpfunc -> httpfunc : Calculate schedule timestamp\nbased on iteration and delay
   note right of httpfunc
-    **Message**
+    **ProcessMassiveNotificationMessage**
     {
       "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
-      "jobType": "send",
+      "title": "Push notification title",
+      "body": "Push notification body",
       "scheduledTimestamp": 123456789,
       "tags": ["aaa", "aab", "aac"]
     }
@@ -152,6 +153,8 @@ loop tags / groups of tags
   end
 
   smq -[#green]> httpfunc : Success
+
+  deactivate smq
 end
 
 note right of admin

@@ -2,17 +2,17 @@ import { QueueClient } from "@azure/storage-queue";
 
 import { ErrorInternal } from "../../domain/error";
 import {
-  SendNotificationMessage,
-  SendNotificationMessageRepository,
+  ProcessMassiveJobMessage,
+  ProcessMassiveJobRepository,
 } from "../../domain/send-notification";
 
-export class SendNotificationMessageQueueAdapter
-  implements SendNotificationMessageRepository
+export class ProcessMassiveJobQueueAdapter
+  implements ProcessMassiveJobRepository
 {
   constructor(private readonly queueClient: QueueClient) {}
 
   public async sendMessage(
-    message: SendNotificationMessage,
+    message: ProcessMassiveJobMessage,
   ): Promise<ErrorInternal | string> {
     try {
       const result = await this.queueClient.sendMessage(

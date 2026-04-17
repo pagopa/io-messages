@@ -1,5 +1,5 @@
-import { CheckJobMessageRepository } from "../check-job-message";
-import { ErrorInternal, ErrorNotFound, ErrorValidation } from "../error";
+import { CheckMassiveJobRepository } from "../check-job-message";
+import { ErrorInternal, ErrorNotAccepted, ErrorNotFound } from "../error";
 import {
   MassiveJob,
   MassiveJobID,
@@ -7,7 +7,7 @@ import {
   MassiveJobsRepository,
   StartMassiveJobResult,
 } from "../massive-jobs";
-import { SendNotificationMessageRepository } from "../send-notification";
+import { ProcessMassiveJobRepository } from "../send-notification";
 import { TelemetryService } from "../telemetry";
 
 export class MakeStartMassiveNotificationJobUseCase {
@@ -28,8 +28,8 @@ export class MakeStartMassiveNotificationJobUseCase {
 
   constructor(
     private massiveJobsRepository: MassiveJobsRepository,
-    private sendNotificationMessageRepository: SendNotificationMessageRepository,
-    private checkJobMessageRepository: CheckJobMessageRepository,
+    private processMassiveJobRepository: ProcessMassiveJobRepository,
+    private checkMassiveJobRepository: CheckMassiveJobRepository,
     private telemetryClient: TelemetryService,
   ) {}
 
@@ -39,7 +39,7 @@ export class MakeStartMassiveNotificationJobUseCase {
   ): Promise<ErrorInternal | string> {
     // we set the visibility timeout to the expected execution time of the job
     // plus 5 minutes
-    const visibilityTimeoutInSeconds = Math.floor(
+    const timeToCheckInSeconds = Math.floor(
       startTimeTimestamp +
         5 * 60 +
         massiveJob.executionTimeInHours * 3600 -
@@ -48,10 +48,10 @@ export class MakeStartMassiveNotificationJobUseCase {
 
     const checkNotificationStatusMessage = {
       jobId: massiveJob.id,
-      visibilityTimeoutInSeconds: visibilityTimeoutInSeconds,
+      timeToCheckInSeconds,
     };
 
-    return this.checkJobMessageRepository.sendMessage(
+    return this.checkMassiveJobRepository.sendMessage(
       checkNotificationStatusMessage,
     );
   }
@@ -89,7 +89,7 @@ export class MakeStartMassiveNotificationJobUseCase {
       };
 
       const sendMessageResult =
-        await this.sendNotificationMessageRepository.sendMessage(
+        await this.processMassiveJobRepository.sendMessage(
           sendNotificationMessage,
         );
 
@@ -111,7 +111,7 @@ export class MakeStartMassiveNotificationJobUseCase {
     massiveJobId: MassiveJobID,
     startTimeTimestamp: number,
   ): Promise<
-    ErrorInternal | ErrorNotFound | ErrorValidation | StartMassiveJobResult
+    ErrorInternal | ErrorNotAccepted | ErrorNotFound | StartMassiveJobResult
   > {
     const getMassiveJobResult =
       await this.massiveJobsRepository.getMassiveJob(massiveJobId);
@@ -124,7 +124,7 @@ export class MakeStartMassiveNotificationJobUseCase {
     }
 
     if (getMassiveJobResult.status !== "CREATED") {
-      return new ErrorValidation(
+      return new ErrorNotAccepted(
         `Cannot start massive job with id ${massiveJobId} because it is in ${getMassiveJobResult.status} status`,
       );
     }

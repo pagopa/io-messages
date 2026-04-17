@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { ErrorInternal } from "./error";
 
-export const SendNotificationMessageSchema = z.object({
+export const ProcessMassiveJobMessageSchema = z.object({
   body: z.string().min(1).max(1000),
   jobId: z.ulid(),
   scheduledTimestamp: z.number().int().positive(),
@@ -10,12 +10,12 @@ export const SendNotificationMessageSchema = z.object({
   title: z.string().min(1).max(500),
 });
 
-export type SendNotificationMessage = z.infer<
-  typeof SendNotificationMessageSchema
+export type ProcessMassiveJobMessage = z.infer<
+  typeof ProcessMassiveJobMessageSchema
 >;
 
-export interface SendNotificationMessageRepository {
+export interface ProcessMassiveJobRepository {
   sendMessage: (
-    sendNotificationMessage: SendNotificationMessage,
+    processMassiveJobMessage: ProcessMassiveJobMessage,
   ) => Promise<ErrorInternal | string>;
 }

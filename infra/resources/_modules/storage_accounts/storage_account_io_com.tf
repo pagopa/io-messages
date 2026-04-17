@@ -110,16 +110,6 @@ resource "azurerm_storage_queue" "notification_created_poison" {
   storage_account_name = module.com_st.name
 }
 
-resource "azurerm_storage_queue" "send_notification" {
-  name                 = "send-notification"
-  storage_account_name = module.com_st.name
-}
-
-resource "azurerm_storage_queue" "send_notification_poison" {
-  name                 = "send-notification-poison"
-  storage_account_name = module.com_st.name
-}
-
 resource "azurerm_storage_queue" "webhook_notification" {
   name                 = "webhook-notification"
   storage_account_name = module.com_st.name

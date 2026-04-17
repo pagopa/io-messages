@@ -51,8 +51,8 @@ import getInstallationUpdateDispatcher from "./adapters/functions/update-install
 import { notificationHubHealthcheck } from "./adapters/notification-hub/health";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
 import { NotificationHubPushNotificationAdapter } from "./adapters/notification-hub/push-notification";
-import { CheckJobMessageQueueAdapter } from "./adapters/storage-queue/check-job-message";
-import { SendNotificationMessageQueueAdapter } from "./adapters/storage-queue/send-notification-message";
+import { CheckMassiveJobQueueAdapter } from "./adapters/storage-queue/check-job-message";
+import { ProcessMassiveJobQueueAdapter } from "./adapters/storage-queue/send-notification-message";
 import { CancelMassiveNotificationJobUseCase } from "./domain/use-cases/cancel-massive-notification-job";
 import { CheckMassiveJobStatusUseCase } from "./domain/use-cases/check-massive-job";
 import { MakeCreateMassiveNotificationJobUseCase } from "./domain/use-cases/create-massive-notification-job";
@@ -150,13 +150,13 @@ const main = (config: Config) => {
     config.comStorageConnectionString,
     "push-notifications",
   );
-  const checkJobMessageQueue = new QueueClient(
+  const checkMassiveJobQueue = new QueueClient(
     config.comStorageConnectionString,
-    "check-job-message",
+    "check-massive-job",
   );
-  const sendNotificationMessageQueue = new QueueClient(
+  const processMassiveJobQueue = new QueueClient(
     config.comStorageConnectionString,
-    "send-notification",
+    "process-massive-job",
   );
 
   // TODO: This factory breaks clean architecture, remove this in future.
@@ -355,17 +355,18 @@ const main = (config: Config) => {
     massiveJobsRepository,
     massiveProgressRepository,
   );
-  const checkJobMessageQueueAdapter = new CheckJobMessageQueueAdapter(
-    checkJobMessageQueue,
+  const checkMassiveJobQueueAdapter = new CheckMassiveJobQueueAdapter(
+    checkMassiveJobQueue,
   );
-  const sendNotificationMessageQueueAdapter =
-    new SendNotificationMessageQueueAdapter(sendNotificationMessageQueue);
+  const processMassiveJobQueueAdapter = new ProcessMassiveJobQueueAdapter(
+    processMassiveJobQueue,
+  );
 
   const startMassiveNotificationJobUseCase =
     new MakeStartMassiveNotificationJobUseCase(
       massiveJobsRepository,
-      sendNotificationMessageQueueAdapter,
-      checkJobMessageQueueAdapter,
+      processMassiveJobQueueAdapter,
+      checkMassiveJobQueueAdapter,
       telemetryService,
     );
 

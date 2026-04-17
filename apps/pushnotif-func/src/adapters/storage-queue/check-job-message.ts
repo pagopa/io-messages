@@ -1,23 +1,23 @@
 import { QueueClient } from "@azure/storage-queue";
 
 import {
-  CheckJobMessage,
-  CheckJobMessageRepository,
+  CheckMassiveJobMessage,
+  CheckMassiveJobRepository,
 } from "../../domain/check-job-message";
 import { ErrorInternal } from "../../domain/error";
 
-export class CheckJobMessageQueueAdapter implements CheckJobMessageRepository {
+export class CheckMassiveJobQueueAdapter implements CheckMassiveJobRepository {
   constructor(private readonly queueClient: QueueClient) {}
 
   public async sendMessage({
     jobId,
-    visibilityTimeoutInSeconds,
-  }: CheckJobMessage): Promise<ErrorInternal | string> {
+    timeToCheckInSeconds,
+  }: CheckMassiveJobMessage): Promise<ErrorInternal | string> {
     try {
       const result = await this.queueClient.sendMessage(
         Buffer.from(JSON.stringify({ jobId: jobId })).toString("base64"),
         {
-          visibilityTimeout: visibilityTimeoutInSeconds,
+          visibilityTimeout: timeToCheckInSeconds,
         },
       );
       return result.messageId;

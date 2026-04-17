@@ -1,19 +1,19 @@
 import { QueueClient } from "@azure/storage-queue";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { CheckJobMessage } from "../../../domain/check-job-message";
+import { CheckMassiveJobMessage } from "../../../domain/check-job-message";
 import { ErrorInternal } from "../../../domain/error";
-import { CheckJobMessageQueueAdapter } from "../check-job-message";
+import { CheckMassiveJobQueueAdapter } from "../check-job-message";
 
 const queueClientMock: Pick<QueueClient, "sendMessage"> = {
   sendMessage: vi.fn(),
 };
 
-const adapter = new CheckJobMessageQueueAdapter(queueClientMock as QueueClient);
+const adapter = new CheckMassiveJobQueueAdapter(queueClientMock as QueueClient);
 
-const aCheckJobMessage: CheckJobMessage = {
+const aCheckJobMessage: CheckMassiveJobMessage = {
   jobId: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
-  visibilityTimeoutInSeconds: 900,
+  timeToCheckInSeconds: 900,
 };
 
 describe("CheckJobMessageQueueAdapter", () => {
@@ -33,7 +33,7 @@ describe("CheckJobMessageQueueAdapter", () => {
     ).toString("base64");
 
     expect(queueClientMock.sendMessage).toHaveBeenCalledWith(expectedPayload, {
-      visibilityTimeout: aCheckJobMessage.visibilityTimeoutInSeconds,
+      visibilityTimeout: aCheckJobMessage.timeToCheckInSeconds,
     });
     expect(result).toBe("message-id-123");
   });

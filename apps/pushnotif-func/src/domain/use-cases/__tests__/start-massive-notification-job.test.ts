@@ -1,14 +1,12 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { CheckJobMessageRepository } from "../../check-job-message";
-import { ErrorInternal, ErrorNotFound, ErrorValidation } from "../../error";
+import { ErrorInternal, ErrorNotAccepted, ErrorNotFound } from "../../error";
 import {
   MassiveJob,
   MassiveJobStatusEnum,
   MassiveJobsRepository,
   massiveJobIDSchema,
 } from "../../massive-jobs";
-import { SendNotificationMessageRepository } from "../../send-notification";
 import { TelemetryService } from "../../telemetry";
 import { MakeStartMassiveNotificationJobUseCase } from "../start-massive-notification-job";
 
@@ -85,7 +83,7 @@ describe("StartMassiveNotificationJobUseCase", () => {
 
     const result = await useCase.execute(jobId, requestedStartTimeTimestamp);
 
-    expect(result).toBeInstanceOf(ErrorValidation);
+    expect(result).toBeInstanceOf(ErrorNotAccepted);
     expect(result).toMatchObject({
       message: `Cannot start massive job with id ${jobId} because it is in PROCESSING status`,
     });
@@ -111,7 +109,7 @@ describe("StartMassiveNotificationJobUseCase", () => {
     expect(result).toBe(queueError);
     expect(checkJobMessageQueueMock.sendMessage).toHaveBeenCalledWith({
       jobId,
-      visibilityTimeoutInSeconds: 11100,
+      timeToCheckInSeconds: 11100,
     });
     expect(repositoryMock.updateMassiveJob).not.toHaveBeenCalled();
     expect(
@@ -165,7 +163,7 @@ describe("StartMassiveNotificationJobUseCase", () => {
     });
     expect(checkJobMessageQueueMock.sendMessage).toHaveBeenCalledWith({
       jobId,
-      visibilityTimeoutInSeconds: 11100,
+      timeToCheckInSeconds: 11100,
     });
     expect(repositoryMock.updateMassiveJob).toHaveBeenCalledWith({
       ...baseJob,

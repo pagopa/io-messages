@@ -2,15 +2,17 @@ import { z } from "zod";
 
 import { ErrorInternal } from "./error";
 
-export const CheckJobMessageSchema = z.object({
+export const CheckMassiveJobMessageSchema = z.object({
   jobId: z.ulid(),
-  visibilityTimeoutInSeconds: z.number().int().positive(),
+  timeToCheckInSeconds: z.number().int().positive(),
 });
 
-export type CheckJobMessage = z.infer<typeof CheckJobMessageSchema>;
+export type CheckMassiveJobMessage = z.infer<
+  typeof CheckMassiveJobMessageSchema
+>;
 
-export interface CheckJobMessageRepository {
+export interface CheckMassiveJobRepository {
   sendMessage: (
-    checkJobMessage: CheckJobMessage,
+    checkMassiveJobMessage: CheckMassiveJobMessage,
   ) => Promise<ErrorInternal | string>;
 }
