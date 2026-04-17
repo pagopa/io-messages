@@ -139,3 +139,13 @@ resource "azurerm_storage_queue" "check_massive_job_poison" {
   name                 = "check-massive-job-poison"
   storage_account_name = module.com_st.name
 }
+
+resource "azurerm_storage_queue" "process_massive_job" {
+  name                 = "process-massive-job"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "process_massive_job_poison" {
+  name                 = "process-massive-job-poison"
+  storage_account_name = module.com_st.name
+}
