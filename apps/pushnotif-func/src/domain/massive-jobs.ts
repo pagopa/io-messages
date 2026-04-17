@@ -2,6 +2,28 @@ import z from "zod";
 
 import { ErrorInternal, ErrorNotFound, ErrorTooManyRequests } from "./error";
 
+export const massiveNotificationTitleSchema = z.string().min(1).max(500);
+export type MassiveNotificationTitle = z.infer<
+  typeof massiveNotificationTitleSchema
+>;
+
+export const massiveNotificationMessageSchema = z.string().min(1).max(1000);
+export type MassiveNotificationMessage = z.infer<
+  typeof massiveNotificationMessageSchema
+>;
+
+export const massiveNotificationTagSchema = z.string().min(1);
+export type MassiveNotificationTag = z.infer<
+  typeof massiveNotificationTagSchema
+>;
+
+export const massiveNotificationTagsSchema = z
+  .array(massiveNotificationTagSchema)
+  .min(1); // Non empty array.
+export type MassiveNotificationTags = z.infer<
+  typeof massiveNotificationTagsSchema
+>;
+
 export const massiveJobIDSchema = z.ulid().brand("MassiveJobID");
 export type MassiveJobID = z.infer<typeof massiveJobIDSchema>;
 
@@ -18,7 +40,7 @@ export const massiveProgressSchema = z.object({
   jobId: massiveJobIDSchema,
   scheduledTimestamp: z.number().int().positive(),
   status: MassiveProgressStatusEnum,
-  tags: z.array(z.string().min(1)).min(1), // Non empty array.
+  tags: massiveNotificationTagsSchema,
 });
 export type MassiveProgress = z.infer<typeof massiveProgressSchema>;
 
@@ -31,13 +53,13 @@ export const MassiveJobStatusEnum = z.enum([
 export type MassiveJobStatus = z.infer<typeof MassiveJobStatusEnum>;
 
 export const MassiveJobSchema = z.object({
-  body: z.string().min(1).max(1000),
+  body: massiveNotificationMessageSchema,
   executionTimeInHours: z.number().int().min(2).max(12),
   id: massiveJobIDSchema,
   progress: z.array(massiveProgressSchema).optional(),
   startTimeTimestamp: z.number().int().positive().optional(),
   status: MassiveJobStatusEnum,
-  title: z.string().min(1).max(500),
+  title: massiveNotificationTitleSchema,
 });
 
 export type MassiveJob = z.infer<typeof MassiveJobSchema>;
@@ -57,6 +79,7 @@ export interface MassiveJobsRepository {
 }
 
 export interface MassiveProgressRepository {
+  create: (progress: MassiveProgress) => Promise<ErrorInternal | string>;
   listMassiveJobPendingProgress: (
     jobID: MassiveJobID,
   ) => Promise<ErrorInternal | MassiveProgress[]>;

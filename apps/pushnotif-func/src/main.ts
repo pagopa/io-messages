@@ -45,6 +45,7 @@ import { createMassiveNotificationJobHandler } from "./adapters/functions/create
 import { getGetMassiveNotificationJobHandler } from "./adapters/functions/get-massive-notification-job";
 import { getHealthHandler } from "./adapters/functions/health";
 import { getInfoHandler } from "./adapters/functions/info";
+import { makeProcessMassiveJobHandler } from "./adapters/functions/process-massive-job";
 import { startMassiveNotificationJobHandler } from "./adapters/functions/start-massive-notification-job";
 import getUpdateInstallationHandler from "./adapters/functions/update-installation";
 import getInstallationUpdateDispatcher from "./adapters/functions/update-installation-dispatch";
@@ -59,6 +60,7 @@ import { MakeCreateMassiveNotificationJobUseCase } from "./domain/use-cases/crea
 import { GetMassiveNotificationJobUseCase } from "./domain/use-cases/get-massive-notification-job";
 import { HealthCheckUseCase } from "./domain/use-cases/health";
 import { InfoUseCase } from "./domain/use-cases/info";
+import { ProcessMassiveJobUseCase } from "./domain/use-cases/process-massive-job";
 import { MakeStartMassiveNotificationJobUseCase } from "./domain/use-cases/start-massive-notification-job";
 import {
   ActivityName as CreateOrUpdateActivityName,
@@ -389,6 +391,13 @@ const main = (config: Config) => {
     telemetryService,
   );
 
+  const processMassiveJobUseCase = new ProcessMassiveJobUseCase(
+    massiveProgressRepository,
+    pushNotificationRepository,
+  );
+
+  const processMassiveJobQueueName = "process-massive-job";
+
   app.http("CreateMassiveNotificationJob", {
     authLevel: "admin",
     handler: createMassiveNotificationJobHandler(
@@ -432,6 +441,15 @@ const main = (config: Config) => {
       checkMassiveJobStatusUseCase,
     ),
     queueName: checkMassiveJobQueueName,
+  });
+
+  app.storageQueue("ProcessMassiveJob", {
+    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    handler: makeProcessMassiveJobHandler(
+      telemetryService,
+      processMassiveJobUseCase,
+    ),
+    queueName: processMassiveJobQueueName,
   });
 };
 

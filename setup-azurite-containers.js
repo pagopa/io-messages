@@ -35,6 +35,8 @@ const queues = [
   "update-installations-dispatch-poison",
   "check-massive-job",
   "check-massive-job-poison",
+  "process-massive-job",
+  "proess-massive-job-poison",
 ];
 const tables = ["MessagesDataplanIngestionErrors"];
 

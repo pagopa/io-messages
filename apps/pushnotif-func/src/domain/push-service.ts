@@ -7,6 +7,11 @@ import {
   ErrorValidation,
 } from "./error";
 import { JsonPatch } from "./json-patch";
+import {
+  MassiveNotificationMessage,
+  MassiveNotificationTags,
+  MassiveNotificationTitle,
+} from "./massive-jobs";
 
 export const notificationDetailStatusEnum = z.enum([
   "Enqueued",
@@ -55,4 +60,11 @@ export interface PushNotificationRepository {
   ): Promise<
     ErrorInternal | ErrorNotFound | ErrorTooManyRequests | NotificationDetails
   >;
+
+  scheduleMassiveNotification(
+    title: MassiveNotificationTitle,
+    body: MassiveNotificationMessage,
+    scheduledTimestamp: number,
+    tags: MassiveNotificationTags,
+  ): Promise<{ notificationID: string; tags: string[] }[] | ErrorInternal>;
 }
