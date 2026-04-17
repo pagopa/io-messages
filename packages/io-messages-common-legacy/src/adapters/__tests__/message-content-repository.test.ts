@@ -152,4 +152,12 @@ describe("MessageContentRepo.getByMessageContentById", () => {
       "Cannot deserialize stored message content",
     );
   });
+
+  test("should throw if readableStreamBody is undefined", async () => {
+    downloadMock.mockResolvedValueOnce({ readableStreamBody: undefined });
+
+    await expect(repo.getByMessageContentById(MESSAGE_ID)).rejects.toThrow(
+      "Unexpected: readableStreamBody is undefined",
+    );
+  });
 });

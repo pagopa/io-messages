@@ -41,12 +41,12 @@ export class MessageContentRepo implements MessageContentRepository {
   private async downloadBlobContent(
     blobName: string,
   ): Promise<BlobStorageErrorException | NodeJS.ReadableStream> {
+    let response;
     try {
-      const response = await this.repository
+      response = await this.repository
         .getContainerClient(this.messageContainerName)
         .getBlobClient(blobName)
         .download();
-      return response.readableStreamBody as NodeJS.ReadableStream;
     } catch (e) {
       const code =
         isRestError(e) && e.code === BLOB_NOT_FOUND_CODE
@@ -56,6 +56,10 @@ export class MessageContentRepo implements MessageContentRepository {
         isRestError(e) && e.message !== undefined ? e.message : "Unknown error";
       return new BlobStorageErrorException(code, message);
     }
+    if (!response.readableStreamBody) {
+      throw new Error("Unexpected: readableStreamBody is undefined");
+    }
+    return response.readableStreamBody;
   }
 
   async getByMessageContentById(
