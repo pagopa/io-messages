@@ -30,8 +30,8 @@ const parseMessageContent = (raw: unknown): MessageContent => {
 };
 
 export class MessageContentRepo implements MessageContentRepository {
-  private messageContainerName: string;
-  private repository: BlobServiceClient;
+  private readonly messageContainerName: string;
+  private readonly repository: BlobServiceClient;
 
   constructor(repository: BlobServiceClient, messageContainerName: string) {
     this.repository = repository;
