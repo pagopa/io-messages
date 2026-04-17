@@ -172,7 +172,7 @@ describe("StartMassiveNotificationJobUseCase", () => {
     });
     expect(
       sendNotificationMessageRepositoryMock.sendMessage,
-    ).toHaveBeenCalledTimes(410);
+    ).toHaveBeenCalledTimes(820);
 
     const firstBatchMessage = vi.mocked(
       sendNotificationMessageRepositoryMock.sendMessage,
@@ -185,27 +185,18 @@ describe("StartMassiveNotificationJobUseCase", () => {
       expect.objectContaining({
         body: baseJob.body,
         jobId,
-        scheduledTimestamp: 1700000017,
-        tags: [
-          "000",
-          "001",
-          "002",
-          "003",
-          "004",
-          "005",
-          "006",
-          "007",
-          "008",
-          "009",
-        ],
+        scheduledTimestamp: 1700003608,
+        tags: ["000", "001", "002", "003", "004"],
         title: baseJob.title,
       }),
     );
     expect(lastBatchMessage).toEqual(
       expect.objectContaining({
+        body: "Notification body",
         jobId,
-        scheduledTimestamp: 1700007207,
-        tags: ["ffa", "ffb", "ffc", "ffd", "ffe", "fff"],
+        scheduledTimestamp: 1700010807,
+        tags: ["fff"],
+        title: "Notification title",
       }),
     );
     expect(telemetryClientMock.trackEvent).not.toHaveBeenCalled();
@@ -240,15 +231,15 @@ describe("StartMassiveNotificationJobUseCase - telemetry", () => {
     });
     expect(
       sendNotificationMessageRepositoryMock.sendMessage,
-    ).toHaveBeenCalledTimes(410);
+    ).toHaveBeenCalledTimes(820);
     expect(telemetryClientMock.trackEvent).toHaveBeenCalledTimes(1);
     expect(telemetryClientMock.trackEvent).toHaveBeenCalledWith({
       name: "massiveJobs.FailedToScheduleNotificationBatches",
       properties: {
         error: sendError.message,
         jobId,
-        scheduledTimestamp: "1700000017",
-        tags: "000,001,002,003,004,005,006,007,008,009",
+        scheduledTimestamp: "1700003608",
+        tags: "000,001,002,003,004",
       },
     });
   });
