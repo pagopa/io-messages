@@ -9,6 +9,7 @@ import {
 } from "../../domain/error";
 import {
   MassiveJobID,
+  MassiveProgress,
   MassiveProgressRepository,
   MassiveProgressStatus,
   massiveProgressSchema,
@@ -16,6 +17,15 @@ import {
 
 export class CosmosMassiveProgressAdapter implements MassiveProgressRepository {
   constructor(private container: Container) {}
+
+  async create(progress: MassiveProgress) {
+    try {
+      const result = await this.container.items.create(progress);
+      return result.item.id;
+    } catch (err) {
+      return new ErrorInternal("Failed to create massive progress", err);
+    }
+  }
 
   async listMassiveJobPendingProgress(jobID: MassiveJobID) {
     const querySpec: SqlQuerySpec = {
