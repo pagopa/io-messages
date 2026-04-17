@@ -1,4 +1,5 @@
 import { app } from "@azure/functions";
+import { BlobServiceClient } from "@azure/storage-blob";
 import {
   MESSAGE_COLLECTION_NAME,
   MessageModel,
@@ -16,7 +17,7 @@ import {
   SERVICE_COLLECTION_NAME,
   ServiceModel,
 } from "@pagopa/io-functions-commons/dist/src/models/service";
-import { createBlobService } from "azure-storage";
+import { MessageContentRepo } from "io-messages-common-legacy/adapters/message-content-repository";
 
 import { GetMessage } from "./functions/GetMessage/handler";
 import { createGetMessagesFunctionSelection } from "./functions/GetMessages/getMessagesFunctions/getMessages.selector";
@@ -64,8 +65,11 @@ const messageViewModel = new MessageViewExtendedQueryModel(
   cosmosdbInstance.container(MESSAGE_VIEW_COLLECTION_NAME),
 );
 
-const blobService = createBlobService(
-  config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+const messageContentRepository = new MessageContentRepo(
+  BlobServiceClient.fromConnectionString(
+    config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+  ),
+  config.MESSAGE_CONTAINER_NAME,
 );
 
 const rcConfigurationModel = new RCConfigurationModel(
@@ -89,7 +93,7 @@ const getMessagesFunctionSelector = createGetMessagesFunctionSelection(
   [
     messageModel,
     messageStatusExtendedModel,
-    blobService,
+    messageContentRepository,
     rcConfigurationUtility,
     categoryFetcher,
   ],
@@ -108,7 +112,7 @@ app.http("GetMessage", {
   handler: GetMessage(
     messageModel,
     messageStatusModel,
-    blobService,
+    messageContentRepository,
     serviceModel,
     redisClientFactory,
     config.SERVICE_CACHE_TTL_DURATION,
