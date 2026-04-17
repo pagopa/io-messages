@@ -17,6 +17,7 @@ const aValidInstallationId =
 
 const telemetryServiceMock: TelemetryService = {
   trackEvent: vi.fn(),
+  trackException: vi.fn(),
 };
 
 const installationRepositoryMock: InstallationRepository = {
@@ -90,9 +91,11 @@ describe("getUpdateInstallationHandler", () => {
     ).resolves.toBeUndefined();
 
     expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith(
-      "installation.update.message.validation.error",
       expect.objectContaining({
-        message: "Invalid updateInstallationMessage in the queue",
+        name: "installation.update.message.validation.error",
+        properties: expect.objectContaining({
+          message: "Invalid updateInstallationMessage in the queue",
+        }),
       }),
     );
 

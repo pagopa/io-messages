@@ -1,0 +1,70 @@
+@startuml
+
+title "Create massive notification job"
+
+actor "IO COM Admin" as admin
+
+box "pushnotif-func"
+  participant "CreateMassiveNotificationJob" as cj
+end box
+
+!pragma teoz true
+box "io-p-itn-com-cosno-01 cosmos account" #LightBlue
+  box "push-notifications cosmos database"
+    database "massive-jobs" as mnj
+  end box
+end box
+
+note right of admin
+  **Request Body**
+  {
+    "title": "Push notification title",
+    "body": "Push notification body",
+    "executionTimeInHours": 2
+  }
+end note
+admin -> cj : POST /api/v1/massive-notification-job
+activate admin
+activate cj
+
+cj -> cj : Validate request
+
+alt Invalid request
+  cj -[#red]x admin : 400
+end
+
+cj -> cj : Generate job id
+
+note right of cj
+  **Job Document**
+  {
+    "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "title": "Push notification title",
+    "body": "Push notification body",
+    "status": "CREATED",
+    "executionTimeInHours": 2
+  }
+end note
+cj -> mnj : Create the job
+activate mnj
+
+alt Error from cosmos
+  mnj -[#red]> cj : Transient error
+  cj -[#red]x admin : 500
+end
+
+mnj -[#green]> cj : 201
+deactivate mnj
+
+note right of admin
+  **Response Body**
+  {
+    "id": "01KHQZBYH4GYY4Z8P5W594JG3B"
+  }
+end note
+cj -[#green]> admin : 201
+
+deactivate cj
+deactivate admin
+
+@enduml
