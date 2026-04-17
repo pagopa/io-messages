@@ -48,12 +48,12 @@ describe("makeProcessMassiveJobHandler", () => {
 
     await handler(invalidMessage, context);
 
-    expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith(
-      "massiveJobs.invalidProcessMassiveNotificationMessage",
-      expect.objectContaining({
+    expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith({
+      name: "massiveJobs.invalidProcessMassiveNotificationMessage",
+      properties: expect.objectContaining({
         issues: expect.any(Array),
       }),
-    );
+    });
     expect(useCaseMock.execute).not.toHaveBeenCalled();
   });
   test("should process valid message and execute use case", async () => {
@@ -90,14 +90,14 @@ describe("makeProcessMassiveJobHandler", () => {
       aValidMessage.tags,
       telemetryServiceMock,
     );
-    expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith(
-      "massiveJobs.process",
-      {
+    expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith({
+      name: "massiveJobs.process",
+      properties: {
         cause: error.cause,
         message: error.message,
         name: error.name,
       },
-    );
+    });
   });
 
   test("should not throw when telemetry fails during invalid message handling", async () => {

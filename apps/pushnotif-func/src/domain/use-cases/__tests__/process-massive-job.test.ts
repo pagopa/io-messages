@@ -200,14 +200,14 @@ describe("ProcessMassiveJobUseCase", () => {
         // Should return all IDs even if creation failed (notification was scheduled)
         expect(result).toEqual([notificationID1, notificationID2]);
         expect(massiveProgressRepositoryMock.create).toHaveBeenCalledTimes(2);
-        expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith(
-          "massiveJobs.createProgress.failed",
-          {
+        expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith({
+          name: "massiveJobs.createProgress.failed",
+          properties: {
             cause: createError.cause,
             message: createError.message,
             name: createError.name,
           },
-        );
+        });
       });
 
       test("should track event for each failed progress creation", async () => {
@@ -250,24 +250,22 @@ describe("ProcessMassiveJobUseCase", () => {
 
         expect(result).toEqual([notificationID1, notificationID2]);
         expect(telemetryServiceMock.trackEvent).toHaveBeenCalledTimes(2);
-        expect(telemetryServiceMock.trackEvent).toHaveBeenNthCalledWith(
-          1,
-          "massiveJobs.createProgress.failed",
-          {
+        expect(telemetryServiceMock.trackEvent).toHaveBeenNthCalledWith(1, {
+          name: "massiveJobs.createProgress.failed",
+          properties: {
             cause: createError1.cause,
             message: createError1.message,
             name: createError1.name,
           },
-        );
-        expect(telemetryServiceMock.trackEvent).toHaveBeenNthCalledWith(
-          2,
-          "massiveJobs.createProgress.failed",
-          {
+        });
+        expect(telemetryServiceMock.trackEvent).toHaveBeenNthCalledWith(2, {
+          name: "massiveJobs.createProgress.failed",
+          properties: {
             cause: createError2.cause,
             message: createError2.message,
             name: createError2.name,
           },
-        );
+        });
       });
     });
   });
