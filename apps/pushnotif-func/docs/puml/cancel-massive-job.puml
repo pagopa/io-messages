@@ -136,6 +136,8 @@ loop notificationId
         end
         mnjp -[#green]> httpfunc : Success
         deactivate mnjp
+    else Notification not cancelable (400)
+        httpfunc -[#red]x httpfunc : Skip the iteration.
     else Notification Succesfully canceled
         note right of httpfunc
         **Response Body**

@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-import { ErrorInternal, ErrorNotFound, ErrorTooManyRequests } from "./error";
+import {
+  ErrorInternal,
+  ErrorNotFound,
+  ErrorTooManyRequests,
+  ErrorValidation,
+} from "./error";
 import { JsonPatch } from "./json-patch";
 
 export const notificationDetailStatusEnum = z.enum([
@@ -37,7 +42,13 @@ export interface PushNotificationRepository {
   cancelScheduledNotification(
     notificationId: string,
     tag: string,
-  ): Promise<ErrorInternal | ErrorNotFound | ErrorTooManyRequests | string>;
+  ): Promise<
+    | ErrorInternal
+    | ErrorNotFound
+    | ErrorTooManyRequests
+    | ErrorValidation
+    | string
+  >;
   getMassiveNotificationDetail(
     notificationId: string,
     tag: string,

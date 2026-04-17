@@ -1,7 +1,7 @@
 /* eslint-disable max-lines-per-function */
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { ErrorInternal, ErrorNotAccepted, ErrorNotFound } from "../../error";
+import { ErrorInternal, ErrorNotAccepted, ErrorNotFound, ErrorValidation } from "../../error";
 import {
   MassiveJob,
   MassiveJobsRepository,
@@ -191,6 +191,45 @@ describe("CancelMassiveNotificationJobUseCase", () => {
     const result = await useCase.execute(jobId);
 
     expect(result).toBe(internalError);
+  });
+
+  test("should skip the iteration when NH returns 400", async () => {
+    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
+      ...baseJob,
+      status: "PROCESSING",
+    });
+    vi.mocked(
+      massiveProgressRepositoryMock.listMassiveJobPendingProgress,
+    ).mockResolvedValueOnce(pendingProgress);
+    vi.mocked(pushNotificationRepositoryMock.cancelScheduledNotification)
+      .mockResolvedValueOnce(
+        new ErrorValidation("Cannot cancel notification due too soon"),
+      )
+      .mockResolvedValueOnce("notification-id");
+    vi.mocked(massiveProgressRepositoryMock.setStatus).mockResolvedValue(
+      "activity-id",
+    );
+    vi.mocked(massiveJobsRepositoryMock.setStatus).mockResolvedValueOnce(
+      "activity-id",
+    );
+
+    const result = await useCase.execute(jobId);
+
+    expect(result).toEqual({ jobId, status: "CANCELED" });
+    expect(
+      pushNotificationRepositoryMock.cancelScheduledNotification,
+    ).toHaveBeenCalledTimes(2);
+    // First notification (400) should not set any status
+    expect(massiveProgressRepositoryMock.setStatus).toHaveBeenCalledTimes(1);
+    expect(massiveProgressRepositoryMock.setStatus).toHaveBeenCalledWith(
+      pendingProgress[1].id,
+      jobId,
+      "CANCELED",
+    );
+    expect(massiveJobsRepositoryMock.setStatus).toHaveBeenCalledWith(
+      jobId,
+      "CANCELED",
+    );
   });
 
   test("should set progress to FAILED and continue when NH returns 404", async () => {

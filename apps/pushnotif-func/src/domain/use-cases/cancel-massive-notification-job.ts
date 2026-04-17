@@ -3,6 +3,7 @@ import {
   ErrorNotAccepted,
   ErrorNotFound,
   ErrorTooManyRequests,
+  ErrorValidation,
 } from "../error";
 import {
   CancelMassiveJobResult,
@@ -25,7 +26,7 @@ export class CancelMassiveNotificationJobUseCase {
   private async cancelSheduledNotification(
     progress: MassiveProgress,
     jobId: MassiveJobID,
-  ): Promise<ErrorInternal | ErrorTooManyRequests | string> {
+  ): Promise<ErrorInternal | ErrorTooManyRequests | ErrorValidation | string> {
     const cancelResult =
       await this.pushNotificationRepository.cancelScheduledNotification(
         progress.id,
@@ -34,7 +35,8 @@ export class CancelMassiveNotificationJobUseCase {
 
     if (
       cancelResult instanceof ErrorInternal ||
-      cancelResult instanceof ErrorTooManyRequests
+      cancelResult instanceof ErrorTooManyRequests ||
+      cancelResult instanceof ErrorValidation
     ) {
       return cancelResult;
     }
@@ -91,6 +93,14 @@ export class CancelMassiveNotificationJobUseCase {
         progress,
         massiveJob.id,
       );
+
+      if (cancelResult instanceof ErrorValidation) {
+        // Skip the iteration in case of validation error, since it means that the notification is not cancelable,
+        // probably because it's already being processed, or it's about to be processed.
+        // In this way we give the chance to the job to be canceled even if some notifications are already being processed.
+        continue;
+      }
+
       if (cancelResult instanceof Error) {
         return cancelResult;
       }
