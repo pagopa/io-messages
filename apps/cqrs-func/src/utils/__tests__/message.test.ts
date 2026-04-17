@@ -21,7 +21,6 @@ const aRetrievedMessage: RetrievedMessage = {
 describe("enrichMessageContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getByMessageContentByIdMock.mockResolvedValue(aMessageContent);
   });
 
   test("should enrich a message with its' related content", async () => {

@@ -57,7 +57,6 @@ vi.spyOn(KP, "sendMessages").mockImplementation((_) => sendMessagesMock);
 describe("HandleMessageChangeFeedPublishFailureHandler", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getByMessageContentByIdMock.mockResolvedValue(aMessageContent);
   });
 
   test("should write an avro message on kafka client", async () => {
