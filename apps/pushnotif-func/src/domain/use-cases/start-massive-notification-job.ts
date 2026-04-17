@@ -58,14 +58,15 @@ export class MakeStartMassiveNotificationJobUseCase {
 
   private async sendNotificationMessages(
     massiveJob: MassiveJob,
+    startTimeTimestamp: number,
   ): Promise<void> {
-    const batchSize = 10; // we want to process 10 tags for each batch
+    const batchSize = 5; // we want to process 5 tags for each batch
     const allTags = this.generateAllTags(3); // generates 4096 tags from "000" to "fff"
     // we calculate the delay between batches to ensure that all notifications are sent
     // within the expected execution time of the job
     // for example, if the job is expected to run for 2 hours and we have 4096 tags
-    // with a batch size of 10, we will have 410 batches to process
-    // therefore, we need to send a batch approximately every 17.5 seconds to ensure
+    // with a batch size of 5, we will have 819 batches to process
+    // therefore, we need to send a batch approximately every 9 seconds to ensure
     // that all notifications are sent within the 2 hours
     const delayBetweenBatchesInSeconds =
       (massiveJob.executionTimeInHours * 3600) / (allTags.length / batchSize);
@@ -74,10 +75,8 @@ export class MakeStartMassiveNotificationJobUseCase {
       const tags = allTags.slice(index, index + batchSize);
 
       const scheduledTimestamp = Math.floor(
-        (Date.now() +
-          (1000 * delayBetweenBatchesInSeconds * (index + batchSize)) /
-            batchSize) /
-          1000,
+        startTimeTimestamp +
+          (delayBetweenBatchesInSeconds * (index + batchSize)) / batchSize,
       );
 
       const sendNotificationMessage = {
@@ -154,7 +153,10 @@ export class MakeStartMassiveNotificationJobUseCase {
       return updateResult;
     }
 
-    await this.sendNotificationMessages(getMassiveJobResult);
+    await this.sendNotificationMessages(
+      getMassiveJobResult,
+      startTimeTimestamp,
+    );
 
     return {
       id: getMassiveJobResult.id,
