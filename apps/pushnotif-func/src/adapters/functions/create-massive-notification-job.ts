@@ -1,16 +1,26 @@
 import { HttpHandler } from "@azure/functions";
+import z from "zod";
 
 import { ErrorInternal, ErrorValidation } from "../../domain/error";
 import {
   createHttpResponse,
   parseHttpRequestBody,
 } from "../../domain/http-request";
-import { CreateMassiveJobPayloadSchema } from "../../domain/massive-jobs";
-import { CreateMassiveNotificationJobUseCase } from "../../domain/use-cases/create-massive-notification-job";
+import { MakeCreateMassiveNotificationJobUseCase } from "../../domain/use-cases/create-massive-notification-job";
+
+export const CreateMassiveJobPayloadSchema = z.object({
+  body: z.string().min(1).max(1000),
+  executionTimeInHours: z.number().int().min(2).max(12).default(2),
+  title: z.string().min(1).max(500),
+});
+
+export type CreateMassiveJobPayload = z.infer<
+  typeof CreateMassiveJobPayloadSchema
+>;
 
 export const createMassiveNotificationJobHandler =
   (
-    createMassiveNotificationJobUseCase: CreateMassiveNotificationJobUseCase,
+    createMassiveNotificationJobUseCase: MakeCreateMassiveNotificationJobUseCase,
   ): HttpHandler =>
   async (request) => {
     const parsedBody = await parseHttpRequestBody(
@@ -25,12 +35,15 @@ export const createMassiveNotificationJobHandler =
       });
     }
 
-    const result =
-      await createMassiveNotificationJobUseCase.execute(parsedBody);
+    const result = await createMassiveNotificationJobUseCase.execute(
+      parsedBody.body,
+      parsedBody.executionTimeInHours,
+      parsedBody.title,
+    );
 
     if (result instanceof ErrorInternal) {
       return createHttpResponse(500, { error: result.message });
     }
 
-    return createHttpResponse(201, { id: result });
+    return createHttpResponse(201, { id: result.id, status: result.status });
   };

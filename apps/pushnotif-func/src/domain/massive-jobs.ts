@@ -57,7 +57,7 @@ export const MassiveJobSchema = z.object({
   executionTimeInHours: z.number().int().min(2).max(12),
   id: massiveJobIDSchema,
   progress: z.array(massiveProgressSchema).optional(),
-  startTimeTimestamp: z.number().int().positive(),
+  startTimeTimestamp: z.number().int().positive().optional(),
   status: MassiveJobStatusEnum,
   title: massiveNotificationTitleSchema,
 });
@@ -93,20 +93,21 @@ export interface MassiveProgressRepository {
   ) => Promise<ErrorInternal | ErrorNotFound | ErrorTooManyRequests | string>;
 }
 
-export const CreateMassiveJobPayloadSchema = z.object({
-  body: z.string().min(1).max(1000),
-  executionTimeInHours: z.number().int().min(2).max(12).default(2),
-  startTimeTimestamp: z
-    .number()
-    .int()
-    .positive()
-    .default(() => Math.floor((Date.now() + 60 * 60 * 1000) / 1000)), // default to 1 hour from now
-  title: z.string().min(1).max(500),
+export const CreateMassiveJobResultSchema = z.object({
+  id: massiveJobIDSchema,
+  status: MassiveJobStatusEnum,
 });
 
-export type CreateMassiveJobPayload = z.infer<
-  typeof CreateMassiveJobPayloadSchema
+export type CreateMassiveJobResult = z.infer<
+  typeof CreateMassiveJobResultSchema
 >;
+
+export const StartMassiveJobResultSchema = z.object({
+  id: massiveJobIDSchema,
+  status: MassiveJobStatusEnum,
+});
+
+export type StartMassiveJobResult = z.infer<typeof StartMassiveJobResultSchema>;
 
 export const CancelMassiveJobResultSchema = z.object({
   jobId: massiveJobIDSchema,

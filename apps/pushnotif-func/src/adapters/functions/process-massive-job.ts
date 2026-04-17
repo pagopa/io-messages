@@ -30,10 +30,12 @@ export const makeProcessMassiveJobHandler =
 
     if (!checkNotificationStatusMessage.success) {
       // TODO: find a standard for event names.
-      telemetryService.trackEvent(
-        "massiveJobs.invalidProcessMassiveNotificationMessage",
-        { issues: checkNotificationStatusMessage.error.issues },
-      );
+      telemetryService.trackEvent({
+        name: "massiveJobs.invalidProcessMassiveNotificationMessage",
+        properties: {
+          issues: checkNotificationStatusMessage.error.issues,
+        },
+      });
 
       return;
     }
@@ -48,10 +50,13 @@ export const makeProcessMassiveJobHandler =
     );
 
     if (progressIDs instanceof ErrorInternal) {
-      telemetryService.trackEvent("massiveJobs.process", {
-        cause: progressIDs.cause,
-        message: progressIDs.message,
-        name: progressIDs.name,
+      telemetryService.trackEvent({
+        name: "massiveJobs.process",
+        properties: {
+          cause: progressIDs.cause,
+          message: progressIDs.message,
+          name: progressIDs.name,
+        },
       });
 
       return;

@@ -14,6 +14,7 @@ import {
   ErrorInternal,
   ErrorNotFound,
   ErrorTooManyRequests,
+  ErrorValidation,
 } from "../../domain/error";
 import {
   PushNotificationRepository,
@@ -72,6 +73,12 @@ export class NotificationHubPushNotificationAdapter
     } catch (err) {
       if (isRestError(err)) {
         switch (err.statusCode) {
+          // Example of a 400 error that occurs when canceling a scheduled notification that is due very soon
+          case 400:
+            return new ErrorValidation(
+              `Cannot cancel scheduled notification with notificationID: ${notificationID}`,
+              err.message,
+            );
           case 404:
             return new ErrorNotFound(
               `Could not find any scheduled notification with notificationID: ${notificationID}`,
