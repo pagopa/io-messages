@@ -14,11 +14,11 @@ export const MassiveProgressStatusEnum = z.enum([
 export type MassiveProgressStatus = z.infer<typeof MassiveProgressStatusEnum>;
 
 export const massiveProgressSchema = z.object({
-  id: z.uuid(), // Equal to the notificationId returned from the notification hub.
+  id: z.string().min(1), // Equal to the notificationId.
   jobId: massiveJobIDSchema,
   scheduledTimestamp: z.number().int().positive(),
   status: MassiveProgressStatusEnum,
-  tags: z.array(z.string().min(1)),
+  tags: z.array(z.string().min(1)).min(1), // Non empty array.
 });
 export type MassiveProgress = z.infer<typeof massiveProgressSchema>;
 
@@ -26,8 +26,7 @@ export const MassiveJobStatusEnum = z.enum([
   "CREATED",
   "PROCESSING",
   "COMPLETED",
-  "STOPPED",
-  "FAILED",
+  "CANCELED",
 ]);
 export type MassiveJobStatus = z.infer<typeof MassiveJobStatusEnum>;
 
@@ -48,6 +47,10 @@ export interface MassiveJobsRepository {
   getMassiveJob: (
     job: MassiveJobID,
   ) => Promise<ErrorInternal | ErrorNotFound | MassiveJob>;
+  setStatus: (
+    jobID: MassiveJobID,
+    newStatus: MassiveJobStatus,
+  ) => Promise<ErrorInternal | ErrorNotFound | string>;
   updateMassiveJob: (
     job: MassiveJob,
   ) => Promise<ErrorInternal | ErrorNotFound | string>;
@@ -80,4 +83,12 @@ export const CreateMassiveJobPayloadSchema = z.object({
 
 export type CreateMassiveJobPayload = z.infer<
   typeof CreateMassiveJobPayloadSchema
+>;
+
+export const CancelMassiveJobResultSchema = z.object({
+  jobId: massiveJobIDSchema,
+  status: MassiveJobStatusEnum,
+});
+export type CancelMassiveJobResult = z.infer<
+  typeof CancelMassiveJobResultSchema
 >;

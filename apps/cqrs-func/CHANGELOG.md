@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 2.1.0
+
+### Minor Changes
+
+- d95ffc3: Remove @chasdevs/avro-to-typescript dependency, version avro types/classes
+
 ## 2.0.4
 
 ### Patch Changes

@@ -58,6 +58,7 @@ describe("CosmosInstallationSummaryAdapter", () => {
       ["bpqr678", "3"],
       ["cstu901", "4"],
       ["fvwx234", "4"],
+      ["ABCDEF12", "3"],
     ])("should compute partition %s -> %s", (installationId, expected) => {
       const result = getAdapterInternals().computePartitionId(installationId);
       expect(result).toBe(expected);
@@ -156,6 +157,24 @@ describe("CosmosInstallationSummaryAdapter", () => {
       const installationId = "abc123def456";
 
       mockDelete.mockRejectedValueOnce(new Error("Delete failed"));
+
+      const result = await adapter.deleteInstallationSummary(
+        installationId,
+        "3",
+      );
+
+      expect(result).toBeInstanceOf(Error);
+      expect(result).toHaveProperty("message", "Failed to delete installation");
+    });
+
+    it("should return error when delete fails with a cosmos error response", async () => {
+      const installationId = "abc123def456";
+      const cosmosError = new ErrorResponse("Internal Server Error") as {
+        code: number;
+      } & Error;
+      cosmosError.code = 500;
+
+      mockDelete.mockRejectedValueOnce(cosmosError);
 
       const result = await adapter.deleteInstallationSummary(
         installationId,

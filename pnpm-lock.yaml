@@ -43,8 +43,8 @@ catalogs:
       specifier: ^0.3.0
       version: 0.3.0
     '@pagopa/io-app-email-templates':
-      specifier: ^0.7.3
-      version: 0.7.3
+      specifier: ^0.8.1
+      version: 0.8.1
     '@pagopa/io-backend-notifications-sdk':
       specifier: ^9.7.0
       version: 9.7.0
@@ -768,7 +768,7 @@ importers:
         version: 12.28.1
       '@pagopa/io-app-email-templates':
         specifier: 'catalog:'
-        version: 0.7.3
+        version: 0.8.1
       '@pagopa/io-backend-notifications-sdk':
         specifier: 'catalog:'
         version: 9.7.0
@@ -1598,8 +1598,8 @@ packages:
   '@pagopa/fp-ts-kafkajs@0.3.0':
     resolution: {integrity: sha512-16/71Bvn8oa6KAAqFuWRd4aAZbILHPu0B5NLrU67l0as/YiunWzTz5yKep5MOiHw+SvgBOWLmsJCQh9Wpyg+jw==}
 
-  '@pagopa/io-app-email-templates@0.7.3':
-    resolution: {integrity: sha512-ntWrwZWQKJ/bObVkfp99FvTRAjfmex80Ho/0y+3RFEu/6KCmimTM/kQh6iKW1kdI7e9VwFx6NalHCkxOG9FOEg==}
+  '@pagopa/io-app-email-templates@0.8.1':
+    resolution: {integrity: sha512-9304ZKLkCvtDraW0DfxjBs9lhCaLBS9C8oreEy+WG3Gc1XPRMRrfvCvDnmfufrUJEneEtDvwtuUCKmNUPS5zmw==}
 
   '@pagopa/io-backend-notifications-sdk@9.7.0':
     resolution: {integrity: sha512-qIepFBWeoadgvQcSjgRt5SNw1xgqOjdZyUpm62keEz9W04Q+Qn6oxMCXcm1IfgWYXWn7ajMRVlfPWa4upSfdkA==}
@@ -4197,6 +4197,11 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
+  prettier@3.0.0:
+    resolution: {integrity: sha512-zBf5eHpwHOGPC47h0zrPyNn+eAEIdEzfywMoYn2XPi0P44Zp0tSq64rq0xAREh4auw2cJZHo9QUob+NqCQky4g==}
+    engines: {node: '>=14'}
+    hasBin: true
+
   prettier@3.6.2:
     resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
     engines: {node: '>=14'}
@@ -6237,12 +6242,13 @@ snapshots:
       - encoding
       - typescript
 
-  '@pagopa/io-app-email-templates@0.7.3':
+  '@pagopa/io-app-email-templates@0.8.1':
     dependencies:
       '@pagopa/ts-commons': 13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
       fp-ts: 2.16.11
       io-ts: 2.2.22(fp-ts@2.16.11)
       moment-timezone: 0.5.48
+      prettier: 3.0.0
     transitivePeerDependencies:
       - applicationinsights-native-metrics
       - encoding
@@ -9093,6 +9099,8 @@ snapshots:
   prettier@1.19.1: {}
 
   prettier@2.8.8: {}
+
+  prettier@3.0.0: {}
 
   prettier@3.6.2: {}
 

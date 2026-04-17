@@ -1,15 +1,16 @@
+import { isRestError } from "@azure/core-rest-pipeline";
+import { NotificationHubsClient } from "@azure/notification-hubs";
+import { z } from "zod";
+
 import {
   ErrorInternal,
   ErrorNotFound,
   ErrorTooManyRequests,
-} from "@/domain/error";
+} from "../../domain/error";
 import {
   PushNotificationRepository,
   notificationDetailSchema,
-} from "@/domain/push-service";
-import { isRestError } from "@azure/core-rest-pipeline";
-import { NotificationHubsClient } from "@azure/notification-hubs";
-import { z } from "zod";
+} from "../../domain/push-service";
 
 export class NotificationHubPushNotificationAdapter
   implements PushNotificationRepository
@@ -44,6 +45,42 @@ export class NotificationHubPushNotificationAdapter
         throw new Error(
           `Unexpected character [${firstChar}] in progressTag: ${progressTag}`,
         );
+    }
+  }
+
+  async cancelScheduledNotification(notificationID: string, tag: string) {
+    const nhClient = this.getPartitionFromProgressTag(tag);
+
+    try {
+      await nhClient.cancelScheduledNotification(notificationID);
+
+      return notificationID;
+    } catch (err) {
+      if (isRestError(err)) {
+        switch (err.statusCode) {
+          case 404:
+            return new ErrorNotFound(
+              `Could not find any scheduled notification with notificationID: ${notificationID}`,
+              err.message,
+            );
+
+          case 429:
+            return new ErrorTooManyRequests(
+              `Too many requests to Notification hub`,
+              err.message,
+            );
+
+          default:
+            return new ErrorInternal(
+              "Error while canceling the scheduled notification from notification hub",
+              err.message,
+            );
+        }
+      }
+
+      return new ErrorInternal(
+        `Error while canceling the scheduled notification from notification hub ${err}`,
+      );
     }
   }
 
@@ -86,7 +123,7 @@ export class NotificationHubPushNotificationAdapter
       }
 
       return new ErrorInternal(
-        `Error while getting the notification from notification hub ${err}`,
+        `Error while getting the notification from notification hub ${JSON.stringify(err)}`,
       );
     }
   }

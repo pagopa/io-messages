@@ -1,5 +1,12 @@
 # services-func
 
+## 2.0.7
+
+### Patch Changes
+
+- 702934f: Update @pagopa/io-app-email-templates dependecy, updated template use the new CDN url
+- 52919fa: Remove the legacy unused "Message Forward" email template
+
 ## 2.0.6
 
 ### Patch Changes
