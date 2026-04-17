@@ -39,6 +39,7 @@ import { cosmosHealthcheck } from "./adapters/cosmos/health";
 import { CosmosInstallationSummaryAdapter } from "./adapters/cosmos/installation";
 import { CosmosMassiveJobsAdapter } from "./adapters/cosmos/massive-jobs";
 import { CosmosMassiveProgressAdapter } from "./adapters/cosmos/massive-progress";
+import { makeCancelMassiveNotificationJobHandler } from "./adapters/functions/cancel-massive-notification-job";
 import { makeCheckMassiveJobHandler } from "./adapters/functions/check-massive-job";
 import { createMassiveNotificationJobHandler } from "./adapters/functions/create-massive-notification-job";
 import { getGetMassiveNotificationJobHandler } from "./adapters/functions/get-massive-notification-job";
@@ -50,6 +51,7 @@ import getInstallationUpdateDispatcher from "./adapters/functions/update-install
 import { notificationHubHealthcheck } from "./adapters/notification-hub/health";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
 import { NotificationHubPushNotificationAdapter } from "./adapters/notification-hub/push-notification";
+import { CancelMassiveNotificationJobUseCase } from "./domain/use-cases/cancel-massive-notification-job";
 import { CheckMassiveJobStatusUseCase } from "./domain/use-cases/check-massive-job";
 import { CreateMassiveNotificationJobUseCase } from "./domain/use-cases/create-massive-notification-job";
 import { GetMassiveNotificationJobUseCase } from "./domain/use-cases/get-massive-notification-job";
@@ -349,6 +351,13 @@ const main = (config: Config) => {
     notificationHubRegexList,
   );
 
+  const cancelMassiveNotificationJobUseCase =
+    new CancelMassiveNotificationJobUseCase(
+      massiveJobsRepository,
+      massiveProgressRepository,
+      pushNotificationRepository,
+    );
+
   const checkMassiveJobStatusUseCase = new CheckMassiveJobStatusUseCase(
     massiveJobsRepository,
     massiveProgressRepository,
@@ -378,6 +387,15 @@ const main = (config: Config) => {
       getMassiveNotificationJobUseCase,
     ),
     methods: ["GET"],
+    route: "api/v1/massive-notification-job/{id}",
+  });
+
+  app.http("CancelMassiveNotificationJob", {
+    authLevel: "admin",
+    handler: makeCancelMassiveNotificationJobHandler(
+      cancelMassiveNotificationJobUseCase,
+    ),
+    methods: ["DELETE"],
     route: "api/v1/massive-notification-job/{id}",
   });
 

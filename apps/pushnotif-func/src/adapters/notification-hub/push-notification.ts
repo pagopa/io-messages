@@ -62,6 +62,42 @@ export class NotificationHubPushNotificationAdapter
     }
   }
 
+  async cancelScheduledNotification(notificationID: string, tag: string) {
+    const nhClient = this.getPartitionFromProgressTag(tag);
+
+    try {
+      await nhClient.cancelScheduledNotification(notificationID);
+
+      return notificationID;
+    } catch (err) {
+      if (isRestError(err)) {
+        switch (err.statusCode) {
+          case 404:
+            return new ErrorNotFound(
+              `Could not find any scheduled notification with notificationID: ${notificationID}`,
+              err.message,
+            );
+
+          case 429:
+            return new ErrorTooManyRequests(
+              `Too many requests to Notification hub`,
+              err.message,
+            );
+
+          default:
+            return new ErrorInternal(
+              "Error while canceling the scheduled notification from notification hub",
+              err.message,
+            );
+        }
+      }
+
+      return new ErrorInternal(
+        `Error while canceling the scheduled notification from notification hub ${err}`,
+      );
+    }
+  }
+
   async getMassiveNotificationDetail(notificationID: string, tag: string) {
     const nhClient = this.getPartitionFromProgressTag(tag);
 

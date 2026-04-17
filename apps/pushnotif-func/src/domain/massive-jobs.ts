@@ -107,3 +107,11 @@ export const CreateMassiveJobPayloadSchema = z.object({
 export type CreateMassiveJobPayload = z.infer<
   typeof CreateMassiveJobPayloadSchema
 >;
+
+export const CancelMassiveJobResultSchema = z.object({
+  jobId: massiveJobIDSchema,
+  status: MassiveJobStatusEnum,
+});
+export type CancelMassiveJobResult = z.infer<
+  typeof CancelMassiveJobResultSchema
+>;
