@@ -1,55 +1,14 @@
 import { CosmosClient } from "@azure/cosmos";
-import { BlobService, ErrorOrResult, ServiceResponse } from "azure-storage";
 import { isLeft, isRight, right } from "fp-ts/lib/Either";
-import { beforeAll, describe, expect, it, test, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { envConfig } from "../../__mocks__/env-config.mock";
 import * as config from "../config";
 import {
   checkApplicationHealth,
   checkAzureCosmosDbHealth,
-  checkAzureStorageHealth,
   checkUrlHealth,
 } from "../healthcheck";
-
-const blobServiceOk: BlobService = {
-  getServiceProperties: vi
-    .fn()
-    .mockImplementation((callback: ErrorOrResult<"ok">) =>
-      callback(
-        null as unknown as Error,
-        "ok",
-        null as unknown as ServiceResponse,
-      ),
-    ),
-} as unknown as BlobService;
-
-const storageMocks = vi.hoisted(() => ({
-  createBlobService: vi.fn(() => blobServiceOk),
-  createQueueService: vi.fn(() => blobServiceOk),
-}));
-
-vi.mock("azure-storage", async (importOriginal) => {
-  const actual: object = await importOriginal();
-  return {
-    ...actual,
-    createBlobService: storageMocks.createBlobService,
-    createQueueService: storageMocks.createQueueService,
-  };
-});
-
-const getBlobServiceKO = (name: string) =>
-  ({
-    getServiceProperties: vi
-      .fn()
-      .mockImplementation((callback: ErrorOrResult<null>) =>
-        callback(
-          Error(`error - ${name}`),
-          null,
-          null as unknown as ServiceResponse,
-        ),
-      ),
-  }) as unknown as BlobService;
 
 // Cosmos DB mock
 
@@ -69,40 +28,6 @@ const cosmosdbClient = {
 // -------------
 // TESTS
 // -------------
-
-describe("healthcheck - storage account", () => {
-  beforeAll(() => {
-    vi.clearAllMocks();
-  });
-
-  it("should not throw exception", async () => {
-    const res = await checkAzureStorageHealth("")();
-    expect(isRight(res)).toBe(true);
-  });
-
-  const testcases: {
-    name: keyof typeof storageMocks;
-  }[] = [
-    {
-      name: "createBlobService",
-    },
-    {
-      name: "createQueueService",
-    },
-  ];
-  test.each(testcases)("should throw exception %s", async ({ name }) => {
-    const blobServiceKO = getBlobServiceKO(name);
-    storageMocks[name].mockReturnValueOnce(blobServiceKO);
-
-    const res = await checkAzureStorageHealth("")();
-    expect(isLeft(res)).toBe(true);
-    if (isLeft(res)) {
-      const err = res.left;
-      expect(err.length).toBe(1);
-      expect(err[0]).toBe(`AzureStorage|error - ${name}`);
-    }
-  });
-});
 
 describe("healthcheck - cosmos db", () => {
   beforeAll(() => {
