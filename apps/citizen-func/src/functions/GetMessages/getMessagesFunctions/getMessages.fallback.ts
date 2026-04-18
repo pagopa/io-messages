@@ -14,7 +14,6 @@ import { CosmosErrors } from "@pagopa/io-functions-commons/dist/src/utils/cosmos
 import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
 import { toPageResults } from "@pagopa/io-functions-commons/dist/src/utils/paging";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { BlobService } from "azure-storage";
 import * as AP from "fp-ts/lib/Apply";
 import * as A from "fp-ts/lib/Array";
 import * as E from "fp-ts/lib/Either";
@@ -22,6 +21,7 @@ import * as O from "fp-ts/lib/Option";
 import * as RA from "fp-ts/lib/ReadonlyArray";
 import * as TE from "fp-ts/lib/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
+import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
 import * as t from "io-ts";
 
 import { MessageStatusExtendedQueryModel } from "../../../model/message_status_query";
@@ -102,16 +102,13 @@ export const getHasPreconditionFlagForMessagesFallback = (
  * This function enrich a CreatedMessageWithoutContent with
  * service's details and message's subject.
  *
- * @param messageModel
- * @param serviceModel
- * @param blobService
+ * @param messageContentRepository
  * @returns
  */
 export const enrichContentData =
   (
     context: InvocationContext,
-    messageModel: MessageModel,
-    blobService: BlobService,
+    messageContentRepository: MessageContentRepository,
     rcConfigurationUtility: RCConfigurationUtility,
     categoryFetcher: ThirdPartyDataWithCategoryFetcher,
   ) =>
@@ -122,8 +119,13 @@ export const enrichContentData =
       pipe(
         {
           content: pipe(
-            messageModel.getContentFromBlob(blobService, message.id),
-            TE.chain(TE.fromOption(() => new Error("Content not found"))),
+            TE.tryCatch(
+              () =>
+                messageContentRepository.getByMessageContentById(message.id),
+              E.toError,
+            ),
+            TE.chain(TE.fromNullable(new Error("Content not found"))),
+            TE.map((c) => c as unknown as MessageContent),
             TE.mapLeft((e) =>
               trackErrorAndContinue(
                 context,
@@ -162,7 +164,7 @@ export const getMessagesFromFallback =
   (
     messageModel: MessageModel,
     messageStatusModel: MessageStatusExtendedQueryModel,
-    blobService: BlobService,
+    messageContentRepository: MessageContentRepository,
     rcConfigurationUtility: RCConfigurationUtility,
     categoryFetcher: ThirdPartyDataWithCategoryFetcher,
   ): IGetMessagesFunction =>
@@ -218,8 +220,7 @@ export const getMessagesFromFallback =
                 A.rights(x),
                 enrichContentData(
                   context,
-                  messageModel,
-                  blobService,
+                  messageContentRepository,
                   rcConfigurationUtility,
                   categoryFetcher,
                 ),

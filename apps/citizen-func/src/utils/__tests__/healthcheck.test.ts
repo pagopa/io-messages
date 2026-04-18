@@ -1,5 +1,4 @@
 import { CosmosClient } from "@azure/cosmos";
-import { BlobService, ErrorOrResult, ServiceResponse } from "azure-storage";
 import { right } from "fp-ts/lib/Either";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
@@ -15,44 +14,34 @@ import {
 
 vi.spyOn(config, "getConfig").mockReturnValue(right(envConfig));
 
-const blobServiceOk: BlobService = {
-  getServiceProperties: vi
-    .fn()
-    .mockImplementation((callback: ErrorOrResult<"ok">) =>
-      callback(
-        null as unknown as Error,
-        "ok",
-        null as unknown as ServiceResponse,
-      ),
-    ),
-} as unknown as BlobService;
-
 const storageMocks = vi.hoisted(() => ({
-  createBlobService: vi.fn(() => blobServiceOk),
-  createQueueService: vi.fn(() => blobServiceOk),
+  getBlobProperties: vi.fn().mockResolvedValue({}),
+  getQueueProperties: vi.fn().mockResolvedValue({}),
 }));
 
-vi.mock("azure-storage", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("azure-storage")>();
+vi.mock("@azure/storage-blob", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@azure/storage-blob")>();
   return {
     ...actual,
-    createBlobService: storageMocks.createBlobService,
-    createQueueService: storageMocks.createQueueService,
+    BlobServiceClient: {
+      fromConnectionString: vi.fn(() => ({
+        getProperties: storageMocks.getBlobProperties,
+      })),
+    },
   };
 });
 
-const getBlobServiceKO = (name: string) =>
-  ({
-    getServiceProperties: vi
-      .fn()
-      .mockImplementation((callback: ErrorOrResult<null>) =>
-        callback(
-          Error(`error - ${name}`),
-          null,
-          null as unknown as ServiceResponse,
-        ),
-      ),
-  }) as unknown as BlobService;
+vi.mock("@azure/storage-queue", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@azure/storage-queue")>();
+  return {
+    ...actual,
+    QueueServiceClient: {
+      fromConnectionString: vi.fn(() => ({
+        getProperties: storageMocks.getQueueProperties,
+      })),
+    },
+  };
+});
 
 // Cosmos DB mock
 
@@ -103,21 +92,25 @@ describe("healthcheck - storage account", () => {
     }));
 
   const testcases: {
+    errorLabel: string;
     name: keyof typeof storageMocks;
   }[] = [
     {
-      name: "createBlobService",
+      errorLabel: "blob storage",
+      name: "getBlobProperties",
     },
     {
-      name: "createQueueService",
+      errorLabel: "queue storage",
+      name: "getQueueProperties",
     },
   ];
   test.each(testcases)(
-    "should throw exception %s",
-    ({ name }) =>
+    "should throw exception $name",
+    ({ errorLabel, name }) =>
       new Promise((done) => {
-        const blobServiceKO = getBlobServiceKO(name);
-        storageMocks[name].mockReturnValueOnce(blobServiceKO);
+        storageMocks[name].mockRejectedValueOnce(
+          new Error(`error - ${errorLabel}`),
+        );
 
         expect.assertions(2);
 
@@ -126,7 +119,7 @@ describe("healthcheck - storage account", () => {
           checkAzureStorageHealth,
           TE.mapLeft((err) => {
             expect(err.length).toBe(1);
-            expect(err[0]).toBe(`AzureStorage|error - ${name}`);
+            expect(err[0]).toBe(`AzureStorage|error - ${errorLabel}`);
             done();
           }),
           TE.map(() => {
@@ -198,10 +191,12 @@ describe("checkApplicationHealth - multiple errors -", () => {
 
   it("should return multiple errors from different checks", () =>
     new Promise<void>((done) => {
-      const blobServiceKO = getBlobServiceKO("createBlobService");
-      const queueServiceKO = getBlobServiceKO("createQueueService");
-      storageMocks["createBlobService"].mockReturnValueOnce(blobServiceKO);
-      storageMocks["createQueueService"].mockReturnValueOnce(queueServiceKO);
+      storageMocks.getBlobProperties.mockRejectedValueOnce(
+        new Error("error - blob storage"),
+      );
+      storageMocks.getQueueProperties.mockRejectedValueOnce(
+        new Error("error - queue storage"),
+      );
 
       expect.assertions(3);
 
@@ -209,8 +204,8 @@ describe("checkApplicationHealth - multiple errors -", () => {
         checkApplicationHealth(cosmosClient, cosmosClient),
         TE.mapLeft((err) => {
           expect(err.length).toBe(2);
-          expect(err[0]).toBe(`AzureStorage|error - createBlobService`);
-          expect(err[1]).toBe(`AzureStorage|error - createQueueService`);
+          expect(err[0]).toBe(`AzureStorage|error - blob storage`);
+          expect(err[1]).toBe(`AzureStorage|error - queue storage`);
           done();
         }),
         TE.map(() => {

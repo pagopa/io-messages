@@ -1,11 +1,8 @@
 import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
+import { BlobServiceClient } from "@azure/storage-blob";
+import { QueueServiceClient } from "@azure/storage-queue";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
-import {
-  common as azurestorageCommon,
-  createBlobService,
-  createQueueService,
-} from "azure-storage";
 import { sequenceT } from "fp-ts/lib/Apply";
 import * as A from "fp-ts/lib/Array";
 import * as E from "fp-ts/lib/Either";
@@ -100,26 +97,17 @@ export const checkAzureStorageHealth = (
     RA.getSemigroup<HealthProblem<"AzureStorage">>(),
   );
 
-  // try to instantiate a client for each product of azure storage
   return pipe(
-    [createBlobService, createQueueService]
-      // for each, create a task that wraps getServiceProperties
-      .map((createService) =>
-        TE.tryCatch(
-          () =>
-            new Promise<azurestorageCommon.models.ServicePropertiesResult.ServiceProperties>(
-              (resolve, reject) =>
-                createService(connStr).getServiceProperties((err, result) => {
-                  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-                  err
-                    ? reject(err.message.replace(/\n/gim, " ")) // avoid newlines
-                    : resolve(result);
-                }),
-            ),
-          toHealthProblems("AzureStorage"),
-        ),
+    [
+      TE.tryCatch(
+        () => BlobServiceClient.fromConnectionString(connStr).getProperties(),
+        toHealthProblems("AzureStorage"),
       ),
-    // run each taskEither and gather validation errors from each one of them, if any
+      TE.tryCatch(
+        () => QueueServiceClient.fromConnectionString(connStr).getProperties(),
+        toHealthProblems("AzureStorage"),
+      ),
+    ],
     A.sequence(applicativeValidation),
     TE.map((_) => true),
   );
