@@ -70,7 +70,7 @@ catalog:
   "ts-pattern": ^4.3.0
   "typescript": ^5.8.3
   "ulid": ^3.0.1
-  "vite": ^6.4.1
+  "vite": ^7.0.0
   "vitest": ^3.2.4
   "winston": ^3.18.3
   "zod": ^4.1.13
