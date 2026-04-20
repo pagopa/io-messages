@@ -1,11 +1,7 @@
 import { app } from "@azure/functions";
+import { BlobServiceClient } from "@azure/storage-blob";
 import { QueueClient } from "@azure/storage-queue";
-import {
-  MESSAGE_COLLECTION_NAME,
-  MessageModel,
-} from "@pagopa/io-functions-commons/dist/src/models/message";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { createBlobService } from "azure-storage";
+import { MessageContentBlobAdapter } from "io-messages-common-legacy/adapters/message-content";
 
 import { cosmosMessageStatusHandler } from "./functions/CosmosApiMessageStatusChangeFeedForReminder/handler";
 import { cosmosMessagesHandler } from "./functions/CosmosApiMessagesChangeFeed/handler";
@@ -13,7 +9,6 @@ import { queueFailureHandler } from "./functions/HandleMessageChangeFeedPublishF
 import { Info } from "./functions/Info/handler";
 import { initTelemetryClient } from "./utils/appinsights";
 import { getConfigOrThrow } from "./utils/config";
-import { cosmosdbInstance } from "./utils/cosmosdb";
 import { fromSas } from "./utils/event_hub";
 import { avroMessageStatusFormatter } from "./utils/formatter/messageStatusAvroFormatter";
 import { avroMessageFormatter } from "./utils/formatter/messagesAvroFormatter";
@@ -44,15 +39,12 @@ const errorStorage = new QueueClient(
   config.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME,
 );
 
-const messageModel = new MessageModel(
-  cosmosdbInstance.container(MESSAGE_COLLECTION_NAME),
-  "message-content" as NonEmptyString,
+const messageContentRepository = new MessageContentBlobAdapter(
+  BlobServiceClient.fromConnectionString(
+    config.MESSAGE_CONTENT_STORAGE_CONNECTION,
+  ),
+  "message-content",
 );
-
-const messageContentBlobService = createBlobService(
-  config.MESSAGE_CONTENT_STORAGE_CONNECTION,
-);
-
 // ---------------------------------------------------------------------------
 // HTTP Triggers
 // ---------------------------------------------------------------------------
@@ -74,8 +66,7 @@ app.cosmosDB("CosmosApiMessagesChangeFeed", {
   createLeaseContainerIfNotExists: true,
   databaseName: config.COSMOSDB_NAME,
   handler: cosmosMessagesHandler(
-    messageModel,
-    messageContentBlobService,
+    messageContentRepository,
     config,
     kafkaMessagesClient,
     errorStorage,
@@ -109,8 +100,7 @@ app.storageQueue("HandleMessageChangeFeedPublishFailures", {
   connection: "COM_STORAGE_CONNECTION_STRING",
   handler: queueFailureHandler(
     telemetryClient,
-    messageModel,
-    messageContentBlobService,
+    messageContentRepository,
     kafkaMessagesClient,
   ),
   queueName: config.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME,

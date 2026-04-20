@@ -1,7 +1,5 @@
 import { InvocationContext } from "@azure/functions";
 import * as KP from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
-import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
-import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
@@ -24,13 +22,10 @@ const telemetryClientMock = {
   trackException: vi.fn((_) => void 0),
 } as unknown as TelemetryClient;
 
-const getContentFromBlobMock = vi
-  .fn()
-  .mockImplementation(() => TE.of(O.some(aMessageContent)));
-
-const mockMessageModel = {
-  getContentFromBlob: getContentFromBlobMock,
-} as any as MessageModel;
+const getByMessageContentByIdMock = vi.fn().mockResolvedValue(aMessageContent);
+const mockMessageContentRepository = {
+  getByMessageContentById: getByMessageContentByIdMock,
+};
 
 const inputMessage = {
   body: {
@@ -49,8 +44,6 @@ const aNotRetriableInput: HandleMessagePublishFailureInput = {
   retriable: false,
 };
 
-const anyParam = {} as any;
-
 // ----------------------
 // Variables
 // ----------------------
@@ -67,15 +60,11 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
   });
 
   test("should write an avro message on kafka client", async () => {
-    getContentFromBlobMock.mockImplementation(() =>
-      TE.right(O.some(aMessageContent)),
-    );
     const res = await HandleMessageChangeFeedPublishFailureHandler(
       functionsContextMock,
       aRetriableInput,
       telemetryClientMock,
-      mockMessageModel,
-      anyParam,
+      mockMessageContentRepository,
       kafkaClient,
     );
     expect(res).toEqual(void 0);
@@ -90,14 +79,15 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
   });
 
   test("should throw if Transient failure occurs", async () => {
-    getContentFromBlobMock.mockImplementation(() => TE.right(O.none));
+    getByMessageContentByIdMock.mockRejectedValueOnce(
+      new Error("cannot reach blob storage"),
+    );
     await expect(
       HandleMessageChangeFeedPublishFailureHandler(
         functionsContextMock,
         aRetriableInput,
         telemetryClientMock,
-        mockMessageModel,
-        anyParam,
+        mockMessageContentRepository,
         kafkaClient,
       ),
     ).rejects.toBeDefined();
@@ -114,8 +104,7 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
         functionsContextMock,
         { wrongInput: true },
         telemetryClientMock,
-        mockMessageModel,
-        anyParam,
+        mockMessageContentRepository,
         kafkaClient,
       ),
     ).resolves.toEqual(
@@ -132,8 +121,7 @@ describe("HandleMessageChangeFeedPublishFailureHandler", () => {
         functionsContextMock,
         aNotRetriableInput,
         telemetryClientMock,
-        mockMessageModel,
-        anyParam,
+        mockMessageContentRepository,
         kafkaClient,
       ),
     ).resolves.toEqual(

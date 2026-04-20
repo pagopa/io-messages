@@ -1,14 +1,12 @@
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
-import {
-  MessageModel,
-  RetrievedMessage,
-} from "@pagopa/io-functions-commons/dist/src/models/message";
-import * as AS from "azure-storage";
+import { RetrievedMessage } from "@pagopa/io-functions-commons/dist/src/models/message";
 import * as RA from "fp-ts/ReadonlyArray";
 import * as E from "fp-ts/lib/Either";
 import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
+import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
+import { MessageContent } from "io-messages-common-legacy/types/MessageContent";
 
 import { MessageContentType } from "../types/avro/MessageContentTypeEnum";
 import { IConfig } from "./config";
@@ -19,22 +17,26 @@ import { IStorableError, toStorableError } from "./storable_error";
  * Retrieve a message content from blob storage and enrich message
  */
 export const enrichMessageContent = (
-  messageModel: MessageModel,
-  blobService: AS.BlobService,
+  messageContentRepository: MessageContentRepository,
   message: RetrievedMessage,
 ): TE.TaskEither<IStorableError<RetrievedMessage>, RetrievedMessage> =>
   pipe(
-    messageModel.getContentFromBlob(blobService, message.id),
-    TE.mapLeft((e) =>
-      toTransientFailure(
-        e,
-        "Cannot read message content from storage",
-      )(message.id),
+    TE.tryCatch(
+      () => messageContentRepository.getByMessageContentById(message.id),
+      (e) =>
+        toTransientFailure(
+          E.toError(e),
+          "Cannot read message content from storage",
+        )(message.id),
     ),
-    TE.chain(
-      TE.fromOption(() =>
-        toPermanentFailure(Error(`Message Content Blob not found`))(message.id),
-      ),
+    TE.chain((content) =>
+      content === null
+        ? TE.left(
+            toPermanentFailure(new Error("Message Content Blob not found"))(
+              message.id,
+            ),
+          )
+        : TE.right(content as MessageContent),
     ),
     TE.mapLeft(toStorableError(message)),
     TE.map((content) => ({
@@ -50,9 +52,8 @@ export const enrichMessageContent = (
  */
 export const enrichMessagesContent =
   (
-    messageModel: MessageModel,
     messageContentChunkSize: number,
-    blobService: AS.BlobService,
+    messageContentRepository: MessageContentRepository,
   ) =>
   (
     messages: readonly RetrievedMessage[],
@@ -67,7 +68,7 @@ export const enrichMessagesContent =
         flow(
           RA.map((m) =>
             m.isPending === false
-              ? enrichMessageContent(messageModel, blobService, m)
+              ? enrichMessageContent(messageContentRepository, m)
               : TE.of(m),
           ),
           // call task in parallel
