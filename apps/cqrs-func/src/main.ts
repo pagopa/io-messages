@@ -1,7 +1,7 @@
 import { app } from "@azure/functions";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { QueueClient } from "@azure/storage-queue";
-import { MessageContentRepo } from "io-messages-common-legacy/adapters/message-content-repository";
+import { MessageContentBlobAdapter } from "io-messages-common-legacy/adapters/message-content";
 
 import { cosmosMessageStatusHandler } from "./functions/CosmosApiMessageStatusChangeFeedForReminder/handler";
 import { cosmosMessagesHandler } from "./functions/CosmosApiMessagesChangeFeed/handler";
@@ -39,7 +39,7 @@ const errorStorage = new QueueClient(
   config.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME,
 );
 
-const messageContentRepository = new MessageContentRepo(
+const messageContentRepository = new MessageContentBlobAdapter(
   BlobServiceClient.fromConnectionString(
     config.MESSAGE_CONTENT_STORAGE_CONNECTION,
   ),

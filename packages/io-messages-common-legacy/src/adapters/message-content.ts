@@ -29,12 +29,12 @@ const parseMessageContent = (raw: unknown): MessageContent => {
   return result.right;
 };
 
-export class MessageContentRepo implements MessageContentRepository {
+export class MessageContentBlobAdapter implements MessageContentRepository {
+  private readonly blobClient: BlobServiceClient;
   private readonly messageContainerName: string;
-  private readonly repository: BlobServiceClient;
 
-  constructor(repository: BlobServiceClient, messageContainerName: string) {
-    this.repository = repository;
+  constructor(blobClient: BlobServiceClient, messageContainerName: string) {
+    this.blobClient = blobClient;
     this.messageContainerName = messageContainerName;
   }
 
@@ -43,19 +43,29 @@ export class MessageContentRepo implements MessageContentRepository {
   ): Promise<BlobStorageErrorException | NodeJS.ReadableStream> {
     let response;
     try {
-      response = await this.repository
+      response = await this.blobClient
         .getContainerClient(this.messageContainerName)
         .getBlobClient(blobName)
         .download();
     } catch (e) {
-      const code =
-        isRestError(e) && e.code === BLOB_NOT_FOUND_CODE
-          ? BLOB_NOT_FOUND_CODE
-          : GENERIC_CODE;
-      const message =
-        isRestError(e) && e.message !== undefined ? e.message : "Unknown error";
-      return new BlobStorageErrorException(code, message);
+      if (isRestError(e)) {
+        switch (e.code) {
+          case BLOB_NOT_FOUND_CODE:
+            return new BlobStorageErrorException(
+              BLOB_NOT_FOUND_CODE,
+              e.message,
+            );
+          default:
+            return new BlobStorageErrorException(GENERIC_CODE, e.message);
+        }
+      }
+      if (e instanceof Error) {
+        return new BlobStorageErrorException(GENERIC_CODE, e.message);
+      }
+
+      return new BlobStorageErrorException(GENERIC_CODE, `Unknown error`);
     }
+
     if (!response.readableStreamBody) {
       throw new Error("Unexpected: readableStreamBody is undefined");
     }
