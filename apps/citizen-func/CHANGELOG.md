@@ -1,5 +1,11 @@
 ### Changelog
 
+## 6.0.6
+
+### Patch Changes
+
+- d5c72fc: remove azure-storage lib and use the message-content adapter/repository from io-messages-common-legacy package
+
 ## 6.0.5
 
 ### Patch Changes
