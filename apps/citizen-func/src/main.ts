@@ -17,7 +17,7 @@ import {
   SERVICE_COLLECTION_NAME,
   ServiceModel,
 } from "@pagopa/io-functions-commons/dist/src/models/service";
-import { MessageContentRepo } from "io-messages-common-legacy/adapters/message-content-repository";
+import { MessageContentBlobAdapter } from "io-messages-common-legacy/adapters/message-content";
 
 import { GetMessage } from "./functions/GetMessage/handler";
 import { createGetMessagesFunctionSelection } from "./functions/GetMessages/getMessagesFunctions/getMessages.selector";
@@ -65,7 +65,7 @@ const messageViewModel = new MessageViewExtendedQueryModel(
   cosmosdbInstance.container(MESSAGE_VIEW_COLLECTION_NAME),
 );
 
-const messageContentRepository = new MessageContentRepo(
+const messageContentRepository = new MessageContentBlobAdapter(
   BlobServiceClient.fromConnectionString(
     config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
   ),
