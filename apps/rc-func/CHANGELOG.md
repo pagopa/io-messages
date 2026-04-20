@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.0.7
+
+### Patch Changes
+
+- d8c0cb4: remove unused azure-storage lib
+
 ## 2.0.6
 
 ### Patch Changes
