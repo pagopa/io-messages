@@ -1,5 +1,5 @@
 import { RestError } from "@azure/core-rest-pipeline";
-import { CosmosClient, ErrorResponse, ItemResponse } from "@azure/cosmos";
+import { CosmosClient, ItemResponse } from "@azure/cosmos";
 import { describe, expect, it, vi } from "vitest";
 
 import { ErrorInternal, ErrorNotFound } from "../../../domain/error";
@@ -56,13 +56,12 @@ describe("CosmosMassiveJobsAdapter.updateMassiveJob", () => {
     const result = await adapter.updateMassiveJob(mockJob);
 
     expect(result).toBe(mockJob.id);
-    expect(container.item).toHaveBeenCalledWith(mockJob.id);
+    expect(container.item).toHaveBeenCalledWith(mockJob.id, mockJob.id);
     expect(mockReplace).toHaveBeenCalledWith(mockJob);
   });
 
   it("should return ErrorNotFound when cosmos responds with 404", async () => {
-    const notFoundError = new ErrorResponse("Not Found");
-    notFoundError.code = 404;
+    const notFoundError = new RestError("Not Found", { statusCode: 404 });
     const mockReplace = vi.fn().mockRejectedValueOnce(notFoundError);
     const mockItem = vi.fn().mockReturnValue({ replace: mockReplace });
     vi.spyOn(container, "item").mockReturnValueOnce(mockItem());
@@ -70,12 +69,13 @@ describe("CosmosMassiveJobsAdapter.updateMassiveJob", () => {
     const result = await adapter.updateMassiveJob(mockJob);
 
     expect(result).toBeInstanceOf(ErrorNotFound);
-    expect((result as ErrorNotFound).code).toBe("404");
+    expect((result as ErrorNotFound).message).toBe("Massive job not found");
   });
 
-  it("should return ErrorInternal when cosmos responds with non-404 ErrorResponse", async () => {
-    const serverError = new ErrorResponse("Internal Server Error");
-    serverError.code = 500;
+  it("should return ErrorInternal when cosmos responds with non-404 RestError", async () => {
+    const serverError = new RestError("Internal Server Error", {
+      statusCode: 500,
+    });
     const mockReplace = vi.fn().mockRejectedValueOnce(serverError);
     const mockItem = vi.fn().mockReturnValue({ replace: mockReplace });
     vi.spyOn(container, "item").mockReturnValueOnce(mockItem());

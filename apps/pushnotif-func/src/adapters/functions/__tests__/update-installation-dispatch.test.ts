@@ -19,6 +19,7 @@ const aValidDocument = {
 
 const telemetryServiceMock: TelemetryService = {
   trackEvent: vi.fn(),
+  trackException: vi.fn(),
 };
 
 const queueOutputMock = {} as StorageQueueOutput;
@@ -67,9 +68,11 @@ describe("getInstallationUpdateDispatcher", () => {
     await handler([invalidDocument], invocationContext);
 
     expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith(
-      "installation.summary.validation.error",
       expect.objectContaining({
-        message: "Invalid installation summary",
+        name: "installation.summary.validation.error",
+        properties: expect.objectContaining({
+          message: "Invalid installation summary",
+        }),
       }),
     );
 

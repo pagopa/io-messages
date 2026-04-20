@@ -1,0 +1,117 @@
+@startuml
+
+title "Process massive notification job"
+
+box "iopitncomst01 Blob Storage account" #LightBlue
+  box "Queues"
+    queue "process-massive-job" as smq
+    queue "process-massive-job-poison" as smpq
+  end box
+end box
+
+box "pushnotif-func"
+  participant "ProcessMassiveJob" as fn
+end box
+
+!pragma teoz true
+box "io-p-itn-com-cosno-01 cosmos account" #LightBlue
+  box "push-notifications cosmos database"
+    database "massive-progress" as mnjp
+  end box
+end box
+
+box "Notification Hubs"
+  participant "Notification Hub" as nh1
+end box
+
+participant "app-insights" as ai
+
+note left of fn
+  **ProcessMassiveNotificationMessage**
+  {
+    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "title": "Push notification title",
+    "body": "Push notification body",
+    "scheduledTimestamp": 123456789,
+    "tags": ["aaa", "aab", "aac"]
+  }
+end note
+smq -> fn : Read message from queue
+activate fn
+deactivate smq
+
+fn -> fn : Parse message
+
+alt Invalid message
+  note right of fn
+    **Message**
+    {
+      "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+      "scheduledTimestamp": 123456789,
+      "tags": ["aaa", "aab", "aac"],
+      "error": "Invalid scheduled time"
+    }
+  end note
+  fn --> ai : Track an event
+
+  fn -[#red]> fn : End the execution
+end
+
+fn -> nh1 : Schedule push notification
+activate nh1
+
+alt Error from notification hub
+  nh1 -[#red]> fn : Transient error
+
+  alt Was last retry
+    fn -> smpq : Push to the poison
+  end
+
+  fn -[#red]x fn : Throw an error
+end
+
+note right of fn
+  **Message**
+  {
+    "notificationId": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0"
+  }
+end note
+nh1 -[#green]> fn : 200
+deactivate nh1
+
+note right of fn
+  **Job Document**
+  {
+    "notificationId": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0",
+    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "scheduledTimestamp": 123456789,
+    "status": "PENDING",
+    "tags": ["aaa", "aab", "aac"]
+  }
+end note
+fn -> mnjp : Create progress
+activate mnjp
+
+alt Error from comos
+  mnjp -[#red]> fn : Transient error
+  note right of fn
+    **Message**
+    {
+      "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+      "jobType": "send",
+      "scheduledTimestamp": 123456789,
+      "tags": ["aaa", "aab", "aac"],
+      "error": "Error from cosmos, notification scheduled correctly as xxx"
+    }
+  end note
+  fn --> ai : Track an event
+
+  fn -[#red]> fn : End the execution.
+end
+
+mnjp -[#green]> fn : 201
+deactivate mnjp
+
+deactivate fn
+
+@enduml

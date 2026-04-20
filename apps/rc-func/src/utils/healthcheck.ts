@@ -1,12 +1,6 @@
 import { CosmosClient } from "@azure/cosmos";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
-import {
-  common as azurestorageCommon,
-  createBlobService,
-  createQueueService,
-} from "azure-storage";
 import { sequenceT } from "fp-ts/lib/Apply";
-import * as A from "fp-ts/lib/Array";
 import * as E from "fp-ts/lib/Either";
 import * as RA from "fp-ts/lib/ReadonlyArray";
 import * as T from "fp-ts/lib/Task";
@@ -71,46 +65,6 @@ export const checkAzureCosmosDbHealth = (
     ),
     TE.map(() => true),
   );
-
-/**
- * Check the application can connect to an Azure Storage
- *
- * @param connStr connection string for the storage
- *
- * @returns either true or an array of error messages
- */
-export const checkAzureStorageHealth = (
-  connStr: string,
-): HealthCheck<"AzureStorage"> => {
-  const applicativeValidation = TE.getApplicativeTaskValidation(
-    T.ApplicativePar,
-    RA.getSemigroup<HealthProblem<"AzureStorage">>(),
-  );
-
-  // try to instantiate a client for each product of azure storage
-  return pipe(
-    [createBlobService, createQueueService]
-      // for each, create a task that wraps getServiceProperties
-      .map((createService) =>
-        TE.tryCatch(
-          () =>
-            new Promise<azurestorageCommon.models.ServicePropertiesResult.ServiceProperties>(
-              (resolve, reject) =>
-                createService(connStr).getServiceProperties((err, result) => {
-                  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-                  err
-                    ? reject(err.message.replace(/\n/gim, " ")) // avoid newlines
-                    : resolve(result);
-                }),
-            ),
-          toHealthProblems("AzureStorage"),
-        ),
-      ),
-    // run each taskEither and gather validation errors from each one of them, if any
-    A.sequence(applicativeValidation),
-    TE.map(() => true),
-  );
-};
 
 /**
  * Check a url is reachable

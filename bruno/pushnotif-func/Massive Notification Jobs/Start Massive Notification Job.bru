@@ -1,0 +1,21 @@
+meta {
+  name: Start Massive Notification Job
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{pushnotif_func_url}}/api/v1/massive-notification-job/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "startTimeTimestamp": 1776421155
+  }
+}
+
+vars:pre-request {
+  user_groups: ApiNewMessageNotify
+}

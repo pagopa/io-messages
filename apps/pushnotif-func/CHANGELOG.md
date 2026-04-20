@@ -1,5 +1,16 @@
 ### Changelog
 
+## 2.8.0
+
+### Minor Changes
+
+- ad10a06: Introducing the `ProcessMassiveJob` queue-triggered function to handle asynchronous processing of massive notification jobs.
+- 827d8aa: Add startMassiveNotificationJob function
+
+### Patch Changes
+
+- 6a818cd: Handle Bad Request on NotificationHub cancelScheduledNotification
+
 ## 2.7.0
 
 ### Minor Changes

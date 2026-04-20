@@ -1,4 +1,4 @@
-import { Container, ErrorResponse, RestError } from "@azure/cosmos";
+import { Container, RestError } from "@azure/cosmos";
 import { z } from "zod";
 
 import { ErrorInternal, ErrorNotFound } from "../../domain/error";
@@ -80,11 +80,11 @@ export class CosmosMassiveJobsAdapter implements MassiveJobsRepository {
 
   async updateMassiveJob(job: MassiveJob) {
     try {
-      const result = await this.container.item(job.id).replace(job);
+      const result = await this.container.item(job.id, job.id).replace(job);
       return result.item.id;
     } catch (err) {
-      if (err instanceof ErrorResponse) {
-        switch (err.code) {
+      if (err instanceof RestError) {
+        switch (err.statusCode) {
           case 404:
             return new ErrorNotFound("Massive job not found", err);
           default:

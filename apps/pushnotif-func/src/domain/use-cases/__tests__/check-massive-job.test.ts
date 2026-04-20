@@ -142,14 +142,14 @@ describe("CheckMassiveJobStatusUseCase status management", () => {
       jobId,
       MassiveProgressStatusEnum.enum.FAILED,
     );
-    expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith(
-      "massiveJobs.notificationNotFound",
-      {
+    expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith({
+      name: "massiveJobs.notificationNotFound",
+      properties: {
         cause: notFoundError.cause,
         message: notFoundError.message,
         name: notFoundError.name,
       },
-    );
+    });
     expect(massiveJobsRepositoryMock.setStatus).toHaveBeenCalledWith(
       jobId,
       "COMPLETED",

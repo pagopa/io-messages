@@ -19,6 +19,97 @@ const database = cosmosClient.database("test-database");
 const container = database.container("test-container");
 const adapter = new CosmosMassiveProgressAdapter(container);
 
+describe("CosmosMassiveProgressAdapter.create", () => {
+  it("should create a progress record and return its id", async () => {
+    const progress = {
+      id: "nh-notification-id-123",
+      jobId,
+      scheduledTimestamp: 1700000100,
+      status: "PENDING" as const,
+      tags: ["aaa", "bbb"],
+    };
+
+    const mockItem = { id: progress.id };
+    const createSpy = vi.fn().mockResolvedValueOnce({
+      item: mockItem,
+    });
+    vi.spyOn(container.items, "create").mockImplementationOnce(createSpy);
+
+    const result = await adapter.create(progress);
+
+    expect(result).toBe(progress.id);
+    expect(createSpy).toHaveBeenCalledWith(progress);
+  });
+
+  it("should return ErrorInternal when cosmos create fails with RestError", async () => {
+    const progress = {
+      id: "nh-notification-id-123",
+      jobId,
+      scheduledTimestamp: 1700000100,
+      status: "PENDING" as const,
+      tags: ["aaa"],
+    };
+
+    const restError = new RestError("cosmos create failed");
+    restError.statusCode = 500;
+    const createSpy = vi.fn().mockRejectedValueOnce(restError);
+    vi.spyOn(container.items, "create").mockImplementationOnce(createSpy);
+
+    const result = await adapter.create(progress);
+
+    expect(result).toBeInstanceOf(ErrorInternal);
+    expect((result as ErrorInternal).message).toBe(
+      "Failed to create massive progress",
+    );
+  });
+
+  it("should return ErrorInternal when cosmos create fails with generic error", async () => {
+    const progress = {
+      id: "nh-notification-id-123",
+      jobId,
+      scheduledTimestamp: 1700000100,
+      status: "PENDING" as const,
+      tags: ["aaa"],
+    };
+
+    const createSpy = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("unexpected cosmos error"));
+    vi.spyOn(container.items, "create").mockImplementationOnce(createSpy);
+
+    const result = await adapter.create(progress);
+
+    expect(result).toBeInstanceOf(ErrorInternal);
+    expect((result as ErrorInternal).message).toBe(
+      "Failed to create massive progress",
+    );
+  });
+
+  it("should return ErrorInternal when cosmos create fails due to conflict (409)", async () => {
+    const progress = {
+      id: "nh-notification-id-123",
+      jobId,
+      scheduledTimestamp: 1700000100,
+      status: "PENDING" as const,
+      tags: ["aaa"],
+    };
+
+    const restError = new RestError(
+      "Entity with the specified id already exists",
+    );
+    restError.statusCode = 409;
+    const createSpy = vi.fn().mockRejectedValueOnce(restError);
+    vi.spyOn(container.items, "create").mockImplementationOnce(createSpy);
+
+    const result = await adapter.create(progress);
+
+    expect(result).toBeInstanceOf(ErrorInternal);
+    expect((result as ErrorInternal).message).toBe(
+      "Failed to create massive progress",
+    );
+  });
+});
+
 describe("CosmosMassiveProgressAdapter.listMassiveJobProgress", () => {
   it("should return parsed massive progress entries on success", async () => {
     const resource = {

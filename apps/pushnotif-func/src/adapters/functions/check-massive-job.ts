@@ -20,10 +20,10 @@ export const makeCheckMassiveJobHandler =
       checkNotificationStatusMessageSchema.safeParse(message);
     if (!checkNotificationStatusMessage.success) {
       // TODO: find a standard for event names.
-      telemetryService.trackEvent(
-        "massiveJobs.invalidCheckNotificationStatusMessage",
-        { issues: checkNotificationStatusMessage.error.issues },
-      );
+      telemetryService.trackEvent({
+        name: "massiveJobs.invalidCheckNotificationStatusMessage",
+        properties: { issues: checkNotificationStatusMessage.error.issues },
+      });
 
       return;
     }
@@ -34,8 +34,9 @@ export const makeCheckMassiveJobHandler =
 
     if (massiveJob instanceof ErrorNotFound) {
       // TODO: Find a better name.
-      telemetryService.trackEvent("massiveJobs.massiveJobNotFound", {
-        id: checkNotificationStatusMessage.data.jobId,
+      telemetryService.trackEvent({
+        name: "massiveJobs.massiveJobNotFound",
+        properties: { id: checkNotificationStatusMessage.data.jobId },
       });
     }
 

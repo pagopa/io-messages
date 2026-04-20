@@ -32,10 +32,13 @@ const getInstallationUpdateDispatcher =
       const parsedResult = installationSummarySchema.safeParse(document);
 
       if (!parsedResult.success) {
-        telemetryService.trackEvent("installation.summary.validation.error", {
-          invalidDocument: document,
-          message: "Invalid installation summary",
-          validationError: parsedResult.error.issues,
+        telemetryService.trackEvent({
+          name: "installation.summary.validation.error",
+          properties: {
+            invalidDocument: document,
+            message: "Invalid installation summary",
+            validationError: parsedResult.error.issues,
+          },
         });
         continue;
       }

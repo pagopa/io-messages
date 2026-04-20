@@ -1,7 +1,17 @@
 import { z } from "zod";
 
-import { ErrorInternal, ErrorNotFound, ErrorTooManyRequests } from "./error";
+import {
+  ErrorInternal,
+  ErrorNotFound,
+  ErrorTooManyRequests,
+  ErrorValidation,
+} from "./error";
 import { JsonPatch } from "./json-patch";
+import {
+  MassiveNotificationMessage,
+  MassiveNotificationTags,
+  MassiveNotificationTitle,
+} from "./massive-jobs";
 
 export const notificationDetailStatusEnum = z.enum([
   "Enqueued",
@@ -37,11 +47,24 @@ export interface PushNotificationRepository {
   cancelScheduledNotification(
     notificationId: string,
     tag: string,
-  ): Promise<ErrorInternal | ErrorNotFound | ErrorTooManyRequests | string>;
+  ): Promise<
+    | ErrorInternal
+    | ErrorNotFound
+    | ErrorTooManyRequests
+    | ErrorValidation
+    | string
+  >;
   getMassiveNotificationDetail(
     notificationId: string,
     tag: string,
   ): Promise<
     ErrorInternal | ErrorNotFound | ErrorTooManyRequests | NotificationDetails
   >;
+
+  scheduleMassiveNotification(
+    title: MassiveNotificationTitle,
+    body: MassiveNotificationMessage,
+    scheduledTimestamp: number,
+    tags: MassiveNotificationTags,
+  ): Promise<{ notificationID: string; tags: string[] }[] | ErrorInternal>;
 }

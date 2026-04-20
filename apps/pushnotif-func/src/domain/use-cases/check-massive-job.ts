@@ -93,10 +93,13 @@ export class CheckMassiveJobStatusUseCase {
 
       if (notificationDetails instanceof ErrorNotFound) {
         // TODO: Find a better name.
-        this.telemetryClient.trackEvent("massiveJobs.notificationNotFound", {
-          cause: notificationDetails.cause,
-          message: notificationDetails.message,
-          name: notificationDetails.name,
+        this.telemetryClient.trackEvent({
+          name: "massiveJobs.notificationNotFound",
+          properties: {
+            cause: notificationDetails.cause,
+            message: notificationDetails.message,
+            name: notificationDetails.name,
+          },
         });
 
         const setStatusResponse =
