@@ -125,7 +125,6 @@ export const enrichContentData =
               E.toError,
             ),
             TE.chain(TE.fromNullable(new Error("Content not found"))),
-            TE.map((c) => c as unknown as MessageContent),
             TE.mapLeft((e) =>
               trackErrorAndContinue(
                 context,

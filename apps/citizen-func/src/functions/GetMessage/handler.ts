@@ -1,7 +1,6 @@
 import { InvocationContext } from "@azure/functions";
 import { InternalMessageResponseWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/InternalMessageResponseWithContent";
 import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
-import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
 import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
 import { PaymentDataWithRequiredPayee } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentDataWithRequiredPayee";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
@@ -203,7 +202,12 @@ export function GetMessageHandler(
           () => messageContentRepository.getByMessageContentById(messageId),
           E.toError,
         ),
-        TE.map((c) => O.fromNullable(c as unknown as MessageContent)),
+        TE.map((messageContent) => {
+          if (messageContent === null) {
+            return O.none;
+          }
+          return O.some(messageContent);
+        }),
       )(),
     ]);
 
