@@ -33,13 +33,13 @@ import {
   Ulid,
 } from "@pagopa/ts-commons/lib/strings";
 import { withoutUndefinedValues } from "@pagopa/ts-commons/lib/types";
-import { BlobService } from "azure-storage";
 import * as A from "fp-ts/lib/Apply";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as B from "fp-ts/lib/boolean";
 import { flow, pipe } from "fp-ts/lib/function";
+import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
 
 import { ThirdPartyData } from "../../generated/definitions/ThirdPartyData";
 import {
@@ -182,7 +182,7 @@ const getErrorOrMaybeThirdPartyData = async (
 export function GetMessageHandler(
   messageModel: MessageModel,
   messageStatusModel: MessageStatusModel,
-  blobService: BlobService,
+  messageContentRepository: MessageContentRepository,
   serviceModel: ServiceModel,
   redisClientFactory: RedisClientFactory,
   serviceCacheTtl: NonNegativeInteger,
@@ -197,7 +197,18 @@ export function GetMessageHandler(
         fiscalCode,
         messageId as NonEmptyString,
       )(), // FIXME: decode instead of cast
-      messageModel.getContentFromBlob(blobService, messageId)(),
+      pipe(
+        TE.tryCatch(
+          () => messageContentRepository.getByMessageContentById(messageId),
+          E.toError,
+        ),
+        TE.map((messageContent) => {
+          if (messageContent === null) {
+            return O.none;
+          }
+          return O.some(messageContent);
+        }),
+      )(),
     ]);
 
     if (E.isLeft(errorOrMaybeDocument)) {
@@ -348,7 +359,7 @@ export function GetMessageHandler(
 export function GetMessage(
   messageModel: MessageModel,
   messageStatusModel: MessageStatusModel,
-  blobService: BlobService,
+  messageContentRepository: MessageContentRepository,
   serviceModel: ServiceModel,
   redisClientFactory: RedisClientFactory,
   serviceCacheTtl: NonNegativeInteger,
@@ -358,7 +369,7 @@ export function GetMessage(
   const handler = GetMessageHandler(
     messageModel,
     messageStatusModel,
-    blobService,
+    messageContentRepository,
     serviceModel,
     redisClientFactory,
     serviceCacheTtl,

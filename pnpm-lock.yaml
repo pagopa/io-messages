@@ -251,6 +251,12 @@ importers:
       '@azure/identity':
         specifier: 'catalog:'
         version: 4.13.0
+      '@azure/storage-blob':
+        specifier: 'catalog:'
+        version: 12.29.1
+      '@azure/storage-queue':
+        specifier: 'catalog:'
+        version: 12.28.1
       '@pagopa/io-functions-commons':
         specifier: 'catalog:'
         version: 30.0.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
@@ -260,15 +266,15 @@ importers:
       applicationinsights:
         specifier: 'catalog:'
         version: 2.9.8
-      azure-storage:
-        specifier: 'catalog:'
-        version: 2.10.7
       express:
         specifier: 'catalog:'
         version: 4.21.2
       fp-ts:
         specifier: 'catalog:'
         version: 2.16.11
+      io-messages-common-legacy:
+        specifier: workspace:*
+        version: link:../../packages/io-messages-common-legacy
       io-ts:
         specifier: 'catalog:'
         version: 2.2.22(fp-ts@2.16.11)

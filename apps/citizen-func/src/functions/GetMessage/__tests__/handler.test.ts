@@ -29,9 +29,9 @@ import {
   NonEmptyString,
   OrganizationFiscalCode,
 } from "@pagopa/ts-commons/lib/strings";
-import { createBlobService } from "azure-storage";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
+import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { context as contextMock } from "../../../__mocks__/context";
@@ -108,19 +108,19 @@ const anEnrichedMessageResponse: EnrichedMessage = {
 };
 
 const mockServiceModel = new ServiceModel({} as Container);
-const mockBlobServiceModel = createBlobService("UseDevelopmentStorage=true");
+
+const getByMessageContentByIdMock = vi.fn().mockResolvedValue(aMessageContent);
+
+const mockMessageContentRepository: MessageContentRepository = {
+  getByMessageContentById: getByMessageContentByIdMock,
+};
 
 const findMessageForRecipientMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aRetrievedMessageWithoutContent)));
 
-const getContentFromBlobMock = vi
-  .fn()
-  .mockImplementation(() => TE.of(O.some(aMessageContent)));
-
 class MockMessageModel extends MessageModel {
   findMessageForRecipient = findMessageForRecipientMock;
-  getContentFromBlob = getContentFromBlobMock;
   constructor() {
     super({} as Container, "mock-container" as NonEmptyString);
   }
@@ -168,12 +168,12 @@ describe("GetMessageHandler", () => {
     vi.clearAllMocks();
   });
   it("should fail if any error occurs trying to retrieve the message content", async () => {
-    getContentFromBlobMock.mockReturnValueOnce(TE.left(new Error()));
+    getByMessageContentByIdMock.mockRejectedValueOnce(new Error());
 
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
       mockMessageStatusModel,
-      mockBlobServiceModel,
+      mockMessageContentRepository,
       mockServiceModel,
       redisClientMock,
       aServiceCacheTTL,
@@ -188,7 +188,7 @@ describe("GetMessageHandler", () => {
       O.none,
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -199,7 +199,7 @@ describe("GetMessageHandler", () => {
   });
 
   it("should fail if any error occurs trying to retrieve message status while requesting an enriched message", async () => {
-    getContentFromBlobMock.mockReturnValueOnce(TE.of(O.some(aMessageContent)));
+    getByMessageContentByIdMock.mockResolvedValueOnce(aMessageContent);
 
     findLastVersionByModelIdMessageStatusMock.mockImplementationOnce(() =>
       TE.left(
@@ -210,7 +210,7 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
       mockMessageStatusModel,
-      mockBlobServiceModel,
+      mockMessageContentRepository,
       mockServiceModel,
       redisClientMock,
       aServiceCacheTTL,
@@ -225,7 +225,7 @@ describe("GetMessageHandler", () => {
       O.some(true),
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -240,12 +240,12 @@ describe("GetMessageHandler", () => {
       TE.left(new Error("Cannot query services")),
     );
 
-    getContentFromBlobMock.mockReturnValueOnce(TE.of(O.some(aMessageContent)));
+    getByMessageContentByIdMock.mockResolvedValueOnce(aMessageContent);
 
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
       mockMessageStatusModel,
-      mockBlobServiceModel,
+      mockMessageContentRepository,
       mockServiceModel,
       redisClientMock,
       aServiceCacheTTL,
@@ -261,26 +261,22 @@ describe("GetMessageHandler", () => {
     );
 
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(1);
     expect(getOrCacheServiceMock).toHaveBeenCalledTimes(1);
 
     expect(result.kind).toBe("IResponseErrorInternal");
   });
 
   it("should respond with an enriched message", async () => {
-    getContentFromBlobMock.mockReturnValueOnce(
-      TE.of(
-        O.some({
-          ...aMessageContent,
-          payment_data: aPaymentDataWithoutPayee,
-        }),
-      ),
-    );
+    getByMessageContentByIdMock.mockResolvedValueOnce({
+      ...aMessageContent,
+      payment_data: aPaymentDataWithoutPayee,
+    });
 
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
       mockMessageStatusModel,
-      mockBlobServiceModel,
+      mockMessageContentRepository,
       mockServiceModel,
       redisClientMock,
       aServiceCacheTTL,
@@ -295,7 +291,7 @@ describe("GetMessageHandler", () => {
       O.some(true),
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -332,19 +328,15 @@ describe("GetMessageHandler", () => {
       category: serviceId === aServiceId ? TagEnumPN.PN : TagEnumBase.GENERIC,
     });
 
-    getContentFromBlobMock.mockReturnValueOnce(
-      TE.of(
-        O.some({
-          ...aMessageContent,
-          third_party_data: aPnThirdPartyData,
-        }),
-      ),
-    );
+    getByMessageContentByIdMock.mockResolvedValueOnce({
+      ...aMessageContent,
+      third_party_data: aPnThirdPartyData,
+    });
 
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
       mockMessageStatusModel,
-      mockBlobServiceModel,
+      mockMessageContentRepository,
       mockServiceModel,
       redisClientMock,
       aServiceCacheTTL,
@@ -359,7 +351,7 @@ describe("GetMessageHandler", () => {
       O.some(true),
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -390,12 +382,12 @@ describe("GetMessageHandler", () => {
   });
 
   it("should respond with a message", async () => {
-    getContentFromBlobMock.mockReturnValueOnce(TE.of(O.some(aMessageContent)));
+    getByMessageContentByIdMock.mockResolvedValueOnce(aMessageContent);
 
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
       mockMessageStatusModel,
-      mockBlobServiceModel,
+      mockMessageContentRepository,
       mockServiceModel,
       redisClientMock,
       aServiceCacheTTL,
@@ -410,7 +402,7 @@ describe("GetMessageHandler", () => {
       O.none,
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithoutContent.fiscalCode,
@@ -444,14 +436,14 @@ describe("GetMessageHandler", () => {
     findMessageForRecipientMock.mockImplementationOnce(() =>
       TE.of(O.some(aRetrievedMessageWithEuCovidCert)),
     );
-    getContentFromBlobMock.mockImplementationOnce(() =>
-      TE.of(O.some(aRetrievedMessageWithEuCovidCert.content as MessageContent)),
+    getByMessageContentByIdMock.mockResolvedValueOnce(
+      aRetrievedMessageWithEuCovidCert.content,
     );
 
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
       mockMessageStatusModel,
-      mockBlobServiceModel,
+      mockMessageContentRepository,
       mockServiceModel,
       redisClientMock,
       aServiceCacheTTL,
@@ -466,7 +458,7 @@ describe("GetMessageHandler", () => {
       O.none,
     );
 
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
       aRetrievedMessageWithEuCovidCert.fiscalCode,
@@ -489,7 +481,7 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
       mockMessageStatusModel,
-      mockBlobServiceModel,
+      mockMessageContentRepository,
       mockServiceModel,
       redisClientMock,
       aServiceCacheTTL,
@@ -510,19 +502,15 @@ describe("GetMessageHandler", () => {
   });
 
   it("should respond with a message payment data overriden with payee if original content does not have a payee", async () => {
-    getContentFromBlobMock.mockImplementationOnce(() =>
-      TE.of(
-        O.some({
-          ...aMessageContent,
-          payment_data: aPaymentDataWithoutPayee,
-        }),
-      ),
-    );
+    getByMessageContentByIdMock.mockResolvedValueOnce({
+      ...aMessageContent,
+      payment_data: aPaymentDataWithoutPayee,
+    });
 
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
       mockMessageStatusModel,
-      mockBlobServiceModel,
+      mockMessageContentRepository,
       mockServiceModel,
       redisClientMock,
       aServiceCacheTTL,
@@ -538,7 +526,7 @@ describe("GetMessageHandler", () => {
     );
 
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(1);
     expect(getOrCacheServiceMock).toHaveBeenCalledTimes(1);
 
     const expected = {
@@ -561,14 +549,10 @@ describe("GetMessageHandler", () => {
   });
 
   it("should respond with an internal error if message sender cannot be retrieved", async () => {
-    getContentFromBlobMock.mockImplementationOnce(() =>
-      TE.of(
-        O.some({
-          ...aMessageContent,
-          payment_data: aPaymentDataWithoutPayee,
-        }),
-      ),
-    );
+    getByMessageContentByIdMock.mockResolvedValueOnce({
+      ...aMessageContent,
+      payment_data: aPaymentDataWithoutPayee,
+    });
 
     getOrCacheServiceMock.mockImplementationOnce(() =>
       TE.left(new Error("Cannot query services")),
@@ -577,7 +561,7 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
       mockMessageStatusModel,
-      mockBlobServiceModel,
+      mockMessageContentRepository,
       mockServiceModel,
       redisClientMock,
       aServiceCacheTTL,
@@ -593,21 +577,17 @@ describe("GetMessageHandler", () => {
     );
 
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(1);
     expect(getOrCacheServiceMock).toHaveBeenCalledTimes(1);
 
     expect(result.kind).toBe("IResponseErrorInternal");
   });
 
   it("should respond with an internal error if message sender cannot be found", async () => {
-    getContentFromBlobMock.mockImplementationOnce(() =>
-      TE.of(
-        O.some({
-          ...aMessageContent,
-          payment_data: aPaymentDataWithoutPayee,
-        }),
-      ),
-    );
+    getByMessageContentByIdMock.mockResolvedValueOnce({
+      ...aMessageContent,
+      payment_data: aPaymentDataWithoutPayee,
+    });
     getOrCacheServiceMock.mockImplementationOnce(() =>
       TE.left(new Error("Cannot find service")),
     );
@@ -615,7 +595,7 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel,
       mockMessageStatusModel,
-      mockBlobServiceModel,
+      mockMessageContentRepository,
       mockServiceModel,
       redisClientMock,
       aServiceCacheTTL,
@@ -631,7 +611,7 @@ describe("GetMessageHandler", () => {
     );
 
     expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
-    expect(getContentFromBlobMock).toHaveBeenCalledTimes(1);
+    expect(getByMessageContentByIdMock).toHaveBeenCalledTimes(1);
     expect(getOrCacheServiceMock).toHaveBeenCalledTimes(1);
 
     expect(result.kind).toBe("IResponseErrorInternal");
