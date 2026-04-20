@@ -140,9 +140,11 @@ module "push_notif_function" {
       "AzureWebJobs.CancelMassiveNotificationJob.Disabled"           = "1",
       "AzureWebJobs.CheckMassiveJob.Disabled"                        = "1",
       "AzureWebJobs.CreateMassiveNotificationJob.Disabled"           = "1",
+      "AzureWebJobs.StartMassiveNotificationJob.Disabled"            = "1",
+      "AzureWebJobs.ProcessMassiveJob.Disabled"                      = "1",
       "AzureWebJobs.GetMassiveNotificationJob.Disabled"              = "1",
       "AzureWebJobs.HandleNHNotificationCall.Disabled"               = "0",
-      "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled" = "0"
+      "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled" = "0",
       "AzureWebJobs.InstallationUpdateDispatcher.Disabled"           = "1",
       "AzureWebJobs.UpdateInstallation.Disabled"                     = "1",
     }
@@ -152,6 +154,8 @@ module "push_notif_function" {
     "AzureWebJobs.CancelMassiveNotificationJob.Disabled",
     "AzureWebJobs.CheckMassiveJob.Disabled",
     "AzureWebJobs.CreateMassiveNotificationJob.Disabled",
+    "AzureWebJobs.StartMassiveNotificationJob.Disabled",
+    "AzureWebJobs.ProcessMassiveJob.Disabled",
     "AzureWebJobs.GetMassiveNotificationJob.Disabled",
     "AzureWebJobs.HandleNHNotificationCall.Disabled",
     "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled",
@@ -164,6 +168,8 @@ module "push_notif_function" {
       "AzureWebJobs.CancelMassiveNotificationJob.Disabled"           = "1",
       "AzureWebJobs.CheckMassiveJob.Disabled"                        = "1",
       "AzureWebJobs.CreateMassiveNotificationJob.Disabled"           = "1",
+      "AzureWebJobs.StartMassiveNotificationJob.Disabled"            = "1",
+      "AzureWebJobs.ProcessMassiveJob.Disabled"                      = "1",
       "AzureWebJobs.GetMassiveNotificationJob.Disabled"              = "1",
       "AzureWebJobs.HandleNHNotificationCall.Disabled"               = "1",
       "AzureWebJobs.HandleNHNotifyMessageCallActivityQueue.Disabled" = "1"
