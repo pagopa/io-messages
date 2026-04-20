@@ -4,8 +4,8 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import {
   BlobStorageErrorException,
-  MessageContentRepo,
-} from "../message-content-repository";
+  MessageContentBlobAdapter,
+} from "../message-content";
 
 const makeStream = (content: string): NodeJS.ReadableStream => {
   const readable = new Readable({ read() {} });
@@ -32,9 +32,12 @@ const mockBlobServiceClient = {
 const CONTAINER_NAME = "message-content";
 const MESSAGE_ID = "A_MESSAGE_ID";
 
-const repo = new MessageContentRepo(mockBlobServiceClient, CONTAINER_NAME);
+const repo = new MessageContentBlobAdapter(
+  mockBlobServiceClient,
+  CONTAINER_NAME,
+);
 
-describe("MessageContentRepo.getByMessageContentById", () => {
+describe("MessageContentBlobAdapter.getByMessageContentById", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -106,7 +109,7 @@ describe("MessageContentRepo.getByMessageContentById", () => {
   test("should throw on unexpected download errors", async () => {
     downloadMock.mockRejectedValueOnce(new Error("network timeout"));
     await expect(repo.getByMessageContentById(MESSAGE_ID)).rejects.toThrow(
-      "Unknown error",
+      "network timeout",
     );
 
     // also verify any non-BlobNotFound code preserves the message
