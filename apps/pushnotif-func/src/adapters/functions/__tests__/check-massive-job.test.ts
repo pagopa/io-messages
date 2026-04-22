@@ -33,8 +33,11 @@ describe("getCheckMassiveJobHandler", () => {
     await handler({ jobId: "invalid-id" }, context);
 
     expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith({
-      name: "massiveJobs.invalidCheckNotificationStatusMessage",
-      properties: { issues: expect.any(Array) },
+      name: "massiveJob.CheckMassiveJob.queueMessage.invalid",
+      properties: {
+        issues: expect.any(Array),
+        rawMessage: { jobId: "invalid-id" },
+      },
     });
     expect(useCaseMock.execute).not.toHaveBeenCalled();
   });

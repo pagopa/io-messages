@@ -92,13 +92,14 @@ export class CheckMassiveJobStatusUseCase {
         );
 
       if (notificationDetails instanceof ErrorNotFound) {
-        // TODO: Find a better name.
         this.telemetryClient.trackEvent({
-          name: "massiveJobs.notificationNotFound",
+          name: "massiveJob.CheckMassiveJob.notification.notFound",
           properties: {
-            cause: notificationDetails.cause,
-            message: notificationDetails.message,
-            name: notificationDetails.name,
+            errorCause: notificationDetails.cause,
+            errorKind: notificationDetails.constructor.name,
+            jobId: jobID,
+            notificationId: progress.id,
+            tag: progress.tags[0],
           },
         });
 

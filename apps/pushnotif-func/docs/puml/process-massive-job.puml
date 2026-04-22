@@ -52,7 +52,7 @@ alt Invalid message
       "error": "Invalid scheduled time"
     }
   end note
-  fn --> ai : Track an event
+  fn --> ai : Track event:\n**massiveJob.ProcessMassiveJob.queueMessage.invalid**
 
   fn -[#red]> fn : End the execution
 end
@@ -62,6 +62,8 @@ activate nh1
 
 alt Error from notification hub
   nh1 -[#red]> fn : Transient error
+
+  fn --> ai : Track event:\n**massiveJob.ProcessMassiveJob.failed**
 
   alt Was last retry
     fn -> smpq : Push to the poison
@@ -104,7 +106,7 @@ alt Error from comos
       "error": "Error from cosmos, notification scheduled correctly as xxx"
     }
   end note
-  fn --> ai : Track an event
+  fn --> ai : Track event:\n**massiveJob.ProcessMassiveJob.progress.create.failed**
 
   fn -[#red]> fn : End the execution.
 end

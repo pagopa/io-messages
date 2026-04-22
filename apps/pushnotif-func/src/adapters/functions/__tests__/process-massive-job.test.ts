@@ -49,7 +49,7 @@ describe("makeProcessMassiveJobHandler", () => {
     await handler(invalidMessage, context);
 
     expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith({
-      name: "massiveJobs.invalidProcessMassiveNotificationMessage",
+      name: "massiveJob.ProcessMassiveJob.queueMessage.invalid",
       properties: expect.objectContaining({
         issues: expect.any(Array),
       }),
@@ -91,11 +91,13 @@ describe("makeProcessMassiveJobHandler", () => {
       telemetryServiceMock,
     );
     expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith({
-      name: "massiveJobs.process",
+      name: "massiveJob.ProcessMassiveJob.failed",
       properties: {
-        cause: error.cause,
-        message: error.message,
-        name: error.name,
+        errorCause: error.cause,
+        errorKind: "ErrorInternal",
+        jobId: aValidMessage.jobId,
+        scheduledTimestamp: aValidMessage.scheduledTimestamp,
+        tags: aValidMessage.tags,
       },
     });
   });

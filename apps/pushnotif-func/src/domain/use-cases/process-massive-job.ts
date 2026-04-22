@@ -55,11 +55,14 @@ export class ProcessMassiveJobUseCase {
         // In this case we want to ignore the error by simply tracking an event,
         // triggering a retry here would mean sending duplicates to users.
         telemetryService.trackEvent({
-          name: "massiveJobs.createProgress.failed",
+          name: "massiveJob.ProcessMassiveJob.progress.create.failed",
           properties: {
-            cause: createResult.cause,
-            message: createResult.message,
-            name: createResult.name,
+            errorCause: createResult.cause,
+            errorKind: createResult.constructor.name,
+            jobId,
+            notificationId: progress.id,
+            scheduledTimestamp,
+            tags: progress.tags,
           },
         });
         continue;

@@ -201,11 +201,14 @@ describe("ProcessMassiveJobUseCase", () => {
         expect(result).toEqual([notificationID1, notificationID2]);
         expect(massiveProgressRepositoryMock.create).toHaveBeenCalledTimes(2);
         expect(telemetryServiceMock.trackEvent).toHaveBeenCalledWith({
-          name: "massiveJobs.createProgress.failed",
+          name: "massiveJob.ProcessMassiveJob.progress.create.failed",
           properties: {
-            cause: createError.cause,
-            message: createError.message,
-            name: createError.name,
+            errorCause: createError.cause,
+            errorKind: "ErrorInternal",
+            jobId,
+            notificationId: notificationID1,
+            scheduledTimestamp,
+            tags: ["aaa"],
           },
         });
       });
@@ -251,19 +254,25 @@ describe("ProcessMassiveJobUseCase", () => {
         expect(result).toEqual([notificationID1, notificationID2]);
         expect(telemetryServiceMock.trackEvent).toHaveBeenCalledTimes(2);
         expect(telemetryServiceMock.trackEvent).toHaveBeenNthCalledWith(1, {
-          name: "massiveJobs.createProgress.failed",
+          name: "massiveJob.ProcessMassiveJob.progress.create.failed",
           properties: {
-            cause: createError1.cause,
-            message: createError1.message,
-            name: createError1.name,
+            errorCause: createError1.cause,
+            errorKind: "ErrorInternal",
+            jobId,
+            notificationId: notificationID1,
+            scheduledTimestamp,
+            tags: ["aaa"],
           },
         });
         expect(telemetryServiceMock.trackEvent).toHaveBeenNthCalledWith(2, {
-          name: "massiveJobs.createProgress.failed",
+          name: "massiveJob.ProcessMassiveJob.progress.create.failed",
           properties: {
-            cause: createError2.cause,
-            message: createError2.message,
-            name: createError2.name,
+            errorCause: createError2.cause,
+            errorKind: "ErrorInternal",
+            jobId,
+            notificationId: notificationID2,
+            scheduledTimestamp,
+            tags: ["bbb"],
           },
         });
       });

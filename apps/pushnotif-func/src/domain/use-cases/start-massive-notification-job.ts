@@ -94,12 +94,14 @@ export class MakeStartMassiveNotificationJobUseCase {
 
       if (sendMessageResult instanceof ErrorInternal) {
         this.telemetryClient.trackEvent({
-          name: "massiveJobs.FailedToScheduleNotificationBatches",
+          name: "massiveJob.StartMassiveNotificationJob.scheduleBatch.failed",
           properties: {
-            error: sendMessageResult.message,
+            batchSize,
+            errorCause: sendMessageResult.cause,
+            errorKind: sendMessageResult.constructor.name,
             jobId: massiveJob.id,
-            scheduledTimestamp: scheduledTimestamp.toString(),
-            tags: tags.join(","),
+            scheduledTimestamp,
+            tags,
           },
         });
       }
