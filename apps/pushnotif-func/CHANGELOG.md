@@ -1,5 +1,13 @@
 ### Changelog
 
+## 2.8.1
+
+### Patch Changes
+
+- 749143a: remove azure-storage lib
+  use MessageContentRepository from io-messages-common-legacy for retrieve the message content
+  use azure/storage-blob for the blobServices healthcheck
+
 ## 2.8.0
 
 ### Minor Changes
