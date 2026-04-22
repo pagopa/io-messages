@@ -130,7 +130,7 @@ const main = (config: Config) => {
   const blobServiceClient = BlobServiceClient.fromConnectionString(
     config.apiStorageAccountConnectionString,
   );
-  const messageContentAdapter = new MessageContentBlobAdapter(
+  const messageContentRepository = new MessageContentBlobAdapter(
     blobServiceClient,
     config.messageContentContainerName,
   );
@@ -275,7 +275,7 @@ const main = (config: Config) => {
     handler: Notify(
       getUserProfileReader(profileModel),
       getUserSessionStatusReader(sessionManagerClient),
-      getMessageWithContent(messageModel, messageContentAdapter),
+      getMessageWithContent(messageModel, messageContentRepository),
       getService(serviceModel),
       sendNotification(notifyQueueClient),
       telemetryClient,
