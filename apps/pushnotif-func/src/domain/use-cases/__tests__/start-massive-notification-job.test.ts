@@ -234,12 +234,14 @@ describe("StartMassiveNotificationJobUseCase - telemetry", () => {
     ).toHaveBeenCalledTimes(820);
     expect(telemetryClientMock.trackEvent).toHaveBeenCalledTimes(1);
     expect(telemetryClientMock.trackEvent).toHaveBeenCalledWith({
-      name: "massiveJobs.FailedToScheduleNotificationBatches",
+      name: "massiveJob.StartMassiveNotificationJob.scheduleBatch.failed",
       properties: {
-        error: sendError.message,
+        batchSize: 5,
+        errorCause: sendError.cause,
+        errorKind: "ErrorInternal",
         jobId,
-        scheduledTimestamp: "1700003608",
-        tags: "000,001,002,003,004",
+        scheduledTimestamp: 1700003608,
+        tags: ["000", "001", "002", "003", "004"],
       },
     });
   });

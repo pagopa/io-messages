@@ -29,11 +29,11 @@ export const makeProcessMassiveJobHandler =
       processMassiveNotificationMessageSchema.safeParse(message);
 
     if (!checkNotificationStatusMessage.success) {
-      // TODO: find a standard for event names.
       telemetryService.trackEvent({
-        name: "massiveJobs.invalidProcessMassiveNotificationMessage",
+        name: "massiveJob.ProcessMassiveJob.queueMessage.invalid",
         properties: {
           issues: checkNotificationStatusMessage.error.issues,
+          rawMessage: message,
         },
       });
 
@@ -51,11 +51,14 @@ export const makeProcessMassiveJobHandler =
 
     if (progressIDs instanceof ErrorInternal) {
       telemetryService.trackEvent({
-        name: "massiveJobs.process",
+        name: "massiveJob.ProcessMassiveJob.failed",
         properties: {
-          cause: progressIDs.cause,
-          message: progressIDs.message,
-          name: progressIDs.name,
+          errorCause: progressIDs.cause,
+          errorKind: progressIDs.constructor.name,
+          jobId: checkNotificationStatusMessage.data.jobId,
+          scheduledTimestamp:
+            checkNotificationStatusMessage.data.scheduledTimestamp,
+          tags: checkNotificationStatusMessage.data.tags,
         },
       });
 

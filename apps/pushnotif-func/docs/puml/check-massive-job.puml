@@ -34,7 +34,7 @@ activate cjp
 cjp -> cjp : Parse the message
 
 alt Invalid CheckNotificationStatusMessage
-  cjp --> ai : Track an event
+  cjp --> ai : Track event:\n**massiveJob.CheckMassiveJob.queueMessage.invalid**
 
   cjp -[#red]x cjp : End the execution
 end
@@ -57,7 +57,7 @@ alt Transient error from cosmos
   cjp -[#red]x cjp : Throw error
 else Job not found
   mj -[#red]> cjp : 404
-  cjp --> ai : Track an event.
+  cjp --> ai : Track event:\n**massiveJob.CheckMassiveJob.notFound**
   cjp -[#red]x cjp : End the execution
 end
 
@@ -140,7 +140,7 @@ loop For each progress document
     cjp -[#red]x cjp : Throw an error
 
   else Notification not found
-    cjp --> ai : Track an event
+    cjp --> ai : Track event:\n**massiveJob.CheckMassiveJob.notification.notFound**
     cjp -> mjp : Set status to `FAILED`
 
     activate mjp

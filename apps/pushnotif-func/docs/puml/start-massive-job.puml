@@ -149,7 +149,7 @@ loop tags / batches of tags
       This failed schedule operation can be retried by hand
       using payload informations in the event.
     end note
-    httpfunc --> ai : Track an event with the message payload.
+    httpfunc --> ai : Track event:\n**massiveJob.StartMassiveNotificationJob.scheduleBatch.failed**
   end
 
   smq -[#green]> httpfunc : Success
