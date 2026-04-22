@@ -551,6 +551,9 @@ importers:
       '@azure/service-bus':
         specifier: 'catalog:'
         version: 7.9.5
+      '@azure/storage-blob':
+        specifier: 'catalog:'
+        version: 12.29.1
       '@azure/storage-queue':
         specifier: 'catalog:'
         version: 12.28.1
@@ -563,9 +566,6 @@ importers:
       applicationinsights:
         specifier: 'catalog:'
         version: 2.9.8
-      azure-storage:
-        specifier: 'catalog:'
-        version: 2.10.7
       durable-functions:
         specifier: 'catalog:'
         version: 3.3.0
@@ -575,6 +575,9 @@ importers:
       fp-ts:
         specifier: 'catalog:'
         version: 2.16.11
+      io-messages-common-legacy:
+        specifier: workspace:*
+        version: link:../../packages/io-messages-common-legacy
       io-ts:
         specifier: 'catalog:'
         version: 2.2.22(fp-ts@2.16.11)

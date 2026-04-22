@@ -22,10 +22,10 @@ import {
   ResponseErrorNotFound,
 } from "@pagopa/ts-commons/lib/responses";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import * as AS from "azure-storage";
 import * as TE from "fp-ts/TaskEither";
 import * as AP from "fp-ts/lib/Apply";
 import { flow, pipe } from "fp-ts/lib/function";
+import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
 import { match } from "ts-pattern";
 
 export type ServiceReader = (
@@ -77,7 +77,7 @@ const getMessageMetadata =
     );
 
 const getMessageContent =
-  (messageModel: MessageModel, blobService: AS.BlobService) =>
+  (messageContentRepo: MessageContentRepository) =>
   (
     messageId: NonEmptyString,
   ): TE.TaskEither<
@@ -85,12 +85,12 @@ const getMessageContent =
     MessageContent
   > =>
     pipe(
-      messageModel.getContentFromBlob(blobService, messageId),
-      TE.mapLeft(() =>
-        ResponseErrorInternal("Error while retrieving the message"),
+      TE.tryCatch(
+        () => messageContentRepo.getByMessageContentById(messageId),
+        () => ResponseErrorInternal("Error while retrieving the message"),
       ),
       TE.chainW(
-        TE.fromOption(() =>
+        TE.fromNullable(
           ResponseErrorNotFound(
             "Message content not found",
             `Content of message ${messageId} was not found for the given Fiscal Code`,
@@ -113,12 +113,12 @@ export type MessageWithContentReader = (
 export const getMessageWithContent =
   (
     messageModel: MessageModel,
-    blobService: AS.BlobService,
+    messageContentRepo: MessageContentRepository,
   ): MessageWithContentReader =>
   (fiscalCode, messageId): ReturnType<MessageWithContentReader> =>
     pipe(
       {
-        content: getMessageContent(messageModel, blobService)(messageId),
+        content: getMessageContent(messageContentRepo)(messageId),
         metadata: getMessageMetadata(messageModel)(fiscalCode, messageId),
       },
       AP.sequenceS(TE.ApplicativePar),

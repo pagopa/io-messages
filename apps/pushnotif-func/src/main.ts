@@ -2,6 +2,7 @@ import { CosmosClient } from "@azure/cosmos";
 import { app, output } from "@azure/functions";
 import { DefaultAzureCredential } from "@azure/identity";
 import { NotificationHubsClient } from "@azure/notification-hubs";
+import { BlobServiceClient } from "@azure/storage-blob";
 import { QueueClient } from "@azure/storage-queue";
 import {
   MESSAGE_COLLECTION_NAME,
@@ -22,10 +23,10 @@ import {
 } from "@pagopa/ts-commons/lib/fetch";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { Millisecond } from "@pagopa/ts-commons/lib/units";
-import { createBlobService } from "azure-storage";
 import * as df from "durable-functions";
 import { RetryOptions } from "durable-functions";
 import { pipe } from "fp-ts/lib/function";
+import { MessageContentBlobAdapter } from "io-messages-common-legacy/adapters/message-content";
 import nodeFetch from "node-fetch";
 
 import { TelemetryClient } from "./adapters/appinsights";
@@ -126,8 +127,12 @@ const main = (config: Config) => {
     config.messageContentContainerName as NonEmptyString,
   );
 
-  const blobService = createBlobService(
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
     config.apiStorageAccountConnectionString,
+  );
+  const messageContentRepository = new MessageContentBlobAdapter(
+    blobServiceClient,
+    config.messageContentContainerName,
   );
 
   const serviceModel = new ServiceModel(
@@ -225,7 +230,7 @@ const main = (config: Config) => {
   const healthChecks = [
     () => cosmosHealthcheck(apiCosmosdb),
     () => cosmosHealthcheck(pushCosmosDb),
-    () => blobServiceHealthcheck(blobService),
+    () => blobServiceHealthcheck(blobServiceClient),
     ...notificationHubClients.map(
       (client, i) => () => notificationHubHealthcheck(client, i + 1),
     ),
@@ -270,7 +275,7 @@ const main = (config: Config) => {
     handler: Notify(
       getUserProfileReader(profileModel),
       getUserSessionStatusReader(sessionManagerClient),
-      getMessageWithContent(messageModel, blobService),
+      getMessageWithContent(messageModel, messageContentRepository),
       getService(serviceModel),
       sendNotification(notifyQueueClient),
       telemetryClient,

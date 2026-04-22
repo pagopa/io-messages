@@ -1,10 +1,10 @@
 import { ErrorResponse } from "@azure/cosmos";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
-import * as AS from "azure-storage";
 import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
 import * as TE from "fp-ts/TaskEither";
+import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -36,13 +36,14 @@ const findMessageForRecipientMock = vi
   .fn()
   .mockImplementation(() => TE.of(O.some(aRetrievedMessage)));
 
-const getContentFromBlobMock = vi
-  .fn()
-  .mockImplementation(() => TE.of(O.some(aMessageContent)));
 const messageModelMock = {
   findMessageForRecipient: findMessageForRecipientMock,
-  getContentFromBlob: getContentFromBlobMock,
 } as unknown as MessageModel;
+
+const getByMessageContentByIdMock = vi.fn().mockResolvedValue(aMessageContent);
+const messageContentRepoMock: MessageContentRepository = {
+  getByMessageContentById: getByMessageContentByIdMock,
+};
 
 const anActiveSession = { active: true };
 
@@ -116,7 +117,7 @@ describe("MessageWithContentReader", () => {
   it("should return the existing message with its content", async () => {
     const messageReader = getMessageWithContent(
       messageModelMock,
-      {} as AS.BlobService,
+      messageContentRepoMock,
     );
 
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();
@@ -127,7 +128,7 @@ describe("MessageWithContentReader", () => {
     findMessageForRecipientMock.mockImplementationOnce(() => TE.of(O.none));
     const messageReader = getMessageWithContent(
       messageModelMock,
-      {} as AS.BlobService,
+      messageContentRepoMock,
     );
 
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();
@@ -140,10 +141,10 @@ describe("MessageWithContentReader", () => {
   });
 
   it("should return IResponseErrorNotFound if message content does not exists", async () => {
-    getContentFromBlobMock.mockImplementationOnce(() => TE.of(O.none));
+    getByMessageContentByIdMock.mockResolvedValueOnce(null);
     const messageReader = getMessageWithContent(
       messageModelMock,
-      {} as AS.BlobService,
+      messageContentRepoMock,
     );
 
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();
@@ -159,7 +160,7 @@ describe("MessageWithContentReader", () => {
     findMessageForRecipientMock.mockImplementationOnce(() => TE.left({}));
     const messageReader = getMessageWithContent(
       messageModelMock,
-      {} as AS.BlobService,
+      messageContentRepoMock,
     );
 
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();
@@ -172,10 +173,10 @@ describe("MessageWithContentReader", () => {
   });
 
   it("should return IResponseErrorInternal if an error occurred retrieving message content", async () => {
-    getContentFromBlobMock.mockImplementationOnce(() => TE.left({}));
+    getByMessageContentByIdMock.mockRejectedValueOnce(new Error("error"));
     const messageReader = getMessageWithContent(
       messageModelMock,
-      {} as AS.BlobService,
+      messageContentRepoMock,
     );
 
     const result = await messageReader(aFiscalCode, aRetrievedMessage.id)();
