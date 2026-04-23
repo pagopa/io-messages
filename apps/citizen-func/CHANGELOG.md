@@ -1,5 +1,11 @@
 ### Changelog
 
+## 6.0.7
+
+### Patch Changes
+
+- c5d19d5: bump @io-functions-commons v30 -> v32
+
 ## 6.0.6
 
 ### Patch Changes

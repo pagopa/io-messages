@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.8.3
+
+### Patch Changes
+
+- c5d19d5: bump @io-functions-commons v30 -> v32
+
 ## 2.8.2
 
 ### Patch Changes
