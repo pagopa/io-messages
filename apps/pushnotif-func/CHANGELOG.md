@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.8.2
+
+### Patch Changes
+
+- b0a1157: Rename `body` property to `message` in massive notification flow.
+
 ## 2.8.1
 
 ### Patch Changes
