@@ -22,9 +22,9 @@ end box
 
 note right of admin
   **Path Params**
-    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B"
+    "id": "01KHQZBYH4GYY4Z8P5W594JG3B"
 end note
-admin -> httpfunc : DELETE /massive-notification-job/:jobId
+admin -> httpfunc : DELETE /api/v1/massive-notification-job/{id}
 activate admin
 activate httpfunc
 
@@ -55,12 +55,12 @@ end
 note right of httpfunc
   **Job Document**
   {
-    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
     "title": "Push notification title",
     "body": "Push notification body",
     "status": "PROCESSING",
-    "executionTimeInHour": 6,
-    "startTime": 1771492295
+    "executionTimeInHours": 6,
+    "startTimeTimestamp": 1771492295
   }
 end note
 mnj -[#green]> httpfunc : Success
@@ -89,7 +89,7 @@ note right of httpfunc
   **Filters**
   {
     "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
-    "status": "PROCESSING"
+    "status": "PENDING"
   }
 end note
 httpfunc -> mnjp : Get the scheduled notificaions' id

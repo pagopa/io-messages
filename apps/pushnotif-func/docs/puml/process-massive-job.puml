@@ -46,7 +46,7 @@ alt Invalid message
   note right of fn
     **Message**
     {
-      "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+      "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
       "scheduledTimestamp": 123456789,
       "tags": ["aaa", "aab", "aac"],
       "error": "Invalid scheduled time"
@@ -82,9 +82,9 @@ nh1 -[#green]> fn : 200
 deactivate nh1
 
 note right of fn
-  **Job Document**
+  **Progress Document**
   {
-    "notificationId": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0",
+    "id": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0",
     "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
     "scheduledTimestamp": 123456789,
     "status": "PENDING",
@@ -94,12 +94,12 @@ end note
 fn -> mnjp : Create progress
 activate mnjp
 
-alt Error from comos
+alt Error from cosmos
   mnjp -[#red]> fn : Transient error
   note right of fn
     **Message**
     {
-      "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
       "jobType": "send",
       "scheduledTimestamp": 123456789,
       "tags": ["aaa", "aab", "aac"],
