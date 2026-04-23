@@ -63,7 +63,7 @@ export interface PushNotificationRepository {
 
   scheduleMassiveNotification(
     title: MassiveNotificationTitle,
-    body: MassiveNotificationMessage,
+    message: MassiveNotificationMessage,
     scheduledTimestamp: number,
     tags: MassiveNotificationTags,
   ): Promise<{ notificationID: string; tags: string[] }[] | ErrorInternal>;

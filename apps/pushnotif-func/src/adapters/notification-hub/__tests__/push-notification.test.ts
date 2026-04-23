@@ -228,7 +228,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
   });
 
   const title = "Test notification title";
-  const body = "Test notification message";
+  const message = "Test notification message";
   const scheduledTimestamp = 1700000100;
 
   describe("Success scenarios", () => {
@@ -243,7 +243,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -287,7 +287,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         allTags,
       );
@@ -315,7 +315,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         singleTag,
       );
@@ -338,7 +338,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -364,7 +364,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         timestampInSeconds,
         tags,
       );
@@ -384,7 +384,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -406,7 +406,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -434,7 +434,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -455,7 +455,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -476,7 +476,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -497,7 +497,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -518,7 +518,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -539,7 +539,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -560,7 +560,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -581,7 +581,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -603,7 +603,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -627,7 +627,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -651,7 +651,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );
@@ -675,7 +675,7 @@ describe("NotificationHubPushNotificationAdapter.scheduleMassiveNotification", (
 
       const result = await adapter.scheduleMassiveNotification(
         title,
-        body,
+        message,
         scheduledTimestamp,
         tags,
       );

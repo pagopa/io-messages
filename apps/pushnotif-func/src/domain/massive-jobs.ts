@@ -53,9 +53,9 @@ export const MassiveJobStatusEnum = z.enum([
 export type MassiveJobStatus = z.infer<typeof MassiveJobStatusEnum>;
 
 export const MassiveJobSchema = z.object({
-  body: massiveNotificationMessageSchema,
   executionTimeInHours: z.number().int().min(2).max(12),
   id: massiveJobIDSchema,
+  message: massiveNotificationMessageSchema,
   progress: z.array(massiveProgressSchema).optional(),
   startTimeTimestamp: z.number().int().positive().optional(),
   status: MassiveJobStatusEnum,

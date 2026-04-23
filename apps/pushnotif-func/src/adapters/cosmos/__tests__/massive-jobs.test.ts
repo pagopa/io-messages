@@ -7,9 +7,9 @@ import { MassiveJob, MassiveJobID } from "../../../domain/massive-jobs";
 import { CosmosMassiveJobsAdapter } from "../massive-jobs";
 
 const mockJob: MassiveJob = {
-  body: "test body",
   executionTimeInHours: 2,
   id: "01ARZ3NDEKTSV4RRFFQ69G5FAV" as MassiveJobID,
+  message: "test body",
   startTimeTimestamp: 1000000000,
   status: "CREATED",
   title: "test title",

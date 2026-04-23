@@ -26,8 +26,8 @@ const handler = makeProcessMassiveJobHandler(
 const aValidJobId = massiveJobIDSchema.parse("01ARZ3NDEKTSV4RRFFQ69G5FAV");
 
 const aValidMessage = {
-  body: "Test notification message",
   jobId: aValidJobId,
+  message: "Test notification message",
   scheduledTimestamp: 1700000100,
   tags: ["aaa", "bbb"],
   title: "Test notification title",
@@ -65,7 +65,7 @@ describe("makeProcessMassiveJobHandler", () => {
     expect(useCaseMock.execute).toHaveBeenCalledWith(
       aValidMessage.jobId,
       aValidMessage.title,
-      aValidMessage.body,
+      aValidMessage.message,
       aValidMessage.scheduledTimestamp,
       aValidMessage.tags,
       telemetryServiceMock,
@@ -85,7 +85,7 @@ describe("makeProcessMassiveJobHandler", () => {
     expect(useCaseMock.execute).toHaveBeenCalledWith(
       aValidMessage.jobId,
       aValidMessage.title,
-      aValidMessage.body,
+      aValidMessage.message,
       aValidMessage.scheduledTimestamp,
       aValidMessage.tags,
       telemetryServiceMock,
