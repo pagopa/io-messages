@@ -64,6 +64,8 @@ If the repository already ships a Dockerfile, compose service, devcontainer task
 8. Write `request.json`, `response.json`, `side-effects.json`, `topology.json`, and `normalization.json`.
 9. In `verify` mode, rerun the scenario and compare without mutating the cassette.
 
+If the harness is test-runner-driven, prefer doing the one-time `build` in the explicit `record` and `verify` scripts rather than inside the test body or the host wrapper. Keep the characterization test opt-in so the repository's default fast test suite does not start the full local topology by accident.
+
 ## Network reachability in devcontainers
 
 When the agent itself runs inside a devcontainer, Codespace, or other shared workspace container, do not assume Docker-published dependency ports are reachable through `127.0.0.1`.
@@ -71,6 +73,7 @@ When the agent itself runs inside a devcontainer, Codespace, or other shared wor
 - Probe a small candidate set from the test process itself, such as `127.0.0.1`, `host.docker.internal`, the Docker bridge gateway, and an explicit override env.
 - Keep the chosen host in topology metadata and normalize it in the cassette.
 - Treat "container port is published" and "the harness can actually reach it" as two separate checks.
+- If published ports remain unreliable, attach the workspace container to the same Docker network as the dependency containers and talk to them through network aliases; in many devcontainers this is the most stable path.
 
 ## Environment checklist
 
@@ -105,6 +108,7 @@ Check any config module that is evaluated during startup. Even if the chosen sce
 - database names
 
 Prefer valid local values over empty placeholders so the host can boot deterministically.
+Prefer syntactically valid local values, not just non-empty placeholders. Startup config often validates URLs, IDs, and connection strings at import time, so values like `example.invalid` or obviously fake URLs can still prevent the worker from loading.
 
 ## Trigger isolation for HTTP-only suites
 
@@ -144,6 +148,8 @@ Weak readiness checks:
 - only waiting for a port to open
 - assuming a container is ready because Docker marked it started
 
+Put explicit timeouts around startup, readiness probes, live requests, and side-effect reads, and stream the Functions host logs while waiting. Otherwise a single hung call can turn into an opaque suite-level timeout with no useful diagnosis.
+
 ## Cosmos emulator quirks worth proving
 
 Cosmos-compatible emulators often need more than a readiness endpoint.
@@ -151,7 +157,7 @@ Cosmos-compatible emulators often need more than a readiness endpoint.
 - Validate the exact SDK path the app uses, not just TCP reachability.
 - Some preview or Linux emulator builds advertise internal endpoints that make queries fail unless `connectionPolicy.enableEndpointDiscovery = false`.
 - Prove both point-read and query behavior. Some emulators return enough metadata for direct `item.read()` but omit fields such as `_self` on query results.
-- If existing shared decoders require metadata the emulator omits, prefer a narrow local-only seam that synthesizes the missing metadata for characterization instead of changing broad production behavior.
+- If existing shared decoders require metadata the emulator omits, prefer a narrow local-only seam that synthesizes the missing metadata for characterization instead of changing broad production behavior. In practice this may be a small characterization-only model factory or query adapter rather than a global decoder change.
 
 ## Queue recorder note
 
@@ -269,6 +275,7 @@ Usually means one of:
 - startup config is invalid
 - emulator is reachable but not queryable yet
 - the probe endpoint itself depends on a missing local dependency
+- the probe call itself hangs because it has no timeout
 
 Fix readiness or env wiring before recording anything.
 

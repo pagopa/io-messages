@@ -81,6 +81,7 @@ Prefer the local Functions host or emulator and hit the real local HTTP endpoint
 - If the workspace lacks `testcontainers`, add it rather than downgrading to bespoke Docker CLI orchestration.
 - In devcontainers or repeated local runs, prefer dynamic free ports and normalize them in cassettes instead of hard-coding a fixed host port.
 - In devcontainers or remote workspaces, do not assume Docker-published emulator ports are reachable through `127.0.0.1`; probe a small set of candidate hosts such as `127.0.0.1`, `host.docker.internal`, a bridge gateway, or an override env and normalize the chosen host in the cassette.
+- If published ports are still flaky from the harness process, prefer attaching the workspace container to the same Docker network as the Testcontainers-managed dependencies and use network aliases from there; in many devcontainers this is more reliable than host-published ports.
 - Start the runtime in a way that preserves the current toolchain PATH; avoid brittle login-shell wrappers when spawning the local host.
 - When there is no existing local characterization harness, reuse the starter layout in `references/azure-functions-characterization.md` rather than inventing a bespoke file structure from scratch.
 - Fall back to direct handler invocation only when there is no credible local host or emulator path, and explain why.
@@ -127,6 +128,8 @@ Start from the current implementation, not the refactor target.
 11. Run verify mode once after the first successful record and inspect cassette contents directly for accidental error responses, unstable metadata, or other success-shape violations.
 12. Switch the workflow into replay or verify mode so future runs fail on drift instead of silently re-recording.
 
+For long-running local-host scenarios, put explicit timeouts around startup, readiness probes, live requests, and side-effect reads, and stream the host logs while waiting. Otherwise one hung call can collapse into an opaque global test timeout.
+
 ## Capture script guidance
 
 Generate a reusable script or CLI entrypoint when the repository does not already have one.
@@ -150,6 +153,7 @@ If the project already has scripts for local bootstrapping or fixture seeding, e
 
 If the repository already has an app container, compose service, or image that brings the service up with the correct env, prefer using that runtime as another topology component instead of reconstructing env injection inside the harness.
 If the repository already has `docker-compose.yml` or equivalent runtime descriptors, use them as a source of truth for container topology before inventing new container shapes, then express the needed dependencies through Testcontainers instead of invoking compose from the harness when Testcontainers is credible.
+For test-runner-driven harnesses, prefer doing one-time expensive work such as `build` in the explicit `record` and `verify` scripts rather than inside the test body or host wrapper. Keep heavyweight characterization tests opt-in so the repository's default unit-test run does not accidentally boot the full local topology.
 
 ## Dependency strategy
 
@@ -179,6 +183,7 @@ Prefer Testcontainers or local emulators for storage, databases, caches, and bro
 - After the scenario runs, read back the real side effect and persist it into the cassette.
 - If the dependency uses a preview or "vnext" emulator image, treat compatibility as something to prove, not assume: document the exact image tag and validate that the chosen happy-path queries and writes actually succeed on that emulator.
 - For Cosmos-compatible emulators, prove both point-read and query paths with the real SDK. Some preview emulators require endpoint discovery to be disabled or omit metadata on query results; keep any workaround local to the characterization path.
+- If the repository's shared model or decoder layer expects query metadata that a preview emulator omits, prefer a narrow local-only adapter or model factory for characterization rather than weakening shared production decoders globally.
 - If the emulator exposes quirks that do not belong in production behavior, prefer a local-only compatibility adapter or seam gated by non-production config instead of mutating widely shared runtime models globally.
 
 Examples of side-effect records:

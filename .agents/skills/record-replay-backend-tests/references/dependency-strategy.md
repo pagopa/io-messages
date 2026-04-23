@@ -45,7 +45,9 @@ Prefer the lightest topology that still proves the contract:
 - if an emulator uses preview or vnext images, pin and document the exact image tag used during capture
 - for preview or vnext emulators, pair transport-level readiness with an application-level warmup probe that exercises the real SDK or API path you need before seeding data
 - in devcontainers or remote workspaces, prove how the test process reaches Docker-published emulator ports; do not hard-code `127.0.0.1` when `host.docker.internal`, the bridge gateway, or an explicit override env is the only reachable path
+- if host-published ports are still inconsistent from the harness process, attach the workspace container to the same Docker network as the dependency containers and use network aliases there; keep the chosen reachability path in topology metadata
 - for Cosmos or document-store emulators, prove both point-read and query behavior with the real SDK; some preview emulators need endpoint discovery disabled or omit metadata on query results
+- if a preview emulator omits query metadata that shared production decoders expect, prefer a narrow characterization-only adapter or model factory instead of loosening shared decoding rules globally
 - for Azure Functions suites scoped to one HTTP flow, disable unrelated local triggers when they would consume the very queue/blob side effect you intend to record
 - for local hosts that may be run repeatedly inside a devcontainer, prefer dynamic free ports and normalize them in cassette artifacts
 - normalize environment-specific values before writing them into cassette artifacts
