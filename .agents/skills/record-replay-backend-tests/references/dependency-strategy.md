@@ -40,6 +40,9 @@ Prefer the lightest topology that still proves the contract:
 - inspect the container image manifest before pinning a platform; if the image already ships a native host architecture variant, prefer that over forced cross-arch emulation
 - if an emulator uses preview or vnext images, pin and document the exact image tag used during capture
 - for preview or vnext emulators, pair transport-level readiness with an application-level warmup probe that exercises the real SDK or API path you need before seeding data
+- in devcontainers or remote workspaces, prove how the test process reaches Docker-published emulator ports; do not hard-code `127.0.0.1` when `host.docker.internal`, the bridge gateway, or an explicit override env is the only reachable path
+- for Cosmos or document-store emulators, prove both point-read and query behavior with the real SDK; some preview emulators need endpoint discovery disabled or omit metadata on query results
+- for Azure Functions suites scoped to one HTTP flow, disable unrelated local triggers when they would consume the very queue/blob side effect you intend to record
 - for local hosts that may be run repeatedly inside a devcontainer, prefer dynamic free ports and normalize them in cassette artifacts
 - normalize environment-specific values before writing them into cassette artifacts
 - keep emulator-only compatibility fixes in a narrow local adapter or seam when possible instead of rewriting shared production-facing models globally
@@ -58,7 +61,7 @@ Examples:
 - storage recorder -> `downloadObject()` then persist body plus metadata
 - Cosmos recorder -> `queryDocuments()` with a stable predicate and persist sorted results
 - Redis recorder -> `get`, `ttl`, `xrange`, or `subscribe` depending on the contract
-- broker recorder -> receive one message, normalize headers, persist the payload
+- broker recorder -> receive one message, decode emulator-added transport envelopes such as base64-wrapped JSON when needed, normalize headers, persist the payload
 
 ## Replay safety checklist
 

@@ -63,9 +63,19 @@ If the repository already ships a Dockerfile, compose service, devcontainer task
 7. Write `request.json`, `response.json`, `side-effects.json`, `topology.json`, and `normalization.json`.
 8. In `verify` mode, rerun the scenario and compare without mutating the cassette.
 
+## Network reachability in devcontainers
+
+When the agent itself runs inside a devcontainer, Codespace, or other shared workspace container, do not assume Docker-published dependency ports are reachable through `127.0.0.1`.
+
+- Probe a small candidate set from the test process itself, such as `127.0.0.1`, `host.docker.internal`, the Docker bridge gateway, and an explicit override env.
+- Keep the chosen host in topology metadata and normalize it in the cassette.
+- Treat "container port is published" and "the harness can actually reach it" as two separate checks.
+
 ## Environment checklist
 
-Azure Functions apps often fail before your scenario runs because required environment variables are evaluated at import time. If the repository already has an app container or compose service that owns those values, prefer reusing it instead of injecting env directly from the harness. Otherwise, before starting the host, verify all of these categories:
+Azure Functions apps often fail before your scenario runs because required environment variables are evaluated at import time. If the repository already has an app container or compose service that owns those values, prefer reusing it instead of injecting env directly from the harness. Otherwise, before starting the host, verify all of these categories.
+
+Treat checked-in `local.settings.json`, `.example`, or README snippets as hints, not as a guaranteed source of truth. Compare them against the real startup config module and infrastructure defaults; if they are stale or incomplete, inject a complete env map explicitly from the harness.
 
 ### Runtime settings
 
@@ -95,6 +105,14 @@ Check any config module that is evaluated during startup. Even if the chosen sce
 
 Prefer valid local values over empty placeholders so the host can boot deterministically.
 
+## Trigger isolation for HTTP-only suites
+
+If the selected characterization scope is one HTTP flow but the app also starts queue, blob, or timer triggers, disable the unrelated functions during capture when they would consume the emitted artifact before you can record it.
+
+- Azure Functions supports this through `AzureWebJobs.<FunctionName>.Disabled=true`.
+- This is especially useful when an HTTP request emits a queue message and the purpose of the cassette is to freeze that emitted message or downstream storage write.
+- Keep the disabled-function list in `topology.json` so replay explains why the output remained observable.
+
 ## Dependency selection for Azure Functions
 
 Pick the lightest local topology that still proves the contract.
@@ -122,6 +140,19 @@ Weak readiness checks:
 
 - only waiting for a port to open
 - assuming a container is ready because Docker marked it started
+
+## Cosmos emulator quirks worth proving
+
+Cosmos-compatible emulators often need more than a readiness endpoint.
+
+- Validate the exact SDK path the app uses, not just TCP reachability.
+- Some preview or Linux emulator builds advertise internal endpoints that make queries fail unless `connectionPolicy.enableEndpointDiscovery = false`.
+- Prove both point-read and query behavior. Some emulators return enough metadata for direct `item.read()` but omit fields such as `_self` on query results.
+- If existing shared decoders require metadata the emulator omits, prefer a narrow local-only seam that synthesizes the missing metadata for characterization instead of changing broad production behavior.
+
+## Queue recorder note
+
+When reading emitted messages from Azurite or another queue emulator, accept both plain JSON and base64-encoded JSON. The recorder should compare the emitted payload, not fail on transport encoding details.
 
 ## Starter snippet: cassette helper
 
@@ -241,6 +272,10 @@ Fix readiness or env wiring before recording anything.
 ### Happy path records a 500
 
 Do not keep it as the "happy" cassette. Adjust the topology, seed data, or scenario selection until the response is actually success-shaped.
+
+### Happy path records a 400
+
+Often the harness is fine and the fixture is not. Check schema validators, documented minimum lengths, required headers, allowed recipient relationships, or other request constraints before recording the cassette.
 
 ### Emulator quirks leak into production code
 

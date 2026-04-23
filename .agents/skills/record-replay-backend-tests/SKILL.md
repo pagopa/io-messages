@@ -65,8 +65,10 @@ Prefer the local Functions host or emulator and hit the real local HTTP endpoint
 
 - Use the same route and request shape a real local caller would use.
 - If bindings or outputs can be observed through local emulators or dependency containers, capture them there.
+- If the selected HTTP scenario emits queue or blob outputs that other local functions would immediately consume, disable those unrelated functions during capture so the emitted artifact stays observable.
 - If the repository already exposes a containerized Functions runtime, reuse it instead of rebuilding host startup logic inside the harness.
 - In devcontainers or repeated local runs, prefer dynamic free ports and normalize them in cassettes instead of hard-coding a fixed host port.
+- In devcontainers or remote workspaces, do not assume Docker-published emulator ports are reachable through `127.0.0.1`; probe a small set of candidate hosts such as `127.0.0.1`, `host.docker.internal`, a bridge gateway, or an override env and normalize the chosen host in the cassette.
 - Start the runtime in a way that preserves the current toolchain PATH; avoid brittle login-shell wrappers when spawning the local host.
 - When there is no existing local characterization harness, reuse the starter layout in `references/azure-functions-characterization.md` rather than inventing a bespoke file structure from scratch.
 - Fall back to direct handler invocation only when there is no credible local host or emulator path, and explain why.
@@ -160,6 +162,7 @@ Prefer Testcontainers or local emulators for storage, databases, caches, and bro
 - Seed only the minimum prerequisite state.
 - After the scenario runs, read back the real side effect and persist it into the cassette.
 - If the dependency uses a preview or "vnext" emulator image, treat compatibility as something to prove, not assume: document the exact image tag and validate that the chosen happy-path queries and writes actually succeed on that emulator.
+- For Cosmos-compatible emulators, prove both point-read and query paths with the real SDK. Some preview emulators require endpoint discovery to be disabled or omit metadata on query results; keep any workaround local to the characterization path.
 - If the emulator exposes quirks that do not belong in production behavior, prefer a local-only compatibility adapter or seam gated by non-production config instead of mutating widely shared runtime models globally.
 
 Examples of side-effect records:
@@ -174,6 +177,7 @@ Examples of side-effect records:
 Prefer a local runtime or emulator that makes the emitted artifact observable.
 
 - If the runtime writes to Azurite, a queue emulator, or a local broker, record the effect there.
+- If the recorder reads from a queue emulator, decode the message exactly as the emulator stores it before comparing it; some expose JSON as base64-wrapped text rather than plain JSON.
 - If no credible local observation point exists, capture the closest local boundary the runtime hands off, and explain that exception clearly.
 
 ### Mixed systems
