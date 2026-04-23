@@ -12,8 +12,8 @@ import {
 } from "../../domain/massive-jobs";
 
 const processMassiveNotificationMessageSchema = z.object({
-  body: massiveNotificationMessageSchema,
   jobId: massiveJobIDSchema,
+  message: massiveNotificationMessageSchema,
   scheduledTimestamp: z.number().int().positive(),
   tags: massiveNotificationTagsSchema,
   title: massiveNotificationTitleSchema,
@@ -43,7 +43,7 @@ export const makeProcessMassiveJobHandler =
     const progressIDs = await processMassiveJobUseCase.execute(
       checkNotificationStatusMessage.data.jobId,
       checkNotificationStatusMessage.data.title,
-      checkNotificationStatusMessage.data.body,
+      checkNotificationStatusMessage.data.message,
       checkNotificationStatusMessage.data.scheduledTimestamp,
       checkNotificationStatusMessage.data.tags,
       telemetryService,

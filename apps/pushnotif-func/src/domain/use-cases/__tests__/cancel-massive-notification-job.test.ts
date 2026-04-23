@@ -20,9 +20,9 @@ import { CancelMassiveNotificationJobUseCase } from "../cancel-massive-notificat
 const jobId = massiveJobIDSchema.parse("01ARZ3NDEKTSV4RRFFQ69G5FAV");
 
 const baseJob: Omit<MassiveJob, "status"> = {
-  body: "Notification body",
   executionTimeInHours: 2,
   id: jobId,
+  message: "Notification body",
   startTimeTimestamp: 1700000000,
   title: "Notification title",
 };

@@ -36,9 +36,9 @@ const handler = getGetMassiveNotificationJobHandler(useCase);
 const validJobId = massiveJobIDSchema.parse("01ARZ3NDEKTSV4RRFFQ69G5FAV");
 
 const validJob: MassiveJob = {
-  body: "Notification body",
   executionTimeInHours: 2,
   id: validJobId,
+  message: "Notification body",
   startTimeTimestamp: 1700000000,
   status: "CREATED",
   title: "Notification title",

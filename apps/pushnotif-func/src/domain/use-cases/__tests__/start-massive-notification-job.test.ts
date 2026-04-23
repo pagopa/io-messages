@@ -16,9 +16,9 @@ const fixedNowMilliseconds = fixedNowTimestamp * 1000;
 const requestedStartTimeTimestamp = fixedNowTimestamp + 3600;
 
 const baseJob: MassiveJob = {
-  body: "Notification body",
   executionTimeInHours: 2,
   id: jobId,
+  message: "Notification body",
   status: MassiveJobStatusEnum.enum.CREATED,
   title: "Notification title",
 };
@@ -183,8 +183,8 @@ describe("StartMassiveNotificationJobUseCase", () => {
 
     expect(firstBatchMessage).toEqual(
       expect.objectContaining({
-        body: baseJob.body,
         jobId,
+        message: baseJob.message,
         scheduledTimestamp: 1700003608,
         tags: ["000", "001", "002", "003", "004"],
         title: baseJob.title,
@@ -192,8 +192,8 @@ describe("StartMassiveNotificationJobUseCase", () => {
     );
     expect(lastBatchMessage).toEqual(
       expect.objectContaining({
-        body: "Notification body",
         jobId,
+        message: "Notification body",
         scheduledTimestamp: 1700010807,
         tags: ["fff"],
         title: "Notification title",

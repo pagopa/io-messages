@@ -22,7 +22,7 @@ const handler = createMassiveNotificationJobHandler(
 );
 
 const aValidPayload = {
-  body: "Notification body",
+  message: "Notification body",
   title: "Notification title",
 };
 
@@ -86,7 +86,7 @@ describe("createMassiveNotificationJobHandler", () => {
     expect(response.status).toBe(500);
     expect(responseBody).toEqual({ error: "Something went wrong" });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
-      aValidPayload.body,
+      aValidPayload.message,
       2,
       aValidPayload.title,
     );
@@ -125,7 +125,7 @@ describe("createMassiveNotificationJobHandler", () => {
     expect(response.status).toBe(201);
     expect(responseBody).toEqual({ id: aJobId, status: "CREATED" });
     expect(useCaseMock.execute).toHaveBeenCalledWith(
-      aValidPayload.body,
+      aValidPayload.message,
       2,
       aValidPayload.title,
     );
