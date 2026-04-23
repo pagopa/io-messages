@@ -1,4 +1,4 @@
-import { ActivationStatusEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/ActivationStatus";
+import { ActivationStatusEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ActivationStatus";
 import { RetrievedActivation } from "@pagopa/io-functions-commons/dist/src/models/activation";
 import { Second } from "@pagopa/ts-commons/lib/units";
 import { isBefore, subSeconds } from "date-fns";

@@ -2,12 +2,12 @@
 
 import { apply } from "@pagopa/io-app-email-templates/MessagePreview/index";
 import { StandardServiceCategoryEnum } from "@pagopa/io-functions-admin-sdk/StandardServiceCategory";
-import { EmailAddress } from "@pagopa/io-functions-commons/dist/generated/definitions/EmailAddress";
-import { MessageBodyMarkdown } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageBodyMarkdown";
-import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
-import { MessageSubject } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageSubject";
-import { NotificationChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/NotificationChannel";
-import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
+import { EmailAddress } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/EmailAddress";
+import { MessageBodyMarkdown } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageBodyMarkdown";
+import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageContent";
+import { MessageSubject } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageSubject";
+import { NotificationChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NotificationChannel";
+import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/TimeToLiveSeconds";
 import * as mail from "@pagopa/io-functions-commons/dist/src/mailer/transports";
 import { CreatedMessageEventSenderMetadata } from "@pagopa/io-functions-commons/dist/src/models/created_message_sender_metadata";
 import {

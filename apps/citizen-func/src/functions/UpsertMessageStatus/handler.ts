@@ -1,9 +1,9 @@
 import { InvocationContext } from "@azure/functions";
-import { Change_typeEnum as ArchivingChangeType } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageStatusArchivingChange";
-import { Change_typeEnum as BulkChangeType } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageStatusBulkChange";
-import { MessageStatusChange } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageStatusChange";
-import { Change_typeEnum as ReadingChangeType } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageStatusReadingChange";
-import { MessageStatusWithAttributes as MessageStatusApi } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageStatusWithAttributes";
+import { Change_typeEnum as ArchivingChangeType } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageStatusArchivingChange";
+import { Change_typeEnum as BulkChangeType } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageStatusBulkChange";
+import { MessageStatusChange } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageStatusChange";
+import { Change_typeEnum as ReadingChangeType } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageStatusReadingChange";
+import { MessageStatusWithAttributes as MessageStatusApi } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageStatusWithAttributes";
 import {
   MessageStatus,
   MessageStatusModel,

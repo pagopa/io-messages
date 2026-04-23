@@ -55,8 +55,8 @@ catalogs:
       specifier: ^1.10.1
       version: 1.10.1
     '@pagopa/io-functions-commons':
-      specifier: ^30.0.0
-      version: 30.0.0
+      specifier: ^32.1.0
+      version: 32.1.0
     '@pagopa/openapi-codegen-ts':
       specifier: ^14.0.1
       version: 14.0.1
@@ -259,7 +259,7 @@ importers:
         version: 12.28.1
       '@pagopa/io-functions-commons':
         specifier: 'catalog:'
-        version: 30.0.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
+        version: 32.1.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
       '@pagopa/ts-commons':
         specifier: 'catalog:'
         version: 13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
@@ -344,7 +344,7 @@ importers:
         version: 0.3.0(typescript@5.9.3)
       '@pagopa/io-functions-commons':
         specifier: 'catalog:'
-        version: 30.0.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
+        version: 32.1.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
       '@pagopa/ts-commons':
         specifier: 'catalog:'
         version: 13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
@@ -559,7 +559,7 @@ importers:
         version: 12.28.1
       '@pagopa/io-functions-commons':
         specifier: 'catalog:'
-        version: 30.0.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
+        version: 32.1.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
       '@pagopa/ts-commons':
         specifier: 'catalog:'
         version: 13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
@@ -653,7 +653,7 @@ importers:
         version: 4.13.0
       '@pagopa/io-functions-commons':
         specifier: 'catalog:'
-        version: 30.0.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
+        version: 32.1.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
       '@pagopa/ts-commons':
         specifier: 'catalog:'
         version: 13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
@@ -786,7 +786,7 @@ importers:
         version: 1.10.1
       '@pagopa/io-functions-commons':
         specifier: 'catalog:'
-        version: 30.0.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
+        version: 32.1.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
       '@pagopa/ts-commons':
         specifier: 'catalog:'
         version: 13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
@@ -953,7 +953,7 @@ importers:
         version: 12.29.1
       '@pagopa/io-functions-commons':
         specifier: 'catalog:'
-        version: 30.0.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
+        version: 32.1.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
       '@pagopa/ts-commons':
         specifier: 'catalog:'
         version: 13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
@@ -1616,8 +1616,8 @@ packages:
   '@pagopa/io-functions-admin-sdk@1.10.1':
     resolution: {integrity: sha512-sII4Sjh10PAzitXDIWpKkRjYZQmbfEs+TVTJqNwqyBDulEJxNl+V7LxI4K9Yxp6YL6/FoL7weKLsOq2MvJv3mQ==}
 
-  '@pagopa/io-functions-commons@30.0.0':
-    resolution: {integrity: sha512-7MVfQpi74TuQo+iFDZQ/l8/0uQtXT1JUrEBbGWUfGRkemYZhjib/4FHqfcAoa8heF5fCw+YPKu4MOROhOxYMJA==}
+  '@pagopa/io-functions-commons@32.1.0':
+    resolution: {integrity: sha512-X7pVjVy0jK3UJyeIJhjuC8zPIclfvQQJzfyvdwqXn8MF4s4HOSuMEw6GAdjDrHKS8YIZdwzw+CfgpmnF9DtowQ==}
     peerDependencies:
       '@azure/functions': ^4.11.2
       '@pagopa/ts-commons': ^13.1.1
@@ -6279,7 +6279,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@pagopa/io-functions-commons@30.0.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))':
+  '@pagopa/io-functions-commons@32.1.0(@azure/functions@4.11.2)(@pagopa/ts-commons@13.1.2(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11)))(express@4.21.2)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))':
     dependencies:
       '@azure/cosmos': 4.9.0
       '@azure/data-tables': 13.3.2

@@ -1,17 +1,17 @@
 import { Container } from "@azure/cosmos";
-import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
-import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/EnrichedMessage";
-import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
-import { MessageBodyMarkdown } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageBodyMarkdown";
-import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
-import { TagEnum as TagEnumPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
-import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
-import { MessageSubject } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageSubject";
-import { PaymentAmount } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentAmount";
-import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
-import { PaymentNoticeNumber } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentNoticeNumber";
-import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
-import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
+import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/CreatedMessageWithoutContent";
+import { EnrichedMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/EnrichedMessage";
+import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FeatureLevelType";
+import { MessageBodyMarkdown } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageBodyMarkdown";
+import { TagEnum as TagEnumBase } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageCategoryBase";
+import { TagEnum as TagEnumPN } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageCategoryPN";
+import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageContent";
+import { MessageSubject } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageSubject";
+import { PaymentAmount } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/PaymentAmount";
+import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/PaymentData";
+import { PaymentNoticeNumber } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/PaymentNoticeNumber";
+import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ServiceId";
+import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/TimeToLiveSeconds";
 import {
   MessageModel,
   NewMessageWithoutContent,

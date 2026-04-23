@@ -1,7 +1,7 @@
 /* eslint-disable vitest/prefer-called-with, no-useless-escape */
 
-import { PushNotificationsContentTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/PushNotificationsContentType";
-import { ReminderStatusEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/ReminderStatus";
+import { PushNotificationsContentTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/PushNotificationsContentType";
+import { ReminderStatusEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ReminderStatus";
 import { UserGroup } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_api_auth";
 import context_middleware from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { ResponseErrorInternal } from "@pagopa/ts-commons/lib/responses";

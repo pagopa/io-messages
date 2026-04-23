@@ -1,17 +1,17 @@
 /* eslint-disable max-lines-per-function */
 import { InvocationContext } from "@azure/functions";
 import { MessageContent } from "@pagopa/io-backend-notifications-sdk/MessageContent";
-import { ExternalCreatedMessageWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/ExternalCreatedMessageWithContent";
-import { ExternalCreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/ExternalCreatedMessageWithoutContent";
-import { ExternalMessageResponseWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/ExternalMessageResponseWithContent";
-import { ExternalMessageResponseWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/ExternalMessageResponseWithoutContent";
-import { NotRejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/NotRejectedMessageStatusValue";
-import { PaymentDataWithRequiredPayee } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentDataWithRequiredPayee";
-import { PaymentStatus } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentStatus";
+import { ExternalCreatedMessageWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ExternalCreatedMessageWithContent";
+import { ExternalCreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ExternalCreatedMessageWithoutContent";
+import { ExternalMessageResponseWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ExternalMessageResponseWithContent";
+import { ExternalMessageResponseWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ExternalMessageResponseWithoutContent";
+import { NotRejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NotRejectedMessageStatusValue";
+import { PaymentDataWithRequiredPayee } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/PaymentDataWithRequiredPayee";
+import { PaymentStatus } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/PaymentStatus";
 import {
   ReadStatus,
   ReadStatusEnum,
-} from "@pagopa/io-functions-commons/dist/generated/definitions/ReadStatus";
+} from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ReadStatus";
 import {
   MessageModel,
   RetrievedMessage,

@@ -1,6 +1,6 @@
 import { app, output } from "@azure/functions";
-import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/FiscalCode";
-import { HttpsUrl } from "@pagopa/io-functions-commons/dist/generated/definitions/HttpsUrl";
+import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FiscalCode";
+import { HttpsUrl } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/HttpsUrl";
 import { getMailerTransporter } from "@pagopa/io-functions-commons/dist/src/mailer";
 import {
   ACTIVATION_COLLECTION_NAME,

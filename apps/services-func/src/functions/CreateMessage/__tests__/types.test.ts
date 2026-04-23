@@ -1,5 +1,5 @@
-import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
-import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
+import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FeatureLevelType";
+import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/PaymentData";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { WithinRangeString } from "@pagopa/ts-commons/lib/strings";
 import * as E from "fp-ts/lib/Either";

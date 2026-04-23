@@ -1,7 +1,7 @@
 import { UserSessionInfo } from "@/generated/session-manager/UserSessionInfo";
 import { Client } from "@/generated/session-manager/client";
-import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
-import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
+import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageContent";
+import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ServiceId";
 import {
   MessageModel,
   RetrievedMessage,

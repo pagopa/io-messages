@@ -1,10 +1,10 @@
-import { BlockedInboxOrChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/BlockedInboxOrChannel";
+import { BlockedInboxOrChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/BlockedInboxOrChannel";
 import {
   FeatureLevelType,
   FeatureLevelTypeEnum,
-} from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
-import { NewMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/NewMessage";
-import { PreferredLanguageEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/PreferredLanguage";
+} from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FeatureLevelType";
+import { NewMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NewMessage";
+import { PreferredLanguageEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/PreferredLanguage";
 import { NewMessageWithoutContent } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { RetrievedProfile } from "@pagopa/io-functions-commons/dist/src/models/profile";
 import { Service } from "@pagopa/io-functions-commons/dist/src/models/service";

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RemoteContentClient } from "@/clients/remote-content";
 import { FunctionOutput, InvocationContext } from "@azure/functions";
-import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
+import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FeatureLevelType";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { UserGroup } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_api_auth";
 import { initAppInsights } from "@pagopa/ts-commons/lib/appinsights";

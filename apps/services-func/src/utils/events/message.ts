@@ -1,5 +1,5 @@
-import { BlockedInboxOrChannel } from "@pagopa/io-functions-commons/dist/generated/definitions/BlockedInboxOrChannel";
-import { NewMessageDefaultAddresses } from "@pagopa/io-functions-commons/dist/generated/definitions/NewMessageDefaultAddresses";
+import { BlockedInboxOrChannel } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/BlockedInboxOrChannel";
+import { NewMessageDefaultAddresses } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NewMessageDefaultAddresses";
 import { CreatedMessageEventSenderMetadata } from "@pagopa/io-functions-commons/dist/src/models/created_message_sender_metadata";
 import { NewMessageWithoutContent } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { RetrievedProfile } from "@pagopa/io-functions-commons/dist/src/models/profile";

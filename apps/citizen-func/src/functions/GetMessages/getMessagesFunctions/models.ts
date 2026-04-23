@@ -1,8 +1,8 @@
-import { MessageCategoryBase } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
-import { MessageCategoryPN } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPN";
-import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
-import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
-import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
+import { MessageCategoryBase } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageCategoryBase";
+import { MessageCategoryPN } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageCategoryPN";
+import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageCategoryPayment";
+import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ServiceId";
+import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/TimeToLiveSeconds";
 import { DateFromTimestamp } from "@pagopa/ts-commons/lib/dates";
 import {
   FiscalCode,

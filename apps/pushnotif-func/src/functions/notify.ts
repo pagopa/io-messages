@@ -1,6 +1,6 @@
 import { UserSessionInfo } from "@/generated/session-manager/UserSessionInfo";
-import { PushNotificationsContentTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/PushNotificationsContentType";
-import { ReminderStatusEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/ReminderStatus";
+import { PushNotificationsContentTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/PushNotificationsContentType";
+import { ReminderStatusEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ReminderStatus";
 import { RetrievedProfile } from "@pagopa/io-functions-commons/dist/src/models/profile";
 import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import {

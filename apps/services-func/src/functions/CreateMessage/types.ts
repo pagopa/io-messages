@@ -1,9 +1,9 @@
 import {
   FeatureLevelType,
   FeatureLevelTypeEnum,
-} from "@pagopa/io-functions-commons/dist/generated/definitions/FeatureLevelType";
-import { NewMessage as ApiNewMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/NewMessage";
-import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/TimeToLiveSeconds";
+} from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FeatureLevelType";
+import { NewMessage as ApiNewMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NewMessage";
+import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/TimeToLiveSeconds";
 import * as t from "io-ts";
 
 import { ThirdPartyData } from "../../generated/definitions/ThirdPartyData";

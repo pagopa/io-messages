@@ -1,4 +1,4 @@
-import { MessageStatusChange } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageStatusChange";
+import { MessageStatusChange } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageStatusChange";
 import {
   MessageStatusModel,
   RetrievedMessageStatus,

@@ -1,16 +1,16 @@
-import { NewProfile } from "@pagopa/io-functions-commons/dist/generated/definitions/NewProfile";
-import { Profile } from "@pagopa/io-functions-commons/dist/generated/definitions/Profile";
-import { ServicesPreferencesModeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/ServicesPreferencesMode";
-import { ThirdPartyData } from "@pagopa/io-functions-commons/dist/generated/definitions/ThirdPartyData";
+import { NewProfile } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NewProfile";
+import { Profile } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/Profile";
+import { ServicesPreferencesModeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ServicesPreferencesMode";
+import { ThirdPartyData } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ThirdPartyData";
 import {
   UserDataProcessingChoice,
   UserDataProcessingChoiceEnum,
-} from "@pagopa/io-functions-commons/dist/generated/definitions/UserDataProcessingChoice";
-import { UserDataProcessingChoiceRequest } from "@pagopa/io-functions-commons/dist/generated/definitions/UserDataProcessingChoiceRequest";
+} from "@pagopa/io-functions-commons/dist/generated/definitions/v2/UserDataProcessingChoice";
+import { UserDataProcessingChoiceRequest } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/UserDataProcessingChoiceRequest";
 import {
   UserDataProcessingStatus,
   UserDataProcessingStatusEnum,
-} from "@pagopa/io-functions-commons/dist/generated/definitions/UserDataProcessingStatus";
+} from "@pagopa/io-functions-commons/dist/generated/definitions/v2/UserDataProcessingStatus";
 import { RetrievedProfile } from "@pagopa/io-functions-commons/dist/src/models/profile";
 import {
   RetrievedUserDataProcessing,
