@@ -1,9 +1,9 @@
 import { InvocationContext } from "@azure/functions";
-import { InternalMessageResponseWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/InternalMessageResponseWithContent";
-import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
-import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentData";
-import { PaymentDataWithRequiredPayee } from "@pagopa/io-functions-commons/dist/generated/definitions/PaymentDataWithRequiredPayee";
-import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/ServiceId";
+import { InternalMessageResponseWithContent } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/InternalMessageResponseWithContent";
+import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageCategoryPayment";
+import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/PaymentData";
+import { PaymentDataWithRequiredPayee } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/PaymentDataWithRequiredPayee";
+import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ServiceId";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { MessageStatusModel } from "@pagopa/io-functions-commons/dist/src/models/message_status";
 import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";

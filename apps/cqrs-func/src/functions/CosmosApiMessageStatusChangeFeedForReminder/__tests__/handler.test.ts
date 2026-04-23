@@ -6,7 +6,7 @@ import { RetrievedMessageStatus } from "@pagopa/io-functions-commons/dist/src/mo
 import { avroMessageStatusFormatter } from "../../../utils/formatter/messageStatusAvroFormatter";
 import { Producer, ProducerRecord } from "kafkajs";
 import { KafkaProducerCompact } from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
-import { RejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/RejectedMessageStatusValue";
+import { RejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/RejectedMessageStatusValue";
 
 import { vi, beforeEach, describe, test, expect } from "vitest";
 

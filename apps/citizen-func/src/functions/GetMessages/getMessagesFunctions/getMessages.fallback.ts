@@ -1,6 +1,6 @@
 import { InvocationContext } from "@azure/functions";
-import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/CreatedMessageWithoutContent";
-import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageContent";
+import { CreatedMessageWithoutContent } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/CreatedMessageWithoutContent";
+import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageContent";
 import {
   MessageModel,
   RetrievedMessage,

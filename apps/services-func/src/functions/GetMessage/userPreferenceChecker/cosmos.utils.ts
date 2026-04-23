@@ -1,4 +1,4 @@
-import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/FiscalCode";
+import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FiscalCode";
 import {
   ProfileModel,
   RetrievedProfile,

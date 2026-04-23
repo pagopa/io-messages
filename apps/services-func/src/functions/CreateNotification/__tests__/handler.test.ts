@@ -1,5 +1,5 @@
 import { FunctionOutput, InvocationContext } from "@azure/functions";
-import { HttpsUrl } from "@pagopa/io-functions-commons/dist/generated/definitions/HttpsUrl";
+import { HttpsUrl } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/HttpsUrl";
 import { NotificationModel } from "@pagopa/io-functions-commons/dist/src/models/notification";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { FiscalCode } from "@pagopa/ts-commons/lib/strings";

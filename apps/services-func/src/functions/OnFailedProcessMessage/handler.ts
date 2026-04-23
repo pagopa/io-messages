@@ -1,7 +1,7 @@
 /* eslint-disable max-lines-per-function */
 
 import { InvocationContext } from "@azure/functions";
-import { NotRejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/NotRejectedMessageStatusValue";
+import { NotRejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NotRejectedMessageStatusValue";
 import { MessageModel } from "@pagopa/io-functions-commons/dist/src/models/message";
 import {
   MessageStatusModel,

@@ -1,5 +1,5 @@
 import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
-import { HasPreconditionEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/HasPrecondition";
+import { HasPreconditionEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/HasPrecondition";
 import {
   RCConfiguration,
   RCConfigurationModel,
@@ -11,7 +11,7 @@ import {
   UserRCConfigurationModel,
 } from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
 import { aCosmosResourceMetadata } from "./models.mock";
-import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/FiscalCode";
+import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FiscalCode";
 import { vi } from "vitest";
 
 const aPublicDetailAuthentication = {

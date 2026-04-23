@@ -6,7 +6,7 @@
  * which in turns delivers the message to the mobile App.
  */
 
-import { HttpsUrl } from "@pagopa/io-functions-commons/dist/generated/definitions/HttpsUrl";
+import { HttpsUrl } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/HttpsUrl";
 import {
   ActiveMessage,
   NewMessageWithoutContent,

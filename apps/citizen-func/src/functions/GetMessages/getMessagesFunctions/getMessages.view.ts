@@ -1,5 +1,5 @@
-import { TagEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryBase";
-import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/MessageCategoryPayment";
+import { TagEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageCategoryBase";
+import { TagEnum as TagEnumPayment } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageCategoryPayment";
 import { defaultPageSize } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { RetrievedMessageView } from "@pagopa/io-functions-commons/dist/src/models/message_view";
 import { flattenAsyncIterable } from "@pagopa/io-functions-commons/dist/src/utils/async";

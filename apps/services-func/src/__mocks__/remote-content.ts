@@ -1,4 +1,4 @@
-import { HasPreconditionEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/HasPrecondition";
+import { HasPreconditionEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/HasPrecondition";
 import { NonEmptyString, Ulid } from "@pagopa/ts-commons/lib/strings";
 
 const aDetailAuthentication = {
