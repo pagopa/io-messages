@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 2.1.2
+
+### Patch Changes
+
+- c5d19d5: bump @io-functions-commons v30 -> v32
+
 ## 2.1.1
 
 ### Patch Changes
