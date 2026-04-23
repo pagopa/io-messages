@@ -22,7 +22,7 @@ catalog:
   "@pagopa/io-app-email-templates": ^0.8.1
   "@pagopa/io-backend-notifications-sdk": ^9.7.0
   "@pagopa/io-functions-admin-sdk": ^1.10.1
-  "@pagopa/io-functions-commons": ^30.0.0
+  "@pagopa/io-functions-commons": ^32.1.0
   "@pagopa/openapi-codegen-ts": ^14.0.1
   "@pagopa/ts-commons": ^13.1.2
   "@types/documentdb": ^1.10.13
