@@ -31,7 +31,7 @@ note left of fn
   {
     "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
     "title": "Push notification title",
-    "body": "Push notification body",
+    "message": "Push notification body",
     "scheduledTimestamp": 123456789,
     "tags": ["aaa", "aab", "aac"]
   }

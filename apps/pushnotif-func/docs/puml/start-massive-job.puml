@@ -67,7 +67,7 @@ note right of httpfunc
   {
     "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
     "title": "Push notification title",
-    "body": "Push notification body",
+    "message": "Push notification body",
     "status": "CREATED",
     "executionTimeInHours": 6
   }
@@ -137,7 +137,7 @@ loop tags / batches of tags
     {
       "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
       "title": "Push notification title",
-      "body": "Push notification body",
+      "message": "Push notification body",
       "scheduledTimestamp": 123456789,
       "tags": ["aaa", "aab", "aac"]
     }

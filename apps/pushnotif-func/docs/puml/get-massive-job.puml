@@ -43,7 +43,7 @@ note right of gmj
   {
     "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
     "title": "Push notification title",
-    "body": "Push notification body",
+    "message": "Push notification body",
     "status": "PROCESSING",
     "executionTimeInHours": 6,
     "startTimeTimestamp": 1771492295
@@ -95,7 +95,7 @@ note right of admin
   {
     "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
     "title": "Push notification title",
-    "body": "Push notification body",
+    "message": "Push notification body",
     "status": "PROCESSING",
     "executionTimeInHours": 6,
     "startTimeTimestamp": 1771492295,

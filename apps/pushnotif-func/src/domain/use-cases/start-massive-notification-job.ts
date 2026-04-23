@@ -80,8 +80,8 @@ export class MakeStartMassiveNotificationJobUseCase {
       );
 
       const sendNotificationMessage = {
-        body: massiveJob.body,
         jobId: massiveJob.id,
+        message: massiveJob.message,
         scheduledTimestamp,
         tags,
         title: massiveJob.title,

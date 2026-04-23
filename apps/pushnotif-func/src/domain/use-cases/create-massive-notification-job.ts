@@ -12,14 +12,14 @@ export class MakeCreateMassiveNotificationJobUseCase {
   constructor(private repository: MassiveJobsRepository) {}
 
   async execute(
-    body: string,
+    message: string,
     executionTimeInHours: number,
     title: string,
   ): Promise<CreateMassiveJobResult | ErrorInternal> {
     const job = {
-      body,
       executionTimeInHours,
       id: massiveJobIDSchema.parse(ulid()),
+      message,
       status: MassiveJobStatusEnum.enum.CREATED,
       title,
     };

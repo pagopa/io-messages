@@ -151,7 +151,7 @@ export class NotificationHubPushNotificationAdapter
 
   async scheduleMassiveNotification(
     title: MassiveNotificationTitle,
-    body: MassiveNotificationMessage,
+    message: MassiveNotificationMessage,
     scheduledTimestamp: number,
     tags: MassiveNotificationTags,
   ) {
@@ -191,7 +191,7 @@ export class NotificationHubPushNotificationAdapter
           new Date(scheduledTimestamp * 1000),
           createTemplateNotification({
             body: {
-              message: body,
+              message: message,
               title: title,
             },
           }),

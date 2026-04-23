@@ -9,8 +9,8 @@ import {
 import { MakeCreateMassiveNotificationJobUseCase } from "../../domain/use-cases/create-massive-notification-job";
 
 export const CreateMassiveJobPayloadSchema = z.object({
-  body: z.string().min(1).max(1000),
   executionTimeInHours: z.number().int().min(2).max(12).default(2),
+  message: z.string().min(1).max(1000),
   title: z.string().min(1).max(500),
 });
 
@@ -36,7 +36,7 @@ export const createMassiveNotificationJobHandler =
     }
 
     const result = await createMassiveNotificationJobUseCase.execute(
-      parsedBody.body,
+      parsedBody.message,
       parsedBody.executionTimeInHours,
       parsedBody.title,
     );
