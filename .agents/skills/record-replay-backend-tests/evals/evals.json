@@ -1,0 +1,35 @@
+{
+  "skill_name": "record-replay-backend-tests",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "In this monorepo, freeze the behavior of `POST /users/is-adult` before a framework refactor. The service can run locally as a Node HTTP app. Generate a script that starts the real local service, sends canonical requests, and writes multilayer cassettes for request, response, topology, and side effects. Then add verification tests that call the running local service only through HTTP and fail if the live response drifts from the cassette.",
+      "expected_output": "The agent creates or updates a capture script plus black-box verification tests that boot and call the real local HTTP service, persist multilayer cassettes, and avoid falling back to in-process app helpers when the service can run locally.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Create a local characterization workflow for a legacy Express endpoint that will be ported to Hono. The endpoint calls two partner REST services and writes to Redis. The workflow must boot the real local service, run partner services locally as deterministic stubs or proxies, record their exchanges, persist Redis side effects into cassette artifacts, and later verify behavior against those cassettes without silently rewriting them.",
+      "expected_output": "The agent chooses real local service execution, generates a reusable record or verify workflow, captures partner HTTP exchanges through local dependencies, records Redis state into side-effects cassettes, and keeps the verification black-box and independent from internal implementation details.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Freeze this Azure Function before I refactor it. Do not import the handler directly if the local Functions host can run. Start the local Functions runtime, call the real HTTP trigger, run a local stub for the outbound REST dependency, and capture the emitted message through a local observable dependency or emulator. The result should include a capture script, multilayer cassettes, and verify-mode tests.",
+      "expected_output": "The agent prefers the local Functions host or emulator over direct handler invocation, drives the function through its real local endpoint, records the outbound dependency through a local stub or replay server, captures the emitted side effect at a real local observation point, and persists the scenario as multilayer cassettes consumed by verify-mode tests.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Build refactor-safety coverage for a Fastify service that accepts an HTTP request, stores a receipt in Blob Storage, and publishes a follow-up event to a broker. I want a workflow that boots the service locally, uses Testcontainers or emulators for storage and messaging, records the resulting blob and emitted message as side-effect cassette artifacts, and reruns the same scenario in verify mode without touching the cassette unless record mode is explicit.",
+      "expected_output": "The agent generates a black-box local-runtime workflow with a capture script, local storage and broker topology, side-effect recorder helpers that persist blob and message observations into cassette files, and verification tests that compare live behavior against stored multilayer artifacts.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Freeze this Azure Function before I refactor it. The repository already has a containerized local runtime that starts the Functions host with the right environment. Reuse that app container in the characterization topology instead of rebuilding env injection in the harness. Boot Azurite and Redis locally, drive the real HTTP trigger, and persist multilayer cassettes plus verify-mode tests.",
+      "expected_output": "The agent reuses or creates an app container for the function runtime, treats it as another topology component, keeps env and host startup inside that container, records the HTTP contract and side effects through real local boundaries, and avoids reconstructing runtime wiring ad hoc in the harness.",
+      "files": []
+    }
+  ]
+}
