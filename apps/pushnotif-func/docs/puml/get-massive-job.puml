@@ -5,7 +5,7 @@ title Get Massive Notification Job
 actor "IO Admin" as admin
 
 box "pushnotif-func"
-  participant "GetMassiveJob" as gmj
+  participant "GetMassiveNotificationJob" as gmj
 end box
 
 
@@ -16,8 +16,6 @@ box "io-p-itn-com-cosno-01 cosmos account" #LightBlue
     database "massive-progress" as mjp
   end box
 end box
-
-participant "app-insights" as ai
 
 activate admin
 admin -> gmj : GET /api/v1/massive-notification-job/{id}
@@ -65,7 +63,7 @@ alt Status is CREATED
 end
 
 note right of gmj
-  If the status is `PROCESSING`, `CANCELED`, `FAILED`
+  If the status is `PROCESSING`, `CANCELED`
   or `COMPLETED` we need to check the progress of the job.
 end note
 
@@ -80,10 +78,10 @@ note right of gmj
   **Job Progress Document List**
   [
     {
-      "notificationId": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0",
+      "id": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0",
       "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
       "scheduledTimestamp": 123456789,
-      "completed": false,
+      "status": "PENDING",
       "tags": ["aaa", "aab", "aac"]
     },
     ...
@@ -103,10 +101,10 @@ note right of admin
     "startTimeTimestamp": 1771492295,
     "progress": [
       {
-        "notificationId": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0",
+        "id": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0",
         "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
         "scheduledTimestamp": 123456789,
-        "completed": false,
+        "status": "PENDING",
         "tags": ["aaa", "aab", "aac"]
       },
       ...

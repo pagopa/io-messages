@@ -64,12 +64,12 @@ end
 note right of cjp
   **Job Document**
   {
-    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
     "title": "Push notification title",
     "message": "Push notification body",
     "status": "PROCESSING",
-    "executionTimeInHour": 6,
-    "startTime": 1771492295
+    "executionTimeInHours": 6,
+    "startTimeTimestamp": 1771492295
   }
 end note
 mj -[#green]> cjp : Success
@@ -84,7 +84,6 @@ alt Status != PROCESSING
     - CANCELED
     - COMPLETED
     - CREATED
-    - FAILED
     Nothing to do.
   end note
 
@@ -107,9 +106,9 @@ end
 note right of cjp
   [
     {
-      "notificationId": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0",
+      "id": "593ca17d-7ccb-43eb-9bdd-e4b0021a24f0",
       "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
-      "scheduleTimestamp": 123456789,
+      "scheduledTimestamp": 123456789,
       "status": "PENDING",
       "tags": ["aaa", "aab", "aac"]
     },
@@ -195,10 +194,16 @@ loop For each progress document
     deactivate mjp
 
     cjp -[#red]x cjp : Skip (continue loop)
+
+  else Status Cancelled
+    note right of cjp
+      Ignored: cancellation is handled by CancelMassiveNotificationJob.
+    end note
+    cjp -[#red]x cjp : Skip (continue loop)
   end
 
   note right of cjp
-    Now we know that the notification was sent.
+    Now we know that the notification was sent (Status Completed).
   end note
   cjp -> mjp : Set status: `SENT`
 

@@ -1,0 +1,63 @@
+@startuml
+!include <C4/C4_Container>
+
+title Massive Notification System - Container Overview
+LAYOUT_LEFT_RIGHT()
+
+Person(admins, "IO Comms", "IO Comms user")
+Person_Ext(citizens, "IO Users", "Citizens with IO App installed")
+
+System_Boundary(functions, "pushnotif-func (Azure Functions)") {
+    Container(create_job, "CreateMassiveNotificationJob", "Azure Function", "Create a new job")
+    Container(start_job, "StartMassiveNotificationJob", "Azure Function", "Start job and schedule batches")
+    Container(get_job, "GetMassiveNotificationJob", "Azure Function", "Get job status and progress")
+    Container(cancel_job, "CancelMassiveNotificationJob", "Azure Function", "Cancel scheduled notifications")
+    Container(process_job, "ProcessMassiveJob", "Azure Function", "Schedule push notifications on Notification Hub")
+    Container(check_job, "CheckMassiveJob", "Azure Function", "Check and update notification statuses")
+}
+
+
+System_Boundary(db, "io-p-itn-com-cosno-01 (Azure Cosmos DB)") {
+    ContainerDb(jobs_container, "massive-jobs", "Cosmos DB", "Job status")
+    ContainerDb(job_progress_container, "massive-progress", "Cosmos DB", "Job progress")
+}
+
+System_Boundary(queues, "iopitncomst01 (Azure Storage Queues)") {
+    ContainerQueue(process_massive_job, "process-massive-job")
+    ContainerQueue(process_massive_job_poison, "process-massive-job-poison")
+    ContainerQueue(check_massive_job, "check-massive-job")
+    ContainerQueue(check_massive_job_poison, "check-massive-job-poison")
+}
+
+Container(notification_hub, "Azure Notification Hubs", "Push notification service")
+
+Rel(admins, create_job, "Create job")
+Rel(create_job, jobs_container, "Persist job")
+
+Rel(admins, start_job, "Start job")
+Rel(start_job, jobs_container, "Update job status")
+Rel(start_job, process_massive_job, "Enqueue tag batches")
+Rel(start_job, check_massive_job, "Schedule job check")
+
+Rel(process_massive_job, process_job, "Queue trigger")
+Rel(process_job, notification_hub, "Schedule push notification")
+Rel(process_job, job_progress_container, "Create progress")
+
+Rel(admins, get_job, "Get job")
+Rel(get_job, jobs_container, "Get job")
+Rel(get_job, job_progress_container, "Get progress")
+
+Rel(admins, cancel_job, "Cancel job")
+Rel(cancel_job, jobs_container, "Update job status")
+Rel(cancel_job, job_progress_container, "Update progress status")
+Rel(cancel_job, notification_hub, "Cancel scheduled notifications")
+
+Rel(check_massive_job, check_job, "Queue trigger")
+Rel(check_job, jobs_container, "Get/update job status")
+Rel(check_job, job_progress_container, "Update progress status")
+Rel(check_job, notification_hub, "Check notification status")
+Rel(check_job, check_massive_job_poison, "On unretried error (Azure auto dead-letter)")
+
+Rel(notification_hub, citizens, "Deliver push notification")
+
+@enduml

@@ -5,13 +5,13 @@ title "Start massive notification job"
 actor "IO COM Admin" as admin
 
 box "pushnotif-func"
-  participant "StartMassiveJob" as httpfunc
+  participant "StartMassiveNotificationJob" as httpfunc
 end box
 
 !pragma teoz true
 box "io-p-itn-com-cosno-01 cosmos account" #LightBlue
   box "push-notifications cosmos database"
-    database "massive-notification-jobs" as mnj
+    database "massive-jobs" as mnj
   end box
 end box
 
@@ -25,13 +25,16 @@ end box
 participant "app-insights" as ai
 
 note right of admin
-  **Request Params**
+  **Path Params**
   {
-    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "id": "01KHQZBYH4GYY4Z8P5W594JG3B"
+  }
+  **Request Body**
+  {
     "startTimeTimestamp": 1771492295
   }
 end note
-admin -> httpfunc : POST /massive-notification-job/:jobId
+admin -> httpfunc : POST /api/v1/massive-notification-job/{id}
 activate admin
 activate httpfunc
 
@@ -42,9 +45,9 @@ alt Invalid request
 end
 
 note right of httpfunc
-  **Job Document**
+  **Get job by id**
   {
-    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
   }
 end note
 httpfunc -> mnj : Get the job
@@ -62,11 +65,11 @@ end
 note right of httpfunc
   **Job Document**
   {
-    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
     "title": "Push notification title",
     "message": "Push notification body",
     "status": "CREATED",
-    "executionTimeInHour": 6
+    "executionTimeInHours": 6
   }
 end note
 mnj -[#green]> httpfunc : Success
@@ -94,8 +97,8 @@ end
 note right of httpfunc
   **Job Document**
   {
-    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
-    "status": "STARTED",
+    "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "status": "PROCESSING",
     "startTimeTimestamp": 1771492295
   }
 end note
@@ -160,8 +163,8 @@ end
 note right of admin
   **Response Body**
   {
-    "jobId": "01KHQZBYH4GYY4Z8P5W594JG3B",
-    "status": "STARTED"
+    "id": "01KHQZBYH4GYY4Z8P5W594JG3B",
+    "status": "PROCESSING"
   }
 end note
 httpfunc -[#green]> admin : 200
