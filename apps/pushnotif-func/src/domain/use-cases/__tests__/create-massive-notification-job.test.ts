@@ -5,8 +5,8 @@ import { MassiveJobsRepository } from "../../massive-jobs";
 import { MakeCreateMassiveNotificationJobUseCase } from "../create-massive-notification-job";
 
 const aValidPayload = {
-  body: "Notification body",
   executionTimeInHours: 4,
+  message: "Notification body",
   title: "Notification title",
 };
 
@@ -30,7 +30,7 @@ describe("CreateMassiveNotificationJobUseCase", () => {
     vi.mocked(repositoryMock.createMassiveJob).mockResolvedValueOnce(error);
 
     const result = await useCase.execute(
-      aValidPayload.body,
+      aValidPayload.message,
       aValidPayload.executionTimeInHours,
       aValidPayload.title,
     );
@@ -43,16 +43,16 @@ describe("CreateMassiveNotificationJobUseCase", () => {
     vi.mocked(repositoryMock.createMassiveJob).mockResolvedValueOnce(aJobId);
 
     await useCase.execute(
-      aValidPayload.body,
+      aValidPayload.message,
       aValidPayload.executionTimeInHours,
       aValidPayload.title,
     );
 
     expect(repositoryMock.createMassiveJob).toHaveBeenCalledWith(
       expect.objectContaining({
-        body: aValidPayload.body,
         executionTimeInHours: aValidPayload.executionTimeInHours,
         id: expect.any(String),
+        message: aValidPayload.message,
         status: "CREATED",
         title: aValidPayload.title,
       }),
@@ -63,7 +63,7 @@ describe("CreateMassiveNotificationJobUseCase", () => {
     vi.mocked(repositoryMock.createMassiveJob).mockResolvedValueOnce(aJobId);
 
     const result = await useCase.execute(
-      aValidPayload.body,
+      aValidPayload.message,
       aValidPayload.executionTimeInHours,
       aValidPayload.title,
     );
@@ -80,7 +80,7 @@ describe("CreateMassiveNotificationJobUseCase", () => {
     vi.mocked(repositoryMock.createMassiveJob).mockResolvedValueOnce(aJobId);
 
     await useCase.execute(
-      aValidPayload.body,
+      aValidPayload.message,
       aValidPayload.executionTimeInHours,
       aValidPayload.title,
     );
@@ -90,8 +90,8 @@ describe("CreateMassiveNotificationJobUseCase", () => {
 
     expect(createdJob).toEqual(
       expect.objectContaining({
-        body: aValidPayload.body,
         executionTimeInHours: aValidPayload.executionTimeInHours,
+        message: aValidPayload.message,
         title: aValidPayload.title,
       }),
     );
