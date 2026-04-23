@@ -10,7 +10,7 @@
     {
       "id": 2,
       "prompt": "Create a local characterization workflow for a legacy Express endpoint that will be ported to Hono. The endpoint calls two partner REST services and writes to Redis. The workflow must boot the real local service, run partner services locally as deterministic stubs or proxies, record their exchanges, persist Redis side effects into cassette artifacts, and later verify behavior against those cassettes without silently rewriting them.",
-      "expected_output": "The agent chooses real local service execution, generates a reusable record or verify workflow, captures partner HTTP exchanges through local dependencies, records Redis state into side-effects cassettes, and keeps the verification black-box and independent from internal implementation details.",
+      "expected_output": "The agent chooses real local service execution, generates a reusable record or verify workflow, captures partner HTTP exchanges through local dependencies, boots Redis through Testcontainers rather than ad hoc Docker CLI orchestration, records Redis state into side-effects cassettes, and keeps the verification black-box and independent from internal implementation details.",
       "files": []
     },
     {
@@ -28,7 +28,13 @@
     {
       "id": 5,
       "prompt": "Freeze this Azure Function before I refactor it. The repository already has a containerized local runtime that starts the Functions host with the right environment. Reuse that app container in the characterization topology instead of rebuilding env injection in the harness. Boot Azurite and Redis locally, drive the real HTTP trigger, and persist multilayer cassettes plus verify-mode tests.",
-      "expected_output": "The agent reuses or creates an app container for the function runtime, treats it as another topology component, keeps env and host startup inside that container, records the HTTP contract and side effects through real local boundaries, and avoids reconstructing runtime wiring ad hoc in the harness.",
+      "expected_output": "The agent reuses or creates an app container for the function runtime, treats it as another topology component, keeps env and host startup inside that container, boots Azurite and Redis through Testcontainers-managed dependencies rather than raw compose orchestration, records the HTTP contract and side effects through real local boundaries, and avoids reconstructing runtime wiring ad hoc in the harness.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Create characterization tests for a Node.js Azure Function that depends on Azurite and a Cosmos emulator. The repo already has a docker-compose file for local development. Use it only to discover image tags, env names, healthchecks, and ports; the test harness itself should still boot the stateful dependencies with Testcontainers, add the dependency if needed, and call the real local Functions host in record and verify modes.",
+      "expected_output": "The agent reads the compose file as topology source material, adds or uses testcontainers in the workspace, boots Azurite and the Cosmos emulator through Testcontainers, drives the real local Functions host, and avoids shelling out to docker compose or docker run from the harness.",
       "files": []
     }
   ]

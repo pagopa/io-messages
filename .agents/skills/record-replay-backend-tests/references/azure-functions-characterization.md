@@ -40,7 +40,7 @@ Use different names if the repository already has a stronger testing convention,
 - `*.test.ts` drives the real scenario
 - `cassettes.ts` reads and writes the multilayer artifacts
 - `function-host.ts` or `app-runtime.ts` owns starting or attaching to the real Functions runtime
-- `harness.ts` owns dependency containers, scenario seed data, and side-effect readers; if the app already runs in its own container, keep env and startup ownership there rather than in the harness
+- `harness.ts` owns Testcontainers-managed dependency containers, scenario seed data, and side-effect readers; if the app already runs in its own container, keep env and startup ownership there rather than in the harness
 
 ## Prefer an app container when available
 
@@ -49,19 +49,20 @@ If the repository already ships a Dockerfile, compose service, devcontainer task
 - The app container may pre-exist the test run or be started by the agent as another Testcontainer.
 - In that topology, treat the function app as another runtime dependency.
 - Keep env, build, and startup ownership inside the app container when it already solves those concerns credibly.
-- If `docker-compose.yml` or equivalent runtime definitions already exist, use them as hints for the app container and adjacent dependencies before inventing new Testcontainers wiring.
+- If `docker-compose.yml` or equivalent runtime definitions already exist, use them as hints for the app container and adjacent dependencies before inventing new Testcontainers wiring. Compose definitions are source material, not the default orchestration path for the harness.
 - Keep the harness focused on readiness checks, driving traffic, and reading side effects.
 
 ## Minimum workflow
 
-1. Boot only the dependencies needed for the selected scenario.
-2. Start or attach to the function runtime.
-3. If no credible app container exists, allocate a free local port dynamically, build the app with the repository's real build command, and start `func start --port <dynamic-port>` with the current PATH preserved.
-4. Wait for readiness by calling a real local endpoint or trigger seam, not just by checking that the port is open.
-5. Drive the scenario through the real local boundary.
-6. Read back observable side effects from emulators or local dependencies.
-7. Write `request.json`, `response.json`, `side-effects.json`, `topology.json`, and `normalization.json`.
-8. In `verify` mode, rerun the scenario and compare without mutating the cassette.
+1. Audit the topology before coding: list the runtime and each dependency, and note whether it will be a local stub, an app container, a Testcontainers-managed dependency, or a documented fallback. If a containerized stateful dependency is not Testcontainers-managed, stop and justify the exception first.
+2. Boot only the dependencies needed for the selected scenario.
+3. Start or attach to the function runtime.
+4. If no credible app container exists, allocate a free local port dynamically, build the app with the repository's real build command, and start `func start --port <dynamic-port>` with the current PATH preserved.
+5. Wait for readiness by calling a real local endpoint or trigger seam, not just by checking that the port is open.
+6. Drive the scenario through the real local boundary.
+7. Read back observable side effects from emulators or local dependencies.
+8. Write `request.json`, `response.json`, `side-effects.json`, `topology.json`, and `normalization.json`.
+9. In `verify` mode, rerun the scenario and compare without mutating the cassette.
 
 ## Network reachability in devcontainers
 
@@ -117,12 +118,14 @@ If the selected characterization scope is one HTTP flow but the app also starts 
 
 Pick the lightest local topology that still proves the contract.
 
-| Need | Preferred local dependency |
-| --- | --- |
-| Blob, queue, or table output | Azurite or the repository's existing storage emulator |
-| Cosmos trigger or side-effect readback | Cosmos-compatible emulator or the repository's existing local Cosmos path |
-| HTTP dependency | local stub, fake, or replay server |
-| Broker output | local broker or emulator only if the scenario truly needs a successful publish |
+Prefer Testcontainers-managed Azurite, Cosmos-compatible emulators, Redis, brokers, and similar dependencies. Use repository compose files or Docker definitions as discovery material, then mirror the necessary topology in Testcontainers.
+
+| Need                                   | Preferred local dependency                                                                                                                            |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Blob, queue, or table output           | Azurite or the repository's existing storage emulator, booted through Testcontainers when it runs in a container                                      |
+| Cosmos trigger or side-effect readback | Cosmos-compatible emulator or the repository's existing local Cosmos path, booted through Testcontainers when it runs in a container                  |
+| HTTP dependency                        | local stub, fake, or replay server                                                                                                                    |
+| Broker output                          | local broker or emulator, preferably booted through Testcontainers when it runs in a container, only if the scenario truly needs a successful publish |
 
 If a dependency cannot run locally, document the fallback clearly and capture the closest honest boundary instead of pretending the full side effect ran.
 

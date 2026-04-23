@@ -4,12 +4,12 @@ Use this reference when deciding how to boot the local system under test, how to
 
 ## Inbound surface
 
-| Surface                                     | Preferred driver                                                                              | Why                                                                                    |
-| ------------------------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Hono / Express / Fastify / similar HTTP app | start the real local server process or app container and call it over HTTP                    | keeps the test black-box and stable across framework refactors                         |
-| Azure Function HTTP trigger                 | start the local Functions host, emulator, or app container and call the real local endpoint   | exercises the route, host wiring, and runtime behavior that a local caller would see   |
+| Surface                                     | Preferred driver                                                                                                   | Why                                                                                    |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| Hono / Express / Fastify / similar HTTP app | start the real local server process or app container and call it over HTTP                                         | keeps the test black-box and stable across framework refactors                         |
+| Azure Function HTTP trigger                 | start the local Functions host, emulator, or app container and call the real local endpoint                        | exercises the route, host wiring, and runtime behavior that a local caller would see   |
 | queue / topic / worker runtime              | start the real local worker process or app container plus local broker or emulator, then publish the input message | keeps the contract at the transport boundary instead of at imported handler boundaries |
-| scheduled or event-driven process           | run the real local runtime or app container and trigger it through the scheduler or closest local trigger seam | preserves the deployed execution path when a local runtime exists                      |
+| scheduled or event-driven process           | run the real local runtime or app container and trigger it through the scheduler or closest local trigger seam     | preserves the deployed execution path when a local runtime exists                      |
 
 Only fall back to direct handler invocation when no credible local host, emulator, or worker runtime exists. If you do, explain why the fallback is necessary.
 
@@ -31,9 +31,13 @@ Only fall back to direct handler invocation when no credible local host, emulato
 Prefer the lightest topology that still proves the contract:
 
 - start only the service under test and the dependencies required for the selected scenario
-- prefer reusing an existing app container, compose service, or image when the repository already has one
+- prefer reusing an existing app container, compose service definition, or image when the repository already has one
 - if the app container already packages env, build, and startup, keep that ownership inside the container rather than recreating it in the harness
 - when creating Testcontainers or app containers, inspect existing `docker-compose.yml`, compose overrides, devcontainer tasks, or equivalent runtime files for images, env names, ports, healthchecks, volumes, and dependency ordering
+- treat compose files as a source of truth for topology, not as the default orchestration mechanism for the characterization harness
+- instantiate containerized stateful dependencies with Testcontainers by default even when the repository already has compose definitions
+- if the needed Testcontainers package is missing, add it rather than replacing it with shell-based Docker orchestration
+- before implementation, audit each dependency and record whether it will be a local stub, an app container, a Testcontainers-managed dependency, or a documented fallback; stop if astateful dependency lacks a justified Testcontainers path
 - wire the topology through the same env vars or config paths that production code already uses
 - persist enough topology metadata for replay: service base URL, dependency endpoints, ports, enabled feature flags, and relevant image tags or runtime versions
 - prefer official Testcontainers modules over hand-rolled GenericContainer bootstraps when the module exists
