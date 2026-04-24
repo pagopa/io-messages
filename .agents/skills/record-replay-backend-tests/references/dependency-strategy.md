@@ -37,7 +37,7 @@ Prefer the lightest topology that still proves the contract:
 - treat compose files as a source of truth for topology, not as the default orchestration mechanism for the characterization harness
 - instantiate containerized stateful dependencies with Testcontainers by default even when the repository already has compose definitions
 - if the needed Testcontainers package is missing, add it rather than replacing it with shell-based Docker orchestration
-- before implementation, audit each dependency and record whether it will be a local stub, an app container, a Testcontainers-managed dependency, or a documented fallback; stop if astateful dependency lacks a justified Testcontainers path
+- before implementation, audit each dependency and record whether it will be a local stub, an app container, a Testcontainers-managed dependency, or a documented fallback; stop if a stateful dependency lacks a justified Testcontainers path
 - wire the topology through the same env vars or config paths that production code already uses
 - persist enough topology metadata for replay: service base URL, dependency endpoints, ports, enabled feature flags, and relevant image tags or runtime versions
 - prefer official Testcontainers modules over hand-rolled GenericContainer bootstraps when the module exists

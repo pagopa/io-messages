@@ -1,6 +1,6 @@
 ---
 name: record-replay-backend-tests
-description: Create or refactor local characterization workflows for Node.js or TypeScript backends, and other backends that can credibly run as a local container, by booting the real local service, app container, or emulator, capturing cassette artifacts from real endpoint traffic, and replaying them against local services plus Testcontainers-managed stateful dependencies. Use this whenever the user wants VCR or golden-master tests, cassette generation scripts, Azure Functions emulator coverage, black-box local verification, or persisted side-effect recording for storage, Cosmos DB, Redis, queues, brokers, or similar systems, even if they only say “freeze behavior before a refactor”.
+description: Create or refactor local characterization workflows for Node.js or TypeScript backends, plus similar backends that can credibly run as a real local service, app container, or emulator. Use this whenever the user wants VCR or golden-master tests, cassette capture or replay scripts, refactor-safety coverage, black-box local verification, Azure Functions emulator coverage, or persisted side-effect recording for storage, Cosmos DB, Redis, queues, brokers, or similar systems, even if they only say "freeze behavior before a refactor" or "record current behavior."
 ---
 
 # Record & Replay Backend Tests
@@ -30,14 +30,22 @@ If the target is a Node.js or TypeScript Azure Function and the repository does 
 
 If the prompt does not already define scenario scope, ask the user to clarify which scenario classes matter most before building a suite. Good examples include: happy paths only, happy paths plus selected error cases, or one specific regression branch. Do not assume a broad matrix when a smaller explicit set would do.
 
+## Core workflow
+
+1. Inspect the repository and pick the real local runtime boundary plus the minimum honest dependency topology.
+2. Default Node.js or TypeScript stateful dependencies to Testcontainers, using checked-in Docker or compose files as topology inputs rather than as the harness implementation.
+3. Capture one representative scenario at a time into multilayer cassette artifacts using contract-local seeders, recorders, and assertions.
+4. Add explicit `record` and `verify` entrypoints plus black-box tests that drive only the running local boundary.
+5. Document any fallback or exception plainly, especially when there is no credible local runtime or a containerized dependency cannot use Testcontainers.
+
 ## Default dependency orchestration for Node.js and TypeScript
 
 For Node.js or TypeScript characterization work, treat Testcontainers as the default orchestration layer for containerized stateful dependencies.
 
-- Read checked-in Dockerfiles, `docker-compose.yml`, compose overrides, devcontainer tasks, and local startup scripts as topology inputs. Reuse their images, env names, ports, healthchecks, volumes, and dependency ordering, but do not treat raw `docker run` or `docker compose` orchestration as the default harness implementation just because those files exist.
+- Read checked-in Dockerfiles, `docker-compose.yml`, compose overrides, devcontainer tasks, and local startup scripts as topology inputs. Reuse their images, env names, healthchecks, ports, volumes, and dependency ordering, but do not treat raw `docker run` or `docker compose` as the default harness implementation just because those files exist.
 - If a dependency can credibly run through Testcontainers, use Testcontainers even when that means adding `testcontainers` or an official module to the workspace.
-- Only bypass Testcontainers when the user explicitly asks for another orchestration path or when you can explain a concrete blocker that makes Testcontainers not credible in the current environment.
-- When you take that exception, say so plainly in the final response instead of letting it remain an implicit implementation detail.
+- Only bypass Testcontainers when the user explicitly asks for another orchestration path or when there is a concrete blocker you can explain.
+- When you take that exception, surface it in the final response instead of letting it disappear into the harness.
 
 ## First inspect
 
@@ -53,16 +61,16 @@ For Node.js or TypeScript characterization work, treat Testcontainers as the def
    - Azure Functions host or emulator command
    - worker command plus broker or queue emulator
    - existing `docker-compose.yml`, compose overrides, devcontainer tasks, or equivalent runtime definitions that can inform Testcontainers setup
-4. Classify dependencies around that running service:
-   - local HTTP dependencies that can be hosted as stub, proxy, or fake services
-   - stateful data-plane dependencies that can run in Testcontainers or emulators
-   - runtime-managed outputs that still have a local observable boundary
-   - dependencies with no credible local execution path
-5. Audit each dependency before you implement anything: note whether it will start as an app container, a Testcontainers-managed dependency, a local stub, or a documented fallback. If a Node.js or TypeScript stateful dependency will not be Testcontainers-managed, stop and justify the exception before proceeding.
-6. Find contract sources: OpenAPI, schema validators, existing fixtures, known regressions, sample payloads.
-7. For happy-path scenarios, identify the exact success shape up front: expected status code, minimum required body fields, and any fixture constraints that can silently turn a "happy" request into a 500.
-8. Freeze nondeterminism before capturing anything: time, generated IDs, random values, volatile headers, trace metadata, environment-specific hostnames.
-9. Decide how the characterization code will stay isolated from the target codebase: prefer contract-local schemas or plain JSON assertions instead of importing application models, io-ts decoders, zod schemas, or shared runtime helpers from the system under test or from its runtime-coupled shared packages.
+4. Audit each dependency before you implement anything and classify it as:
+   - local HTTP stub, fake, or proxy service
+   - Testcontainers-managed or emulator-backed stateful dependency
+   - app container or existing runtime component
+   - documented fallback when no credible local execution path exists
+5. For Node.js or TypeScript stateful dependencies, treat anything other than Testcontainers as an exception that must be justified before you proceed.
+6. Find contract sources: OpenAPI, schema validators, existing fixtures, known regressions, and sample payloads.
+7. For happy-path scenarios, write down the minimum meaningful success shape up front: expected status code, minimum required body fields, and any side effects or seed-data constraints that can silently turn a "happy" request into a 500.
+8. Freeze nondeterminism before capturing anything: time, generated IDs, random values, volatile headers, trace metadata, environment-specific hostnames, and dynamic ports.
+9. Decide how the characterization code will stay contract-local: prefer local schemas, plain JSON assertions, and raw SDK or protocol calls owned by the characterization folder instead of importing application models, decoders, generated types, or runtime-coupled shared helpers.
 
 ## Choose the system boundary
 
@@ -88,9 +96,7 @@ Prefer the local Functions host or emulator and hit the real local HTTP endpoint
 - If the repository already exposes a containerized Functions runtime, reuse it instead of rebuilding host startup logic inside the harness.
 - Use compose files, Dockerfiles, or devcontainer tasks as source material for Testcontainers wiring; do not orchestrate Azurite, Cosmos, Redis, brokers, or similar dependencies with `docker run` or `docker compose` from the harness unless you have a documented exception.
 - If the workspace lacks `testcontainers`, add it rather than downgrading to bespoke Docker CLI orchestration.
-- In devcontainers or repeated local runs, prefer dynamic free ports and normalize them in cassettes instead of hard-coding a fixed host port.
-- In devcontainers or remote workspaces, do not assume Docker-published emulator ports are reachable through `127.0.0.1`; probe a small set of candidate hosts such as `127.0.0.1`, `host.docker.internal`, a bridge gateway, or an override env and normalize the chosen host in the cassette.
-- If published ports are still flaky from the harness process, prefer attaching the workspace container to the same Docker network as the Testcontainers-managed dependencies and use network aliases from there; in many devcontainers this is more reliable than host-published ports.
+- In devcontainers or remote workspaces, prefer dynamic free ports, prove how the harness reaches Docker-published endpoints, and normalize the chosen host or port in the cassette. Read `references/azure-functions-characterization.md` for the detailed reachability checklist when this is not already solved in the repository.
 - Start the runtime in a way that preserves the current toolchain PATH; avoid brittle login-shell wrappers when spawning the local host.
 - When there is no existing local characterization harness, reuse the starter layout in `references/azure-functions-characterization.md` rather than inventing a bespoke file structure from scratch.
 - Fall back to direct handler invocation only when there is no credible local host or emulator path, and explain why.
@@ -162,7 +168,7 @@ Prefer two explicit modes:
 If the project already has scripts for local bootstrapping or fixture seeding, extend them instead of inventing parallel tooling.
 
 If the repository already has an app container, compose service, or image that brings the service up with the correct env, prefer using that runtime as another topology component instead of reconstructing env injection inside the harness.
-If the repository already has `docker-compose.yml` or equivalent runtime descriptors, use them as a source of truth for container topology before inventing new container shapes, then express the needed dependencies through Testcontainers instead of invoking compose from the harness when Testcontainers is credible.
+If the repository already has `docker-compose.yml` or equivalent runtime descriptors, use them as topology source material before inventing new container shapes, then express the needed stateful dependencies through Testcontainers when that path is credible.
 For test-runner-driven harnesses, prefer doing one-time expensive work such as `build` in the explicit `record` and `verify` scripts rather than inside the test body or host wrapper. Keep heavyweight characterization tests opt-in so the repository's default unit-test run does not accidentally boot the full local topology.
 
 ## Dependency strategy
@@ -188,13 +194,9 @@ Prefer Testcontainers or local emulators for storage, databases, caches, and bro
 - If `testcontainers` is missing from the workspace and the dependency can credibly run that way, add it instead of avoiding Testcontainers to save one dependency change.
 - Do not replace Testcontainers with ad hoc `docker run` or `docker compose` commands just because they are faster to type; treat raw Docker orchestration as an exception that needs a concrete justification or explicit user request.
 - Before forcing a container platform like `linux/amd64`, inspect the image manifest and the current host architecture. If the official image already publishes a native `arm64` variant, prefer the native platform; cross-architecture emulation can make a dependency look partially alive while an internal subsystem still crashes or never becomes queryable.
-- Point production config at the local dependency through the same env path the service already uses.
-- Seed only the minimum prerequisite state.
-- After the scenario runs, read back the real side effect and persist it into the cassette.
-- If the dependency uses a preview or "vnext" emulator image, treat compatibility as something to prove, not assume: document the exact image tag and validate that the chosen happy-path queries and writes actually succeed on that emulator.
-- For Cosmos-compatible emulators, prove both point-read and query paths with the real SDK. Some preview emulators require endpoint discovery to be disabled or omit metadata on query results; keep any workaround local to the characterization path.
-- If the repository's shared model or decoder layer expects query metadata that a preview emulator omits, prefer a narrow local-only adapter or model factory for characterization rather than weakening shared production decoders globally.
-- If the emulator exposes quirks that do not belong in production behavior, prefer a local-only compatibility adapter or seam gated by non-production config instead of mutating widely shared runtime models globally.
+- Point production config at the local dependency through the same env path the service already uses, seed only the minimum prerequisite state, then read back the real side effect and persist it into the cassette.
+- If the dependency uses a preview or "vnext" emulator image, treat compatibility as something to prove, not assume: pin the exact image tag and validate the real SDK path the scenario needs before you record anything.
+- Keep emulator-specific compatibility shims local to the characterization path instead of mutating shared production decoders, models, or runtime helpers. Read `references/dependency-strategy.md` when you need the deeper recorder, warmup, or replay-safety guidance.
 
 Examples of side-effect records:
 
@@ -258,11 +260,9 @@ Do not freeze irrelevant noise:
 - Prefer **source-level** black-box characterization code too: avoid importing target code or runtime-coupled shared packages into the harness. The only routine exception is the runtime boot command, app container, or minimal startup wrapper needed to launch the real local service.
 - Prefer real local hosts, emulators, and local dependency topologies over direct handler invocation.
 - Prefer an existing app container or compose service when it already owns the runtime env and startup path.
-- For Node.js or TypeScript harnesses, do not orchestrate containerized stateful dependencies with `docker run` or `docker compose` from the harness when Testcontainers is feasible.
 - Keep cassette artifacts small, reviewable, and split by concern.
 - Redact secrets before persisting any cassette layer.
 - Refresh cassettes only in explicit record mode.
-- Prefer reusable container-side recorder helpers over one-off inline assertions.
 - For happy-path suites, fail fast on any success scenario that records a server error instead of preserving the failure as a cassette.
 - For happy-path suites, do not freeze semantically empty or trivial successes as the main contract unless that is genuinely the behavior worth protecting.
 - Normalize database/cache metadata such as `_etag`, `_rid`, `_self`, `_ts`, dynamic port numbers, and runtime-generated resource names before persisting side effects.
@@ -271,8 +271,7 @@ Do not freeze irrelevant noise:
 - Keep emulator compatibility logic local to the capture path when possible; avoid baking emulator-only behavior into shared production models unless there is no narrower seam.
 - If the current repository only exposes convenient seed data or decoders through production modules, replicate the minimum needed contract shape locally in the characterization folder instead of coupling the test harness to those imports.
 - Do not force cross-architecture container execution unless the image lacks a native build or you have already proved the native variant is unusable in this environment.
-- If you take a non-Testcontainers exception for a Node.js or TypeScript stateful dependency, justify it explicitly instead of letting it disappear into the harness implementation.
-- If a dependency cannot run locally, explain the fallback and keep it as close as possible to a real observable contract boundary.
+- Explain any non-Testcontainers orchestration choice or no-local-runtime fallback explicitly instead of letting it disappear into the harness implementation.
 
 ## Final response
 
