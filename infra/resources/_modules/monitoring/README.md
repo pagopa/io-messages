@@ -20,16 +20,16 @@ No modules.
 | Name | Type |
 |------|------|
 | [azurerm_monitor_action_group.io_com_error](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_action_group) | resource |
-| [azurerm_monitor_scheduled_query_rules_alert.massive_job_check_not_found_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
-| [azurerm_monitor_scheduled_query_rules_alert.massive_job_check_notification_not_found_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
-| [azurerm_monitor_scheduled_query_rules_alert.massive_job_check_queue_message_invalid_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
-| [azurerm_monitor_scheduled_query_rules_alert.massive_job_process_failed_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
-| [azurerm_monitor_scheduled_query_rules_alert.massive_job_process_progress_create_failed_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
-| [azurerm_monitor_scheduled_query_rules_alert.massive_job_process_queue_message_invalid_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
-| [azurerm_monitor_scheduled_query_rules_alert.massive_job_start_schedule_batch_failed_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
 | [azurerm_monitor_scheduled_query_rules_alert.message-ingestion-alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
 | [azurerm_monitor_scheduled_query_rules_alert.message-ingestion-count-collect-alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
 | [azurerm_monitor_scheduled_query_rules_alert.message-status-ingestion-alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
+| [azurerm_monitor_scheduled_query_rules_alert_v2.massive_job_check_not_found_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
+| [azurerm_monitor_scheduled_query_rules_alert_v2.massive_job_check_notification_not_found_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
+| [azurerm_monitor_scheduled_query_rules_alert_v2.massive_job_check_queue_message_invalid_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
+| [azurerm_monitor_scheduled_query_rules_alert_v2.massive_job_process_failed_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
+| [azurerm_monitor_scheduled_query_rules_alert_v2.massive_job_process_progress_create_failed_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
+| [azurerm_monitor_scheduled_query_rules_alert_v2.massive_job_process_queue_message_invalid_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
+| [azurerm_monitor_scheduled_query_rules_alert_v2.massive_job_start_schedule_batch_failed_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
 
 ## Inputs
 
