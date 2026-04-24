@@ -1,0 +1,25 @@
+{
+  "body": {
+    "id": "__MESSAGE_ID__"
+  },
+  "headers": {
+    "content-security-policy": "default-src 'none'; upgrade-insecure-requests",
+    "content-type": "application/json",
+    "cross-origin-embedder-policy": "require-corp",
+    "cross-origin-opener-policy": "same-origin",
+    "cross-origin-resource-policy": "same-origin",
+    "location": "/api/v1/messages/AAABBB01C02D345D/__MESSAGE_ID__",
+    "origin-agent-cluster": "?1",
+    "referrer-policy": "no-referrer",
+    "request-context": "appId=",
+    "server": "Kestrel",
+    "strict-transport-security": "max-age=15552000; includeSubDomains",
+    "x-content-type-options": "nosniff",
+    "x-dns-prefetch-control": "off",
+    "x-download-options": "noopen",
+    "x-frame-options": "DENY",
+    "x-permitted-cross-domain-policies": "none",
+    "x-xss-protection": "0"
+  },
+  "status": 201
+}

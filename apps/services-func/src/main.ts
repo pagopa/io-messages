@@ -26,10 +26,7 @@ import {
   PROFILE_COLLECTION_NAME,
   ProfileModel,
 } from "@pagopa/io-functions-commons/dist/src/models/profile";
-import {
-  SERVICE_COLLECTION_NAME,
-  ServiceModel,
-} from "@pagopa/io-functions-commons/dist/src/models/service";
+import { SERVICE_COLLECTION_NAME } from "@pagopa/io-functions-commons/dist/src/models/service";
 import {
   SERVICE_PREFERENCES_COLLECTION_NAME,
   ServicesPreferencesModel,
@@ -63,6 +60,7 @@ import { initTelemetryClient } from "./utils/appinsights";
 import { getConfigOrThrow } from "./utils/config";
 import { cosmosdbInstance } from "./utils/cosmosdb";
 import { CommonMessageData } from "./utils/events/message";
+import { createServiceModel } from "./utils/service-model";
 import { makeRetrieveExpandedDataFromBlob } from "./utils/with-expanded-input";
 
 const config = getConfigOrThrow();
@@ -101,7 +99,7 @@ const messageModel = new MessageModel(
   config.MESSAGE_CONTAINER_NAME,
 );
 
-const serviceModel = new ServiceModel(
+const serviceModel = createServiceModel(
   cosmosdbInstance.container(SERVICE_COLLECTION_NAME),
 );
 

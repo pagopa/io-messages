@@ -1,0 +1,18 @@
+{
+  "body": {
+    "content": {
+      "markdown": "This is a characterization markdown body that is intentionally long enough to satisfy CreateMessage validation rules.",
+      "subject": "Welcome user"
+    }
+  },
+  "headers": {
+    "content-type": "application/json",
+    "x-forwarded-for": "127.0.0.1",
+    "x-subscription-id": "01234567890",
+    "x-user-email": "characterization@example.com",
+    "x-user-groups": "ApiLimitedMessageWrite",
+    "x-user-id": "characterization-user"
+  },
+  "method": "POST",
+  "path": "/v1/messages/AAABBB01C02D345W"
+}

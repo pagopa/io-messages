@@ -15,6 +15,8 @@
     "build": "tsc",
     "watch": "tsc --w",
     "test": "vitest run",
+    "test:characterization:record": "pnpm build && CHARACTERIZATION_MODE=record vitest run --config vitest.characterization.config.mjs",
+    "test:characterization:verify": "pnpm build && CHARACTERIZATION_MODE=verify vitest run --config vitest.characterization.config.mjs",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint --fix src",
     "lint:check": "eslint src",
@@ -63,8 +65,11 @@
     "winston": "catalog:"
   },
   "devDependencies": {
+    "@azure/storage-blob": "catalog:",
     "@pagopa/eslint-config": "catalog:",
     "@pagopa/openapi-codegen-ts": "catalog:",
+    "@testcontainers/azure-cosmosdb-emulator": "catalog:",
+    "@testcontainers/azurite": "catalog:",
     "@types/documentdb": "catalog:",
     "@types/express-serve-static-core": "catalog:",
     "@types/html-to-text": "catalog:",
@@ -76,6 +81,7 @@
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
     "prettier": "catalog:",
+    "testcontainers": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"

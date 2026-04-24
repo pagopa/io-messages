@@ -1,0 +1,47 @@
+{
+  "dependencies": {
+    "azurite": {
+      "accountName": "devstoreaccount1",
+      "blobEndpoint": "http://__AZURITE_BLOB_ENDPOINT__/devstoreaccount1",
+      "image": "mcr.microsoft.com/azure-storage/azurite:latest@sha256:647c63a91102a9d8e8000aab803436e1fc85fbb285e7ce830a82ee5d6661cf37",
+      "messageContentContainer": "messages-missing-fiscal-code",
+      "mode": "Testcontainers",
+      "processingMessageContainer": "processing-message-missing-fiscal-code",
+      "queueEndpoint": "http://__AZURITE_QUEUE_ENDPOINT__/devstoreaccount1",
+      "queues": [
+        "message-created-missing-fiscal-code",
+        "message-processed-missing-fiscal-code",
+        "notification-created-email-missing-fiscal-code",
+        "notification-created-webhook-missing-fiscal-code"
+      ]
+    },
+    "cosmos": {
+      "containers": [
+        "services",
+        "messages"
+      ],
+      "database": "services-func-char-missing-fiscal-code",
+      "endpoint": "http://__COSMOS_ENDPOINT__",
+      "image": "mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview",
+      "mode": "Testcontainers"
+    },
+    "notifyStub": {
+      "baseUrl": "http://__NOTIFY_STUB__",
+      "mode": "local stub"
+    }
+  },
+  "runtime": {
+    "app": "services-func",
+    "baseUrl": "http://__FUNCTIONS_HOST__/api",
+    "bootCommand": [
+      "func",
+      "start",
+      "--port",
+      "<dynamic>",
+      "--functions",
+      "Info",
+      "CreateMessage"
+    ],
+    "boundary": "Azure Functions HTTP trigger"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "createdQueueMessages": [
+    {
+      "defaultAddresses": {},
+      "messageId": "__MESSAGE_ID__",
+      "serviceVersion": 0
+    }
+  ],
+  "messages": [
+    {
+      "_attachments": "attachments/",
+      "createdAt": "__TIMESTAMP__",
+      "featureLevelType": "STANDARD",
+      "fiscalCode": "AAABBB01C02D345D",
+      "id": "__MESSAGE_ID__",
+      "indexedId": "__MESSAGE_ID__",
+      "isPending": true,
+      "senderServiceId": "01234567890",
+      "senderUserId": "characterization-user",
+      "timeToLiveSeconds": 3600
+    }
+  ],
+  "processingBlobs": [
+    {
+      "content": {
+        "content": {
+          "markdown": "This is a characterization markdown body that is intentionally long enough to satisfy CreateMessage validation rules.",
+          "subject": "Welcome user"
+        },
+        "message": {
+          "createdAt": "__TIMESTAMP__",
+          "featureLevelType": "STANDARD",
+          "fiscalCode": "AAABBB01C02D345D",
+          "id": "__MESSAGE_ID__",
+          "indexedId": "__MESSAGE_ID__",
+          "isPending": true,
+          "senderServiceId": "01234567890",
+          "senderUserId": "characterization-user",
+          "timeToLiveSeconds": 3600
+        },
+        "senderMetadata": {
+          "departmentName": "Characterization Department",
+          "organizationFiscalCode": "01234567890",
+          "organizationName": "Characterization Org",
+          "requireSecureChannels": true,
+          "serviceCategory": "STANDARD",
+          "serviceName": "Characterization Service",
+          "serviceUserEmail": "characterization@example.com"
+        }
+      },
+      "name": "__MESSAGE_ID__"
+    }
+  ]
+}

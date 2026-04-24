@@ -1,0 +1,25 @@
+{
+  "normalizedPlaceholders": {
+    "__AZURITE_BLOB_ENDPOINT__": "dynamic Azurite blob endpoint",
+    "__AZURITE_QUEUE_ENDPOINT__": "dynamic Azurite queue endpoint",
+    "__COSMOS_ENDPOINT__": "dynamic Azure Cosmos DB emulator endpoint",
+    "__FUNCTIONS_HOST__": "dynamic local Azure Functions host endpoint",
+    "__MESSAGE_ID__": "runtime-generated message identifier",
+    "__NOTIFY_STUB__": "dynamic local notify stub endpoint",
+    "__TIMESTAMP__": "runtime-generated UTC timestamp"
+  },
+  "omittedHeaders": [
+    "connection",
+    "content-length",
+    "date",
+    "keep-alive",
+    "transfer-encoding",
+    "x-powered-by"
+  ],
+  "removedFields": [
+    "_etag",
+    "_rid",
+    "_self",
+    "_ts"
+  ]
+}
