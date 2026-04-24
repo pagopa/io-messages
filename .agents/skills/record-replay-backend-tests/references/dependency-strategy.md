@@ -52,6 +52,7 @@ Prefer the lightest topology that still proves the contract:
 - for local hosts that may be run repeatedly inside a devcontainer, prefer dynamic free ports and normalize them in cassette artifacts
 - normalize environment-specific values before writing them into cassette artifacts
 - keep emulator-only compatibility fixes in a narrow local adapter or seam when possible instead of rewriting shared production-facing models globally
+- keep recorder and seed helpers independent from target application modules; prefer raw SDK calls, plain JSON payloads, and local characterization schemas over importing app-owned models or decoders
 
 ## Container-side recorder pattern
 
@@ -61,6 +62,8 @@ Use reusable recorder helpers rather than ad hoc assertions. Each recorder shoul
 2. read back the resulting side effect after the scenario runs
 3. serialize a deterministic snapshot for the cassette
 4. expose a compare function for verify mode
+
+These helpers should belong to the characterization folder, not to the target application's runtime modules. Avoid importing production model classes, validators, or serialization helpers into them unless there is no credible contract-local alternative and you document that exception.
 
 Examples:
 

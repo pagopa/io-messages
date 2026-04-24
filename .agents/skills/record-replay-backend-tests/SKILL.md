@@ -7,6 +7,12 @@ description: Create or refactor local characterization workflows for Node.js or 
 
 Use this skill to freeze observable backend behavior through the **real local runtime boundary**, not by importing handlers unless there is no credible local host or emulator. Prefer a real app container when the repository already has one, or when the agent can credibly create one, so the runtime owns its own environment and startup path. The goal is to let coding agents refactor framework plumbing or legacy structure while preserving what a real local client and adjacent local services can observe.
 
+Treat the characterization harness itself as **source-level black-box code** by default:
+
+- do **not** import handlers, services, models, decoders, generated types, config modules, or helper functions from the target codebase into characterization tests or recorder helpers
+- prefer contract-local schemas, raw JSON fixtures, OpenAPI examples, protocol-level assertions, and direct dependency SDK calls owned by the characterization folder
+- if a dependency requires emulator-specific compatibility logic, keep it in characterization-local support code rather than in shared production modules
+
 ## Outcome
 
 Produce or update:
@@ -14,6 +20,7 @@ Produce or update:
 - a **capture script or reusable test entrypoint** that starts or attaches to the local service plus the minimum dependency topology and writes multilayer cassettes
 - one or more **black-box tests** that call the running local service only through its real local boundary
 - any **Testcontainers or emulator setup** needed to seed dependencies, observe side effects, and persist those observations into cassette artifacts
+- characterization support code that can survive internal refactors because it does not import runtime types or helpers from the target application
 - a short final note explaining what was frozen, how to rerun `record` vs `verify`, and where the cassette artifacts live
 
 Read `references/dependency-strategy.md` when choosing the runtime boundary or dependency pattern.
@@ -54,6 +61,7 @@ For Node.js or TypeScript characterization work, treat Testcontainers as the def
 6. Find contract sources: OpenAPI, schema validators, existing fixtures, known regressions, sample payloads.
 7. For happy-path scenarios, identify the exact success shape up front: expected status code, minimum required body fields, and any fixture constraints that can silently turn a "happy" request into a 500.
 8. Freeze nondeterminism before capturing anything: time, generated IDs, random values, volatile headers, trace metadata, environment-specific hostnames.
+9. Decide how the characterization code will stay isolated from the target codebase: prefer contract-local schemas or plain JSON assertions instead of importing application models, io-ts decoders, zod schemas, or shared runtime helpers from the system under test.
 
 ## Choose the system boundary
 
@@ -119,14 +127,15 @@ Start from the current implementation, not the refactor target.
 6. Confirm the live result matches the intended scenario class before recording it. For any scenario described as happy path, do not accept a captured 4xx or 5xx as "good enough" just because it is reproducible; fix the seed data, branch choice, or local topology first.
 7. For happy-path scenarios, confirm the success shape is semantically meaningful before recording it: status code, minimum required body fields, and required side effects. Do not freeze a trivial or empty success unless that is the real contract.
 8. If dependency readiness requires more than "port is open", add an application-level warmup probe before seeding or recording. Use the real SDK or API to prove the exact read or write path you need is actually usable.
-9. Record:
+9. Seed and read dependencies through raw protocol or dependency SDK calls owned by the characterization harness, not through imported application models or helper modules from the target codebase.
+10. Record:
    - request shape after normalization
    - response status, headers, and body
    - relevant runtime metadata
    - persisted side effects read back from dependencies
-10. Save the multilayer cassette artifacts deterministically.
-11. Run verify mode once after the first successful record and inspect cassette contents directly for accidental error responses, unstable metadata, or other success-shape violations.
-12. Switch the workflow into replay or verify mode so future runs fail on drift instead of silently re-recording.
+11. Save the multilayer cassette artifacts deterministically.
+12. Run verify mode once after the first successful record and inspect cassette contents directly for accidental error responses, unstable metadata, or other success-shape violations.
+13. Switch the workflow into replay or verify mode so future runs fail on drift instead of silently re-recording.
 
 For long-running local-host scenarios, put explicit timeouts around startup, readiness probes, live requests, and side-effect reads, and stream the host logs while waiting. Otherwise one hung call can collapse into an opaque global test timeout.
 
@@ -220,6 +229,7 @@ Write tests that remain independent from the implementation internals.
 - Compare live responses and persisted side effects against the stored cassette.
 - Keep assertions at the external contract level, including minimum contract meaning for happy paths.
 - Do not overfit to helper calls, SDK call counts, or imported handler details when the real contract is the observed system behavior.
+- Do not import target-application types, decoders, or helpers into the characterization suite. If structure validation is useful, define a small local schema in the characterization folder or validate directly against cassette content and protocol-visible fields.
 
 If the refactor changes only framework plumbing, the capture script and scenario tests should stay the same or need only minimal boot-command updates.
 
@@ -244,6 +254,7 @@ Do not freeze irrelevant noise:
 ## Guardrails
 
 - Prefer black-box local execution over in-process imports.
+- Prefer **source-level** black-box characterization code too: avoid importing target code into the harness except for the runtime boot command or app container itself.
 - Prefer real local hosts, emulators, and local dependency topologies over direct handler invocation.
 - Prefer an existing app container or compose service when it already owns the runtime env and startup path.
 - For Node.js or TypeScript harnesses, do not orchestrate containerized stateful dependencies with `docker run` or `docker compose` from the harness when Testcontainers is feasible.
@@ -257,6 +268,7 @@ Do not freeze irrelevant noise:
 - Keep normalization rules shared between `record` and `verify`; the cassette should describe them, not be their only implementation.
 - When topology details matter, pin and record relevant runtime or emulator image tags and versions.
 - Keep emulator compatibility logic local to the capture path when possible; avoid baking emulator-only behavior into shared production models unless there is no narrower seam.
+- If the current repository only exposes convenient seed data or decoders through production modules, replicate the minimum needed contract shape locally in the characterization folder instead of coupling the test harness to those imports.
 - Do not force cross-architecture container execution unless the image lacks a native build or you have already proved the native variant is unusable in this environment.
 - If you take a non-Testcontainers exception for a Node.js or TypeScript stateful dependency, justify it explicitly instead of letting it disappear into the harness implementation.
 - If a dependency cannot run locally, explain the fallback and keep it as close as possible to a real observable contract boundary.

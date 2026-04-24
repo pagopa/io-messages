@@ -36,6 +36,12 @@
       "prompt": "Create characterization tests for a Node.js Azure Function that depends on Azurite and a Cosmos emulator. The repo already has a docker-compose file for local development. Use it only to discover image tags, env names, healthchecks, and ports; the test harness itself should still boot the stateful dependencies with Testcontainers, add the dependency if needed, and call the real local Functions host in record and verify modes.",
       "expected_output": "The agent reads the compose file as topology source material, adds or uses testcontainers in the workspace, boots Azurite and the Cosmos emulator through Testcontainers, drives the real local Functions host, and avoids shelling out to docker compose or docker run from the harness.",
       "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Freeze this backend before a refactor, but the characterization code itself must not import models, decoders, generated types, or helper functions from the target codebase. The suite should still boot the real local runtime, seed dependencies locally, record multilayer cassettes, and verify drift later.",
+      "expected_output": "The agent keeps the suite black-box both at runtime and at source level: it uses the real local boundary, seeds and reads dependencies through raw SDK or protocol calls owned by the characterization folder, validates results with local schemas or plain JSON assertions, and avoids coupling the recorder or verify tests to target-code imports.",
+      "files": []
     }
   ]
 }

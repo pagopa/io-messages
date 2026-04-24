@@ -42,6 +42,12 @@ Use different names if the repository already has a stronger testing convention,
 - `function-host.ts` or `app-runtime.ts` owns starting or attaching to the real Functions runtime
 - `harness.ts` owns Testcontainers-managed dependency containers, scenario seed data, and side-effect readers; if the app already runs in its own container, keep env and startup ownership there rather than in the harness
 
+Keep the characterization folder independent from the target app's internal modules:
+
+- do not import application models, io-ts decoders, zod schemas, generated API types, or helper functions into the characterization tests
+- define any needed request builders, tiny response schemas, and side-effect serializers locally under `src/characterization/support/`
+- treat OpenAPI, cassette contents, and protocol-visible payloads as the contract source instead of target-code imports
+
 ## Prefer an app container when available
 
 If the repository already ships a Dockerfile, compose service, devcontainer task, or other containerized Functions runtime, prefer reusing that runtime shape instead of rebuilding `func start` orchestration inside the harness.
@@ -60,9 +66,10 @@ If the repository already ships a Dockerfile, compose service, devcontainer task
 4. If no credible app container exists, allocate a free local port dynamically, build the app with the repository's real build command, and start `func start --port <dynamic-port>` with the current PATH preserved.
 5. Wait for readiness by calling a real local endpoint or trigger seam, not just by checking that the port is open.
 6. Drive the scenario through the real local boundary.
-7. Read back observable side effects from emulators or local dependencies.
-8. Write `request.json`, `response.json`, `side-effects.json`, `topology.json`, and `normalization.json`.
-9. In `verify` mode, rerun the scenario and compare without mutating the cassette.
+7. Seed and read dependencies through raw SDK or protocol calls owned by the characterization folder, not through imported application model classes or shared runtime helpers.
+8. Read back observable side effects from emulators or local dependencies.
+9. Write `request.json`, `response.json`, `side-effects.json`, `topology.json`, and `normalization.json`.
+10. In `verify` mode, rerun the scenario and compare without mutating the cassette.
 
 If the harness is test-runner-driven, prefer doing the one-time `build` in the explicit `record` and `verify` scripts rather than inside the test body or the host wrapper. Keep the characterization test opt-in so the repository's default fast test suite does not start the full local topology by accident.
 
@@ -157,7 +164,7 @@ Cosmos-compatible emulators often need more than a readiness endpoint.
 - Validate the exact SDK path the app uses, not just TCP reachability.
 - Some preview or Linux emulator builds advertise internal endpoints that make queries fail unless `connectionPolicy.enableEndpointDiscovery = false`.
 - Prove both point-read and query behavior. Some emulators return enough metadata for direct `item.read()` but omit fields such as `_self` on query results.
-- If existing shared decoders require metadata the emulator omits, prefer a narrow local-only seam that synthesizes the missing metadata for characterization instead of changing broad production behavior. In practice this may be a small characterization-only model factory or query adapter rather than a global decoder change.
+- If existing shared decoders require metadata the emulator omits, do not pull those decoders into the characterization suite just for convenience. Prefer a narrow local-only seam that reads raw SDK results and normalizes them into cassette-friendly shapes inside the characterization folder instead of changing broad production behavior.
 
 ## Queue recorder note
 
@@ -254,6 +261,7 @@ The important idea is not the exact code. The important idea is:
 - preserve the current environment and PATH
 - wait on a real probe
 - stop the process cleanly
+- keep the harness black-box even at source level; the wrapper should start the app, not import it
 
 ## What to record in `topology.json`
 
