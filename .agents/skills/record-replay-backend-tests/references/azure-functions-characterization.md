@@ -45,6 +45,7 @@ Use different names if the repository already has a stronger testing convention,
 Keep the characterization folder independent from the target app's internal modules:
 
 - do not import application models, io-ts decoders, zod schemas, generated API types, or helper functions into the characterization tests
+- treat shared workspace packages, internal runtime libraries, generated clients, and published helper packages used by the function app as part of the forbidden surface too, even if they are imported by package name rather than relative path
 - define any needed request builders, tiny response schemas, and side-effect serializers locally under `src/characterization/support/`
 - treat OpenAPI, cassette contents, and protocol-visible payloads as the contract source instead of target-code imports
 

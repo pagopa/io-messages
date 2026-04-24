@@ -9,8 +9,9 @@ Use this skill to freeze observable backend behavior through the **real local ru
 
 Treat the characterization harness itself as **source-level black-box code** by default:
 
-- do **not** import handlers, services, models, decoders, generated types, config modules, or helper functions from the target codebase into characterization tests or recorder helpers
+- do **not** import handlers, services, models, decoders, generated types, config modules, or helper functions from the target codebase or from any runtime-coupled/shared package used by the system under test into characterization tests or recorder helpers; treat workspace packages, internal SDKs, generated clients, and published shared runtime libraries as off-limits too, even when they sit outside the app folder
 - prefer contract-local schemas, raw JSON fixtures, OpenAPI examples, protocol-level assertions, and direct dependency SDK calls owned by the characterization folder
+- the only routine exception is the minimal boot command, container entrypoint, or wrapper needed to start the real local runtime; every other harness concern should stay contract-local
 - if a dependency requires emulator-specific compatibility logic, keep it in characterization-local support code rather than in shared production modules
 
 ## Outcome
@@ -20,7 +21,7 @@ Produce or update:
 - a **capture script or reusable test entrypoint** that starts or attaches to the local service plus the minimum dependency topology and writes multilayer cassettes
 - one or more **black-box tests** that call the running local service only through its real local boundary
 - any **Testcontainers or emulator setup** needed to seed dependencies, observe side effects, and persist those observations into cassette artifacts
-- characterization support code that can survive internal refactors because it does not import runtime types or helpers from the target application
+- characterization support code that can survive internal refactors because it does not import runtime types or helpers from the target application or its runtime-coupled shared packages
 - a short final note explaining what was frozen, how to rerun `record` vs `verify`, and where the cassette artifacts live
 
 Read `references/dependency-strategy.md` when choosing the runtime boundary or dependency pattern.
@@ -61,7 +62,7 @@ For Node.js or TypeScript characterization work, treat Testcontainers as the def
 6. Find contract sources: OpenAPI, schema validators, existing fixtures, known regressions, sample payloads.
 7. For happy-path scenarios, identify the exact success shape up front: expected status code, minimum required body fields, and any fixture constraints that can silently turn a "happy" request into a 500.
 8. Freeze nondeterminism before capturing anything: time, generated IDs, random values, volatile headers, trace metadata, environment-specific hostnames.
-9. Decide how the characterization code will stay isolated from the target codebase: prefer contract-local schemas or plain JSON assertions instead of importing application models, io-ts decoders, zod schemas, or shared runtime helpers from the system under test.
+9. Decide how the characterization code will stay isolated from the target codebase: prefer contract-local schemas or plain JSON assertions instead of importing application models, io-ts decoders, zod schemas, or shared runtime helpers from the system under test or from its runtime-coupled shared packages.
 
 ## Choose the system boundary
 
@@ -127,7 +128,7 @@ Start from the current implementation, not the refactor target.
 6. Confirm the live result matches the intended scenario class before recording it. For any scenario described as happy path, do not accept a captured 4xx or 5xx as "good enough" just because it is reproducible; fix the seed data, branch choice, or local topology first.
 7. For happy-path scenarios, confirm the success shape is semantically meaningful before recording it: status code, minimum required body fields, and required side effects. Do not freeze a trivial or empty success unless that is the real contract.
 8. If dependency readiness requires more than "port is open", add an application-level warmup probe before seeding or recording. Use the real SDK or API to prove the exact read or write path you need is actually usable.
-9. Seed and read dependencies through raw protocol or dependency SDK calls owned by the characterization harness, not through imported application models or helper modules from the target codebase.
+9. Seed and read dependencies through raw protocol or dependency SDK calls owned by the characterization harness, not through imported application models or helper modules from the target codebase or its runtime-coupled shared packages.
 10. Record:
    - request shape after normalization
    - response status, headers, and body
@@ -229,7 +230,7 @@ Write tests that remain independent from the implementation internals.
 - Compare live responses and persisted side effects against the stored cassette.
 - Keep assertions at the external contract level, including minimum contract meaning for happy paths.
 - Do not overfit to helper calls, SDK call counts, or imported handler details when the real contract is the observed system behavior.
-- Do not import target-application types, decoders, or helpers into the characterization suite. If structure validation is useful, define a small local schema in the characterization folder or validate directly against cassette content and protocol-visible fields.
+- Do not import target-application types, decoders, or helpers into the characterization suite, and treat runtime-coupled shared packages the same way. If structure validation is useful, define a small local schema in the characterization folder or validate directly against cassette content and protocol-visible fields.
 
 If the refactor changes only framework plumbing, the capture script and scenario tests should stay the same or need only minimal boot-command updates.
 
@@ -254,7 +255,7 @@ Do not freeze irrelevant noise:
 ## Guardrails
 
 - Prefer black-box local execution over in-process imports.
-- Prefer **source-level** black-box characterization code too: avoid importing target code into the harness except for the runtime boot command or app container itself.
+- Prefer **source-level** black-box characterization code too: avoid importing target code or runtime-coupled shared packages into the harness. The only routine exception is the runtime boot command, app container, or minimal startup wrapper needed to launch the real local service.
 - Prefer real local hosts, emulators, and local dependency topologies over direct handler invocation.
 - Prefer an existing app container or compose service when it already owns the runtime env and startup path.
 - For Node.js or TypeScript harnesses, do not orchestrate containerized stateful dependencies with `docker run` or `docker compose` from the harness when Testcontainers is feasible.

@@ -114,5 +114,5 @@ Keep normalization explicit so `record` and `verify` apply the same rules. Back 
 - Redact secrets before writing any layer.
 - After the first record, open the cassette files and sanity-check that the "happy" scenarios actually captured success responses with meaningful payloads or side effects.
 - If the scenario needs emulator-specific compatibility handling, prefer to keep that logic in a local capture-time adapter or local runtime seam rather than folding it back into a shared production model.
-- Prefer parsing and asserting cassette content with characterization-local helpers or plain JSON comparisons rather than importing the target application's own decoders or generated types.
+- Prefer parsing and asserting cassette content with characterization-local helpers or plain JSON comparisons rather than importing the target application's own decoders or generated types, and apply the same rule to shared/runtime-coupled packages used by the system under test.
 - If the repository already has fixtures, keep cassette folders nearby unless another established layout is clearly better.
