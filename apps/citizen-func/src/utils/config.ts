@@ -96,12 +96,6 @@ export const IConfig = t.intersection([
     isProduction: t.boolean,
     /* eslint-enable sort-keys */
   }),
-  // Optional keys enable key-based auth for local emulator scenarios without
-  // affecting production behaviour (DefaultAzureCredential is used when absent).
-  t.partial({
-    COSMOSDB_KEY: NonEmptyString,
-    REMOTE_CONTENT_COSMOSDB_KEY: NonEmptyString,
-  }),
   RedisParams,
 ]);
 

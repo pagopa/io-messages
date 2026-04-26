@@ -26,10 +26,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "start": "func start --port 7072",
-    "characterization:record": "mkdir -p /tmp/chartest-docker && echo '{}' > /tmp/chartest-docker/config.json && APPROVAL_MODE=record DOCKER_CONFIG=/tmp/chartest-docker vitest run --config vitest.characterization.ts",
-    "characterization:verify": "mkdir -p /tmp/chartest-docker && echo '{}' > /tmp/chartest-docker/config.json && APPROVAL_MODE=verify DOCKER_CONFIG=/tmp/chartest-docker vitest run --config vitest.characterization.ts",
-    "characterization:watch": "mkdir -p /tmp/chartest-docker && echo '{}' > /tmp/chartest-docker/config.json && APPROVAL_MODE=verify DOCKER_CONFIG=/tmp/chartest-docker vitest --config vitest.characterization.ts"
+    "start": "func start --port 7072"
   },
   "devDependencies": {
     "@pagopa/eslint-config": "catalog:",
@@ -42,7 +39,6 @@
     "eslint": "catalog:",
     "modclean": "catalog:",
     "prettier": "catalog:",
-    "testcontainers": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
