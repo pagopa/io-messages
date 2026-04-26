@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { CosmosClient } from "@azure/cosmos";
 /**
  * Vitest globalSetup for the citizen-func characterization suite.
  *
@@ -10,7 +11,9 @@
  *
  * Connection details are surfaced to test workers via `provide`.
  */
-import { CosmosClient } from "@azure/cosmos";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { GenericContainer, Wait } from "testcontainers";
 
 import {
@@ -25,6 +28,17 @@ import { COSMOS_EMULATOR_KEY } from "./support/harness";
 // self-signed certificate is accepted. Scoped to the globalSetup process only;
 // the test workers use the vitest `env` setting defined in vitest.characterization.ts.
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+// Override DOCKER_CONFIG so Testcontainers doesn't attempt to use the devcontainer
+// credential helper (dev-containers-*), which is not available at runtime.
+// A temporary directory with an empty config.json is sufficient for public images.
+const _dockerConfigDir = path.join(
+  os.tmpdir(),
+  "characterization-docker-config",
+);
+fs.mkdirSync(_dockerConfigDir, { recursive: true });
+fs.writeFileSync(path.join(_dockerConfigDir, "config.json"), "{}", "utf-8");
+process.env.DOCKER_CONFIG = _dockerConfigDir;
 
 // ---------------------------------------------------------------------------
 // Types shared between globalSetup and test fixtures
