@@ -1,0 +1,329 @@
+---
+name: record-replay-backend-tests
+description: Create or refactor local characterization workflows for Node.js or TypeScript backends, plus similar backends that can credibly run as a real local service, app container, or emulator. Use this whenever the user wants VCR or golden-master tests, cassette capture or replay scripts, refactor-safety coverage, black-box local verification, Azure Functions emulator coverage, or persisted side-effect recording for storage, Cosmos DB, Redis, queues, brokers, or similar systems, even if they only say "freeze behavior before a refactor" or "record current behavior."
+---
+
+# Record & Replay Backend Tests
+
+Use this skill to freeze observable backend behavior through the **real local runtime boundary**, not by importing handlers unless there is no credible local host or emulator. Prefer a real app container when the repository already has one, or when the agent can credibly create one, so the runtime owns its own environment and startup path. The goal is to let coding agents refactor framework plumbing or legacy structure while preserving what a real local client and adjacent local services can observe.
+
+Treat the characterization harness itself as **source-level black-box code** by default:
+
+- do **not** import handlers, services, models, decoders, generated types, config modules, or helper functions from the target codebase or from any runtime-coupled/shared package used by the system under test into characterization tests or recorder helpers; treat workspace packages, internal SDKs, generated clients, and published shared runtime libraries as off-limits too, even when they sit outside the app folder
+- prefer contract-local schemas, raw JSON fixtures, OpenAPI examples, protocol-level assertions, and direct dependency SDK calls owned by the characterization folder
+- the only routine exception is the minimal boot command, container entrypoint, or wrapper needed to start the real local runtime; every other harness concern should stay contract-local
+- if a dependency requires emulator-specific compatibility logic, keep it in characterization-local support code rather than in shared production modules
+
+## Outcome
+
+Produce or update:
+
+- a **capture script or reusable test entrypoint** that starts or attaches to the local service plus the minimum dependency topology and writes multilayer cassettes
+- one or more **black-box tests** that call the running local service only through its real local boundary
+- for Vitest-based **golden master / approval suites**, a `global-setup.ts` plus a `withTestFixtures` helper so expensive dependencies can stay shared while each test still gets disposable resources
+- any **Testcontainers or emulator setup** needed to seed dependencies, observe side effects, and persist those observations into cassette artifacts
+- characterization support code that can survive internal refactors because it does not import runtime types or helpers from the target application or its runtime-coupled shared packages
+- a short final note explaining what was frozen, how to rerun `record` vs `verify`, and where the cassette artifacts live
+
+Read `references/dependency-strategy.md` when choosing the runtime boundary or dependency pattern.
+Read `references/cassette-layout.md` before creating cassette files or recorder helpers.
+If the target is a Node.js or TypeScript Azure Function and the repository does not already have a local characterization harness you can copy, read `references/azure-functions-characterization.md` before inventing a new harness shape.
+If the user explicitly wants **golden master / approval** characterization tests on Vitest, read `references/persistent-golden-master-vitest.md` before inventing a per-test container lifecycle.
+
+If the prompt does not already define scenario scope, ask the user to clarify which scenario classes matter most before building a suite. Good examples include: happy paths only, happy paths plus selected error cases, or one specific regression branch. Do not assume a broad matrix when a smaller explicit set would do.
+
+## Core workflow
+
+1. Inspect the repository and pick the real local runtime boundary plus the minimum honest dependency topology.
+2. Default Node.js or TypeScript stateful dependencies to Testcontainers, using checked-in Docker or compose files as topology inputs rather than as the harness implementation.
+3. Capture one representative scenario at a time into multilayer cassette artifacts using contract-local seeders, recorders, and assertions.
+4. Add explicit `record` and `verify` entrypoints plus black-box tests that drive only the running local boundary.
+5. Document any fallback or exception plainly, especially when there is no credible local runtime or a containerized dependency cannot use Testcontainers.
+
+## Default dependency orchestration for Node.js and TypeScript
+
+For Node.js or TypeScript characterization work, treat Testcontainers as the default orchestration layer for containerized stateful dependencies.
+
+- Read checked-in Dockerfiles, `docker-compose.yml`, compose overrides, devcontainer tasks, and local startup scripts as topology inputs. Reuse their images, env names, healthchecks, ports, volumes, and dependency ordering, but do not treat raw `docker run` or `docker compose` as the default harness implementation just because those files exist.
+- If a dependency can credibly run through Testcontainers, use Testcontainers even when that means adding `testcontainers` or an official module to the workspace.
+- Only bypass Testcontainers when the user explicitly asks for another orchestration path or when there is a concrete blocker you can explain.
+- When you take that exception, surface it in the final response instead of letting it disappear into the harness.
+
+## First inspect
+
+1. Find the existing test runner, fixtures layout, and project conventions. Reuse them.
+2. Identify the real inbound surface under test:
+   - HTTP service
+   - Azure Function HTTP trigger
+   - queue, topic, or worker runtime
+   - scheduled or event-driven process with a local trigger path
+3. Identify how the service can run locally:
+   - existing app container, compose service, or container image that already owns startup and env
+   - Node server command
+   - Azure Functions host or emulator command
+   - worker command plus broker or queue emulator
+   - existing `docker-compose.yml`, compose overrides, devcontainer tasks, or equivalent runtime definitions that can inform Testcontainers setup
+4. Audit each dependency before you implement anything and classify it as:
+   - local HTTP stub, fake, or proxy service
+   - Testcontainers-managed or emulator-backed stateful dependency
+   - app container or existing runtime component
+   - documented fallback when no credible local execution path exists
+5. For Node.js or TypeScript stateful dependencies, treat anything other than Testcontainers as an exception that must be justified before you proceed.
+6. Find contract sources: OpenAPI, schema validators, existing fixtures, known regressions, and sample payloads.
+7. For happy-path scenarios, write down the minimum meaningful success shape up front: expected status code, minimum required body fields, and any side effects or seed-data constraints that can silently turn a "happy" request into a 500.
+8. Freeze nondeterminism before capturing anything: time, generated IDs, random values, volatile headers, trace metadata, environment-specific hostnames, and dynamic ports.
+9. Decide how the characterization code will stay contract-local: prefer local schemas, plain JSON assertions, and raw SDK or protocol calls owned by the characterization folder instead of importing application models, decoders, generated types, or runtime-coupled shared helpers.
+
+## Choose the system boundary
+
+Prefer **real local runtime execution** over in-process invocation. If the repository already has a credible app container or compose service, prefer that over rebuilding startup and env wiring in the test harness.
+
+### Node HTTP services
+
+Start the actual local service process or app container and drive it over HTTP.
+
+- Reuse the repository's real startup command or existing app image when possible.
+- If the app container already packages env, build, and startup, keep that ownership inside the container and treat it as another topology component.
+- When creating Testcontainers or app containers from scratch, use existing `docker-compose.yml` files or equivalent runtime definitions as hints for images, env names, ports, healthchecks, volumes, and dependency shape. Mirror that topology in Testcontainers when the dependency is containerized instead of shelling out to `docker compose` from the harness.
+- Wait for readiness explicitly before sending requests.
+- Do not default to framework-specific in-process helpers when the service can run locally.
+
+### Azure Functions
+
+Prefer the local Functions host or emulator and hit the real local HTTP endpoint.
+
+- Use the same route and request shape a real local caller would use.
+- If bindings or outputs can be observed through local emulators or dependency containers, capture them there.
+- If the selected HTTP scenario emits queue or blob outputs that other local functions would immediately consume, disable those unrelated functions during capture so the emitted artifact stays observable.
+- If the repository already exposes a containerized Functions runtime, reuse it instead of rebuilding host startup logic inside the harness.
+- Use compose files, Dockerfiles, or devcontainer tasks as source material for Testcontainers wiring; do not orchestrate Azurite, Cosmos, Redis, brokers, or similar dependencies with `docker run` or `docker compose` from the harness unless you have a documented exception.
+- If the workspace lacks `testcontainers`, add it rather than downgrading to bespoke Docker CLI orchestration.
+- In devcontainers or remote workspaces, prefer dynamic free ports, prove how the harness reaches Docker-published endpoints, and normalize the chosen host or port in the cassette. Read `references/azure-functions-characterization.md` for the detailed reachability checklist when this is not already solved in the repository.
+- Start the runtime in a way that preserves the current toolchain PATH; avoid brittle login-shell wrappers when spawning the local host.
+- When there is no existing local characterization harness, reuse the starter layout in `references/azure-functions-characterization.md` rather than inventing a bespoke file structure from scratch.
+- Fall back to direct handler invocation only when there is no credible local host or emulator path, and explain why.
+
+### Workers, queues, topics, and event handlers
+
+Run the worker locally, ideally as its real process or app container, and drive it through the local broker, queue, or input transport.
+
+- Seed the broker or queue through its local API or SDK.
+- Record the resulting observable outputs from downstream dependencies or emitted messages.
+
+## Cassette model
+
+Treat each representative scenario as a small folder of reviewable artifacts rather than a single opaque file.
+
+Use the multilayer layout from `references/cassette-layout.md`. At minimum each scenario should record:
+
+- canonical input
+- final response or observable result
+- dependency topology and relevant ports or endpoints
+- side effects read back from the local dependencies
+- normalization rules for unstable fields
+
+Do not silently rewrite cassettes during verification. Refresh them only in an explicit record mode.
+
+## Capture workflow
+
+Start from the current implementation, not the refactor target.
+
+1. Pick one or more representative request or message shapes from the user prompt, OpenAPI, schema examples, or existing fixtures.
+2. Start the minimum dependency topology required for that scenario.
+3. Start the real local service or emulator.
+4. Wait for readiness.
+5. Send the canonical scenario input through the real local boundary.
+6. Confirm the live result matches the intended scenario class before recording it. For any scenario described as happy path, do not accept a captured 4xx or 5xx as "good enough" just because it is reproducible; fix the seed data, branch choice, or local topology first.
+7. For happy-path scenarios, confirm the success shape is semantically meaningful before recording it: status code, minimum required body fields, and required side effects. Do not freeze a trivial or empty success unless that is the real contract.
+8. If dependency readiness requires more than "port is open", add an application-level warmup probe before seeding or recording. Use the real SDK or API to prove the exact read or write path you need is actually usable.
+9. Seed and read dependencies through raw protocol or dependency SDK calls owned by the characterization harness, not through imported application models or helper modules from the target codebase or its runtime-coupled shared packages.
+10. Record:
+
+- request shape after normalization
+- response status, headers, and body
+- relevant runtime metadata
+- persisted side effects read back from dependencies
+
+11. Save the multilayer cassette artifacts deterministically.
+12. Run verify mode once after the first successful record and inspect cassette contents directly for accidental error responses, unstable metadata, or other success-shape violations.
+13. Switch the workflow into replay or verify mode so future runs fail on drift instead of silently re-recording.
+
+For long-running local-host scenarios, put explicit timeouts around startup, readiness probes, live requests, and side-effect reads, and stream the host logs while waiting. Otherwise one hung call can collapse into an opaque global test timeout.
+
+## Capture script guidance
+
+Generate a reusable script or CLI entrypoint when the repository does not already have one.
+
+The script should:
+
+1. boot dependencies first
+2. start or attach to the target service
+3. wait for readiness
+4. send one or more canonical inputs
+5. collect the response and side-effect observations
+6. write cassette artifacts
+7. tear down the topology cleanly
+
+Prefer two explicit modes:
+
+- `record`: intentionally refresh cassette artifacts
+- `verify`: replay the scenario and compare the live observations against the stored cassette without mutating it
+
+If the project already has scripts for local bootstrapping or fixture seeding, extend them instead of inventing parallel tooling.
+
+If the repository already has an app container, compose service, or image that brings the service up with the correct env, prefer using that runtime as another topology component instead of reconstructing env injection inside the harness.
+If the repository already has `docker-compose.yml` or equivalent runtime descriptors, use them as topology source material before inventing new container shapes, then express the needed stateful dependencies through Testcontainers when that path is credible.
+For test-runner-driven harnesses, prefer doing one-time expensive work such as `build` in the explicit `record` and `verify` scripts rather than inside the test body or host wrapper. Keep heavyweight characterization tests opt-in so the repository's default unit-test run does not accidentally boot the full local topology.
+
+## Vitest golden master / approval suites
+
+Use this pattern when the user explicitly wants **golden master** or **approval** characterization tests and the repository already uses Vitest, or can credibly add a Vitest-specific harness. Do not silently turn this into the default lifecycle for every record or replay suite.
+
+The point of this pattern is to pay the expensive container boot cost once while still keeping each test deterministic.
+
+Keep these lifecycles separate:
+
+- **shared containers**: start them once in `globalSetup`, print and provide the connection details the tests need, keep them alive for the whole run and watch session, and stop them once in global teardown
+- **per-test fixtures**: create only the disposable resources a test needs such as Cosmos containers, queue names, blob prefixes, schemas, or Redis key namespaces, and delete those resources automatically after the test
+
+When preparing this pattern:
+
+- create `global-setup.ts` for the shared containers, or reuse the repository's equivalent naming convention if it already has one
+- create a `withTestFixtures` helper for disposable per-test resources
+- surface the shared container metadata to tests through the repository's supported `provide` or `inject` path, or its closest equivalent
+- build `withTestFixtures` with Vitest's **builder-pattern** `test.extend(...)` fixtures and `onCleanup`; do not default to the Playwright-compatible object syntax with `use(...)` for new helpers
+- remember that `onCleanup` can only be registered once per fixture; if a fixture wants to clean up multiple independent resources, combine that cleanup intentionally or split the resources into separate fixtures
+- keep the containers shared, but never let mutable fixture data accumulate across tests or watch reruns; approval suites get flaky when one test can observe another test's leftovers
+
+Read `references/persistent-golden-master-vitest.md` for the starter layout and snippets.
+
+## Dependency strategy
+
+### Local HTTP dependencies
+
+When the service under test calls another HTTP service, prefer a **local stub, fake, or proxy service** inside the test topology.
+
+- Start it locally or in a container.
+- Make it deterministic.
+- Capture the requests it receives and the responses it returns as part of the scenario cassette.
+- Keep the recording at the protocol boundary, not at internal helper-call level.
+
+If a real dependency cannot run locally, prefer recording once and replaying through a local stub server rather than keeping the dependency live during verification.
+
+### Stateful dependencies
+
+Prefer Testcontainers or local emulators for storage, databases, caches, and brokers.
+
+- Prefer official Testcontainers modules when they exist for the target dependency. Fall back to lower-level container wiring only when there is no credible official module path.
+- For Node.js or TypeScript harnesses, this is the default path, not a soft preference.
+- Use compose files, Dockerfiles, and existing runtime definitions as discovery inputs for Testcontainers wiring, not as a reason to replace Testcontainers with shell-based Docker orchestration.
+- If `testcontainers` is missing from the workspace and the dependency can credibly run that way, add it instead of avoiding Testcontainers to save one dependency change.
+- Do not replace Testcontainers with ad hoc `docker run` or `docker compose` commands just because they are faster to type; treat raw Docker orchestration as an exception that needs a concrete justification or explicit user request.
+- Before forcing a container platform like `linux/amd64`, inspect the image manifest and the current host architecture. If the official image already publishes a native `arm64` variant, prefer the native platform; cross-architecture emulation can make a dependency look partially alive while an internal subsystem still crashes or never becomes queryable.
+- Point production config at the local dependency through the same env path the service already uses, seed only the minimum prerequisite state, then read back the real side effect and persist it into the cassette.
+- If the dependency uses a preview or "vnext" emulator image, treat compatibility as something to prove, not assume: pin the exact image tag and validate the real SDK path the scenario needs before you record anything.
+- Keep emulator-specific compatibility shims local to the characterization path instead of mutating shared production decoders, models, or runtime helpers. Read `references/dependency-strategy.md` when you need the deeper recorder, warmup, or replay-safety guidance.
+
+Examples of side-effect records:
+
+- storage: payload bytes or text plus relevant metadata
+- Cosmos or document DB: resulting documents or filtered query result
+- Redis: key, value, TTL, stream entry, or pub-sub payload
+- broker or queue: received message body and stable headers
+
+### Runtime-managed outputs
+
+Prefer a local runtime or emulator that makes the emitted artifact observable.
+
+- If the runtime writes to Azurite, a queue emulator, or a local broker, record the effect there.
+- If the recorder reads from a queue emulator, decode the message exactly as the emulator stores it before comparing it; some expose JSON as base64-wrapped text rather than plain JSON.
+- If no credible local observation point exists, capture the closest local boundary the runtime hands off, and explain that exception clearly.
+
+### Mixed systems
+
+Many scenarios combine all three:
+
+- local request to the running service
+- local dependency topology in Testcontainers or emulators
+- side-effect recorders that persist observations into cassette artifacts
+
+That is the normal target shape for this skill.
+
+## Black-box verification tests
+
+Write tests that remain independent from the implementation internals.
+
+- Call only the running local service, host, or worker boundary.
+- Reuse the cassette scenario as the contract source.
+- Compare live responses and persisted side effects against the stored cassette.
+- Keep assertions at the external contract level, including minimum contract meaning for happy paths.
+- Do not overfit to helper calls, SDK call counts, or imported handler details when the real contract is the observed system behavior.
+- Do not import target-application types, decoders, or helpers into the characterization suite, and treat runtime-coupled shared packages the same way. If structure validation is useful, define a small local schema in the characterization folder or validate directly against cassette content and protocol-visible fields.
+
+If the refactor changes only framework plumbing, the capture script and scenario tests should stay the same or need only minimal boot-command updates.
+
+## What to freeze
+
+Freeze what another local system or client can observe:
+
+- HTTP request and response contract
+- queue or topic input and output payloads
+- documents, blobs, cache entries, or messages that now exist in the local dependency
+- normalized dependency interactions captured by local stub or proxy services
+- topology details that matter for replay
+
+Do not freeze irrelevant noise:
+
+- trace IDs
+- timestamps unless semantically meaningful
+- host-specific port assignments that can be normalized
+- framework-specific header ordering
+- incidental helper-call counts
+
+## Guardrails
+
+- Prefer black-box local execution over in-process imports.
+- Prefer **source-level** black-box characterization code too: avoid importing target code or runtime-coupled shared packages into the harness. The only routine exception is the runtime boot command, app container, or minimal startup wrapper needed to launch the real local service.
+- Prefer real local hosts, emulators, and local dependency topologies over direct handler invocation.
+- Prefer an existing app container or compose service when it already owns the runtime env and startup path.
+- Keep cassette artifacts small, reviewable, and split by concern.
+- Redact secrets before persisting any cassette layer.
+- Refresh cassettes only in explicit record mode.
+- For happy-path suites, fail fast on any success scenario that records a server error instead of preserving the failure as a cassette.
+- For happy-path suites, do not freeze semantically empty or trivial successes as the main contract unless that is genuinely the behavior worth protecting.
+- Normalize database/cache metadata such as `_etag`, `_rid`, `_self`, `_ts`, dynamic port numbers, and runtime-generated resource names before persisting side effects.
+- Keep normalization rules shared between `record` and `verify`; the cassette should describe them, not be their only implementation.
+- When topology details matter, pin and record relevant runtime or emulator image tags and versions.
+- Keep emulator compatibility logic local to the capture path when possible; avoid baking emulator-only behavior into shared production models unless there is no narrower seam.
+- If the current repository only exposes convenient seed data or decoders through production modules, replicate the minimum needed contract shape locally in the characterization folder instead of coupling the test harness to those imports.
+- Do not force cross-architecture container execution unless the image lacks a native build or you have already proved the native variant is unusable in this environment.
+- Explain any non-Testcontainers orchestration choice or no-local-runtime fallback explicitly instead of letting it disappear into the harness implementation.
+
+## Final response
+
+When you finish, briefly state:
+
+- which local runtime boundary was exercised
+- which files were added or changed
+- where the cassette artifacts are stored
+- which dependencies were recorded through local stubs, Testcontainers-managed containers or emulators, app containers, or fallback seams
+- whether any containerized dependency did not use Testcontainers and, if so, why that exception was necessary
+- how to rerun `record` and `verify`
+
+## Examples
+
+**Example 1**
+Input: "Freeze this Express endpoint before I port it to Hono. It calls two REST partners and writes to Cosmos."
+Output shape: "Add a capture script that boots the Express service plus local partner stubs and Cosmos-compatible storage, writes multilayer cassettes for representative scenarios, then add black-box verification tests that hit the running local HTTP service and compare both response data and stored documents against the cassette."
+
+**Example 2**
+Input: "Create refactor-safety coverage for this Azure Function. I want the real local Functions runtime, not direct handler calls. It hits a REST API and emits a message."
+Output shape: "Start the local Functions runtime, preferably through the existing app container if one already owns env and host startup, drive the HTTP trigger through its real local endpoint, run the REST dependency as a local stub or replay server, capture the emitted message through the local observable dependency or emulator, and persist request, response, topology, and side-effects cassette layers."
+
+**Example 3**
+Input: "I need VCR-style tests for this Fastify app, but the tests must call the app as a running local service and also remember Redis side effects."
+Output shape: "Generate a capture script that boots Fastify plus Redis in Testcontainers, records canonical requests against the running local server, saves the response contract and Redis state in multilayer cassettes, then adds verify-mode tests that rerun the same scenario against the local service without rewriting the cassette."
+
+**Example 4**
+Input: "These Vitest golden master tests use Cosmos Emulator and Azurite, and booting the containers for every test is too slow. Keep the containers alive for the whole run, but make each test clean."
+Output shape: "Add a `global-setup.ts` that boots the shared dependencies once, prints the connection details, and tears them down when the Vitest run ends, plus a `withTestFixtures` helper built with builder-pattern `test.extend(...)` and `onCleanup` so each test creates and deletes its own Cosmos containers, queue names, blob prefixes, or cache keys."
