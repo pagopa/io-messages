@@ -1,0 +1,8 @@
+{
+  "rules": [
+    "request.messageId replaced with <SEED_MSG_ID>",
+    "response.body.updated_at replaced with <NORMALIZED_TIMESTAMP>",
+    "side-effects: _etag, _rid, _self, _ts, updatedAt, id stripped",
+    "topology.functionHostBaseUrl: dynamic port replaced with <NORMALIZED_PORT>"
+  ]
+}

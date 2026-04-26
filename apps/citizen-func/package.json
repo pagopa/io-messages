@@ -26,7 +26,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "start": "func start --port 7072"
+    "start": "func start --port 7072",
+    "characterization:record": "APPROVAL_MODE=record vitest run --config vitest.characterization.ts",
+    "characterization:verify": "APPROVAL_MODE=verify vitest run --config vitest.characterization.ts"
   },
   "devDependencies": {
     "@pagopa/eslint-config": "catalog:",
@@ -39,6 +41,7 @@
     "eslint": "catalog:",
     "modclean": "catalog:",
     "prettier": "catalog:",
+    "testcontainers": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
