@@ -33,8 +33,8 @@
     },
     {
       "id": 6,
-      "prompt": "Create characterization tests for a Node.js Azure Function that depends on Azurite and a Cosmos emulator. The repo already has a docker-compose file for local development. Use it only to discover image tags, env names, healthchecks, and ports; the test harness itself should still boot the stateful dependencies with Testcontainers, add the dependency if needed, and call the real local Functions host in record and verify modes.",
-      "expected_output": "The agent reads the compose file as topology source material, adds or uses testcontainers in the workspace, boots Azurite and the Cosmos emulator through Testcontainers, drives the real local Functions host, and avoids shelling out to docker compose or docker run from the harness.",
+      "prompt": "Create characterization tests for a Node.js Azure Function that depends on Azurite and a Cosmos emulator. The repo already has a docker-compose file for local development and the work may run inside a devcontainer. Use compose only to discover image tags, env names, healthchecks, and ports; the test harness itself should still boot the stateful dependencies with Testcontainers, add the dependency if needed, and call the real local Functions host in record and verify modes.",
+      "expected_output": "The agent reads the compose file as topology source material, adds or uses testcontainers in the workspace, boots Azurite and the Cosmos emulator through Testcontainers, drives the real local Functions host, avoids shelling out to docker compose or docker run from the harness, handles devcontainer Docker-auth quirks by setting `DOCKER_CONFIG` before the test process starts when needed, and proves the Cosmos data plane with a real SDK warmup instead of stopping at account metadata.",
       "files": []
     },
     {
@@ -45,14 +45,14 @@
     },
     {
       "id": 8,
-      "prompt": "These Vitest golden master tests spin up Cosmos DB Emulator, Azurite, and Redis for every test and are too slow. Keep the containers alive for the whole run and watch session, print the connection details, and prepare a `global-setup.ts` plus a `withTestFixtures` helper so each test still gets disposable Cosmos containers, blob namespaces, and Redis keys. Use Vitest's recommended fixture syntax, not the Playwright-style `use()` pattern.",
-      "expected_output": "The agent limits this lifecycle to golden master or approval tests, starts the expensive dependencies once in `globalSetup`, prints or provides the shared connection details, keeps container lifecycle separate from fixture lifecycle, and creates a builder-pattern `withTestFixtures` helper that uses `test.extend(...)` plus `onCleanup` to delete per-test resources automatically.",
+      "prompt": "These Vitest golden master tests spin up Cosmos DB Emulator, Azurite, and Redis for every test and are too slow. Keep the containers alive for the whole run and watch session, print the connection details, and prepare a `global-setup.ts` plus a `withTestFixtures` helper so each test still gets disposable Cosmos containers, blob namespaces, and Redis keys. Use the fixture cleanup API that the repository's Vitest version actually supports instead of assuming a newer helper exists.",
+      "expected_output": "The agent limits this lifecycle to golden master or approval tests, starts the expensive dependencies once in `globalSetup`, prints or provides the shared connection details, keeps container lifecycle separate from fixture lifecycle, and creates a builder-pattern `withTestFixtures` helper that prefers `onCleanup` when available and otherwise keeps cleanup inside `test.extend(...)` fixtures with `await use(...)` plus `try/finally`.",
       "files": []
     },
     {
       "id": 9,
-      "prompt": "For approval characterization of a Node.js Azure Function on Vitest, start Azurite, Cosmos Emulator, and Service Bus once in global setup, drive the real local Functions host, and clean up per-test queues, blobs, and containers automatically. The fixture helper should use builder-pattern `test.extend(...)` with `onCleanup`.",
-      "expected_output": "The agent keeps the real local Functions host as the runtime boundary, uses shared emulator containers only for this approval-style suite, prepares `global-setup.ts` plus a `withTestFixtures` helper, and isolates each test with disposable resources that clean themselves up through Vitest's builder-pattern fixture cleanup.",
+      "prompt": "For approval characterization of a Node.js Azure Function on Vitest, start Azurite, Cosmos Emulator, and Service Bus once in global setup, drive the real local Functions host, and clean up per-test queues, blobs, and containers automatically. The fixture helper should use builder-pattern `test.extend(...)` and stay compatible with the Vitest version already in the repo.",
+      "expected_output": "The agent keeps the real local Functions host as the runtime boundary, uses shared emulator containers only for this approval-style suite, prepares `global-setup.ts` plus a `withTestFixtures` helper, and isolates each test with disposable resources that clean themselves up through Vitest's builder-pattern fixture cleanup using either `onCleanup` or `use(...)` plus `try/finally`, depending on local version support.",
       "files": []
     }
   ]

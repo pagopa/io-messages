@@ -20,7 +20,7 @@ Produce or update:
 
 - a **capture script or reusable test entrypoint** that starts or attaches to the local service plus the minimum dependency topology and writes multilayer cassettes
 - one or more **black-box tests** that call the running local service only through its real local boundary
-- for Vitest-based **golden master / approval suites**, a `global-setup.ts` plus a `withTestFixtures` helper so expensive dependencies can stay shared while each test still gets disposable resources
+- for Vitest-based characterization suites, a `global-setup.ts` plus a `withTestFixtures` helper so expensive dependencies stay shared across the run and watch reruns while each test still gets disposable resources
 - any **Testcontainers or emulator setup** needed to seed dependencies, observe side effects, and persist those observations into cassette artifacts
 - characterization support code that can survive internal refactors because it does not import runtime types or helpers from the target application or its runtime-coupled shared packages
 - a short final note explaining what was frozen, how to rerun `record` vs `verify`, and where the cassette artifacts live
@@ -28,7 +28,7 @@ Produce or update:
 Read `references/dependency-strategy.md` when choosing the runtime boundary or dependency pattern.
 Read `references/cassette-layout.md` before creating cassette files or recorder helpers.
 If the target is a Node.js or TypeScript Azure Function and the repository does not already have a local characterization harness you can copy, read `references/azure-functions-characterization.md` before inventing a new harness shape.
-If the user explicitly wants **golden master / approval** characterization tests on Vitest, read `references/persistent-golden-master-vitest.md` before inventing a per-test container lifecycle.
+If the repository already uses Vitest, or can credibly support a Vitest-based characterization harness, read `references/persistent-golden-master-vitest.md` before choosing any lifecycle. Treat that shared-container `globalSetup` pattern as the default for Vitest suites; only fall back to ephemeral container startup when the user explicitly asks for it. If the pattern hits a real blocker, explain that blocker plainly instead of silently downgrading the lifecycle.
 
 If the prompt does not already define scenario scope, ask the user to clarify which scenario classes matter most before building a suite. Good examples include: happy paths only, happy paths plus selected error cases, or one specific regression branch. Do not assume a broad matrix when a smaller explicit set would do.
 
@@ -36,9 +36,10 @@ If the prompt does not already define scenario scope, ask the user to clarify wh
 
 1. Inspect the repository and pick the real local runtime boundary plus the minimum honest dependency topology.
 2. Default Node.js or TypeScript stateful dependencies to Testcontainers, using checked-in Docker or compose files as topology inputs rather than as the harness implementation.
-3. Capture one representative scenario at a time into multilayer cassette artifacts using contract-local seeders, recorders, and assertions.
-4. Add explicit `record` and `verify` entrypoints plus black-box tests that drive only the running local boundary.
-5. Document any fallback or exception plainly, especially when there is no credible local runtime or a containerized dependency cannot use Testcontainers.
+3. If Vitest is available, default the suite lifecycle to shared dependency containers in `globalSetup` plus disposable per-test fixtures; do not reach for ephemeral `beforeAll` or per-run container startup unless the user explicitly asked for that behavior.
+4. Capture one representative scenario at a time into multilayer cassette artifacts using contract-local seeders, recorders, and assertions.
+5. Add explicit `record` and `verify` entrypoints plus black-box tests that drive only the running local boundary.
+6. Document any fallback or exception plainly, especially when there is no credible local runtime or a containerized dependency cannot use Testcontainers.
 
 ## Default dependency orchestration for Node.js and TypeScript
 
@@ -98,7 +99,7 @@ Prefer the local Functions host or emulator and hit the real local HTTP endpoint
 - If the repository already exposes a containerized Functions runtime, reuse it instead of rebuilding host startup logic inside the harness.
 - Use compose files, Dockerfiles, or devcontainer tasks as source material for Testcontainers wiring; do not orchestrate Azurite, Cosmos, Redis, brokers, or similar dependencies with `docker run` or `docker compose` from the harness unless you have a documented exception.
 - If the workspace lacks `testcontainers`, add it rather than downgrading to bespoke Docker CLI orchestration.
-- In devcontainers or remote workspaces, prefer dynamic free ports, prove how the harness reaches Docker-published endpoints, and normalize the chosen host or port in the cassette. Read `references/azure-functions-characterization.md` for the detailed reachability checklist when this is not already solved in the repository.
+- In devcontainers or remote workspaces, prefer dynamic free ports, prove how the harness reaches Docker-published endpoints, and normalize the chosen host or port in the cassette. If Testcontainers inherits a Docker config that points at an unavailable credential helper such as a `dev-containers-*` `credsStore` entry, set `DOCKER_CONFIG` to a minimal writable directory **before** the Node or Vitest process starts; do not assume changing it inside `globalSetup` is early enough. Read `references/azure-functions-characterization.md` for the detailed reachability checklist when this is not already solved in the repository.
 - Start the runtime in a way that preserves the current toolchain PATH; avoid brittle login-shell wrappers when spawning the local host.
 - When there is no existing local characterization harness, reuse the starter layout in `references/azure-functions-characterization.md` rather than inventing a bespoke file structure from scratch.
 - Fall back to direct handler invocation only when there is no credible local host or emulator path, and explain why.
@@ -135,7 +136,7 @@ Start from the current implementation, not the refactor target.
 5. Send the canonical scenario input through the real local boundary.
 6. Confirm the live result matches the intended scenario class before recording it. For any scenario described as happy path, do not accept a captured 4xx or 5xx as "good enough" just because it is reproducible; fix the seed data, branch choice, or local topology first.
 7. For happy-path scenarios, confirm the success shape is semantically meaningful before recording it: status code, minimum required body fields, and required side effects. Do not freeze a trivial or empty success unless that is the real contract.
-8. If dependency readiness requires more than "port is open", add an application-level warmup probe before seeding or recording. Use the real SDK or API to prove the exact read or write path you need is actually usable.
+8. If dependency readiness requires more than "port is open", add an application-level warmup probe before seeding or recording. Use the real SDK or API to prove the exact read or write path you need is actually usable. For Cosmos or document-store emulators, do not stop at account-level probes such as `getDatabaseAccount()` when the scenario depends on container-level queries or writes.
 9. Seed and read dependencies through raw protocol or dependency SDK calls owned by the characterization harness, not through imported application models or helper modules from the target codebase or its runtime-coupled shared packages.
 10. Record:
 
@@ -173,11 +174,11 @@ If the project already has scripts for local bootstrapping or fixture seeding, e
 
 If the repository already has an app container, compose service, or image that brings the service up with the correct env, prefer using that runtime as another topology component instead of reconstructing env injection inside the harness.
 If the repository already has `docker-compose.yml` or equivalent runtime descriptors, use them as topology source material before inventing new container shapes, then express the needed stateful dependencies through Testcontainers when that path is credible.
-For test-runner-driven harnesses, prefer doing one-time expensive work such as `build` in the explicit `record` and `verify` scripts rather than inside the test body or host wrapper. Keep heavyweight characterization tests opt-in so the repository's default unit-test run does not accidentally boot the full local topology.
+For test-runner-driven harnesses, prefer doing one-time expensive work such as `build` in the explicit `record` and `verify` scripts rather than inside the test body or host wrapper. Keep heavyweight characterization tests opt-in so the repository's default unit-test run does not accidentally boot the full local topology. When the suite uses Vitest, those scripts should normally attach to a shared-container lifecycle in `globalSetup` rather than booting expensive stateful dependencies inside `beforeAll`; only use ephemeral container startup in Vitest when the user explicitly asked for it.
 
 ## Vitest golden master / approval suites
 
-Use this pattern when the user explicitly wants **golden master** or **approval** characterization tests and the repository already uses Vitest, or can credibly add a Vitest-specific harness. Do not silently turn this into the default lifecycle for every record or replay suite.
+Whenever the repository already uses Vitest, or can credibly add a Vitest-specific characterization harness without fighting local conventions, treat this as the default lifecycle. Do not silently fall back to ephemeral `beforeAll` or per-run container startup just because it is quicker to wire. Only do that when the user's prompt explicitly asks for ephemeral containers. If a real blocker prevents the shared-container pattern, surface it instead of quietly changing the lifecycle.
 
 The point of this pattern is to pay the expensive container boot cost once while still keeping each test deterministic.
 
@@ -185,14 +186,15 @@ Keep these lifecycles separate:
 
 - **shared containers**: start them once in `globalSetup`, print and provide the connection details the tests need, keep them alive for the whole run and watch session, and stop them once in global teardown
 - **per-test fixtures**: create only the disposable resources a test needs such as Cosmos containers, queue names, blob prefixes, schemas, or Redis key namespaces, and delete those resources automatically after the test
+- **runtime process**: if the app or local Functions host itself must restart to pick up code changes, keep that restartable process separate from the shared dependency containers rather than tying everything to one `beforeAll`
 
 When preparing this pattern:
 
 - create `global-setup.ts` for the shared containers, or reuse the repository's equivalent naming convention if it already has one
 - create a `withTestFixtures` helper for disposable per-test resources
 - surface the shared container metadata to tests through the repository's supported `provide` or `inject` path, or its closest equivalent
-- build `withTestFixtures` with Vitest's **builder-pattern** `test.extend(...)` fixtures and `onCleanup`; do not default to the Playwright-compatible object syntax with `use(...)` for new helpers
-- remember that `onCleanup` can only be registered once per fixture; if a fixture wants to clean up multiple independent resources, combine that cleanup intentionally or split the resources into separate fixtures
+- build `withTestFixtures` with Vitest's **builder-pattern** `test.extend(...)` fixtures and the cleanup primitive the local Vitest version actually supports. Prefer `onCleanup` when it exists; otherwise keep cleanup inside the fixture with `await use(resource)` plus `try/finally` rather than dropping back to suite-level cleanup.
+- if the local Vitest version exposes `onCleanup`, remember that it can only be registered once per fixture; if a fixture wants to clean up multiple independent resources, combine that cleanup intentionally or split the resources into separate fixtures
 - keep the containers shared, but never let mutable fixture data accumulate across tests or watch reruns; approval suites get flaky when one test can observe another test's leftovers
 
 Read `references/persistent-golden-master-vitest.md` for the starter layout and snippets.
@@ -326,4 +328,4 @@ Output shape: "Generate a capture script that boots Fastify plus Redis in Testco
 
 **Example 4**
 Input: "These Vitest golden master tests use Cosmos Emulator and Azurite, and booting the containers for every test is too slow. Keep the containers alive for the whole run, but make each test clean."
-Output shape: "Add a `global-setup.ts` that boots the shared dependencies once, prints the connection details, and tears them down when the Vitest run ends, plus a `withTestFixtures` helper built with builder-pattern `test.extend(...)` and `onCleanup` so each test creates and deletes its own Cosmos containers, queue names, blob prefixes, or cache keys."
+Output shape: "Add a `global-setup.ts` that boots the shared dependencies once, prints the connection details, and tears them down when the Vitest run ends, plus a `withTestFixtures` helper built with builder-pattern `test.extend(...)` and the cleanup API the repo's Vitest version actually supports (`onCleanup` when available, otherwise `use(...)` with `try/finally`) so each test creates and deletes its own Cosmos containers, queue names, blob prefixes, or cache keys."

@@ -1,8 +1,8 @@
 # Persistent Testcontainers for Vitest golden master suites
 
-Use this reference when the user explicitly wants **golden master** or **approval** characterization tests on **Vitest**, especially when slow dependencies such as Cosmos DB Emulator, Azurite, Service Bus emulators, Event Hubs emulators, Redis, or Postgres dominate runtime.
+Use this reference whenever the characterization suite runs on **Vitest**, especially when slow dependencies such as Cosmos DB Emulator, Azurite, Service Bus emulators, Event Hubs emulators, Redis, or Postgres dominate runtime. This is the default Vitest lifecycle for the skill, not an optional optimization to remember only when someone complains about watch performance.
 
-This pattern is intentionally narrower than the rest of the skill. It is for approval-style suites that want deterministic per-test state without paying container bootstrap cost on every test.
+This pattern is the starting point for Vitest-based characterization work because it gives deterministic per-test state without paying container bootstrap cost on every rerun. Do not drop back to ephemeral `beforeAll` / `afterAll` container startup in Vitest just because it is faster to wire; only do that when the user explicitly asks for ephemeral containers. If the repository genuinely blocks this pattern, explain that blocker instead of silently downgrading.
 
 ## Core idea
 
@@ -19,6 +19,15 @@ Split the lifecycle in two:
    - never rely on "shared container means shared mutable data"
 
 If the suite leaves fixture data behind, the next test or watch rerun can see it and the golden master stops being trustworthy.
+
+## Default assumption
+
+When Vitest is available, assume all expensive stateful dependencies belong in shared `globalSetup` unless the user explicitly says they want ephemeral containers for each run.
+
+- keep Azurite, Cosmos Emulator, Redis, and similar dependencies alive for the whole Vitest process
+- keep mutable fixture state disposable and test-scoped
+- keep any restartable app process separate from the shared dependency container lifecycle when code changes need a fresh runtime
+- if you cannot make this work, stop and explain why instead of quietly moving container startup into `beforeAll`
 
 ## Recommended file layout
 
@@ -149,7 +158,14 @@ Do this once during startup so a developer can copy the values while debugging a
 
 ## `withTestFixtures` starter
 
-Use Vitest's **builder-pattern** `test.extend(...)` fixtures so setup is local and cleanup is explicit through `onCleanup`.
+Use Vitest's **builder-pattern** `test.extend(...)` fixtures so setup is local and cleanup stays inside the fixture that created the resource.
+
+Prefer the cleanup primitive the installed Vitest version actually supports:
+
+- if the local version exposes `onCleanup`, use it
+- if the local version only exposes `use(value)`, keep the same fixture shape and perform cleanup in `try/finally` around `await use(...)`
+
+Do not silently drop back to suite-level `beforeEach` / `afterEach` cleanup just because the repository is on an older Vitest release.
 
 Type only the shared services that this helper actually uses. The example below shows Cosmos, Service Bus, blob prefixes, and Redis-oriented fixtures.
 
@@ -165,71 +181,79 @@ const sharedTestContainers = () =>
     redis: { url: string };
   }>("testContainers");
 
-export const test = baseTest
-  .extend("testId", () => `test-${randomUUID()}`)
-  .extend("testContainers", () => sharedTestContainers())
-  .extend(
-    "cosmosContainer",
-    async ({ testContainers, testId }, { onCleanup }) => {
-      const container = await createTestCosmosContainer(
-        testContainers.cosmos,
-        testId,
-      );
+export const test = baseTest.extend<{
+  blobPrefix: string;
+  cosmosContainer: Awaited<ReturnType<typeof createTestCosmosContainer>>;
+  redisNamespace: string;
+  serviceBusQueue: string;
+  testContainers: ReturnType<typeof sharedTestContainers>;
+  testId: string;
+}>({
+  testId: async ({ task }, use) => {
+    void task;
+    await use(`test-${randomUUID()}`);
+  },
+  testContainers: async ({ task }, use) => {
+    void task;
+    await use(sharedTestContainers());
+  },
+  cosmosContainer: async ({ testContainers, testId }, use) => {
+    const container = await createTestCosmosContainer(
+      testContainers.cosmos,
+      testId,
+    );
 
-      onCleanup(async () => {
-        await container.delete();
-      });
-
-      return container;
-    },
-  )
-  .extend("blobPrefix", async ({ testId }, { onCleanup }) => {
+    try {
+      await use(container);
+    } finally {
+      await container.delete();
+    }
+  },
+  blobPrefix: async ({ testId }, use) => {
     const prefix = `approval/${testId}`;
 
-    onCleanup(async () => {
+    try {
+      await use(prefix);
+    } finally {
       await deleteBlobsForPrefix(prefix);
-    });
-
-    return prefix;
-  })
-  .extend("redisNamespace", async ({ testId }, { onCleanup }) => {
+    }
+  },
+  redisNamespace: async ({ testId }, use) => {
     const namespace = `approval:${testId}`;
 
-    onCleanup(async () => {
+    try {
+      await use(namespace);
+    } finally {
       await deleteRedisNamespace(namespace);
-    });
+    }
+  },
+  serviceBusQueue: async ({ testContainers, testId }, use) => {
+    const queueName = `approval-${testId}`;
 
-    return namespace;
-  })
-  .extend(
-    "serviceBusQueue",
-    async ({ testContainers, testId }, { onCleanup }) => {
-      const queueName = `approval-${testId}`;
+    await createQueue(testContainers.serviceBus, queueName);
 
-      await createQueue(testContainers.serviceBus, queueName);
-
-      onCleanup(async () => {
-        await deleteQueue(testContainers.serviceBus, queueName);
-      });
-
-      return queueName;
-    },
-  );
+    try {
+      await use(queueName);
+    } finally {
+      await deleteQueue(testContainers.serviceBus, queueName);
+    }
+  },
+});
 ```
 
 This is the important part:
 
-- **use `onCleanup`, not `use(...)`**
-- make the fixture return the disposable resource after setup
+- use the repository's supported Vitest fixture cleanup API instead of assuming a newer release
 - keep cleanup tied to the resource that created it
+- keep cleanup inside the fixture rather than spreading it across the test body or suite hooks
 
-## `onCleanup` design rule
+## Fixture cleanup design rule
 
-`onCleanup` can only be registered **once per fixture**. That pushes the design in a good direction:
+If the local Vitest version exposes `onCleanup`, it can only be registered **once per fixture**. That pushes the design in a good direction:
 
 - prefer one fixture per disposable resource family
 - if a test needs a Cosmos container and a queue, make them separate fixtures
-- if one fixture truly owns multiple resources, register one cleanup that deletes all of them in a controlled order
+- if one fixture truly owns multiple resources, register one cleanup that deletes all of them in a controlled order or keep one `try/finally` block around `await use(...)`
 
 Avoid giant "do everything" fixtures. Smaller fixtures are easier to reason about, compose, and clean up safely.
 
@@ -271,9 +295,11 @@ That is why the cleanup has to live in the fixture helper itself, not in ad hoc 
 ## Common mistakes
 
 - booting Cosmos Emulator, Azurite, or Redis inside every test even though the suite is approval-style and could share them
+- booting Cosmos Emulator, Azurite, or Redis in `beforeAll` on every rerun even though Vitest `globalSetup` is available and the user did not ask for ephemeral containers
 - sharing mutable fixture data across tests just because the container is shared
-- using Playwright-style `use(...)` fixtures for new helpers when the repo is already on modern Vitest builder syntax
-- registering multiple `onCleanup` callbacks in one fixture instead of splitting the resources
+- assuming `onCleanup` exists in every Vitest version instead of checking the repository's actual fixture API support
+- pushing cleanup into suite hooks because the local Vitest version differs, instead of keeping it inside the fixture with `onCleanup` or `use(...)` plus `try/finally`
+- registering multiple `onCleanup` callbacks in one fixture instead of splitting the resources or combining cleanup deliberately
 - printing nothing during setup, then making debugging harder because nobody knows how to connect to the shared containers
 - deleting all data globally when a smaller resource-specific cleanup would keep failures easier to diagnose
 

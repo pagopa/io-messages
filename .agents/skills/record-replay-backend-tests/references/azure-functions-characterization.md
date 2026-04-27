@@ -13,7 +13,7 @@ Read this after you have already decided that:
 - the repository does not already offer a better local harness to copy
 
 If the repository already has a characterization setup in another Azure Functions app, prefer reusing that local convention instead of this starter.
-If the user wants a Vitest **golden master / approval** suite with expensive emulators kept alive for the whole run, also read `references/persistent-golden-master-vitest.md`.
+If the repository uses Vitest, or can credibly add a Vitest-based characterization harness, also read `references/persistent-golden-master-vitest.md` before choosing the dependency lifecycle. Treat that shared-container `globalSetup` split as the default for Vitest-based Azure Functions characterization, and only fall back to ephemeral container startup when the user explicitly asks for it.
 
 ## Recommended file layout
 
@@ -43,7 +43,7 @@ Use different names if the repository already has a stronger testing convention,
 - `function-host.ts` or `app-runtime.ts` owns starting or attaching to the real Functions runtime
 - `harness.ts` owns Testcontainers-managed dependency containers, scenario seed data, and side-effect readers; if the app already runs in its own container, keep env and startup ownership there rather than in the harness
 
-For Vitest-based golden master or approval suites, it is also reasonable to add:
+For Vitest-based characterization suites, prefer adding:
 
 ```text
 tests/
@@ -51,7 +51,7 @@ tests/
   with-test-fixtures.ts
 ```
 
-Use those files only for the approval-style shared-container pattern. The dedicated reference explains that lifecycle split in detail.
+Use those files as the default for the Vitest shared-container pattern. The dedicated reference explains that lifecycle split in detail. If the user explicitly asks for ephemeral containers, that is the exception path to justify rather than the starting point.
 
 Keep the characterization folder independent from the target app's internal modules:
 
@@ -84,7 +84,7 @@ If the repository already ships a Dockerfile, compose service, devcontainer task
 10. In `verify` mode, rerun the scenario and compare without mutating the cassette.
 
 If the harness is test-runner-driven, prefer doing the one-time `build` in the explicit `record` and `verify` scripts rather than inside the test body or the host wrapper. Keep the characterization test opt-in so the repository's default fast test suite does not start the full local topology by accident.
-If the suite is an approval or golden-master Vitest suite and emulator startup dominates runtime, prefer the shared-container pattern from `references/persistent-golden-master-vitest.md`: start the expensive emulators once in `globalSetup`, surface their connection details to the tests, and isolate each test through builder-pattern fixtures that clean themselves up with `onCleanup`.
+If the suite uses Vitest, default to the shared-container pattern from `references/persistent-golden-master-vitest.md`: start the expensive emulators once in `globalSetup`, surface their connection details to the tests, and isolate each test through builder-pattern fixtures that clean themselves up with the cleanup API the local Vitest version actually supports. Prefer `onCleanup` when available; otherwise keep cleanup inside `test.extend(...)` fixtures with `await use(...)` and `try/finally`. Keep that lifecycle even when you also provide explicit `record` and `verify` scripts so watch reruns do not restart expensive emulators. Only use per-run ephemeral container startup in Vitest when the user explicitly asks for that behavior.
 
 ## Network reachability in devcontainers
 
@@ -94,6 +94,7 @@ When the agent itself runs inside a devcontainer, Codespace, or other shared wor
 - Keep the chosen host in topology metadata and normalize it in the cassette.
 - Treat "container port is published" and "the harness can actually reach it" as two separate checks.
 - If published ports remain unreliable, attach the workspace container to the same Docker network as the dependency containers and talk to them through network aliases; in many devcontainers this is the most stable path.
+- If Testcontainers fails before any container starts because the workspace inherits a Docker credential helper that is not available in the runtime shell (for example a `dev-containers-*` `credsStore` entry), point `DOCKER_CONFIG` at a minimal writable directory **before** starting the Node or Vitest process. Do not leave this fix to `globalSetup`; some auth paths read Docker config during module import.
 
 ## Environment checklist
 
@@ -167,6 +168,7 @@ Weak readiness checks:
 
 - only waiting for a port to open
 - assuming a container is ready because Docker marked it started
+- treating an account-level probe such as `getDatabaseAccount()` as sufficient when the scenario actually depends on container-level writes or queries
 
 Put explicit timeouts around startup, readiness probes, live requests, and side-effect reads, and stream the Functions host logs while waiting. Otherwise a single hung call can turn into an opaque suite-level timeout with no useful diagnosis.
 
@@ -175,6 +177,7 @@ Put explicit timeouts around startup, readiness probes, live requests, and side-
 Cosmos-compatible emulators often need more than a readiness endpoint.
 
 - Validate the exact SDK path the app uses, not just TCP reachability.
+- Do not stop at account metadata or a vendor readiness endpoint. Warm the exact database and container path the scenario needs with a real write plus query or readback, then clean the probe data back out.
 - Some preview or Linux emulator builds advertise internal endpoints that make queries fail unless `connectionPolicy.enableEndpointDiscovery = false`.
 - Prove both point-read and query behavior. Some emulators return enough metadata for direct `item.read()` but omit fields such as `_self` on query results.
 - If existing shared decoders require metadata the emulator omits, do not pull those decoders into the characterization suite just for convenience. Prefer a narrow local-only seam that reads raw SDK results and normalizes them into cassette-friendly shapes inside the characterization folder instead of changing broad production behavior.
