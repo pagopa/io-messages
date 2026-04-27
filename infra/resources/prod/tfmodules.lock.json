@@ -18,10 +18,10 @@
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-cosmos-account/azurerm/0.2.0"
   },
   "eventhubs.etl": {
-    "hash": "78d794bccb16a7e173cc0221d41c3556677d80e9846980cc9c8e7c4ccb4d49c0",
-    "version": "0.2.0",
+    "hash": "5a2ccc156c9c4d9f366dd695a416e264def4ae8500f89e035e6d1246c027f47d",
+    "version": "0.2.2",
     "name": "azure_event_hub",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-event-hub/azurerm/0.2.0"
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-event-hub/azurerm/0.2.2"
   },
   "storage_api_weu.com_st": {
     "hash": "a2a257b25753f91b36acef29e080efc4d62dea59e803f56e33e813e7a343e66b",
