@@ -147,7 +147,7 @@ const blobServiceClientForMessageContent =
   );
 const blobServiceClientForMessageContentAdapter = new MessageContentBlobAdapter(
   blobServiceClientForMessageContent,
-  "",
+  config.MESSAGE_CONTAINER_NAME,
 );
 
 // ---------------------------------------------------------------------------
@@ -244,11 +244,11 @@ const processMessageHandler = getProcessMessageHandler({
   TTL_FOR_USER_NOT_FOUND: config.TTL_FOR_USER_NOT_FOUND,
   isOptInEmailEnabled: config.FF_OPT_IN_EMAIL_ENABLED,
   lActivation: activationModel,
-  lBlobService: blobServiceClientForMessageContentAdapter,
   lMessageModel: messageModel,
   lMessageStatusModel: messageStatusModel,
   lProfileModel: profileModel,
   lServicePreferencesModel: servicePreferencesModel,
+  messageContentRepository: blobServiceClientForMessageContentAdapter,
   optOutEmailSwitchDate: config.OPT_OUT_EMAIL_SWITCH_DATE,
   pendingActivationGracePeriod:
     config.PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,

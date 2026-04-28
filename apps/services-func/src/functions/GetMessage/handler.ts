@@ -274,7 +274,7 @@ export const GetMessageHandler =
     messageStatusModel: MessageStatusModel,
     notificationModel: NotificationModel,
     notificationStatusModel: NotificationStatusModel,
-    blobService: MessageContentRepository,
+    messageContentRepository: MessageContentRepository,
     canAccessMessageReadStatus: MessageReadStatusAuth,
     pagoPaEcommerceClient: PagoPaEcommerceClient,
   ): IGetMessageHandler =>
@@ -338,15 +338,13 @@ export const GetMessageHandler =
     const errorOrMaybeContent = await pipe(
       pipe(
         TE.tryCatch(
-          () => blobService.getByMessageContentById(retrievedMessage.id),
+          () =>
+            messageContentRepository.getByMessageContentById(
+              retrievedMessage.id,
+            ),
           E.toError,
         ),
-        TE.map((messageContent) => {
-          if (messageContent === null) {
-            return O.none;
-          }
-          return O.some(messageContent);
-        }),
+        TE.map(O.fromNullable),
       ),
       TE.mapLeft((error) => {
         context.error(`GetMessageHandler|${JSON.stringify(error)}`);
@@ -507,7 +505,7 @@ export function GetMessage(
   messageStatusModel: MessageStatusModel,
   notificationModel: NotificationModel,
   notificationStatusModel: NotificationStatusModel,
-  blobService: MessageContentRepository,
+  messageContentRepository: MessageContentRepository,
   canAccessMessageReadStatus: MessageReadStatusAuth,
   pagoPaEcommerceClient: PagoPaEcommerceClient,
 ) {
@@ -516,7 +514,7 @@ export function GetMessage(
     messageStatusModel,
     notificationModel,
     notificationStatusModel,
-    blobService,
+    messageContentRepository,
     canAccessMessageReadStatus,
     pagoPaEcommerceClient,
   );

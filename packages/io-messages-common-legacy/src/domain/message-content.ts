@@ -1,6 +1,6 @@
 import { MessageContent } from "../types/MessageContent";
 
-export interface MessageContentRepository<StoreResponse = unknown> {
+export interface MessageContentRepository {
   /**
    * Returns the content of a message.
    *
@@ -17,5 +17,5 @@ export interface MessageContentRepository<StoreResponse = unknown> {
   storeMessageContent(
     messageId: string,
     content: MessageContent,
-  ): Promise<StoreResponse>;
+  ): Promise<void>;
 }

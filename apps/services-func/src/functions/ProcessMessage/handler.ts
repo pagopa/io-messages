@@ -1,7 +1,6 @@
 /* eslint-disable max-lines-per-function */
 
 import { FunctionOutput, InvocationContext } from "@azure/functions";
-import { BlockBlobUploadResponse } from "@azure/storage-blob";
 import { SpecialServiceCategoryEnum } from "@pagopa/io-functions-admin-sdk/SpecialServiceCategory";
 import { BlockedInboxOrChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/BlockedInboxOrChannel";
 import { EUCovidCert } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/EUCovidCert";
@@ -282,14 +281,14 @@ const getBlockedInboxesForSpecialService =
  *
  * @param context
  * @param lMessageModel
- * @param lBlobService
+ * @param messageContentRepository
  * @param createdMessageEvent
  */
 const createMessageOrThrow = async (
   context: InvocationContext,
   lMessageModel: MessageModel,
   messageStatusUpdater: ReturnType<typeof getMessageStatusUpdater>,
-  lBlobService: MessageContentRepository<BlockBlobUploadResponse>,
+  messageContentRepository: MessageContentRepository,
   createdMessageEvent: CommonMessageData & CreatedMessageEvent,
 ): Promise<void> => {
   const newMessageWithoutContent = createdMessageEvent.message;
@@ -322,16 +321,16 @@ const createMessageOrThrow = async (
   // Save the content of the message to the blob storage.
   // In case of a retry this operation will overwrite the message content with itself
   // (this is fine as we don't know if the operation succeeded at first)
-  const errorOrAttachment = await pipe(
-    TE.tryCatch(
-      () =>
-        lBlobService.storeMessageContent(newMessageWithoutContent.id, {
+  const errorOrAttachment = await TE.tryCatch(
+    () =>
+      messageContentRepository.storeMessageContent(
+        newMessageWithoutContent.id,
+        {
           ...createdMessageEvent.content,
           payment_data: messagePaymentData,
-        }),
-      E.toError,
-    ),
-    TE.map((messageContent) => messageContent),
+        },
+      ),
+    E.toError,
   )();
 
   if (E.isLeft(errorOrAttachment)) {
@@ -379,11 +378,11 @@ export interface IProcessMessageHandlerInput {
   readonly TTL_FOR_USER_NOT_FOUND: Ttl;
   readonly isOptInEmailEnabled: boolean;
   readonly lActivation: ActivationModel;
-  readonly lBlobService: MessageContentRepository<BlockBlobUploadResponse>;
   readonly lMessageModel: MessageModel;
   readonly lMessageStatusModel: MessageStatusModel;
   readonly lProfileModel: ProfileModel;
   readonly lServicePreferencesModel: ServicesPreferencesModel;
+  readonly messageContentRepository: MessageContentRepository;
   readonly optOutEmailSwitchDate: UTCISODateFromString;
   readonly pendingActivationGracePeriod: Second;
   readonly processedMessageOutput: FunctionOutput;
@@ -400,11 +399,11 @@ export const getProcessMessageHandler = ({
   TTL_FOR_USER_NOT_FOUND,
   isOptInEmailEnabled,
   lActivation,
-  lBlobService,
   lMessageModel,
   lMessageStatusModel,
   lProfileModel,
   lServicePreferencesModel,
+  messageContentRepository,
   optOutEmailSwitchDate,
   pendingActivationGracePeriod,
   processedMessageOutput,
@@ -673,7 +672,7 @@ export const getProcessMessageHandler = ({
             context,
             lMessageModel,
             messageStatusUpdater,
-            lBlobService,
+            messageContentRepository,
             createdMessageEvent,
           );
 

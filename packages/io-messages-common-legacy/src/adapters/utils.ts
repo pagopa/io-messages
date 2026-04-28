@@ -24,6 +24,13 @@ export const readableStreamToUtf8 = async (
     });
   });
 
+/**
+ * Get a blob content as a typed object.
+ *
+ * @param blobService     the Azure blob service
+ * @param containerName   the name of the Azure blob storage container
+ * @param blobName        blob file name
+ */
 export const getBlobAsObject = async <A, O, I>(
   type: t.Type<A, O, I>,
   blobServiceClient: BlobServiceClient,

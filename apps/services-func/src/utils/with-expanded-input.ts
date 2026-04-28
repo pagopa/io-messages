@@ -33,18 +33,19 @@ export const makeRetrieveExpandedDataFromBlob =
   (
     blobName: Parameters<typeof getBlobAsObject>[3],
   ): TE.TaskEither<Error, O.Option<A>> =>
-    TE.tryCatch(
-      async () =>
-        O.fromNullable(
-          await getBlobAsObject<A, Encoded, I>(
+    pipe(
+      TE.tryCatch(
+        () =>
+          getBlobAsObject<A, Encoded, I>(
             type,
             blobService,
             containerName,
             blobName,
             options,
           ),
-        ),
-      E.toError,
+        E.toError,
+      ),
+      TE.map(O.fromNullable),
     );
 
 /**
