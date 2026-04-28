@@ -1,0 +1,21 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+    patch:
+      default:
+        target: auto
+
+ignore:
+  - "**/node_modules/**"
+  - "**/dist/**"
+  - "**/__mocks__/**"
+  - "**/generated/**"
+  - "infra/**"
+  - "integration-tests/**"
+  - "mockoon/**"
+  - "bruno/**"
+
+fixes:
+  - "/home/runner/work/io-messages/io-messages/::"

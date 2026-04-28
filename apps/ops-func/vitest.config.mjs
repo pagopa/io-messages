@@ -12,11 +12,9 @@ export default defineConfig({
       exclude: [
         "dist",
         "*.js",
-        "**/__mocks__",
         "/node_modules",
-        "src/generated/**",
         "src/**/config.ts",
-        "src/**/main.ts",
+        "src/**/func.ts",
         "eslint.config.mjs",
         "vitest.config.mjs",
       ],
