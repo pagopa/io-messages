@@ -772,6 +772,9 @@ importers:
       '@azure/identity':
         specifier: 'catalog:'
         version: 4.13.0
+      '@azure/storage-blob':
+        specifier: 'catalog:'
+        version: 12.29.1
       '@azure/storage-queue':
         specifier: 'catalog:'
         version: 12.28.1
@@ -817,6 +820,9 @@ importers:
       html-to-text:
         specifier: 'catalog:'
         version: 4.0.0
+      io-messages-common-legacy:
+        specifier: workspace:*
+        version: link:../../packages/io-messages-common-legacy
       io-ts:
         specifier: 'catalog:'
         version: 2.2.22(fp-ts@2.16.11)

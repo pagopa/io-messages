@@ -1,6 +1,7 @@
 /* eslint-disable max-lines-per-function */
 
 import { FunctionOutput, InvocationContext } from "@azure/functions";
+import { BlockBlobUploadResponse } from "@azure/storage-blob";
 import { SpecialServiceCategoryEnum } from "@pagopa/io-functions-admin-sdk/SpecialServiceCategory";
 import { BlockedInboxOrChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/BlockedInboxOrChannel";
 import { EUCovidCert } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/EUCovidCert";
@@ -34,7 +35,6 @@ import { UTCISODateFromString } from "@pagopa/ts-commons/lib/dates";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { Second } from "@pagopa/ts-commons/lib/units";
-import { BlobService } from "azure-storage";
 import { isBefore } from "date-fns";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
@@ -42,6 +42,7 @@ import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
 import { TaskEither } from "fp-ts/lib/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
+import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
 
 import { PaymentData } from "../../generated/definitions/PaymentData";
 import { ThirdPartyData } from "../../generated/definitions/ThirdPartyData";
@@ -288,7 +289,7 @@ const createMessageOrThrow = async (
   context: InvocationContext,
   lMessageModel: MessageModel,
   messageStatusUpdater: ReturnType<typeof getMessageStatusUpdater>,
-  lBlobService: BlobService,
+  lBlobService: MessageContentRepository<BlockBlobUploadResponse>,
   createdMessageEvent: CommonMessageData & CreatedMessageEvent,
 ): Promise<void> => {
   const newMessageWithoutContent = createdMessageEvent.message;
@@ -321,13 +322,18 @@ const createMessageOrThrow = async (
   // Save the content of the message to the blob storage.
   // In case of a retry this operation will overwrite the message content with itself
   // (this is fine as we don't know if the operation succeeded at first)
-  const errorOrAttachment = await lMessageModel.storeContentAsBlob(
-    lBlobService,
-    newMessageWithoutContent.id,
-    {
-      ...createdMessageEvent.content,
-      payment_data: messagePaymentData,
-    },
+  const errorOrAttachment = await pipe(
+    TE.tryCatch(
+      () =>
+        lBlobService.storeMessageContent(newMessageWithoutContent.id, {
+          ...createdMessageEvent.content,
+          payment_data: messagePaymentData,
+        }),
+      E.toError,
+    ),
+    TE.map((messageContent) => {
+      return messageContent;
+    }),
   )();
 
   if (E.isLeft(errorOrAttachment)) {
@@ -375,7 +381,7 @@ export interface IProcessMessageHandlerInput {
   readonly TTL_FOR_USER_NOT_FOUND: Ttl;
   readonly isOptInEmailEnabled: boolean;
   readonly lActivation: ActivationModel;
-  readonly lBlobService: BlobService;
+  readonly lBlobService: MessageContentRepository<BlockBlobUploadResponse>;
   readonly lMessageModel: MessageModel;
   readonly lMessageStatusModel: MessageStatusModel;
   readonly lProfileModel: ProfileModel;

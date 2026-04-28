@@ -1,4 +1,5 @@
 import { app, output } from "@azure/functions";
+import { BlobServiceClient } from "@azure/storage-blob";
 import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FiscalCode";
 import { HttpsUrl } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/HttpsUrl";
 import { getMailerTransporter } from "@pagopa/io-functions-commons/dist/src/mailer";
@@ -42,9 +43,9 @@ import {
 } from "@pagopa/ts-commons/lib/fetch";
 import { Millisecond } from "@pagopa/ts-commons/lib/units";
 import { Second } from "@pagopa/ts-commons/lib/units";
-import { createBlobService } from "azure-storage";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
+import { MessageContentBlobAdapter } from "io-messages-common-legacy/adapters/message-content";
 
 import { pagoPaEcommerceClient } from "./clients/pagopa-ecommerce";
 import { remoteContentClient } from "./clients/remote-content";
@@ -135,13 +136,18 @@ const activationModel = new ActivationModel(
 // ---------------------------------------------------------------------------
 
 // Blob service for IO_COM storage (queue items, temporary processing data)
-const blobServiceForIO = createBlobService(
+const blobServiceClientForIO = BlobServiceClient.fromConnectionString(
   config.IO_COM_STORAGE_CONNECTION_STRING,
 );
 
 // Blob service for message content storage (reading message body)
-const blobServiceForMessageContent = createBlobService(
-  config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+const blobServiceClientForMessageContent =
+  BlobServiceClient.fromConnectionString(
+    config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+  );
+const blobServiceClientForMessageContentAdapter = new MessageContentBlobAdapter(
+  blobServiceClientForMessageContent,
+  "",
 );
 
 // ---------------------------------------------------------------------------
@@ -168,7 +174,7 @@ const defaultWebhookUrl = pipe(
 
 const retrieveProcessingMessageData = makeRetrieveExpandedDataFromBlob(
   CommonMessageData,
-  blobServiceForIO,
+  blobServiceClientForIO,
   config.PROCESSING_MESSAGE_CONTAINER_NAME,
 );
 
@@ -196,7 +202,7 @@ app.http("CreateMessage", {
     serviceModel,
     messageModel,
     makeUpsertBlobFromObject(
-      blobServiceForIO,
+      blobServiceClientForIO,
       config.PROCESSING_MESSAGE_CONTAINER_NAME,
     ),
     config.SANDBOX_FISCAL_CODE,
@@ -218,7 +224,7 @@ app.http("GetMessage", {
     messageStatusModel,
     notificationModel,
     notificationStatusModel,
-    blobServiceForMessageContent,
+    blobServiceClientForMessageContentAdapter,
     canAccessMessageReadStatus(
       profileModel,
       servicePreferencesModel,
@@ -238,7 +244,7 @@ const processMessageHandler = getProcessMessageHandler({
   TTL_FOR_USER_NOT_FOUND: config.TTL_FOR_USER_NOT_FOUND,
   isOptInEmailEnabled: config.FF_OPT_IN_EMAIL_ENABLED,
   lActivation: activationModel,
-  lBlobService: blobServiceForMessageContent,
+  lBlobService: blobServiceClientForMessageContentAdapter,
   lMessageModel: messageModel,
   lMessageStatusModel: messageStatusModel,
   lProfileModel: profileModel,

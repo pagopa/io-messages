@@ -1,6 +1,9 @@
 import { MessageContentRepository } from "@/domain/message-content";
 import { isRestError } from "@azure/core-rest-pipeline";
-import { BlobServiceClient } from "@azure/storage-blob";
+import {
+  BlobServiceClient,
+  BlockBlobUploadResponse,
+} from "@azure/storage-blob";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 
 import { MessageContent } from "../types/MessageContent";
@@ -29,7 +32,9 @@ const parseMessageContent = (raw: unknown): MessageContent => {
   return result.right;
 };
 
-export class MessageContentBlobAdapter implements MessageContentRepository {
+export class MessageContentBlobAdapter
+  implements MessageContentRepository<BlockBlobUploadResponse>
+{
   private readonly blobClient: BlobServiceClient;
   private readonly messageContainerName: string;
 
@@ -70,6 +75,28 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
       throw new Error("Unexpected: readableStreamBody is undefined");
     }
     return response.readableStreamBody;
+  }
+
+  async storeMessageContent(
+    messageId: string,
+    content: MessageContent,
+  ): Promise<BlockBlobUploadResponse> {
+    const blobName = `${messageId}.json`;
+    const blockBlobClient = this.blobClient
+      .getContainerClient(this.messageContainerName)
+      .getBlockBlobClient(blobName);
+
+    try {
+      return blockBlobClient.upload(
+        JSON.stringify(content),
+        Buffer.byteLength(JSON.stringify(content)),
+      );
+    } catch (e) {
+      if (e instanceof Error) {
+        throw new Error(`Cannot store message content as blob: ${e.message}`);
+      }
+      throw new Error(`Cannot store message content as blob: Unknown error`);
+    }
   }
 
   async getByMessageContentById(
