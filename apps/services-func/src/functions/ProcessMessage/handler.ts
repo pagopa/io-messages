@@ -331,9 +331,7 @@ const createMessageOrThrow = async (
         }),
       E.toError,
     ),
-    TE.map((messageContent) => {
-      return messageContent;
-    }),
+    TE.map((messageContent) => messageContent),
   )();
 
   if (E.isLeft(errorOrAttachment)) {
