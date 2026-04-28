@@ -1,0 +1,11 @@
+{
+  "body": {
+    "change_type": "reading",
+    "is_read": true
+  },
+  "headers": {
+    "content-type": "application/json"
+  },
+  "method": "PUT",
+  "path": "/api/v1/messages/SPNDNL80R13C555X/01J0APPROVALMESSAGESTATUS000001/message-status"
+}

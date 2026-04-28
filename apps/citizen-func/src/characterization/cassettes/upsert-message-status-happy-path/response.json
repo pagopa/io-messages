@@ -1,0 +1,13 @@
+{
+  "body": {
+    "is_archived": false,
+    "is_read": true,
+    "status": "PROCESSED",
+    "updated_at": "<updated_at>",
+    "version": 1
+  },
+  "headers": {
+    "content-type": "application/json"
+  },
+  "status": 200
+}

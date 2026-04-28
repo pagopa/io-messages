@@ -1,0 +1,13 @@
+{
+  "messageStatus": {
+    "fiscalCode": "SPNDNL80R13C555X",
+    "id": "01J0APPROVALMESSAGESTATUS000001-0000000000000001",
+    "isArchived": false,
+    "isRead": true,
+    "kind": "INewMessageStatus",
+    "messageId": "01J0APPROVALMESSAGESTATUS000001",
+    "status": "PROCESSED",
+    "updatedAt": "<updated_at>",
+    "version": 1
+  }
+}

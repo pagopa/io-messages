@@ -26,7 +26,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "start": "func start --port 7072"
+    "start": "func start --port 7072",
+    "characterization:record": "sh -c 'mkdir -p node_modules/.tmp/docker-config && printf \"{}\" > node_modules/.tmp/docker-config/config.json && export TMPDIR=$PWD/node_modules/.tmp APPROVAL_MODE=record DOCKER_CONFIG=$PWD/node_modules/.tmp/docker-config && pnpm build && vitest run --config vitest.characterization.ts'",
+    "characterization:verify": "sh -c 'mkdir -p node_modules/.tmp/docker-config && printf \"{}\" > node_modules/.tmp/docker-config/config.json && export TMPDIR=$PWD/node_modules/.tmp APPROVAL_MODE=verify DOCKER_CONFIG=$PWD/node_modules/.tmp/docker-config && pnpm build && vitest run --config vitest.characterization.ts'",
+    "characterization:watch": "sh -c 'mkdir -p node_modules/.tmp/docker-config && printf \"{}\" > node_modules/.tmp/docker-config/config.json && export TMPDIR=$PWD/node_modules/.tmp APPROVAL_MODE=verify DOCKER_CONFIG=$PWD/node_modules/.tmp/docker-config && pnpm build && vitest --config vitest.characterization.ts'"
   },
   "devDependencies": {
     "@pagopa/eslint-config": "catalog:",
@@ -39,6 +42,7 @@
     "eslint": "catalog:",
     "modclean": "catalog:",
     "prettier": "catalog:",
+    "testcontainers": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"

@@ -7,141 +7,153 @@ services:
       - ".:/workspace:cached"
     network_mode: "service:azurite"
 
-  redis:
-    image: "redis/redis-stack:6.2.6-v19@sha256:93b5454f383821d7279373ff97fcaa48960cc543c53afe1471e2e2a97efee6df"
-    ports:
-      - "6379:6379"
-      - "8001:8001"
-    environment:
-      REDIS_ARGS: "--requirepass local"
+  # redis:
+  #   image: "redis/redis-stack:6.2.6-v19@sha256:93b5454f383821d7279373ff97fcaa48960c\
+  #     c543c53afe1471e2e2a97efee6df"
+  #   ports:
+  #     - "6379:6379"
+  #     - "8001:8001"
+  #   environment:
+  #     REDIS_ARGS: "--requirepass local"
 
   azurite:
-    image: "mcr.microsoft.com/azure-storage/azurite:latest@sha256:647c63a91102a9d8e8000aab803436e1fc85fbb285e7ce830a82ee5d6661cf37"
-    command: "azurite --blobHost 0.0.0.0 --tableHost 0.0.0.0 --queueHost 0.0.0.0 --skipApiVersionCheck"
+    image: "mcr.microsoft.com/azure-storage/azurite:latest@sha256:647c63a91102a9d8e\
+      8000aab803436e1fc85fbb285e7ce830a82ee5d6661cf37"
+    command: "azurite --blobHost 0.0.0.0 --tableHost 0.0.0.0 --queueHost 0.0.0.0
+      --skipApiVersionCheck"
     ports:
       - "10000:10000"
       - "10001:10001"
       - "10002:10002"
+  # azurite-setup:
+  #   image: node:22-alpine@sha256:4d64b49e6c891c8fc821007cb1cdc6c0db7773110ac2c34bf2e6960adef62ed3
+  #   depends_on:
+  #     - azurite
+  #   working_dir: /app
+  #   volumes:
+  #     - ./setup-azurite-containers.js:/app/setup-azurite-containers.js
+  #   command: sh -c "npm install @azure/storage-blob@^12.28.0
+  #     @azure/storage-queue@^12.28.1 @azure/data-tables@^13.3.2 && node
+  #     setup-azurite-containers.js"
 
-  azurite-setup:
-    image: node:22-alpine@sha256:4d64b49e6c891c8fc821007cb1cdc6c0db7773110ac2c34bf2e6960adef62ed3
-    depends_on:
-      - azurite
-    working_dir: /app
-    volumes:
-      - ./setup-azurite-containers.js:/app/setup-azurite-containers.js
-    command: sh -c "npm install @azure/storage-blob@^12.28.0 @azure/storage-queue@^12.28.1 @azure/data-tables@^13.3.2 && node setup-azurite-containers.js"
+  # eventhubs:
+  #   image: "mcr.microsoft.com/azure-messaging/eventhubs-emulator:latest@sha256:25ec\
+  #     4141efb69933a0c82e6a787fa147a3895519e7d236d4c41ba568e03100eb"
+  #   depends_on:
+  #     - "azurite"
+  #   ports:
+  #     - "5672:5672"
+  #     - "9092:9092"
+  #     - "9093:9093"
+  #   volumes:
+  #     - "./eventhubs-emulator.json:/Eventhubs_Emulator/ConfigFiles/Config.json"
+  #   environment:
+  #     BLOB_SERVER: azurite
+  #     METADATA_SERVER: azurite
+  #     ACCEPT_EULA: Y
 
-  eventhubs:
-    image: "mcr.microsoft.com/azure-messaging/eventhubs-emulator:latest@sha256:25ec4141efb69933a0c82e6a787fa147a3895519e7d236d4c41ba568e03100eb"
-    depends_on:
-      - "azurite"
-    ports:
-      - "5672:5672"
-      - "9092:9092"
-      - "9093:9093"
-    volumes:
-      - "./eventhubs-emulator.json:/Eventhubs_Emulator/ConfigFiles/Config.json"
-    environment:
-      BLOB_SERVER: azurite
-      METADATA_SERVER: azurite
-      ACCEPT_EULA: Y
+  # kafka-ui:
+  #   image: "provectuslabs/kafka-ui:latest@sha256:8f2ff02d64b0a7a2b71b6b3b3148b85f66\
+  #     d00ec20ad40c30bdcd415d46d31818"
+  #   depends_on:
+  #     - "eventhubs"
+  #   ports:
+  #     - "8002:8080"
+  #   environment:
+  #     KAFKA_CLUSTERS_0_NAME: "local"
+  #     KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "eventhubs:9092"
+  #     KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL: "SASL_PLAINTEXT"
+  #     KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM: "PLAIN"
+  #     KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG: "org.apache.kafka.common.security\
+  #       .plain.PlainLoginModule required username=\"$$ConnectionString\"
+  #       password=\"Endpoint=sb://eventhubs;SharedAccessKeyName=RootManageShared\
+  #       AccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;\";"
 
-  kafka-ui:
-    image: "provectuslabs/kafka-ui:latest@sha256:8f2ff02d64b0a7a2b71b6b3b3148b85f66d00ec20ad40c30bdcd415d46d31818"
-    depends_on:
-      - "eventhubs"
-    ports:
-      - "8002:8080"
-    environment:
-      KAFKA_CLUSTERS_0_NAME: "local"
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "eventhubs:9092"
-      KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL: "SASL_PLAINTEXT"
-      KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM: "PLAIN"
-      KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="$$ConnectionString" password="Endpoint=sb://eventhubs;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";'
+  # mailhog:
+  #   image: "mailhog/mailhog@sha256:8d76a3d4ffa32a3661311944007a415332c4bb855657f4f6\
+  #     c57996405c009bea"
+  #   ports:
+  #     - "8025:8025"
+  #     - "1025:1025"
 
-  mailhog:
-    image: "mailhog/mailhog@sha256:8d76a3d4ffa32a3661311944007a415332c4bb855657f4f6c57996405c009bea"
-    ports:
-      - "8025:8025"
-      - "1025:1025"
+  # mock-server-session-manager:
+  #   image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
+  #   command: [ "--data", "data", "--port", "3000" ]
+  #   ports:
+  #     - "8004:3000"
+  #   volumes:
+  #     - "./mockoon/session-manager.json:/data:readonly"
 
-  mock-server-session-manager:
-    image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
-    command: ["--data", "data", "--port", "3000"]
-    ports:
-      - "8004:3000"
-    volumes:
-      - "./mockoon/session-manager.json:/data:readonly"
+  # mock-server-apim:
+  #   image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
+  #   command: [ "--data", "data", "--port", "3000" ]
+  #   ports:
+  #     - "8007:3000"
+  #   volumes:
+  #     - "./mockoon/apim.json:/data:readonly"
 
-  mock-server-apim:
-    image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
-    command: ["--data", "data", "--port", "3000"]
-    ports:
-      - "8007:3000"
-    volumes:
-      - "./mockoon/apim.json:/data:readonly"
+  # mock-server-send:
+  #   image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
+  #   command: [ "--data", "data", "--port", "3000" ]
+  #   ports:
+  #     - "8005:3000"
+  #   volumes:
+  #     - "./mockoon/send.json:/data:readonly"
 
-  mock-server-send:
-    image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
-    command: ["--data", "data", "--port", "3000"]
-    ports:
-      - "8005:3000"
-    volumes:
-      - "./mockoon/send.json:/data:readonly"
+  # mock-server-send-lollipop-lambda:
+  #   image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
+  #   command: [ "--data", "data", "--port", "3000" ]
+  #   ports:
+  #     - "8008:3000"
+  #   volumes:
+  #     - "./mockoon/lollipop-lambda.json:/data:readonly"
 
-  mock-server-send-lollipop-lambda:
-    image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
-    command: ["--data", "data", "--port", "3000"]
-    ports:
-      - "8008:3000"
-    volumes:
-      - "./mockoon/lollipop-lambda.json:/data:readonly"
+  # mock-server-lollipop:
+  #   image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
+  #   command: [ "--data", "data", "--port", "3000" ]
+  #   ports:
+  #     - "8006:3000"
+  #   volumes:
+  #     - "./mockoon/lollipop.json:/data:readonly"
 
-  mock-server-lollipop:
-    image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
-    command: ["--data", "data", "--port", "3000"]
-    ports:
-      - "8006:3000"
-    volumes:
-      - "./mockoon/lollipop.json:/data:readonly"
+  # mysql:
+  #   image: "mysql:8.0.42@sha256:4890b3247d48a6dc1f3ac1e979330af4e543d06f194322f3879\
+  #     b27e6c7052585"
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: "local"
+  #     MYSQL_DATABASE: "reminder"
 
-  mysql:
-    image: "mysql:8.0.42@sha256:4890b3247d48a6dc1f3ac1e979330af4e543d06f194322f3879b27e6c7052585"
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: "local"
-      MYSQL_DATABASE: "reminder"
+  # phpmyadmin:
+  #   image: "phpmyadmin:5.2.2-apache@sha256:73467128842bc4406372310f068bc9ccb6727a82\
+  #     c7b5dc9c4f3d815ead33eab8"
+  #   depends_on:
+  #     - "mysql"
+  #   ports:
+  #     - "8003:80"
+  #   environment:
+  #     PMA_HOST: "mysql"
+  #     PMA_USER: "root"
+  #     PMA_PASSWORD: "local"
 
-  phpmyadmin:
-    image: "phpmyadmin:5.2.2-apache@sha256:73467128842bc4406372310f068bc9ccb6727a82c7b5dc9c4f3d815ead33eab8"
-    depends_on:
-      - "mysql"
-    ports:
-      - "8003:80"
-    environment:
-      PMA_HOST: "mysql"
-      PMA_USER: "root"
-      PMA_PASSWORD: "local"
+  # mongo:
+  #   image: mongo@sha256:98028cf281bb5d49ace5e1ddbd4509e8f1382fe80ef1cf101eeefdc106d76cd4
+  #   ports:
+  #     - 27017:27017
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: local
+  #     MONGO_INITDB_DATABASE: "reminder"
 
-  mongo:
-    image: mongo@sha256:98028cf281bb5d49ace5e1ddbd4509e8f1382fe80ef1cf101eeefdc106d76cd4
-    ports:
-      - 27017:27017
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: local
-      MONGO_INITDB_DATABASE: "reminder"
-
-  mongo-express:
-    image: mongo-express@sha256:1b23d7976f0210dbec74045c209e52fbb26d29b2e873d6c6fa3d3f0ae32c2a64
-    ports:
-      - 8050:8081
-    depends_on:
-      - mongo
-    environment:
-      ME_CONFIG_MONGODB_SERVER: mongo
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: local
-      ME_CONFIG_BASICAUTH: false
+  # mongo-express:
+  #   image: mongo-express@sha256:1b23d7976f0210dbec74045c209e52fbb26d29b2e873d6c6fa3d3f0ae32c2a64
+  #   ports:
+  #     - 8050:8081
+  #   depends_on:
+  #     - mongo
+  #   environment:
+  #     ME_CONFIG_MONGODB_SERVER: mongo
+  #     ME_CONFIG_MONGODB_ADMINUSERNAME: root
+  #     ME_CONFIG_MONGODB_ADMINPASSWORD: local
+  #     ME_CONFIG_BASICAUTH: false

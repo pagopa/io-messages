@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "azurite": {
+      "blobEndpoint": "http://<docker-host>:<azurite-blob-port>/devstoreaccount1",
+      "image": "mcr.microsoft.com/azure-storage/azurite:latest@sha256:647c63a91102a9d8e8000aab803436e1fc85fbb285e7ce830a82ee5d6661cf37",
+      "queueEndpoint": "http://<docker-host>:<azurite-queue-port>/devstoreaccount1",
+      "tableEndpoint": "http://<docker-host>:<azurite-table-port>/devstoreaccount1"
+    },
+    "cosmos": {
+      "databaseName": "io-messages-approval",
+      "endpoint": "https://<docker-host>:<cosmos-port>/",
+      "image": "mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest",
+      "remoteContentDatabaseName": "remote-content-approval"
+    }
+  },
+  "disabledFunctions": [],
+  "runtime": {
+    "baseUrl": "http://127.0.0.1:<function-port>",
+    "boundary": "azure-functions-local-http"
+  }
+}

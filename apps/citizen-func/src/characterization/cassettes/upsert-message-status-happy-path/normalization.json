@@ -1,0 +1,27 @@
+{
+  "request": {
+    "headersKept": ["content-type"]
+  },
+  "response": {
+    "body": {
+      "updated_at": "<updated_at>"
+    },
+    "headersKept": ["content-type"]
+  },
+  "sideEffects": {
+    "messageStatus": {
+      "removedFields": ["_attachments", "_etag", "_rid", "_self", "_ts"],
+      "updatedAt": "<updated_at>"
+    }
+  },
+  "topology": {
+    "placeholders": {
+      "azuriteBlobPort": "<azurite-blob-port>",
+      "azuriteQueuePort": "<azurite-queue-port>",
+      "azuriteTablePort": "<azurite-table-port>",
+      "cosmosPort": "<cosmos-port>",
+      "dockerHost": "<docker-host>",
+      "functionPort": "<function-port>"
+    }
+  }
+}

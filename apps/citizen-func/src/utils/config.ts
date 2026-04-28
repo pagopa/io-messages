@@ -97,6 +97,10 @@ export const IConfig = t.intersection([
     /* eslint-enable sort-keys */
   }),
   RedisParams,
+  t.partial({
+    COSMOSDB_KEY: NonEmptyString,
+    REMOTE_CONTENT_COSMOSDB_KEY: NonEmptyString,
+  }),
 ]);
 
 // No need to re-evaluate this object for each call
