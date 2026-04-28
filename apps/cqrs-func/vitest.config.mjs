@@ -1,12 +1,6 @@
-import * as path from "node:path";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
   test: {
     coverage: {
       exclude: [
@@ -14,7 +8,6 @@ export default defineConfig({
         "*.js",
         "**/__mocks__",
         "/node_modules",
-        "src/generated/**",
         "src/**/config.ts",
         "src/**/main.ts",
         "eslint.config.mjs",

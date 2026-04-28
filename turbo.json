@@ -17,7 +17,7 @@
     },
     "test": {
       "dependsOn": ["generate", "^build"],
-      "inputs": ["src/**/*.ts"],
+      "inputs": ["src/**/*.ts", "vitest.config.*"],
       "outputLogs": "full"
     },
     "format": {
@@ -43,7 +43,7 @@
     },
     "test:coverage": {
       "dependsOn": ["generate", "^build"],
-      "inputs": ["src/**/*.ts"],
+      "inputs": ["src/**/*.ts", "vitest.config.*"],
       "outputs": ["coverage/**"],
       "outputLogs": "errors-only"
     },
