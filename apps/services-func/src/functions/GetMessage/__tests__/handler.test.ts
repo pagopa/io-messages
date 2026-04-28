@@ -39,6 +39,7 @@ import {
 } from "@pagopa/ts-commons/lib/strings";
 import { QueryError } from "documentdb";
 import * as O from "fp-ts/Option";
+import * as E from "fp-ts/lib/Either";
 import { Option, none, some } from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -282,6 +283,24 @@ describe("GetMessageHandler", () => {
     ),
   });
 
+  const makeBlobServiceFromMessageModel = (mockMessageModel: any) => ({
+    getByMessageContentById: async (messageId: NonEmptyString) => {
+      const errorOrMaybeContent = await (
+        mockMessageModel.getContentFromBlob
+          ? mockMessageModel.getContentFromBlob(undefined, messageId)
+          : TE.of(none)
+      )();
+
+      if (E.isLeft(errorOrMaybeContent)) {
+        throw errorOrMaybeContent.left;
+      }
+
+      return O.isSome(errorOrMaybeContent.right)
+        ? errorOrMaybeContent.right.value
+        : null;
+    },
+  });
+
   it("should respond with a message if requesting user is the sender", async () => {
     const mockMessageModel = {
       findMessageForRecipient: vi.fn(() =>
@@ -295,7 +314,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       getNotificationModelMock(),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -334,7 +353,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       getNotificationModelMock(),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -371,7 +390,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       getNotificationModelMock(),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -414,7 +433,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       {} as any,
       {} as any,
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -458,7 +477,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       {} as any,
       {} as any,
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -500,7 +519,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       {} as any,
       {} as any,
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -539,7 +558,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       {} as any,
       {} as any,
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -577,7 +596,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       getNotificationModelMock(),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -621,7 +640,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       {} as any,
       {} as any,
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -670,7 +689,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       getNotificationModelMock(aRetrievedNotification),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -717,7 +736,7 @@ describe("GetMessageHandler", () => {
       ),
       getNotificationModelMock(),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -754,7 +773,7 @@ describe("GetMessageHandler", () => {
         ),
       } as any,
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -827,7 +846,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       getNotificationModelMock(aRetrievedNotification),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -869,7 +888,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       getNotificationModelMock(aRetrievedNotification),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -918,7 +937,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       getNotificationModelMock(aRetrievedNotification),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -968,7 +987,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       getNotificationModelMock(aRetrievedNotification),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -1021,7 +1040,7 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(),
       getNotificationModelMock(aRetrievedNotification),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
     );
@@ -1072,7 +1091,7 @@ describe("GetMessageHandler", () => {
       ),
       getNotificationModelMock(aRetrievedNotification),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(409, {
         faultCodeCategory: FaultCodeCategoryEnum.PAYMENT_DUPLICATED,
@@ -1127,7 +1146,7 @@ describe("GetMessageHandler", () => {
       ),
       getNotificationModelMock(aRetrievedNotification),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(404),
     );
@@ -1178,7 +1197,7 @@ describe("GetMessageHandler", () => {
       ),
       getNotificationModelMock(aRetrievedNotification),
       getNotificationStatusModelMock(),
-      {} as any,
+      makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(503, {
         faultCodeCategory: faultCode.DOMAIN_UNKNOWN,

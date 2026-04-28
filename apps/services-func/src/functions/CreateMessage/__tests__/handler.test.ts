@@ -8,7 +8,6 @@ import { initAppInsights } from "@pagopa/ts-commons/lib/appinsights";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as fc from "fast-check";
 import * as E from "fp-ts/lib/Either";
-import * as O from "fp-ts/lib/Option";
 import { none, some } from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { describe, expect, it, vi } from "vitest";
@@ -56,7 +55,7 @@ const mockTelemetryClient = {
   trackEvent: vi.fn(),
 } as unknown as ReturnType<typeof initAppInsights>;
 
-const mockSaveBlob = vi.fn(() => TE.of(O.some({} as any)));
+const mockSaveBlob = vi.fn(() => TE.right({} as any));
 const mockMessageModel = {
   create: vi.fn(() => TE.of({})),
 } as unknown as MessageModel;
