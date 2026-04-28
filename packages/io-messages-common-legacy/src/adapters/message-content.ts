@@ -77,28 +77,6 @@ export class MessageContentBlobAdapter
     return response.readableStreamBody;
   }
 
-  async storeMessageContent(
-    messageId: string,
-    content: MessageContent,
-  ): Promise<BlockBlobUploadResponse> {
-    const blobName = `${messageId}.json`;
-    const blockBlobClient = this.blobClient
-      .getContainerClient(this.messageContainerName)
-      .getBlockBlobClient(blobName);
-
-    try {
-      return blockBlobClient.upload(
-        JSON.stringify(content),
-        Buffer.byteLength(JSON.stringify(content)),
-      );
-    } catch (e) {
-      if (e instanceof Error) {
-        throw new Error(`Cannot store message content as blob: ${e.message}`);
-      }
-      throw new Error(`Cannot store message content as blob: Unknown error`);
-    }
-  }
-
   async getByMessageContentById(
     messageId: string,
   ): Promise<MessageContent | null> {
@@ -122,6 +100,28 @@ export class MessageContentBlobAdapter
       throw new Error(
         `Cannot parse content text into object: ${e instanceof Error ? e.message : "Unknown error"}`,
       );
+    }
+  }
+
+  async storeMessageContent(
+    messageId: string,
+    content: MessageContent,
+  ): Promise<BlockBlobUploadResponse> {
+    const blobName = `${messageId}.json`;
+    const blockBlobClient = this.blobClient
+      .getContainerClient(this.messageContainerName)
+      .getBlockBlobClient(blobName);
+
+    try {
+      return blockBlobClient.upload(
+        JSON.stringify(content),
+        Buffer.byteLength(JSON.stringify(content)),
+      );
+    } catch (e) {
+      if (e instanceof Error) {
+        throw new Error(`Cannot store message content as blob: ${e.message}`);
+      }
+      throw new Error(`Cannot store message content as blob: Unknown error`);
     }
   }
 }
