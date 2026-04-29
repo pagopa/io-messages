@@ -113,7 +113,7 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
       );
     } catch (e) {
       throw new Error(
-        `Cannot parse content text into object: ${e instanceof Error ? e.message : "Unknown error"}`,
+        `Cannot store message content into blob ${blobName}: ${e instanceof Error ? e.message : "Unknown error"}`,
       );
     }
   }
