@@ -42,6 +42,7 @@ const mockQueueClient = {
 const getByMessageContentByIdMock = vi.fn().mockResolvedValue(aMessageContent);
 const mockMessageContentRepository = {
   getByMessageContentById: getByMessageContentByIdMock,
+  storeMessageContent: vi.fn().mockResolvedValue(void 0),
 };
 
 const mockKafkaProducerKompact: KP.KafkaProducerCompact<
