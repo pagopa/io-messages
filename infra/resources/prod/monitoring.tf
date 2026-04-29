@@ -11,4 +11,5 @@ module "monitoring" {
   resource_group_name = azurerm_resource_group.itn_com.name
   io_com_slack_email  = data.azurerm_key_vault_secret.alert_slack_channel_email.value
   appi_id             = data.azurerm_application_insights.common.id
+  com_st_id           = module.storage_api_weu.com_st_id
 }

@@ -328,6 +328,66 @@ customEvents
   }
 }
 
+resource "azurerm_monitor_metric_alert" "massive_job_check_poison_queue_alert" {
+  name                = format("[%s-%s] Massive Job - check-massive-job poison queue not empty", var.project, var.domain)
+  resource_group_name = var.resource_group_name
+  scopes              = ["${var.com_st_id}/queueServices/default"]
+  description         = "[IO-COM] One or more messages have been moved to the `check-massive-job-poison` queue after exhausting all retries. The final status of the related massive job(s) will NOT be reconciled automatically: investigate the CheckMassiveJob function logs and drain the poison queue."
+  severity            = 1
+  window_size         = "PT5M"
+  frequency           = "PT5M"
+  auto_mitigate       = false
+
+  criteria {
+    metric_namespace = "Microsoft.Storage/storageAccounts/queueServices"
+    metric_name      = "ApproximateMessageCount"
+    aggregation      = "Maximum"
+    operator         = "GreaterThan"
+    threshold        = 0
+
+    dimension {
+      name     = "QueueName"
+      operator = "Include"
+      values   = ["check-massive-job-poison"]
+    }
+  }
+
+  action {
+    action_group_id    = azurerm_monitor_action_group.io_com_error.id
+    webhook_properties = {}
+  }
+}
+
+resource "azurerm_monitor_metric_alert" "massive_job_process_poison_queue_alert" {
+  name                = format("[%s-%s] Massive Job - process-massive-job poison queue not empty", var.project, var.domain)
+  resource_group_name = var.resource_group_name
+  scopes              = ["${var.com_st_id}/queueServices/default"]
+  description         = "[IO-COM] One or more messages have been moved to the `process-massive-job-poison` queue after exhausting all retries. The associated notification batch(es) will NOT be scheduled on Notification Hub: investigate the ProcessMassiveJob function logs and drain the poison queue."
+  severity            = 1
+  window_size         = "PT5M"
+  frequency           = "PT5M"
+  auto_mitigate       = false
+
+  criteria {
+    metric_namespace = "Microsoft.Storage/storageAccounts/queueServices"
+    metric_name      = "ApproximateMessageCount"
+    aggregation      = "Maximum"
+    operator         = "GreaterThan"
+    threshold        = 0
+
+    dimension {
+      name     = "QueueName"
+      operator = "Include"
+      values   = ["process-massive-job-poison"]
+    }
+  }
+
+  action {
+    action_group_id    = azurerm_monitor_action_group.io_com_error.id
+    webhook_properties = {}
+  }
+}
+
 resource "azurerm_monitor_scheduled_query_rules_alert" "message-ingestion-count-collect-alert" {
   name                = format("[%s-%s] Message Ingestion Count Collection Error", var.project, var.domain)
   resource_group_name = var.resource_group_name
