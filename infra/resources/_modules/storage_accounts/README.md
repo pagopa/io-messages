@@ -24,6 +24,7 @@ No requirements.
 
 | Name | Type |
 |------|------|
+| [azurerm_monitor_diagnostic_setting.io_com_storage_account_diagnostic_setting](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) | resource |
 | [azurerm_monitor_metric_alert.iopstapi_throttling_low_availability](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [azurerm_storage_container.cached](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container) | resource |
 | [azurerm_storage_container.deleted_messages_logs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container) | resource |
@@ -65,6 +66,7 @@ No requirements.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_application_insights_workspace_id"></a> [application\_insights\_workspace\_id](#input\_application\_insights\_workspace\_id) | n/a | `string` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | n/a | <pre>object({<br/>    prefix    = string<br/>    env_short = string<br/>    location  = string<br/>  })</pre> | n/a | yes |
 | <a name="input_error_action_group_id"></a> [error\_action\_group\_id](#input\_error\_action\_group\_id) | n/a | `string` | n/a | yes |
 | <a name="input_legacy_resource_group_name"></a> [legacy\_resource\_group\_name](#input\_legacy\_resource\_group\_name) | Resource group name for VNet | `string` | n/a | yes |

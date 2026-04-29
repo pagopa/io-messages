@@ -328,66 +328,6 @@ customEvents
   }
 }
 
-resource "azurerm_monitor_metric_alert" "massive_job_check_poison_queue_alert" {
-  name                = format("[%s-%s] Massive Job - check-massive-job poison queue not empty", var.project, var.domain)
-  resource_group_name = var.resource_group_name
-  scopes              = ["${var.com_st_id}/queueServices/default"]
-  description         = "[IO-COM] One or more messages have been moved to the `check-massive-job-poison` queue after exhausting all retries. The final status of the related massive job(s) will NOT be reconciled automatically: investigate the CheckMassiveJob function logs and drain the poison queue."
-  severity            = 1
-  window_size         = "PT5M"
-  frequency           = "PT5M"
-  auto_mitigate       = false
-
-  criteria {
-    metric_namespace = "Microsoft.Storage/storageAccounts/queueServices"
-    metric_name      = "QueueMessageCount"
-    aggregation      = "Maximum"
-    operator         = "GreaterThan"
-    threshold        = 0
-
-    dimension {
-      name     = "QueueName"
-      operator = "Include"
-      values   = ["check-massive-job-poison"]
-    }
-  }
-
-  action {
-    action_group_id    = azurerm_monitor_action_group.io_com_error.id
-    webhook_properties = {}
-  }
-}
-
-resource "azurerm_monitor_metric_alert" "massive_job_process_poison_queue_alert" {
-  name                = format("[%s-%s] Massive Job - process-massive-job poison queue not empty", var.project, var.domain)
-  resource_group_name = var.resource_group_name
-  scopes              = ["${var.com_st_id}/queueServices/default"]
-  description         = "[IO-COM] One or more messages have been moved to the `process-massive-job-poison` queue after exhausting all retries. The associated notification batch(es) will NOT be scheduled on Notification Hub: investigate the ProcessMassiveJob function logs and drain the poison queue."
-  severity            = 1
-  window_size         = "PT5M"
-  frequency           = "PT5M"
-  auto_mitigate       = false
-
-  criteria {
-    metric_namespace = "Microsoft.Storage/storageAccounts/queueServices"
-    metric_name      = "QueueMessageCount"
-    aggregation      = "Maximum"
-    operator         = "GreaterThan"
-    threshold        = 0
-
-    dimension {
-      name     = "QueueName"
-      operator = "Include"
-      values   = ["process-massive-job-poison"]
-    }
-  }
-
-  action {
-    action_group_id    = azurerm_monitor_action_group.io_com_error.id
-    webhook_properties = {}
-  }
-}
-
 resource "azurerm_monitor_scheduled_query_rules_alert" "message-ingestion-count-collect-alert" {
   name                = format("[%s-%s] Message Ingestion Count Collection Error", var.project, var.domain)
   resource_group_name = var.resource_group_name
@@ -416,6 +356,80 @@ customEvents
 
   action {
     action_group = [
+      azurerm_monitor_action_group.io_com_error.id
+    ]
+  }
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "massive_job_check_massive_job_poison_queue_not_empty" {
+  name                = format("[%s-%s] Massive Job - check-massive-job-poison not empty", var.project, var.domain)
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  scopes                  = [var.com_st_id]
+  description             = "[IO-COM] One or more messages have been moved to the `check-massive-job-poison` queue after exhausting all retries. The final status of the related massive job(s) will NOT be reconciled automatically: investigate the CheckMassiveJob function logs and drain the poison queue."
+  enabled                 = true
+  auto_mitigation_enabled = false
+
+  severity             = 1
+  evaluation_frequency = "PT10M"
+  window_duration      = "PT10M"
+
+  criteria {
+    query                   = <<-QUERY
+      StorageQueueLogs
+        | where OperationName has "PutMessage"
+        | where Uri has "check-massive-job-poison"
+      QUERY
+    time_aggregation_method = "Count"
+    threshold               = 1
+    operator                = "GreaterThanOrEqual"
+
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
+  }
+
+  action {
+    action_groups = [
+      azurerm_monitor_action_group.io_com_error.id
+    ]
+  }
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "massive_job_process_massive_job_queue_not_empty" {
+  name                = format("[%s-%s] Massive Job - process-massive-job poison queue not empty", var.project, var.domain)
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  scopes                  = [var.com_st_id]
+  description             = "[IO-COM] One or more messages have been moved to the `process-massive-job-poison` queue after exhausting all retries. The associated notification batch(es) will NOT be scheduled on Notification Hub: investigate the ProcessMassiveJob function logs and drain the poison queue."
+  enabled                 = true
+  auto_mitigation_enabled = false
+
+  severity             = 1
+  evaluation_frequency = "PT10M"
+  window_duration      = "PT10M"
+
+  criteria {
+    query                   = <<-QUERY
+      StorageQueueLogs
+        | where OperationName has "PutMessage"
+        | where Uri has "process-massive-job-poison"
+      QUERY
+    time_aggregation_method = "Count"
+    threshold               = 1
+    operator                = "GreaterThanOrEqual"
+
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
+  }
+
+  action {
+    action_groups = [
       azurerm_monitor_action_group.io_com_error.id
     ]
   }

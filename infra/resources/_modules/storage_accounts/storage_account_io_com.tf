@@ -149,3 +149,23 @@ resource "azurerm_storage_queue" "process_massive_job_poison" {
   name                 = "process-massive-job-poison"
   storage_account_name = module.com_st.name
 }
+
+resource "azurerm_monitor_diagnostic_setting" "io_com_storage_account_diagnostic_setting" {
+  name                       = "${module.com_st.name}-ds"
+  target_resource_id         = "${module.com_st.id}/queueServices/default"
+  log_analytics_workspace_id = var.application_insights_workspace_id
+
+  enabled_log {
+    category = "StorageWrite"
+  }
+
+  metric {
+    category = "Capacity"
+    enabled  = false
+  }
+
+  metric {
+    category = "Transaction"
+    enabled  = false
+  }
+}

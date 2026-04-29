@@ -48,3 +48,7 @@ variable "environment" {
 variable "subnet_pep_id" {
   type = string
 }
+
+variable "application_insights_workspace_id" {
+  type = string
+}

@@ -13,6 +13,8 @@ module "storage_api_weu" {
   location       = local.legacy_location
   location_short = local.legacy_location_short
 
+  application_insights_workspace_id = data.azurerm_application_insights.common.workspace_id
+
   environment = {
     env_short = local.env_short
     location  = local.location
