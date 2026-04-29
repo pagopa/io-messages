@@ -340,7 +340,7 @@ resource "azurerm_monitor_metric_alert" "massive_job_check_poison_queue_alert" {
 
   criteria {
     metric_namespace = "Microsoft.Storage/storageAccounts/queueServices"
-    metric_name      = "ApproximateMessageCount"
+    metric_name      = "QueueMessageCount"
     aggregation      = "Maximum"
     operator         = "GreaterThan"
     threshold        = 0
@@ -370,7 +370,7 @@ resource "azurerm_monitor_metric_alert" "massive_job_process_poison_queue_alert"
 
   criteria {
     metric_namespace = "Microsoft.Storage/storageAccounts/queueServices"
-    metric_name      = "ApproximateMessageCount"
+    metric_name      = "QueueMessageCount"
     aggregation      = "Maximum"
     operator         = "GreaterThan"
     threshold        = 0
