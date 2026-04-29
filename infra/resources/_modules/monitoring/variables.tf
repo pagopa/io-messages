@@ -27,3 +27,8 @@ variable "appi_id" {
   type        = string
   description = "Application Insights resource Id"
 }
+
+variable "com_st_id" {
+  type        = string
+  description = "Resource Id of the io-com storage account"
+}
