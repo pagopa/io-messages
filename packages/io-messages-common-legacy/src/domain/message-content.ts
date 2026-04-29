@@ -8,4 +8,14 @@ export interface MessageContentRepository {
    * Throws an `Error` for any other failure.
    */
   getByMessageContentById(messageId: string): Promise<MessageContent | null>;
+
+  /**
+   * Stores the content of a message.
+   *
+   * Throws an `Error` if the content cannot be stored.
+   */
+  storeMessageContent(
+    messageId: string,
+    content: MessageContent,
+  ): Promise<void>;
 }

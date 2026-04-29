@@ -38,6 +38,7 @@ const findLastVersionByModelIdMock = vi
 const getByMessageContentByIdMock = vi.fn();
 const messageContentRepositoryMock: MessageContentRepository = {
   getByMessageContentById: getByMessageContentByIdMock,
+  storeMessageContent: vi.fn().mockResolvedValue(void 0),
 };
 
 const dummyThirdPartyDataWithCategoryFetcher: ThirdPartyDataWithCategoryFetcher =

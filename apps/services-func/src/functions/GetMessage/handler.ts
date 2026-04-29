@@ -67,12 +67,12 @@ import {
   getResponseErrorForbiddenNotAuthorized,
 } from "@pagopa/ts-commons/lib/responses";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-import { BlobService } from "azure-storage";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as B from "fp-ts/lib/boolean";
 import { pipe } from "fp-ts/lib/function";
+import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
 import * as t from "io-ts";
 import { match } from "ts-pattern";
 
@@ -274,7 +274,7 @@ export const GetMessageHandler =
     messageStatusModel: MessageStatusModel,
     notificationModel: NotificationModel,
     notificationStatusModel: NotificationStatusModel,
-    blobService: BlobService,
+    messageContentRepository: MessageContentRepository,
     canAccessMessageReadStatus: MessageReadStatusAuth,
     pagoPaEcommerceClient: PagoPaEcommerceClient,
   ): IGetMessageHandler =>
@@ -336,7 +336,16 @@ export const GetMessageHandler =
 
     // fetch the content of the message from the blob storage
     const errorOrMaybeContent = await pipe(
-      messageModel.getContentFromBlob(blobService, retrievedMessage.id),
+      pipe(
+        TE.tryCatch(
+          () =>
+            messageContentRepository.getByMessageContentById(
+              retrievedMessage.id,
+            ),
+          E.toError,
+        ),
+        TE.map(O.fromNullable),
+      ),
       TE.mapLeft((error) => {
         context.error(`GetMessageHandler|${JSON.stringify(error)}`);
         return ResponseErrorInternal(`${error.name}: ${error.message}`);
@@ -496,7 +505,7 @@ export function GetMessage(
   messageStatusModel: MessageStatusModel,
   notificationModel: NotificationModel,
   notificationStatusModel: NotificationStatusModel,
-  blobService: BlobService,
+  messageContentRepository: MessageContentRepository,
   canAccessMessageReadStatus: MessageReadStatusAuth,
   pagoPaEcommerceClient: PagoPaEcommerceClient,
 ) {
@@ -505,7 +514,7 @@ export function GetMessage(
     messageStatusModel,
     notificationModel,
     notificationStatusModel,
-    blobService,
+    messageContentRepository,
     canAccessMessageReadStatus,
     pagoPaEcommerceClient,
   );

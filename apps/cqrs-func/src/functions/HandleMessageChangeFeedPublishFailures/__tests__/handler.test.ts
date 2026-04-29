@@ -25,6 +25,7 @@ const telemetryClientMock = {
 const getByMessageContentByIdMock = vi.fn().mockResolvedValue(aMessageContent);
 const mockMessageContentRepository = {
   getByMessageContentById: getByMessageContentByIdMock,
+  storeMessageContent: vi.fn().mockResolvedValue(void 0),
 };
 
 const inputMessage = {

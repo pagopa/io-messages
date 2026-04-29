@@ -94,14 +94,26 @@ const aBlobResult = {
   name: "ABlobName",
 };
 
-const storeContentAsBlobMock = vi.fn(() => TE.of(O.some(aBlobResult)));
+const storeMessageContentMock = vi.fn((...args) => {
+  void args;
+  return TE.of(O.some(aBlobResult));
+});
 const upsertMessageMock = vi.fn<any>(() => TE.of(aRetrievedMessage));
 const patchMessageMock = vi.fn<any>(() => TE.right(aRetrievedMessage));
 const lMessageModel = {
   patch: patchMessageMock,
-  storeContentAsBlob: storeContentAsBlobMock,
+  storeMessageContent: storeMessageContentMock,
   upsert: upsertMessageMock,
 } as unknown as MessageModel;
+
+const lBlobService = {
+  storeMessageContent: vi.fn(async (messageId, content) => {
+    const result = await storeMessageContentMock(messageId, content)();
+    if (E.isLeft(result)) {
+      throw result.left;
+    }
+  }),
+};
 
 const findServicePreferenceMock = vi.fn(() =>
   TE.of(O.some(aRetrievedServicePreference)),
@@ -339,7 +351,7 @@ describe("getprocessMessageHandler", () => {
       findLastVersionByModelIdMock.mockImplementationOnce(() =>
         TE.of(O.some(profileResult)),
       );
-      storeContentAsBlobMock.mockImplementationOnce(() =>
+      storeMessageContentMock.mockImplementationOnce(() =>
         TE.of(O.some(storageResult)),
       );
       upsertMessageMock.mockImplementationOnce(() =>
@@ -359,11 +371,11 @@ describe("getprocessMessageHandler", () => {
         TTL_FOR_USER_NOT_FOUND,
         isOptInEmailEnabled: optInEmailEnabled,
         lActivation,
-        lBlobService: {} as any,
         lMessageModel,
         lMessageStatusModel,
         lProfileModel,
         lServicePreferencesModel,
+        messageContentRepository: lBlobService as any,
         optOutEmailSwitchDate,
         pendingActivationGracePeriod:
           DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
@@ -395,7 +407,7 @@ describe("getprocessMessageHandler", () => {
 
       // success means message has been stored and status has been updated
       expect(upsertMessageMock).toHaveBeenCalledTimes(1);
-      expect(storeContentAsBlobMock).toHaveBeenCalledTimes(1);
+      expect(storeMessageContentMock).toHaveBeenCalledTimes(1);
       expect(activationFindLastVersionMock).toBeCalledTimes(
         skipActivationMock ? 0 : 1,
       );
@@ -428,7 +440,7 @@ describe("getprocessMessageHandler", () => {
       findLastVersionByModelIdMock.mockImplementationOnce(() =>
         TE.of(O.some(profileResult)),
       );
-      storeContentAsBlobMock.mockImplementationOnce(() =>
+      storeMessageContentMock.mockImplementationOnce(() =>
         TE.of(O.some(storageResult)),
       );
       upsertMessageMock.mockImplementationOnce(() =>
@@ -449,11 +461,11 @@ describe("getprocessMessageHandler", () => {
         TTL_FOR_USER_NOT_FOUND,
         isOptInEmailEnabled: optInEmailEnabled,
         lActivation,
-        lBlobService: {} as any,
         lMessageModel,
         lMessageStatusModel,
         lProfileModel,
         lServicePreferencesModel,
+        messageContentRepository: lBlobService as any,
         optOutEmailSwitchDate,
         pendingActivationGracePeriod:
           DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
@@ -475,14 +487,10 @@ describe("getprocessMessageHandler", () => {
 
       const msgEvt = messageEvent as CreatedMessageEvent;
       // success means message has been stored and status has been updated
-      expect(storeContentAsBlobMock).toHaveBeenCalledWith(
-        {} as any,
-        msgEvt.messageId,
-        {
-          ...aMessageContent,
-          payment_data: expectedMessagePaymentData,
-        },
-      );
+      expect(storeMessageContentMock).toHaveBeenCalledWith(msgEvt.messageId, {
+        ...aMessageContent,
+        payment_data: expectedMessagePaymentData,
+      });
       expect(patchMessageMock).not.toHaveBeenCalled();
       expect(updateTTLForAllVersionsMock).not.toHaveBeenCalled();
     },
@@ -538,11 +546,11 @@ describe("getprocessMessageHandler", () => {
         TTL_FOR_USER_NOT_FOUND,
         isOptInEmailEnabled: false,
         lActivation,
-        lBlobService: {} as any,
         lMessageModel,
         lMessageStatusModel,
         lProfileModel,
         lServicePreferencesModel,
+        messageContentRepository: lBlobService as any,
         optOutEmailSwitchDate: aPastOptOutEmailSwitchDate,
         pendingActivationGracePeriod:
           DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
@@ -618,7 +626,7 @@ describe("getprocessMessageHandler", () => {
       skipUpsertMock = upsertResult === "not-called",
     }) => {
       findLastVersionByModelIdMock.mockImplementationOnce(() => profileResult);
-      storeContentAsBlobMock.mockImplementationOnce(() => storageResult);
+      storeMessageContentMock.mockImplementationOnce(() => storageResult);
       upsertMessageMock.mockImplementationOnce(() => upsertResult);
       findServicePreferenceMock.mockImplementationOnce(() => preferenceResult);
       activationFindLastVersionMock.mockImplementationOnce(
@@ -631,11 +639,11 @@ describe("getprocessMessageHandler", () => {
         TTL_FOR_USER_NOT_FOUND,
         isOptInEmailEnabled: false,
         lActivation,
-        lBlobService: {} as any,
         lMessageModel,
         lMessageStatusModel,
         lProfileModel,
         lServicePreferencesModel,
+        messageContentRepository: lBlobService as any,
         optOutEmailSwitchDate: aPastOptOutEmailSwitchDate,
         pendingActivationGracePeriod:
           DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
@@ -654,7 +662,7 @@ describe("getprocessMessageHandler", () => {
       expect(findLastVersionByModelIdMock).toBeCalledTimes(
         skipProfileMock ? 0 : 1,
       );
-      expect(storeContentAsBlobMock).toBeCalledTimes(skipStorageMock ? 0 : 1);
+      expect(storeMessageContentMock).toBeCalledTimes(skipStorageMock ? 0 : 1);
       expect(upsertMessageMock).toBeCalledTimes(skipUpsertMock ? 0 : 1);
       expect(findServicePreferenceMock).toBeCalledTimes(
         skipPreferenceMock ? 0 : 1,
@@ -691,7 +699,7 @@ describe("getprocessMessageHandler", () => {
       // upsertMessageMock.mockImplementationOnce(() => upsertResult);
       findServicePreferenceMock.mockImplementationOnce(() => preferenceResult);
       findServicePreferenceMock.mockImplementationOnce(() => preferenceResult);
-      storeContentAsBlobMock.mockImplementationOnce(() =>
+      storeMessageContentMock.mockImplementationOnce(() =>
         TE.of(O.some(aBlobResult)),
       );
       messageStatusUpdaterMock.mockReturnValueOnce(
@@ -704,11 +712,11 @@ describe("getprocessMessageHandler", () => {
         TTL_FOR_USER_NOT_FOUND,
         isOptInEmailEnabled: false,
         lActivation,
-        lBlobService: {} as any,
         lMessageModel,
         lMessageStatusModel,
         lProfileModel,
         lServicePreferencesModel,
+        messageContentRepository: lBlobService as any,
         optOutEmailSwitchDate: aPastOptOutEmailSwitchDate,
         pendingActivationGracePeriod:
           DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
@@ -752,11 +760,11 @@ describe("getprocessMessageHandler", () => {
       TTL_FOR_USER_NOT_FOUND,
       isOptInEmailEnabled: false,
       lActivation,
-      lBlobService: {} as any,
       lMessageModel,
       lMessageStatusModel,
       lProfileModel,
       lServicePreferencesModel,
+      messageContentRepository: lBlobService as any,
       optOutEmailSwitchDate: aPastOptOutEmailSwitchDate,
       pendingActivationGracePeriod:
         DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
@@ -815,11 +823,11 @@ describe("getprocessMessageHandler", () => {
       TTL_FOR_USER_NOT_FOUND,
       isOptInEmailEnabled: false,
       lActivation,
-      lBlobService: {} as any,
       lMessageModel,
       lMessageStatusModel,
       lProfileModel,
       lServicePreferencesModel,
+      messageContentRepository: lBlobService as any,
       optOutEmailSwitchDate: aPastOptOutEmailSwitchDate,
       pendingActivationGracePeriod:
         DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,
@@ -847,11 +855,11 @@ describe("getprocessMessageHandler", () => {
       TTL_FOR_USER_NOT_FOUND,
       isOptInEmailEnabled: false,
       lActivation,
-      lBlobService: {} as any,
       lMessageModel,
       lMessageStatusModel,
       lProfileModel,
       lServicePreferencesModel,
+      messageContentRepository: lBlobService as any,
       optOutEmailSwitchDate: aPastOptOutEmailSwitchDate,
       pendingActivationGracePeriod:
         DEFAULT_PENDING_ACTIVATION_GRACE_PERIOD_SECONDS as Second,

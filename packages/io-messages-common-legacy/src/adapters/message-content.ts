@@ -4,7 +4,7 @@ import { BlobServiceClient } from "@azure/storage-blob";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 
 import { MessageContent } from "../types/MessageContent";
-import { readableStreamToUtf8 } from "./utils";
+import { readableStreamToUtf8, upsertBlobFromObject } from "./utils";
 
 const BLOB_NOT_FOUND_CODE = "BlobNotFound";
 const GENERIC_CODE = "GenericCode";
@@ -94,6 +94,26 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
     } catch (e) {
       throw new Error(
         `Cannot parse content text into object: ${e instanceof Error ? e.message : "Unknown error"}`,
+      );
+    }
+  }
+
+  async storeMessageContent(
+    messageId: string,
+    content: MessageContent,
+  ): Promise<void> {
+    const blobName = `${messageId}.json`;
+
+    try {
+      await upsertBlobFromObject(
+        this.blobClient,
+        this.messageContainerName,
+        blobName,
+        content,
+      );
+    } catch (e) {
+      throw new Error(
+        `Cannot store message content into blob ${blobName}: ${e instanceof Error ? e.message : "Unknown error"}`,
       );
     }
   }

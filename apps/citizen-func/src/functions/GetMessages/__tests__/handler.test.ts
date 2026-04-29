@@ -172,6 +172,7 @@ const getByMessageContentByIdMock: ReturnType<typeof vi.fn> = vi
 const messageContentRepositoryMock: MessageContentRepository = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   getByMessageContentById: getByMessageContentByIdMock,
+  storeMessageContent: vi.fn().mockResolvedValue(void 0),
 };
 
 const getMockIterator = <T>(values: T): Iterator<T> => ({

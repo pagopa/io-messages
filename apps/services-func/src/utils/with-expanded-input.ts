@@ -1,9 +1,9 @@
 import { InvocationContext } from "@azure/functions";
-import { getBlobAsObject } from "@pagopa/io-functions-commons/dist/src/utils/azure_storage";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
+import { getBlobAsObject } from "io-messages-common-legacy/adapters/utils";
 import * as t from "io-ts";
 import { Json } from "io-ts-types";
 
@@ -24,10 +24,10 @@ export type DataFetcher<E> = (
  * @returns a DataFetcher instance
  */
 export const makeRetrieveExpandedDataFromBlob =
-  <A, O, I>(
-    type: t.Type<A, O, I>,
+  <A, Encoded, I>(
+    type: t.Type<A, Encoded, I>,
     blobService: Parameters<typeof getBlobAsObject>[1],
-    containerName: string,
+    containerName: Parameters<typeof getBlobAsObject>[2],
     options: Parameters<typeof getBlobAsObject>[4] = {},
   ): DataFetcher<A> =>
   (
@@ -36,7 +36,7 @@ export const makeRetrieveExpandedDataFromBlob =
     pipe(
       TE.tryCatch(
         () =>
-          getBlobAsObject<A, O, I>(
+          getBlobAsObject<A, Encoded, I>(
             type,
             blobService,
             containerName,
@@ -45,7 +45,7 @@ export const makeRetrieveExpandedDataFromBlob =
           ),
         E.toError,
       ),
-      TE.chain(TE.fromEither),
+      TE.map(O.fromNullable),
     );
 
 /**

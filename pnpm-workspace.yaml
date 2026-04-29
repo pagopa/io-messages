@@ -41,7 +41,6 @@ catalog:
   "abort-controller": ^3.0.0
   "applicationinsights": ^2.9.8
   "avsc": ^5.7.9
-  "azure-storage": ^2.10.7
   "date-fns": ^4.1.0
   "documentdb": ^1.15.3
   "durable-functions": ^3.3.0

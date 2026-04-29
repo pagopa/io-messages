@@ -11,6 +11,7 @@ import { RetrievedMessage } from "@pagopa/io-functions-commons/dist/src/models/m
 const getByMessageContentByIdMock = vi.fn().mockResolvedValue(aMessageContent);
 const mockMessageContentRepository = {
   getByMessageContentById: getByMessageContentByIdMock,
+  storeMessageContent: vi.fn().mockResolvedValue(void 0),
 };
 
 const aRetrievedMessage: RetrievedMessage = {

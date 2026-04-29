@@ -113,6 +113,7 @@ const getByMessageContentByIdMock = vi.fn().mockResolvedValue(aMessageContent);
 
 const mockMessageContentRepository: MessageContentRepository = {
   getByMessageContentById: getByMessageContentByIdMock,
+  storeMessageContent: vi.fn().mockResolvedValue(void 0),
 };
 
 const findMessageForRecipientMock = vi

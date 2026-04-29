@@ -34,7 +34,6 @@ import { UTCISODateFromString } from "@pagopa/ts-commons/lib/dates";
 import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { Second } from "@pagopa/ts-commons/lib/units";
-import { BlobService } from "azure-storage";
 import { isBefore } from "date-fns";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
@@ -42,6 +41,7 @@ import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
 import { TaskEither } from "fp-ts/lib/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
+import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
 
 import { PaymentData } from "../../generated/definitions/PaymentData";
 import { ThirdPartyData } from "../../generated/definitions/ThirdPartyData";
@@ -281,14 +281,14 @@ const getBlockedInboxesForSpecialService =
  *
  * @param context
  * @param lMessageModel
- * @param lBlobService
+ * @param messageContentRepository
  * @param createdMessageEvent
  */
 const createMessageOrThrow = async (
   context: InvocationContext,
   lMessageModel: MessageModel,
   messageStatusUpdater: ReturnType<typeof getMessageStatusUpdater>,
-  lBlobService: BlobService,
+  messageContentRepository: MessageContentRepository,
   createdMessageEvent: CommonMessageData & CreatedMessageEvent,
 ): Promise<void> => {
   const newMessageWithoutContent = createdMessageEvent.message;
@@ -321,13 +321,16 @@ const createMessageOrThrow = async (
   // Save the content of the message to the blob storage.
   // In case of a retry this operation will overwrite the message content with itself
   // (this is fine as we don't know if the operation succeeded at first)
-  const errorOrAttachment = await lMessageModel.storeContentAsBlob(
-    lBlobService,
-    newMessageWithoutContent.id,
-    {
-      ...createdMessageEvent.content,
-      payment_data: messagePaymentData,
-    },
+  const errorOrAttachment = await TE.tryCatch(
+    () =>
+      messageContentRepository.storeMessageContent(
+        newMessageWithoutContent.id,
+        {
+          ...createdMessageEvent.content,
+          payment_data: messagePaymentData,
+        },
+      ),
+    E.toError,
   )();
 
   if (E.isLeft(errorOrAttachment)) {
@@ -375,11 +378,11 @@ export interface IProcessMessageHandlerInput {
   readonly TTL_FOR_USER_NOT_FOUND: Ttl;
   readonly isOptInEmailEnabled: boolean;
   readonly lActivation: ActivationModel;
-  readonly lBlobService: BlobService;
   readonly lMessageModel: MessageModel;
   readonly lMessageStatusModel: MessageStatusModel;
   readonly lProfileModel: ProfileModel;
   readonly lServicePreferencesModel: ServicesPreferencesModel;
+  readonly messageContentRepository: MessageContentRepository;
   readonly optOutEmailSwitchDate: UTCISODateFromString;
   readonly pendingActivationGracePeriod: Second;
   readonly processedMessageOutput: FunctionOutput;
@@ -396,11 +399,11 @@ export const getProcessMessageHandler = ({
   TTL_FOR_USER_NOT_FOUND,
   isOptInEmailEnabled,
   lActivation,
-  lBlobService,
   lMessageModel,
   lMessageStatusModel,
   lProfileModel,
   lServicePreferencesModel,
+  messageContentRepository,
   optOutEmailSwitchDate,
   pendingActivationGracePeriod,
   processedMessageOutput,
@@ -669,7 +672,7 @@ export const getProcessMessageHandler = ({
             context,
             lMessageModel,
             messageStatusUpdater,
-            lBlobService,
+            messageContentRepository,
             createdMessageEvent,
           );
 
