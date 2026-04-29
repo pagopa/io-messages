@@ -54,6 +54,17 @@ tests/
 
 If the repository already has a better local testing layout, reuse it. The important part is the lifecycle split, not the exact folders.
 
+If live integration suites coexist, keep them as sibling directories or Vitest projects that reuse the same shared `support/` layer instead of cloning the harness.
+
+## When integration suites also exist
+
+Do not treat approval tests as a reason to clone the harness.
+
+- Prefer one shared `global-setup.ts` or shared container-startup module for the boundary both suites exercise.
+- Reuse generic `support/shared-testcontainers.ts` style helpers and shared connection injection when an integration harness already provides them.
+- Keep approval or record-replay ownership to cassette helpers, normalization, `record` or `verify` commands, black-box assertions, and any characterization-only fixture wrapper.
+- If approval tests need a separate Vitest project, point it at the same shared container helpers rather than starting duplicate containers for the same dependency graph.
+
 ## Prefer the repository's current Vitest conventions
 
 Vitest's `globalSetup` shape varies slightly by version and configuration style. Preserve the repository's existing convention if it already has one.

@@ -1,6 +1,6 @@
 ---
 name: record-replay-backend-tests
-description: Create or refactor local characterization workflows for Node.js or TypeScript backends, plus similar backends that can credibly run as a real local service, app container, or emulator. Use this whenever the user wants VCR or golden-master tests, cassette capture or replay scripts, refactor-safety coverage, black-box local verification, Azure Functions emulator coverage, or persisted side-effect recording for storage, Cosmos DB, Redis, queues, brokers, or similar systems, even if they only say "freeze behavior before a refactor" or "record current behavior."
+description: Create or refactor local characterization workflows for Node.js or TypeScript backends, plus similar backends that can credibly run as a real local service, app container, or emulator. Use this whenever the user wants VCR or golden-master tests, cassette capture or replay scripts, refactor-safety coverage, black-box local verification, Azure Functions emulator coverage, or persisted side-effect recording for storage, Cosmos DB, Redis, queues, brokers, or similar systems, even if they only say "freeze behavior before a refactor" or "record current behavior." When integration-backend-tests is also relevant, reuse the existing shared Vitest/Testcontainers harness and add only cassette-specific layers instead of creating a parallel harness.
 ---
 
 # Record & Replay Backend Tests
@@ -20,7 +20,7 @@ Produce or update:
 
 - a **capture script or reusable test entrypoint** that starts or attaches to the local service plus the minimum dependency topology and writes multilayer cassettes
 - one or more **black-box tests** that call the running local service only through its real local boundary
-- for Vitest-based characterization suites, a `global-setup.ts` plus a `withTestFixtures` helper so expensive dependencies stay shared across the run and watch reruns while each test still gets disposable resources
+- for Vitest-based characterization suites, reuse or extend the repository's shared `global-setup.ts`, Testcontainers support, and generic fixture plumbing when they already exist, adding characterization-specific fixtures or wrappers only where the cassette workflow needs them
 - any **Testcontainers or emulator setup** needed to seed dependencies, observe side effects, and persist those observations into cassette artifacts
 - characterization support code that can survive internal refactors because it does not import runtime types or helpers from the target application or its runtime-coupled shared packages
 - a short final note explaining what was frozen, how to rerun `record` vs `verify`, and where the cassette artifacts live
@@ -32,11 +32,21 @@ If the repository already uses Vitest, or can credibly support a Vitest-based ch
 
 If the prompt does not already define scenario scope, ask the user to clarify which scenario classes matter most before building a suite. Good examples include: happy paths only, happy paths plus selected error cases, or one specific regression branch. Do not assume a broad matrix when a smaller explicit set would do.
 
+## When integration-backend-tests is also relevant
+
+These skills can coexist, but this skill should not fork the base harness.
+
+- Treat the integration skill's live-runtime harness as the owner of shared Vitest or Testcontainers lifecycle when the repo also wants ongoing integration coverage.
+- Reuse the existing `global-setup.ts`, shared container helpers, and generic fixture plumbing when they already cover the same boundary.
+- Keep this skill's ownership to cassette layout, `record` or `verify` entrypoints, normalization, replay safety, black-box assertions, and characterization-specific support code.
+- If characterization needs suite-specific fixtures, prefer wrapping shared test-only fixtures or adding characterization-scoped helpers over cloning the container startup path.
+- If the characterization suite truly needs a different include set, reporter, or lifecycle, put it in a separate Vitest project or config and explain why; still prefer shared test-only container helpers over duplicate startup code.
+
 ## Core workflow
 
-1. Inspect the repository and pick the real local runtime boundary plus the minimum honest dependency topology.
+1. Inspect the repository, including any existing integration harness, and pick the real local runtime boundary plus the minimum honest dependency topology.
 2. Default Node.js or TypeScript stateful dependencies to Testcontainers, using checked-in Docker or compose files as topology inputs rather than as the harness implementation.
-3. If Vitest is available, default the suite lifecycle to shared dependency containers in `globalSetup` plus disposable per-test fixtures; do not reach for ephemeral `beforeAll` or per-run container startup unless the user explicitly asked for that behavior.
+3. If Vitest is available, default the suite lifecycle to shared dependency containers in `globalSetup` plus disposable per-test fixtures; reuse an existing shared-container harness when the repo already has one, and do not reach for ephemeral `beforeAll` or per-run container startup unless the user explicitly asked for that behavior.
 4. Capture one representative scenario at a time into multilayer cassette artifacts using contract-local seeders, recorders, and assertions.
 5. Add explicit `record` and `verify` entrypoints plus black-box tests that drive only the running local boundary.
 6. Document any fallback or exception plainly, especially when there is no credible local runtime or a containerized dependency cannot use Testcontainers.
@@ -191,11 +201,13 @@ Keep these lifecycles separate:
 When preparing this pattern:
 
 - create `global-setup.ts` for the shared containers, or reuse the repository's equivalent naming convention if it already has one
-- create a `withTestFixtures` helper for disposable per-test resources
+- create a `withTestFixtures` helper for disposable per-test resources, or a characterization-specific wrapper around the repository's existing shared fixtures when that keeps the base harness singular
 - surface the shared container metadata to tests through the repository's supported `provide` or `inject` path, or its closest equivalent
 - build `withTestFixtures` with Vitest's **builder-pattern** `test.extend(...)` fixtures and the cleanup primitive the local Vitest version actually supports. Prefer `onCleanup` when it exists; otherwise keep cleanup inside the fixture with `await use(resource)` plus `try/finally` rather than dropping back to suite-level cleanup.
 - if the local Vitest version exposes `onCleanup`, remember that it can only be registered once per fixture; if a fixture wants to clean up multiple independent resources, combine that cleanup intentionally or split the resources into separate fixtures
 - keep the containers shared, but never let mutable fixture data accumulate across tests or watch reruns; approval suites get flaky when one test can observe another test's leftovers
+
+If live integration suites already exist for the same boundary, prefer sharing their container-startup layer and generic fixtures. The characterization suite should usually add cassette-specific wrappers, directories, commands, and assertions, not a second copy of the same harness.
 
 Read `references/persistent-golden-master-vitest.md` for the starter layout and snippets.
 
@@ -299,6 +311,7 @@ Do not freeze irrelevant noise:
 - Keep emulator compatibility logic local to the capture path when possible; avoid baking emulator-only behavior into shared production models unless there is no narrower seam.
 - If the current repository only exposes convenient seed data or decoders through production modules, replicate the minimum needed contract shape locally in the characterization folder instead of coupling the test harness to those imports.
 - Do not force cross-architecture container execution unless the image lacks a native build or you have already proved the native variant is unusable in this environment.
+- When integration and record-replay suites coexist, do not create a second shared-container harness for the same boundary unless you can explain a concrete lifecycle mismatch.
 - Explain any non-Testcontainers orchestration choice or no-local-runtime fallback explicitly instead of letting it disappear into the harness implementation.
 
 ## Final response

@@ -1,0 +1,41 @@
+{
+  "skill_name": "integration-backend-tests",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "In this monorepo, I want to replace the mocked tests around an Azure Function HTTP trigger with a real local integration suite. Reuse the local Functions host, keep Azurite and Cosmos Emulator alive for the whole Vitest run, and assert on both the HTTP response and the side effects read back from the emulators. This is not a golden master workflow.",
+      "expected_output": "The agent prefers the real local Functions host, boots Azurite and Cosmos through Testcontainers or emulators once per Vitest process, creates per-test cleanup fixtures, and writes live integration tests that assert on response and read-back side effects without introducing record or verify cassettes.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "These Redis tests are all mocked and basically just check that `setEx` and `get` were called. Turn them into integration tests against real Redis, keep Redis running across watch reruns, and use disposable key namespaces so tests stay isolated.",
+      "expected_output": "The agent replaces mocked Redis assertions with a real Redis integration harness, uses a shared-container Vitest lifecycle, creates per-test disposable namespaces or keys, and asserts on values and TTLs instead of client spy counts.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Create integration tests for a Fastify endpoint that talks to a partner REST API and stores rows in Postgres. I want the real local HTTP server, a deterministic local stub for the partner API, Postgres in Testcontainers, and an opt-in test command so the normal unit suite stays fast.",
+      "expected_output": "The agent chooses the real local HTTP boundary, runs the partner dependency as a local stub, boots Postgres through Testcontainers, writes live integration tests that assert on response plus persisted rows or stub-observed requests, and adds explicit integration test commands.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "I do not need a full host-level suite for every branch. Keep one runtime happy path, but for the error matrix I want a smaller integration slice that instantiates the real use case with real adapters and real persistence. Use the same shared emulators across the whole Vitest session.",
+      "expected_output": "The agent intentionally mixes boundaries: one runtime-level test for end-to-end wiring and a smaller in-process integration slice for the denser matrix, while still using real adapters, real persistence, and a shared-container Vitest lifecycle.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Look at the existing unit tests first and use them as raw material, but do not just port them line by line. I want a smaller number of integration tests that keep the important payloads, invariants, and side effects while dropping mock-specific expectations.",
+      "expected_output": "The agent mines nearby unit tests for scenarios and fixtures, collapses them into fewer high-value integration cases, rewrites mock-specific assertions into observable contract and side-effect checks, and avoids carrying over helper-shaped unit-test noise.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Create live integration coverage for a worker that consumes broker messages, calls an outbound HTTP dependency, and writes to Blob Storage. Run the real worker locally, use a local stub for the outbound HTTP service, boot the broker and storage locally, and keep the expensive services shared across the suite.",
+      "expected_output": "The agent runs the real worker boundary, uses a deterministic local HTTP stub, boots the broker and storage through credible local dependencies with shared lifecycle support, and asserts on emitted side effects that are read back from the real local services.",
+      "files": []
+    }
+  ]
+}

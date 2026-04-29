@@ -14,7 +14,7 @@ export default defineConfig({
     fileParallelism: false,
     globalSetup: path.resolve(__dirname, "src/live-tests/global-setup.ts"),
     hookTimeout: 180_000,
-    include: ["src/characterization/approval/**/*.test.ts"],
+    include: ["src/integration/**/*.test.ts"],
     testTimeout: 60_000,
   },
 });
