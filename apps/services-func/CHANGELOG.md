@@ -1,5 +1,16 @@
 # services-func
 
+## 2.1.0
+
+### Minor Changes
+
+- 78efdfb: Replace legacy azure-storage library
+
+### Patch Changes
+
+- Updated dependencies [78efdfb]
+  - io-messages-common-legacy@0.1.0
+
 ## 2.0.8
 
 ### Patch Changes

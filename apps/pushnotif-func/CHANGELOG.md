@@ -1,5 +1,12 @@
 ### Changelog
 
+## 2.8.4
+
+### Patch Changes
+
+- Updated dependencies [78efdfb]
+  - io-messages-common-legacy@0.1.0
+
 ## 2.8.3
 
 ### Patch Changes

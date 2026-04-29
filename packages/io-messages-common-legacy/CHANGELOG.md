@@ -1,5 +1,11 @@
 # io-messages-common-legacy
 
+## 0.1.0
+
+### Minor Changes
+
+- 78efdfb: Add storeMessageContent to MessageContentRepository, add utils functions
+
 ## 0.0.2
 
 ### Patch Changes

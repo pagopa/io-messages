@@ -1,5 +1,12 @@
 # cqrs-func
 
+## 2.1.3
+
+### Patch Changes
+
+- Updated dependencies [78efdfb]
+  - io-messages-common-legacy@0.1.0
+
 ## 2.1.2
 
 ### Patch Changes
