@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.8.7
+
+### Patch Changes
+
+- ca99f6c: Improve performance during tagExpression evaluation
+
 ## 2.8.6
 
 ### Patch Changes
