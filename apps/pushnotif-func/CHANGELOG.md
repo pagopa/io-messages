@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.8.6
+
+### Patch Changes
+
+- 659ae9c: Improve logging on nh
+
 ## 2.8.5
 
 ### Patch Changes
