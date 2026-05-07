@@ -102,7 +102,7 @@ export const nhResultSuccess = t.interface({
 export type NHResultSuccess = t.TypeOf<typeof nhResultSuccess>;
 
 export const toTagExpression = (fiscalCodeHash: NonEmptyString): string =>
-  `template && $InstallationId:{${fiscalCodeHash}}`;
+  `$InstallationId:{${fiscalCodeHash}} && template`;
 
 export const notify = (
   notificationHubService: NotificationHubsClient,
