@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.8.5
+
+### Patch Changes
+
+- 7039c4f: Force installation's template name
+
 ## 2.8.4
 
 ### Patch Changes
