@@ -130,6 +130,7 @@ export const notify = (
         properties: {
           installationId,
           messageId: payload.message_id,
+          notificationId: response.notificationId,
           state: response.state,
           successCount: response.successCount,
         },
