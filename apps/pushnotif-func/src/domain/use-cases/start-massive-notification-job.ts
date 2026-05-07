@@ -124,14 +124,16 @@ export class MakeStartMassiveNotificationJobUseCase {
       return getMassiveJobResult;
     }
 
-    if (getMassiveJobResult.status !== "CREATED") {
+    const { massiveJob, version } = getMassiveJobResult;
+
+    if (massiveJob.status !== "CREATED") {
       return new ErrorNotAccepted(
-        `Cannot start massive job with id ${massiveJobId} because it is in ${getMassiveJobResult.status} status`,
+        `Cannot start massive job with id ${massiveJobId} because it is in ${massiveJob.status} status`,
       );
     }
 
     const checkJobMessageResult = await this.sendCheckJobMessage(
-      getMassiveJobResult,
+      massiveJob,
       startTimeTimestamp,
     );
 
@@ -140,13 +142,15 @@ export class MakeStartMassiveNotificationJobUseCase {
     }
 
     const updatedJob = {
-      ...getMassiveJobResult,
+      ...massiveJob,
       startTimeTimestamp,
       status: MassiveJobStatusEnum.enum.PROCESSING,
     };
 
-    const updateResult =
-      await this.massiveJobsRepository.updateMassiveJob(updatedJob);
+    const updateResult = await this.massiveJobsRepository.updateMassiveJob(
+      updatedJob,
+      version,
+    );
 
     if (
       updateResult instanceof ErrorInternal ||
@@ -155,13 +159,10 @@ export class MakeStartMassiveNotificationJobUseCase {
       return updateResult;
     }
 
-    await this.sendNotificationMessages(
-      getMassiveJobResult,
-      startTimeTimestamp,
-    );
+    await this.sendNotificationMessages(massiveJob, startTimeTimestamp);
 
     return {
-      id: getMassiveJobResult.id,
+      id: massiveJob.id,
       status: MassiveJobStatusEnum.enum.PROCESSING,
     };
   }

@@ -16,12 +16,14 @@ export class GetMassiveNotificationJobUseCase {
   async execute(
     massiveJobId: MassiveJobID,
   ): Promise<ErrorInternal | ErrorNotFound | MassiveJob> {
-    const massiveJob =
+    const getMassiveJobResponse =
       await this.massiveJobRepository.getMassiveJob(massiveJobId);
 
-    if (massiveJob instanceof Error) {
-      return massiveJob;
+    if (getMassiveJobResponse instanceof Error) {
+      return getMassiveJobResponse;
     }
+
+    const { massiveJob } = getMassiveJobResponse;
 
     if (massiveJob.status === MassiveJobStatusEnum.enum.CREATED) {
       return massiveJob;

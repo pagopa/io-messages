@@ -65,11 +65,14 @@ export class CheckMassiveJobStatusUseCase {
   async execute(
     jobID: MassiveJobID,
   ): Promise<ErrorInternal | ErrorNotFound | MassiveJobStatus> {
-    const massiveJob = await this.massiveJobRepository.getMassiveJob(jobID);
+    const getMassiveJobResponse =
+      await this.massiveJobRepository.getMassiveJob(jobID);
 
-    if (massiveJob instanceof Error) {
-      return massiveJob;
+    if (getMassiveJobResponse instanceof Error) {
+      return getMassiveJobResponse;
     }
+
+    const { massiveJob } = getMassiveJobResponse;
 
     // If the massive job is not in progress, we do not need to check anything.
     if (!(massiveJob.status === MassiveJobStatusEnum.enum.PROCESSING)) {
