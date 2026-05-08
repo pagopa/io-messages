@@ -35,7 +35,10 @@ export class CosmosMassiveJobsAdapter implements MassiveJobsRepository {
         );
       }
 
-      return MassiveJobSchema.parse(resource);
+      return {
+        massiveJob: MassiveJobSchema.parse(resource),
+        version: resource._etag,
+      };
     } catch (err) {
       if (err instanceof z.ZodError) {
         return new ErrorInternal(
@@ -78,15 +81,28 @@ export class CosmosMassiveJobsAdapter implements MassiveJobsRepository {
     }
   }
 
-  async updateMassiveJob(job: MassiveJob) {
+  async updateMassiveJob(job: MassiveJob, version: string) {
     try {
-      const result = await this.container.item(job.id, job.id).replace(job);
+      const options = {
+        accessCondition: { condition: version, type: "IfMatch" },
+      };
+
+      const result = await this.container
+        .item(job.id, job.id)
+        .replace(job, options);
       return result.item.id;
     } catch (err) {
       if (err instanceof RestError) {
         switch (err.statusCode) {
           case 404:
             return new ErrorNotFound("Massive job not found", err);
+          default:
+            return new ErrorInternal("Failed to update massive job", err);
+        }
+      } else if (err instanceof Error && "code" in err) {
+        switch (err.code) {
+          case 412:
+            return new ErrorInternal("Concurrent modification detected", err);
           default:
             return new ErrorInternal("Failed to update massive job", err);
         }

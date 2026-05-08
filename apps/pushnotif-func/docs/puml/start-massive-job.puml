@@ -115,7 +115,10 @@ activate mnj
 '  delay = executionTime / (totalTags / groupSize)
 ' '/
 
-alt Error from comos
+alt Concurrent modification detected
+  mnj -[#red]> httpfunc : Update rejected due to ETag mismatch
+  httpfunc -[#red]x admin : 500
+else Error from cosmos
   mnj -[#red]> httpfunc : Transient error
   httpfunc -[#red]x admin : 500
 end

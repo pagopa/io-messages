@@ -74,9 +74,10 @@ describe("CheckMassiveJobStatusUseCase status management", () => {
 
   test("should return the current status when the job is not PROCESSING", async () => {
     const createdJob: MassiveJob = { ...processingJob, status: "CREATED" };
-    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce(
-      createdJob,
-    );
+    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: createdJob,
+      version: "123",
+    });
 
     const result = await useCase.execute(jobId);
 
@@ -88,9 +89,10 @@ describe("CheckMassiveJobStatusUseCase status management", () => {
   });
 
   test("should complete the job when there is no pending progress", async () => {
-    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce(
-      processingJob,
-    );
+    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: processingJob,
+      version: "123",
+    });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,
     ).mockResolvedValueOnce([]);
@@ -115,9 +117,10 @@ describe("CheckMassiveJobStatusUseCase status management", () => {
       "Notification not found",
       "Missing outcome details",
     );
-    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce(
-      processingJob,
-    );
+    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: processingJob,
+      version: "123",
+    });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,
     ).mockResolvedValueOnce([pendingProgress]);
@@ -163,9 +166,10 @@ describe("CheckMassiveJobStatusUseCase status management", () => {
       "Too many requests",
       "retry later",
     );
-    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce(
-      processingJob,
-    );
+    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: processingJob,
+      version: "123",
+    });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,
     ).mockResolvedValueOnce([pendingProgress]);
@@ -195,9 +199,10 @@ describe("CheckMassiveJobStatusUseCase notification states", () => {
       notificationId: pendingProgress.id,
       state: "Processing",
     };
-    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce(
-      processingJob,
-    );
+    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: processingJob,
+      version: "123",
+    });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,
     ).mockResolvedValueOnce([pendingProgress]);
@@ -220,9 +225,10 @@ describe("CheckMassiveJobStatusUseCase notification states", () => {
       notificationId: pendingProgress.id,
       state: "Abandoned",
     };
-    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce(
-      processingJob,
-    );
+    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: processingJob,
+      version: "123",
+    });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,
     ).mockResolvedValueOnce([pendingProgress]);
@@ -255,9 +261,10 @@ describe("CheckMassiveJobStatusUseCase notification states", () => {
       notificationId: pendingProgress.id,
       state: "Completed",
     };
-    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce(
-      processingJob,
-    );
+    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: processingJob,
+      version: "123",
+    });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,
     ).mockResolvedValueOnce([pendingProgress]);
@@ -293,9 +300,10 @@ describe("CheckMassiveJobStatusUseCase error propagation", () => {
 
   test("should propagate ErrorInternal from pending progress repository", async () => {
     const internalError = new ErrorInternal("Progress query failed");
-    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce(
-      processingJob,
-    );
+    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: processingJob,
+      version: "123",
+    });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,
     ).mockResolvedValueOnce(internalError);

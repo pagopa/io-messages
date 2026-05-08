@@ -68,13 +68,16 @@ export interface MassiveJobsRepository {
   createMassiveJob: (job: MassiveJob) => Promise<ErrorInternal | string>;
   getMassiveJob: (
     job: MassiveJobID,
-  ) => Promise<ErrorInternal | ErrorNotFound | MassiveJob>;
+  ) => Promise<
+    { massiveJob: MassiveJob; version: string } | ErrorInternal | ErrorNotFound
+  >;
   setStatus: (
     jobID: MassiveJobID,
     newStatus: MassiveJobStatus,
   ) => Promise<ErrorInternal | ErrorNotFound | string>;
   updateMassiveJob: (
     job: MassiveJob,
+    version: string,
   ) => Promise<ErrorInternal | ErrorNotFound | string>;
 }
 

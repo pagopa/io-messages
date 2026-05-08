@@ -99,8 +99,11 @@ describe("CancelMassiveNotificationJobUseCase", () => {
     "should return ErrorNotAccepted when job status is %s",
     async (status) => {
       vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
-        ...baseJob,
-        status,
+        massiveJob: {
+          ...baseJob,
+          status,
+        },
+        version: "123",
       });
 
       const result = await useCase.execute(jobId);
@@ -114,8 +117,11 @@ describe("CancelMassiveNotificationJobUseCase", () => {
 
   test("should cancel job with no pending progress", async () => {
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
-      ...baseJob,
-      status: "PROCESSING",
+      massiveJob: {
+        ...baseJob,
+        status: "PROCESSING",
+      },
+      version: "123",
     });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,
@@ -138,8 +144,11 @@ describe("CancelMassiveNotificationJobUseCase", () => {
 
   test("should cancel all pending notifications and cancel the job", async () => {
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
-      ...baseJob,
-      status: "PROCESSING",
+      massiveJob: {
+        ...baseJob,
+        status: "PROCESSING",
+      },
+      version: "123",
     });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,
@@ -185,8 +194,11 @@ describe("CancelMassiveNotificationJobUseCase", () => {
 
   test("should return ErrorInternal when listMassiveJobPendingProgress fails", async () => {
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
-      ...baseJob,
-      status: "PROCESSING",
+      massiveJob: {
+        ...baseJob,
+        status: "PROCESSING",
+      },
+      version: "123",
     });
     const internalError = new ErrorInternal("Progress query failed");
     vi.mocked(
@@ -200,8 +212,11 @@ describe("CancelMassiveNotificationJobUseCase", () => {
 
   test("should skip the iteration when NH returns 400", async () => {
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
-      ...baseJob,
-      status: "PROCESSING",
+      massiveJob: {
+        ...baseJob,
+        status: "PROCESSING",
+      },
+      version: "123",
     });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,
@@ -239,8 +254,11 @@ describe("CancelMassiveNotificationJobUseCase", () => {
 
   test("should set progress to FAILED and continue when NH returns 404", async () => {
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
-      ...baseJob,
-      status: "PROCESSING",
+      massiveJob: {
+        ...baseJob,
+        status: "PROCESSING",
+      },
+      version: "123",
     });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,
@@ -279,8 +297,11 @@ describe("CancelMassiveNotificationJobUseCase", () => {
 
   test("should fail fast when cancelScheduledNotification returns ErrorInternal", async () => {
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
-      ...baseJob,
-      status: "PROCESSING",
+      massiveJob: {
+        ...baseJob,
+        status: "PROCESSING",
+      },
+      version: "123",
     });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,
@@ -302,8 +323,11 @@ describe("CancelMassiveNotificationJobUseCase", () => {
 
   test("should fail fast when progress setStatus fails", async () => {
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
-      ...baseJob,
-      status: "PROCESSING",
+      massiveJob: {
+        ...baseJob,
+        status: "PROCESSING",
+      },
+      version: "123",
     });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,
@@ -324,8 +348,11 @@ describe("CancelMassiveNotificationJobUseCase", () => {
 
   test("should return ErrorInternal when setJobStatus fails", async () => {
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
-      ...baseJob,
-      status: "PROCESSING",
+      massiveJob: {
+        ...baseJob,
+        status: "PROCESSING",
+      },
+      version: "123",
     });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobPendingProgress,

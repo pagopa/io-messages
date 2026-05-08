@@ -67,11 +67,14 @@ export class CancelMassiveNotificationJobUseCase {
   ): Promise<
     CancelMassiveJobResult | ErrorInternal | ErrorNotAccepted | ErrorNotFound
   > {
-    const massiveJob = await this.massiveJobRepository.getMassiveJob(jobId);
+    const getMassiveJobResponse =
+      await this.massiveJobRepository.getMassiveJob(jobId);
 
-    if (massiveJob instanceof Error) {
-      return massiveJob;
+    if (getMassiveJobResponse instanceof Error) {
+      return getMassiveJobResponse;
     }
+
+    const { massiveJob } = getMassiveJobResponse;
 
     if (massiveJob.status !== MassiveJobStatusEnum.enum.PROCESSING) {
       return new ErrorNotAccepted(
