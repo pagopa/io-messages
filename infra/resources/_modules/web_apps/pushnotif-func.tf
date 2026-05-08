@@ -45,8 +45,6 @@ locals {
       NOTIFICATIONS_QUEUE_NAME                = "push-notifications"
       NOTIFICATIONS_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
 
-      NOTIFY_MESSAGE_QUEUE_NAME = "notify-message"
-
       // activity default retry attempts
       RETRY_ATTEMPT_NUMBER = 10
 
