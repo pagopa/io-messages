@@ -84,7 +84,7 @@ export class CosmosMassiveJobsAdapter implements MassiveJobsRepository {
   async updateMassiveJob(job: MassiveJob, version: string) {
     try {
       const options = {
-        accessCondition: { type: "IfMatch", condition: version },
+        accessCondition: { condition: version, type: "IfMatch" },
       };
 
       const result = await this.container

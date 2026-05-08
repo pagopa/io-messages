@@ -69,7 +69,7 @@ export interface MassiveJobsRepository {
   getMassiveJob: (
     job: MassiveJobID,
   ) => Promise<
-    ErrorInternal | ErrorNotFound | { massiveJob: MassiveJob; version: string }
+    { massiveJob: MassiveJob; version: string } | ErrorInternal | ErrorNotFound
   >;
   setStatus: (
     jobID: MassiveJobID,
