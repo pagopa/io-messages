@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.8.8
+
+### Patch Changes
+
+- c07a994: Correctly handle race condition on start massive job function
+
 ## 2.8.7
 
 ### Patch Changes
