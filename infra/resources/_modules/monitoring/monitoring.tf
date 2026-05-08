@@ -434,3 +434,262 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "massive_job_process_m
     ]
   }
 }
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "pushnotif_push_notifications_poison_queue_not_empty" {
+  name                = format("[%s-%s] PushNotif - push-notifications-poison not empty", var.project, var.domain)
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  scopes                  = [var.com_st_id]
+  description             = "[IO-COM] One or more messages have been moved to the `push-notifications-poison` queue after exhausting all retries. The HandleNHNotificationCall function failed to process them: investigate the function logs and drain the poison queue."
+  enabled                 = true
+  auto_mitigation_enabled = false
+
+  severity             = 1
+  evaluation_frequency = "PT10M"
+  window_duration      = "PT10M"
+
+  criteria {
+    query                   = <<-QUERY
+       StorageQueueLogs
+         | where OperationName has "PutMessage"
+         | where Uri has "push-notifications-poison"
+       QUERY
+    time_aggregation_method = "Count"
+    threshold               = 1
+    operator                = "GreaterThanOrEqual"
+
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
+  }
+
+  action {
+    action_groups = [
+      azurerm_monitor_action_group.io_com_error.id
+    ]
+  }
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "pushnotif_notify_messages_poison_queue_not_empty" {
+  name                = format("[%s-%s] PushNotif - notify-messages-poison not empty", var.project, var.domain)
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  scopes                  = [var.com_st_id]
+  description             = "[IO-COM] One or more messages have been moved to the `notify-messages-poison` queue after exhausting all retries. The HandleNHNotifyMessageCallActivityQueue function failed to process them: investigate the function logs and drain the poison queue."
+  enabled                 = true
+  auto_mitigation_enabled = false
+
+  severity             = 1
+  evaluation_frequency = "PT10M"
+  window_duration      = "PT10M"
+
+  criteria {
+    query                   = <<-QUERY
+       StorageQueueLogs
+         | where OperationName has "PutMessage"
+         | where Uri has "notify-messages-poison"
+       QUERY
+    time_aggregation_method = "Count"
+    threshold               = 1
+    operator                = "GreaterThanOrEqual"
+
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
+  }
+
+  action {
+    action_groups = [
+      azurerm_monitor_action_group.io_com_error.id
+    ]
+  }
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "pushnotif_update_installations_dispatch_poison_queue_not_empty" {
+  name                = format("[%s-%s] PushNotif - update-installations-dispatch-poison not empty", var.project, var.domain)
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  scopes                  = [var.com_st_id]
+  description             = "[IO-COM] One or more messages have been moved to the `update-installations-dispatch-poison` queue after exhausting all retries. The UpdateInstallation function failed to process them: investigate the function logs and drain the poison queue."
+  enabled                 = true
+  auto_mitigation_enabled = false
+
+  severity             = 1
+  evaluation_frequency = "PT10M"
+  window_duration      = "PT10M"
+
+  criteria {
+    query                   = <<-QUERY
+       StorageQueueLogs
+         | where OperationName has "PutMessage"
+         | where Uri has "update-installations-dispatch-poison"
+       QUERY
+    time_aggregation_method = "Count"
+    threshold               = 1
+    operator                = "GreaterThanOrEqual"
+
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
+  }
+
+  action {
+    action_groups = [
+      azurerm_monitor_action_group.io_com_error.id
+    ]
+  }
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "services_message_created_poison_queue_not_empty" {
+  name                = format("[%s-%s] Services - message-created-poison not empty", var.project, var.domain)
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  scopes                  = [var.com_st_id]
+  description             = "[IO-COM] One or more messages have been moved to the `message-created-poison` queue after exhausting all retries. The ProcessMessage function failed to process them: investigate the function logs and drain the poison queue."
+  enabled                 = true
+  auto_mitigation_enabled = false
+
+  severity             = 1
+  evaluation_frequency = "PT10M"
+  window_duration      = "PT10M"
+
+  criteria {
+    query                   = <<-QUERY
+       StorageQueueLogs
+         | where OperationName has "PutMessage"
+         | where Uri has "message-created-poison"
+       QUERY
+    time_aggregation_method = "Count"
+    threshold               = 1
+    operator                = "GreaterThanOrEqual"
+
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
+  }
+
+  action {
+    action_groups = [
+      azurerm_monitor_action_group.io_com_error.id
+    ]
+  }
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "services_message_processed_poison_queue_not_empty" {
+  name                = format("[%s-%s] Services - message-processed-poison not empty", var.project, var.domain)
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  scopes                  = [var.com_st_id]
+  description             = "[IO-COM] One or more messages have been moved to the `message-processed-poison` queue after exhausting all retries. The CreateNotification function failed to process them: investigate the function logs and drain the poison queue."
+  enabled                 = true
+  auto_mitigation_enabled = false
+
+  severity             = 1
+  evaluation_frequency = "PT10M"
+  window_duration      = "PT10M"
+
+  criteria {
+    query                   = <<-QUERY
+       StorageQueueLogs
+         | where OperationName has "PutMessage"
+         | where Uri has "message-processed-poison"
+       QUERY
+    time_aggregation_method = "Count"
+    threshold               = 1
+    operator                = "GreaterThanOrEqual"
+
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
+  }
+
+  action {
+    action_groups = [
+      azurerm_monitor_action_group.io_com_error.id
+    ]
+  }
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "services_notification_created_email_poison_queue_not_empty" {
+  name                = format("[%s-%s] Services - notification-created-email-poison not empty", var.project, var.domain)
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  scopes                  = [var.com_st_id]
+  description             = "[IO-COM] One or more messages have been moved to the `notification-created-email-poison` queue after exhausting all retries. The EmailNotification function failed to process them: investigate the function logs and drain the poison queue."
+  enabled                 = true
+  auto_mitigation_enabled = false
+
+  severity             = 1
+  evaluation_frequency = "PT10M"
+  window_duration      = "PT10M"
+
+  criteria {
+    query                   = <<-QUERY
+       StorageQueueLogs
+         | where OperationName has "PutMessage"
+         | where Uri has "notification-created-email-poison"
+       QUERY
+    time_aggregation_method = "Count"
+    threshold               = 1
+    operator                = "GreaterThanOrEqual"
+
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
+  }
+
+  action {
+    action_groups = [
+      azurerm_monitor_action_group.io_com_error.id
+    ]
+  }
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "services_notification_created_webhook_poison_queue_not_empty" {
+  name                = format("[%s-%s] Services - notification-created-webhook-poison not empty", var.project, var.domain)
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  scopes                  = [var.com_st_id]
+  description             = "[IO-COM] One or more messages have been moved to the `notification-created-webhook-poison` queue after exhausting all retries. The WebhookNotification function failed to process them: investigate the function logs and drain the poison queue."
+  enabled                 = true
+  auto_mitigation_enabled = false
+
+  severity             = 1
+  evaluation_frequency = "PT10M"
+  window_duration      = "PT10M"
+
+  criteria {
+    query                   = <<-QUERY
+       StorageQueueLogs
+         | where OperationName has "PutMessage"
+         | where Uri has "notification-created-webhook-poison"
+       QUERY
+    time_aggregation_method = "Count"
+    threshold               = 1
+    operator                = "GreaterThanOrEqual"
+
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
+  }
+
+  action {
+    action_groups = [
+      azurerm_monitor_action_group.io_com_error.id
+    ]
+  }
+}

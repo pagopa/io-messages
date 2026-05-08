@@ -28,7 +28,6 @@
     "NH4_ENDPOINT": "NotificationHubPartitionConnectionString",
     "NH4_NAME": "io-p-itn-com-nh-sandbox",
     "NH4_PARTITION_REGEX":"^[ \"c-f]",
-    "NOTIFY_MESSAGE_QUEUE_NAME": "notify-queue-name",
     "NODE_TLS_REJECT_UNAUTHORIZED": "0",
     "AZURE_ENABLE_STRICT_SSL": "false",
     "MESSAGE_CONTAINER_NAME": "message-content",
