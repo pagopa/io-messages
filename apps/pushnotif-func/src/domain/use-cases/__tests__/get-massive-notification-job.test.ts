@@ -52,8 +52,11 @@ describe("GetMassiveNotificationJobUseCase", () => {
 
   test("should return job with progress when status is PROCESSING", async () => {
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
-      ...baseJob,
-      status: "PROCESSING",
+      massiveJob: {
+        ...baseJob,
+        status: "PROCESSING",
+      },
+      version: "123",
     });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobProgress,
@@ -73,9 +76,10 @@ describe("GetMassiveNotificationJobUseCase", () => {
 
   test("should return job without progress when status is CREATED", async () => {
     const createdJob: MassiveJob = { ...baseJob, status: "CREATED" };
-    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce(
-      createdJob,
-    );
+    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: createdJob,
+      version: "123",
+    });
 
     const result = await useCase.execute(jobId);
 
@@ -90,9 +94,10 @@ describe("GetMassiveNotificationJobUseCase", () => {
       ...baseJob,
       status: "COMPLETED",
     };
-    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce(
-      completedJob,
-    );
+    vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: completedJob,
+      version: "123",
+    });
     vi.mocked(
       massiveProgressRepositoryMock.listMassiveJobProgress,
     ).mockResolvedValueOnce(progress);
@@ -118,8 +123,11 @@ describe("GetMassiveNotificationJobUseCase", () => {
 
   test("should propagate ErrorInternal from progress repository", async () => {
     vi.mocked(massiveJobsRepositoryMock.getMassiveJob).mockResolvedValueOnce({
-      ...baseJob,
-      status: "FAILED",
+      massiveJob: {
+        ...baseJob,
+        status: "FAILED",
+      },
+      version: "123",
     });
 
     const internalError = new ErrorInternal("Progress query failed");

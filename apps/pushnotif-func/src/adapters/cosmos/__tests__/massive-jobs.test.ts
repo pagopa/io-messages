@@ -53,11 +53,13 @@ describe("CosmosMassiveJobsAdapter.updateMassiveJob", () => {
     const mockItem = vi.fn().mockReturnValue({ replace: mockReplace });
     vi.spyOn(container, "item").mockReturnValueOnce(mockItem());
 
-    const result = await adapter.updateMassiveJob(mockJob);
+    const result = await adapter.updateMassiveJob(mockJob, "123");
 
     expect(result).toBe(mockJob.id);
     expect(container.item).toHaveBeenCalledWith(mockJob.id, mockJob.id);
-    expect(mockReplace).toHaveBeenCalledWith(mockJob);
+    expect(mockReplace).toHaveBeenCalledWith(mockJob, {
+      accessCondition: { condition: "123", type: "IfMatch" },
+    });
   });
 
   it("should return ErrorNotFound when cosmos responds with 404", async () => {
@@ -66,7 +68,7 @@ describe("CosmosMassiveJobsAdapter.updateMassiveJob", () => {
     const mockItem = vi.fn().mockReturnValue({ replace: mockReplace });
     vi.spyOn(container, "item").mockReturnValueOnce(mockItem());
 
-    const result = await adapter.updateMassiveJob(mockJob);
+    const result = await adapter.updateMassiveJob(mockJob, "123");
 
     expect(result).toBeInstanceOf(ErrorNotFound);
     expect((result as ErrorNotFound).message).toBe("Massive job not found");
@@ -80,7 +82,7 @@ describe("CosmosMassiveJobsAdapter.updateMassiveJob", () => {
     const mockItem = vi.fn().mockReturnValue({ replace: mockReplace });
     vi.spyOn(container, "item").mockReturnValueOnce(mockItem());
 
-    const result = await adapter.updateMassiveJob(mockJob);
+    const result = await adapter.updateMassiveJob(mockJob, "123");
 
     expect(result).toBeInstanceOf(ErrorInternal);
     expect((result as ErrorInternal).code).toBe("500");
@@ -93,7 +95,7 @@ describe("CosmosMassiveJobsAdapter.updateMassiveJob", () => {
     const mockItem = vi.fn().mockReturnValue({ replace: mockReplace });
     vi.spyOn(container, "item").mockReturnValueOnce(mockItem());
 
-    const result = await adapter.updateMassiveJob(mockJob);
+    const result = await adapter.updateMassiveJob(mockJob, "123");
 
     expect(result).toBeInstanceOf(ErrorInternal);
     expect((result as ErrorInternal).code).toBe("500");
@@ -103,14 +105,14 @@ describe("CosmosMassiveJobsAdapter.updateMassiveJob", () => {
 describe("CosmosMassiveJobsAdapter.getMassiveJob", () => {
   it("should return the parsed job on success", async () => {
     const read = vi.fn().mockResolvedValueOnce({
-      resource: mockJob,
+      resource: { ...mockJob, _etag: "123" },
       statusCode: 200,
     });
     vi.spyOn(container, "item").mockReturnValueOnce({ read } as never);
 
     const result = await adapter.getMassiveJob(mockJob.id);
 
-    expect(result).toEqual(mockJob);
+    expect(result).toEqual({ massiveJob: mockJob, version: "123" });
     expect(container.item).toHaveBeenCalledWith(mockJob.id, mockJob.id);
   });
 

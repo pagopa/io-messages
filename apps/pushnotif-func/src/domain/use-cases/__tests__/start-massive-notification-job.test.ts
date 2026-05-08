@@ -77,8 +77,11 @@ describe("StartMassiveNotificationJobUseCase", () => {
   test("should return an internal error when the job is not in CREATED status", async () => {
     const useCase = createUseCase();
     vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce({
-      ...baseJob,
-      status: MassiveJobStatusEnum.enum.PROCESSING,
+      massiveJob: {
+        ...baseJob,
+        status: MassiveJobStatusEnum.enum.PROCESSING,
+      },
+      version: "123",
     });
 
     const result = await useCase.execute(jobId, requestedStartTimeTimestamp);
@@ -97,7 +100,10 @@ describe("StartMassiveNotificationJobUseCase", () => {
   test("should propagate check-job queue failures before updating the job", async () => {
     const useCase = createUseCase();
     vi.spyOn(Date, "now").mockReturnValue(fixedNowMilliseconds);
-    vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce(baseJob);
+    vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: baseJob,
+      version: "123",
+    });
 
     const queueError = new ErrorInternal("Check queue error");
     vi.mocked(checkJobMessageQueueMock.sendMessage).mockResolvedValueOnce(
@@ -120,7 +126,10 @@ describe("StartMassiveNotificationJobUseCase", () => {
   test("should propagate update failures after scheduling the status check message", async () => {
     const useCase = createUseCase();
     vi.spyOn(Date, "now").mockReturnValue(fixedNowMilliseconds);
-    vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce(baseJob);
+    vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: baseJob,
+      version: "123",
+    });
     vi.mocked(checkJobMessageQueueMock.sendMessage).mockResolvedValueOnce(
       "check-message-id",
     );
@@ -133,11 +142,14 @@ describe("StartMassiveNotificationJobUseCase", () => {
     const result = await useCase.execute(jobId, requestedStartTimeTimestamp);
 
     expect(result).toBe(updateError);
-    expect(repositoryMock.updateMassiveJob).toHaveBeenCalledWith({
-      ...baseJob,
-      startTimeTimestamp: requestedStartTimeTimestamp,
-      status: MassiveJobStatusEnum.enum.PROCESSING,
-    });
+    expect(repositoryMock.updateMassiveJob).toHaveBeenCalledWith(
+      {
+        ...baseJob,
+        startTimeTimestamp: requestedStartTimeTimestamp,
+        status: MassiveJobStatusEnum.enum.PROCESSING,
+      },
+      "123",
+    );
     expect(
       sendNotificationMessageRepositoryMock.sendMessage,
     ).not.toHaveBeenCalled();
@@ -146,7 +158,10 @@ describe("StartMassiveNotificationJobUseCase", () => {
   test("should schedule all notification batches and return job id and status on success", async () => {
     const useCase = createUseCase();
     vi.spyOn(Date, "now").mockReturnValue(fixedNowMilliseconds);
-    vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce(baseJob);
+    vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: baseJob,
+      version: "123",
+    });
     vi.mocked(checkJobMessageQueueMock.sendMessage).mockResolvedValueOnce(
       "check-message-id",
     );
@@ -165,11 +180,14 @@ describe("StartMassiveNotificationJobUseCase", () => {
       jobId,
       timeToCheckInSeconds: 11100,
     });
-    expect(repositoryMock.updateMassiveJob).toHaveBeenCalledWith({
-      ...baseJob,
-      startTimeTimestamp: requestedStartTimeTimestamp,
-      status: MassiveJobStatusEnum.enum.PROCESSING,
-    });
+    expect(repositoryMock.updateMassiveJob).toHaveBeenCalledWith(
+      {
+        ...baseJob,
+        startTimeTimestamp: requestedStartTimeTimestamp,
+        status: MassiveJobStatusEnum.enum.PROCESSING,
+      },
+      "123",
+    );
     expect(
       sendNotificationMessageRepositoryMock.sendMessage,
     ).toHaveBeenCalledTimes(820);
@@ -213,7 +231,10 @@ describe("StartMassiveNotificationJobUseCase - telemetry", () => {
   test("should track telemetry event when scheduling a notification batch fails", async () => {
     const useCase = createUseCase();
     vi.spyOn(Date, "now").mockReturnValue(fixedNowMilliseconds);
-    vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce(baseJob);
+    vi.mocked(repositoryMock.getMassiveJob).mockResolvedValueOnce({
+      massiveJob: baseJob,
+      version: "123",
+    });
     vi.mocked(checkJobMessageQueueMock.sendMessage).mockResolvedValueOnce(
       "check-message-id",
     );
