@@ -102,7 +102,7 @@ export const nhResultSuccess = t.interface({
 export type NHResultSuccess = t.TypeOf<typeof nhResultSuccess>;
 
 export const toTagExpression = (fiscalCodeHash: NonEmptyString): string =>
-  `template && $InstallationId:{${fiscalCodeHash}}`;
+  `$InstallationId:{${fiscalCodeHash}} && template`;
 
 export const notify = (
   notificationHubService: NotificationHubsClient,
@@ -130,6 +130,7 @@ export const notify = (
         properties: {
           installationId,
           messageId: payload.message_id,
+          notificationId: response.notificationId,
           state: response.state,
           successCount: response.successCount,
         },
