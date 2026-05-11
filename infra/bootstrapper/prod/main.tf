@@ -44,23 +44,9 @@ data "azurerm_container_app_environment" "runner" {
   resource_group_name = local.runner.cae_resource_group_name
 }
 
-data "azurerm_api_management" "apim" {
-  name                = local.apim.name
-  resource_group_name = local.apim.resource_group_name
-}
-
 data "azurerm_key_vault" "common" {
   name                = local.key_vault.name
   resource_group_name = local.key_vault.resource_group_name
-}
-
-data "azurerm_virtual_network" "common" {
-  name                = local.vnet.name
-  resource_group_name = data.azurerm_resource_group.common_itn_01.name
-}
-
-data "azurerm_resource_group" "common_itn_01" {
-  name = local.common.itn_resource_group_name
 }
 
 data "azurerm_resource_group" "common_weu" {
@@ -69,10 +55,6 @@ data "azurerm_resource_group" "common_weu" {
 
 data "azurerm_resource_group" "com_itn_01" {
   name = "io-p-itn-com-rg-01"
-}
-
-data "azurerm_resource_group" "common" {
-  name = "io-p-rg-common"
 }
 
 data "azurerm_resource_group" "internal" {
@@ -115,7 +97,7 @@ module "repo" {
     data.azurerm_resource_group.com_itn_01.id,
     data.azurerm_resource_group.linux.id,
     data.azurerm_resource_group.internal.id,
-    data.azurerm_resource_group.common.id,
+    data.azurerm_resource_group.common_weu.id,
     data.azurerm_resource_group.notifications.id
   ]
 
