@@ -75,18 +75,6 @@ data "azurerm_resource_group" "common" {
   name = "io-p-rg-common"
 }
 
-data "azurerm_resource_group" "services_1" {
-  name = "io-p-services-rg-1"
-}
-
-data "azurerm_resource_group" "services_2" {
-  name = "io-p-services-rg-2"
-}
-
-data "azurerm_resource_group" "elt" {
-  name = "io-p-elt-rg"
-}
-
 data "azurerm_resource_group" "internal" {
   name = "io-p-rg-internal"
 }
@@ -125,9 +113,6 @@ module "repo" {
 
   additional_resource_group_ids = [
     data.azurerm_resource_group.com_itn_01.id,
-    data.azurerm_resource_group.services_1.id,
-    data.azurerm_resource_group.services_2.id,
-    data.azurerm_resource_group.elt.id,
     data.azurerm_resource_group.linux.id,
     data.azurerm_resource_group.internal.id,
     data.azurerm_resource_group.common.id,
