@@ -20,7 +20,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <swagger-annotations-version>1.5.8</swagger-annotations-version>
-    <springfox-version>2.8.0</springfox-version>
+    <springfox-version>2.10.0</springfox-version>
     <testcontainer-version>1.17.3</testcontainer-version>
 
     <maven-compiler-plugin-version>3.8.1</maven-compiler-plugin-version>
