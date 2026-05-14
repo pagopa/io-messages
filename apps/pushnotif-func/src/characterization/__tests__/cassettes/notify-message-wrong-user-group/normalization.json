@@ -1,0 +1,15 @@
+{
+  "queueMessages": "Queue payloads are parsed from either plain JSON or base64 JSON.",
+  "requestHeaders": [
+    "content-type",
+    "x-user-groups"
+  ],
+  "responseHeadersRemoved": [
+    "connection",
+    "content-length",
+    "date",
+    "keep-alive",
+    "transfer-encoding"
+  ],
+  "runtimeBaseUrl": "Runtime base URL is normalized to http://127.0.0.1:<runtime-port>."
+}

@@ -17,6 +17,9 @@
     "start": "func start --port 7076",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:characterization": "pnpm run test:characterization:verify",
+    "test:characterization:record": "pnpm build && CHARACTERIZATION_MODE=record vitest run -c vitest.characterization.config.mjs",
+    "test:characterization:verify": "pnpm build && CHARACTERIZATION_MODE=verify vitest run -c vitest.characterization.config.mjs",
     "generate": "pnpm generate:backend-notification-hub && pnpm generate:definitions && pnpm generate:session-manager",
     "generate:backend-notification-hub": "shx rm -rf src/generated/notifications && shx mkdir -p src/generated/notifications && gen-api-models --strict 0 --api-spec https://raw.githubusercontent.com/pagopa/io-backend/v19.0.0/notification_queue_messages.yaml --out-dir ./src/generated/notifications",
     "generate:session-manager": "shx rm -rf ./src/generated/session-manager && shx mkdir -p ./src/generated/session-manager && gen-api-models --api-spec https://raw.githubusercontent.com/pagopa/io-auth-n-identity-domain/refs/tags/io-session-manager-internal@0.8.0/apps/io-session-manager-internal/api/internal.yaml --no-strict --out-dir ./src/generated/session-manager --request-types --response-decoders --client",
@@ -42,9 +45,9 @@
     "@pagopa/ts-commons": "catalog:",
     "applicationinsights": "catalog:",
     "durable-functions": "catalog:",
-    "io-messages-common-legacy": "workspace:*",
     "express": "catalog:",
     "fp-ts": "catalog:",
+    "io-messages-common-legacy": "workspace:*",
     "io-ts": "catalog:",
     "node-fetch": "catalog:",
     "ts-pattern": "catalog:",
@@ -65,6 +68,7 @@
     "npm-run-all": "catalog:",
     "oval": "catalog:",
     "prettier": "catalog:",
+    "testcontainers": "^11.14.0",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

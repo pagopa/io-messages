@@ -8,6 +8,7 @@ export default defineConfig({
         "*.js",
         "**/__mocks__",
         "/node_modules",
+        "src/characterization/**",
         "src/generated/**",
         "src/**/config.ts",
         "src/**/main.ts",
@@ -16,6 +17,10 @@ export default defineConfig({
       ],
       reporter: ["lcov", "text"],
     },
-    exclude: ["**/node_modules/**", "**/dist/**"],
+    exclude: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "src/characterization/**",
+    ],
   },
 });

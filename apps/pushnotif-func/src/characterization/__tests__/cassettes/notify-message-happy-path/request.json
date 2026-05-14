@@ -1,0 +1,13 @@
+{
+  "body": {
+    "fiscal_code": "AAABBB01C02D345D",
+    "message_id": "aMessageId",
+    "notification_type": "MESSAGE"
+  },
+  "headers": {
+    "content-type": "application/json",
+    "x-user-groups": "ApiNewMessageNotify"
+  },
+  "method": "POST",
+  "path": "/api/v1/notify"
+}

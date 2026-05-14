@@ -1,0 +1,13 @@
+{
+  "queueMessages": [
+    {
+      "installationId": "5c40de6d2270c5707136241f7ac8b11c29a048ed602e5fecd1a4f2e54528c920",
+      "kind": "Notify",
+      "payload": {
+        "message": "Entra nell'app per leggerlo",
+        "message_id": "aMessageId",
+        "title": "Hai un nuovo messaggio"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "boundary": "notify-wrapper-http-runtime",
+  "dependencies": {
+    "fixtures": [
+      "profile-reader",
+      "message-with-content-reader",
+      "service-reader",
+      "session-status-reader"
+    ],
+    "queue": {
+      "emulator": "Azurite",
+      "queueName": "push-notifications"
+    }
+  },
+  "fallbackReason": "The full pushnotif-func host boot is not part of this suite because the app wires Cosmos clients through DefaultAzureCredential and the repository does not ship a credible local Cosmos+Aad topology for Notify.",
+  "route": "/api/v1/notify",
+  "runtimeBaseUrl": "http://127.0.0.1:<runtime-port>"
+}
