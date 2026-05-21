@@ -1,0 +1,9 @@
+{
+  "body": {
+    "detail": "value [undefined] at [root.0.notification_type] is not a valid [NotificationType] value [undefined] at [root.0.fiscal_code] is not a valid [string that matches the pattern \"^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$\"] value [undefined] at [root.0.message_id] is not a valid [non empty string]",
+    "status": 400,
+    "title": "Invalid NotificationInfo"
+  },
+  "contentType": "application/problem+json",
+  "status": 400
+}

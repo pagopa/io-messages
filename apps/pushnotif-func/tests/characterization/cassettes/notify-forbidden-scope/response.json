@@ -1,0 +1,9 @@
+{
+  "body": {
+    "detail": "No valid scopes, you are not allowed to send such payloads. Ask the administrator to give you the required permissions.",
+    "status": 403,
+    "title": "You are not allowed here"
+  },
+  "contentType": "application/problem+json",
+  "status": 403
+}

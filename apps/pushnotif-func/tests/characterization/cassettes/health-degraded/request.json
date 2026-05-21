@@ -1,0 +1,5 @@
+{
+  "headers": {},
+  "method": "GET",
+  "path": "/api/v1/health"
+}

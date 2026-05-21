@@ -11,11 +11,12 @@ export default defineConfig({
         "src/generated/**",
         "src/**/config.ts",
         "src/**/main.ts",
+        "tests/**",
         "eslint.config.mjs",
         "vitest.config.mjs",
       ],
       reporter: ["lcov", "text"],
     },
-    exclude: ["**/node_modules/**", "**/dist/**"],
+    exclude: ["**/node_modules/**", "**/dist/**", "tests/**"],
   },
 });

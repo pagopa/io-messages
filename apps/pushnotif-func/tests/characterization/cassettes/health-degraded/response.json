@@ -1,0 +1,15 @@
+{
+  "body": {
+    "errors": [
+      "Cosmos Healthcheck failed for database io-messages AggregateAuthenticationError: ChainedTokenCredential authentication failed. CredentialUnavailableError: EnvironmentCredential is unavailable. No underlying credential could be used. To troubleshoot, visit https://aka.ms/azsdk/js/identity/environmentcredential/troubleshoot. CredentialUnavailableError: ManagedIdentityCredential: Authentication failed. Message Attempted to use the IMDS endpoint, but it is not available. CredentialUnavailableError: Visual Studio Code Authentication is not available. Ensure you have have Azure Resources Extension installed in VS Code, signed into Azure via VS Code, installed the @azure/identity-vscode package, and properly configured the extension. CredentialUnavailableError: Please run 'az login' from a command prompt to authenticate before using this credential. CredentialUnavailableError: Error: Unable to execute PowerShell. Ensure that it is installed in your system. To troubleshoot, visit https://aka.ms/azsdk/js/identity/powershellcredential/troubleshoot. CredentialUnavailableError: Azure Developer CLI couldn't be found. To mitigate this issue, see the troubleshooting guidelines at https://aka.ms/azsdk/js/identity/azdevclicredential/troubleshoot.",
+      "Cosmos Healthcheck failed for database io-messages AggregateAuthenticationError: ChainedTokenCredential authentication failed. CredentialUnavailableError: EnvironmentCredential is unavailable. No underlying credential could be used. To troubleshoot, visit https://aka.ms/azsdk/js/identity/environmentcredential/troubleshoot. CredentialUnavailableError: ManagedIdentityCredential: Authentication failed. Message Attempted to use the IMDS endpoint, but it is not available. CredentialUnavailableError: Visual Studio Code Authentication is not available. Ensure you have have Azure Resources Extension installed in VS Code, signed into Azure via VS Code, installed the @azure/identity-vscode package, and properly configured the extension. CredentialUnavailableError: Please run 'az login' from a command prompt to authenticate before using this credential. CredentialUnavailableError: Error: Unable to execute PowerShell. Ensure that it is installed in your system. To troubleshoot, visit https://aka.ms/azsdk/js/identity/powershellcredential/troubleshoot. CredentialUnavailableError: Azure Developer CLI couldn't be found. To mitigate this issue, see the troubleshooting guidelines at https://aka.ms/azsdk/js/identity/azdevclicredential/troubleshoot.",
+      "Healthcheck failed for notification hub 1 RestError: getaddrinfo ENOTFOUND test.servicebus.windows.net",
+      "Healthcheck failed for notification hub 2 RestError: getaddrinfo ENOTFOUND test.servicebus.windows.net",
+      "Healthcheck failed for notification hub 3 RestError: getaddrinfo ENOTFOUND test.servicebus.windows.net",
+      "Healthcheck failed for notification hub 4 RestError: getaddrinfo ENOTFOUND test.servicebus.windows.net"
+    ],
+    "status": "ko"
+  },
+  "contentType": "application/json",
+  "status": 500
+}

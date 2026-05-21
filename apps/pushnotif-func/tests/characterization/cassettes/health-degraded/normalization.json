@@ -1,0 +1,12 @@
+{
+  "removedResponseHeaders": [
+    "date",
+    "request-context",
+    "transfer-encoding",
+    "server"
+  ],
+  "stringRules": [
+    "Collapse repeated whitespace in error messages",
+    "Replace dynamic local Functions host ports with http://127.0.0.1:<PORT>"
+  ]
+}
