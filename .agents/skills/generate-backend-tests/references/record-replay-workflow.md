@@ -87,6 +87,12 @@ Write tests that remain black-box:
 - compare live responses and side effects against the stored artifacts
 - keep assertions at the external contract level
 
+Treat the cassette as the only durable oracle for verification:
+
+- in `verify`, prefer equality against the normalized cassette layers rather than semantic matchers like `toMatchObject`, hand-written field assertions, schema decoders, or helper-specific payload expectations
+- do not restate the same contract twice, once in cassette JSON and again in test code; that weakens characterization by turning it into a partial spec
+- if you need long-lived semantic assertions that survive cassette refreshes, that is integration coverage; move the scenario to `integration` or `both`
+
 Do not let verification drift back into in-process imports just because it is convenient.
 
 ## Local dependency rules
@@ -103,6 +109,8 @@ For scenarios labeled happy path:
 - do not accept a recorded 4xx or 5xx as "good enough" just because it is reproducible
 - require a minimally meaningful success shape before writing the cassette
 - sanity-check the stored artifacts after the first capture
+
+Keep those checks capture-time only. A tiny success-shaped guard before writing the first cassette is useful; carrying the same guard forward as an extra `verify` assertion is not.
 
 ## When both paths are selected
 

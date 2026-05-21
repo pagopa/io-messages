@@ -69,6 +69,8 @@ Keep the characterization folder independent from the target app's internal modu
 4. Write `request.json`, `response.json`, `side-effects.json`, `topology.json`, and `normalization.json`.
 5. In `verify` mode, rerun the scenario and compare without mutating the cassette.
 
+For Azure Functions HTTP scenarios, it is fine to confirm that the live capture is success-shaped before writing a happy-path cassette. After that, keep `verify` focused on comparing normalized request/response/side-effect layers to the stored cassette; do not add extra payload-shape matchers alongside the cassette comparison.
+
 Use `/admin/functions/<name>` as a diagnostic seam, not as the default trigger seam for characterization. It is useful for surfacing runtime failures quickly, but queue, broker, timer, and blob scenarios should still prefer the real trigger transport when the local topology can drive it honestly.
 
 ## Queue-trigger characterization quirks

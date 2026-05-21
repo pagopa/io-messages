@@ -74,6 +74,8 @@ When the user chooses both:
 - Keep the selected boundary honest.
 - Prefer configured reachable cloud services when `.env.test` is present; otherwise prefer real local hosts, real dependencies, and deterministic local stubs over mocks.
 - Keep assertions at observable contract level.
+- For record-replay verification, treat the stored cassette as the contract oracle. Do not add extra semantic assertions such as `toMatchObject`, field-by-field payload expectations, decoder-driven shape checks, or handwritten invariants beyond comparing the normalized live layers to the stored artifacts.
+- If a scenario needs durable semantic assertions that should stay stable across cassette refreshes, route that scenario to `integration` or `both` instead of smuggling those expectations into record-replay verification.
 - Keep record-replay harnesses source-level black-box except for the minimal boot wrapper needed to start the runtime.
 - For record-replay work, importing exported handlers, wrapper-return values, models, decoders, generated types, config helpers, or runtime-coupled shared packages from the target code is a failure, not an acceptable fallback.
 - If record-replay cannot boot honestly without those imports, stop and report the path blocked or ask the user to switch to `integration` or `both`. Do not silently narrow the boundary.
