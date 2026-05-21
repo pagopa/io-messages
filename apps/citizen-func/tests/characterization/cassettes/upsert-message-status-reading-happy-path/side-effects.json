@@ -1,0 +1,13 @@
+{
+  "latestMessageStatus": {
+    "fiscalCode": "AAABBB01C02D345D",
+    "id": "message-<RUN_TOKEN>-0000000000000001",
+    "isArchived": false,
+    "isRead": true,
+    "kind": "INewMessageStatus",
+    "messageId": "message-<RUN_TOKEN>",
+    "status": "PROCESSED",
+    "updatedAt": "<ISO_TIMESTAMP>",
+    "version": 1
+  }
+}

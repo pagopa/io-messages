@@ -1,0 +1,14 @@
+{
+  "baseUrl": "http://127.0.0.1:<PORT>",
+  "boundary": "local Azure Functions host",
+  "cosmos": {
+    "databaseName": "test-<RUN_TOKEN>-citizen-func-upsert-message-status",
+    "endpoint": "<COSMOS_ENDPOINT>",
+    "messageStatusContainer": "message-status",
+    "source": "cloud"
+  },
+  "dependencies": [
+    "cloud Cosmos DB via DefaultAzureCredential",
+    "Testcontainers Azurite"
+  ]
+}

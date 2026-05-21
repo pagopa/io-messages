@@ -1,0 +1,21 @@
+{
+  "omittedFields": [
+    "_attachments",
+    "_etag",
+    "_rid",
+    "_self",
+    "_ts"
+  ],
+  "removedResponseHeaders": [
+    "date",
+    "server",
+    "transfer-encoding"
+  ],
+  "stringRules": [
+    "Collapse repeated whitespace in serialized values",
+    "Replace dynamic local Functions host ports with http://127.0.0.1:<PORT>",
+    "Replace ISO timestamps with <ISO_TIMESTAMP>",
+    "Replace the run-scoped token with <RUN_TOKEN>",
+    "Replace the cloud Cosmos endpoint with <COSMOS_ENDPOINT>"
+  ]
+}

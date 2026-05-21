@@ -1,0 +1,11 @@
+{
+  "body": {
+    "change_type": "reading",
+    "is_read": true
+  },
+  "headers": {
+    "content-type": "application/json"
+  },
+  "method": "PUT",
+  "path": "/api/v1/messages/AAABBB01C02D345D/message-<RUN_TOKEN>/message-status"
+}

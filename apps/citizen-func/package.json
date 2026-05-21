@@ -15,6 +15,8 @@
     "build": "tsc",
     "build:watch": "pnpm run build --watch",
     "test": "vitest run",
+    "test:record": "sh -c 'mkdir -p .tmp/docker-config && DOCKER_CONFIG=$PWD/.tmp/docker-config CITIZEN_FUNC_RECORD=1 vitest run -c vitest.characterization.config.mjs'",
+    "test:verify": "sh -c 'mkdir -p .tmp/docker-config && DOCKER_CONFIG=$PWD/.tmp/docker-config vitest run -c vitest.characterization.config.mjs'",
     "test:coverage": "vitest run --coverage",
     "openapi:bundle": "pnpm bundle-api-spec -i openapi/index.yaml -o openapi/index.yaml -V $npm_package_version",
     "dist:modules": "modclean -r -n default:safe && pnpm install --production",
@@ -39,6 +41,7 @@
     "eslint": "catalog:",
     "modclean": "catalog:",
     "prettier": "catalog:",
+    "testcontainers": "^11.14.0",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
