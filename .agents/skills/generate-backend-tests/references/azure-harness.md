@@ -1,26 +1,8 @@
 # Azure shared harness starter
 
-Use this reference when the system under test or its local topology depends on Azure services, emulators, or Azure-shaped runtime wiring and the repository does not already contain a stronger local harness you can reuse.
+> Prerequisites: read `references/shared-harness.md` for generic rules. Read with the runtime-specific Azure reference (e.g. `azure-functions-harness.md`).
 
-This reference covers the harness concerns that are common across Azure-oriented backend test setups:
-
-- choosing and wiring local Azure dependencies
-- Azure-local environment additions, especially local settings and emulator-related flags
-- Azure-specific readiness additions, especially Cosmos-compatible emulators
-- dealing with common emulator quirks, especially Cosmos-compatible emulators
-- observing side effects in Azure-managed dependencies such as storage or queues
-
-Read this together with the runtime-specific Azure reference that matches the target system. For Azure Functions, also read `references/azure-functions-harness.md`.
-
-## When to read this
-
-Read this after you have already decided that:
-
-- the chosen boundary depends on Azure local services, emulators, or runtime wiring
-- the repository does not already offer a better Azure-local harness to copy
-- the test scenarios really need Azure-local behavior rather than a simpler non-Azure slice
-
-Read `references/shared-harness.md` for generic runtime-container reuse, startup env validation, devcontainer reachability, and readiness rules that are not Azure-specific.
+Covers Azure-local harness concerns: choosing and wiring local Azure dependencies, emulator-related flags, Cosmos-specific readiness, and observing side effects in Azure-managed dependencies.
 
 ## Dependency selection for Azure-local topologies
 
@@ -117,9 +99,3 @@ When the system writes to queues, blobs, or tables through Azurite or another em
 - assert or record the payload that a downstream system would care about
 
 When reading emitted messages from Azurite or another queue emulator, accept both plain JSON and base64-encoded JSON. Compare the emitted payload, not the transport envelope.
-
-## Decision rule
-
-If you are blocked on Azure-local harness shape, use this starter.
-
-If the repository already gives you a better Azure-specific pattern, especially a containerized app runtime, copy the repository pattern instead.

@@ -1,18 +1,6 @@
 # Azure Functions shared runtime harness
 
-Use this reference when the system under test is a Node.js or TypeScript Azure Functions app.
-
-Read `references/azure-harness.md` first. This file only covers the Azure Functions runtime concerns that are shared by both integration and record-replay work.
-
-## When to read this
-
-Read this after you have already decided that:
-
-- the honest boundary is the local Functions host
-- the target app is worth exercising through a real local Functions runtime
-- the repository does not already offer a better local Functions harness to copy
-
-If the repository already has a stronger Functions harness in another app, prefer reusing that local convention instead of this starter.
+> Prerequisites: read `references/azure-harness.md` first. Covers Azure Functions runtime concerns shared by both integration and record-replay.
 
 ## Local Functions boundary
 
@@ -85,6 +73,17 @@ If the selected scope is one HTTP flow but the app also starts queue, blob, or t
 
 If the workflow persists topology or cassette metadata, keep the disabled-function list there so the resulting harness explains why the output remained observable.
 
+## Queue-trigger payload quirks
+
+Azure Storage queue triggers are easy to mis-shape in local tests. Before simplifying the fixture, confirm what the runtime actually hands to the function.
+
+- Some functions expect the runtime-decoded JSON object.
+- Some functions expect queue message text that is itself a base64 string containing JSON because the handler does another decode internally.
+- If the host logs `Message decoding has failed! Check MessageEncoding settings.`, treat that as a likely harness mismatch first.
+- Create the fixed poison queue too when the runtime may dead-letter invalid payloads locally; otherwise a decode failure can disappear behind an unrelated `QueueNotFound` error.
+- Match the real trigger contract even if it means publishing a less convenient encoded message.
+- For record-replay, keep encoding details in the local harness or `topology.json` notes rather than normalizing them away.
+
 ## Fallback snippet: function host wrapper
 
 Use this only when there is no existing app container or stronger repository convention. This is the smallest useful wrapper around the real local Functions host:
@@ -133,9 +132,3 @@ The important idea is not the exact code. The important idea is:
 - keep the harness pointed at the runtime boundary rather than importing it directly
 
 If the selected scenario needs a function or host key, extend this wrapper with a tiny helper that polls `azure-webjobs-secrets/<app-name>/host.json` in Azurite blob storage and passes the retrieved key through `x-functions-key` or `?code=...`.
-
-## Decision rule
-
-If you are blocked on Azure Functions runtime wiring, use this starter.
-
-If the repository already gives you a better pattern, especially a containerized app runtime, copy the repository pattern instead.

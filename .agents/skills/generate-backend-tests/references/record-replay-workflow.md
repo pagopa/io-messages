@@ -114,11 +114,7 @@ Keep those checks capture-time only. A tiny success-shaped guard before writing 
 
 ## When both paths are selected
 
-If integration coverage also exists for the same boundary:
-
-- reuse the shared harness and generic fixtures
-- keep record-replay ownership to cassettes, normalization, and `record` / `verify`
-- avoid a second shared setup or container-startup path
+Follow the both-paths coexistence rules in `references/shared-harness.md`.
 
 ## Guardrails
 

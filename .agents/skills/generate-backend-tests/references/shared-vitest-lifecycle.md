@@ -49,12 +49,7 @@ If integration and record-replay suites coexist, keep them as sibling directorie
 
 ## When both paths also exist
 
-Keep the container harness singular.
-
-- Prefer one shared `global-setup.ts` or shared container-startup module for the boundary both suites exercise.
-- Let the shared harness own generic shared startup, connection metadata, and baseline fixture plumbing.
-- Let each path add only its own directories, cassette helpers, commands, and suite-specific fixture wrappers without copying container startup code.
-- If the suites truly need different include patterns or reporters, use separate Vitest projects that import the same `support/shared-testcontainers.ts` style helper instead of booting the same dependencies twice.
+Follow the both-paths coexistence rules in `references/shared-harness.md`. If the suites truly need different include patterns or reporters, use separate Vitest projects that import the same `support/shared-testcontainers.ts` style helper instead of booting the same dependencies twice.
 
 ## `global-setup.ts` responsibilities
 

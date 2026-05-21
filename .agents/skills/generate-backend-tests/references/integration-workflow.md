@@ -91,10 +91,4 @@ Follow the dependency classification and Testcontainers policy in `references/sh
 
 ## When both paths are selected
 
-If record-replay also exists for the same boundary:
-
-- let the shared harness own startup, connection metadata, and generic fixtures
-- keep the integration suite focused on long-lived live assertions
-- let record-replay add cassette helpers and `record` / `verify` on top
-
-Do not create a second shared container harness for the same boundary.
+Follow the both-paths coexistence rules in `references/shared-harness.md`.

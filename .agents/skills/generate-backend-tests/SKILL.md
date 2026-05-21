@@ -45,11 +45,8 @@ Produce or update:
 
 - Do not assume a giant test matrix. A short explicit scenario list is better.
 - If the prompt strongly points to one path, recommend it, but still let the user pick.
-- If the user chooses `both`, treat the shared harness as the foundation and add cassette-specific behavior on top instead of cloning lifecycle code.
-- Treat Testcontainers as the only supported orchestration path for containerized dependencies. Do not switch to shell-driven container orchestration as a normal fallback.
-- When a `.env.test` file exists and cloud services are reachable, prefer those over local emulators or Testcontainers for the matching dependencies. Fall back to Testcontainers only for services whose probe fails or that have no connection string in `.env.test`.
-- When containerized dependencies are in scope, prove that Testcontainers is actually blocked with a tiny real bootstrap before declaring it unavailable. Missing a local `docker` CLI alone is not enough evidence.
-- Reuse an existing live-test harness before inventing another shared setup layer.
+- When a `.env.test` file exists and cloud services are reachable, prefer those over local emulators or Testcontainers for the matching dependencies.
+- Follow the cross-cutting rules in `references/shared-harness.md` for Testcontainers policy, harness reuse, and both-paths coexistence.
 
 ## Integration path
 
@@ -61,25 +58,17 @@ Choose record-replay when the user wants to freeze current observable behavior, 
 
 ## Both paths together
 
-When the user chooses both:
-
-- let the shared harness own Testcontainers startup, connection metadata, shared setup, and generic fixtures
-- let integration own the long-lived live assertions for the selected boundary
-- let record-replay own cassette layout, normalization, `record` / `verify`, and characterization-only helpers
-- split suites or Vitest projects only when include patterns or lifecycle rules truly differ, and still reuse the same shared container helpers
-- explain clearly which scenarios belong to integration, record-replay, or both
+When the user chooses both, follow the coexistence rules in `references/shared-harness.md`. Explain clearly which scenarios belong to integration, record-replay, or both.
 
 ## Guardrails
 
 - Keep the selected boundary honest.
 - Prefer configured reachable cloud services when `.env.test` is present; otherwise prefer real local hosts, real dependencies, and deterministic local stubs over mocks.
 - Keep assertions at observable contract level.
-- For record-replay verification, treat the stored cassette as the contract oracle. Do not add extra semantic assertions such as `toMatchObject`, field-by-field payload expectations, decoder-driven shape checks, or handwritten invariants beyond comparing the normalized live layers to the stored artifacts.
-- If a scenario needs durable semantic assertions that should stay stable across cassette refreshes, route that scenario to `integration` or `both` instead of smuggling those expectations into record-replay verification.
-- Keep record-replay harnesses source-level black-box except for the minimal boot wrapper needed to start the runtime.
-- For record-replay work, importing exported handlers, wrapper-return values, models, decoders, generated types, config helpers, or runtime-coupled shared packages from the target code is a failure, not an acceptable fallback.
-- If record-replay cannot boot honestly without those imports, stop and report the path blocked or ask the user to switch to `integration` or `both`. Do not silently narrow the boundary.
-- Before finalizing record-replay work, audit the characterization-folder imports. Every non-built-in import should resolve to characterization-local helpers, raw SDKs, protocol clients, or generic test tooling — never target app code.
+- For record-replay verification, treat the stored cassette as the contract oracle. Do not add extra semantic assertions beyond comparing normalized live layers to stored artifacts.
+- If a scenario needs durable semantic assertions, route it to `integration` or `both`.
+- Keep record-replay harnesses source-level black-box (full rules in `references/record-replay-workflow.md`).
+- If record-replay cannot boot honestly, stop and report the path blocked or ask to switch workflows.
 - Explain any fallback plainly instead of silently downgrading the workflow.
 
 ## Final response

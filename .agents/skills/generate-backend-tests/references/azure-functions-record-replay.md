@@ -1,19 +1,6 @@
 # Azure Functions record-replay additions
 
-Use this reference when the system under test is a Node.js or TypeScript Azure Functions app and the user chose the `record-replay` path.
-
-Read `references/azure-harness.md` and `references/azure-functions-harness.md` first. This file only covers the record-replay-specific additions on top of the shared Azure and Azure Functions harness guidance.
-
-## When to read this
-
-Read this after you have already decided that:
-
-- the real boundary should be the local Functions host
-- the scenario is worth freezing with multilayer cassettes
-- the repository does not already offer a better local harness to copy
-
-If the repository already has a characterization setup in another Azure Functions app, prefer reusing that local convention instead of this starter.
-If the repository uses Vitest, or can credibly add a Vitest-based characterization harness, also read `references/shared-vitest-lifecycle.md` and treat its shared-container split as the default lifecycle. Only fall back to per-run ephemeral container startup when the user explicitly asks for it.
+> Prerequisites: read `references/azure-harness.md` and `references/azure-functions-harness.md` first. This file adds record-replay-specific guidance. Also read `references/shared-vitest-lifecycle.md` when the repo uses Vitest.
 
 ## Recommended file layout
 
@@ -73,14 +60,9 @@ For Azure Functions HTTP scenarios, it is fine to confirm that the live capture 
 
 Use `/admin/functions/<name>` as a diagnostic seam, not as the default trigger seam for characterization. It is useful for surfacing runtime failures quickly, but queue, broker, timer, and blob scenarios should still prefer the real trigger transport when the local topology can drive it honestly.
 
-## Queue-trigger characterization quirks
+## Queue-trigger characterization
 
-If a characterization scenario depends on a storage queue trigger, preserve the real transport contract instead of simplifying it for convenience.
-
-- Capture the same message shape the local trigger really consumes, even if that means publishing base64-wrapped JSON rather than a plain object fixture.
-- If the runtime reports `Message decoding has failed! Check MessageEncoding settings.`, fix the harness payload first before deciding the scenario is blocked.
-- Create fixed poison queues when the runtime may move invalid local payloads there; missing poison infrastructure can hide the real decoding failure.
-- Keep this encoding detail in the local harness or `topology.json` notes rather than normalizing it away. Future runs should not have to rediscover it.
+For queue-trigger payload quirks (base64 encoding, poison queues, MessageEncoding), see `references/azure-functions-harness.md`.
 
 If `func start` or an equivalent honest runtime cannot boot and the only remaining path is importing the exported function wrapper or handler directly, stop and report record-replay blocked. That narrower seam belongs to integration, not characterization.
 
@@ -158,9 +140,3 @@ Do not keep it as the "happy" cassette. Adjust the topology, seed data, or scena
 ### Happy path records a 400
 
 Often the harness is fine and the fixture is not. Check schema validators, documented minimum lengths, required headers, allowed recipient relationships, or other request constraints before recording the cassette.
-
-## Decision rule
-
-If you are blocked on file layout, use this starter.
-
-If the repository already gives you a better pattern, especially a containerized app runtime, copy the repository pattern instead.

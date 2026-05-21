@@ -1,18 +1,6 @@
 # Azure Functions live integration additions
 
-Use this reference when the system under test is a Node.js or TypeScript Azure Functions app and the user chose the `integration` path.
-
-Read `references/azure-harness.md` and `references/azure-functions-harness.md` first. This file only covers the integration-specific additions on top of the shared Azure and Azure Functions harness guidance.
-
-## When to read this
-
-Read this after you have already decided that:
-
-- the honest boundary is the local Functions host
-- the scenario is worth exercising as a live integration test
-- the repository does not already offer a stronger local integration harness to follow
-
-If the repo already has a characterization or integration setup in another Function app, reuse that local convention first.
+> Prerequisites: read `references/azure-harness.md` and `references/azure-functions-harness.md` first. This file adds integration-specific guidance on top of the shared Azure Functions harness.
 
 ## Recommended layout
 
@@ -37,15 +25,7 @@ If the repo already has an `integration/` or equivalent test folder, keep that n
 - `harness.ts` owns Testcontainers-managed dependencies, seed data, and read-back helpers
 - `stubs.ts` owns outbound partner HTTP stubs
 
-For Vitest-based suites, also consider:
-
-```text
-tests/
-  global-setup.ts
-  with-test-fixtures.ts
-```
-
-Use those files for the shared-container lifecycle when the repo already uses Vitest.
+For Vitest-based suites, see `references/shared-vitest-lifecycle.md` for the shared-container lifecycle layout.
 
 ## Integration-specific workflow
 
@@ -65,16 +45,7 @@ When the scenario is queue-, blob-, timer-, or broker-triggered, prefer driving 
 - If the real queue or blob trigger is available locally, keep the integration test at that boundary even when admin invocation looks easier.
 - Treat a working admin invocation plus a broken real trigger as a harness bug still worth fixing, not as evidence that the narrower seam is "good enough."
 
-## Queue-trigger payload quirks worth probing
-
-Azure Storage queue triggers are easy to mis-shape in local tests. Before you simplify the fixture, confirm what the runtime actually hands to the function.
-
-- Some functions expect the runtime-decoded JSON object.
-- Some functions expect queue message text that is itself a base64 string containing JSON because the handler does another decode internally.
-- If the host logs `Message decoding has failed! Check MessageEncoding settings.`, treat that as a likely harness mismatch first.
-- Create the fixed poison queue too when the runtime may dead-letter invalid payloads locally; otherwise a decode failure can disappear behind an unrelated `QueueNotFound` error.
-
-Match the real trigger contract even if it means publishing a less convenient encoded message. The point of the test is to prove the production-shaped trigger path, not the friendliest helper API.
+For queue-trigger payload quirks (base64, poison queues, encoding), see `references/azure-functions-harness.md`.
 
 ## Binding-output slice snippet
 

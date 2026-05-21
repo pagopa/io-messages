@@ -40,25 +40,25 @@ Use delegation to contain context, not to parallelize the whole workflow.
 
 Pick the smallest honest boundary for the contract the user wants to protect.
 
-| Situation | Preferred boundary | Why | Avoid |
-| --- | --- | --- | --- |
-| HTTP route, middleware, auth, serialization, headers, or status mapping | full local runtime | those behaviors only become real at the host boundary | importing handlers directly when the server can run locally |
-| Azure Functions trigger, binding, or emitted runtime output | local Functions host or equivalent runtime | host wiring is part of the contract | direct handler invocation when a credible local host exists |
-| worker or consumer reacting to broker messages | real local worker plus local broker or emulator | transport semantics and runtime wiring matter | unit tests that only call the handler with mocks |
-| repository, storage adapter, cache adapter, or client adapter | smaller integration slice plus real dependency | the contract is between the adapter and the real dependency | booting the full HTTP host just to test CRUD or mapping |
-| one happy path needs host proof but the variation matrix is large | mixed boundaries intentionally | one runtime proof plus narrower slices usually gives better value | forcing every branch through the host |
+| Situation                                                               | Preferred boundary                              | Why                                                               | Avoid                                                       |
+| ----------------------------------------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------- |
+| HTTP route, middleware, auth, serialization, headers, or status mapping | full local runtime                              | those behaviors only become real at the host boundary             | importing handlers directly when the server can run locally |
+| Azure Functions trigger, binding, or emitted runtime output             | local Functions host or equivalent runtime      | host wiring is part of the contract                               | direct handler invocation when a credible local host exists |
+| worker or consumer reacting to broker messages                          | real local worker plus local broker or emulator | transport semantics and runtime wiring matter                     | unit tests that only call the handler with mocks            |
+| repository, storage adapter, cache adapter, or client adapter           | smaller integration slice plus real dependency  | the contract is between the adapter and the real dependency       | booting the full HTTP host just to test CRUD or mapping     |
+| one happy path needs host proof but the variation matrix is large       | mixed boundaries intentionally                  | one runtime proof plus narrower slices usually gives better value | forcing every branch through the host                       |
 
 ## Dependency classification
 
 Classify each dependency before you code:
 
-| Dependency type | Preferred technique | Observe results through |
-| --- | --- | --- |
+| Dependency type                                     | Preferred technique                                                                 | Observe results through                                                                                      |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | cloud service with connection string in `.env.test` | pre-deployed cloud service when probe passes, Testcontainers fallback when it fails | read-back helpers that query the real cloud or local dependency (see `references/cloud-services-harness.md`) |
-| partner HTTP service | deterministic local stub, fake, or proxy | the request the stub received and the system response it triggered |
-| storage, document DB, cache, queue, or broker | Testcontainers-managed dependency or credible emulator | read-back helpers that query the real local dependency |
-| runtime component that already owns env and startup | reuse that runtime shape as the runtime component | the real boundary it exposes |
-| dependency with no credible local path | documented fallback | the closest honest local seam |
+| partner HTTP service                                | deterministic local stub, fake, or proxy                                            | the request the stub received and the system response it triggered                                           |
+| storage, document DB, cache, queue, or broker       | Testcontainers-managed dependency or credible emulator                              | read-back helpers that query the real local dependency                                                       |
+| runtime component that already owns env and startup | reuse that runtime shape as the runtime component                                   | the real boundary it exposes                                                                                 |
+| dependency with no credible local path              | documented fallback                                                                 | the closest honest local seam                                                                                |
 
 ## Prefer an existing runtime container when available
 
@@ -151,16 +151,28 @@ Avoid:
 - spy assertions on dependencies you claim to be integrating with
 - implementation-shaped assertions that disappear when the real boundary runs
 
-## Reuse and coexistence
+## Cross-cutting rules
 
-If a live harness already exists, reuse it before inventing another shared setup layer.
+These rules apply to every path (integration, record-replay, or both). Other references defer here instead of restating them.
 
-When the user chooses both integration and record-replay:
+### Reuse before inventing
 
-- keep one shared container startup path
-- keep one source of connection metadata
-- let each path add only the assertions, commands, and helpers that are unique to it
-- split Vitest projects or suite directories only when that clarifies ownership without cloning the harness
+If the workspace already has a live-test harness, shared container setup, or stronger local convention for the same boundary, reuse it. Do not create a parallel harness.
+
+### Both-paths coexistence
+
+When the user chooses `both`:
+
+- keep one shared container startup path and one source of connection metadata
+- let the shared harness own Testcontainers startup, connection metadata, and generic fixtures
+- let integration own long-lived live assertions
+- let record-replay own cassettes, normalization, `record` / `verify`, and characterization-only helpers
+- split suites or Vitest projects only when include patterns or lifecycle rules truly differ
+- do not clone container startup code across suites
+
+### Testcontainers as the only orchestration path
+
+Treat Testcontainers as the only standard orchestration path for containerized dependencies. Do not switch to shell-driven container orchestration as a normal fallback. If Testcontainers appears blocked, prove it with a tiny real bootstrap before declaring it unavailable.
 
 ## Final decision check
 
