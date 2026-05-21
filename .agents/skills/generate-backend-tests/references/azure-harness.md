@@ -26,10 +26,10 @@ Read `references/shared-harness.md` for generic runtime-container reuse, startup
 
 Pick the lightest local topology that still proves the contract.
 
-| Need | Preferred local dependency |
-| --- | --- |
-| Blob, queue, or table output | Azurite or the repository's existing storage emulator, booted through Testcontainers when it runs in a container |
-| Cosmos-backed read or write path | Cosmos-compatible emulator or the repository's existing local Cosmos path, booted through Testcontainers when it runs in a container |
+| Need                               | Preferred local dependency                                                                                                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Blob, queue, or table output       | Azurite or the repository's existing storage emulator, booted through Testcontainers when it runs in a container                                                                     |
+| Cosmos-backed read or write path   | Cosmos-compatible emulator or the repository's existing local Cosmos path, booted through Testcontainers when it runs in a container                                                 |
 | Azure queue or broker publish path | the repository's existing local queue or broker path, preferably booted through Testcontainers when it runs in a container and only if the scenario truly needs a successful publish |
 
 If a dependency cannot run locally, document the fallback clearly and capture the closest honest local boundary instead of pretending the full side effect ran.
@@ -85,12 +85,18 @@ const client = new CosmosClient({
 
 for (let attempt = 0; attempt < 12; attempt++) {
   try {
-    const { database } = await client.databases.createIfNotExists({ id: "probe-db" });
+    const { database } = await client.databases.createIfNotExists({
+      id: "probe-db",
+    });
     const { container } = await database.containers.createIfNotExists({
       id: "probe",
       partitionKey: { paths: ["/pk"] },
     });
-    await container.items.upsert({ id: "probe-item", pk: "probe", ready: true });
+    await container.items.upsert({
+      id: "probe-item",
+      pk: "probe",
+      ready: true,
+    });
     await container.items.query("SELECT * FROM c").fetchAll();
     await database.delete();
     break;

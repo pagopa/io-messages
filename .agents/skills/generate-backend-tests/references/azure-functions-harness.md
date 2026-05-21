@@ -56,6 +56,7 @@ Treat the binding declarations as the source of truth for entity names too, not 
 - Read `app.storageQueue(...)`, `app.serviceBusTopic(...)`, `output.storageBlob(...)`, and similar registrations before inventing test resources.
 - Resolve `%ENV_NAME%` placeholders through the harness env and keep literal names literal.
 - If the app binds to a fixed queue, topic, subscription, blob path, or container, write the test artifact there. Only make resources run-scoped when the binding itself is env-driven or the repository already uses that pattern.
+- For fixed queue triggers, create the trigger queue before publishing and, when the local runtime can move invalid payloads to a poison queue, also create the matching `-poison` queue so decode failures stay observable instead of collapsing into harness noise.
 
 Examples:
 
@@ -72,6 +73,8 @@ Routes declared with `authLevel: "function"` or `"admin"` reject requests that l
 - Pass the key as `?code=<key>` or via the `x-functions-key` header.
 
 If the selected scenarios only hit `anonymous` routes, skip this entirely.
+
+This seam is especially useful for lightweight diagnostics through `/admin/functions/<name>`, but do not treat it as the default trigger seam for queue, blob, broker, or timer scenarios that the local topology can drive honestly.
 
 ## Trigger isolation for HTTP-focused flows
 
@@ -123,9 +126,13 @@ The important idea is not the exact code. The important idea is:
 
 - use the real `func start`
 - preserve the current environment and PATH
+- allocate a free port dynamically instead of hardcoding a shared local port
+- capture host logs so failures explain what the runtime actually did
 - wait on a real probe — pick the lightest route available; deep health-check endpoints that contact every dependency will hang until the full topology is up
 - stop the process cleanly
 - keep the harness pointed at the runtime boundary rather than importing it directly
+
+If the selected scenario needs a function or host key, extend this wrapper with a tiny helper that polls `azure-webjobs-secrets/<app-name>/host.json` in Azurite blob storage and passes the retrieved key through `x-functions-key` or `?code=...`.
 
 ## Decision rule
 

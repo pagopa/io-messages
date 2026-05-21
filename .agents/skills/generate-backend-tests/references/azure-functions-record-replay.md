@@ -71,6 +71,15 @@ Keep the characterization folder independent from the target app's internal modu
 
 Use `/admin/functions/<name>` as a diagnostic seam, not as the default trigger seam for characterization. It is useful for surfacing runtime failures quickly, but queue, broker, timer, and blob scenarios should still prefer the real trigger transport when the local topology can drive it honestly.
 
+## Queue-trigger characterization quirks
+
+If a characterization scenario depends on a storage queue trigger, preserve the real transport contract instead of simplifying it for convenience.
+
+- Capture the same message shape the local trigger really consumes, even if that means publishing base64-wrapped JSON rather than a plain object fixture.
+- If the runtime reports `Message decoding has failed! Check MessageEncoding settings.`, fix the harness payload first before deciding the scenario is blocked.
+- Create fixed poison queues when the runtime may move invalid local payloads there; missing poison infrastructure can hide the real decoding failure.
+- Keep this encoding detail in the local harness or `topology.json` notes rather than normalizing it away. Future runs should not have to rediscover it.
+
 If `func start` or an equivalent honest runtime cannot boot and the only remaining path is importing the exported function wrapper or handler directly, stop and report record-replay blocked. That narrower seam belongs to integration, not characterization.
 
 If the harness is test-runner-driven, prefer doing the one-time `build` in the explicit `record` and `verify` scripts rather than inside the test body or the host wrapper. Keep the characterization test opt-in so the repository's default fast test suite does not start the full local topology by accident.

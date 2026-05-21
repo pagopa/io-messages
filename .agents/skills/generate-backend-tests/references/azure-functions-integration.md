@@ -57,6 +57,25 @@ On top of the shared Azure and Azure Functions harness:
 
 If the harness is test-runner-driven, prefer doing the one-time `build` in the explicit integration test command rather than inside every test body.
 
+## Prefer the real trigger transport for non-HTTP flows
+
+When the scenario is queue-, blob-, timer-, or broker-triggered, prefer driving it through the real local trigger transport whenever the topology can do that honestly.
+
+- Use `/admin/functions/<name>` as a diagnostic seam to surface runtime failures quickly, not as the default seam for ongoing trigger coverage.
+- If the real queue or blob trigger is available locally, keep the integration test at that boundary even when admin invocation looks easier.
+- Treat a working admin invocation plus a broken real trigger as a harness bug still worth fixing, not as evidence that the narrower seam is "good enough."
+
+## Queue-trigger payload quirks worth probing
+
+Azure Storage queue triggers are easy to mis-shape in local tests. Before you simplify the fixture, confirm what the runtime actually hands to the function.
+
+- Some functions expect the runtime-decoded JSON object.
+- Some functions expect queue message text that is itself a base64 string containing JSON because the handler does another decode internally.
+- If the host logs `Message decoding has failed! Check MessageEncoding settings.`, treat that as a likely harness mismatch first.
+- Create the fixed poison queue too when the runtime may dead-letter invalid payloads locally; otherwise a decode failure can disappear behind an unrelated `QueueNotFound` error.
+
+Match the real trigger contract even if it means publishing a less convenient encoded message. The point of the test is to prove the production-shaped trigger path, not the friendliest helper API.
+
 ## Binding-output slice snippet
 
 When the contract is "this Function emits the correct queue, blob, or table output" and booting the full host would mostly repeat framework setup, assert through a real `InvocationContext` instead of spies.
