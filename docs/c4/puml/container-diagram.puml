@@ -21,17 +21,15 @@ System_Boundary(backend_boundary, "Backend Components") {
     Container(app_backend, "io-p-app-backend", "Backend Service (Legacy)", "Proxy tra le chiamate dell'App IO e le function apps. Recupera contenuto remoto per messaggi remote-content.")
 }
 
-' Function Apps
-System_Boundary(func_boundary, "Azure Function Apps") {
+System_Boundary(func_boundary, "IO Messages System") {
+    ' Function Apps
     Container(services_func, "io-p-itn-com-services-func", "Azure Function App", "CreateMessage (HTTP), ProcessMessage (Queue), CreateNotification (Queue), EmailNotification (Queue), WebhookNotification (Queue)")
     Container(citizen_func, "io-p-itn-com-citizen-func", "Azure Function App", "GetMessages (HTTP), GetMessage (HTTP), UpsertMessageStatus (HTTP), GetRCConfiguration (HTTP)")
     Container(pushnotif_func, "io-p-itn-com-pushnotif-func", "Azure Function App", "Notify (HTTP): schedula notifiche push verso il Notification Hub corretto")
     Container(rc_func, "io-p-itn-com-rc-func", "Azure Function App", "CRU remote-content-configuration. Gestisce configurazioni per messaggi a contenuto remoto")
     Container(etl_ingest, "io-p-itn-com-etl-func", "Azure Function App", "IngestMessages e IngestMessageStatus: trigger su Cosmos Change Feed")
-}
 
-' Data Stores
-System_Boundary(data_boundary, "Data Stores") {
+    ' Data Stores
     ContainerDb(cosmos, "io-p-cosmos-api", "Azure Cosmos DB", "Container: message-status (versionato), messages (metadata)")
     ContainerDb(cosmos_com, "io-p-itn-com-cosno", "Azure Cosmos DB", "Container: remote-content-configuration")
     ContainerDb(storage_content, "iopstapi", "Azure Storage Account", "Container: message-content (contenuto messaggi)")
@@ -54,7 +52,7 @@ Rel_D(services_func, storage_domain, "CreateMessage accoda per ProcessMessage;\n
 Rel_D(services_func, cosmos, "ProcessMessage scrive message-status e messages metadata", "Cosmos SDK")
 Rel_D(services_func, storage_content, "ProcessMessage scrive message-content", "Azure Blob SDK")
 Rel_R(services_func, pushnotif_func, "WebhookNotification chiama Notify", "HTTPS")
-Rel_L(services_func, apim_services, "Ottiene remote-content-configuration via APIM", "HTTPS")
+Rel_U(services_func, apim_services, "Ottiene remote-content-configuration via APIM", "HTTPS")
 
 ' RC func
 Rel_D(rc_func, cosmos_com, "Legge/Scrive remote-content-configuration", "Cosmos SDK")
@@ -71,7 +69,7 @@ Rel_D(citizen_func, cosmos, "Legge messaggi e status; Aggiorna message-status", 
 Rel_D(citizen_func, storage_content, "Legge message-content", "Azure Blob SDK")
 
 ' ETL / Data Lake flow
-Rel_D(cosmos, etl_ingest, "Change Feed trigger su messages e message-status", "Cosmos Change Feed")
+Rel_U(cosmos, etl_ingest, "Change Feed trigger su messages e message-status", "Cosmos Change Feed")
 Rel_D(etl_ingest, eventhub, "Invia eventi Avro", "Event Hub SDK")
 Rel_D(etl_ingest, storage_domain, "Salva errori su tabelle", "Azure Table Storage")
 Rel_D(eventhub, data_lake, "Consuma eventi per conservazione", "Event Hub Consumer")
