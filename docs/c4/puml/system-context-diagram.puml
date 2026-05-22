@@ -35,6 +35,6 @@ Rel_D(app_backend, remote_content_server, "Recupera contenuto remoto", "HTTPS")
 Rel_U(io_messages, apim, "Recupera configurazione per contenuto remoto", "HTTPS")
 Rel_D(io_messages, notification_hub, "Schedula notifiche push", "Azure NH SDK")
 Rel_U(notification_hub, citizen, "Invia notifiche push", "Azure Notification Hubs")
-Rel_D(io_messages, data_lake, "Consuma errori conservati come eventi", "Event Hub Consumer")
+Rel_D(io_messages, data_lake, "Consuma eventi per conservazione", "Event Hub Consumer")
 
 @enduml
