@@ -246,6 +246,14 @@ opt enrich_result_data: true,
     services -[#green]> func : Return service details
 
     deactivate services
+
+    note right of func
+      Add the following service's properties to the message:
+        - organization_fiscal_code
+        - organization_name
+        - service_name
+    end note
+    func -> func : Enrich message with service data
   end loop
 
 end
