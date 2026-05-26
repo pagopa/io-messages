@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.8.9
+
+### Patch Changes
+
+- e586d37: remove gcm from platform
+
 ## 2.8.8
 
 ### Patch Changes
