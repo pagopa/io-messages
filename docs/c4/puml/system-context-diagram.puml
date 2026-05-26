@@ -1,0 +1,40 @@
+@startuml System Context Diagram - IO Messages
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title System Context Diagram - Invio e Ricezione Messaggi
+
+LAYOUT_WITH_LEGEND()
+
+' Actors
+Person(citizen, "Cittadino", "Utente che riceve e legge i messaggi tramite l'App IO")
+Person(service, "Servizio", "Entità che invia messaggi ai cittadini")
+
+' Main system
+System(io_messages, "IO Messages System", "Creazione, gestione e invio di messaggi e notifiche.")
+
+' IO Platform external systems
+System_Ext(apim, "Azure API Management", "Gateway per i servizi mittenti (API Key) e per i cittadini (App IO).")
+System_Ext(app_backend, "Backend Components", "Risolve la sessione degli utenti autenticati. Proxy tra App IO e le function apps. Recupera contenuto remoto per messaggi remote-content.")
+
+' Truly external systems
+System_Ext(notification_hub, "Azure Notification Hub", "Invio notifiche push ai cittadini.")
+System_Ext(remote_content_server, "Server Servizio Mittente", "Ospita il contenuto remoto e gli allegati dei messaggi remote-content.")
+System_Ext(data_lake, "Data Lake", "Team Data Lake: conservazione dati")
+
+' Service sender flow
+Rel_D(service, apim, "Invia messaggio / Gestisce configurazione contenuto remoto", "HTTPS + API Key")
+Rel_D(apim, io_messages, "Inoltra richieste tra servizi e functions", "HTTPS")
+
+' Citizen flow
+Rel_D(citizen, apim, "Lettura messaggi, aggiornamento stato dei messaggi", "HTTPS")
+Rel_D(apim, app_backend, "Risolve sessione utente, inoltra richieste con sessione risolta", "HTTPS")
+Rel_D(app_backend, io_messages, "Proxy verso function apps", "HTTPS")
+Rel_D(app_backend, remote_content_server, "Recupera contenuto remoto", "HTTPS")
+
+' IO Messages outbound
+Rel_U(io_messages, apim, "Recupera configurazione per contenuto remoto", "HTTPS")
+Rel_D(io_messages, notification_hub, "Schedula notifiche push", "Azure NH SDK")
+Rel_U(notification_hub, citizen, "Invia notifiche push", "Azure Notification Hubs")
+Rel_D(io_messages, data_lake, "Consuma eventi per conservazione", "Event Hub Consumer")
+
+@enduml

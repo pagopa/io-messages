@@ -1,0 +1,82 @@
+@startuml Container Diagram - IO Messages
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Container Diagram - Invio e Ricezione Messaggi
+
+LAYOUT_WITH_LEGEND()
+
+' Actors
+Person(citizen, "Cittadino", "Utente che riceve e legge i messaggi tramite l'App IO")
+Person(service, "Servizio", "Entità che invia messaggi ai cittadini")
+
+' API Gateways
+System_Boundary(apim_boundary, "Azure API Management") {
+    Container(apim_services, "io-p-itn-apim", "Azure APIM", "Gateway per i servizi mittenti. Autentica tramite API Key.")
+    Container(apim_citizen, "io-p-itn-platform-api-gateway-apim", "Azure APIM", "Gateway per i cittadini (App IO)")
+}
+
+' Backend Components
+System_Boundary(backend_boundary, "Backend Components") {
+    Container(session_manager, "io-p-weu-session-manager-app", "Backend Service", "Risolve la sessione degli utenti autenticati")
+    Container(app_backend, "io-p-app-backend", "Backend Service (Legacy)", "Proxy tra le chiamate dell'App IO e le function apps. Recupera contenuto remoto per messaggi remote-content.")
+}
+
+System_Boundary(func_boundary, "IO Messages System") {
+    ' Function Apps
+    Container(services_func, "io-p-itn-com-services-func", "Azure Function App", "CreateMessage (HTTP), ProcessMessage (Queue), CreateNotification (Queue), EmailNotification (Queue), WebhookNotification (Queue)")
+    Container(citizen_func, "io-p-itn-com-citizen-func", "Azure Function App", "GetMessages (HTTP), GetMessage (HTTP), UpsertMessageStatus (HTTP), GetRCConfiguration (HTTP)")
+    Container(pushnotif_func, "io-p-itn-com-pushnotif-func", "Azure Function App", "Notify (HTTP): schedula notifiche push verso il Notification Hub corretto")
+    Container(rc_func, "io-p-itn-com-rc-func", "Azure Function App", "CRU remote-content-configuration. Gestisce configurazioni per messaggi a contenuto remoto")
+    Container(etl_ingest, "io-p-itn-com-etl-func", "Azure Function App", "IngestMessages e IngestMessageStatus: trigger su Cosmos Change Feed")
+
+    ' Data Stores
+    ContainerDb(cosmos, "io-p-cosmos-api", "Azure Cosmos DB", "Container: message-status (versionato), messages (metadata)")
+    ContainerDb(cosmos_com, "io-p-itn-com-cosno", "Azure Cosmos DB", "Container: remote-content-configuration")
+    ContainerDb(storage_content, "iopstapi", "Azure Storage Account", "Container: message-content (contenuto messaggi)")
+    ContainerDb(storage_domain, "iopitncomst", "Azure Storage Account", "Code e container dedicati al dominio messaggi")
+    ContainerQueue(eventhub, "io-p-itn-com-etl-evhns", "Azure Event Hub", "Eventi in formato Avro per il Data Lake")
+    Container(notification_hub, "Azure Notification Hub", "Azure Notification Hub (x4)", "4 hub per gestire il volume di utenti. Invio notifiche push.")
+}
+
+' External Systems
+System_Ext(remote_content_server, "Server Servizio Mittente", "Ospita il contenuto remoto e gli allegati dei messaggi remote-content")
+System_Ext(data_lake, "Data Lake", "Team Data Lake: conservazione dati")
+
+' Relationships - Services flow
+Rel_D(service, apim_services, "Invia/Legge messaggio / Gestisce RC config", "HTTPS + API Key")
+Rel_D(apim_services, services_func, "Inoltra CreateMessage / GetMessage", "HTTPS")
+Rel_D(apim_services, rc_func, "Inoltra CRU remote-content-configuration", "HTTPS")
+
+' Services func internal flow
+Rel_D(services_func, storage_domain, "CreateMessage accoda per ProcessMessage;\nCreateNotification accoda per Email/Webhook", "Azure Queue")
+Rel_D(services_func, cosmos, "ProcessMessage scrive message-status e messages metadata", "Cosmos SDK")
+Rel_D(services_func, storage_content, "ProcessMessage scrive message-content", "Azure Blob SDK")
+Rel_R(services_func, pushnotif_func, "WebhookNotification chiama Notify", "HTTPS")
+Rel_U(services_func, apim_services, "Ottiene remote-content-configuration via APIM", "HTTPS")
+
+' RC func
+Rel_D(rc_func, cosmos_com, "Legge/Scrive remote-content-configuration", "Cosmos SDK")
+
+' Push notification flow
+Rel_D(pushnotif_func, notification_hub, "Schedula notifica push", "Azure NH SDK")
+
+' Citizen flow
+Rel_D(citizen, apim_citizen, "GetMessages, GetMessage, UpsertMessageStatus", "HTTPS")
+Rel_D(apim_citizen, session_manager, "Risolve sessione utente", "HTTPS")
+Rel_D(apim_citizen, app_backend, "Inoltra richieste cittadino (sessione risolta)", "HTTPS")
+Rel_D(app_backend, citizen_func, "Proxy verso le rotte citizen", "HTTPS")
+Rel_D(citizen_func, cosmos, "Legge messaggi e status; Aggiorna message-status", "Cosmos SDK")
+Rel_D(citizen_func, storage_content, "Legge message-content", "Azure Blob SDK")
+
+' ETL / Data Lake flow
+Rel_U(cosmos, etl_ingest, "Change Feed trigger su messages e message-status", "Cosmos Change Feed")
+Rel_D(etl_ingest, eventhub, "Invia eventi Avro", "Event Hub SDK")
+Rel_D(etl_ingest, storage_domain, "Salva errori su tabelle", "Azure Table Storage")
+Rel_D(eventhub, data_lake, "Consuma eventi per conservazione", "Event Hub Consumer")
+
+' Remote content flow (legacy)
+Rel_D(app_backend, citizen_func, "GetRCConfiguration (ottiene config remota)", "HTTPS")
+Rel_D(citizen_func, cosmos_com, "Legge remote-content-configuration (legacy)", "Cosmos SDK")
+Rel_D(app_backend, remote_content_server, "Recupera contenuto remoto usando la configurazione ottenuta", "HTTPS")
+
+@enduml

@@ -1,0 +1,267 @@
+@startuml
+
+title Get Messages
+
+actor "Citizen" as citizen
+
+box "citizen-func"
+  participant "GetMessages" as func
+end box
+
+!pragma teoz true
+box "io-p-cosmos-api cosmos account" #LightBlue
+  box "db cosmos database"
+    database "messages" as metadata
+    database "message-status" as status
+    database "services" as services
+  end box
+end box
+
+box "iopstapi storage account"
+  database "message-content" as content
+end box
+
+box "io-p-itn-com-cosno cosmos account" #LightBlue
+  box "remote-content cosmos database"
+    database "message-configuration" as rccosmos
+  end box
+end box
+
+participant "app-insights" as ai
+
+activate citizen
+
+note right of citizen
+  Example request to obtain the last 12 messages of a citizen:
+  **Query Parameters**
+  {
+    "page_size": 12,
+    "enrich_result_data": true,
+    "archived": false,
+  }
+end note
+citizen -> func : GET /v1/messages/{fiscalcode}
+
+activate func
+
+note right of func
+  Query parameters are
+  optional with defaults.
+end note
+func -> func : Validate request
+alt Invalid fiscalCode
+  func -[#red]x citizen : 400 Bad request
+end
+
+note right of func
+Get latest 12 (or page_size) metadatas of the citizen
+identified by the fiscal_code using minimum_id
+and maximum_id if provided in the request.
+end note
+func -> metadata : Get messages metadata
+
+activate metadata
+
+alt Error from cosmos
+  note right of func
+    This can be any kind of error
+    (5xx, 4xx ecc...).
+  end note
+  metadata -[#red]> func
+  func -[#red]>x citizen : 500 Internal server error
+end
+
+note right of func
+  **Response Document**
+  [
+    {
+      "createdAt": "2026-03-16T10:49:11.856Z",
+      "featureLevelType": "STANDARD",
+      "fiscalCode": "LVTEST00A00A197X",
+      "id": "01KKV476XG8ZY1K4S8RMEFHMQW",
+      "indexedId": "01KKV476XG8ZY1K4S8RMEFHMQW",
+      "isPending": false,
+      "senderServiceId": "01JR0QRJ8MX1PD06DE6X5FWXS5",
+      "senderUserId": "01JR0QRJ8MX1PD06DE6X5FWXS5",
+      "timeToLiveSeconds": 3600,
+      "ttl": 3600,
+    },
+    ...
+  ]
+end note
+metadata -[#green]> func : 200
+deactivate metadata
+
+loop for each message's metadata
+  func -> func : Validate message's metadata
+  alt Invalid metadata
+    note right of func
+      In this case we simply ignore the message.
+    end note
+  end
+  func -> func : Filter out pending messages (isPending: true)
+end loop
+
+opt enrich_result_data: true,
+  note right of func
+    By default IO App always calls this operation
+    with `enrich_result_data: true`.
+  end note
+
+  note right of func
+    Get the last status version for all
+    message IDs in the page (bulk query).
+  end note
+  func -> status : Get messages last status
+  activate status
+
+  alt Error from cosmos
+    note right of func
+      This can be any kind of error
+      (5xx, 4xx ecc...).
+    end note
+    status -[#red]> func : Error from cosmos
+    func -[#red]x citizen : Cannot enrich data
+  end
+
+  note right of func
+    **Response Document**
+    [
+      {
+        "message_id": "01KKV476XG8ZY1K4S8RMEFHMQW",
+        "is_read": true,
+        "is_archived": false,
+      },
+      ...
+    ]
+  end note
+  status -[#green]> func : 200
+
+  deactivate status
+
+  alt should get archived messages
+    func -> func : Filter only archived messages
+  else
+    func -> func : Filter only non archived messages
+  end
+
+  loop for each message
+    func -> content : Get message content
+
+    activate content
+
+    alt Error from storage
+      content -[#red]> func : 5xx
+      func -> ai : Track error from storage
+    else Content not found
+      content -[#red]> func : 404
+      func -> ai : Track content not found error
+
+    content -[#green]> func : 200
+
+    deactivate content
+
+    func -> func : Add category to the message\n(GENERIC | EU_COVID_CERT | LEGAL_MESSAGE | PAYMENT | PN)
+
+    opt is third_party message
+      note right of func
+        In this case we need to know
+        if the message has preconditions.
+
+        This information has a fallback in
+        the remote-content configuration of
+        the sender service.
+      end note
+
+      func -> func : Check if the message contains "has_precondition" flag
+
+      alt has_precondition not present in the message
+        note right of func
+          Note: This operation is cached using redis.
+        end note
+        func -> rccosmos : Get remote-content configuration of the service
+
+        activate rccosmos
+
+        alt Error from cosmos
+          note right of func
+            This can be any kind of error
+            (5xx, 4xx ecc...).
+          end note
+          rccosmos -[#red]> func
+          func -[#red]x citizen: Cannot enrich data
+        end
+
+        rccosmos -[#green]> func : Return the configuration
+
+        deactivate rccosmos
+
+        note right of func
+          The has_precondition is converted from enum (ALWAYS | ONCE | NEVER) to boolean.
+          ALWAYS -> true
+          ONCE -> true only if message is not read (!is_read), otherwise false
+          NEVER -> false
+        end note
+        func -> func : Use the "has_precondition" retrieved from the configuration
+      end
+    end
+
+  end loop
+
+  note right of func
+    After processing all messages, if any message
+    had a content error (storage 5xx or 404), the
+    function returns "Cannot enrich data" to the client.
+    Errors are not fail-fast: all messages are processed
+    and the check happens at the end.
+  end note
+  alt Any message had a content error
+    func -[#red]x citizen: Cannot enrich data
+  end
+
+  note right of func
+    Enrich messages with service details:
+    organization_name, organization_fiscal_code, service_name.
+    For PAYMENT messages: compute rptId.
+    For PN messages: force has_precondition to true.
+  end note
+
+  loop for each unique sender_service_id
+    note right of func
+      Note: This operation is cached using redis.
+    end note
+    func -> services : Get service by sender_service_id
+
+    activate services
+
+    alt Error from cosmos
+      note right of func
+        This can be any kind of error
+        (5xx, 4xx ecc...).
+      end note
+      services -[#red]> func
+      func -[#red]x citizen: 500 Internal server error
+    end
+
+    services -[#green]> func : Return service details
+
+    deactivate services
+
+    note right of func
+      Add the following service's properties to the message:
+        - organization_fiscal_code
+        - organization_name
+        - service_name
+    end note
+    func -> func : Enrich message with service data
+  end loop
+
+end
+
+func -[#green]> citizen : 200 Return messages
+
+deactivate func
+
+deactivate citizen
+
+@enduml
