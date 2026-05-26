@@ -23,7 +23,7 @@ resource "azurerm_api_management_api" "communications" {
 
   import {
     content_format = "openapi-link"
-    content_value  = "https://raw.githubusercontent.com/pagopa/io-backend/c8bf12effb373cb60249fa7455eba262bc2bbcaf/openapi/generated/api_communication.yaml"
+    content_value  = "https://raw.githubusercontent.com/pagopa/io-backend/fc5592140a9c4e041789c00be7f924385821d35a/openapi/generated/api_communication.yaml"
   }
 }
 
