@@ -36,12 +36,7 @@ const apnsGenericBodyTemplate =
 const fcmv1GenericBodyTemplate =
   '{"message": {"notification": {"title": "$(title)", "body": "$(message)"}, "android": {"data": {"custom": "$(custom)"}, "notification": {"icon": "ic_notification"}}}}';
 
-// when the createOrUpdateInstallation is called we only support apns and gcm
-export const Platform = t.union([
-  t.literal("apns"),
-  t.literal("fcmv1"),
-  t.literal("gcm"),
-]);
+export const Platform = t.union([t.literal("apns"), t.literal("fcmv1")]);
 export type Platform = t.TypeOf<typeof Platform>;
 
 export const NHClientError = t.type({
