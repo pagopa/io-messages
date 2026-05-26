@@ -162,7 +162,7 @@ const mapEnvironmentVariablesToConfig = (env: Env): Config => ({
   },
   comStorageConnectionString: env.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
   databaseName: env.PUSH_DATABASE_NAME,
-  enableMassiveNotificationJobs: env.ENABLE_MASSIVE_NOTIFICATION_JOBS ?? false,
+  enableMassiveNotificationJobs: env.ENABLE_MASSIVE_NOTIFICATION_JOBS,
   installationSummariesContainerName: env.INSTALLATION_SUMMARIES_CONTAINER_NAME,
 
   installationSummariesLeaseContainerPrefix:
