@@ -74,7 +74,7 @@ const envSchema = z.object({
       return sanitizedVal === "true" || sanitizedVal === "1";
     })
     .pipe(z.boolean())
-    .default("false"),
+    .default(false),
   INSTALLATION_SUMMARIES_CONTAINER_NAME: z.string().min(1),
 
   INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX: z.string().min(1),
