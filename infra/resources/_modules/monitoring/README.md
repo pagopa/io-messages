@@ -8,7 +8,7 @@ No requirements.
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
 
 ## Modules
@@ -18,7 +18,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_monitor_action_group.io_com_error](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_action_group) | resource |
 | [azurerm_monitor_scheduled_query_rules_alert.message-ingestion-alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
 | [azurerm_monitor_scheduled_query_rules_alert.message-ingestion-count-collect-alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
@@ -43,7 +43,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_appi_id"></a> [appi\_id](#input\_appi\_id) | Application Insights resource Id | `string` | n/a | yes |
 | <a name="input_com_st_id"></a> [com\_st\_id](#input\_com\_st\_id) | Resource Id of the io-com storage account | `string` | n/a | yes |
 | <a name="input_domain"></a> [domain](#input\_domain) | location used to create resource naming | `string` | n/a | yes |
@@ -55,6 +55,6 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_action_group"></a> [action\_group](#output\_action\_group) | n/a |
 <!-- END_TF_DOCS -->

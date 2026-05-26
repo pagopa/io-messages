@@ -8,13 +8,13 @@ No requirements.
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.48.0 |
+| ---- | ------- |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_citizen_func_autoscaler_new"></a> [citizen\_func\_autoscaler\_new](#module\_citizen\_func\_autoscaler\_new) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
 | <a name="module_citizen_func_new"></a> [citizen\_func\_new](#module\_citizen\_func\_new) | pagopa-dx/azure-function-app/azurerm | ~> 5.0 |
 | <a name="module_cqrs_func"></a> [cqrs\_func](#module\_cqrs\_func) | pagopa-dx/azure-function-app/azurerm | ~> 1.0 |
@@ -34,7 +34,7 @@ No requirements.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_cosmosdb_sql_role_assignment.citizen_func_api_new](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_cosmosdb_sql_role_assignment.citizen_func_com_new](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_cosmosdb_sql_role_assignment.cosmos_api_cqrs_func](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
@@ -92,7 +92,7 @@ No requirements.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_action_group_id"></a> [action\_group\_id](#input\_action\_group\_id) | The ID of the action group | `string` | n/a | yes |
 | <a name="input_app_settings"></a> [app\_settings](#input\_app\_settings) | n/a | <pre>object({<br/>    message_error_table_storage_uri = string,<br/>    eventhub_connection_uri         = string,<br/>  })</pre> | n/a | yes |
 | <a name="input_application_insights"></a> [application\_insights](#input\_application\_insights) | n/a | <pre>object({<br/>    connection_string   = string<br/>    sampling_percentage = number<br/>  })</pre> | n/a | yes |
@@ -128,7 +128,7 @@ No requirements.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_etl_func"></a> [etl\_func](#output\_etl\_func) | n/a |
 | <a name="output_remote_content_func"></a> [remote\_content\_func](#output\_remote\_content\_func) | n/a |
 <!-- END_TF_DOCS -->

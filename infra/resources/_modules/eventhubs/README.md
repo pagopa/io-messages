@@ -12,7 +12,7 @@ No providers.
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_etl"></a> [etl](#module\_etl) | pagopa-dx/azure-event-hub/azurerm | ~> 0.0 |
 
 ## Resources
@@ -22,7 +22,7 @@ No resources.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_domain"></a> [domain](#input\_domain) | domain used to create resource naming | `string` | n/a | yes |
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | env\_short used to create resource naming | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | location used to create resource naming | `string` | n/a | yes |
@@ -35,6 +35,6 @@ No resources.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_namespace"></a> [namespace](#output\_namespace) | n/a |
 <!-- END_TF_DOCS -->
