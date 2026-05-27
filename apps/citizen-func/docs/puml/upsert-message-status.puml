@@ -1,0 +1,123 @@
+@startuml
+
+title Upsert Message Status
+
+actor "Citizen" as citizen
+
+box "citizen-func"
+  participant "UpsertMessageStatus" as func
+end box
+
+!pragma teoz true
+box "io-p-cosmos-api cosmos account" #LightBlue
+  box "db cosmos database"
+    database "message-status" as status
+  end box
+end box
+
+activate citizen
+
+note right of citizen
+  Example request to update the status of a message:
+  **Body Payload (MessageStatusChange)**
+  {
+    "change_type": "reading",
+    "is_read": true
+  }
+  Possible change_type values:
+  - "reading" (is_read)
+  - "archiving" (is_archived)
+  - "bulk" (is_read + is_archived)
+end note
+citizen -> func : PUT /v1/messages/{fiscalcode}/{id}/message-status
+
+activate func
+
+func -> func : Validate request (fiscalCode, id, body)
+alt Invalid request (fiscalCode, id or body)
+  func -[#red]x citizen : 400 Bad request
+end
+
+note right of func
+  Find the latest version of the message status
+  by messageId.
+end note
+func -> status : findLastVersionByModelId(messageId)
+
+activate status
+
+alt Error from cosmos
+  status -[#red]> func
+  func -[#red]>x citizen : 500 Internal server error
+else Message status not found
+  status -[#red]> func : 404
+  func -[#red]x citizen : 404 Not Found
+end
+
+note right of func
+  **Response Document**
+  {
+    "fiscalCode": "LVTEST00A00A197X",
+    "messageId": "01KKV476XG8ZY1K4S8RMEFHMQW",
+    "status": "PROCESSED",
+    "isRead": false,
+    "isArchived": false,
+    "version": 1,
+    "updatedAt": "2026-03-16T10:49:11.856Z"
+  }
+end note
+status -[#green]> func : 200
+
+deactivate status
+
+func -> func : Check fiscalCode ownership\n(messageStatus.fiscalCode === fiscalCode)
+alt Fiscal code mismatch
+  func -[#red]x citizen : 403 Forbidden
+end
+
+note right of func
+  Apply the change to the message status based on change_type:
+  - reading -> update isRead
+  - archiving -> update isArchived
+  - bulk -> update both isRead and isArchived
+end note
+func -> func : Map change to message status fields
+
+note right of func
+  Upsert the new message status
+  with updated fields and updatedAt timestamp.
+end note
+func -> status : upsert(newMessageStatus)
+
+activate status
+
+alt Error from cosmos
+  note right of func
+    This can be any kind of error
+    (5xx, 4xx ecc...).
+  end note
+  status -[#red]> func
+  func -[#red]>x citizen : 500 Internal server error
+end
+
+note right of func
+  **Response Document**
+  {
+    "is_archived": false,
+    "is_read": true,
+    "status": "PROCESSED",
+    "updated_at": "2026-05-26T12:00:00.000Z",
+    "version": 2
+  }
+end note
+status -[#green]> func : 200
+
+deactivate status
+
+func -[#green]> citizen : 200 Return updated message status
+
+deactivate func
+
+deactivate citizen
+
+@enduml
