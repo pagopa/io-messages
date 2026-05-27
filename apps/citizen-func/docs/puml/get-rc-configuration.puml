@@ -1,0 +1,126 @@
+@startuml
+
+title Get RC Configuration
+
+box "app-backend"
+  participant "app-backend" as backend
+end box
+
+box "citizen-func"
+  participant "GetRCConfiguration" as func
+end box
+
+!pragma teoz true
+box "io-p-itn-com-cosno cosmos account" #LightBlue
+  box "remote-content cosmos database"
+    database "rc-configuration" as rccosmos
+  end box
+end box
+
+participant "Redis" as redis
+
+note right of backend
+  Example request to obtain a remote content configuration:
+  **Path Parameters**
+  {
+    "id": "01JR0QRJ8MX1PD06DE6X5FWXS5"
+  }
+end note
+backend -> func : GET /v1/remote-contents/configurations/{id}
+
+activate backend
+
+activate func
+
+func -> func : Validate request
+alt Invalid id (must be a valid ULID)
+  func -[#red]x backend : 400 Bad request
+end
+
+note right of func
+  Try to retrieve the configuration from Redis cache.
+  Cache key: RC-CONFIGURATION-{configurationId}
+end note
+func -> redis : Get cached configuration
+
+activate redis
+
+alt Error from redis
+  note right of func
+    Fallback to Cosmos.
+  end note
+  redis -[#red]> func : Transient error
+else Cache miss
+  note right of func
+    Fallback to Cosmos.
+  end note
+  redis -[#gray]> func : Not found
+end
+
+redis -[#green]> func : Return cached configuration
+
+deactivate redis
+
+func -> func : Parse JSON and decode configuration
+alt Parse or decode error
+  note right of func
+    Fallback to Cosmos.
+  end note
+end
+
+note right of func
+  On cache miss (or parse/decode error),
+  fetch from Cosmos.
+end note
+func -> rccosmos : Get configuration by id
+
+activate rccosmos
+
+alt Error from cosmos
+  note right of func
+    This can be any kind of error
+    (5xx, 4xx ecc...).
+  end note
+  rccosmos -[#red]> func
+  func -[#red]x backend : 500 Internal server error
+else Configuration not found
+  rccosmos -[#red]> func : Empty result
+  func -[#red]x backend : 404 Not Found
+end
+
+rccosmos -[#green]> func : Return the configuration
+
+deactivate rccosmos
+
+note right of func
+  Cache the configuration in Redis
+  with a TTL. If caching fails,
+  the error is ignored.
+end note
+func -> redis : Set cached configuration (with TTL)
+
+activate redis
+
+alt Error from redis
+  redis -[#red]> func : Transient error
+  note right of func
+    Ignore the error.
+  end note
+end
+
+redis -[#green]> func : Success
+deactivate redis
+
+note right of func
+  Map the retrieved configuration
+  to its public representation.
+end note
+func -> func : Convert to RCConfigurationPublic
+
+func -[#green]> backend : 200 Return configuration
+
+deactivate func
+
+deactivate backend
+
+@enduml
