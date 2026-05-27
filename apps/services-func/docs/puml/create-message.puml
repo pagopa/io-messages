@@ -1,0 +1,265 @@
+@startuml
+
+title Create Message
+
+actor "Sender" as sender
+
+box "services-func"
+  participant "CreateMessage" as func
+end box
+
+box "rc-func"
+  participant "GetRCConfiguration" as rcfn
+end box
+
+!pragma teoz true
+box "io-p-cosmos-api cosmos account" #LightBlue
+  box "db cosmos database"
+    database "services" as svc
+    database "messages" as db
+  end box
+end box
+
+box "iopitncomst01 storage account"
+  database "processing-message" as st
+end box
+
+queue "message-created" as q
+
+participant "app-insights" as ai
+
+activate sender
+
+note right of sender
+  The **Request Payload** includes
+  the sender metadata and the
+  **Message Payload**.
+end note
+sender -> func : POST /v1/messages/{fiscalcode?}
+
+activate func
+
+== io-functions-commons middlewares start ==
+
+func -> func : Check if Sender belongs to allowed groups\n(ApiMessageWrite or ApiLimitedMessageWrite)
+
+alt Sender not in allowed groups
+  func -[#red]x sender : 403 Forbidden
+end
+
+func -> func : Extract client IP from request\n(ClientIpMiddleware)
+
+note right of func
+  Uses X-Forwarded-For header or
+  other request headers to determine
+  the client IP. Returns None if
+  IP cannot be determined.
+end note
+
+func -> func : Extract user email\nfrom x-user-email header\n(AzureUserAttributesMiddleware)
+
+alt Missing or invalid x-user-email header
+  func -[#red]x sender : 500 Internal Server Error
+end
+
+func -> func : Extract subscription id\nfrom x-subscription-id header
+
+alt Missing or empty x-subscription-id header
+  func -[#red]x sender : 500 Internal Server Error
+end
+
+func -> svc : Find Service by subscription id\n(findLastVersionByModelId)
+
+activate svc
+
+alt Error from Cosmos
+  svc -[#red]> func
+  func -[#red]x sender : 500 Query Error
+else Service not found
+  svc -[#red]> func : Empty result
+  func -[#red]x sender : 403 Forbidden
+end
+
+note right of func
+  **Response Document**
+  {
+    "serviceId": "01JR0QRJ8MX1PD06DE6X5FWXS5",
+    "departmentName": "Dipartimento Tributi",
+    "organizationName": "Comune di Milano",
+    "organizationFiscalCode": "00514490010",
+    "serviceName": "Avvisi di Pagamento",
+    "authorizedCIDRs": ["10.0.0.0/16"],
+    "authorizedRecipients": ["LVTEST00A00A197X"],
+    "maxAllowedPaymentAmount": 100000,
+    "requireSecureChannels": false,
+    "isVisible": true,
+    "version": 2
+  }
+end note
+
+svc -[#green]> func : Return Service
+
+deactivate svc
+
+func -> func : Parse and validate the **Request Payload**\n(MessagePayloadMiddleware)
+
+alt Invalid Request Payload
+  func -[#red]x sender : 400 Bad Request
+end
+
+func -> func : Extract optional **FiscalCode** from path\n(OptionalFiscalCodeMiddleware)
+
+note right of func
+  Granular payload permission checks:
+  - EU Covid Cert -> requires ApiMessageWriteEUCovidCert
+  - Payment with payee -> requires ApiMessageWriteWithPayee
+  - ADVANCED feature level -> requires ApiMessageWriteAdvanced
+  - Third party message -> requires ApiThirdPartyMessageWrite
+end note
+func -> func : Check payload-specific group permissions\n(AzureAllowBodyPayloadMiddleware)
+
+alt Sender lacks required group for payload
+  func -[#red]x sender : 403 Forbidden
+end
+
+note right of func
+  Checks if the client IP is contained
+  in the service's authorizedCIDRs.
+  If CIDRs is empty, the check is skipped.
+end note
+func -> func : Check source IP against\nservice's authorized CIDRs\n(checkSourceIpForHandler)
+
+alt Client IP is None
+  func -[#red]x sender : 500 Internal Server Error\n(IP cannot be extracted)
+else Client IP not in allowed CIDRs
+  func -[#red]x sender : 403 Forbidden
+end
+
+== io-functions-commons middlewares end ==
+
+func -> func : Parse **FiscalCode** from path or body
+
+alt FiscalCode in both path AND body
+  func -[#red]x sender : 400 Bad Request\n(must be in path or body, not both)
+else FiscalCode missing from both
+  func -[#red]x sender : 400 Bad Request\n(must be specified in path or body)
+end
+
+opt third_party_data is present (Remote Content)
+
+  func -> func : Check if configuration_id is present\nin third_party_data
+
+  alt configuration_id missing
+    func -[#red]x sender : 403 Forbidden\n(No configuration id for remote content)
+  end
+
+  func -> rcfn : Get **RC Configuration** by configuration_id
+
+  activate rcfn
+
+  alt Service unreachable
+    rcfn -[#red]> func : Connection error
+    func -[#red]x sender : 500 Internal Server Error
+  else 400 Bad Request
+    rcfn -[#red]> func : 400
+    func -[#red]x sender : 400 Bad Request
+  else 403 Forbidden
+    rcfn -[#red]> func : 403
+    func -[#red]x sender : 403 Forbidden
+  else 404 Not Found
+    rcfn -[#red]> func : 404
+    func -[#red]x sender : 404 Not Found
+  else 500 Internal Server Error
+    rcfn -[#red]> func : 500
+    func -[#red]x sender : 500 Internal Server Error
+  end
+
+  rcfn -[#green]> func : 200 Return RC Configuration
+
+  deactivate rcfn
+
+  func -> func : Verify ownership\n(auth.userId == configuration.user_id)
+
+  alt Sender is not the owner of the configuration
+    func -[#red]x sender : 403 Forbidden\n(Not your configuration)
+  end
+
+end
+
+opt feature_level_type is STANDARD
+  alt Message includes attachments (has_attachments: true)
+    func -[#red]x sender : 403 Forbidden\n(Attachments not allowed for STANDARD)
+  end
+end
+
+func -> func : Generate **messageId**
+
+func -> func : Check if Sender is allowed\nto contact the citizen (canWriteMessage)
+
+note right of func
+  Sender must belong to ApiMessageWrite
+  (production) or ApiLimitedMessageWrite
+  (with the recipient in authorizedRecipients).
+end note
+
+alt Sender not authorized for recipient
+  func -[#red]x sender : 403 Forbidden
+end
+
+opt Message contains payment_data
+
+  func -> func : Check payment amount\n(canPaymentAmount)
+
+  note right of func
+    The requested amount must not exceed
+    the service's maxAllowedPaymentAmount.
+  end note
+
+  alt Payment amount exceeds limit
+    func -[#red]x sender : 400 Bad Request\n(amount exceeds max allowed)
+  end
+
+end
+
+func -> db : Create **MessageWithoutContent**
+
+activate db
+
+alt Error from Cosmos
+  db -[#red]> func
+  func -[#red]x sender : 500 Internal Server Error
+end
+
+db -[#green]> func : Document created
+
+deactivate db
+
+func -> st : Write **CommonMessageData** blob
+
+activate st
+
+alt Error writing blob
+  st -[#red]> func
+  func -[#red]x sender : 500 Internal Server Error
+end
+
+st -[#green]> func : Blob created
+
+deactivate st
+
+note right of func
+  Track **api.messages.create** event.
+  Sampling is disabled for this event.
+  Tracking covers ALL responses
+  (success and failure).
+end note
+func -> ai : Track api.messages.create event
+
+func -[#green]> sender : 201 Redirect to newly created message
+& func -> q : Enqueue **CreatedMessageEvent**
+
+deactivate func
+
+deactivate sender
+
+@enduml
