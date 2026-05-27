@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.8.10
+
+### Patch Changes
+
+- 81db5c1: Introduced Env var to gate massive jobs enabling
+
 ## 2.8.9
 
 ### Patch Changes
