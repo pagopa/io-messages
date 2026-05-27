@@ -1,0 +1,191 @@
+@startuml
+
+title Get Message
+
+actor "Citizen" as citizen
+
+box "citizen-func"
+  participant "GetMessage" as func
+end box
+
+!pragma teoz true
+box "io-p-cosmos-api cosmos account" #LightBlue
+  box "db cosmos database"
+    database "messages" as metadata
+    database "message-status" as status
+    database "services" as services
+  end box
+end box
+
+box "iopstapi storage account"
+  database "message-content" as content
+end box
+
+activate citizen
+
+note right of citizen
+  Example request to obtain a single message:
+  **Path Parameters**
+  {
+    "fiscalCode": "LVTEST00A00A197X",
+    "id": "01KKV476XG8ZY1K4S8RMEFHMQW"
+  }
+  **Query Parameters**
+  {
+    "public_message": true (optional, default false)
+  }
+end note
+citizen -> func : GET /v1/messages/{fiscalcode}/{id}
+
+activate func
+
+func -> func : Validate request
+alt Invalid fiscalCode or missing id
+  func -[#red]x citizen : 400 Bad request
+end
+
+note right of func
+  Fetch message metadata and content in parallel.
+end note
+
+par
+  func -> metadata : Get message metadata\nby fiscalCode and messageId
+
+  activate metadata
+
+  alt Error from cosmos
+    metadata -[#red]> func : 5xx
+    func -[#red]x citizen : 500 Internal server error
+  end
+
+  alt Message not found
+    metadata -[#red]> func : 404
+    func -[#red]x citizen : 404 Message not found
+  end
+
+  metadata -[#green]> func : 200 Retrieved message
+  deactivate metadata
+
+else
+  func -> content : Get message content by messageId
+
+  activate content
+
+  alt Error from storage
+    content -[#red]> func : 5xx
+    func -[#red]x citizen : 500 Internal server error
+  end
+
+  alt Content not found
+    content -[#red]> func : 404
+    func -[#red]x citizen : 404 Message Content Not Found
+  end
+
+  content -[#green]> func : 200 Message content
+  deactivate content
+end
+
+opt message has payment_data without payee
+  note right of func
+    Enrich payment_data with the sender service's
+    organizationFiscalCode as payee.
+    Note: This operation is cached using redis.
+  end note
+  func -> services : Get service by sender_service_id
+
+  activate services
+
+  alt Error from cosmos
+    services -[#red]> func : 5xx
+    func -[#red]x citizen : 500 Cannot get message Sender Service
+  end
+
+  services -[#green]> func : Return service details
+  deactivate services
+
+  func -> func : Add fiscal_code to payee\nfrom organizationFiscalCode
+end
+
+opt public_message: true
+  note right of func
+    Enrich message with status and service details
+    if public_message=true.
+  end note
+
+  par
+    func -> status : Get last message status\nby message_id
+
+    activate status
+
+    alt Error from cosmos
+      status -[#red]> func : 5xx
+      func -[#red]x citizen : 500 Internal server error
+    end
+
+    alt Status not found
+      status -[#red]> func : 404
+      func -[#red]x citizen : 500 Cannot find status for message
+    end
+
+    status -[#green]> func : Return message status\n(is_read, is_archived)
+    deactivate status
+
+  else
+    note right of func
+      Note: This operation is cached using redis.
+    end note
+    func -> services : Get service by sender_service_id
+
+    activate services
+
+    alt Error from cosmos
+      services -[#red]> func : 5xx
+      func -[#red]x citizen : 500 Internal server error
+    end
+
+    services -[#green]> func : Return service details
+    deactivate services
+  end
+
+  func -> func : Compute message category\n(GENERIC | EU_COVID_CERT | LEGAL_MESSAGE | PAYMENT | PN)
+
+  opt PAYMENT message
+    note right of func
+      Compute rptId:
+      payee.fiscal_code (from payment_data or service.organizationFiscalCode)
+      concatenated with noticeNumber.
+    end note
+    func -> func : rptId = organizationFiscalCode + noticeNumber
+  end
+
+  note right of func
+    Enrich message with:
+      - category
+      - is_archived
+      - is_read
+      - message_title
+      - organization_fiscal_code
+      - organization_name
+      - service_name
+  end note
+end
+
+opt message has third_party_data without configuration_id
+  note right of func
+    Look up configuration_id from the in-memory
+    SERVICE_TO_RCCONFIGURATION_MAP (defined as an environment variable).
+  end note
+  func -> func : Get configuration_id\nfrom serviceToRCConfigurationMap
+
+  alt Service not found in map
+    func -[#red]x citizen : 500 Cannot convert SERVICE_TO_RCCONFIGURATION_MAP
+  end
+end
+
+func -[#green]> citizen : 200 Return message with content
+
+deactivate func
+
+deactivate citizen
+
+@enduml
