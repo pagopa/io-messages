@@ -67,9 +67,17 @@ const envSchema = z.object({
   COSMOSDB_NAME: z.string().min(1),
 
   COSMOSDB_URI: z.url(),
+  ENABLE_MASSIVE_NOTIFICATION_JOBS: z
+    .string()
+    .transform((val) => {
+      const sanitizedVal = val.trim().toLowerCase();
+      return sanitizedVal === "true" || sanitizedVal === "1";
+    })
+    .pipe(z.boolean())
+    .default(false),
   INSTALLATION_SUMMARIES_CONTAINER_NAME: z.string().min(1),
-  INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX: z.string().min(1),
 
+  INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX: z.string().min(1),
   MASSIVE_JOBS_CONTAINER_NAME: z.string().min(1),
   MASSIVE_PROGRESS_CONTAINER_NAME: z.string().min(1),
 
@@ -120,6 +128,7 @@ export const configSchema = z.object({
   }),
   comStorageConnectionString: z.string().min(1),
   databaseName: z.string().min(1),
+  enableMassiveNotificationJobs: z.boolean(),
   installationSummariesContainerName: z.string().min(1),
   installationSummariesLeaseContainerPrefix: z.string().min(1),
   massiveJobsContainerName: z.string().min(1),
@@ -153,6 +162,7 @@ const mapEnvironmentVariablesToConfig = (env: Env): Config => ({
   },
   comStorageConnectionString: env.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
   databaseName: env.PUSH_DATABASE_NAME,
+  enableMassiveNotificationJobs: env.ENABLE_MASSIVE_NOTIFICATION_JOBS,
   installationSummariesContainerName: env.INSTALLATION_SUMMARIES_CONTAINER_NAME,
 
   installationSummariesLeaseContainerPrefix:

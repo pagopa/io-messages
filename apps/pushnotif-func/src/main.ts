@@ -157,14 +157,6 @@ const main = (config: Config) => {
     config.comStorageConnectionString,
     "push-notifications",
   );
-  const checkMassiveJobQueue = new QueueClient(
-    config.comStorageConnectionString,
-    "check-massive-job",
-  );
-  const processMassiveJobQueue = new QueueClient(
-    config.comStorageConnectionString,
-    "process-massive-job",
-  );
 
   // TODO: This factory breaks clean architecture, remove this in future.
   const nhPartitionFactory = new NotificationHubPartitionFactory([
@@ -343,119 +335,132 @@ const main = (config: Config) => {
     queueName: updateInstallationDispatchQueueName,
   });
 
-  const massiveJobsContainer = pushCosmosDb.container(
-    config.massiveJobsContainerName,
-  );
-  const massiveJobsRepository = new CosmosMassiveJobsAdapter(
-    massiveJobsContainer,
-  );
-  const createMassiveNotificationJobUseCase =
-    new MakeCreateMassiveNotificationJobUseCase(massiveJobsRepository);
+  if (config.enableMassiveNotificationJobs) {
+    const checkMassiveJobQueue = new QueueClient(
+      config.comStorageConnectionString,
+      "check-massive-job",
+    );
+    const processMassiveJobQueue = new QueueClient(
+      config.comStorageConnectionString,
+      "process-massive-job",
+    );
 
-  const massiveProgressContainer = pushCosmosDb.container(
-    config.massiveProgressContainerName,
-  );
-  const massiveProgressRepository = new CosmosMassiveProgressAdapter(
-    massiveProgressContainer,
-  );
-  const getMassiveNotificationJobUseCase = new GetMassiveNotificationJobUseCase(
-    massiveJobsRepository,
-    massiveProgressRepository,
-  );
-  const checkMassiveJobQueueAdapter = new CheckMassiveJobQueueAdapter(
-    checkMassiveJobQueue,
-  );
-  const processMassiveJobQueueAdapter = new ProcessMassiveJobQueueAdapter(
-    processMassiveJobQueue,
-  );
+    const massiveJobsContainer = pushCosmosDb.container(
+      config.massiveJobsContainerName,
+    );
+    const massiveJobsRepository = new CosmosMassiveJobsAdapter(
+      massiveJobsContainer,
+    );
+    const createMassiveNotificationJobUseCase =
+      new MakeCreateMassiveNotificationJobUseCase(massiveJobsRepository);
 
-  const startMassiveNotificationJobUseCase =
-    new MakeStartMassiveNotificationJobUseCase(
+    const massiveProgressContainer = pushCosmosDb.container(
+      config.massiveProgressContainerName,
+    );
+    const massiveProgressRepository = new CosmosMassiveProgressAdapter(
+      massiveProgressContainer,
+    );
+    const getMassiveNotificationJobUseCase =
+      new GetMassiveNotificationJobUseCase(
+        massiveJobsRepository,
+        massiveProgressRepository,
+      );
+    const checkMassiveJobQueueAdapter = new CheckMassiveJobQueueAdapter(
+      checkMassiveJobQueue,
+    );
+    const processMassiveJobQueueAdapter = new ProcessMassiveJobQueueAdapter(
+      processMassiveJobQueue,
+    );
+
+    const startMassiveNotificationJobUseCase =
+      new MakeStartMassiveNotificationJobUseCase(
+        massiveJobsRepository,
+        processMassiveJobQueueAdapter,
+        checkMassiveJobQueueAdapter,
+        telemetryService,
+      );
+
+    const pushNotificationRepository =
+      new NotificationHubPushNotificationAdapter(
+        notificationHubClients,
+        notificationHubRegexList,
+      );
+
+    const cancelMassiveNotificationJobUseCase =
+      new CancelMassiveNotificationJobUseCase(
+        massiveJobsRepository,
+        massiveProgressRepository,
+        pushNotificationRepository,
+      );
+
+    const checkMassiveJobStatusUseCase = new CheckMassiveJobStatusUseCase(
       massiveJobsRepository,
-      processMassiveJobQueueAdapter,
-      checkMassiveJobQueueAdapter,
+      massiveProgressRepository,
+      pushNotificationRepository,
       telemetryService,
     );
 
-  const pushNotificationRepository = new NotificationHubPushNotificationAdapter(
-    notificationHubClients,
-    notificationHubRegexList,
-  );
-
-  const cancelMassiveNotificationJobUseCase =
-    new CancelMassiveNotificationJobUseCase(
-      massiveJobsRepository,
+    const processMassiveJobUseCase = new ProcessMassiveJobUseCase(
       massiveProgressRepository,
       pushNotificationRepository,
     );
 
-  const checkMassiveJobStatusUseCase = new CheckMassiveJobStatusUseCase(
-    massiveJobsRepository,
-    massiveProgressRepository,
-    pushNotificationRepository,
-    telemetryService,
-  );
+    const processMassiveJobQueueName = "process-massive-job";
 
-  const processMassiveJobUseCase = new ProcessMassiveJobUseCase(
-    massiveProgressRepository,
-    pushNotificationRepository,
-  );
+    app.http("CreateMassiveNotificationJob", {
+      authLevel: "admin",
+      handler: createMassiveNotificationJobHandler(
+        createMassiveNotificationJobUseCase,
+      ),
+      methods: ["POST"],
+      route: "api/v1/massive-notification-job",
+    });
 
-  const processMassiveJobQueueName = "process-massive-job";
+    app.http("StartMassiveNotificationJob", {
+      authLevel: "admin",
+      handler: startMassiveNotificationJobHandler(
+        startMassiveNotificationJobUseCase,
+      ),
+      methods: ["POST"],
+      route: "api/v1/massive-notification-job/{id}",
+    });
 
-  app.http("CreateMassiveNotificationJob", {
-    authLevel: "admin",
-    handler: createMassiveNotificationJobHandler(
-      createMassiveNotificationJobUseCase,
-    ),
-    methods: ["POST"],
-    route: "api/v1/massive-notification-job",
-  });
+    app.http("GetMassiveNotificationJob", {
+      authLevel: "admin",
+      handler: getGetMassiveNotificationJobHandler(
+        getMassiveNotificationJobUseCase,
+      ),
+      methods: ["GET"],
+      route: "api/v1/massive-notification-job/{id}",
+    });
 
-  app.http("StartMassiveNotificationJob", {
-    authLevel: "admin",
-    handler: startMassiveNotificationJobHandler(
-      startMassiveNotificationJobUseCase,
-    ),
-    methods: ["POST"],
-    route: "api/v1/massive-notification-job/{id}",
-  });
+    app.http("CancelMassiveNotificationJob", {
+      authLevel: "admin",
+      handler: makeCancelMassiveNotificationJobHandler(
+        cancelMassiveNotificationJobUseCase,
+      ),
+      methods: ["DELETE"],
+      route: "api/v1/massive-notification-job/{id}",
+    });
 
-  app.http("GetMassiveNotificationJob", {
-    authLevel: "admin",
-    handler: getGetMassiveNotificationJobHandler(
-      getMassiveNotificationJobUseCase,
-    ),
-    methods: ["GET"],
-    route: "api/v1/massive-notification-job/{id}",
-  });
+    app.storageQueue("CheckMassiveJob", {
+      connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+      handler: makeCheckMassiveJobHandler(
+        telemetryService,
+        checkMassiveJobStatusUseCase,
+      ),
+      queueName: checkMassiveJobQueueName,
+    });
 
-  app.http("CancelMassiveNotificationJob", {
-    authLevel: "admin",
-    handler: makeCancelMassiveNotificationJobHandler(
-      cancelMassiveNotificationJobUseCase,
-    ),
-    methods: ["DELETE"],
-    route: "api/v1/massive-notification-job/{id}",
-  });
-
-  app.storageQueue("CheckMassiveJob", {
-    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
-    handler: makeCheckMassiveJobHandler(
-      telemetryService,
-      checkMassiveJobStatusUseCase,
-    ),
-    queueName: checkMassiveJobQueueName,
-  });
-
-  app.storageQueue("ProcessMassiveJob", {
-    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
-    handler: makeProcessMassiveJobHandler(
-      telemetryService,
-      processMassiveJobUseCase,
-    ),
-    queueName: processMassiveJobQueueName,
-  });
+    app.storageQueue("ProcessMassiveJob", {
+      connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+      handler: makeProcessMassiveJobHandler(
+        telemetryService,
+        processMassiveJobUseCase,
+      ),
+      queueName: processMassiveJobQueueName,
+    });
+  }
 };
 
 loadConfigFromEnvironment(main, configFromEnvironment);

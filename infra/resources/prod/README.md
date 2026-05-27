@@ -4,7 +4,7 @@
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_azuread"></a> [azuread](#requirement\_azuread) | ~> 3.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.0 |
 | <a name="requirement_dx"></a> [dx](#requirement\_dx) | >= 0.0.6, < 1.0.0 |
@@ -12,14 +12,14 @@
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_azuread"></a> [azuread](#provider\_azuread) | 3.8.0 |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.63.0 |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_apim"></a> [apim](#module\_apim) | ../_modules/apim | n/a |
 | <a name="module_container_apps"></a> [container\_apps](#module\_container\_apps) | ../_modules/container_apps | n/a |
 | <a name="module_cosmos"></a> [cosmos](#module\_cosmos) | ../_modules/cosmos | n/a |
@@ -35,7 +35,7 @@
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_monitor_metric_alert.com_redis_memory_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [azurerm_monitor_metric_alert.com_redis_server_load_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [azurerm_private_dns_resolver.com](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_resolver) | resource |
@@ -81,7 +81,7 @@
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_evt_rg_name"></a> [evt\_rg\_name](#input\_evt\_rg\_name) | n/a | `string` | `"io-p-evt-rg"` | no |
 
 ## Outputs

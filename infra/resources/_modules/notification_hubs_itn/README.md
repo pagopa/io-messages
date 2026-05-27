@@ -8,7 +8,7 @@ No requirements.
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
 
 ## Modules
@@ -18,7 +18,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_monitor_metric_alert.alert_nh_partition_1_anomalous_pns_success_volume](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [azurerm_monitor_metric_alert.alert_nh_partition_1_pns_errors](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [azurerm_monitor_metric_alert.alert_nh_partition_2_anomalous_pns_success_volume](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
@@ -59,7 +59,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_action_group_id"></a> [action\_group\_id](#input\_action\_group\_id) | n/a | `string` | n/a | yes |
 | <a name="input_adgroup_com_devs_id"></a> [adgroup\_com\_devs\_id](#input\_adgroup\_com\_devs\_id) | n/a | `string` | n/a | yes |
 | <a name="input_domain"></a> [domain](#input\_domain) | n/a | `string` | n/a | yes |
@@ -73,7 +73,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_nh_itn_partition_1"></a> [nh\_itn\_partition\_1](#output\_nh\_itn\_partition\_1) | n/a |
 | <a name="output_nh_itn_partition_2"></a> [nh\_itn\_partition\_2](#output\_nh\_itn\_partition\_2) | n/a |
 | <a name="output_nh_itn_partition_3"></a> [nh\_itn\_partition\_3](#output\_nh\_itn\_partition\_3) | n/a |

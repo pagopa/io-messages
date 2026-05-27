@@ -8,13 +8,13 @@ No requirements.
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_com_cae"></a> [com\_cae](#module\_com\_cae) | pagopa-dx/azure-container-app-environment/azurerm | ~> 1.0 |
 | <a name="module_payment_updater_ca_itn_01"></a> [payment\_updater\_ca\_itn\_01](#module\_payment\_updater\_ca\_itn\_01) | pagopa-dx/azure-container-app/azurerm | ~> 3.0 |
 | <a name="module_reminder_ca_itn_01"></a> [reminder\_ca\_itn\_01](#module\_reminder\_ca\_itn\_01) | pagopa-dx/azure-container-app/azurerm | ~> 3.0 |
@@ -22,7 +22,7 @@ No requirements.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_key_vault_access_policy.reminder](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_access_policy) | resource |
 | [azurerm_private_dns_resolver_forwarding_rule.pagopa-core-evhns](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_resolver_forwarding_rule) | resource |
 | [azurerm_role_assignment.cae_admins_contributor](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
@@ -50,7 +50,7 @@ No requirements.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_application_insights"></a> [application\_insights](#input\_application\_insights) | n/a | <pre>object({<br/>    connection_string = string<br/>  })</pre> | n/a | yes |
 | <a name="input_dns_forwarding_ruleset_id"></a> [dns\_forwarding\_ruleset\_id](#input\_dns\_forwarding\_ruleset\_id) | Id of the DNS Forwarding Ruleset to use for the Container App Environment | `string` | n/a | yes |
 | <a name="input_entra_id_admin_ids"></a> [entra\_id\_admin\_ids](#input\_entra\_id\_admin\_ids) | Id of Entra ID groups that should be admins of the Container App Environment | `set(string)` | n/a | yes |
@@ -69,7 +69,7 @@ No requirements.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_paymentup"></a> [paymentup](#output\_paymentup) | n/a |
 | <a name="output_reminder"></a> [reminder](#output\_reminder) | n/a |
 <!-- END_TF_DOCS -->

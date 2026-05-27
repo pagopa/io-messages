@@ -72,8 +72,9 @@ locals {
       NH4_NAME            = var.nh_itn_partition_4.name
       # ------------------------------------------------------------------------------
 
-      MASSIVE_JOBS_CONTAINER_NAME     = "massive-jobs"
-      MASSIVE_PROGRESS_CONTAINER_NAME = "massive-progress",
+      ENABLE_MASSIVE_NOTIFICATION_JOBS = "false"
+      MASSIVE_JOBS_CONTAINER_NAME      = "massive-jobs"
+      MASSIVE_PROGRESS_CONTAINER_NAME  = "massive-progress",
 
       MESSAGE_CONTAINER_NAME                    = "message-content"
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string

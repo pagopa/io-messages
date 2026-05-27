@@ -8,13 +8,13 @@ No requirements.
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_com_st"></a> [com\_st](#module\_com\_st) | pagopa-dx/azure-storage-account/azurerm | 1.0.1 |
 | <a name="module_storage_api"></a> [storage\_api](#module\_storage\_api) | github.com/pagopa/terraform-azurerm-v4//storage_account | v1.2.1 |
 | <a name="module_storage_api_events"></a> [storage\_api\_events](#module\_storage\_api\_events) | github.com/pagopa/terraform-azurerm-v4//storage_account | v1.2.1 |
@@ -23,7 +23,7 @@ No requirements.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_monitor_diagnostic_setting.io_com_storage_account_diagnostic_setting](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) | resource |
 | [azurerm_monitor_metric_alert.iopstapi_throttling_low_availability](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [azurerm_storage_container.cached](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container) | resource |
@@ -65,7 +65,7 @@ No requirements.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_application_insights_workspace_id"></a> [application\_insights\_workspace\_id](#input\_application\_insights\_workspace\_id) | n/a | `string` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | n/a | <pre>object({<br/>    prefix    = string<br/>    env_short = string<br/>    location  = string<br/>  })</pre> | n/a | yes |
 | <a name="input_error_action_group_id"></a> [error\_action\_group\_id](#input\_error\_action\_group\_id) | n/a | `string` | n/a | yes |
@@ -81,7 +81,7 @@ No requirements.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_com_st_connectiostring"></a> [com\_st\_connectiostring](#output\_com\_st\_connectiostring) | n/a |
 | <a name="output_com_st_id"></a> [com\_st\_id](#output\_com\_st\_id) | n/a |
 | <a name="output_com_st_name"></a> [com\_st\_name](#output\_com\_st\_name) | n/a |
