@@ -21,6 +21,10 @@ box "iopstapi storage account"
   database "message-content" as content
 end box
 
+box "io-p-itn-com-redis-02" #LightYellow
+  participant "redis" as redis
+end box
+
 activate citizen
 
 note right of citizen
@@ -55,10 +59,8 @@ par
 
   alt Error from cosmos
     metadata -[#red]> func : 5xx
-    func -[#red]x citizen : 500 Internal server error
-  end
-
-  alt Message not found
+    func -[#red]x citizen : 500 Error while retrieving the message
+  else Message not found
     metadata -[#red]> func : 404
     func -[#red]x citizen : 404 Message not found
   end
@@ -66,42 +68,65 @@ par
   metadata -[#green]> func : 200 Retrieved message
   deactivate metadata
 
+  func -> func : Validate that metadata's fiscalCode is correct
+
 else
-  func -> content : Get message content by messageId
+  func -> content : GET message content from blob {messageId}.json
 
   activate content
 
-  alt Error from storage
+  alt Error from blob storage
     content -[#red]> func : 5xx
     func -[#red]x citizen : 500 Internal server error
-  end
-
-  alt Content not found
+  else Blob not found
     content -[#red]> func : 404
     func -[#red]x citizen : 404 Message Content Not Found
   end
 
-  content -[#green]> func : 200 Message content
+  content -[#green]> func : 200 Message content JSON
   deactivate content
+
+  func -> func : Parse and decode message content
 end
 
 opt message has payment_data without payee
   note right of func
     Enrich payment_data with the sender service's
     organizationFiscalCode as payee.
-    Note: This operation is cached using redis.
   end note
-  func -> services : Get service by sender_service_id
 
-  activate services
+  func -> redis : GET serviceId
+  activate redis
 
-  alt Error from cosmos
-    services -[#red]> func : 5xx
-    func -[#red]x citizen : 500 Cannot get message Sender Service
+  alt Cache hit
+    redis -[#green]> func : Cached service JSON
+
+    func -> func : Parse and decode retrieved service
+  else Cache miss
+    redis -[#red]> func : Service not found in cache
+    deactivate redis
+
+    func -> services : Get service by sender_service_id
+
+    activate services
+
+    alt Error from cosmos
+      note right of func
+        This can be any kind of error
+        (5xx, 4xx ecc...).
+      end note
+      services -[#red]> func : Error from cosmos
+      func -[#red]x citizen : 500 Cannot get message Sender Service
+    end
+
+    services -[#green]> func : Return service details
+    deactivate services
+
+    func -> redis : SET Save service details in cache
+    activate redis
+    redis -[#green]> func
+    deactivate redis
   end
-
-  services -[#green]> func : Return service details
-  deactivate services
 
   func -> func : Add fiscal_code to payee\nfrom organizationFiscalCode
 end
@@ -109,7 +134,7 @@ end
 opt public_message: true
   note right of func
     Enrich message with status and service details
-    if public_message=true.
+    if public_message is true.
   end note
 
   par
@@ -120,9 +145,7 @@ opt public_message: true
     alt Error from cosmos
       status -[#red]> func : 5xx
       func -[#red]x citizen : 500 Internal server error
-    end
-
-    alt Status not found
+    else Status not found
       status -[#red]> func : 404
       func -[#red]x citizen : 500 Cannot find status for message
     end
@@ -131,20 +154,38 @@ opt public_message: true
     deactivate status
 
   else
-    note right of func
-      Note: This operation is cached using redis.
-    end note
-    func -> services : Get service by sender_service_id
+    func -> redis : GET serviceId
+    activate redis
 
-    activate services
+    alt Cache hit
+      redis -[#green]> func : Cached service JSON
+      deactivate redis
+      func -> func : Parse and decode RetrievedService
+    else Cache miss
+      redis -[#red]> func : Service not found in cache
+      deactivate redis
 
-    alt Error from cosmos
-      services -[#red]> func : 5xx
-      func -[#red]x citizen : 500 Internal server error
+      func -> services : Get service by sender_service_id
+
+      activate services
+
+      alt Error from cosmos
+        note right of func
+          This can be any kind of error
+          (5xx, 4xx ecc...).
+        end note
+        services -[#red]> func : Error from cosmos
+        func -[#red]x citizen : 500 Internal server error
+      end
+
+      services -[#green]> func : Return service details
+      deactivate services
+
+      func -> redis : SET Save service details in cache
+      activate redis
+      redis -[#green]> func
+      deactivate redis
     end
-
-    services -[#green]> func : Return service details
-    deactivate services
   end
 
   func -> func : Compute message category\n(GENERIC | EU_COVID_CERT | LEGAL_MESSAGE | PAYMENT | PN)
