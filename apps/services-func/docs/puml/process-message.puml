@@ -1,0 +1,296 @@
+@startuml
+
+title Process Message
+
+queue "message-created" as inq
+
+box "services-func"
+  participant "ProcessMessage" as func
+end box
+
+!pragma teoz true
+box "io-p-cosmos-api cosmos account" #LightBlue
+  box "db cosmos database"
+    database "profiles" as profiles
+    database "service-preferences" as svcpref
+    database "activations" as activations
+    database "messages" as msgs
+    database "message-status" as msgstatus
+  end box
+end box
+
+box "iopitncomst01 storage account"
+  collections "processing-message" as procblob
+end box
+
+box "iopstapi storage account"
+  collections "message-content" as contentblob
+end box
+
+queue "message-processed" as outq
+
+participant "app-insights" as ai
+
+inq -> func : **CreatedMessageEvent**\n{messageId, serviceVersion}
+
+activate func
+
+func -> func : Parse JSON from queue item\n(withJsonInput)
+
+alt Invalid JSON
+  func -[#red]x inq : throw Error (retry)
+end
+
+func -> func : Decode into **CreatedMessageEvent**\n(withDecodedInput)
+
+alt Invalid shape
+  func -[#red]x inq : throw Error (retry)
+end
+
+func -> procblob : Retrieve **CommonMessageData** blob\nby messageId (withExpandedInput)
+
+activate procblob
+
+alt Error retrieving blob
+  procblob -[#red]> func
+  func -[#red]x inq : throw Error (retry)
+else Blob not found
+  procblob -[#red]> func : Empty result
+  func -[#red]x inq : throw Error (retry)
+end
+
+note right of func
+  **CommonMessageData**
+  {
+    "content": { ... },
+    "message": {
+      "id": "01KKV476XG8ZY1K4S8RMEFHMQW",
+      "fiscalCode": "LVTEST00A00A197X",
+      "senderServiceId": "01JR0QRJ8MX1PD06DE6X5FWXS5",
+      "isPending": true,
+      ...
+    },
+    "senderMetadata": {
+      "departmentName": "...",
+      "organizationName": "...",
+      "organizationFiscalCode": "...",
+      "serviceName": "...",
+      "serviceCategory": "STANDARD",
+      ...
+    }
+  }
+end note
+procblob -[#green]> func : Return CommonMessageData
+
+deactivate procblob
+
+func -> func : Merge CreatedMessageEvent\nwith CommonMessageData
+
+== Profile lookup ==
+
+func -> profiles : Find profile by fiscalCode\n(findLastVersionByModelId)
+
+activate profiles
+
+alt Error from Cosmos
+  profiles -[#red]> func
+  func -[#red]x inq : throw Error (retry)
+
+else Profile not found
+  profiles -[#red]> func : Empty result
+
+  note right of func
+    Message is rejected because the
+    recipient does not have a profile.
+    TTL is applied so the message and
+    its status will be garbage collected.
+  end note
+
+  func -> msgstatus : Upsert message status\n(REJECTED, reason: USER_NOT_FOUND, with TTL)
+  activate msgstatus
+  alt Error upserting status
+    msgstatus -[#red]> func
+    func -> ai : Track api.messages.create.create-status-fail
+    func -[#red]x inq : throw Error (retry)
+  end
+  msgstatus -[#green]> func
+  deactivate msgstatus
+
+  func -> msgstatus : Update TTL for all status versions
+  activate msgstatus
+  alt Error updating TTL
+    msgstatus -[#red]> func
+    func -> ai : Track api.messages.create.fail-status-ttl-set
+  end
+  msgstatus -[#green]> func
+  deactivate msgstatus
+
+  func -> msgs : Patch message with TTL
+  activate msgs
+  alt Error patching message
+    msgs -[#red]> func
+    func -> ai : Track api.messages.create.fail-message-ttl-set
+    func -[#red]x inq : throw Error (retry)
+  end
+  msgs -[#green]> func
+  deactivate msgs
+
+  func -> func : End execution.
+end
+
+profiles -[#green]> func : Return Profile
+
+deactivate profiles
+
+== Inbox check ==
+
+func -> func : Check if profile.isInboxEnabled
+
+alt Inbox disabled (isInboxEnabled: false)
+  func -> msgstatus : Upsert message status\n(REJECTED, reason: SERVICE_NOT_ALLOWED)
+  activate msgstatus
+  alt Error upserting status
+    msgstatus -[#red]> func
+    func -[#red]x inq : throw Error (retry)
+  end
+  msgstatus -[#green]> func
+  deactivate msgstatus
+
+  note right of func
+    Message is rejected because the
+    recipient has disabled their inbox.
+  end note
+  func -> func : End execution.
+end
+
+== Service preferences check ==
+
+note right of func
+  Determine which channels the user
+  has blocked for this sender service.
+  Depends on user's servicePreferencesSettings.mode:
+  - LEGACY -> use profile.blockedInboxOrChannels
+  - AUTO -> inbox enabled by default if no preference
+  - MANUAL -> inbox disabled by default if no preference
+end note
+
+func -> svcpref : Get user's service preference\nfor (fiscalCode, serviceId)
+
+activate svcpref
+
+alt Error from Cosmos
+  svcpref -[#red]> func
+  func -[#red]x inq : throw Error (retry)
+else Preference not found
+  svcpref -[#red]> func : Empty result
+  note right of func
+    Default behavior based on mode:
+    - AUTO: no channels blocked (inbox enabled)
+    - MANUAL: INBOX blocked (inbox disabled)
+  end note
+  func -> func : Compute default blockedInboxOrChannels\nbased on mode
+else Preference found
+  svcpref -[#green]> func : Return service preference
+  deactivate svcpref
+  func -> func : Compute blockedInboxOrChannels\nfrom service preference
+end
+
+opt Service category is SPECIAL
+
+  func -> activations : Find activation\nby (serviceId, fiscalCode)
+
+  activate activations
+
+  alt Error from Cosmos
+    activations -[#red]> func
+    func -[#red]x inq : throw Error (retry)
+  end
+
+  activations -[#green]> func : Return activation (or None)
+
+  deactivate activations
+
+  note right of func
+    If activation is ACTIVE (or pending
+    within grace period) -> remove INBOX
+    from blocked channels.
+    Otherwise -> add INBOX to blocked.
+  end note
+  func -> func : Update blockedInboxOrChannels\nbased on activation status
+
+end
+
+func -> ai : Track api.messages.create.blockedstoremessage
+
+alt INBOX is blocked for this service
+  func -> msgstatus : Upsert message status\n(REJECTED, reason: SERVICE_NOT_ALLOWED)
+  activate msgstatus
+  alt Error upserting status
+    msgstatus -[#red]> func
+    func -[#red]x inq : throw Error (retry)
+  end
+  msgstatus -[#green]> func
+  deactivate msgstatus
+
+  note right of func
+    Message is rejected because the
+    user has blocked this service.
+  end note
+  func -> func : End execution.
+end
+
+== Message creation (happy path) ==
+
+note right of func
+  If payment_data is present but
+  payee is missing, override it with
+  the sender's organizationFiscalCode.
+end note
+func -> func : Normalize payment_data payee
+
+func -> contentblob : Store message content blob
+
+activate contentblob
+
+alt Error storing content
+  contentblob -[#red]> func
+  func -[#red]x inq : throw Error (retry)
+end
+
+contentblob -[#green]> func : Content stored
+
+deactivate contentblob
+
+func -> msgstatus : Upsert message status\n(PROCESSED)
+
+activate msgstatus
+
+alt Error upserting status
+  msgstatus -[#red]> func
+  func -[#red]x inq : throw Error (retry)
+end
+
+msgstatus -[#green]> func
+
+deactivate msgstatus
+
+func -> msgs : Update message (isPending: false)
+
+activate msgs
+
+alt Error updating message
+  msgs -[#red]> func
+  func -[#red]x inq : throw Error (retry)
+end
+
+msgs -[#green]> func : Message visible
+
+deactivate msgs
+
+func -> ai : Track api.messages.processed
+
+func -> outq : Enqueue **ProcessedMessageEvent**\n{blockedInboxOrChannels, messageId, profile}
+
+deactivate func
+
+@enduml
