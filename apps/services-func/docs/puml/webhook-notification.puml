@@ -1,0 +1,153 @@
+@startuml
+
+title Webhook Notification
+
+queue "notification-created-webhook" as inq
+
+note left of inq
+  Producer: services-func / CreateNotification
+  (queue trigger on `message-processed`).
+end note
+
+box "services-func"
+  participant "WebhookNotification" as func
+end box
+
+!pragma teoz true
+box "iopitncomst01 storage account"
+  collections "processing-message" as procblob
+end box
+
+box "io-p-cosmos-api cosmos account" #LightBlue
+  box "db cosmos database"
+    database "notifications" as notifdb
+  end box
+end box
+
+box "pushnotif-func (NOTIFY_API_URL)"
+  participant "POST /api/v1/notify" as notify
+end box
+
+box "Azure Notification Hubs (assumed)" #LightGray
+  participant "NH dispatch" as nh
+end box
+
+box "Mobile device (assumed)" #LightGray
+  participant "APNs / FCM client" as webhook
+end box
+
+inq -> func : **NotificationCreatedEvent**\n{messageId, notificationId}
+activate func
+
+func -> func : Parse JSON from queue item\n(withJsonInput)
+
+alt Invalid JSON
+  func -[#red]x inq : throw Error (retry)
+end
+
+func -> func : Decode into **NotificationCreatedEvent**\n(withDecodedInput)
+
+alt Invalid shape
+  func -[#red]x inq : throw Error (retry)
+end
+
+func -> procblob : Retrieve **CommonMessageData** blob\nby messageId (withExpandedInput)
+activate procblob
+
+alt Error retrieving blob
+  procblob -[#red]> func
+  func -[#red]x inq : throw Error (retry)
+else Blob not found
+  procblob -[#red]> func : Empty result
+  func -[#red]x inq : throw Error (retry)
+end
+
+procblob -[#green]> func : Return CommonMessageData
+
+deactivate procblob
+
+func -> func : Check message validity\n(ActiveMessage.decode)
+
+alt Message expired (TTL)
+  func -> func : Log RESULT=TTL_EXPIRED
+  func -[#green]> inq : Return SUCCESS / EXPIRED
+end
+
+func -> notifdb : Find notification by\n(id=notificationId, pk=messageId)
+activate notifdb
+
+alt Error from Cosmos
+  notifdb -[#red]> func
+  func -[#red]x inq : throw Error (retry)
+else Notification not found
+  notifdb -[#red]> func : Empty result
+  func -[#red]x inq : throw Error (retry)
+else Notification found
+  notifdb -[#green]> func : Notification document
+end
+
+deactivate notifdb
+
+func -> func : Decode as **WebhookNotification**
+
+alt Decode error (e.g. notification has no WEBHOOK channel)
+  func -> func : Log decode details
+  func -[#orange]> inq : Return FAILURE / DECODE_ERROR
+end
+
+func -> notify : POST sendingUrl with payload\n{fiscal_code, message_id, notification_type:"MESSAGE", webhookEndpoint}
+activate notify
+
+note right of notify
+  sendingUrl = ${NOTIFY_API_URL}/api/v1/notify (configured at startup;
+  resolves to pushnotif-func).
+  The per-notification webhook URL stored in Cosmos
+  (channels.WEBHOOK.url) is decoded for validation but
+  is NOT used as the HTTP target.
+  `webhookEndpoint` is sent in the body but is not part of
+  pushnotif-func's NotificationInfo schema (effectively ignored).
+end note
+
+alt Timeout (AbortError)
+  notify -[#red]> func : AbortError
+  func -> func : Map to TransientError
+  func -[#red]x inq : throw Error (retry)
+else Other fetch exception (network/TLS/DNS)
+  notify -[#red]> func : thrown exception (name != "AbortError")
+  func -> func : Map to PermanentError
+  func -[#orange]> inq : Return FAILURE / SEND_TO_WEBHOOK_FAILED
+else HTTP 500
+  notify -[#red]> func : 500
+  func -> func : Map to TransientError
+  func -> func : Log ERROR=<message>
+  func -[#red]x inq : throw Error (retry)
+else Response not decodable by notifyDefaultDecoder
+  notify -[#orange]> func : status reached, body shape unexpected
+  func -> func : Map to PermanentError ("Decoding error")
+  func -[#orange]> inq : Return FAILURE / SEND_TO_WEBHOOK_FAILED
+else HTTP 4xx (or other non-500)
+  notify -[#orange]> func : 4xx / non-500
+  func -> func : Map to PermanentError
+  func -> func : Log ERROR=<message>
+  func -[#orange]> inq : Return FAILURE / SEND_TO_WEBHOOK_FAILED
+else HTTP 204
+  notify -[#green]> func : 204 No Content
+  ' Out-of-scope for services-func; shown for context only.
+  notify --> nh : (assumed) enqueue NotifyMessage -> NH dispatch
+  nh --> webhook : (assumed) APNs / FCM push
+  webhook --> nh : (assumed) delivery ack
+  func -[#green]> inq : Return SUCCESS / OK
+end
+
+deactivate notify
+
+deactivate func
+
+note right of inq
+  Queue retries happen only when
+  the function throws an Error.
+  host.json sets maxDequeueCount=5,
+  visibilityTimeout=30s.
+end note
+
+@enduml
