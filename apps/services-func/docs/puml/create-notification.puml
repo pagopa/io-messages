@@ -1,0 +1,189 @@
+@startuml
+
+title Create Notification
+
+queue "message-processed" as inq
+
+box "services-func"
+  participant "CreateNotification" as func
+end box
+
+!pragma teoz true
+box "iopitncomst01 storage account"
+  collections "processing-message" as procblob
+end box
+
+box "io-p-cosmos-api cosmos account" #LightBlue
+  box "db cosmos database"
+    database "notifications" as notifdb
+  end box
+end box
+
+queue "email-notifications" as emailq
+queue "webhook-notifications" as webhookq
+
+inq -> func : **ProcessedMessageEvent**\n{blockedInboxOrChannels, messageId, profile}
+
+activate func
+
+
+func -> func : Parse JSON from queue item\n(withJsonInput)
+
+alt Invalid JSON
+  func -[#red]x inq : throw Error (retry)
+end
+
+func -> func : Decode into **ProcessedMessageEvent**\n(withDecodedInput)
+
+alt Invalid shape
+  func -[#red]x inq : throw Error (retry)
+end
+
+func -> procblob : Retrieve **CommonMessageData** blob\nby messageId (withExpandedInput)
+
+activate procblob
+
+alt Error retrieving blob
+  procblob -[#red]> func
+  func -[#red]x inq : throw Error (retry)
+else Blob not found
+  procblob -[#red]> func : Empty result
+  func -[#red]x inq : throw Error (retry)
+end
+
+note right of func
+  **CommonMessageData**
+  {
+    "content": { ... },
+    "message": {
+      "id": "01KKV476XG8ZY1K4S8RMEFHMQW",
+      "fiscalCode": "LVTEST00A00A197X",
+      "senderServiceId": "01JR0QRJ8MX1PD06DE6X5FWXS5",
+      ...
+    },
+    "senderMetadata": {
+      "serviceName": "...",
+      "requireSecureChannels": false,
+      "serviceUserEmail": "owner@example.com",
+      ...
+    }
+  }
+end note
+
+procblob -[#green]> func : Return CommonMessageData
+
+deactivate procblob
+
+== Email channel decision ==
+
+note right of func
+  **isEmailBlockedForService**
+  Only applies when servicePreferencesSettings.mode
+  is LEGACY and EMAIL is in blockedInboxOrChannels.
+end note
+func -> func : Compute isEmailBlockedForService\n(LEGACY mode + EMAIL in blockedInboxOrChannels)
+
+note right of func
+  **Email address resolution**
+  If fiscalCode == SANDBOX_FISCAL_CODE:
+    use senderMetadata.serviceUserEmail
+    (SERVICE_USER_ADDRESS)
+  Otherwise:
+    use profile.email if present
+    (PROFILE_ADDRESS)
+end note
+func -> func : Resolve maybeNotificationEmailAddress\n(sandbox path or profile email)
+
+func -> func : Compute isEmailChannelAllowed\n(!senderMetadata.requireSecureChannels)
+
+func -> func : Compute isEmailDisabledForService\n(serviceId in emailNotificationServiceBlackList)
+
+func -> func : Compute isEmailEnabledInProfile\n(fiscalCode == sandbox OR profile.isEmailEnabled != false)
+
+func -> func : Compute isEmailValidatedInProfile\n(fiscalCode == sandbox OR profile.isEmailValidated != false)
+
+note right of func
+  Email notification is sent only when ALL
+  conditions are met:
+  - !isEmailDisabledForService
+  - isEmailEnabledInProfile
+  - isEmailValidatedInProfile
+  - !isEmailBlockedForService
+  - isEmailChannelAllowed
+  - maybeNotificationEmailAddress is Some
+end note
+func -> func : Resolve maybeEmailNotificationAddress\n(O.none if any condition fails)
+
+== Webhook channel decision ==
+
+func -> func : Compute isWebhookEnabledInProfile\n(profile.isWebhookEnabled === true)
+
+func -> func : Compute isWebhookBlockedForService\n(WEBHOOK in blockedInboxOrChannels)
+
+note right of func
+  Webhook notification is sent only when:
+  - isWebhookEnabledInProfile
+  - !isWebhookBlockedForService
+end note
+func -> func : Resolve maybeWebhookNotificationUrl\n(O.none if any condition fails)
+
+== No channels guard ==
+
+alt maybeEmailNotificationAddress is None\nAND maybeWebhookNotificationUrl is None
+  note right of func
+    No channels are configured for this
+    recipient. Nothing to do.
+  end note
+  func -> func : End execution\n(RESULT=NO_CHANNELS_ENABLED)
+end
+
+== Save Notification to CosmosDB ==
+
+note right of func
+  **NewNotification**
+  {
+    "id": "<ulid>",
+    "fiscalCode": "LVTEST00A00A197X",
+    "messageId": "01KKV476XG8ZY1K4S8RMEFHMQW",
+    "channels": {
+      "EMAIL": { "toAddress": "...", "addressSource": "..." },
+      "WEBHOOK": { "url": "https://..." }
+    }
+  }
+end note
+func -> func : Build NewNotification\n(createNewNotification + channels)
+
+func -> notifdb : Create notification document\n(NotificationModel.create)
+
+activate notifdb
+
+alt Error from Cosmos
+  notifdb -[#red]> func
+  func -[#red]x inq : throw Error\n(Cannot save notification to database)
+end
+
+notifdb -[#green]> func : Return saved Notification\n(with generated id)
+
+deactivate notifdb
+
+== Enqueue output events ==
+
+opt maybeEmailNotificationAddress is Some
+
+  note right of func
+    **NotificationCreatedEvent**
+    { messageId, notificationId }
+  end note
+  func -> emailq : Enqueue **NotificationCreatedEvent**\n(via emailOutput extra binding)
+
+end
+
+opt maybeWebhookNotificationUrl is Some
+
+  func -> webhookq : Enqueue **NotificationCreatedEvent**\n(via webhookOutput extra binding)
+
+end
+
+deactivate func
+
+@enduml
