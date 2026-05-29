@@ -634,19 +634,19 @@ export const getProcessMessageHandler = ({
             blockedInboxOrChannels.indexOf(BlockedInboxOrChannelEnum.INBOX) >=
             0;
 
-          telemetryClient.trackEvent({
-            name: "api.messages.create.blockedstoremessage",
-            properties: {
-              fiscalCode: toHash(profile.fiscalCode),
-              isBlocked: String(isMessageStorageBlockedForService),
-              messageId: createdMessageEvent.message.id,
-              mode: profile.servicePreferencesSettings.mode,
-              senderId: createdMessageEvent.message.senderServiceId,
-            },
-            tagOverrides: { samplingEnabled: "false" },
-          });
-
           if (isMessageStorageBlockedForService) {
+            telemetryClient.trackEvent({
+              name: "api.messages.create.blockedstoremessage",
+              properties: {
+                fiscalCode: toHash(profile.fiscalCode),
+                isBlocked: String(isMessageStorageBlockedForService),
+                messageId: createdMessageEvent.message.id,
+                mode: profile.servicePreferencesSettings.mode,
+                senderId: createdMessageEvent.message.senderServiceId,
+              },
+              tagOverrides: { samplingEnabled: "false" },
+            });
+
             await pipe(
               messageStatusUpdater({
                 rejection_reason: RejectionReasonEnum.SERVICE_NOT_ALLOWED,
