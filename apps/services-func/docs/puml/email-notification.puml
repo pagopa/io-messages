@@ -1,0 +1,157 @@
+@startuml
+
+title Email Notification
+
+queue "notification-created-email" as inq
+
+box "services-func"
+  participant "EmailNotification" as func
+end box
+
+!pragma teoz true
+box "io-p-cosmos-api cosmos account" #LightBlue
+  box "db cosmos database"
+    database "notifications" as notifications
+  end box
+end box
+
+box "iopitncomst01 storage account"
+  collections "processing-message" as procblob
+end box
+
+participant "NodeMailer\n(SMTP)" as mailer
+
+inq -> func : **NotificationCreatedEvent**\n{messageId, notificationId}
+
+activate func
+
+func -> func : Parse JSON from queue item
+
+alt Invalid JSON
+  func -[#red]x inq : throw Error (retry)
+end
+
+func -> func : Decode into **NotificationCreatedEvent**
+
+alt Invalid shape
+  func -[#red]x inq : throw Error (retry)
+end
+
+func -> procblob : Retrieve **CommonMessageData** blob\nby messageId
+
+activate procblob
+
+alt Error retrieving blob
+  procblob -[#red]> func : Error from blob storage
+  func -[#red]x inq : throw Error (retry)
+else Blob not found
+  procblob -[#red]> func : Empty result
+  func -[#red]x inq : throw Error (retry)
+end
+
+note right of func
+  **CommonMessageData**
+  {
+    "content": { "subject": "...", "markdown": "..." },
+    "message": {
+      "id": "01KKV476XG8ZY1K4S8RMEFHMQW",
+      "fiscalCode": "LVTEST00A00A197X",
+      "timeToLiveSeconds": 3600,
+      ...
+    },
+    "senderMetadata": {
+      "departmentName": "...",
+      "organizationName": "...",
+      "serviceName": "...",
+      ...
+    }
+  }
+end note
+
+procblob -[#green]> func : Return CommonMessageData
+
+deactivate procblob
+
+== TTL check ==
+
+func -> func : Check if message is expired
+
+alt Message TTL expired
+  note right of func
+    The message has expired (TTL elapsed).
+    No further processing needed.
+  end note
+  func -> func : Return SUCCESS/EXPIRED
+  func -> func : End execution.
+end
+
+== Notification lookup ==
+
+func -> notifications : Find notification\nby [notificationId, messageId]
+
+activate notifications
+
+alt Error from Cosmos
+  notifications -[#red]> func : Error from cosmos
+  func -[#red]x inq : throw Error (retry)
+else Notification not found
+  notifications -[#red]> func : Empty result
+  note right of func
+    It may happen that the object is not
+    yet visible to this function due to latency.
+    Throwing an error will trigger a retry.
+  end note
+  func -[#red]x inq : throw Error (retry)
+end
+
+notifications -[#green]> func : Return Notification document
+
+deactivate notifications
+
+== Notification decode ==
+
+func -> func : Decode **EmailNotification**\nfrom notification document
+
+alt Decode error
+  note right of func
+    The notification document is not
+    compatible with this code.
+  end note
+  func -> func : Return FAILURE/DECODE_ERROR
+  func -> func : End execution.
+end
+
+func -> func : Extract recipient\nfrom document
+
+== Email rendering ==
+
+func -> func : Geenrate HTML from message
+
+alt Error generating HTML
+  func -[#red]x inq : throw Error (retry)
+end
+
+func -> func : Converts HTML into pure text
+
+== Email delivery ==
+
+func -> mailer : Send email through NodeMailer service
+
+activate mailer
+
+alt Error sending email
+  mailer -[#red]> func : Error from NodeMailer
+  func -[#red]x inq : throw Error (retry)
+end
+
+mailer -[#green]> func : Email sent
+
+deactivate mailer
+
+func -> func : Return SUCCESS/OK
+
+func -> func : End execution.
+
+deactivate func
+
+@enduml
