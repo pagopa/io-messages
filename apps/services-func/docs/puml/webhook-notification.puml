@@ -28,14 +28,6 @@ box "pushnotif-func (NOTIFY_API_URL)"
   participant "POST /api/v1/notify" as notify
 end box
 
-box "Azure Notification Hubs (assumed)" #LightGray
-  participant "NH dispatch" as nh
-end box
-
-box "Mobile device (assumed)" #LightGray
-  participant "APNs / FCM client" as webhook
-end box
-
 inq -> func : **NotificationCreatedEvent**\n{messageId, notificationId}
 activate func
 
@@ -77,12 +69,27 @@ func -> notifdb : Find notification by\n(id=notificationId, pk=messageId)
 activate notifdb
 
 alt Error from Cosmos
+  note right of func
+    Cosmos errors are often transient; retrying may succeed.
+    This is also triggered if Notification is not found.
+  end note
   notifdb -[#red]> func
   func -[#red]x inq : throw Error (retry)
-else Notification not found
-  notifdb -[#red]> func : Empty result
-  func -[#red]x inq : throw Error (retry)
 else Notification found
+  note right of func
+  **Response Document** (RetrievedNotification)
+  {
+    "fiscalCode": "AAABBB01C02D345E",
+    "messageId": "01HZX9F8R3K2YQ7G6N4P5T1WJM",
+    "channels": {
+      "WEBHOOK": {
+        "url": "https://example.org/notify"
+      }
+    },
+    "id": "01HZX9F8R3K2YQ7G6N4P5T1WJM",
+    "kind": "IRetrievedNotification"
+  }
+  end note
   notifdb -[#green]> func : Notification document
 end
 
@@ -132,11 +139,6 @@ else HTTP 4xx (or other non-500)
   func -[#orange]> inq : Return FAILURE / SEND_TO_WEBHOOK_FAILED
 else HTTP 204
   notify -[#green]> func : 204 No Content
-  ' Out-of-scope for services-func; shown for context only.
-  notify --> nh : (assumed) enqueue NotifyMessage -> NH dispatch
-  nh --> webhook : (assumed) APNs / FCM push
-  webhook --> nh : (assumed) delivery ack
-  func -[#green]> inq : Return SUCCESS / OK
 end
 
 deactivate notify
