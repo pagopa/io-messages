@@ -86,16 +86,16 @@ note right of func
   the profile is in LEGACY mode AND
   EMAIL appears in the blocked channels list(blockedInboxOrChannels).
 end note
-func -> func : Check if user blocked EMAIL for this service\n(only relevant in LEGACY preference mode)
+func -> func : Check if user blocked EMAIL for this service
 
 note right of func
   **Email address resolution**
   If the fiscalCode in the message matches the test recipient fiscal code, use the service owner email address.
   Otherwise use the email address from the recipient's profile.
 end note
-func -> func : Resolve candidate email address\n(service owner email for test messages, recipient profile email otherwise)
+func -> func : Resolve candidate email address
 
-func -> func : Check sender service allows the email channel\n(not configured as secure-channels-only)
+func -> func : Check sender service allows the email channel
 
 func -> func : Check sender service is not in the email notification blacklist
 
