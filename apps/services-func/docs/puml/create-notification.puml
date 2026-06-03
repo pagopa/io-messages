@@ -27,19 +27,19 @@ inq -> func : **ProcessedMessageEvent**\n{blockedInboxOrChannels, messageId, pro
 activate func
 
 
-func -> func : Parse JSON from queue item\n(withJsonInput)
+func -> func : Parse JSON from queue item
 
 alt Invalid JSON
   func -[#red]x inq : throw Error (retry)
 end
 
-func -> func : Decode into **ProcessedMessageEvent**\n(withDecodedInput)
+func -> func : Decode into **ProcessedMessageEvent**
 
 alt Invalid shape
   func -[#red]x inq : throw Error (retry)
 end
 
-func -> procblob : Retrieve **CommonMessageData** blob\nby messageId (withExpandedInput)
+func -> procblob : Retrieve **CommonMessageData** blob\nby messageId
 
 activate procblob
 
