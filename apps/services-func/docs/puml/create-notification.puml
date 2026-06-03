@@ -84,7 +84,7 @@ note right of func
 
   Email is considered blocked for this service only when
   the profile is in LEGACY mode AND
-  EMAIL appears in the blocked channels list.
+  EMAIL appears in the blocked channels list(blockedInboxOrChannels).
 end note
 func -> func : Check if user blocked EMAIL for this service\n(only relevant in LEGACY preference mode)
 
