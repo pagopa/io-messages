@@ -77,59 +77,60 @@ deactivate procblob
 == Email channel decision ==
 
 note right of func
-  **isEmailBlockedForService**
-  Only applies when servicePreferencesSettings.mode
-  is LEGACY and EMAIL is in blockedInboxOrChannels.
+  **blockedInboxOrChannels** is a list of channels
+  (EMAIL, WEBHOOK, INBOX) blocked for this sender service.
+
+  **LEGACY mode** is the legacy service block system used for backward compatibility
+
+  Email is considered blocked for this service only when
+  the profile is in LEGACY mode AND
+  EMAIL appears in the blocked channels list.
 end note
-func -> func : Compute isEmailBlockedForService\n(LEGACY mode + EMAIL in blockedInboxOrChannels)
+func -> func : Check if user blocked EMAIL for this service\n(only relevant in LEGACY preference mode)
 
 note right of func
   **Email address resolution**
-  If fiscalCode == SANDBOX_FISCAL_CODE:
-    use senderMetadata.serviceUserEmail
-    (SERVICE_USER_ADDRESS)
-  Otherwise:
-    use profile.email if present
-    (PROFILE_ADDRESS)
+  If the fiscalCode in the message matches the test recipient fiscal code, use the service owner email address.
+  Otherwise use the email address from the recipient's profile.
 end note
-func -> func : Resolve maybeNotificationEmailAddress\n(sandbox path or profile email)
+func -> func : Resolve candidate email address\n(service owner email for test messages, recipient profile email otherwise)
 
-func -> func : Compute isEmailChannelAllowed\n(!senderMetadata.requireSecureChannels)
+func -> func : Check sender service allows the email channel\n(not configured as secure-channels-only)
 
-func -> func : Compute isEmailDisabledForService\n(serviceId in emailNotificationServiceBlackList)
+func -> func : Check sender service is not in the email notification blacklist
 
-func -> func : Compute isEmailEnabledInProfile\n(fiscalCode == sandbox OR profile.isEmailEnabled != false)
+func -> func : Check recipient has email notifications enabled in profile
 
-func -> func : Compute isEmailValidatedInProfile\n(fiscalCode == sandbox OR profile.isEmailValidated != false)
+func -> func : Check recipient has a validated email address in profile
 
 note right of func
   Email notification is sent only when ALL
   conditions are met:
-  - !isEmailDisabledForService
-  - isEmailEnabledInProfile
-  - isEmailValidatedInProfile
-  - !isEmailBlockedForService
-  - isEmailChannelAllowed
-  - maybeNotificationEmailAddress is Some
+  - sender service is not in the email blacklist
+  - recipient has email notifications enabled in profile
+  - recipient has a validated email address in profile
+  - recipient has NOT blocked email for this sender service
+  - sender service allows the email channel (not secure-channels-only)
+  - a candidate email address exists
 end note
-func -> func : Resolve maybeEmailNotificationAddress\n(O.none if any condition fails)
+func -> func : Determine final email address\n(absent if any condition above fails)
 
 == Webhook channel decision ==
 
-func -> func : Compute isWebhookEnabledInProfile\n(profile.isWebhookEnabled === true)
+func -> func : Check recipient has webhook notifications enabled in profile
 
-func -> func : Compute isWebhookBlockedForService\n(WEBHOOK in blockedInboxOrChannels)
+func -> func : Check recipient has NOT blocked webhook notifications for this sender service
 
 note right of func
   Webhook notification is sent only when:
-  - isWebhookEnabledInProfile
-  - !isWebhookBlockedForService
+  - recipient has webhook notifications enabled in profile
+  - recipient has NOT blocked webhook notifications for this sender service
 end note
-func -> func : Resolve maybeWebhookNotificationUrl\n(O.none if any condition fails)
+func -> func : Determine final webhook URL\n(absent if any condition above fails)
 
 == No channels guard ==
 
-alt maybeEmailNotificationAddress is None\nAND maybeWebhookNotificationUrl is None
+alt no email address AND no webhook URL resolved
   note right of func
     No channels are configured for this
     recipient. Nothing to do.
@@ -153,7 +154,7 @@ note right of func
 end note
 func -> func : Build NewNotification\n(createNewNotification + channels)
 
-func -> notifdb : Create notification document\n(NotificationModel.create)
+func -> notifdb : Create notification document
 
 activate notifdb
 
@@ -168,19 +169,19 @@ deactivate notifdb
 
 == Enqueue output events ==
 
-opt maybeEmailNotificationAddress is Some
+opt email address was resolved
 
   note right of func
     **NotificationCreatedEvent**
     { messageId, notificationId }
   end note
-  func -> emailq : Enqueue **NotificationCreatedEvent**\n(via emailOutput extra binding)
+  func -> emailq : Enqueue **NotificationCreatedEvent**
 
 end
 
-opt maybeWebhookNotificationUrl is Some
+opt webhook URL was resolved
 
-  func -> webhookq : Enqueue **NotificationCreatedEvent**\n(via webhookOutput extra binding)
+  func -> webhookq : Enqueue **NotificationCreatedEvent**
 
 end
 
