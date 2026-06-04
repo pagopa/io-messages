@@ -30,6 +30,19 @@ skinparam component {
 
 title Async Notification Flow — services-func
 
+' Flow Overview:
+' [Sender] → APIM → CreateMessage
+'                      ↓ (queue: message-created)
+'               ProcessMessage ──────────────────────────────────→ message-content blob
+'                      ↓ (queue: message-processed)                message-status (PROCESSED)
+'               CreateNotification                                 messages (isPending=false)
+'                ↙              ↘
+'  (queue: notif-email)    (queue: notif-webhook)
+'       ↓                          ↓
+' EmailNotification        WebhookNotification → pushnotif-func → Azure NH
+'       ↓
+'  NodeMailer (SMTP)
+
 ' -----------------------------------------------------------------------
 ' Actors & external systems
 ' -----------------------------------------------------------------------
