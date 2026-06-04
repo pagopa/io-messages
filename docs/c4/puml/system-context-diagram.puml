@@ -10,20 +10,22 @@ Person(citizen, "Cittadino", "Utente che riceve e legge i messaggi tramite l'App
 Person(service, "Servizio", "Entità che invia messaggi ai cittadini")
 
 ' Main system
-System(io_messages, "IO Messages System", "Creazione, gestione e invio di messaggi e notifiche.")
+System(io_messages, "IO Messages System", "Creazione, gestione e invio di messaggi.")
 
 ' IO Platform external systems
 System_Ext(apim, "Azure API Management", "Gateway per i servizi mittenti (API Key) e per i cittadini (App IO).")
 System_Ext(app_backend, "Backend Components", "Risolve la sessione degli utenti autenticati. Proxy tra App IO e le function apps. Recupera contenuto remoto per messaggi remote-content.")
 
 ' Truly external systems
-System_Ext(notification_hub, "Azure Notification Hub", "Invio notifiche push ai cittadini.")
+System_Ext(io_notification, "IO Notification system", "Invio notifiche push ai cittadini.")
+System_Ext(mail_system, "Mailup", "Invio notifiche mail.")
+System_Ext(io_rc, "IO Remote Content Configuration system", "Gestisce configurationi remote.")
 System_Ext(remote_content_server, "Server Servizio Mittente", "Ospita il contenuto remoto e gli allegati dei messaggi remote-content.")
 System_Ext(data_lake, "Data Lake", "Team Data Lake: conservazione dati")
 
 ' Service sender flow
-Rel_D(service, apim, "Invia messaggio / Gestisce configurazione contenuto remoto", "HTTPS + API Key")
-Rel_D(apim, io_messages, "Inoltra richieste tra servizi e functions", "HTTPS")
+Rel_D(service, apim, "Invia messaggio", "HTTPS + API Key")
+Rel_D(apim, io_rc, "Inoltra richiesta per ottenere configurazione remota")
 
 ' Citizen flow
 Rel_D(citizen, apim, "Lettura messaggi, aggiornamento stato dei messaggi", "HTTPS")
@@ -33,8 +35,10 @@ Rel_D(app_backend, remote_content_server, "Recupera contenuto remoto", "HTTPS")
 
 ' IO Messages outbound
 Rel_U(io_messages, apim, "Recupera configurazione per contenuto remoto", "HTTPS")
-Rel_D(io_messages, notification_hub, "Schedula notifiche push", "Azure NH SDK")
-Rel_U(notification_hub, citizen, "Invia notifiche push", "Azure Notification Hubs")
+Rel_D(io_messages, io_notification, "Schedula notifiche push")
+Rel_D(io_messages, mail_system, "Schedula notifiche mail")
+Rel_U(io_notification, citizen, "Invia notifiche push")
+Rel_D(mail_system, citizen, "Invia notifiche mail")
 Rel_D(io_messages, data_lake, "Consuma eventi per conservazione", "Event Hub Consumer")
 
 @enduml
