@@ -1,0 +1,127 @@
+@startuml async-notification-flow
+
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam roundcorner 5
+skinparam ArrowColor #444444
+skinparam backgroundColor white
+<style>
+  root {
+    padding 5
+  }
+</style>
+
+skinparam rectangle {
+  BackgroundColor #dae8fc
+  BorderColor #6c8ebf
+}
+skinparam database {
+  BackgroundColor #d5e8d4
+  BorderColor #82b366
+}
+skinparam queue {
+  BackgroundColor #ffe6cc
+  BorderColor #d79b00
+}
+skinparam component {
+  BackgroundColor #f8cecc
+  BorderColor #b85450
+}
+
+title Async Notification Flow — services-func
+
+' Flow Overview:
+' [Sender] → APIM → CreateMessage
+'                      ↓ (queue: message-created)
+'               ProcessMessage ──────────────────────────────────→ message-content blob
+'                      ↓ (queue: message-processed)                message-status (PROCESSED)
+'               CreateNotification                                 messages (isPending=false)
+'                ↙              ↘
+'  (queue: notif-email)    (queue: notif-webhook)
+'       ↓                          ↓
+' EmailNotification        WebhookNotification → pushnotif-func → Azure NH
+'       ↓
+'  NodeMailer (SMTP)
+
+' -----------------------------------------------------------------------
+' Actors & external systems
+' -----------------------------------------------------------------------
+
+actor       Sender
+rectangle   "APIM"                     as apim
+component   "rc-func"                  as rc_func       #eeeeee
+component   "pushnotif-func"           as pushnotif     #f8cecc
+component   "NodeMailer (SMTP)"        as smtp          #f8cecc
+
+' -----------------------------------------------------------------------
+' Azure Functions (services-func)
+' -----------------------------------------------------------------------
+
+rectangle "CreateMessage\n[HTTP Trigger]"           as cm
+rectangle "ProcessMessage\n[Queue Trigger]"          as pm
+rectangle "OnFailedProcessMessage\n[Queue Trigger]"  as ofp
+rectangle "CreateNotification\n[Queue Trigger]"      as cn
+rectangle "EmailNotification\n[Queue Trigger]"       as en
+rectangle "WebhookNotification\n[Queue Trigger]"     as wn
+
+' -----------------------------------------------------------------------
+' Queues (IO_COM_STORAGE)
+' -----------------------------------------------------------------------
+
+queue "message-created"           as q_created
+queue "message-created\n(poison)" as q_poison
+queue "message-processed"         as q_processed
+queue "notification-created-email"   as q_email
+queue "notification-created-webhook" as q_webhook
+
+' -----------------------------------------------------------------------
+' Storage
+' -----------------------------------------------------------------------
+
+database "processing-message\n(blob)" as blob
+database "message-content\n(blob)"    as msg_content
+database "messages\n(CosmosDB)"       as cosmos_msg
+database "message-status\n(CosmosDB)" as cosmos_status
+database "notifications\n(CosmosDB)"  as cosmos_notif
+database "profiles / service-preferences\n(CosmosDB)" as cosmos_profiles
+
+' -----------------------------------------------------------------------
+' Flow
+' -----------------------------------------------------------------------
+
+Sender   --> apim      : POST /v1/messages
+apim     --> cm
+
+cm       --> rc_func   : get RC config\n(remote-content only)
+cm       --> cosmos_msg : create message\n(isPending=true)
+cm       --> blob      : write CommonMessageData
+cm       --> q_created : enqueue
+
+q_created --> pm       : trigger
+q_poison  --> ofp      : trigger (after 5 retries)
+
+pm       --> blob           : read CommonMessageData
+pm       --> cosmos_profiles : profile + service-preferences check
+pm       --> msg_content    : store message body
+pm       --> cosmos_msg     : set isPending=false
+pm       --> cosmos_status  : PROCESSED / REJECTED
+pm       --> q_processed    : enqueue (happy path)
+
+ofp      --> cosmos_status  : set status FAILED
+
+q_processed --> cn     : trigger
+
+cn       --> blob          : read CommonMessageData
+cn       --> cosmos_notif  : create Notification document
+cn       --> q_email       : enqueue (if email enabled)
+cn       --> q_webhook     : enqueue (if webhook enabled)
+
+q_email  --> en        : trigger
+en       --> cosmos_notif : fetch notification
+en       --> smtp      : send email
+
+q_webhook --> wn       : trigger
+wn       --> cosmos_notif : fetch notification
+wn       --> pushnotif : POST /api/v1/notify
+
+@enduml
