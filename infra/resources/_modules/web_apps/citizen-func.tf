@@ -60,7 +60,7 @@ module "citizen_func_new" {
 
   resource_group_name = var.resource_group_name
   health_check_path   = "/api/v1/info"
-  node_version        = 22
+  node_version        = 24
 
   size = "P2mv3"
 
