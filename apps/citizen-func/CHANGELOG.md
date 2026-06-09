@@ -1,5 +1,11 @@
 ### Changelog
 
+## 6.0.9
+
+### Patch Changes
+
+- f825f48: Removed connection string for message content blob storage connection
+
 ## 6.0.8
 
 ### Patch Changes
