@@ -15,7 +15,7 @@
       "installTerraformDocs": true
     },
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "22.22.1",
+      "version": "24.16.0",
       "installYarnUsingApt": false,
       "pnpmVersion": "none",
       "nvmInstallPath": "/opt/nvm"
