@@ -24,7 +24,7 @@ services:
       - "10002:10002"
 
   azurite-setup:
-    image: node:22-alpine@sha256:4d64b49e6c891c8fc821007cb1cdc6c0db7773110ac2c34bf2e6960adef62ed3
+    image: node:24-alpine@sha256:2bdb65ed1dab192432bc31c95f94155ca5ad7fc1392fb7eb7526ab682fa5bf14
     depends_on:
       - azurite
     working_dir: /app
