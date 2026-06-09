@@ -128,7 +128,7 @@ module "push_notif_function" {
     instance_number = "01"
   })
 
-  node_version = 22
+  node_version = 24
 
   subnet_pep_id = var.subnet_pep_id
   subnet_cidr   = var.subnet_cidrs.push_notif_func
