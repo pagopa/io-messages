@@ -128,7 +128,7 @@ resource "azurerm_role_assignment" "citizen_func_io_message_content_storage" {
     module.citizen_func_new.function_app.function_app.slot.principal_id
   ])
   scope                = var.messages_storage_account.id
-  role_definition_name = "Storage Blob Data Reader"
+  role_definition_name = "Storage Blob Data Contributor"
   principal_id         = each.value
 }
 
