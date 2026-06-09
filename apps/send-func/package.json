@@ -10,7 +10,7 @@
   "version": "1.5.10",
   "scripts": {
     "clean": "shx rm -rf dist",
-    "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node22 --outdir=dist --packages=external",
+    "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node24 --outdir=dist --packages=external",
     "build:watch": "pnpm run build --watch",
     "start": "func start --port 7074",
     "format": "prettier --write .",
