@@ -1,0 +1,316 @@
+@startuml
+
+title Get Message
+
+actor "Caller (Service)" as caller
+
+box "services-func"
+  participant "GetMessage" as func
+end box
+
+!pragma teoz true
+box "io-p-cosmos-api cosmos account" #LightBlue
+  box "db cosmos database"
+    database "services" as svcdb
+    database "messages" as msgdb
+    database "notifications\n+ notification-status" as notifdb
+    database "message-status" as msgstatusdb
+    database "profiles\n+ services-preferences" as profiledb
+  end box
+end box
+
+box "iopitncomst01 storage account"
+  collections "messages" as msgblob
+end box
+
+participant "PagoPa\nEcommerce API" as pagopa
+
+caller -> func : GET /api/v1/messages/{fiscalCode}/{id}
+
+activate func
+
+== io-function-commons middlewares pipeline ==
+
+func -> func : Check caller belongs to\nApiMessageRead or ApiLegalMessageRead groups
+
+alt Caller not in allowed groups
+  func -[#red]x caller : 403 Forbidden
+end
+
+func -> func : Extract client IP from request
+
+func -> svcdb : Find Service by subscription id
+
+activate svcdb
+
+alt Error from Cosmos
+  svcdb -[#red]> func
+  func -[#red]x caller : 500 Internal Server Error
+else Service not found
+  svcdb -[#red]> func : Empty result
+  func -[#red]x caller : 403 Forbidden
+end
+
+note right of func
+  **Service Document**
+  {
+    "serviceId": "01JR0QRJ8MX1PD06DE6X5FWXS5",
+    "authorizedCIDRs": ["10.0.0.0/16"],
+    ...
+  }
+end note
+
+svcdb -[#green]> func : Return Service
+
+deactivate svcdb
+
+func -> func : Check if source IP is \nallowed by the service authorizedCIDRs\n(authorizedCIDR)
+
+alt IP not in authorized CIDRs
+  func -[#red]x caller : 403 Forbidden
+end
+
+func -> func : Extract and validate fiscalCode from path
+
+alt Invalid fiscalCode
+  func -[#red]x caller : 400 Validation Error
+end
+
+func -> func : Extract and validate messageId from path
+
+alt Missing or invalid messageId
+  func -[#red]x caller : 400 Validation Error
+end
+
+== Retrieve message ==
+
+func -> msgdb : Find message for recipient(fiscalCode, messageId)
+
+activate msgdb
+
+alt Error from Cosmos
+  msgdb -[#red]> func
+  func -[#red]x caller : 500 Query Error
+else Message not found
+  msgdb -[#red]> func : Empty result
+  func -[#red]x caller : 404 Not Found
+end
+
+note right of func
+  **RetrievedMessage**
+  {
+    "id": "01KKV476XG8ZY1K4S8RMEFHMQW",
+    "fiscalCode": "LVTEST00A00A197X",
+    "senderServiceId": "01JR0QRJ8MX1PD06DE6X5FWXS5",
+    "featureLevelType": "ADVANCED",
+    "isPending": false,
+    ...
+  }
+end note
+
+msgdb -[#green]> func : Return retrieved message
+
+deactivate msgdb
+
+== Authorization check ==
+
+func -> func : Check caller is the sender service\nor belongs to ApiLegalMessageRead
+
+note right of func
+  The caller is authorized to read the message if:
+  - the caller is the **sender service** of the message OR
+  - the caller belongs to the **ApiLegalMessageRead** group
+end note
+
+alt Caller is neither the sender nor a legal reader
+  func -[#red]x caller : 403 Forbidden
+end
+
+== Fetch message content ==
+
+func -> msgblob : Retrieve message content blob (messageId)
+
+activate msgblob
+
+alt Error retrieving blob
+  msgblob -[#red]> func
+  func -[#red]x caller : 500 Internal Server Error
+else Blob not found
+  msgblob -> func : Empty result (null)
+  alt Caller is a legal reader (ApiLegalMessageRead)
+    func -[#red]x caller : 404 Not Found\n(Message Content not found)
+  else Caller is a regular reader
+    note right of func
+      Regular callers receive the message\nresponse without content.
+    end note
+  end
+end
+
+msgblob -[#green]> func : Return MessageContent
+
+deactivate msgblob
+
+note right of func
+  **Legal message guard**
+  Content containing **legal_data** may only be
+  read by callers in **ApiLegalMessageRead**.
+  Conversely, callers in ApiLegalMessageRead
+  are forbidden from reading non-legal content.
+end note
+
+func -> func : Check legal_data vs caller group compatibility
+
+alt legal_data present but caller is NOT in ApiLegalMessageRead
+  func -[#red]x caller : 403 Forbidden
+else legal_data absent but caller IS in ApiLegalMessageRead
+  func -[#red]x caller : 403 Forbidden
+end
+
+== Retrieve notification and message statuses ==
+
+func -> notifdb : Get notification statuses(messageId)
+
+activate notifdb
+
+alt Error from Cosmos
+  notifdb -[#red]> func
+  func -[#red]x caller : 500 Internal Server Error
+end
+
+notifdb -[#green]> func : Return NotificationStatuses (or undefined)
+
+deactivate notifdb
+
+func -> msgstatusdb : Find last message status version (messageId)
+
+activate msgstatusdb
+
+alt Error from Cosmos
+  msgstatusdb -[#red]> func
+  func -[#red]x caller : 500 Internal Server Error
+end
+
+note right of func
+  If no **MessageStatus** document exists yet,
+  the message is considered to be in the
+  **ACCEPTED** state (not yet visible in the inbox).
+end note
+
+msgstatusdb -[#green]> func : Return MessageStatus (or undefined)
+
+deactivate msgstatusdb
+
+== Advanced message info ==
+
+note right of func
+  Advanced properties (**read_status**, **payment_status**)
+  are exposed only when ALL conditions are met:
+  - message is **not pending**
+  - message feature_level_type is **ADVANCED**
+  - caller belongs to **ApiMessageReadAdvanced** group
+end note
+
+func -> func : Check if advanced info is readable
+
+alt Advanced info NOT readable
+  func -> func : Set read_status = UNAVAILABLE
+else Advanced info readable
+
+  note right of func
+    Checks whether the caller service is allowed to
+    read the recipient's message read status.
+
+    **subscriptionId** — the APIM subscription id of the
+    caller service, extracted from the x-subscription-id header.
+
+    **fiscalCode** — the recipient's fiscal code, extracted
+    from the request path parameter.
+  end note
+
+  func -> profiledb : Get user profile and service preference settings
+
+  activate profiledb
+
+  alt Error from Cosmos
+    profiledb -[#red]> func
+    func -[#red]x caller : 500 Internal Server Error
+  end
+
+  profiledb -[#green]> func : Return Profile + ServicePreferences
+
+  deactivate profiledb
+
+  alt Service cannot read read_status\n(user revoked permission)
+    func -> func : Set read_status = UNAVAILABLE
+  else Service can read read_status
+    note right of func
+      **isRead** — a boolean field on the **MessageStatus**
+      document that tracks whether the recipient has
+      opened the message in the app.
+    end note
+    func -> func : Set read_status from MessageStatus\n(READ if isRead == true, UNREAD otherwise)
+  end
+
+  == Payment status decoration ==
+
+  note right of func
+    Payment status is fetched only when:
+    - message status is **PROCESSED**
+    - message content has **payment_data** with a required payee
+  end note
+
+  func -> func : check if the message content has a payment status
+
+  note right of func
+    checks two conditions:
+    1. The **MessageStatus** is **PROCESSED** (i.e. the message
+       has been delivered and is visible in the inbox).
+    2. The message content includes a **payment_data** field
+       with a **payee** (fiscal code + notice number).
+
+    Returns the **PaymentData** if both conditions are met,
+    otherwise the payment status is skipped entirely.
+  end note
+
+  opt Eligible for payment status\n(status == PROCESSED AND has payment_data)
+
+    note right of func
+      The payment is identified by a **rptId**, which is built
+      by concatenating the **fiscal code of the payee** with the **notice
+      number** found in the message's payment data.
+      This identifier is used to query PagoPa and determine
+      whether the payment has already been made.
+    end note
+
+    func -> pagopa : GET /payment-requests/{rptId}
+
+    activate pagopa
+
+    alt HTTP 200 (payment pending / not yet paid)
+      pagopa -[#green]> func : paid: false
+    else HTTP 404 (payment not found)
+      pagopa -[#green]> func : paid: false
+    else HTTP 409 with PAYMENT_DUPLICATED fault code
+      pagopa -[#green]> func : paid: true
+    else HTTP 409 with other fault code
+      pagopa -[#green]> func : paid: false
+    else Unexpected HTTP error
+      pagopa -[#red]> func
+      func -[#red]x caller : 500 Internal Server Error\n(Error retrieving Payment Status)
+    end
+
+    deactivate pagopa
+
+    func -> func : Map to PaymentStatus\n(PAID or NOT_PAID)
+
+  end
+
+end
+
+func -> func : Strip read_status from response\nif caller is not in ApiMessageReadAdvanced
+
+func -[#green]-> caller : 200 OK\n**ExternalMessageResponseWithContent**\nor **ExternalMessageResponseWithoutContent**
+
+deactivate func
+
+@enduml
