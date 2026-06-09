@@ -132,6 +132,16 @@ resource "azurerm_role_assignment" "citizen_func_io_message_content_storage" {
   principal_id         = each.value
 }
 
+resource "azurerm_role_assignment" "citizen_func_io_message_content_storage_reader" {
+  for_each = toset([
+    module.citizen_func_new.function_app.function_app.principal_id,
+    module.citizen_func_new.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.messages_storage_account.id
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = each.value
+}
+
 resource "azurerm_cosmosdb_sql_role_assignment" "citizen_func_com_new" {
   for_each = toset([
     module.citizen_func_new.function_app.function_app.principal_id,
