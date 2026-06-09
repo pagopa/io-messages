@@ -1,6 +1,6 @@
 import { CosmosClient } from "@azure/cosmos";
+import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
-import { QueueServiceClient } from "@azure/storage-queue";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { sequenceT } from "fp-ts/lib/Apply";
 import * as A from "fp-ts/lib/Array";
@@ -76,7 +76,7 @@ export const checkAzureCosmosDbHealth = (
  * @returns either true or an array of error messages
  */
 export const checkAzureStorageHealth = (
-  connStr: string,
+  blobClient: BlobServiceClient,
 ): HealthCheck<"AzureStorage"> => {
   const applicativeValidation = TE.getApplicativeTaskValidation(
     T.ApplicativePar,
@@ -85,10 +85,7 @@ export const checkAzureStorageHealth = (
 
   // try to instantiate a client for each product of azure storage
   return pipe(
-    [
-      () => BlobServiceClient.fromConnectionString(connStr).getProperties(),
-      () => QueueServiceClient.fromConnectionString(connStr).getProperties(),
-    ]
+    [() => blobClient.getProperties()]
       // for each, create a task that wraps getProperties
       .map((getProperties) =>
         TE.tryCatch(getProperties, toHealthProblems("AzureStorage")),
@@ -122,7 +119,14 @@ export const checkApplicationHealth = (
         checkAzureCosmosDbHealth(cosmosClient),
         checkAzureCosmosDbHealth(remoteContentCosmosClient),
         checkAzureStorageHealth(
-          config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+          config.isProduction
+            ? new BlobServiceClient(
+                config.MESSAGE_CONTENT_STORAGE_ENDPOINT,
+                new DefaultAzureCredential(),
+              )
+            : BlobServiceClient.fromConnectionString(
+                config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+              ),
         ),
       ),
     ),

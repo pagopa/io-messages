@@ -1,4 +1,5 @@
 import { app } from "@azure/functions";
+import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import {
   MESSAGE_COLLECTION_NAME,
@@ -65,10 +66,17 @@ const messageViewModel = new MessageViewExtendedQueryModel(
   cosmosdbInstance.container(MESSAGE_VIEW_COLLECTION_NAME),
 );
 
+const aadCredentials = new DefaultAzureCredential();
+
 const messageContentRepository = new MessageContentBlobAdapter(
-  BlobServiceClient.fromConnectionString(
-    config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
-  ),
+  config.isProduction
+    ? new BlobServiceClient(
+        config.MESSAGE_CONTENT_STORAGE_ENDPOINT,
+        aadCredentials,
+      )
+    : BlobServiceClient.fromConnectionString(
+        config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+      ),
   config.MESSAGE_CONTAINER_NAME,
 );
 

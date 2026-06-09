@@ -1,4 +1,5 @@
 import { CosmosClient } from "@azure/cosmos";
+import { BlobServiceClient } from "@azure/storage-blob";
 import { right } from "fp-ts/lib/Either";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
@@ -78,19 +79,6 @@ describe("healthcheck - storage account", () => {
     vi.clearAllMocks();
   });
 
-  it("should not throw exception", () =>
-    new Promise<void>((done) => {
-      expect.assertions(1);
-      pipe(
-        "",
-        checkAzureStorageHealth,
-        TE.map(() => {
-          expect(true).toBeTruthy();
-          done();
-        }),
-      )();
-    }));
-
   const testcases: {
     errorLabel: string;
     name: keyof typeof storageMocks;
@@ -98,10 +86,6 @@ describe("healthcheck - storage account", () => {
     {
       errorLabel: "blob storage",
       name: "getBlobProperties",
-    },
-    {
-      errorLabel: "queue storage",
-      name: "getQueueProperties",
     },
   ];
   test.each(testcases)(
@@ -115,7 +99,7 @@ describe("healthcheck - storage account", () => {
         expect.assertions(2);
 
         pipe(
-          "",
+          BlobServiceClient.fromConnectionString(""),
           checkAzureStorageHealth,
           TE.mapLeft((err) => {
             expect(err.length).toBe(1);
@@ -194,18 +178,14 @@ describe("checkApplicationHealth - multiple errors -", () => {
       storageMocks.getBlobProperties.mockRejectedValueOnce(
         new Error("error - blob storage"),
       );
-      storageMocks.getQueueProperties.mockRejectedValueOnce(
-        new Error("error - queue storage"),
-      );
 
-      expect.assertions(3);
+      expect.assertions(2);
 
       pipe(
         checkApplicationHealth(cosmosClient, cosmosClient),
         TE.mapLeft((err) => {
-          expect(err.length).toBe(2);
+          expect(err.length).toBe(1);
           expect(err[0]).toBe(`AzureStorage|error - blob storage`);
-          expect(err[1]).toBe(`AzureStorage|error - queue storage`);
           done();
         }),
         TE.map(() => {

@@ -20,6 +20,8 @@ import * as t from "io-ts";
 
 import { CommaSeparatedListOf } from "./types";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export const RedisParams = t.intersection([
   t.type({
     REDIS_URL: NonEmptyString,
@@ -65,37 +67,48 @@ export const UlidMapFromString = new t.Type<ReadonlyMap<string, Ulid>, string>(
 
 export type UlidMapFromString = t.TypeOf<typeof UlidMapFromString>;
 
+const IBaseConfig = t.type({
+  APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
+
+  COSMOSDB_NAME: NonEmptyString,
+  COSMOSDB_URI: NonEmptyString,
+
+  FF_BETA_TESTER_LIST: withDefault(t.string, "").pipe(
+    CommaSeparatedListOf(NonEmptyString),
+  ),
+  FF_CANARY_USERS_REGEX: withDefault(t.string, "XYZ").pipe(NonEmptyString),
+
+  FF_TYPE: withDefault(t.string, "none").pipe(FeatureFlagType),
+
+  MESSAGE_CONTAINER_NAME: NonEmptyString,
+  PN_SERVICE_ID: NonEmptyString,
+
+  REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
+
+  REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
+  SERVICE_CACHE_TTL_DURATION: NonNegativeInteger,
+  SERVICE_TO_RC_CONFIGURATION_MAP: UlidMapFromString,
+  USE_FALLBACK: withDefault(t.string, "false").pipe(BooleanFromString),
+
+  isProduction: t.boolean,
+  /* eslint-enable sort-keys */
+});
+
+const IStorageAccountConnectionString = t.type({
+  MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
+  isProduction: t.literal(false),
+});
+
+const IStorageAccountEndpoint = t.type({
+  MESSAGE_CONTENT_STORAGE_ENDPOINT: NonEmptyString,
+  isProduction: t.literal(true),
+});
+
 // global app configuration
 export type IConfig = t.TypeOf<typeof IConfig>;
 export const IConfig = t.intersection([
-  t.type({
-    APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
-
-    COSMOSDB_NAME: NonEmptyString,
-    COSMOSDB_URI: NonEmptyString,
-
-    FF_BETA_TESTER_LIST: withDefault(t.string, "").pipe(
-      CommaSeparatedListOf(NonEmptyString),
-    ),
-    FF_CANARY_USERS_REGEX: withDefault(t.string, "XYZ").pipe(NonEmptyString),
-
-    FF_TYPE: withDefault(t.string, "none").pipe(FeatureFlagType),
-
-    MESSAGE_CONTAINER_NAME: NonEmptyString,
-    MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
-
-    PN_SERVICE_ID: NonEmptyString,
-
-    REMOTE_CONTENT_COSMOSDB_NAME: NonEmptyString,
-
-    REMOTE_CONTENT_COSMOSDB_URI: NonEmptyString,
-    SERVICE_CACHE_TTL_DURATION: NonNegativeInteger,
-    SERVICE_TO_RC_CONFIGURATION_MAP: UlidMapFromString,
-    USE_FALLBACK: withDefault(t.string, "false").pipe(BooleanFromString),
-
-    isProduction: t.boolean,
-    /* eslint-enable sort-keys */
-  }),
+  IBaseConfig,
+  isProduction ? IStorageAccountEndpoint : IStorageAccountConnectionString,
   RedisParams,
 ]);
 
