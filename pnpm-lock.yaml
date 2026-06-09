@@ -79,8 +79,8 @@ catalogs:
       specifier: ^5.1.6
       version: 5.1.6
     '@types/node':
-      specifier: ^22.19.15
-      version: 22.19.15
+      specifier: ^24.13.1
+      version: 24.13.1
     '@types/node-fetch':
       specifier: ^2.6.13
       version: 2.6.13
@@ -214,13 +214,13 @@ importers:
     devDependencies:
       '@changesets/cli':
         specifier: ^2.29.2
-        version: 2.29.7(@types/node@24.10.1)
+        version: 2.29.7(@types/node@24.13.1)
       '@devcontainers/cli':
         specifier: ^0.75.0
         version: 0.75.0
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 3.2.4(vitest@3.2.4(@types/node@24.10.1))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.13.1))
       prettier:
         specifier: 'catalog:'
         version: 3.6.2
@@ -235,7 +235,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: 'catalog:'
-        version: 3.2.4(@types/node@24.10.1)
+        version: 3.2.4(@types/node@24.13.1)
 
   apps/citizen-func:
     dependencies:
@@ -281,7 +281,7 @@ importers:
     devDependencies:
       '@pagopa/eslint-config':
         specifier: 'catalog:'
-        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@22.19.15))
+        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@24.13.1))
       '@pagopa/openapi-codegen-ts':
         specifier: 'catalog:'
         version: 14.0.1(chokidar@3.6.0)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
@@ -293,13 +293,13 @@ importers:
         version: 1.4.31
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.15
+        version: 24.13.1
       '@types/redis':
         specifier: 'catalog:'
         version: 2.8.32
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 3.2.4(vitest@3.2.4(@types/node@22.19.15))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.13.1))
       eslint:
         specifier: 'catalog:'
         version: 8.57.1
@@ -314,10 +314,10 @@ importers:
         version: 5.9.3
       vite:
         specifier: 'catalog:'
-        version: 6.4.1(@types/node@22.19.15)
+        version: 6.4.1(@types/node@24.13.1)
       vitest:
         specifier: 'catalog:'
-        version: 3.2.4(@types/node@22.19.15)
+        version: 3.2.4(@types/node@24.13.1)
 
   apps/cqrs-func:
     dependencies:
@@ -375,7 +375,7 @@ importers:
     devDependencies:
       '@pagopa/eslint-config':
         specifier: 'catalog:'
-        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@22.19.15))
+        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@24.13.1))
       '@pagopa/openapi-codegen-ts':
         specifier: ^11.1.0
         version: 11.3.0(chokidar@3.6.0)
@@ -384,7 +384,7 @@ importers:
         version: 4.17.25
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.15
+        version: 24.13.1
       '@types/node-fetch':
         specifier: 'catalog:'
         version: 2.6.13
@@ -414,7 +414,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: 'catalog:'
-        version: 3.2.4(@types/node@22.19.15)
+        version: 3.2.4(@types/node@24.13.1)
 
   apps/etl-func:
     dependencies:
@@ -460,13 +460,13 @@ importers:
     devDependencies:
       '@pagopa/eslint-config':
         specifier: 'catalog:'
-        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@22.19.15))
+        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@24.13.1))
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.15
+        version: 24.13.1
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 3.2.4(vitest@3.2.4(@types/node@22.19.15))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.13.1))
       eslint:
         specifier: 'catalog:'
         version: 8.57.1
@@ -478,7 +478,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: 'catalog:'
-        version: 3.2.4(@types/node@22.19.15)
+        version: 3.2.4(@types/node@24.13.1)
 
   apps/ops-func:
     dependencies:
@@ -506,13 +506,13 @@ importers:
     devDependencies:
       '@pagopa/eslint-config':
         specifier: 'catalog:'
-        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@22.19.15))
+        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@24.13.1))
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.15
+        version: 24.13.1
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 3.2.4(vitest@3.2.4(@types/node@22.19.15))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.13.1))
       eslint:
         specifier: 'catalog:'
         version: 8.57.1
@@ -524,7 +524,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: 'catalog:'
-        version: 3.2.4(@types/node@22.19.15)
+        version: 3.2.4(@types/node@24.13.1)
 
   apps/payment-updater: {}
 
@@ -596,7 +596,7 @@ importers:
     devDependencies:
       '@pagopa/eslint-config':
         specifier: 'catalog:'
-        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@22.19.15))
+        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@24.13.1))
       '@pagopa/openapi-codegen-ts':
         specifier: 'catalog:'
         version: 14.0.1(chokidar@3.6.0)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
@@ -605,7 +605,7 @@ importers:
         version: 4.19.7
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.15
+        version: 24.13.1
       '@types/node-fetch':
         specifier: 'catalog:'
         version: 2.6.13
@@ -614,7 +614,7 @@ importers:
         version: 2.0.0
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 3.2.4(vitest@3.2.4(@types/node@22.19.15))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.13.1))
       eslint:
         specifier: 'catalog:'
         version: 8.57.1
@@ -635,7 +635,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: 'catalog:'
-        version: 3.2.4(@types/node@22.19.15)
+        version: 3.2.4(@types/node@24.13.1)
 
   apps/rc-func:
     dependencies:
@@ -684,7 +684,7 @@ importers:
     devDependencies:
       '@pagopa/eslint-config':
         specifier: 'catalog:'
-        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@22.19.15))
+        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@24.13.1))
       '@pagopa/openapi-codegen-ts':
         specifier: 'catalog:'
         version: 14.0.1(chokidar@3.6.0)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
@@ -693,13 +693,13 @@ importers:
         version: 4.17.25
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.15
+        version: 24.13.1
       '@types/node-fetch':
         specifier: 'catalog:'
         version: 2.6.13
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 3.2.4(vitest@3.2.4(@types/node@22.19.15))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.13.1))
       eslint:
         specifier: 'catalog:'
         version: 8.57.1
@@ -711,10 +711,10 @@ importers:
         version: 5.9.3
       vite:
         specifier: 'catalog:'
-        version: 6.4.1(@types/node@22.19.15)
+        version: 6.4.1(@types/node@24.13.1)
       vitest:
         specifier: 'catalog:'
-        version: 3.2.4(@types/node@22.19.15)
+        version: 3.2.4(@types/node@24.13.1)
 
   apps/reminder: {}
 
@@ -735,13 +735,13 @@ importers:
     devDependencies:
       '@pagopa/eslint-config':
         specifier: 'catalog:'
-        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@22.19.15))
+        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@24.13.1))
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.15
+        version: 24.13.1
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 3.2.4(vitest@3.2.4(@types/node@22.19.15))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.13.1))
       esbuild:
         specifier: 'catalog:'
         version: 0.25.12
@@ -756,7 +756,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: 'catalog:'
-        version: 3.2.4(@types/node@22.19.15)
+        version: 3.2.4(@types/node@24.13.1)
 
   apps/services-func:
     dependencies:
@@ -856,7 +856,7 @@ importers:
     devDependencies:
       '@pagopa/eslint-config':
         specifier: 'catalog:'
-        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@22.19.15))
+        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@24.13.1))
       '@pagopa/openapi-codegen-ts':
         specifier: 'catalog:'
         version: 14.0.1(chokidar@3.6.0)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
@@ -874,7 +874,7 @@ importers:
         version: 5.1.6
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.15
+        version: 24.13.1
       '@types/node-fetch':
         specifier: 'catalog:'
         version: 2.6.13
@@ -886,7 +886,7 @@ importers:
         version: 7.7.1
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 3.2.4(vitest@3.2.4(@types/node@22.19.15))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.13.1))
       eslint:
         specifier: 'catalog:'
         version: 8.57.1
@@ -898,10 +898,10 @@ importers:
         version: 5.9.3
       vite:
         specifier: 'catalog:'
-        version: 6.4.1(@types/node@22.19.15)
+        version: 6.4.1(@types/node@24.13.1)
       vitest:
         specifier: 'catalog:'
-        version: 3.2.4(@types/node@22.19.15)
+        version: 3.2.4(@types/node@24.13.1)
 
   packages/io-messages-common:
     dependencies:
@@ -920,13 +920,13 @@ importers:
     devDependencies:
       '@pagopa/eslint-config':
         specifier: 'catalog:'
-        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@22.19.15))
+        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@24.13.1))
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.15
+        version: 24.13.1
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 3.2.4(vitest@3.2.4(@types/node@22.19.15))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.13.1))
       eslint:
         specifier: 'catalog:'
         version: 8.57.1
@@ -941,7 +941,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: 'catalog:'
-        version: 3.2.4(@types/node@22.19.15)
+        version: 3.2.4(@types/node@24.13.1)
 
   packages/io-messages-common-legacy:
     dependencies:
@@ -963,13 +963,13 @@ importers:
     devDependencies:
       '@pagopa/eslint-config':
         specifier: 'catalog:'
-        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@22.19.15))
+        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@24.13.1))
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.15
+        version: 24.13.1
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 3.2.4(vitest@3.2.4(@types/node@22.19.15))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.13.1))
       eslint:
         specifier: 'catalog:'
         version: 8.57.1
@@ -984,7 +984,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: 'catalog:'
-        version: 3.2.4(@types/node@22.19.15)
+        version: 3.2.4(@types/node@24.13.1)
 
 packages:
 
@@ -1878,11 +1878,8 @@ packages:
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
 
-  '@types/node@22.19.15':
-    resolution: {integrity: sha512-F0R/h2+dsy5wJAUe3tAU6oqa2qbWY5TpNfL/RGmo1y38hiyO1w3x2jPtt76wmuaJI4DQnOBu21cNXQ2STIUUWg==}
-
-  '@types/node@24.10.1':
-    resolution: {integrity: sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ==}
+  '@types/node@24.13.1':
+    resolution: {integrity: sha512-RSpUJGmvsJ1ZeBehQZFhIdpsz+bIpES0nIQXko4Ybq+N+kX6XvOq3Jo+iJ82FWLdblFq85AsMikd3m35jgezYg==}
 
   '@types/nodemailer@7.0.11':
     resolution: {integrity: sha512-E+U4RzR2dKrx+u3N4DlsmLaDC6mMZOM/TPROxA0UAPiTgI0y4CEFBmZE+coGWTjakDriRsXG368lNk1u9Q0a2g==}
@@ -4963,11 +4960,8 @@ packages:
   underscore@1.8.3:
     resolution: {integrity: sha512-5WsVTFcH1ut/kkhAaHf4PVgI8c7++GiVcpCGxPouI6ZVjsqPnSDf8h/8HtVqc0t4fzRXwnMK70EcZeAs3PIddg==}
 
-  undici-types@6.21.0:
-    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
-
-  undici-types@7.16.0:
-    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
+  undici-types@7.18.2:
+    resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
 
   unherit@1.1.3:
     resolution: {integrity: sha512-Ft16BJcnapDKp0+J/rqFC3Rrk6Y/Ng4nzsC028k2jdDII/rdZ7Wd3pPT/6+vIIxRagwRc9K0IUX0Ra4fKvw+WQ==}
@@ -5764,7 +5758,7 @@ snapshots:
     dependencies:
       '@changesets/types': 6.1.0
 
-  '@changesets/cli@2.29.7(@types/node@24.10.1)':
+  '@changesets/cli@2.29.7(@types/node@24.13.1)':
     dependencies:
       '@changesets/apply-release-plan': 7.0.13
       '@changesets/assemble-release-plan': 6.0.9
@@ -5780,7 +5774,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@changesets/write': 0.4.0
-      '@inquirer/external-editor': 1.0.3(@types/node@24.10.1)
+      '@inquirer/external-editor': 1.0.3(@types/node@24.13.1)
       '@manypkg/get-packages': 1.1.3
       ansi-colors: 4.1.3
       ci-info: 3.9.0
@@ -6004,12 +5998,12 @@ snapshots:
 
   '@humanwhocodes/object-schema@2.0.3': {}
 
-  '@inquirer/external-editor@1.0.3(@types/node@24.10.1)':
+  '@inquirer/external-editor@1.0.3(@types/node@24.13.1)':
     dependencies:
       chardet: 2.1.1
       iconv-lite: 0.7.0
     optionalDependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -6219,14 +6213,14 @@ snapshots:
 
   '@opentelemetry/semantic-conventions@1.38.0': {}
 
-  '@pagopa/eslint-config@4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@22.19.15))':
+  '@pagopa/eslint-config@4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@24.13.1))':
     dependencies:
       '@eslint/js': 9.39.1
       eslint: 8.57.1
       eslint-config-prettier: 9.1.2(eslint@8.57.1)
       eslint-plugin-perfectionist: 2.11.0(eslint@8.57.1)(typescript@5.8.3)
       eslint-plugin-prettier: 5.5.4(eslint-config-prettier@9.1.2(eslint@8.57.1))(eslint@8.57.1)(prettier@3.6.2)
-      eslint-plugin-vitest: 0.5.4(eslint@8.57.1)(typescript@5.8.3)(vitest@3.2.4(@types/node@22.19.15))
+      eslint-plugin-vitest: 0.5.4(eslint@8.57.1)(typescript@5.8.3)(vitest@3.2.4(@types/node@24.13.1))
       typescript: 5.8.3
       typescript-eslint: 8.48.0(eslint@8.57.1)(typescript@5.8.3)
     transitivePeerDependencies:
@@ -6507,7 +6501,7 @@ snapshots:
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
 
   '@types/caseless@0.12.5': {}
 
@@ -6518,19 +6512,19 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
 
   '@types/deep-eql@4.0.2': {}
 
   '@types/documentdb@1.10.13':
     dependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
 
   '@types/estree@1.0.8': {}
 
   '@types/express-serve-static-core@4.19.7':
     dependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
       '@types/qs': 6.14.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -6548,7 +6542,7 @@ snapshots:
 
   '@types/is-buffer@2.0.2':
     dependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
 
   '@types/json-schema@7.0.15': {}
 
@@ -6558,22 +6552,18 @@ snapshots:
 
   '@types/node-fetch@2.6.13':
     dependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
       form-data: 4.0.5
 
   '@types/node@12.20.55': {}
 
-  '@types/node@22.19.15':
+  '@types/node@24.13.1':
     dependencies:
-      undici-types: 6.21.0
-
-  '@types/node@24.10.1':
-    dependencies:
-      undici-types: 7.16.0
+      undici-types: 7.18.2
 
   '@types/nodemailer@7.0.11':
     dependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
 
   '@types/qs@6.14.0': {}
 
@@ -6581,12 +6571,12 @@ snapshots:
 
   '@types/redis@2.8.32':
     dependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
 
   '@types/request@2.48.13':
     dependencies:
       '@types/caseless': 0.12.5
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
       '@types/tough-cookie': 4.0.5
       form-data: 2.5.5
 
@@ -6595,16 +6585,16 @@ snapshots:
   '@types/send@0.17.6':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
 
   '@types/serve-static@1.15.10':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
       '@types/send': 0.17.6
 
   '@types/shimmer@1.2.0': {}
@@ -6769,7 +6759,7 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@vitest/coverage-v8@3.2.4(vitest@3.2.4(@types/node@22.19.15))':
+  '@vitest/coverage-v8@3.2.4(vitest@3.2.4(@types/node@24.13.1))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 1.0.2
@@ -6784,26 +6774,7 @@ snapshots:
       std-env: 3.10.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@22.19.15)
-    transitivePeerDependencies:
-      - supports-color
-
-  '@vitest/coverage-v8@3.2.4(vitest@3.2.4(@types/node@24.10.1))':
-    dependencies:
-      '@ampproject/remapping': 2.3.0
-      '@bcoe/v8-coverage': 1.0.2
-      ast-v8-to-istanbul: 0.3.8
-      debug: 4.4.3
-      istanbul-lib-coverage: 3.2.2
-      istanbul-lib-report: 3.0.1
-      istanbul-lib-source-maps: 5.0.6
-      istanbul-reports: 3.2.0
-      magic-string: 0.30.21
-      magicast: 0.3.5
-      std-env: 3.10.0
-      test-exclude: 7.0.1
-      tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@24.10.1)
+      vitest: 3.2.4(@types/node@24.13.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -6815,13 +6786,13 @@ snapshots:
       chai: 5.3.3
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.2.4(vite@7.2.4(@types/node@24.10.1))':
+  '@vitest/mocker@3.2.4(vite@7.2.4(@types/node@24.13.1))':
     dependencies:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.2.4(@types/node@24.10.1)
+      vite: 7.2.4(@types/node@24.13.1)
 
   '@vitest/pretty-format@3.2.4':
     dependencies:
@@ -7651,12 +7622,12 @@ snapshots:
     optionalDependencies:
       eslint-config-prettier: 9.1.2(eslint@8.57.1)
 
-  eslint-plugin-vitest@0.5.4(eslint@8.57.1)(typescript@5.8.3)(vitest@3.2.4(@types/node@22.19.15)):
+  eslint-plugin-vitest@0.5.4(eslint@8.57.1)(typescript@5.8.3)(vitest@3.2.4(@types/node@24.13.1)):
     dependencies:
       '@typescript-eslint/utils': 7.18.0(eslint@8.57.1)(typescript@5.8.3)
       eslint: 8.57.1
     optionalDependencies:
-      vitest: 3.2.4(@types/node@22.19.15)
+      vitest: 3.2.4(@types/node@24.13.1)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -9973,9 +9944,7 @@ snapshots:
 
   underscore@1.8.3: {}
 
-  undici-types@6.21.0: {}
-
-  undici-types@7.16.0: {}
+  undici-types@7.18.2: {}
 
   unherit@1.1.3:
     dependencies:
@@ -10088,13 +10057,13 @@ snapshots:
       unist-util-stringify-position: 2.0.3
       vfile-message: 2.0.4
 
-  vite-node@3.2.4(@types/node@22.19.15):
+  vite-node@3.2.4(@types/node@24.13.1):
     dependencies:
       cac: 6.7.14
       debug: 4.4.3
       es-module-lexer: 1.7.0
       pathe: 2.0.3
-      vite: 7.2.4(@types/node@22.19.15)
+      vite: 7.2.4(@types/node@24.13.1)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -10109,28 +10078,7 @@ snapshots:
       - tsx
       - yaml
 
-  vite-node@3.2.4(@types/node@24.10.1):
-    dependencies:
-      cac: 6.7.14
-      debug: 4.4.3
-      es-module-lexer: 1.7.0
-      pathe: 2.0.3
-      vite: 7.2.4(@types/node@24.10.1)
-    transitivePeerDependencies:
-      - '@types/node'
-      - jiti
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
-  vite@6.4.1(@types/node@22.19.15):
+  vite@6.4.1(@types/node@24.13.1):
     dependencies:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.3)
@@ -10139,10 +10087,10 @@ snapshots:
       rollup: 4.53.3
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.13.1
       fsevents: 2.3.3
 
-  vite@7.2.4(@types/node@22.19.15):
+  vite@7.2.4(@types/node@24.13.1):
     dependencies:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.3)
@@ -10151,26 +10099,14 @@ snapshots:
       rollup: 4.53.3
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.13.1
       fsevents: 2.3.3
 
-  vite@7.2.4(@types/node@24.10.1):
-    dependencies:
-      esbuild: 0.25.12
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
-      postcss: 8.5.6
-      rollup: 4.53.3
-      tinyglobby: 0.2.15
-    optionalDependencies:
-      '@types/node': 24.10.1
-      fsevents: 2.3.3
-
-  vitest@3.2.4(@types/node@22.19.15):
+  vitest@3.2.4(@types/node@24.13.1):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.2.4(@types/node@24.10.1))
+      '@vitest/mocker': 3.2.4(vite@7.2.4(@types/node@24.13.1))
       '@vitest/pretty-format': 3.2.4
       '@vitest/runner': 3.2.4
       '@vitest/snapshot': 3.2.4
@@ -10188,52 +10124,11 @@ snapshots:
       tinyglobby: 0.2.15
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
-      vite: 7.2.4(@types/node@22.19.15)
-      vite-node: 3.2.4(@types/node@22.19.15)
+      vite: 7.2.4(@types/node@24.13.1)
+      vite-node: 3.2.4(@types/node@24.13.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 22.19.15
-    transitivePeerDependencies:
-      - jiti
-      - less
-      - lightningcss
-      - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
-  vitest@3.2.4(@types/node@24.10.1):
-    dependencies:
-      '@types/chai': 5.2.3
-      '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.2.4(@types/node@24.10.1))
-      '@vitest/pretty-format': 3.2.4
-      '@vitest/runner': 3.2.4
-      '@vitest/snapshot': 3.2.4
-      '@vitest/spy': 3.2.4
-      '@vitest/utils': 3.2.4
-      chai: 5.3.3
-      debug: 4.4.3
-      expect-type: 1.2.2
-      magic-string: 0.30.21
-      pathe: 2.0.3
-      picomatch: 4.0.3
-      std-env: 3.10.0
-      tinybench: 2.9.0
-      tinyexec: 0.3.2
-      tinyglobby: 0.2.15
-      tinypool: 1.1.1
-      tinyrainbow: 2.0.0
-      vite: 7.2.4(@types/node@24.10.1)
-      vite-node: 3.2.4(@types/node@24.10.1)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.13.1
     transitivePeerDependencies:
       - jiti
       - less
