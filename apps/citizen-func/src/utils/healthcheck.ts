@@ -1,5 +1,4 @@
 import { CosmosClient } from "@azure/cosmos";
-import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { sequenceT } from "fp-ts/lib/Apply";
@@ -104,6 +103,7 @@ export const checkAzureStorageHealth = (
 export const checkApplicationHealth = (
   cosmosClient: CosmosClient,
   remoteContentCosmosClient: CosmosClient,
+  messageContentBlobClient: BlobServiceClient,
 ): HealthCheck<ProblemSource, true> => {
   const applicativeValidation = TE.getApplicativeTaskValidation(
     T.ApplicativePar,
@@ -113,21 +113,12 @@ export const checkApplicationHealth = (
   return pipe(
     TE.of(undefined),
     TE.chain(() => checkConfigHealth()),
-    TE.chain((config) =>
+    TE.chain(() =>
       // run each taskEither and collect validation errors from each one of them, if any
       sequenceT(applicativeValidation)(
         checkAzureCosmosDbHealth(cosmosClient),
         checkAzureCosmosDbHealth(remoteContentCosmosClient),
-        checkAzureStorageHealth(
-          config.isProduction
-            ? new BlobServiceClient(
-                config.MESSAGE_CONTENT_STORAGE_ENDPOINT,
-                new DefaultAzureCredential(),
-              )
-            : BlobServiceClient.fromConnectionString(
-                config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
-              ),
-        ),
+        checkAzureStorageHealth(messageContentBlobClient),
       ),
     ),
     TE.map(() => true),

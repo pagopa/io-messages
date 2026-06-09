@@ -182,7 +182,11 @@ describe("checkApplicationHealth - multiple errors -", () => {
       expect.assertions(2);
 
       pipe(
-        checkApplicationHealth(cosmosClient, cosmosClient),
+        checkApplicationHealth(
+          cosmosClient,
+          cosmosClient,
+          BlobServiceClient.fromConnectionString(""),
+        ),
         TE.mapLeft((err) => {
           expect(err.length).toBe(1);
           expect(err[0]).toBe(`AzureStorage|error - blob storage`);

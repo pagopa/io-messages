@@ -1,4 +1,5 @@
 import { CosmosClient } from "@azure/cosmos";
+import { BlobServiceClient } from "@azure/storage-blob";
 import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import {
   IResponseErrorInternal,
@@ -36,9 +37,14 @@ export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
 export function Info(
   cosmosClient: CosmosClient,
   remoteContentCosmosClient: CosmosClient,
+  messageContentBlobClient: BlobServiceClient,
 ) {
   const handler = InfoHandler(
-    checkApplicationHealth(cosmosClient, remoteContentCosmosClient),
+    checkApplicationHealth(
+      cosmosClient,
+      remoteContentCosmosClient,
+      messageContentBlobClient,
+    ),
   );
 
   return wrapHandlerV4([], handler);
