@@ -12,9 +12,8 @@ locals {
       REMOTE_CONTENT_COSMOSDB_URI  = var.io_com_cosmos.endpoint
 
       // BLOB STORAGE
-      MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
-      MESSAGE_CONTENT_STORAGE_ENDPOINT          = var.message_content_storage.endpoint
-      MESSAGE_CONTAINER_NAME                    = "message-content"
+      MESSAGE_CONTENT_STORAGE_ENDPOINT = var.message_content_storage.endpoint
+      MESSAGE_CONTAINER_NAME           = "message-content"
 
       // REDIS
       REDIS_URL      = var.redis_cache.hostname
