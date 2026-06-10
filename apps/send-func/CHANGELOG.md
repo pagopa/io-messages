@@ -1,5 +1,11 @@
 # send-func
 
+## 1.5.11
+
+### Patch Changes
+
+- 669f4a4: Update @types/node devDependencies to v24
+
 ## 1.5.10
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 2.1.4
+
+### Patch Changes
+
+- 669f4a4: Update @types/node devDependencies to v24
+
 ## 2.1.3
 
 ### Patch Changes

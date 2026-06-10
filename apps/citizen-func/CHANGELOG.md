@@ -1,5 +1,11 @@
 ### Changelog
 
+## 6.0.10
+
+### Patch Changes
+
+- 669f4a4: Update @types/node devDependencies to v24
+
 ## 6.0.9
 
 ### Patch Changes

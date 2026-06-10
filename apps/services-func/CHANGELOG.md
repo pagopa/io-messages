@@ -1,5 +1,11 @@
 # services-func
 
+## 2.1.1
+
+### Patch Changes
+
+- 669f4a4: Update @types/node devDependencies to v24
+
 ## 2.1.0
 
 ### Minor Changes

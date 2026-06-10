@@ -1,5 +1,11 @@
 # ops-func
 
+## 1.0.6
+
+### Patch Changes
+
+- 669f4a4: Update @types/node devDependencies to v24
+
 ## 1.0.5
 
 ### Patch Changes

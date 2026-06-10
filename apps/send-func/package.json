@@ -7,7 +7,7 @@
     "host.json",
     "package.json"
   ],
-  "version": "1.5.10",
+  "version": "1.5.11",
   "scripts": {
     "clean": "shx rm -rf dist",
     "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node24 --outdir=dist --packages=external",
