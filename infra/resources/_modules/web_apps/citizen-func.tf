@@ -12,8 +12,8 @@ locals {
       REMOTE_CONTENT_COSMOSDB_URI  = var.io_com_cosmos.endpoint
 
       // BLOB STORAGE
-      MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
-      MESSAGE_CONTAINER_NAME                    = "message-content"
+      MESSAGE_CONTENT_STORAGE_ENDPOINT = var.message_content_storage.endpoint
+      MESSAGE_CONTAINER_NAME           = "message-content"
 
       // REDIS
       REDIS_URL      = var.redis_cache.hostname
@@ -118,6 +118,26 @@ resource "azurerm_role_assignment" "citizen_func_io_com_cosmos_new" {
   ])
   scope                = var.io_com_cosmos.id
   role_definition_name = "SQL DB Contributor"
+  principal_id         = each.value
+}
+
+resource "azurerm_role_assignment" "citizen_func_io_message_content_storage" {
+  for_each = toset([
+    module.citizen_func_new.function_app.function_app.principal_id,
+    module.citizen_func_new.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.messages_storage_account.id
+  role_definition_name = "Storage Account Contributor"
+  principal_id         = each.value
+}
+
+resource "azurerm_role_assignment" "citizen_func_io_message_content_storage_reader" {
+  for_each = toset([
+    module.citizen_func_new.function_app.function_app.principal_id,
+    module.citizen_func_new.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.messages_storage_account.id
+  role_definition_name = "Storage Blob Data Reader"
   principal_id         = each.value
 }
 
