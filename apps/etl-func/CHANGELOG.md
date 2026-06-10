@@ -1,5 +1,11 @@
 # etl-func
 
+## 1.0.12
+
+### Patch Changes
+
+- 669f4a4: Update @types/node devDependencies to v24
+
 ## 1.0.11
 
 ### Patch Changes

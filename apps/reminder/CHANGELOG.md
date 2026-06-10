@@ -1,5 +1,11 @@
 # reminder
 
+## 0.17.7
+
+### Patch Changes
+
+- 669f4a4: Update @types/node devDependencies to v24
+
 ## 0.17.6
 
 ### Patch Changes

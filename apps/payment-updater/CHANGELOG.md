@@ -1,5 +1,11 @@
 # payment-updater
 
+## 2.7.6
+
+### Patch Changes
+
+- 669f4a4: Update @types/node devDependencies to v24
+
 ## 2.7.5
 
 ### Patch Changes
