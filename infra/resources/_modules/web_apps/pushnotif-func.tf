@@ -78,6 +78,7 @@ locals {
 
       MESSAGE_CONTAINER_NAME                    = "message-content"
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
+      MESSAGE_CONTENT_STORAGE_ENDPOINT          = var.message_content_storage.endpoint
 
       SESSION_MANAGER_API_KEY  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=session-manager-api-key)",
       SESSION_MANAGER_BASE_URL = var.session_manager_base_url,
@@ -276,4 +277,24 @@ resource "azurerm_cosmosdb_sql_role_assignment" "push_notifications_database_con
   scope               = "${var.io_com_cosmos.id}/dbs/push-notifications-cosmos-01"
   role_definition_id  = "${var.io_com_cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = each.value
+}
+
+resource "azurerm_role_assignment" "push_notification_message_content_storage" {
+  for_each = toset([
+    module.push_notif_function[0].function_app.function_app.principal_id,
+    module.push_notif_function[0].function_app.function_app.slot.principal_id
+  ])
+  scope                = var.messages_storage_account.id
+  role_definition_name = "Storage Account Contributor"
+  principal_id         = each.value
+}
+
+resource "azurerm_role_assignment" "push_notification_message_content_storage_reader" {
+  for_each = toset([
+    module.push_notif_function[0].function_app.function_app.principal_id,
+    module.push_notif_function[0].function_app.function_app.slot.principal_id
+  ])
+  scope                = var.messages_storage_account.id
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = each.value
 }

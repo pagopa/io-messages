@@ -127,9 +127,13 @@ const main = (config: Config) => {
     config.messageContentContainerName as NonEmptyString,
   );
 
-  const blobServiceClient = BlobServiceClient.fromConnectionString(
-    config.apiStorageAccountConnectionString,
-  );
+  const blobServiceClient =
+    config.nodeEnv === "production"
+      ? new BlobServiceClient(config.apiStorageAccountEndpoint, aadCredentials)
+      : BlobServiceClient.fromConnectionString(
+          config.apiStorageAccountConnectionString,
+        );
+
   const messageContentRepository = new MessageContentBlobAdapter(
     blobServiceClient,
     config.messageContentContainerName,
