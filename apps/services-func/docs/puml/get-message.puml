@@ -117,9 +117,7 @@ deactivate msgdb
 func -> func : Check caller is the sender service\nor belongs to ApiLegalMessageRead
 
 note right of func
-  The caller is authorized to read the message if:
-  - the caller is the **sender service** of the message OR
-  - the caller belongs to the **ApiLegalMessageRead** group
+  The caller is authorized to read the message if he is the **sender service** of the message OR.
 end note
 
 alt Caller is neither the sender nor a legal reader
