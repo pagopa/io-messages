@@ -117,7 +117,7 @@ deactivate msgdb
 func -> func : Check caller is the sender service\nor belongs to ApiLegalMessageRead
 
 note right of func
-  The caller is authorized to read the message if he is the **sender service** of the message OR.
+  The caller is authorized to read the message if he is the **sender service** of the message.
 end note
 
 alt Caller is neither the sender nor a legal reader
@@ -139,7 +139,7 @@ else Blob not found
     func -[#red]x caller : 404 Not Found\n(Message Content not found)
   else Caller is a regular reader
     note right of func
-      Regular callers receive the message\nresponse without content.
+      Regular callers receive the message response without content.
     end note
   end
 end
