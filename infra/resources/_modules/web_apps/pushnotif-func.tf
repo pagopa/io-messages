@@ -42,10 +42,13 @@ locals {
       FETCH_KEEPALIVE_FREE_SOCKET_TIMEOUT = "30000"
       FETCH_KEEPALIVE_TIMEOUT             = "60000"
 
-      NOTIFICATIONS_QUEUE_NAME                                   = "push-notifications"
-      NOTIFICATIONS_STORAGE_CONNECTION_STRING                    = var.com_st_connectiostring
-      NOTIFICATIONS_STORAGE_QUEUE_ENDPOINT                       = var.com_st_queue_uri
-      "NOTIFICATIONS_STORAGE_CONNECTION_STRING__queueServiceUri" = var.com_st_queue_uri
+      NOTIFICATIONS_QUEUE_NAME                = "push-notifications"
+      NOTIFICATIONS_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
+      NOTIFICATIONS_STORAGE_QUEUE_ENDPOINT    = var.com_st_queue_uri
+
+      // Used by storage queue connection, the queueServiceUri is used in production environment
+      NOTIFICATIONS_STORAGE                  = var.com_st_connectiostring
+      NOTIFICATIONS_STORAGE__queueServiceUri = var.com_st_queue_uri
 
       // activity default retry attempts
       RETRY_ATTEMPT_NUMBER = 10

@@ -215,7 +215,7 @@ const main = (config: Config) => {
     );
 
   const updateInstallationDispatchQueueOutput = output.storageQueue({
-    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    connection: "NOTIFICATIONS_STORAGE",
     queueName: updateInstallationDispatchQueueName,
   });
 
@@ -253,12 +253,12 @@ const main = (config: Config) => {
   );
 
   const notifyQueueOutput = output.storageQueue({
-    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    connection: "NOTIFICATIONS_STORAGE",
     queueName: "notify-messages",
   });
 
   app.storageQueue("HandleNHNotificationCall", {
-    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    connection: "NOTIFICATIONS_STORAGE",
     extraInputs: [df.input.durableClient()],
     extraOutputs: [notifyQueueOutput],
     handler: getNotificationCallHandler(notifyQueueOutput),
@@ -266,7 +266,7 @@ const main = (config: Config) => {
   });
 
   app.storageQueue("HandleNHNotifyMessageCallActivityQueue", {
-    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    connection: "NOTIFICATIONS_STORAGE",
     handler: (notifyRequest) =>
       handleNotifyMessage(notifyRequest, telemetryClient, nhPartitionFactory),
     queueName: "notify-messages",
@@ -337,7 +337,7 @@ const main = (config: Config) => {
   });
 
   app.storageQueue("UpdateInstallation", {
-    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    connection: "NOTIFICATIONS_STORAGE",
     handler: getUpdateInstallationHandler(
       telemetryService,
       notifiationHubInstallationAdapter,
@@ -467,7 +467,7 @@ const main = (config: Config) => {
     });
 
     app.storageQueue("CheckMassiveJob", {
-      connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+      connection: "NOTIFICATIONS_STORAGE",
       handler: makeCheckMassiveJobHandler(
         telemetryService,
         checkMassiveJobStatusUseCase,
@@ -476,7 +476,7 @@ const main = (config: Config) => {
     });
 
     app.storageQueue("ProcessMassiveJob", {
-      connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+      connection: "NOTIFICATIONS_STORAGE",
       handler: makeProcessMassiveJobHandler(
         telemetryService,
         processMassiveJobUseCase,
