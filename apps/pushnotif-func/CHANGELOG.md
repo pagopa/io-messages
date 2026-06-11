@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.8.12
+
+### Patch Changes
+
+- 42f2203: Update configuration for removing connection string for Blob Storage connection
+
 ## 2.8.11
 
 ### Patch Changes
