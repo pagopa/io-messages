@@ -157,10 +157,16 @@ const main = (config: Config) => {
       }),
   });
 
-  const notifyQueueClient = new QueueClient(
-    config.comStorageConnectionString,
-    "push-notifications",
-  );
+  const notifyQueueClient =
+    config.nodeEnv === "production"
+      ? new QueueClient(
+          `${config.comStorageQueueEndpoint}push-notifications`,
+          aadCredentials,
+        )
+      : new QueueClient(
+          config.comStorageConnectionString,
+          "push-notifications",
+        );
 
   // TODO: This factory breaks clean architecture, remove this in future.
   const nhPartitionFactory = new NotificationHubPartitionFactory([
@@ -340,14 +346,27 @@ const main = (config: Config) => {
   });
 
   if (config.enableMassiveNotificationJobs) {
-    const checkMassiveJobQueue = new QueueClient(
-      config.comStorageConnectionString,
-      "check-massive-job",
-    );
-    const processMassiveJobQueue = new QueueClient(
-      config.comStorageConnectionString,
-      "process-massive-job",
-    );
+    const checkMassiveJobQueue =
+      config.nodeEnv === "production"
+        ? new QueueClient(
+            `${config.comStorageQueueEndpoint}check-massive-job`,
+            aadCredentials,
+          )
+        : new QueueClient(
+            config.comStorageConnectionString,
+            "check-massive-job",
+          );
+
+    const processMassiveJobQueue =
+      config.nodeEnv === "production"
+        ? new QueueClient(
+            `${config.comStorageQueueEndpoint}process-massive-job`,
+            aadCredentials,
+          )
+        : new QueueClient(
+            config.comStorageConnectionString,
+            "process-massive-job",
+          );
 
     const massiveJobsContainer = pushCosmosDb.container(
       config.massiveJobsContainerName,

@@ -42,8 +42,10 @@ locals {
       FETCH_KEEPALIVE_FREE_SOCKET_TIMEOUT = "30000"
       FETCH_KEEPALIVE_TIMEOUT             = "60000"
 
-      NOTIFICATIONS_QUEUE_NAME                = "push-notifications"
-      NOTIFICATIONS_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
+      NOTIFICATIONS_QUEUE_NAME                                   = "push-notifications"
+      NOTIFICATIONS_STORAGE_CONNECTION_STRING                    = var.com_st_connectiostring
+      NOTIFICATIONS_STORAGE_QUEUE_ENDPOINT                       = var.com_st_queue_uri
+      "NOTIFICATIONS_STORAGE_CONNECTION_STRING__queueServiceUri" = var.com_st_queue_uri
 
       // activity default retry attempts
       RETRY_ATTEMPT_NUMBER = 10
@@ -277,6 +279,16 @@ resource "azurerm_cosmosdb_sql_role_assignment" "push_notifications_database_con
   scope               = "${var.io_com_cosmos.id}/dbs/push-notifications-cosmos-01"
   role_definition_id  = "${var.io_com_cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = each.value
+}
+
+resource "azurerm_role_assignment" "push_notification_com_storage_queue" {
+  for_each = toset([
+    module.push_notif_function[0].function_app.function_app.principal_id,
+    module.push_notif_function[0].function_app.function_app.slot.principal_id
+  ])
+  scope                = var.com_st_id
+  role_definition_name = "Storage Queue Data Contributor"
+  principal_id         = each.value
 }
 
 resource "azurerm_role_assignment" "push_notification_message_content_storage" {

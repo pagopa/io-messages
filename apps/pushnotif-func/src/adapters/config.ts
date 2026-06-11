@@ -93,8 +93,6 @@ const basicSchema = z.object({
   NH4_NAME: z.string().min(1),
   NH4_PARTITION_REGEX: z.string().min(1),
 
-  NOTIFICATIONS_STORAGE_CONNECTION_STRING: z.string().min(1),
-
   PUSH_DATABASE_NAME: z.string().min(1),
 
   SESSION_MANAGER_API_KEY: z.string().min(1),
@@ -109,11 +107,13 @@ const basicSchema = z.object({
 const contentStorageConnectionStringSchema = z.object({
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: z.string().min(1),
   NODE_ENV: z.literal("development"),
+  NOTIFICATIONS_STORAGE_CONNECTION_STRING: z.string().min(1),
 });
 
 const contentStorageEndpointSchema = z.object({
   MESSAGE_CONTENT_STORAGE_ENDPOINT: z.url(),
   NODE_ENV: z.literal("production"),
+  NOTIFICATIONS_STORAGE_QUEUE_ENDPOINT: z.url(),
 });
 
 const envSchema = z
@@ -135,7 +135,6 @@ export const configBaseSchema = z.object({
     accountEndpoint: z.url(),
     pushDatabaseName: z.string().min(1),
   }),
-  comStorageConnectionString: z.string().min(1),
   databaseName: z.string().min(1),
   enableMassiveNotificationJobs: z.boolean(),
   installationSummariesContainerName: z.string().min(1),
@@ -153,11 +152,13 @@ export const configBaseSchema = z.object({
 
 const configStorageConnectionStringSchema = z.object({
   apiStorageAccountConnectionString: z.string().min(1),
+  comStorageConnectionString: z.string().min(1),
   nodeEnv: z.literal("development"),
 });
 
 const configStorageEndpointSchema = z.object({
   apiStorageAccountEndpoint: z.url(),
+  comStorageQueueEndpoint: z.url(),
   nodeEnv: z.literal("production"),
 });
 
@@ -184,7 +185,6 @@ const mapEnvironmentVariablesToConfig = (env: Env): Config => {
       accountEndpoint: env.COM_COSMOS__accountEndpoint,
       pushDatabaseName: env.PUSH_DATABASE_NAME,
     },
-    comStorageConnectionString: env.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
     databaseName: env.PUSH_DATABASE_NAME,
     enableMassiveNotificationJobs: env.ENABLE_MASSIVE_NOTIFICATION_JOBS,
     installationSummariesContainerName:
@@ -236,11 +236,14 @@ const mapEnvironmentVariablesToConfig = (env: Env): Config => {
     env.NODE_ENV === "production"
       ? {
           apiStorageAccountEndpoint: env.MESSAGE_CONTENT_STORAGE_ENDPOINT,
+          comStorageQueueEndpoint: env.NOTIFICATIONS_STORAGE_QUEUE_ENDPOINT,
           nodeEnv: "production" as const,
         }
       : {
           apiStorageAccountConnectionString:
             env.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+          comStorageConnectionString:
+            env.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
           nodeEnv: "development" as const,
         };
 
