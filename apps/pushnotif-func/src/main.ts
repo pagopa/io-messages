@@ -127,9 +127,13 @@ const main = (config: Config) => {
     config.messageContentContainerName as NonEmptyString,
   );
 
-  const blobServiceClient = BlobServiceClient.fromConnectionString(
-    config.apiStorageAccountConnectionString,
-  );
+  const blobServiceClient =
+    config.nodeEnv === "production"
+      ? new BlobServiceClient(config.apiStorageAccountEndpoint, aadCredentials)
+      : BlobServiceClient.fromConnectionString(
+          config.apiStorageAccountConnectionString,
+        );
+
   const messageContentRepository = new MessageContentBlobAdapter(
     blobServiceClient,
     config.messageContentContainerName,
@@ -153,10 +157,16 @@ const main = (config: Config) => {
       }),
   });
 
-  const notifyQueueClient = new QueueClient(
-    config.comStorageConnectionString,
-    "push-notifications",
-  );
+  const notifyQueueClient =
+    config.nodeEnv === "production"
+      ? new QueueClient(
+          `${config.comStorageQueueEndpoint}push-notifications`,
+          aadCredentials,
+        )
+      : new QueueClient(
+          config.comStorageConnectionString,
+          "push-notifications",
+        );
 
   // TODO: This factory breaks clean architecture, remove this in future.
   const nhPartitionFactory = new NotificationHubPartitionFactory([
@@ -205,7 +215,7 @@ const main = (config: Config) => {
     );
 
   const updateInstallationDispatchQueueOutput = output.storageQueue({
-    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    connection: "NOTIFICATIONS_STORAGE",
     queueName: updateInstallationDispatchQueueName,
   });
 
@@ -243,12 +253,12 @@ const main = (config: Config) => {
   );
 
   const notifyQueueOutput = output.storageQueue({
-    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    connection: "NOTIFICATIONS_STORAGE",
     queueName: "notify-messages",
   });
 
   app.storageQueue("HandleNHNotificationCall", {
-    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    connection: "NOTIFICATIONS_STORAGE",
     extraInputs: [df.input.durableClient()],
     extraOutputs: [notifyQueueOutput],
     handler: getNotificationCallHandler(notifyQueueOutput),
@@ -256,7 +266,7 @@ const main = (config: Config) => {
   });
 
   app.storageQueue("HandleNHNotifyMessageCallActivityQueue", {
-    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    connection: "NOTIFICATIONS_STORAGE",
     handler: (notifyRequest) =>
       handleNotifyMessage(notifyRequest, telemetryClient, nhPartitionFactory),
     queueName: "notify-messages",
@@ -327,7 +337,7 @@ const main = (config: Config) => {
   });
 
   app.storageQueue("UpdateInstallation", {
-    connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+    connection: "NOTIFICATIONS_STORAGE",
     handler: getUpdateInstallationHandler(
       telemetryService,
       notifiationHubInstallationAdapter,
@@ -336,14 +346,27 @@ const main = (config: Config) => {
   });
 
   if (config.enableMassiveNotificationJobs) {
-    const checkMassiveJobQueue = new QueueClient(
-      config.comStorageConnectionString,
-      "check-massive-job",
-    );
-    const processMassiveJobQueue = new QueueClient(
-      config.comStorageConnectionString,
-      "process-massive-job",
-    );
+    const checkMassiveJobQueue =
+      config.nodeEnv === "production"
+        ? new QueueClient(
+            `${config.comStorageQueueEndpoint}check-massive-job`,
+            aadCredentials,
+          )
+        : new QueueClient(
+            config.comStorageConnectionString,
+            "check-massive-job",
+          );
+
+    const processMassiveJobQueue =
+      config.nodeEnv === "production"
+        ? new QueueClient(
+            `${config.comStorageQueueEndpoint}process-massive-job`,
+            aadCredentials,
+          )
+        : new QueueClient(
+            config.comStorageConnectionString,
+            "process-massive-job",
+          );
 
     const massiveJobsContainer = pushCosmosDb.container(
       config.massiveJobsContainerName,
@@ -444,7 +467,7 @@ const main = (config: Config) => {
     });
 
     app.storageQueue("CheckMassiveJob", {
-      connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+      connection: "NOTIFICATIONS_STORAGE",
       handler: makeCheckMassiveJobHandler(
         telemetryService,
         checkMassiveJobStatusUseCase,
@@ -453,7 +476,7 @@ const main = (config: Config) => {
     });
 
     app.storageQueue("ProcessMassiveJob", {
-      connection: "NOTIFICATIONS_STORAGE_CONNECTION_STRING",
+      connection: "NOTIFICATIONS_STORAGE",
       handler: makeProcessMassiveJobHandler(
         telemetryService,
         processMassiveJobUseCase,

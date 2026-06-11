@@ -8,12 +8,6 @@ export const applicationInsightsSchema = z.object({
   samplingPercentage: z.int().min(1).max(100),
 });
 
-// TODO: Move this to io-messages-common
-const nodeEnvSchema = z.union([
-  z.literal("production"),
-  z.literal("development"),
-]);
-
 export type ApplicationInsightsConfig = z.TypeOf<
   typeof applicationInsightsSchema
 >;
@@ -56,7 +50,7 @@ export function loadConfigFromEnvironment<T extends z.ZodTypeAny>(
 }
 
 // envSchema represents the local.settings.json.
-const envSchema = z.object({
+const basicSchema = z.object({
   APPINSIGHTS_SAMPLING_PERCENTAGE: z
     .string()
     .transform((val) => Number(val))
@@ -82,7 +76,7 @@ const envSchema = z.object({
   MASSIVE_PROGRESS_CONTAINER_NAME: z.string().min(1),
 
   MESSAGE_CONTAINER_NAME: z.string().min(1),
-  MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: z.string().min(1),
+
   NH1_ENDPOINT: z.string().min(1),
   NH1_NAME: z.string().min(1),
   NH1_PARTITION_REGEX: z.string().min(1),
@@ -99,9 +93,6 @@ const envSchema = z.object({
   NH4_NAME: z.string().min(1),
   NH4_PARTITION_REGEX: z.string().min(1),
 
-  NODE_ENV: nodeEnvSchema,
-  NOTIFICATIONS_STORAGE_CONNECTION_STRING: z.string().min(1),
-
   PUSH_DATABASE_NAME: z.string().min(1),
 
   SESSION_MANAGER_API_KEY: z.string().min(1),
@@ -113,20 +104,37 @@ const envSchema = z.object({
     .pipe(z.number().int().positive()),
 });
 
+const contentStorageConnectionStringSchema = z.object({
+  MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: z.string().min(1),
+  NODE_ENV: z.literal("development"),
+  NOTIFICATIONS_STORAGE_CONNECTION_STRING: z.string().min(1),
+});
+
+const contentStorageEndpointSchema = z.object({
+  MESSAGE_CONTENT_STORAGE_ENDPOINT: z.url(),
+  NODE_ENV: z.literal("production"),
+  NOTIFICATIONS_STORAGE_QUEUE_ENDPOINT: z.url(),
+});
+
+const envSchema = z
+  .discriminatedUnion("NODE_ENV", [
+    contentStorageConnectionStringSchema,
+    contentStorageEndpointSchema,
+  ])
+  .and(basicSchema);
+
 export type Env = z.TypeOf<typeof envSchema>;
 
-export const configSchema = z.object({
+export const configBaseSchema = z.object({
   apiCosmos: z.object({
     accountEndpoint: z.url(),
     databaseName: z.string().min(1),
   }),
-  apiStorageAccountConnectionString: z.string().min(1),
   applicationInsights: applicationInsightsSchema,
   comCosmos: z.object({
     accountEndpoint: z.url(),
     pushDatabaseName: z.string().min(1),
   }),
-  comStorageConnectionString: z.string().min(1),
   databaseName: z.string().min(1),
   enableMassiveNotificationJobs: z.boolean(),
   installationSummariesContainerName: z.string().min(1),
@@ -134,7 +142,6 @@ export const configSchema = z.object({
   massiveJobsContainerName: z.string().min(1),
   massiveProgressContainerName: z.string().min(1),
   messageContentContainerName: z.string().min(1),
-  nodeEnv: nodeEnvSchema,
   notificationHub: notificationHubConfigSchema,
   sessionManager: z.object({
     apiKey: z.string().min(1),
@@ -143,70 +150,105 @@ export const configSchema = z.object({
   updateAllInstallationsTimeToReach: z.int().positive(),
 });
 
+const configStorageConnectionStringSchema = z.object({
+  apiStorageAccountConnectionString: z.string().min(1),
+  comStorageConnectionString: z.string().min(1),
+  nodeEnv: z.literal("development"),
+});
+
+const configStorageEndpointSchema = z.object({
+  apiStorageAccountEndpoint: z.url(),
+  comStorageQueueEndpoint: z.url(),
+  nodeEnv: z.literal("production"),
+});
+
+export const configSchema = z
+  .discriminatedUnion("nodeEnv", [
+    configStorageConnectionStringSchema,
+    configStorageEndpointSchema,
+  ])
+  .and(configBaseSchema);
+
 export type Config = z.TypeOf<typeof configSchema>;
 
-const mapEnvironmentVariablesToConfig = (env: Env): Config => ({
-  apiCosmos: {
-    accountEndpoint: env.COSMOSDB_URI,
-    databaseName: env.COSMOSDB_NAME,
-  },
-  apiStorageAccountConnectionString:
-    env.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
-  applicationInsights: {
-    connectionString: env.APPLICATIONINSIGHTS_CONNECTION_STRING,
-    samplingPercentage: env.APPINSIGHTS_SAMPLING_PERCENTAGE,
-  },
-  comCosmos: {
-    accountEndpoint: env.COM_COSMOS__accountEndpoint,
-    pushDatabaseName: env.PUSH_DATABASE_NAME,
-  },
-  comStorageConnectionString: env.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
-  databaseName: env.PUSH_DATABASE_NAME,
-  enableMassiveNotificationJobs: env.ENABLE_MASSIVE_NOTIFICATION_JOBS,
-  installationSummariesContainerName: env.INSTALLATION_SUMMARIES_CONTAINER_NAME,
+const mapEnvironmentVariablesToConfig = (env: Env): Config => {
+  const conf = {
+    apiCosmos: {
+      accountEndpoint: env.COSMOSDB_URI,
+      databaseName: env.COSMOSDB_NAME,
+    },
+    applicationInsights: {
+      connectionString: env.APPLICATIONINSIGHTS_CONNECTION_STRING,
+      samplingPercentage: env.APPINSIGHTS_SAMPLING_PERCENTAGE,
+    },
+    comCosmos: {
+      accountEndpoint: env.COM_COSMOS__accountEndpoint,
+      pushDatabaseName: env.PUSH_DATABASE_NAME,
+    },
+    databaseName: env.PUSH_DATABASE_NAME,
+    enableMassiveNotificationJobs: env.ENABLE_MASSIVE_NOTIFICATION_JOBS,
+    installationSummariesContainerName:
+      env.INSTALLATION_SUMMARIES_CONTAINER_NAME,
 
-  installationSummariesLeaseContainerPrefix:
-    env.INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX,
+    installationSummariesLeaseContainerPrefix:
+      env.INSTALLATION_SUMMARIES_LEASE_CONTAINER_PREFIX,
 
-  massiveJobsContainerName: env.MASSIVE_JOBS_CONTAINER_NAME,
-  massiveProgressContainerName: env.MASSIVE_PROGRESS_CONTAINER_NAME,
-  messageContentContainerName: env.MESSAGE_CONTAINER_NAME,
+    massiveJobsContainerName: env.MASSIVE_JOBS_CONTAINER_NAME,
+    massiveProgressContainerName: env.MASSIVE_PROGRESS_CONTAINER_NAME,
+    messageContentContainerName: env.MESSAGE_CONTAINER_NAME,
 
-  nodeEnv: env.NODE_ENV,
+    notificationHub: {
+      partition1: {
+        endpoint: env.NH1_ENDPOINT,
+        name: env.NH1_NAME,
+        partitionRegex: env.NH1_PARTITION_REGEX,
+      },
 
-  notificationHub: {
-    partition1: {
-      endpoint: env.NH1_ENDPOINT,
-      name: env.NH1_NAME,
-      partitionRegex: env.NH1_PARTITION_REGEX,
+      partition2: {
+        endpoint: env.NH2_ENDPOINT,
+        name: env.NH2_NAME,
+        partitionRegex: env.NH2_PARTITION_REGEX,
+      },
+
+      partition3: {
+        endpoint: env.NH3_ENDPOINT,
+        name: env.NH3_NAME,
+        partitionRegex: env.NH3_PARTITION_REGEX,
+      },
+
+      partition4: {
+        endpoint: env.NH4_ENDPOINT,
+        name: env.NH4_NAME,
+        partitionRegex: env.NH4_PARTITION_REGEX,
+      },
     },
 
-    partition2: {
-      endpoint: env.NH2_ENDPOINT,
-      name: env.NH2_NAME,
-      partitionRegex: env.NH2_PARTITION_REGEX,
+    sessionManager: {
+      apiKey: env.SESSION_MANAGER_API_KEY,
+      baseUrl: env.SESSION_MANAGER_BASE_URL,
     },
 
-    partition3: {
-      endpoint: env.NH3_ENDPOINT,
-      name: env.NH3_NAME,
-      partitionRegex: env.NH3_PARTITION_REGEX,
-    },
+    updateAllInstallationsTimeToReach:
+      env.UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH,
+  };
 
-    partition4: {
-      endpoint: env.NH4_ENDPOINT,
-      name: env.NH4_NAME,
-      partitionRegex: env.NH4_PARTITION_REGEX,
-    },
-  },
+  const storageConfig =
+    env.NODE_ENV === "production"
+      ? {
+          apiStorageAccountEndpoint: env.MESSAGE_CONTENT_STORAGE_ENDPOINT,
+          comStorageQueueEndpoint: env.NOTIFICATIONS_STORAGE_QUEUE_ENDPOINT,
+          nodeEnv: "production" as const,
+        }
+      : {
+          apiStorageAccountConnectionString:
+            env.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+          comStorageConnectionString:
+            env.NOTIFICATIONS_STORAGE_CONNECTION_STRING,
+          nodeEnv: "development" as const,
+        };
 
-  sessionManager: {
-    apiKey: env.SESSION_MANAGER_API_KEY,
-    baseUrl: env.SESSION_MANAGER_BASE_URL,
-  },
-
-  updateAllInstallationsTimeToReach: env.UPDATE_ALL_INSTALLATIONS_TIME_TO_REACH,
-});
+  return { ...conf, ...storageConfig };
+};
 
 export const configFromEnvironment = envSchema
   .transform(mapEnvironmentVariablesToConfig) // Transform the envSchema into a valid Config.
