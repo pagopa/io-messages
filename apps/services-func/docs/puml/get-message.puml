@@ -296,10 +296,9 @@ else Advanced info readable
       pagopa -[#green]> func : paid: false
     else Unexpected HTTP error
       pagopa -[#red]> func
+      deactivate pagopa
       func -[#red]x caller : 500 Internal Server Error\n(Error retrieving Payment Status)
     end
-
-    deactivate pagopa
 
     func -> func : Map to PaymentStatus\n(PAID or NOT_PAID)
 
