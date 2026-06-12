@@ -42,12 +42,10 @@ locals {
       FETCH_KEEPALIVE_FREE_SOCKET_TIMEOUT = "30000"
       FETCH_KEEPALIVE_TIMEOUT             = "60000"
 
-      NOTIFICATIONS_QUEUE_NAME                = "push-notifications"
-      NOTIFICATIONS_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
-      NOTIFICATIONS_STORAGE_QUEUE_ENDPOINT    = var.com_st_queue_uri
+      NOTIFICATIONS_QUEUE_NAME             = "push-notifications"
+      NOTIFICATIONS_STORAGE_QUEUE_ENDPOINT = var.com_st_queue_uri
 
       // Used by storage queue connection, the queueServiceUri is used in production environment
-      NOTIFICATIONS_STORAGE                  = var.com_st_connectiostring
       NOTIFICATIONS_STORAGE__queueServiceUri = var.com_st_queue_uri
 
       // activity default retry attempts
@@ -81,9 +79,8 @@ locals {
       MASSIVE_JOBS_CONTAINER_NAME      = "massive-jobs"
       MASSIVE_PROGRESS_CONTAINER_NAME  = "massive-progress",
 
-      MESSAGE_CONTAINER_NAME                    = "message-content"
-      MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
-      MESSAGE_CONTENT_STORAGE_ENDPOINT          = var.message_content_storage.endpoint
+      MESSAGE_CONTAINER_NAME           = "message-content"
+      MESSAGE_CONTENT_STORAGE_ENDPOINT = var.message_content_storage.endpoint
 
       SESSION_MANAGER_API_KEY  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=session-manager-api-key)",
       SESSION_MANAGER_BASE_URL = var.session_manager_base_url,
