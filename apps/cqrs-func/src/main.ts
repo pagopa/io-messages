@@ -1,4 +1,5 @@
 import { app } from "@azure/functions";
+import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { QueueClient } from "@azure/storage-queue";
 import { MessageContentBlobAdapter } from "io-messages-common-legacy/adapters/message-content";
@@ -22,6 +23,10 @@ const config = getConfigOrThrow();
 
 const telemetryClient = initTelemetryClient(config);
 
+const aadCredentials = config.isProduction
+  ? new DefaultAzureCredential()
+  : undefined;
+
 const kafkaMessagesClient = fromSas(
   config.MESSAGES_TOPIC_CONNECTION_STRING,
   config.KAFKA_SSL_ACTIVE,
@@ -34,15 +39,25 @@ const kafkaMessageStatusClient = fromSas(
   avroMessageStatusFormatter(),
 );
 
-const errorStorage = new QueueClient(
-  config.COM_STORAGE_CONNECTION_STRING,
-  config.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME,
-);
+const errorStorage = config.isProduction
+  ? new QueueClient(
+      `${config.COM_STORAGE_QUEUE_ENDPOINT}${config.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME}`,
+      aadCredentials,
+    )
+  : new QueueClient(
+      config.COM_STORAGE_CONNECTION_STRING,
+      config.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME,
+    );
 
 const messageContentRepository = new MessageContentBlobAdapter(
-  BlobServiceClient.fromConnectionString(
-    config.MESSAGE_CONTENT_STORAGE_CONNECTION,
-  ),
+  config.isProduction
+    ? new BlobServiceClient(
+        config.MESSAGE_CONTENT_STORAGE_ENDPOINT,
+        aadCredentials,
+      )
+    : BlobServiceClient.fromConnectionString(
+        config.MESSAGE_CONTENT_STORAGE_CONNECTION,
+      ),
   "message-content",
 );
 // ---------------------------------------------------------------------------

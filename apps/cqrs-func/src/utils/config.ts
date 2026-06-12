@@ -23,32 +23,48 @@ export const MessageChangeFeedConfig = t.type({
   MESSAGE_CHANGE_FEED_START_TIME: withDefault(NumberFromString, 0),
 });
 export type MessageChangeFeedConfig = t.TypeOf<typeof MessageChangeFeedConfig>;
+
+const isProduction = process.env.NODE_ENV === "production";
+
+const IStorageAccountConnectionString = t.type({
+  COM_STORAGE_CONNECTION_STRING: NonEmptyString,
+  MESSAGE_CONTENT_STORAGE_CONNECTION: NonEmptyString,
+  isProduction: t.literal(false),
+});
+
+const IStorageAccountEndpoint = t.type({
+  COM_STORAGE_QUEUE_ENDPOINT: NonEmptyString,
+  MESSAGE_CONTENT_STORAGE_ENDPOINT: NonEmptyString,
+  isProduction: t.literal(true),
+});
+
+const IBaseConfig = t.type({
+  APPINSIGHTS_SAMPLING_PERCENTAGE: withDefault(IntegerFromString, 5),
+  APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
+
+  COSMOSDB__accountEndpoint: NonEmptyString,
+
+  COSMOSDB_NAME: NonEmptyString,
+
+  KAFKA_SSL_ACTIVE: BooleanFromString,
+
+  MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME: NonEmptyString,
+  MESSAGE_STATUS_FOR_REMINDER_TOPIC_PRODUCER_CONNECTION_STRING:
+    AzureEventhubSasFromString,
+
+  MESSAGES_TOPIC_CONNECTION_STRING: AzureEventhubSasFromString,
+
+  PN_SERVICE_ID: NonEmptyString,
+
+  QueueStorageConnection: NonEmptyString,
+  isProduction: t.boolean,
+});
+
 // global app configuration
 export type IConfig = t.TypeOf<typeof IConfig>;
 export const IConfig = t.intersection([
-  t.type({
-    APPINSIGHTS_SAMPLING_PERCENTAGE: withDefault(IntegerFromString, 5),
-    APPLICATIONINSIGHTS_CONNECTION_STRING: NonEmptyString,
-
-    COM_STORAGE_CONNECTION_STRING: NonEmptyString,
-    COSMOSDB__accountEndpoint: NonEmptyString,
-
-    COSMOSDB_NAME: NonEmptyString,
-
-    KAFKA_SSL_ACTIVE: BooleanFromString,
-    MESSAGE_CONTENT_STORAGE_CONNECTION: NonEmptyString,
-
-    MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME: NonEmptyString,
-    MESSAGE_STATUS_FOR_REMINDER_TOPIC_PRODUCER_CONNECTION_STRING:
-      AzureEventhubSasFromString,
-
-    MESSAGES_TOPIC_CONNECTION_STRING: AzureEventhubSasFromString,
-
-    PN_SERVICE_ID: NonEmptyString,
-
-    QueueStorageConnection: NonEmptyString,
-    isProduction: t.boolean,
-  }),
+  IBaseConfig,
+  isProduction ? IStorageAccountEndpoint : IStorageAccountConnectionString,
   MessageChangeFeedConfig,
 ]);
 
