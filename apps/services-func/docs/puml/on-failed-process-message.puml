@@ -1,0 +1,113 @@
+@startuml
+
+title On Failed Process Message
+
+box "io-p-itn-com-st-01 storage account"
+  queue "message-created-poison" as poison
+end box
+
+box "services-func"
+  participant "OnFailedProcessMessage" as func
+end box
+
+!pragma teoz true
+box "io-p-cosmos-api cosmos account" #LightBlue
+  box "db cosmos database"
+    database "messages" as messages
+    database "message-status" as status
+  end box
+end box
+
+participant "app-insights" as ai
+
+note over poison
+  This function is triggered when the
+  ProcessMessage handler keeps failing and the original
+  message lands in the poison dead-letter queue.
+end note
+
+poison -> func : Queue trigger\n{ messageId, serviceVersion, defaultAddresses? }
+
+activate func
+
+func -> func : Parse queue item as JSON
+alt Invalid JSON
+  func -[#red]x poison : throw (message retried)
+end
+
+func -> func : Decode into CreatedMessageEvent
+alt Cannot decode item
+  func -[#red]x poison : throw (message retried)
+end
+
+note right of func
+  Query the message by its id in order
+  to retrieve the fiscal code
+end note
+func -> messages : getQueryIterator(messageId)
+
+activate messages
+
+alt Error from cosmos
+  messages -[#red]> func : CosmosErrorResponse
+  func -[#red]x poison : throw (message retried)
+else Message not found (length !== 1)
+  messages -[#red]> func : []
+  func -[#red]x poison : throw (message retried)
+end
+
+messages -[#green]> func : 200 Retrieved message list
+deactivate messages
+
+func -> func : Get first element in message list
+alt Decoding error
+  func -[#red]x poison : throw (message retried)
+end
+
+note right of func
+  Read the last status version.
+end note
+func -> status : findLastVersionByModelId([messageId])
+
+activate status
+
+alt Error from cosmos
+  status -[#red]> func : CosmosErrorResponse
+  func -[#red]x poison : throw (message retried)
+end
+
+alt Existing status found
+  status -[#green]> func : Last message status
+else No previous status
+  status -[#green]> func : No message status found
+  func -> func : Build default status
+end
+
+deactivate status
+
+note right of func
+  Upsert a new versioned document with status = FAILED
+end note
+func -> status : upsert({ ...status, status: FAILED, updatedAt })
+
+activate status
+
+alt Error from cosmos
+  status -[#red]> func : CosmosErrorResponse
+  func -[#red]x poison : throw (message retried)
+end
+
+status -[#green]> func : New message status version
+deactivate status
+
+note right of func
+  Track the failure (sampling disabled to
+  always keep this telemetry event).
+end note
+func -> ai : Track event\napi.messages.create.failedprocessing
+
+func -[#green]> poison : Complete (message removed from queue)
+
+deactivate func
+
+@enduml
