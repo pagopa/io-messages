@@ -114,7 +114,7 @@ app.cosmosDB("CosmosApiMessageStatusChangeFeedForReminder", {
 // Storage Queue Triggers
 // ---------------------------------------------------------------------------
 app.storageQueue("HandleMessageChangeFeedPublishFailures", {
-  connection: "COM_STORAGE_CONNECTION_STRING",
+  connection: "COM_STORAGE",
   handler: queueFailureHandler(
     telemetryClient,
     messageContentRepository,

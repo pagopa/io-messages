@@ -46,8 +46,8 @@ locals {
       COM_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
 
       // Used by storage queue connection, the queueServiceUri is used in production environment
-      COM_STORAGE_CONNECTION_STRING__queueServiceUri = var.com_st_queue_uri
-      COM_STORAGE_QUEUE_ENDPOINT                     = var.com_st_queue_uri
+      COM_STORAGE__queueServiceUri = var.com_st_queue_uri
+      COM_STORAGE_QUEUE_ENDPOINT   = var.com_st_queue_uri
     }
   }
 }
