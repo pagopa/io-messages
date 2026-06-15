@@ -31,7 +31,7 @@ activate func
 
 == io-function-commons middlewares pipeline ==
 
-func -> func : Check caller belongs to\nApiMessageRead or ApiLegalMessageRead groups
+func -> func : Check caller belongs to ApiMessageRead
 
 alt Caller not in allowed groups
   func -[#red]x caller : 403 Forbidden
@@ -114,15 +114,11 @@ deactivate msgdb
 
 == Authorization check ==
 
-func -> func : Check caller is the sender service\nor belongs to ApiLegalMessageRead
+func -> func : Check caller is the sender service
 
 note right of func
   The caller is authorized to read the message if he is the **sender service** of the message.
 end note
-
-alt Caller is neither the sender nor a legal reader
-  func -[#red]x caller : 403 Forbidden
-end
 
 == Fetch message content ==
 
@@ -135,9 +131,7 @@ alt Error retrieving blob
   func -[#red]x caller : 500 Internal Server Error
 else Blob not found
   msgblob -> func : Empty result (null)
-  alt Caller is a legal reader (ApiLegalMessageRead)
-    func -[#red]x caller : 404 Not Found\n(Message Content not found)
-  else Caller is a regular reader
+  alt Caller is a regular reader
     note right of func
       Regular callers receive the message response without content.
     end note
@@ -147,22 +141,6 @@ end
 msgblob -[#green]> func : Return MessageContent
 
 deactivate msgblob
-
-note right of func
-  **Legal message guard**
-  Content containing **legal_data** may only be
-  read by callers in **ApiLegalMessageRead**.
-  Conversely, callers in ApiLegalMessageRead
-  are forbidden from reading non-legal content.
-end note
-
-func -> func : Check legal_data vs caller group compatibility
-
-alt legal_data present but caller is NOT in ApiLegalMessageRead
-  func -[#red]x caller : 403 Forbidden
-else legal_data absent but caller IS in ApiLegalMessageRead
-  func -[#red]x caller : 403 Forbidden
-end
 
 == Retrieve notification and message statuses ==
 

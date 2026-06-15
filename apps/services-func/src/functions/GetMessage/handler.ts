@@ -59,7 +59,6 @@ import {
   IResponseErrorNotFound,
   IResponseErrorValidation,
   IResponseSuccessJson,
-  ResponseErrorForbiddenNotAuthorized,
   ResponseErrorInternal,
   ResponseErrorNotFound,
   ResponseErrorValidation,
@@ -78,7 +77,6 @@ import { match } from "ts-pattern";
 
 import { PagoPaEcommerceClient } from "../../clients/pagopa-ecommerce";
 import { FeatureLevelTypeEnum } from "../../generated/definitions/FeatureLevelType";
-import { LegalData } from "../../generated/definitions/LegalData";
 import { PaymentStatusEnum } from "../../generated/definitions/PaymentStatus";
 import {
   FaultCodeCategoryEnum,
@@ -121,9 +119,6 @@ type IGetMessageHandler = (
       ExternalMessageResponseWithContent | ExternalMessageResponseWithoutContent
     >
 >;
-
-const LegalMessagePattern = t.type({ legal_data: LegalData });
-type LegalMessagePattern = t.TypeOf<typeof LegalMessagePattern>;
 
 /**
  * Checks whether the client service can read advanced message info (read_status and payment_Status)
@@ -320,12 +315,9 @@ export const GetMessageHandler =
 
     const retrievedMessage = maybeDocument.value;
 
-    const isUserAllowedForLegalMessages =
-      [...auth.groups].indexOf(UserGroup.ApiLegalMessageRead) >= 0;
     // the service is allowed to see the message when he is the sender of the message
     const isUserAllowed =
-      retrievedMessage.senderServiceId === userAttributes.service.serviceId ||
-      isUserAllowedForLegalMessages;
+      retrievedMessage.senderServiceId === userAttributes.service.serviceId;
 
     if (!isUserAllowed) {
       // the user is not allowed to see the message
@@ -350,35 +342,6 @@ export const GetMessageHandler =
         context.error(`GetMessageHandler|${JSON.stringify(error)}`);
         return ResponseErrorInternal(`${error.name}: ${error.message}`);
       }),
-      TE.chainW(
-        O.fold(
-          () =>
-            isUserAllowedForLegalMessages
-              ? TE.left(
-                  ResponseErrorNotFound(
-                    "Not Found",
-                    "Message Content not found",
-                  ),
-                )
-              : TE.of(O.none),
-          (messageContent) =>
-            pipe(
-              messageContent,
-              LegalMessagePattern.decode,
-              TE.fromEither,
-              TE.map(() => O.some(messageContent)),
-              TE.orElse(() =>
-                !isUserAllowedForLegalMessages
-                  ? TE.of(O.some(messageContent))
-                  : TE.left<
-                      | IResponseErrorForbiddenNotAuthorized
-                      | IResponseErrorNotFound,
-                      O.Option<MessageContent>
-                    >(ResponseErrorForbiddenNotAuthorized),
-              ),
-            ),
-        ),
-      ),
     )();
 
     if (E.isLeft(errorOrMaybeContent)) {
@@ -520,9 +483,7 @@ export function GetMessage(
   );
   const middlewares = [
     ContextMiddleware(),
-    AzureApiAuthMiddleware(
-      new Set([UserGroup.ApiMessageRead, UserGroup.ApiLegalMessageRead]),
-    ),
+    AzureApiAuthMiddleware(new Set([UserGroup.ApiMessageRead])),
     ClientIpMiddleware,
     AzureUserAttributesMiddleware(serviceModel),
     FiscalCodeMiddleware,
