@@ -1,5 +1,11 @@
 # services-func
 
+## 2.1.2
+
+### Patch Changes
+
+- 03eb2cb: Remove legal_data business logic from the get message
+
 ## 2.1.1
 
 ### Patch Changes
