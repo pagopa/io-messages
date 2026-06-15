@@ -56,7 +56,6 @@ const IBaseConfig = t.type({
 
   PN_SERVICE_ID: NonEmptyString,
 
-  QueueStorageConnection: NonEmptyString,
   isProduction: t.boolean,
 });
 

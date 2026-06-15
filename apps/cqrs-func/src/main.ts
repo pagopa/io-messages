@@ -49,15 +49,17 @@ const errorStorage = config.isProduction
       config.MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME,
     );
 
+const messageContentBlobClient = config.isProduction
+  ? new BlobServiceClient(
+      config.MESSAGE_CONTENT_STORAGE_ENDPOINT,
+      aadCredentials,
+    )
+  : BlobServiceClient.fromConnectionString(
+      config.MESSAGE_CONTENT_STORAGE_CONNECTION,
+    );
+
 const messageContentRepository = new MessageContentBlobAdapter(
-  config.isProduction
-    ? new BlobServiceClient(
-        config.MESSAGE_CONTENT_STORAGE_ENDPOINT,
-        aadCredentials,
-      )
-    : BlobServiceClient.fromConnectionString(
-        config.MESSAGE_CONTENT_STORAGE_CONNECTION,
-      ),
+  messageContentBlobClient,
   "message-content",
 );
 // ---------------------------------------------------------------------------
@@ -66,7 +68,7 @@ const messageContentRepository = new MessageContentBlobAdapter(
 
 app.http("Info", {
   authLevel: "anonymous",
-  handler: Info(),
+  handler: Info(messageContentBlobClient),
   methods: ["GET"],
   route: "v1/info",
 });

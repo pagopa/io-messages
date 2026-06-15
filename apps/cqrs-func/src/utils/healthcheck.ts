@@ -1,7 +1,6 @@
 import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
-import { QueueServiceClient } from "@azure/storage-queue";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { sequenceT } from "fp-ts/lib/Apply";
 import * as A from "fp-ts/lib/Array";
@@ -85,12 +84,12 @@ export const checkAzureCosmosDbHealth = (
 /**
  * Check the application can connect to an Azure Storage
  *
- * @param connStr connection string for the storage
+ * @param blobClient BlobServiceClient instance
  *
  * @returns either true or an array of error messages
  */
 export const checkAzureStorageHealth = (
-  connStr: string,
+  blobClient: BlobServiceClient,
 ): HealthCheck<"AzureStorage"> => {
   const applicativeValidation = TE.getApplicativeTaskValidation(
     T.ApplicativePar,
@@ -100,11 +99,7 @@ export const checkAzureStorageHealth = (
   return pipe(
     [
       TE.tryCatch(
-        () => BlobServiceClient.fromConnectionString(connStr).getProperties(),
-        toHealthProblems("AzureStorage"),
-      ),
-      TE.tryCatch(
-        () => QueueServiceClient.fromConnectionString(connStr).getProperties(),
+        () => blobClient.getProperties(),
         toHealthProblems("AzureStorage"),
       ),
     ],
@@ -131,7 +126,9 @@ export const checkUrlHealth = (url: string): HealthCheck<"Url", true> =>
  *
  * @returns either true or an array of error messages
  */
-export const checkApplicationHealth = (): HealthCheck<ProblemSource, true> => {
+export const checkApplicationHealth = (
+  messageContentBlobClient: BlobServiceClient,
+): HealthCheck<ProblemSource, true> => {
   const applicativeValidation = TE.getApplicativeTaskValidation(
     T.ApplicativePar,
     RA.getSemigroup<HealthProblem<ProblemSource>>(),
@@ -145,7 +142,7 @@ export const checkApplicationHealth = (): HealthCheck<ProblemSource, true> => {
       // run each taskEither and collect validation errors from each one of them, if any
       sequenceT(applicativeValidation)(
         checkAzureCosmosDbHealth(config.COSMOSDB__accountEndpoint),
-        checkAzureStorageHealth(config.QueueStorageConnection),
+        checkAzureStorageHealth(messageContentBlobClient),
       ),
     ),
     TE.map((_) => true),

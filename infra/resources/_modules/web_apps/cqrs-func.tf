@@ -24,7 +24,6 @@ locals {
 
       MESSAGE_CONTENT_STORAGE_CONNECTION = var.message_content_storage.connection_string
       MESSAGE_CONTENT_STORAGE_ENDPOINT   = var.message_content_storage.endpoint
-      QueueStorageConnection             = var.message_content_storage.connection_string
 
       MESSAGE_CHANGE_FEED_LEASE_PREFIX = "CosmosApiMessageChangeFeed-00"
       MESSAGE_CHANGE_FEED_START_TIME   = 1688169600000 # Saturday 1 July 2023 00:00:00

@@ -1,3 +1,4 @@
+import { BlobServiceClient } from "@azure/storage-blob";
 import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import {
   IResponseErrorInternal,
@@ -37,8 +38,8 @@ export function InfoHandler(healthCheck: HealthCheck): InfoHandler {
     )();
 }
 
-export function Info() {
-  const handler = InfoHandler(checkApplicationHealth());
+export function Info(messageContentBlobClient: BlobServiceClient) {
+  const handler = InfoHandler(checkApplicationHealth(messageContentBlobClient));
 
   return wrapHandlerV4([], handler);
 }
