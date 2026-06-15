@@ -3,7 +3,6 @@ import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { sequenceT } from "fp-ts/lib/Apply";
-import * as A from "fp-ts/lib/Array";
 import * as E from "fp-ts/lib/Either";
 import * as RA from "fp-ts/lib/ReadonlyArray";
 import * as T from "fp-ts/lib/Task";
@@ -90,23 +89,14 @@ export const checkAzureCosmosDbHealth = (
  */
 export const checkAzureStorageHealth = (
   blobClient: BlobServiceClient,
-): HealthCheck<"AzureStorage"> => {
-  const applicativeValidation = TE.getApplicativeTaskValidation(
-    T.ApplicativePar,
-    RA.getSemigroup<HealthProblem<"AzureStorage">>(),
-  );
-
-  return pipe(
-    [
-      TE.tryCatch(
-        () => blobClient.getProperties(),
-        toHealthProblems("AzureStorage"),
-      ),
-    ],
-    A.sequence(applicativeValidation),
+): HealthCheck<"AzureStorage", true> =>
+  pipe(
+    TE.tryCatch(
+      () => blobClient.getProperties(),
+      toHealthProblems("AzureStorage"),
+    ),
     TE.map((_) => true),
   );
-};
 
 /**
  * Check a url is reachable
