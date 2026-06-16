@@ -23,7 +23,7 @@ const config = getConfigOrThrow();
 
 const telemetryClient = initTelemetryClient(config);
 
-const aadCredentials = new DefaultAzureCredential()
+const aadCredentials = new DefaultAzureCredential();
 
 const kafkaMessagesClient = fromSas(
   config.MESSAGES_TOPIC_CONNECTION_STRING,
