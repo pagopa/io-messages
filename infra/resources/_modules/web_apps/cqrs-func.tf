@@ -23,7 +23,7 @@ locals {
       MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME = "message-paymentupdater-failures"
 
       MESSAGE_CONTENT_STORAGE_CONNECTION = var.message_content_storage.connection_string
-      QueueStorageConnection             = var.message_content_storage.connection_string
+      MESSAGE_CONTENT_STORAGE_ENDPOINT   = var.message_content_storage.endpoint
 
       MESSAGE_CHANGE_FEED_LEASE_PREFIX = "CosmosApiMessageChangeFeed-00"
       MESSAGE_CHANGE_FEED_START_TIME   = 1688169600000 # Saturday 1 July 2023 00:00:00
@@ -44,6 +44,10 @@ locals {
       FETCH_KEEPALIVE_TIMEOUT             = "60000"
 
       COM_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
+
+      // Used by storage queue connection, the queueServiceUri is used in production environment
+      COM_STORAGE__queueServiceUri = var.com_st_queue_uri
+      COM_STORAGE_QUEUE_ENDPOINT   = var.com_st_queue_uri
     }
   }
 }
@@ -147,6 +151,36 @@ module "cqrs_func_autoscaler" {
   }
 
   tags = var.tags
+}
+
+resource "azurerm_role_assignment" "cqrs_func_com_storage_queue" {
+  for_each = toset([
+    module.cqrs_func.function_app.function_app.principal_id,
+    module.cqrs_func.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.com_st_id
+  role_definition_name = "Storage Queue Data Contributor"
+  principal_id         = each.value
+}
+
+resource "azurerm_role_assignment" "cqrs_func_io_message_content_storage" {
+  for_each = toset([
+    module.cqrs_func.function_app.function_app.principal_id,
+    module.cqrs_func.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.messages_storage_account.id
+  role_definition_name = "Storage Account Contributor"
+  principal_id         = each.value
+}
+
+resource "azurerm_role_assignment" "cqrs_func_io_message_content_storage_reader" {
+  for_each = toset([
+    module.cqrs_func.function_app.function_app.principal_id,
+    module.cqrs_func.function_app.function_app.slot.principal_id
+  ])
+  scope                = var.messages_storage_account.id
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = each.value
 }
 
 resource "azurerm_cosmosdb_sql_role_assignment" "cosmos_api_cqrs_func" {
