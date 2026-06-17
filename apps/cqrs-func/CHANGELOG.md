@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 2.1.5
+
+### Patch Changes
+
+- 1d3413b: Removing blob storage connection string
+
 ## 2.1.4
 
 ### Patch Changes
