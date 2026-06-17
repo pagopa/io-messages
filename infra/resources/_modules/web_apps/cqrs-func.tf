@@ -22,8 +22,7 @@ locals {
 
       MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME = "message-paymentupdater-failures"
 
-      MESSAGE_CONTENT_STORAGE_CONNECTION = var.message_content_storage.connection_string
-      MESSAGE_CONTENT_STORAGE_ENDPOINT   = var.message_content_storage.endpoint
+      MESSAGE_CONTENT_STORAGE_ENDPOINT = var.message_content_storage.endpoint
 
       MESSAGE_CHANGE_FEED_LEASE_PREFIX = "CosmosApiMessageChangeFeed-00"
       MESSAGE_CHANGE_FEED_START_TIME   = 1688169600000 # Saturday 1 July 2023 00:00:00
@@ -42,8 +41,6 @@ locals {
       FETCH_KEEPALIVE_MAX_FREE_SOCKETS    = "10"
       FETCH_KEEPALIVE_FREE_SOCKET_TIMEOUT = "30000"
       FETCH_KEEPALIVE_TIMEOUT             = "60000"
-
-      COM_STORAGE_CONNECTION_STRING = var.com_st_connectiostring
 
       // Used by storage queue connection, the queueServiceUri is used in production environment
       COM_STORAGE__queueServiceUri = var.com_st_queue_uri
