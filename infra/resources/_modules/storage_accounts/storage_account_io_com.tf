@@ -45,6 +45,30 @@ resource "azurerm_storage_container" "processing_message" {
   storage_account_id = module.com_st.id
 }
 
+resource "azurerm_storage_management_policy" "processing_message_container_rule_01" {
+  storage_account_id = module.com_st.id
+
+  rule {
+    name    = "deleteafterdays"
+    enabled = true
+    filters {
+      prefix_match = ["processing-message"]
+      blob_types   = ["blockBlob"]
+    }
+    actions {
+      base_blob {
+        delete_after_days_since_creation_greater_than = 7
+      }
+      snapshot {
+        delete_after_days_since_creation_greater_than = 7
+      }
+      version {
+        delete_after_days_since_creation = 7
+      }
+    }
+  }
+}
+
 resource "azurerm_storage_table" "messages_ingestion_error" {
   name                 = "MessagesDataplanIngestionErrors"
   storage_account_name = module.com_st.name
