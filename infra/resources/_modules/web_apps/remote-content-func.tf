@@ -104,7 +104,7 @@ module "remote_content_func_autoscaler" {
   }
 
   scheduler = {
-    maximum = 3
+    maximum = 5
     normal_load = {
       default = 3
       minimum = 3
