@@ -1,0 +1,35 @@
+{
+  "name": "messages-app",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/main.js",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "clean": "shx rm -rf dist",
+    "build": "tsc",
+    "build:watch": "tsc -w",
+    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "lint": "pnpm lint:check --fix",
+    "lint:check": "eslint .",
+    "start": "node dist/main.js",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@pagopa/io-core-adapter-fastify": "workspace:^",
+    "@pagopa/io-core-domain": "workspace:^",
+    "fastify": "^5.8.5",
+    "neverthrow": "^8.2.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
