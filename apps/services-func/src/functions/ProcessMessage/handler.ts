@@ -323,10 +323,6 @@ const createMessageOrThrow = async (
   // In case of a retry this operation will overwrite the message content with itself
   // (this is fine as we don't know if the operation succeeded at first)
 
-  // Strip unknown fields (e.g. legal_data from old processing blobs) by decoding through
-  // LegacyMessageContent, whose sub-types are wrapped in t.exact.
-  // io-ts t.intersection/t.partial do not strip unknown properties, so this explicit
-  // decode is needed to ensure removed fields never reach the content blob.
   const strippedContent = LegacyMessageContent.decode({
     ...createdMessageEvent.content,
     payment_data: messagePaymentData,
