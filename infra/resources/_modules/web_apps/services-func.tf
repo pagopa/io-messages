@@ -216,6 +216,16 @@ resource "azurerm_role_assignment" "services_func_stapi_container_read_slot" {
   principal_id         = module.services_func.function_app.function_app.slot.principal_id
 }
 
+resource "azurerm_role_assignment" "services_func_stapi_container_owner" {
+  scope = "${var.messages_storage_account.id}/blobServices/default/containers/${var.messages_content_container.name}"
+  for_each = toset([
+    module.services_func.function_app.function_app.principal_id,
+    module.services_func.function_app.function_app.slot.principal_id
+  ])
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = each.value
+}
+
 resource "azurerm_role_assignment" "services_func_com_st_queue" {
   scope                = var.com_st_id
   role_definition_name = "Storage Queue Data Contributor"
@@ -239,6 +249,16 @@ resource "azurerm_role_assignment" "services_func_com_st_blob_slot" {
   scope                = var.com_st_id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = module.services_func.function_app.function_app.slot.principal_id
+}
+
+resource "azurerm_role_assignment" "services_func_io_com_storage" {
+  scope = var.com_st_id
+  for_each = toset([
+    module.services_func.function_app.function_app.principal_id,
+    module.services_func.function_app.function_app.slot.principal_id
+  ])
+  role_definition_name = "Storage Account Contributor"
+  principal_id         = each.value
 }
 
 resource "azurerm_cosmosdb_sql_role_assignment" "services_func" {

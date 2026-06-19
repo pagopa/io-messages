@@ -44,7 +44,7 @@ data "azurerm_nat_gateway" "nat_gateway" {
 
 module "remote_content_func" {
   source  = "pagopa-dx/azure-function-app/azurerm"
-  version = "~> 0.0"
+  version = "~> 5.0"
 
   environment = {
     prefix          = var.environment.prefix
@@ -55,7 +55,7 @@ module "remote_content_func" {
     instance_number = "01"
   }
 
-  tier = "xl"
+  size = "P1v3"
 
   resource_group_name = var.resource_group_name
   health_check_path   = "/api/v1/info"
@@ -85,7 +85,7 @@ module "remote_content_func" {
 
   tags = var.tags
 
-  action_group_id = var.action_group_id
+  action_group_ids = [var.action_group_id]
 }
 
 module "remote_content_func_autoscaler" {
@@ -104,10 +104,10 @@ module "remote_content_func_autoscaler" {
   }
 
   scheduler = {
-    maximum = 3
+    maximum = 5
     normal_load = {
       default = 3
-      minimum = 1
+      minimum = 3
     }
   }
 
