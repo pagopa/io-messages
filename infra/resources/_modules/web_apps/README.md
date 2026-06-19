@@ -9,7 +9,7 @@ No requirements.
 
 | Name | Version |
 | ---- | ------- |
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.48.0 |
 
 ## Modules
 
@@ -17,7 +17,7 @@ No requirements.
 | ---- | ------ | ------- |
 | <a name="module_citizen_func_autoscaler_new"></a> [citizen\_func\_autoscaler\_new](#module\_citizen\_func\_autoscaler\_new) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
 | <a name="module_citizen_func_new"></a> [citizen\_func\_new](#module\_citizen\_func\_new) | pagopa-dx/azure-function-app/azurerm | ~> 5.0 |
-| <a name="module_cqrs_func"></a> [cqrs\_func](#module\_cqrs\_func) | pagopa-dx/azure-function-app/azurerm | ~> 1.0 |
+| <a name="module_cqrs_func"></a> [cqrs\_func](#module\_cqrs\_func) | pagopa-dx/azure-function-app/azurerm | ~> 5.0 |
 | <a name="module_cqrs_func_autoscaler"></a> [cqrs\_func\_autoscaler](#module\_cqrs\_func\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
 | <a name="module_etl_func"></a> [etl\_func](#module\_etl\_func) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
 | <a name="module_etl_func_autoscaler"></a> [etl\_func\_autoscaler](#module\_etl\_func\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
@@ -85,6 +85,10 @@ No requirements.
 | [azurerm_role_assignment.services_func_com_st_blob_slot](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.services_func_com_st_queue](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.services_func_com_st_queue_slot](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.services_func_io_com_storage](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.services_func_message_content_storage](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.services_func_message_content_storage_slot](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.services_func_stapi_container_owner](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.services_func_stapi_container_read](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.services_func_stapi_container_read_slot](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.services_key_vault_secrets_user](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |

@@ -1,4 +1,5 @@
 import { app, output } from "@azure/functions";
+import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FiscalCode";
 import { HttpsUrl } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/HttpsUrl";
@@ -69,27 +70,29 @@ import { makeRetrieveExpandedDataFromBlob } from "./utils/with-expanded-input";
 const config = getConfigOrThrow();
 const telemetryClient = initTelemetryClient(config);
 
+const aadCredentials = new DefaultAzureCredential();
+
 // ---------------------------------------------------------------------------
 // Output bindings
 // ---------------------------------------------------------------------------
 
 const createdMessageOutput = output.storageQueue({
-  connection: "IO_COM_STORAGE_CONNECTION_STRING",
+  connection: "IO_COM_STORAGE",
   queueName: config.MESSAGE_CREATED_QUEUE_NAME,
 });
 
 const processedMessageOutput = output.storageQueue({
-  connection: "IO_COM_STORAGE_CONNECTION_STRING",
+  connection: "IO_COM_STORAGE",
   queueName: config.MESSAGE_PROCESSED_QUEUE_NAME,
 });
 
 const emailNotificationOutput = output.storageQueue({
-  connection: "IO_COM_STORAGE_CONNECTION_STRING",
+  connection: "IO_COM_STORAGE",
   queueName: config.NOTIFICATION_CREATED_EMAIL_QUEUE_NAME,
 });
 
 const webhookNotificationOutput = output.storageQueue({
-  connection: "IO_COM_STORAGE_CONNECTION_STRING",
+  connection: "IO_COM_STORAGE",
   queueName: config.NOTIFICATION_CREATED_WEBHOOK_QUEUE_NAME,
 });
 
@@ -136,15 +139,21 @@ const activationModel = new ActivationModel(
 // ---------------------------------------------------------------------------
 
 // Blob service for IO_COM storage (queue items, temporary processing data)
-const blobServiceClientForIO = BlobServiceClient.fromConnectionString(
-  config.IO_COM_STORAGE_CONNECTION_STRING,
-);
+const blobServiceClientForIO = config.isProduction
+  ? new BlobServiceClient(config.IO_COM_STORAGE_BLOB_ENDPOINT, aadCredentials)
+  : BlobServiceClient.fromConnectionString(
+      config.IO_COM_STORAGE_CONNECTION_STRING,
+    );
 
 // Blob service for message content storage (reading message body)
-const blobServiceClientForMessageContent =
-  BlobServiceClient.fromConnectionString(
-    config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
-  );
+const blobServiceClientForMessageContent = config.isProduction
+  ? new BlobServiceClient(
+      config.MESSAGE_CONTENT_STORAGE_ENDPOINT,
+      aadCredentials,
+    )
+  : BlobServiceClient.fromConnectionString(
+      config.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING,
+    );
 const blobServiceClientForMessageContentAdapter = new MessageContentBlobAdapter(
   blobServiceClientForMessageContent,
   config.MESSAGE_CONTAINER_NAME,
@@ -184,7 +193,7 @@ const retrieveProcessingMessageData = makeRetrieveExpandedDataFromBlob(
 
 app.http("Info", {
   authLevel: "anonymous",
-  handler: Info(),
+  handler: Info(blobServiceClientForMessageContent, blobServiceClientForIO),
   methods: ["GET"],
   route: "info",
 });
@@ -258,7 +267,7 @@ const processMessageHandler = getProcessMessageHandler({
 });
 
 app.storageQueue("ProcessMessage", {
-  connection: "IO_COM_STORAGE_CONNECTION_STRING",
+  connection: "IO_COM_STORAGE",
   extraOutputs: [processedMessageOutput],
   handler: (queueItem, context) => processMessageHandler(context, queueItem),
   queueName: config.MESSAGE_CREATED_QUEUE_NAME,
@@ -279,7 +288,7 @@ const createNotificationHandler = getCreateNotificationHandler(
 );
 
 app.storageQueue("CreateNotification", {
-  connection: "IO_COM_STORAGE_CONNECTION_STRING",
+  connection: "IO_COM_STORAGE",
   extraOutputs: [emailNotificationOutput, webhookNotificationOutput],
   handler: (queueItem, context) =>
     createNotificationHandler(context, queueItem),
@@ -306,7 +315,7 @@ const emailNotificationHandler = getEmailNotificationHandler(
 );
 
 app.storageQueue("EmailNotification", {
-  connection: "IO_COM_STORAGE_CONNECTION_STRING",
+  connection: "IO_COM_STORAGE",
   handler: (queueItem, context) => emailNotificationHandler(context, queueItem),
   queueName: config.NOTIFICATION_CREATED_EMAIL_QUEUE_NAME,
 });
@@ -335,7 +344,7 @@ const webhookNotificationHandler = getWebhookNotificationHandler(
 );
 
 app.storageQueue("WebhookNotification", {
-  connection: "IO_COM_STORAGE_CONNECTION_STRING",
+  connection: "IO_COM_STORAGE",
   handler: (queueItem, context) =>
     webhookNotificationHandler(context, queueItem),
   queueName: config.NOTIFICATION_CREATED_WEBHOOK_QUEUE_NAME,
@@ -352,7 +361,7 @@ const onFailedProcessMessageHandler = getOnFailedProcessMessageHandler({
 });
 
 app.storageQueue("OnFailedProcessMessage", {
-  connection: "IO_COM_STORAGE_CONNECTION_STRING",
+  connection: "IO_COM_STORAGE",
   handler: (queueItem, context) =>
     onFailedProcessMessageHandler(context, queueItem),
   queueName: `${config.MESSAGE_CREATED_QUEUE_NAME}-poison`,
