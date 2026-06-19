@@ -1,5 +1,11 @@
 # services-func
 
+## 2.1.3
+
+### Patch Changes
+
+- 74207e6: Splitting config and removing connection string for production env
+
 ## 2.1.2
 
 ### Patch Changes
