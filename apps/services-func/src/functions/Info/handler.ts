@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { BlobServiceClient } from "@azure/storage-blob";
-import { QueueServiceClient } from "@azure/storage-queue";
 import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
 import * as healthcheck from "@pagopa/io-functions-commons/dist/src/utils/healthcheck";
 import {
@@ -9,10 +8,7 @@ import {
   ResponseErrorInternal,
   ResponseSuccessJson,
 } from "@pagopa/ts-commons/lib/responses";
-import * as A from "fp-ts/lib/Array";
 import * as E from "fp-ts/lib/Either";
-import * as RA from "fp-ts/lib/ReadonlyArray";
-import * as T from "fp-ts/lib/Task";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 
@@ -41,28 +37,15 @@ const toHealthProblems =
   ];
 
 export const checkAzureStorageHealth = (
-  connStr: string,
-): HealthCheck<"AzureStorage"> => {
-  const applicativeValidation = TE.getApplicativeTaskValidation(
-    T.ApplicativePar,
-    RA.getSemigroup<HealthProblem<"AzureStorage">>(),
-  );
-
-  // try to instantiate a client for each product of azure storage
-  return pipe(
-    [
-      () => BlobServiceClient.fromConnectionString(connStr).getProperties(),
-      () => QueueServiceClient.fromConnectionString(connStr).getProperties(),
-    ]
-      // for each, create a task that wraps getProperties
-      .map((getProperties) =>
-        TE.tryCatch(getProperties, toHealthProblems("AzureStorage")),
-      ),
-    // run each taskEither and gather validation errors from each one of them, if any
-    A.sequence(applicativeValidation),
+  blobClient: BlobServiceClient,
+): HealthCheck<"AzureStorage"> =>
+  pipe(
+    TE.tryCatch(
+      () => blobClient.getProperties(),
+      toHealthProblems("AzureStorage"),
+    ),
     TE.map(() => true),
   );
-};
 
 interface IInfo {
   readonly name: string;
@@ -94,14 +77,16 @@ export function InfoHandler(healthCheck: HealthChecker): InfoHandler {
     )();
 }
 
-export function Info() {
+export function Info(
+  messageContentBlobClient: BlobServiceClient,
+  ioComBlobClient: BlobServiceClient,
+) {
   const handler = InfoHandler(
     healthcheck.checkApplicationHealth(IConfig, [
       (c) =>
         healthcheck.checkAzureCosmosDbHealth(c.COSMOSDB_URI, c.COSMOSDB_KEY),
-      (c) =>
-        checkAzureStorageHealth(c.MESSAGE_CONTENT_STORAGE_CONNECTION_STRING),
-      (c) => checkAzureStorageHealth(c.IO_COM_STORAGE_CONNECTION_STRING),
+      () => checkAzureStorageHealth(messageContentBlobClient),
+      () => checkAzureStorageHealth(ioComBlobClient),
       (c) =>
         pipe(
           TE.tryCatch(

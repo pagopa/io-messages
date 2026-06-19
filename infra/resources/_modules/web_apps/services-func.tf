@@ -29,7 +29,12 @@ locals {
       COSMOSDB_KEY  = var.cosmosdb_account_api.primary_key
 
       MESSAGE_CONTENT_STORAGE_CONNECTION_STRING = var.message_content_storage.connection_string
+      MESSAGE_CONTENT_STORAGE_ENDPOINT          = var.message_content_storage.endpoint
       IO_COM_STORAGE_CONNECTION_STRING          = var.com_st_connectiostring
+      IO_COM_STORAGE_BLOB_ENDPOINT              = var.com_st_uri
+
+      // Used by storage queue bindings; queueServiceUri is used in production
+      IO_COM_STORAGE__queueServiceUri = var.com_st_queue_uri
 
       MAIL_FROM = "IO - l'app dei servizi pubblici <no-reply@io.italia.it>"
       // we keep this while we wait for new app version to be deployed
@@ -184,6 +189,18 @@ resource "azurerm_role_assignment" "services_key_vault_secrets_user" {
 resource "azurerm_role_assignment" "services_slot_key_vault_secrets_user" {
   scope                = var.key_vault.id
   role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.services_func.function_app.function_app.slot.principal_id
+}
+
+resource "azurerm_role_assignment" "services_func_message_content_storage" {
+  scope                = var.messages_storage_account.id
+  role_definition_name = "Storage Account Contributor"
+  principal_id         = module.services_func.function_app.function_app.principal_id
+}
+
+resource "azurerm_role_assignment" "services_func_message_content_storage_slot" {
+  scope                = var.messages_storage_account.id
+  role_definition_name = "Storage Account Contributor"
   principal_id         = module.services_func.function_app.function_app.slot.principal_id
 }
 
