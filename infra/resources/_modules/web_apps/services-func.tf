@@ -74,7 +74,7 @@ locals {
 }
 module "services_func" {
   source  = "pagopa-dx/azure-function-app/azurerm"
-  version = "~> 1.0"
+  version = "~> 5.0"
 
   environment = merge(var.environment, {
     app_name        = "services"
@@ -85,7 +85,7 @@ module "services_func" {
   health_check_path   = "/api/info"
   node_version        = 24
 
-  tier = "xl"
+  size = "P2mv3"
 
   subnet_cidr                          = var.subnet_cidrs.services_func
   subnet_pep_id                        = var.subnet_pep_id
@@ -115,7 +115,7 @@ module "services_func" {
   application_insights_connection_string   = var.application_insights.connection_string
   application_insights_sampling_percentage = 5
 
-  action_group_id = var.action_group_id
+  action_group_ids = [var.action_group_id]
 }
 
 module "services_func_autoscaler" {
