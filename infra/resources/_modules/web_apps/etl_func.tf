@@ -30,7 +30,7 @@ locals {
 
 module "etl_func" {
   source  = "pagopa-dx/azure-function-app/azurerm"
-  version = "~> 0.0"
+  version = "~> 5.0"
 
   environment = merge(var.environment, {
     app_name        = "etl",
@@ -42,7 +42,7 @@ module "etl_func" {
   application_insights_connection_string   = var.application_insights.connection_string
   application_insights_sampling_percentage = var.application_insights.sampling_percentage
 
-  tier = "m"
+  size = "P0v3"
 
   resource_group_name                  = var.resource_group_name
   private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name
@@ -64,7 +64,7 @@ module "etl_func" {
 
   tags = var.tags
 
-  action_group_id = var.action_group_id
+  action_group_ids = [var.action_group_id]
 }
 
 module "etl_func_autoscaler" {
@@ -82,13 +82,12 @@ module "etl_func_autoscaler" {
     }
   }
 
-  # Setting up 4 instances until we process the past messages up to today.
   # We must setup low and max load paramenters after that.
   scheduler = {
     maximum = 4
     normal_load = {
-      default = 1
-      minimum = 1
+      default = 3
+      minimum = 3
     }
   }
 
