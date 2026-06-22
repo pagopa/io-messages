@@ -111,9 +111,10 @@ locals {
 module "push_notif_function" {
 
   source  = "pagopa-dx/azure-function-app/azurerm"
-  version = "~> 0.0"
+  version = "~> 5.0"
 
   count = 1
+  size  = "P1v3"
 
   resource_group_name   = var.resource_group_name
   health_check_path     = "/api/v1/info"
@@ -180,7 +181,7 @@ module "push_notif_function" {
     }
   )
 
-  action_group_id = data.azurerm_monitor_action_group.io_com_action_group.id
+  action_group_ids = [data.azurerm_monitor_action_group.io_com_action_group.id]
 }
 
 module "push_notif_autoscaler" {
@@ -223,7 +224,7 @@ module "push_notif_autoscaler" {
         minutes = 59
       }
       default = 10
-      minimum = 2
+      minimum = 3
     }
     normal_load = {
       default = 11

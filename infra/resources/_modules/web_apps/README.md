@@ -23,7 +23,7 @@ No requirements.
 | <a name="module_etl_func_autoscaler"></a> [etl\_func\_autoscaler](#module\_etl\_func\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
 | <a name="module_ops_func"></a> [ops\_func](#module\_ops\_func) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
 | <a name="module_push_notif_autoscaler"></a> [push\_notif\_autoscaler](#module\_push\_notif\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
-| <a name="module_push_notif_function"></a> [push\_notif\_function](#module\_push\_notif\_function) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
+| <a name="module_push_notif_function"></a> [push\_notif\_function](#module\_push\_notif\_function) | pagopa-dx/azure-function-app/azurerm | ~> 5.0 |
 | <a name="module_remote_content_func"></a> [remote\_content\_func](#module\_remote\_content\_func) | pagopa-dx/azure-function-app/azurerm | ~> 0.0 |
 | <a name="module_remote_content_func_autoscaler"></a> [remote\_content\_func\_autoscaler](#module\_remote\_content\_func\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
 | <a name="module_send_func"></a> [send\_func](#module\_send\_func) | pagopa-dx/azure-function-app/azurerm | ~> 1.0 |
