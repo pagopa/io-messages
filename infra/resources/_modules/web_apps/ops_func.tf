@@ -12,7 +12,7 @@ locals {
 # provider supports it
 module "ops_func" {
   source  = "pagopa-dx/azure-function-app/azurerm"
-  version = "~> 0.0"
+  version = "~> 5.0"
 
   # for cost purposes we use the same plan of the etl function app till we can
   # use container app
@@ -28,7 +28,7 @@ module "ops_func" {
   application_insights_connection_string   = var.application_insights.connection_string
   application_insights_sampling_percentage = var.application_insights.sampling_percentage
 
-  tier = "m"
+  size = "P0v3"
 
   resource_group_name                  = var.resource_group_name
   private_dns_zone_resource_group_name = var.private_dns_zone_resource_group_name
@@ -57,7 +57,7 @@ module "ops_func" {
 
   tags = var.tags
 
-  action_group_id = var.action_group_id
+  action_group_ids = [var.action_group_id]
 }
 
 resource "azurerm_role_assignment" "message_content_container_contributor_app" {
