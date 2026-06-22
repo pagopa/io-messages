@@ -42,7 +42,6 @@ import * as TE from "fp-ts/lib/TaskEither";
 import { TaskEither } from "fp-ts/lib/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
 import { MessageContentRepository } from "io-messages-common-legacy/domain/message-content";
-import { MessageContent as LegacyMessageContent } from "io-messages-common-legacy/types/MessageContent";
 
 import { PaymentData } from "../../generated/definitions/PaymentData";
 import { ThirdPartyData } from "../../generated/definitions/ThirdPartyData";
@@ -322,21 +321,14 @@ const createMessageOrThrow = async (
   // Save the content of the message to the blob storage.
   // In case of a retry this operation will overwrite the message content with itself
   // (this is fine as we don't know if the operation succeeded at first)
-
-  const strippedContent = LegacyMessageContent.decode({
-    ...createdMessageEvent.content,
-    payment_data: messagePaymentData,
-  });
-  if (E.isLeft(strippedContent)) {
-    context.error(`${logPrefixWithMessage}|INVALID_CONTENT`);
-    throw new Error("Error while validating message content before storing");
-  }
-
   const errorOrAttachment = await TE.tryCatch(
     () =>
       messageContentRepository.storeMessageContent(
         newMessageWithoutContent.id,
-        strippedContent.right,
+        {
+          ...createdMessageEvent.content,
+          payment_data: messagePaymentData,
+        },
       ),
     E.toError,
   )();
