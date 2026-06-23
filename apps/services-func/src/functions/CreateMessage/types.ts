@@ -5,14 +5,33 @@ import {
 import { NewMessage as ApiNewMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NewMessage";
 import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/TimeToLiveSeconds";
 import * as t from "io-ts";
+import * as E from "fp-ts/lib/Either";
 
 import { ThirdPartyData } from "../../generated/definitions/ThirdPartyData";
+import { pipe } from "fp-ts/lib/function";
 
 export type ApiNewMessageWithDefaults = t.TypeOf<
   typeof ApiNewMessageWithDefaults
 >;
+
 export const ApiNewMessageWithDefaults = t.intersection([
-  ApiNewMessage,
+  new t.Type<
+    // NOTE:Here we omit the property because it is provided in the
+    // `ApiNewMessage` imported from `@pagopa/io-functions-commons`, once we
+    // rewrite those decoders using zod there will be no need to do so.
+    //
+    // This omit is needed in order to strip away the `eu_covid_cert` property
+    // as we would do with any other property don't provided in the decoder.
+    Omit<t.TypeOf<typeof ApiNewMessage>, "eu_covid_cert">,
+    t.OutputOf<typeof ApiNewMessage>,
+    t.InputOf<typeof ApiNewMessage>
+  >(
+    "ApiNewMessage",
+    (u): u is Omit<t.TypeOf<typeof ApiNewMessage>, "eu_covid_cert"> =>
+      ApiNewMessage.is(u),
+    (u, c) => pipe(ApiNewMessage.validate(u, c)),
+    (a) => ApiNewMessage.encode(a as t.TypeOf<typeof ApiNewMessage>),
+  ),
   t.type({
     feature_level_type: FeatureLevelType,
     time_to_live: TimeToLiveSeconds,

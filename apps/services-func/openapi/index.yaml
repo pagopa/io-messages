@@ -227,7 +227,8 @@ definitions:
       status:
         $ref: '#/definitions/MessageStatusValue'
       read_status:
-        $ref: '#/definitions/ReadStatus'
+        allOf:
+        - $ref: '#/definitions/ReadStatus'
         description: >-
           Describes whether a user has read the message or not
 
@@ -236,7 +237,8 @@ definitions:
           NOTE 2: `UNAVAILABLE` will be returned if user revoked the permission
           to access to read status
       payment_status:
-        $ref: '#/definitions/PaymentStatus'
+        allOf:
+        - $ref: '#/definitions/PaymentStatus'
         description: |-
           Describes the state of the related payment notice
           NOTE: This value is only available for ADVANCED payment messages
@@ -374,14 +376,6 @@ definitions:
         we'll try to send a notification for each of the selected channels
       "REJECTED": either the recipient does not exist, or the sender has been
       blocked
-  EUCovidCert:
-    type: object
-    description: Paylod with access token to retrieve a EU Covid Certificate
-    properties:
-      auth_code:
-        type: string
-    required:
-      - auth_code
   ThirdPartyData:
     type: object
     description: >-
@@ -527,8 +521,6 @@ definitions:
             $ref: '#/definitions/PrescriptionData'
           legal_data:
             $ref: '#/definitions/LegalData'
-          eu_covid_cert:
-            $ref: '#/definitions/EUCovidCert'
           third_party_data:
             $ref: '#/definitions/ThirdPartyData'
           due_date:
@@ -544,8 +536,6 @@ definitions:
             $ref: '#/definitions/Timestamp'
           prescription_data:
             $ref: '#/definitions/PrescriptionData'
-          eu_covid_cert:
-            $ref: '#/definitions/EUCovidCert'
           third_party_data:
             $ref: '#/definitions/ThirdPartyData'
           legal_data:

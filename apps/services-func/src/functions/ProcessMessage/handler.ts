@@ -3,7 +3,6 @@
 import { FunctionOutput, InvocationContext } from "@azure/functions";
 import { SpecialServiceCategoryEnum } from "@pagopa/io-functions-admin-sdk/SpecialServiceCategory";
 import { BlockedInboxOrChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/BlockedInboxOrChannel";
-import { EUCovidCert } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/EUCovidCert";
 import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FiscalCode";
 import { NotRejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NotRejectedMessageStatusValue";
 import { PaymentDataWithRequiredPayee } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/PaymentDataWithRequiredPayee";
@@ -683,9 +682,6 @@ export const getProcessMessageHandler = ({
             properties: {
               featureLevelType: createdMessageEvent.message.featureLevelType,
               fiscalCode: toHash(profile.fiscalCode),
-              hasEuCovidCertData: EUCovidCert.is(
-                createdMessageEvent.content.eu_covid_cert,
-              ),
               hasPaymentData: PaymentData.is(
                 createdMessageEvent.content.payment_data,
               ),

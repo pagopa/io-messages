@@ -111,7 +111,6 @@ func -> func : Extract optional **FiscalCode** from path\n(OptionalFiscalCodeMid
 
 note right of func
   Granular payload permission checks:
-  - EU Covid Cert -> requires ApiMessageWriteEUCovidCert
   - Payment with payee -> requires ApiMessageWriteWithPayee
   - ADVANCED feature level -> requires ApiMessageWriteAdvanced
   - Third party message -> requires ApiThirdPartyMessageWrite

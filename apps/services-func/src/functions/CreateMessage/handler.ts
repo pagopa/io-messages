@@ -3,7 +3,6 @@
  */
 import { RemoteContentClient } from "@/clients/remote-content";
 import { FunctionOutput, InvocationContext } from "@azure/functions";
-import { EUCovidCert } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/EUCovidCert";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FeatureLevelType";
 import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FiscalCode";
 import { NewMessage as ApiNewMessage } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NewMessage";
@@ -569,11 +568,6 @@ export function CreateMessage(
   const middlewares = [
     // Common CreateMessage Middlewares
     ...commonCreateMessageMiddlewares(serviceModel),
-    AzureAllowBodyPayloadMiddleware(
-      ApiNewMessageWithContentOf(t.type({ eu_covid_cert: EUCovidCert })),
-      new Set([UserGroup.ApiMessageWriteEUCovidCert]),
-      "You do not have enough permissions to send an EUCovidCert message",
-    ),
     // Ensures only users in ApiMessageWriteWithPayee group can send payment messages with payee payload
     AzureAllowBodyPayloadMiddleware(
       ApiNewMessageWithContentOf(

@@ -125,16 +125,6 @@ export const LegalData = t.exact(
 );
 export type LegalData = t.TypeOf<typeof LegalData>;
 
-// --- EUCovidCert ---
-const EUCovidCertR = t.interface({
-  auth_code: t.string,
-});
-const EUCovidCertO = t.partial({});
-export const EUCovidCert = t.exact(
-  t.intersection([EUCovidCertR, EUCovidCertO], "EUCovidCert"),
-);
-export type EUCovidCert = t.TypeOf<typeof EUCovidCert>;
-
 // --- HasPrecondition ---
 export enum HasPreconditionEnum {
   ALWAYS = "ALWAYS",
@@ -169,7 +159,6 @@ export type ThirdPartyData = t.TypeOf<typeof ThirdPartyData>;
 const MessageContent2R = t.interface({});
 const MessageContent2O = t.partial({
   due_date: Timestamp,
-  eu_covid_cert: EUCovidCert,
   legal_data: LegalData,
   payment_data: PaymentData,
   prescription_data: PrescriptionData,
