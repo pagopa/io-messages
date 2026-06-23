@@ -1,5 +1,13 @@
 # cqrs-func
 
+## 2.1.6
+
+### Patch Changes
+
+- d13e694: Remove legal data from io-messages-common-legacy message-content model
+- Updated dependencies [d13e694]
+  - io-messages-common-legacy@0.1.1
+
 ## 2.1.5
 
 ### Patch Changes

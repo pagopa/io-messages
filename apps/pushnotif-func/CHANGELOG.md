@@ -1,5 +1,13 @@
 ### Changelog
 
+## 2.8.13
+
+### Patch Changes
+
+- d13e694: Remove legal data from io-messages-common-legacy message-content model
+- Updated dependencies [d13e694]
+  - io-messages-common-legacy@0.1.1
+
 ## 2.8.12
 
 ### Patch Changes
