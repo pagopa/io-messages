@@ -1,7 +1,6 @@
 import { UTCISODateFromString } from "@pagopa/ts-commons/lib/dates";
 import { WithinRangeInteger } from "@pagopa/ts-commons/lib/numbers";
 import {
-  FiscalCode,
   NonEmptyString,
   OrganizationFiscalCode,
   PatternString,
