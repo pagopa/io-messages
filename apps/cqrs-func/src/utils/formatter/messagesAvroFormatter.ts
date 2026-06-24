@@ -39,12 +39,6 @@ const messageCategoryMappings: readonly IMessageCategoryMapping[] = [
     tag: () => MessageContentType.EU_COVID_CERT,
   },
   {
-    pattern: t.interface({ legal_data: LegalData }) as t.Type<
-      Partial<MessageContent>
-    >,
-    tag: () => MessageContentType.LEGAL,
-  },
-  {
     pattern: t.interface({ payment_data: PaymentData }) as t.Type<
       Partial<MessageContent>
     >,
