@@ -28,7 +28,7 @@ No requirements.
 | <a name="module_remote_content_func_autoscaler"></a> [remote\_content\_func\_autoscaler](#module\_remote\_content\_func\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
 | <a name="module_send_func"></a> [send\_func](#module\_send\_func) | pagopa-dx/azure-function-app/azurerm | ~> 1.0 |
 | <a name="module_send_func_autoscaler"></a> [send\_func\_autoscaler](#module\_send\_func\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
-| <a name="module_services_func"></a> [services\_func](#module\_services\_func) | pagopa-dx/azure-function-app/azurerm | ~> 1.0 |
+| <a name="module_services_func"></a> [services\_func](#module\_services\_func) | pagopa-dx/azure-function-app/azurerm | ~> 5.0 |
 | <a name="module_services_func_autoscaler"></a> [services\_func\_autoscaler](#module\_services\_func\_autoscaler) | pagopa-dx/azure-app-service-plan-autoscaler/azurerm | ~> 1.0 |
 
 ## Resources
