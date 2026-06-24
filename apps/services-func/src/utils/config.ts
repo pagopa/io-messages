@@ -37,10 +37,18 @@ export type BetaUsers = t.TypeOf<typeof BetaUsers>;
 
 export const BetaUsersFromString = withDefault(BetaUsers, []).pipe(BetaUsers);
 
-// used to read and write message content on blob storage
-const MessageContentStorageAccount = t.type({
-  MESSAGE_CONTAINER_NAME: NonEmptyString,
+const isProduction = process.env.NODE_ENV === "production";
+
+const IStorageAccountConnectionString = t.type({
+  IO_COM_STORAGE_CONNECTION_STRING: NonEmptyString,
   MESSAGE_CONTENT_STORAGE_CONNECTION_STRING: NonEmptyString,
+  isProduction: t.literal(false),
+});
+
+const IStorageAccountEndpoint = t.type({
+  IO_COM_STORAGE_BLOB_ENDPOINT: NonEmptyString,
+  MESSAGE_CONTENT_STORAGE_ENDPOINT: NonEmptyString,
+  isProduction: t.literal(true),
 });
 
 // global app configuration
@@ -62,9 +70,8 @@ export const IConfig = t.intersection([
 
     FF_OPT_IN_EMAIL_ENABLED: t.boolean,
 
-    IO_COM_STORAGE_CONNECTION_STRING: NonEmptyString,
-
     // queues for handling message processing jobs
+    MESSAGE_CONTAINER_NAME: NonEmptyString,
     MESSAGE_CREATED_QUEUE_NAME: NonEmptyString,
 
     MESSAGE_PROCESSED_QUEUE_NAME: NonEmptyString,
@@ -90,7 +97,7 @@ export const IConfig = t.intersection([
     WEBHOOK_CHANNEL_URL: NonEmptyString,
     isProduction: t.boolean,
   }),
-  MessageContentStorageAccount,
+  isProduction ? IStorageAccountEndpoint : IStorageAccountConnectionString,
   MailerConfig,
 ]);
 

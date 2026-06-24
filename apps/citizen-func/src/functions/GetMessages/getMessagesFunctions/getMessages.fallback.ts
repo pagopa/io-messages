@@ -142,7 +142,7 @@ export const enrichContentData =
           enrichedMessage: {
             ...message,
             category: mapMessageCategory(message, content, categoryFetcher),
-            has_attachments: content.legal_data?.has_attachment ?? false,
+            has_attachments: content.third_party_data?.has_attachments ?? false,
             has_remote_content:
               content.third_party_data?.has_remote_content ?? false,
             id: message.id as NonEmptyString,

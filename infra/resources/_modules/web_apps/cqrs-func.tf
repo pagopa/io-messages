@@ -51,7 +51,7 @@ locals {
 
 module "cqrs_func" {
   source  = "pagopa-dx/azure-function-app/azurerm"
-  version = "~> 1.0"
+  version = "~> 5.0"
 
   environment = merge(var.environment, {
     app_name        = "cqrs"
@@ -62,7 +62,7 @@ module "cqrs_func" {
   health_check_path   = "/api/v1/info"
   node_version        = 24
 
-  tier = "xl"
+  size = "P1v3"
 
   subnet_cidr                          = var.subnet_cidrs.cqrs_func
   subnet_pep_id                        = var.subnet_pep_id
@@ -97,7 +97,7 @@ module "cqrs_func" {
   application_insights_connection_string   = var.application_insights.connection_string
   application_insights_sampling_percentage = 5
 
-  action_group_id = var.action_group_id
+  action_group_ids = [var.action_group_id]
 }
 
 module "cqrs_func_autoscaler" {
@@ -141,7 +141,7 @@ module "cqrs_func_autoscaler" {
   scheduler = {
     normal_load = {
       default = 3,
-      minimum = 2,
+      minimum = 3,
 
     },
     maximum = 30,

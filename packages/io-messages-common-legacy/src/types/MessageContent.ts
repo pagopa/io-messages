@@ -110,21 +110,6 @@ export const PrescriptionData = t.exact(
 );
 export type PrescriptionData = t.TypeOf<typeof PrescriptionData>;
 
-// --- LegalData ---
-const LegalDataR = t.interface({
-  has_attachment: withDefault(t.boolean, false),
-  message_unique_id: NonEmptyString,
-  sender_mail_from: NonEmptyString,
-});
-const LegalDataO = t.partial({
-  original_message_url: NonEmptyString,
-  pec_server_service_id: NonEmptyString,
-});
-export const LegalData = t.exact(
-  t.intersection([LegalDataR, LegalDataO], "LegalData"),
-);
-export type LegalData = t.TypeOf<typeof LegalData>;
-
 // --- EUCovidCert ---
 const EUCovidCertR = t.interface({
   auth_code: t.string,
@@ -170,7 +155,6 @@ const MessageContent2R = t.interface({});
 const MessageContent2O = t.partial({
   due_date: Timestamp,
   eu_covid_cert: EUCovidCert,
-  legal_data: LegalData,
   payment_data: PaymentData,
   prescription_data: PrescriptionData,
   third_party_data: ThirdPartyData,
