@@ -301,38 +301,6 @@ definitions:
         type: string
     required:
       - auth_code
-  PrescriptionData:
-    type: object
-    description: Metadata needed to process medical prescriptions.
-    properties:
-      nre:
-        $ref: '#/definitions/PrescriptionNRE'
-      iup:
-        $ref: '#/definitions/PrescriptionIUP'
-      prescriber_fiscal_code:
-        $ref: '#/definitions/PrescriberFiscalCode'
-    required:
-      - nre
-  PrescriptionNRE:
-    description: >-
-      The field *Numero ricetta elettronica* identifies the medical prescription
-      at national level.
-    type: string
-    minLength: 15
-    maxLength: 15
-  PrescriptionIUP:
-    description: >-
-      The field *Identificativo Unico di Prescrizione* identifies the medical
-      prescription at regional level.
-    type: string
-    minLength: 1
-    maxLength: 16
-  PrescriberFiscalCode:
-    type: string
-    description: Fiscal code of the Doctor that made the prescription.
-    format: FiscalCode
-    x-import: '@pagopa/ts-commons/lib/strings'
-    example: TCNZRO80R13C555Y
   NewMessageContent:
     allOf:
       - $ref: '#/definitions/MessageContentBase'
@@ -342,8 +310,6 @@ definitions:
             $ref: '#/definitions/PaymentDataWithRequiredPayee'
           due_date:
             $ref: '#/definitions/Timestamp'
-          prescription_data:
-            $ref: '#/definitions/PrescriptionData'
           eu_covid_cert:
             $ref: '#/definitions/EUCovidCert'
           third_party_data:
