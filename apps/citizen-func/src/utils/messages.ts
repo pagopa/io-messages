@@ -75,11 +75,6 @@ export const messageCategoryMappings = (
       tag: TagEnumBase.EU_COVID_CERT,
     };
   }
-  if (messageContent.legal_data) {
-    return {
-      tag: TagEnumBase.LEGAL_MESSAGE,
-    };
-  }
   if (messageContent.third_party_data) {
     return {
       has_attachments: messageContent.third_party_data.has_attachments,
