@@ -48,13 +48,6 @@ export const messageContentSchema = z.object({
         .optional(),
     })
     .optional(),
-  prescription_data: z
-    .object({
-      iup: z.string().optional(),
-      nre: z.string(),
-      prescriber_fiscal_code: fiscalCodeSchema.optional(),
-    })
-    .optional(),
   require_secure_channels: z.boolean().default(false),
   required: z.any().optional(),
   subject: z.string().min(10).max(120),
