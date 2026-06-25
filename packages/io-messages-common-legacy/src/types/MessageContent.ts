@@ -1,7 +1,6 @@
 import { UTCISODateFromString } from "@pagopa/ts-commons/lib/dates";
 import { WithinRangeInteger } from "@pagopa/ts-commons/lib/numbers";
 import {
-  FiscalCode,
   NonEmptyString,
   OrganizationFiscalCode,
   PatternString,
@@ -85,31 +84,6 @@ export const PaymentData = t.intersection(
 );
 export type PaymentData = t.TypeOf<typeof PaymentData>;
 
-// --- PrescriptionNRE ---
-export const PrescriptionNRE = WithinRangeString(15, 16);
-export type PrescriptionNRE = t.TypeOf<typeof PrescriptionNRE>;
-
-// --- PrescriptionIUP ---
-export const PrescriptionIUP = WithinRangeString(1, 17);
-export type PrescriptionIUP = t.TypeOf<typeof PrescriptionIUP>;
-
-// --- PrescriberFiscalCode ---
-export const PrescriberFiscalCode = FiscalCode;
-export type PrescriberFiscalCode = t.TypeOf<typeof PrescriberFiscalCode>;
-
-// --- PrescriptionData ---
-const PrescriptionDataR = t.interface({
-  nre: PrescriptionNRE,
-});
-const PrescriptionDataO = t.partial({
-  iup: PrescriptionIUP,
-  prescriber_fiscal_code: PrescriberFiscalCode,
-});
-export const PrescriptionData = t.exact(
-  t.intersection([PrescriptionDataR, PrescriptionDataO], "PrescriptionData"),
-);
-export type PrescriptionData = t.TypeOf<typeof PrescriptionData>;
-
 // --- EUCovidCert ---
 const EUCovidCertR = t.interface({
   auth_code: t.string,
@@ -156,7 +130,6 @@ const MessageContent2O = t.partial({
   due_date: Timestamp,
   eu_covid_cert: EUCovidCert,
   payment_data: PaymentData,
-  prescription_data: PrescriptionData,
   third_party_data: ThirdPartyData,
 });
 export const MessageContent2 = t.exact(

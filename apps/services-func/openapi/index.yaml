@@ -446,38 +446,6 @@ definitions:
       This parameter specifies for how long (in seconds) the system will
       try to deliver the message to the channels configured by the user.
     example: 3600
-  PrescriptionData:
-    type: object
-    description: Metadata needed to process medical prescriptions.
-    properties:
-      nre:
-        $ref: '#/definitions/PrescriptionNRE'
-      iup:
-        $ref: '#/definitions/PrescriptionIUP'
-      prescriber_fiscal_code:
-        $ref: '#/definitions/PrescriberFiscalCode'
-    required:
-      - nre
-  PrescriptionNRE:
-    description: >-
-      The field *Numero ricetta elettronica* identifies the medical prescription
-      at national level.
-    type: string
-    minLength: 15
-    maxLength: 15
-  PrescriptionIUP:
-    description: >-
-      The field *Identificativo Unico di Prescrizione* identifies the medical
-      prescription at regional level.
-    type: string
-    minLength: 1
-    maxLength: 16
-  PrescriberFiscalCode:
-    type: string
-    description: Fiscal code of the Doctor that made the prescription.
-    format: FiscalCode
-    x-import: '@pagopa/ts-commons/lib/strings'
-    example: TCNZRO80R13C555Y
   MessageContentBase:
     type: object
     properties:
@@ -523,8 +491,6 @@ definitions:
         properties:
           payment_data:
             $ref: '#/definitions/PaymentData'
-          prescription_data:
-            $ref: '#/definitions/PrescriptionData'
           eu_covid_cert:
             $ref: '#/definitions/EUCovidCert'
           third_party_data:
@@ -540,8 +506,6 @@ definitions:
             $ref: '#/definitions/PaymentDataWithRequiredPayee'
           due_date:
             $ref: '#/definitions/Timestamp'
-          prescription_data:
-            $ref: '#/definitions/PrescriptionData'
           eu_covid_cert:
             $ref: '#/definitions/EUCovidCert'
           third_party_data:
