@@ -1,5 +1,11 @@
 ### Changelog
 
+## 6.0.12
+
+### Patch Changes
+
+- a1aa38d: Remove legal data from citizen openAPI, etl-func zod model and cqrs avro formatter
+
 ## 6.0.11
 
 ### Patch Changes
