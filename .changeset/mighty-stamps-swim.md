@@ -1,4 +1,5 @@
 ---
+"citizen-func": patch
 "cqrs-func": patch
 "etl-func": patch
 ---
