@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: 6.0.11
+  version: 6.0.12
   title: IO API for App
   contact:
     name: Digital Transformation Team
@@ -314,8 +314,6 @@ definitions:
             $ref: '#/definitions/EUCovidCert'
           third_party_data:
             $ref: '#/definitions/ThirdPartyData'
-          legal_data:
-            $ref: '#/definitions/LegalData'
   PaymentDataBase:
     type: object
     description: Metadata needed to process pagoPA payments.
@@ -609,27 +607,6 @@ definitions:
       - $ref: '#/definitions/MessageCategoryPayment'
       - $ref: '#/definitions/MessageCategoryBase'
       - $ref: '#/definitions/MessageCategoryPN'
-  LegalData:
-    type: object
-    properties:
-      sender_mail_from:
-        type: string
-        minLength: 1
-      has_attachment:
-        type: boolean
-        default: false
-      message_unique_id:
-        type: string
-        minLength: 1
-      original_message_url:
-        type: string
-        minLength: 1
-      pec_server_service_id:
-        $ref: '#/definitions/ServiceId'
-    required:
-      - sender_mail_from
-      - has_attachment
-      - message_unique_id
   MessageCategoryBase:
     type: object
     properties:

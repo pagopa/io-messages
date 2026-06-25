@@ -2,7 +2,6 @@
 import { MessageFormatter } from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaTypes";
 import { EUCovidCert } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/EUCovidCert";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FeatureLevelType";
-import { LegalData } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/LegalData";
 import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MessageContent";
 import { PaymentData } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/PaymentData";
 import { ThirdPartyData } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ThirdPartyData";
@@ -37,12 +36,6 @@ const messageCategoryMappings: readonly IMessageCategoryMapping[] = [
       Partial<MessageContent>
     >,
     tag: () => MessageContentType.EU_COVID_CERT,
-  },
-  {
-    pattern: t.interface({ legal_data: LegalData }) as t.Type<
-      Partial<MessageContent>
-    >,
-    tag: () => MessageContentType.LEGAL,
   },
   {
     pattern: t.interface({ payment_data: PaymentData }) as t.Type<

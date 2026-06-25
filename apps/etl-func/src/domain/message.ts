@@ -26,15 +26,6 @@ export type HasPrecondition = z.TypeOf<typeof hasPreconditionSchema>;
 
 export const messageContentSchema = z.object({
   eu_covid_cert: z.object({ auth_code: z.string().optional() }).optional(),
-  legal_data: z
-    .object({
-      has_attachments: z.boolean().default(false),
-      message_unique_id: z.string().min(1),
-      original_message_url: z.string().min(1).optional(),
-      pec_server_service_id: z.string().min(1).optional(),
-      sender_mail_from: z.string().min(1),
-    })
-    .optional(),
   markdown: z.string().min(80).max(10000),
   payment_data: z
     .object({
