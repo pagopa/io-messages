@@ -12,7 +12,9 @@
     "clean": "shx rm -rf dist",
     "build": "tsc",
     "build:watch": "tsc -w",
-    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
     "lint": "pnpm lint:check --fix",
     "lint:check": "eslint .",
     "start": "node dist/main.js",
@@ -29,6 +31,9 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
+    "@pagopa/eslint-config": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

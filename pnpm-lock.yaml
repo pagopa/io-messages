@@ -504,12 +504,21 @@ importers:
         specifier: 'catalog:'
         version: 4.1.13
     devDependencies:
+      '@pagopa/eslint-config':
+        specifier: 'catalog:'
+        version: 4.0.6(eslint@8.57.1)(prettier@3.6.2)(vitest@3.2.4(@types/node@24.13.1))
       '@types/node':
         specifier: 'catalog:'
         version: 24.13.1
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 3.2.4(vitest@3.2.4(@types/node@24.13.1))
+      eslint:
+        specifier: 'catalog:'
+        version: 8.57.1
+      prettier:
+        specifier: 'catalog:'
+        version: 3.6.2
       typescript:
         specifier: 'catalog:'
         version: 5.9.3

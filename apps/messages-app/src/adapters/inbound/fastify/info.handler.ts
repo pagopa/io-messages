@@ -1,7 +1,9 @@
-import { FastifyInstance } from "fastify/types/instance.js";
-import type { UseCase } from "@pagopa/hexagonal-core";
+import type { GenericError, UseCase } from "@pagopa/hexagonal-core";
+
+import { ProblemDetailsSchema, defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
-import { defineRoute } from "@pagopa/hexagonal-core";
+import { FastifyInstance } from "fastify/types/instance.js";
+
 import { InfoOutputSchema } from "./dto/info.dto.js";
 
 const infoContract = defineRoute({
@@ -11,6 +13,7 @@ const infoContract = defineRoute({
   request: {},
   response: {
     200: InfoOutputSchema,
+    500: ProblemDetailsSchema,
   },
 });
 
@@ -20,7 +23,7 @@ export const mountInfoHandler = (
     Record<string, never>,
     // TODO: Import this from the use case directly.
     { name: string; version: string },
-    never
+    GenericError
   >,
 ): void => {
   mountFastifyRoute(server, {
