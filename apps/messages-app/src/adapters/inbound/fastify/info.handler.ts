@@ -1,11 +1,12 @@
 import { FastifyInstance } from "fastify/types/instance.js";
-import type { UseCase } from "@pagopa/io-core-domain";
-import { mountFastifyRoute } from "@pagopa/io-core-adapter-fastify";
-import { defineRoute } from "@pagopa/io-core-domain";
+import type { UseCase } from "@pagopa/hexagonal-core";
+import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
+import { defineRoute } from "@pagopa/hexagonal-core";
 import { InfoOutputSchema } from "./dto/info.dto.js";
 
 const infoContract = defineRoute({
   method: "get",
+  operationId: "getInfo",
   path: "/api/info",
   request: {},
   response: {
@@ -24,7 +25,7 @@ export const mountInfoHandler = (
 ): void => {
   mountFastifyRoute(server, {
     contract: infoContract,
-    transformInput: () => ({}),
+    inputMapper: () => ({}),
     useCase,
   });
 };

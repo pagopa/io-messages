@@ -45,6 +45,12 @@ catalogs:
     '@pagopa/fp-ts-kafkajs':
       specifier: ^0.3.0
       version: 0.3.0
+    '@pagopa/hexagonal-core':
+      specifier: ^0.1.1
+      version: 0.1.1
+    '@pagopa/hexagonal-fastify':
+      specifier: ^0.1.0
+      version: 0.1.0
     '@pagopa/io-app-email-templates':
       specifier: ^0.8.1
       version: 0.8.1
@@ -482,12 +488,12 @@ importers:
 
   apps/messages-app:
     dependencies:
-      '@pagopa/io-core-adapter-fastify':
-        specifier: workspace:^
-        version: link:../../packages/io-core-adapter-fastify
-      '@pagopa/io-core-domain':
-        specifier: workspace:^
-        version: link:../../packages/io-core-domain
+      '@pagopa/hexagonal-core':
+        specifier: 'catalog:'
+        version: 0.1.1(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)
+      '@pagopa/hexagonal-fastify':
+        specifier: 'catalog:'
+        version: 0.1.0(@standard-schema/spec@1.1.0)(fastify@5.8.5)(neverthrow@8.2.0)(zod@4.1.13)
       fastify:
         specifier: ^5.8.5
         version: 5.8.5
@@ -930,59 +936,6 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 6.4.1(@types/node@24.13.1)
-      vitest:
-        specifier: 'catalog:'
-        version: 3.2.4(@types/node@24.13.1)
-
-  packages/io-core-adapter-fastify:
-    dependencies:
-      '@pagopa/io-core-domain':
-        specifier: workspace:^
-        version: link:../io-core-domain
-      '@standard-schema/spec':
-        specifier: ^1.1.0
-        version: 1.1.0
-      fastify:
-        specifier: ^5.8.5
-        version: 5.8.5
-      neverthrow:
-        specifier: ^8.2.0
-        version: 8.2.0
-      zod:
-        specifier: 'catalog:'
-        version: 4.1.13
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 24.13.1
-      '@vitest/coverage-v8':
-        specifier: 'catalog:'
-        version: 3.2.4(vitest@3.2.4(@types/node@24.13.1))
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      vitest:
-        specifier: 'catalog:'
-        version: 3.2.4(@types/node@24.13.1)
-
-  packages/io-core-domain:
-    dependencies:
-      neverthrow:
-        specifier: ^8.2.0
-        version: 8.2.0
-      zod:
-        specifier: 'catalog:'
-        version: 4.1.13
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 24.13.1
-      '@vitest/coverage-v8':
-        specifier: 'catalog:'
-        version: 3.2.4(vitest@3.2.4(@types/node@24.13.1))
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
       vitest:
         specifier: 'catalog:'
         version: 3.2.4(@types/node@24.13.1)
@@ -1708,6 +1661,21 @@ packages:
 
   '@pagopa/fp-ts-kafkajs@0.3.0':
     resolution: {integrity: sha512-16/71Bvn8oa6KAAqFuWRd4aAZbILHPu0B5NLrU67l0as/YiunWzTz5yKep5MOiHw+SvgBOWLmsJCQh9Wpyg+jw==}
+
+  '@pagopa/hexagonal-core@0.1.1':
+    resolution: {integrity: sha512-bYdSSS7y/3geMiwnG/zSwQU30HWXP9+7UQvtSKOt0cEQE8Dovrd8xJNMRsPDozX5fk9N2hydoXHH1A7PoaIsjA==}
+    peerDependencies:
+      '@standard-schema/spec': ^1.1.0
+      neverthrow: ^8.2.0
+      zod: ^4.0.0
+
+  '@pagopa/hexagonal-fastify@0.1.0':
+    resolution: {integrity: sha512-OVVISK4MWqEBlPy2sKnLqKMmiU4hI0RVPZel0aIfi0IYvhynjDR2is0QDViJmvivk7QlXUiShmCUrbXS8JUqBg==}
+    peerDependencies:
+      '@standard-schema/spec': ^1.1.0
+      fastify: ^5.8.4
+      neverthrow: ^8.2.0
+      zod: ^4.0.0
 
   '@pagopa/io-app-email-templates@0.8.1':
     resolution: {integrity: sha512-9304ZKLkCvtDraW0DfxjBs9lhCaLBS9C8oreEy+WG3Gc1XPRMRrfvCvDnmfufrUJEneEtDvwtuUCKmNUPS5zmw==}
@@ -6461,6 +6429,20 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - typescript
+
+  '@pagopa/hexagonal-core@0.1.1(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)':
+    dependencies:
+      '@standard-schema/spec': 1.1.0
+      neverthrow: 8.2.0
+      zod: 4.1.13
+
+  '@pagopa/hexagonal-fastify@0.1.0(@standard-schema/spec@1.1.0)(fastify@5.8.5)(neverthrow@8.2.0)(zod@4.1.13)':
+    dependencies:
+      '@pagopa/hexagonal-core': 0.1.1(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)
+      '@standard-schema/spec': 1.1.0
+      fastify: 5.8.5
+      neverthrow: 8.2.0
+      zod: 4.1.13
 
   '@pagopa/io-app-email-templates@0.8.1':
     dependencies:

@@ -1,4 +1,4 @@
-import type { UseCase } from "@pagopa/io-core-domain";
+import type { UseCase } from "@pagopa/hexagonal-core";
 
 import { ok } from "neverthrow";
 
