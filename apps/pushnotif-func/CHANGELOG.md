@@ -1,5 +1,13 @@
 ### Changelog
 
+## 2.8.14
+
+### Patch Changes
+
+- 0abc848: Remove prescription data from message content and the OpenAPI
+- Updated dependencies [0abc848]
+  - io-messages-common-legacy@0.1.2
+
 ## 2.8.13
 
 ### Patch Changes

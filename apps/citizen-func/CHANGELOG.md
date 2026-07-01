@@ -1,5 +1,19 @@
 ### Changelog
 
+## 6.0.13
+
+### Patch Changes
+
+- 0abc848: Remove prescription data from message content and the OpenAPI
+- Updated dependencies [0abc848]
+  - io-messages-common-legacy@0.1.2
+
+## 6.0.12
+
+### Patch Changes
+
+- a1aa38d: Remove legal data from citizen openAPI, etl-func zod model and cqrs avro formatter
+
 ## 6.0.11
 
 ### Patch Changes

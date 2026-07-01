@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: 6.0.11
+  version: 6.0.13
   title: IO API for App
   contact:
     name: Digital Transformation Team
@@ -301,38 +301,6 @@ definitions:
         type: string
     required:
       - auth_code
-  PrescriptionData:
-    type: object
-    description: Metadata needed to process medical prescriptions.
-    properties:
-      nre:
-        $ref: '#/definitions/PrescriptionNRE'
-      iup:
-        $ref: '#/definitions/PrescriptionIUP'
-      prescriber_fiscal_code:
-        $ref: '#/definitions/PrescriberFiscalCode'
-    required:
-      - nre
-  PrescriptionNRE:
-    description: >-
-      The field *Numero ricetta elettronica* identifies the medical prescription
-      at national level.
-    type: string
-    minLength: 15
-    maxLength: 15
-  PrescriptionIUP:
-    description: >-
-      The field *Identificativo Unico di Prescrizione* identifies the medical
-      prescription at regional level.
-    type: string
-    minLength: 1
-    maxLength: 16
-  PrescriberFiscalCode:
-    type: string
-    description: Fiscal code of the Doctor that made the prescription.
-    format: FiscalCode
-    x-import: '@pagopa/ts-commons/lib/strings'
-    example: TCNZRO80R13C555Y
   NewMessageContent:
     allOf:
       - $ref: '#/definitions/MessageContentBase'
@@ -342,14 +310,10 @@ definitions:
             $ref: '#/definitions/PaymentDataWithRequiredPayee'
           due_date:
             $ref: '#/definitions/Timestamp'
-          prescription_data:
-            $ref: '#/definitions/PrescriptionData'
           eu_covid_cert:
             $ref: '#/definitions/EUCovidCert'
           third_party_data:
             $ref: '#/definitions/ThirdPartyData'
-          legal_data:
-            $ref: '#/definitions/LegalData'
   PaymentDataBase:
     type: object
     description: Metadata needed to process pagoPA payments.
@@ -643,27 +607,6 @@ definitions:
       - $ref: '#/definitions/MessageCategoryPayment'
       - $ref: '#/definitions/MessageCategoryBase'
       - $ref: '#/definitions/MessageCategoryPN'
-  LegalData:
-    type: object
-    properties:
-      sender_mail_from:
-        type: string
-        minLength: 1
-      has_attachment:
-        type: boolean
-        default: false
-      message_unique_id:
-        type: string
-        minLength: 1
-      original_message_url:
-        type: string
-        minLength: 1
-      pec_server_service_id:
-        $ref: '#/definitions/ServiceId'
-    required:
-      - sender_mail_from
-      - has_attachment
-      - message_unique_id
   MessageCategoryBase:
     type: object
     properties:

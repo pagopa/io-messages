@@ -1,5 +1,11 @@
 # io-messages-common-legacy
 
+## 0.1.2
+
+### Patch Changes
+
+- 0abc848: Remove prescription data from message content and the OpenAPI
+
 ## 0.1.1
 
 ### Patch Changes
