@@ -1,11 +1,17 @@
 import type { GenericError } from "@pagopa/hexagonal-core";
 import type { Result } from "neverthrow";
 
-export interface AppInfo {
-  readonly name: string;
-  readonly version: string;
-}
+import z from "zod";
+
+export const appInfoSchema = z.object({
+  name: z.string(),
+  version: z.string(),
+});
+export type AppInfo = z.TypeOf<typeof appInfoSchema>;
 
 export interface AppInfoReader {
+  /**
+   * GetAppInfo returns the name and the version of the app.
+   */
   getAppInfo(): Promise<Result<AppInfo, GenericError>>;
 }
