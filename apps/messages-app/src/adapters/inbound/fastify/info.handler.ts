@@ -4,6 +4,7 @@ import { ProblemDetailsSchema, defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
 import { FastifyInstance } from "fastify/types/instance.js";
 
+import { AppInfo } from "@/application/ports/app-info.js";
 import { InfoOutputSchema } from "./dto/info.dto.js";
 
 const infoContract = defineRoute({
@@ -19,12 +20,7 @@ const infoContract = defineRoute({
 
 export const mountInfoHandler = (
   server: FastifyInstance,
-  useCase: UseCase<
-    Record<string, never>,
-    // TODO: Import this from the use case directly.
-    { name: string; version: string },
-    GenericError
-  >,
+  useCase: UseCase<Record<string, never>, AppInfo, GenericError>,
 ): void => {
   mountFastifyRoute(server, {
     contract: infoContract,
