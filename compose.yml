@@ -9,6 +9,7 @@ services:
 
   messages-app:
     image: io-messages-app:latest
+    env_file: ./apps/messages-app/.env
     ports:
       - 3000:3000
 
