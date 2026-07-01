@@ -15,11 +15,6 @@ const parsePackageJson = Result.fromThrowable(
     ),
 );
 
-/**
- * Reads the application name and version from the `messages-app` package.json.
- * The path is resolved relative to this module so it always points at the
- * service's own manifest, regardless of the current working directory.
- */
 export class PackageJsonAppInfoReader implements AppInfoReader {
   async getAppInfo(): Promise<Result<AppInfo, GenericError>> {
     const packageJsonUrl = new URL("../../../../package.json", import.meta.url);

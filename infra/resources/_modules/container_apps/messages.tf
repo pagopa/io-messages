@@ -11,20 +11,15 @@ module "messages_ca" {
     instance_number = "01"
   }
 
-  // TODO: Check if we need a ca_env for each domain.
   container_app_environment_id = module.com_cae_env.id
 
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
   containers = [
     {
-      # TODO: Add:
-      # - The correct image
-      # - Add the correct sha
       image = "ghcr.io/pagopa/io-com-messages"
       name  = "io-messages"
 
-      # TODO: Add app settings
       app_settings = {}
 
       liveness_probe = {
@@ -33,7 +28,6 @@ module "messages_ca" {
     },
   ]
 
-  # TODO: Define autoscale settings.
   autoscaler = {}
 
   container_port = 3000
