@@ -1,9 +1,9 @@
 import type { GenericError, UseCase } from "@pagopa/hexagonal-core";
+import type { FastifyInstance } from "fastify";
 
 import { AppInfo } from "@/application/ports/app-info.js";
 import { ProblemDetailsSchema, defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
-import { FastifyInstance } from "fastify/types/instance.js";
 
 import { InfoOutputSchema } from "./dto/info.dto.js";
 

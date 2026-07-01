@@ -9,7 +9,9 @@ import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
 export const createApp = (): {
   server: FastifyInstance;
 } => {
-  const server = fastify();
+  const server = fastify({
+    logger: true,
+  });
 
   const appInfoReader = new PackageJsonAppInfoReader();
 
