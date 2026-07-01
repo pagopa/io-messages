@@ -1,0 +1,15 @@
+meta {
+  name: Info
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{messages_app_base_url}}/api/info
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
