@@ -16,6 +16,8 @@ No requirements.
 | Name | Source | Version |
 | ---- | ------ | ------- |
 | <a name="module_com_cae"></a> [com\_cae](#module\_com\_cae) | pagopa-dx/azure-container-app-environment/azurerm | ~> 1.0 |
+| <a name="module_com_cae_env"></a> [com\_cae\_env](#module\_com\_cae\_env) | pagopa-dx/azure-container-app-environment/azurerm | ~> 2.0 |
+| <a name="module_messages_ca"></a> [messages\_ca](#module\_messages\_ca) | pagopa-dx/azure-container-app/azurerm | ~> 5.0 |
 | <a name="module_payment_updater_ca_itn_01"></a> [payment\_updater\_ca\_itn\_01](#module\_payment\_updater\_ca\_itn\_01) | pagopa-dx/azure-container-app/azurerm | ~> 3.0 |
 | <a name="module_reminder_ca_itn_01"></a> [reminder\_ca\_itn\_01](#module\_reminder\_ca\_itn\_01) | pagopa-dx/azure-container-app/azurerm | ~> 3.0 |
 
@@ -27,6 +29,7 @@ No requirements.
 | [azurerm_private_dns_resolver_forwarding_rule.pagopa-core-evhns](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_resolver_forwarding_rule) | resource |
 | [azurerm_role_assignment.cae_admins_contributor](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.eventhub_namespace_reminder_write](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.key_vault_com_cae_env_secrets_user](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.key_vault_com_cae_secrets_user](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_key_vault_secret.mysql_password](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.mysql_reminder_db_url](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |

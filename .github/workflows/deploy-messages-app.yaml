@@ -1,0 +1,24 @@
+name: Deploy (messages)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+  attestations: write
+
+jobs:
+  release:
+    uses: pagopa/dx/.github/workflows/release-azure-containerapp-v1.yaml@main
+    name: Deploy
+    secrets: inherit
+    with:
+      dockerfile_path: ./apps/messages-app/Dockerfile
+      dockerfile_context: ./apps/messages-app
+      docker_image_name: pagopa/io-com-messages
+      docker_image_description: "Microservice that handles the IO Messages."
+      container_app: io-p-itn-com-messages-ca-01
+      resource_group_name: io-p-itn-com-rg-01
+      environment: app-prod
