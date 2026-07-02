@@ -32,7 +32,12 @@ module "messages_ca" {
     },
   ]
 
-  autoscaler = {}
+  autoscaler = {
+    replicas = {
+      minimum = 0
+      maximum = 8
+    }
+  }
 
   container_port = 3000
 
