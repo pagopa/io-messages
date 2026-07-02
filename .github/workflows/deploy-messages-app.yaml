@@ -16,7 +16,7 @@ jobs:
     secrets: inherit
     with:
       dockerfile_path: ./apps/messages-app/Dockerfile
-      dockerfile_context: ./apps/messages-app
+      dockerfile_context: .
       docker_image_name: pagopa/io-com-messages
       docker_image_description: "Microservice that handles the IO Messages."
       container_app: io-p-itn-com-messages-ca-01
