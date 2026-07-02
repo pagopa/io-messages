@@ -20,7 +20,11 @@ module "messages_ca" {
       image = "ghcr.io/pagopa/io-com-messages"
       name  = "io-messages"
 
-      app_settings = {}
+      app_settings = {
+        HOST     = "0.0.0.0"
+        NODE_ENV = "production"
+        PORT     = 3000
+      }
 
       liveness_probe = {
         path = "/api/info"
