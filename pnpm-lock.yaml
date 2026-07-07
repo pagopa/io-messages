@@ -488,6 +488,15 @@ importers:
 
   apps/messages-app:
     dependencies:
+      '@azure/cosmos':
+        specifier: 'catalog:'
+        version: 4.9.0
+      '@azure/identity':
+        specifier: 'catalog:'
+        version: 4.13.0
+      '@azure/storage-blob':
+        specifier: 'catalog:'
+        version: 12.29.1
       '@pagopa/hexagonal-core':
         specifier: 'catalog:'
         version: 0.1.1(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)

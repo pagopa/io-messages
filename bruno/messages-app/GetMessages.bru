@@ -1,0 +1,22 @@
+meta {
+  name: GetMessages
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{messages_app_base_url}}/api/messages/{{fiscal_code}}?page_size=1&archived=false&maximum_d=01KX5J87S0WN3G72G68F49WXT0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page_size: 1
+  archived: false
+  maximum_d: 01KX5J87S0WN3G72G68F49WXT0
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
