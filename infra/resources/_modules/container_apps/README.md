@@ -55,6 +55,8 @@ No requirements.
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_application_insights"></a> [application\_insights](#input\_application\_insights) | n/a | <pre>object({<br/>    connection_string = string<br/>  })</pre> | n/a | yes |
+| <a name="input_common_cosmos_account"></a> [common\_cosmos\_account](#input\_common\_cosmos\_account) | n/a | <pre>object({<br/>    id                  = string<br/>    name                = string<br/>    endpoint            = string<br/>    primary_key         = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |
+| <a name="input_common_storage_account"></a> [common\_storage\_account](#input\_common\_storage\_account) | n/a | <pre>object({<br/>    endpoint = string<br/>  })</pre> | n/a | yes |
 | <a name="input_dns_forwarding_ruleset_id"></a> [dns\_forwarding\_ruleset\_id](#input\_dns\_forwarding\_ruleset\_id) | Id of the DNS Forwarding Ruleset to use for the Container App Environment | `string` | n/a | yes |
 | <a name="input_entra_id_admin_ids"></a> [entra\_id\_admin\_ids](#input\_entra\_id\_admin\_ids) | Id of Entra ID groups that should be admins of the Container App Environment | `set(string)` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | Values which are used to generate resource names and location short names. They are all mandatory except for domain, which should not be used only in the case of a resource used by multiple domains. | <pre>object({<br/>    prefix    = string<br/>    env_short = string<br/>    location  = string<br/>    domain    = string<br/>  })</pre> | n/a | yes |

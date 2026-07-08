@@ -87,4 +87,5 @@ No requirements.
 | <a name="output_com_st_id"></a> [com\_st\_id](#output\_com\_st\_id) | n/a |
 | <a name="output_com_st_name"></a> [com\_st\_name](#output\_com\_st\_name) | n/a |
 | <a name="output_com_st_rg"></a> [com\_st\_rg](#output\_com\_st\_rg) | n/a |
+| <a name="output_common_storage_account"></a> [common\_storage\_account](#output\_common\_storage\_account) | n/a |
 <!-- END_TF_DOCS -->

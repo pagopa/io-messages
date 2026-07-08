@@ -21,9 +21,16 @@ module "messages_ca" {
       name  = "io-messages"
 
       app_settings = {
-        HOST     = "0.0.0.0"
-        NODE_ENV = "production"
-        PORT     = 3000
+        HOST                            = "0.0.0.0"
+        NODE_ENV                        = "production"
+        PORT                            = 3000
+        COMMON_COSMOS_DATABASE_NAME     = "db"
+        MESSAGE_METADATA_CONTAINER_NAME = "messages"
+        MESSAGE_STATUS_CONTAINER_NAME   = "message-status"
+        MESSAGE_CONTENT_CONTAINER_NAME  = "message-content"
+        COMMON_COSMOS_URI               = var.common_cosmos_account.endpoint
+        COMMON_STORAGE_ACCOUNT_URI      = var.common_storage_account.endpoint
+        PN_SERVICE_ID                   = "01G40DWQGKY5GRWSNM4303VNRP" # PN
       }
 
       liveness_probe = {

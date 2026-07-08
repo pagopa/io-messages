@@ -13,3 +13,10 @@ output "com_st_rg" {
 output "com_st_connectiostring" {
   value = module.com_st.primary_connection_string
 }
+
+output "common_storage_account" {
+  value = {
+    endpoint = module.storage_api.primary_blob_endpoint
+  }
+}
+
