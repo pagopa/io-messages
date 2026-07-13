@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.1.0
+
+### Minor Changes
+
+- bf5a723: Add get messages endpoint.
+
 ## 0.0.2
 
 ### Patch Changes

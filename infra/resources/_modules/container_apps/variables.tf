@@ -75,3 +75,26 @@ variable "eventhub_namespace" {
     name = string
   })
 }
+
+variable "common_cosmos_account" {
+  type = object({
+    id                  = string
+    name                = string
+    endpoint            = string
+    primary_key         = string
+    resource_group_name = string
+  })
+}
+
+variable "common_storage_account" {
+  type = object({
+    endpoint            = string
+    id                  = string
+    name                = string
+    resource_group_name = string
+  })
+}
+
+variable "subscription_id" {
+  type = string
+}

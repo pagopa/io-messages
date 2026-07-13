@@ -21,9 +21,16 @@ module "messages_ca" {
       name  = "io-messages"
 
       app_settings = {
-        HOST     = "0.0.0.0"
-        NODE_ENV = "production"
-        PORT     = 3000
+        HOST                            = "0.0.0.0"
+        NODE_ENV                        = "production"
+        PORT                            = 3000
+        COMMON_COSMOS_DATABASE_NAME     = "db"
+        MESSAGE_METADATA_CONTAINER_NAME = "messages"
+        MESSAGE_STATUS_CONTAINER_NAME   = "message-status"
+        MESSAGE_CONTENT_CONTAINER_NAME  = "message-content"
+        COMMON_COSMOS_URI               = var.common_cosmos_account.endpoint
+        COMMON_STORAGE_ACCOUNT_URI      = var.common_storage_account.endpoint
+        PN_SERVICE_ID                   = "01G40DWQGKY5GRWSNM4303VNRP" # PN
       }
 
       liveness_probe = {
@@ -44,4 +51,33 @@ module "messages_ca" {
   resource_group_name = var.resource_group_name
 
   tags = var.tags
+}
+
+module "azure-role-assignments" {
+  source  = "pagopa-dx/azure-role-assignments/azurerm"
+  version = "~> 3.0"
+
+  principal_id    = module.messages_ca.principal_id
+  subscription_id = var.subscription_id
+
+  storage_blob = [
+    {
+      storage_account_name = var.common_storage_account.name
+      resource_group_name  = var.common_storage_account.resource_group_name
+      container_name       = "message-content"
+      role                 = "reader"
+      description          = "Allow web app to read blob"
+    }
+  ]
+
+  cosmos = [
+    {
+      account_name        = var.common_cosmos_account.name
+      resource_group_name = var.common_cosmos_account.resource_group_name
+      description         = "Allow web app to read on cosmos containers"
+      role                = "writer"
+      database            = "db"
+      collections         = ["messages", "message-status"]
+    }
+  ]
 }
