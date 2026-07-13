@@ -52,3 +52,32 @@ module "messages_ca" {
 
   tags = var.tags
 }
+
+module "azure-role-assignments" {
+  source  = "pagopa-dx/azure-role-assignments/azurerm"
+  version = "~> 3.0"
+
+  principal_id    = module.messages_ca.principal_id
+  subscription_id = var.subscription_id
+
+  storage_blob = [
+    {
+      storage_account_name = var.common_storage_account.name
+      resource_group_name  = var.common_storage_account.resource_group_name
+      container_name       = "message-content"
+      role                 = "reader"
+      description          = "Allow web app to read blob"
+    }
+  ]
+
+  cosmos = [
+    {
+      account_name        = var.common_cosmos_account.name
+      resource_group_name = var.common_cosmos_account.resource_group_name
+      description         = "Allow web app to read on cosmos containers"
+      role                = "writer"
+      database            = "db"
+      collections         = ["messages", "message-status"]
+    }
+  ]
+}

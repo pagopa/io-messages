@@ -88,6 +88,13 @@ variable "common_cosmos_account" {
 
 variable "common_storage_account" {
   type = object({
-    endpoint = string
+    endpoint            = string
+    id                  = string
+    name                = string
+    resource_group_name = string
   })
+}
+
+variable "subscription_id" {
+  type = string
 }
