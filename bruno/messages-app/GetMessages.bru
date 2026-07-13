@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{messages_app_base_url}}/api/messages/{{fiscal_code}}?page_size=1&archived=false&maximum_d=01KX5J87S0WN3G72G68F49WXT0
+  url: {{messages_app_base_url}}/api/messages/{{fiscal_code}}?page_size=1&archived=false
   body: none
   auth: inherit
 }
@@ -13,7 +13,7 @@ get {
 params:query {
   page_size: 1
   archived: false
-  maximum_d: 01KX5J87S0WN3G72G68F49WXT0
+  ~maximum_d: 
 }
 
 settings {
