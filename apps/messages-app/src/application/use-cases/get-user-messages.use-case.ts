@@ -267,7 +267,7 @@ export const makeGetMessagesByUserUseCase =
     //   only when there are more messages to retrieve.
     return ok({
       items,
-      next: hasMoreResults ? items.at(-1)?.id : undefined,
+      next: hasMoreResults ? selectedMessages.at(-1)?.metadata.id : undefined, // 1
       prev: items.at(0)?.id,
     });
   };
