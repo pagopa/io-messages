@@ -75,6 +75,20 @@ resource "azurerm_mysql_flexible_server_configuration" "max_connections" {
   value               = "341"
 }
 
+resource "azurerm_mysql_flexible_server_configuration" "require_secure_transport" {
+  name                = "require_secure_transport"
+  resource_group_name = var.resource_group_name
+  server_name         = azurerm_mysql_flexible_server.com.name
+  value               = "ON"
+}
+
+resource "azurerm_mysql_flexible_server_configuration" "tls_version" {
+  name                = "tls_version"
+  resource_group_name = var.resource_group_name
+  server_name         = azurerm_mysql_flexible_server.com.name
+  value               = "TLSv1.2"
+}
+
 resource "azurerm_key_vault_secret" "reminder_mysql_db_server_url" {
   name = "mysql-reminder-db-url"
   value = format("jdbc:mysql://%s:%s/%s",
