@@ -158,25 +158,25 @@ export const makeGetMessagesByUserUseCase =
         return err(metadata.error);
       }
 
-      const batch = metadata.value;
+      const messageMetadataPage = metadata.value;
 
       // If we received fewer metadatas than the requested buffer, there are no
       // more messages to retrieve: we reached the end of the page. This also
       // avoids an extra empty round-trip to Cosmos just to discover the end.
-      if (batch.length < pageSize * 2) {
+      if (messageMetadataPage.length < pageSize * 2) {
         endOfPageReached = true;
       }
 
       const statuses =
         await messageStatusRepository.getLatestMessagesStatusByIds(
-          batch.map((m) => m.id),
+          messageMetadataPage.map((m) => m.id),
         );
 
       if (statuses.isErr()) {
         return err(statuses.error);
       }
 
-      const metadataById = new Map(batch.map((m) => [m.id, m]));
+      const metadataById = new Map(messageMetadataPage.map((m) => [m.id, m]));
 
       for (const status of statuses.value) {
         // We only keep the messages matching the requested archived flag.
@@ -184,9 +184,9 @@ export const makeGetMessagesByUserUseCase =
           continue;
         }
 
-        const metadata = metadataById.get(status.messageId);
-        if (metadata) {
-          selectedMessages.push({ metadata, status });
+        const metadataFromStatus = metadataById.get(status.messageId);
+        if (metadataFromStatus) {
+          selectedMessages.push({ metadata: metadataFromStatus, status });
         }
 
         // As soon as we collected one matching message more than a full page,
@@ -198,8 +198,8 @@ export const makeGetMessagesByUserUseCase =
 
       // We only advance the cursor when we actually received some metadatas,
       // otherwise `.at(-1)` would be undefined.
-      if (batch.length > 0) {
-        cursor = batch.at(-1)?.id;
+      if (messageMetadataPage.length > 0) {
+        cursor = messageMetadataPage.at(-1)?.id;
       }
     } while (selectedMessages.length <= pageSize && !endOfPageReached);
 
