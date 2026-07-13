@@ -38,6 +38,12 @@ services:
       - ./setup-azurite-containers.js:/app/setup-azurite-containers.js
     command: sh -c "npm install @azure/storage-blob@^12.28.0 @azure/storage-queue@^12.28.1 @azure/data-tables@^13.3.2 && node setup-azurite-containers.js"
 
+  cosmos:
+    image: "mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-latest"
+    ports:
+      - "8081:8081" # Gateway endpoint (HTTP).
+      - "1234:1234" # Data Explorer UI.
+
   eventhubs:
     image: "mcr.microsoft.com/azure-messaging/eventhubs-emulator:latest@sha256:25ec4141efb69933a0c82e6a787fa147a3895519e7d236d4c41ba568e03100eb"
     depends_on:

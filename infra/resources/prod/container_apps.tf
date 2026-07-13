@@ -4,6 +4,11 @@ module "container_apps" {
   environment         = local.environment
   resource_group_name = azurerm_resource_group.itn_com.name
 
+  common_cosmos_account  = data.azurerm_cosmosdb_account.cosmos_api
+  common_storage_account = module.storage_api_weu.common_storage_account
+
+  subscription_id = data.azurerm_subscription.current.tenant_id
+
   virtual_network                      = data.azurerm_virtual_network.vnet_common_itn
   subnet_cidr                          = "10.20.8.128/25"
   subnet_pep_id                        = data.azurerm_subnet.pep.id
