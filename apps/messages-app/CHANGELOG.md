@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.2.1
+
+### Patch Changes
+
+- c808846: Fix StorageBlobHealthcheckAdapter healthcheck
+
 ## 0.2.0
 
 ### Minor Changes
