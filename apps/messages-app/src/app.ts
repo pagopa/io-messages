@@ -44,10 +44,6 @@ export const createApp = (
           endpoint: config.COMMON_COSMOS_URI,
         });
 
-  const cosmosClientHealthcheckAdapter = new CosmosClientHealthcheckAdapter(
-    commonCosmosClient,
-  );
-
   const commonStorageAccountClient =
     config.NODE_ENV === "development"
       ? BlobServiceClient.fromConnectionString(
@@ -57,10 +53,6 @@ export const createApp = (
           config.COMMON_STORAGE_ACCOUNT_URI,
           aadCredentials,
         );
-
-  const storageBlobHealthcheckAdapter = new StorageBlobHealthcheckAdapter(
-    commonStorageAccountClient,
-  );
 
   const messageMetadataCosmosAdapter = new MessageMetadataCosmosAdapter(
     commonCosmosClient,
@@ -83,8 +75,11 @@ export const createApp = (
   mountHealthcheckHandler(
     server,
     makeHealthcheckUseCase([
-      cosmosClientHealthcheckAdapter,
-      storageBlobHealthcheckAdapter,
+      new CosmosClientHealthcheckAdapter(commonCosmosClient, "common-cosmos"),
+      new StorageBlobHealthcheckAdapter(
+        commonStorageAccountClient,
+        "common-storage-account",
+      ),
     ]),
   );
   mountGetMessagesByUserHandler(
