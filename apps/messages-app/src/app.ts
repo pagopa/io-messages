@@ -7,12 +7,16 @@ import fastify from "fastify";
 
 import { AppConfig } from "./adapters/inbound/config/config.js";
 import { mountGetMessagesByUserHandler } from "./adapters/inbound/fastify/get-user-messages.handler.js";
+import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
+import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
+import { StorageBlobHealthcheckAdapter } from "./adapters/outbound/healthcheckers/storage-blob.adapter.js";
 import { MessageContentBlobAdapter } from "./adapters/outbound/message/message-content.adapter.js";
 import { MessageMetadataCosmosAdapter } from "./adapters/outbound/message/message-metadata.adapter.js";
 import { MessageStatusCosmosAdapter } from "./adapters/outbound/message/message-status.adapter.js";
 import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/package-json-app-info-reader.js";
 import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-messages.use-case.js";
+import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
 
 export const createApp = (
@@ -68,6 +72,16 @@ export const createApp = (
   );
 
   mountInfoHandler(server, makeGetInfoUseCase(appInfoReader));
+  mountHealthcheckHandler(
+    server,
+    makeHealthcheckUseCase([
+      new CosmosClientHealthcheckAdapter(commonCosmosClient, "common-cosmos"),
+      new StorageBlobHealthcheckAdapter(
+        commonStorageAccountClient,
+        "common-storage-account",
+      ),
+    ]),
+  );
   mountGetMessagesByUserHandler(
     server,
     makeGetMessagesByUserUseCase(
