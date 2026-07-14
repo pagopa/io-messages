@@ -6,12 +6,15 @@ import { Result, err, ok } from "neverthrow";
 export class StorageBlobHealthcheckAdapter implements AppHealthchecker {
   constructor(
     private blobServiceClient: BlobServiceClient,
+    private containerName: string,
     private name?: string,
   ) {}
 
   async health(): Promise<Result<void, GenericError>> {
     try {
-      await this.blobServiceClient.listContainers().next();
+      await this.blobServiceClient
+        .getContainerClient(this.containerName)
+        .getProperties();
 
       return ok(undefined);
     } catch (e) {
