@@ -78,6 +78,7 @@ export const createApp = (
       new CosmosClientHealthcheckAdapter(commonCosmosClient, "common-cosmos"),
       new StorageBlobHealthcheckAdapter(
         commonStorageAccountClient,
+        config.MESSAGE_CONTENT_CONTAINER_NAME,
         "common-storage-account",
       ),
     ]),
