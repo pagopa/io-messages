@@ -37,7 +37,7 @@ resource "azurerm_api_management_named_value" "app_backend_key" {
   resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
   display_name        = "io-communications-app-backend-key"
   value_from_key_vault {
-    secret_id = "${var.common_key_vault.vault_uri}secrets/appbackend-APP-BACKEND-PRIMARY-KEY"
+    secret_id = "${local.key_vault.vault_uri}secrets/appbackend-APP-BACKEND-PRIMARY-KEY"
   }
 
   secret = true
