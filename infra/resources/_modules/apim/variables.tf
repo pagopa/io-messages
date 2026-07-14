@@ -40,14 +40,16 @@ variable "legacy_location_short" {
 
 variable "key_vault" {
   type = object({
-    name = string
-    id   = string
+    name      = string
+    id        = string
+    vault_uri = string
   })
 }
 
 variable "common_key_vault" {
   type = object({
-    id   = string
-    name = string
+    id        = string
+    name      = string
+    vault_uri = string
   })
 }
