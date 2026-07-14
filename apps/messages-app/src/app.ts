@@ -9,6 +9,8 @@ import { AppConfig } from "./adapters/inbound/config/config.js";
 import { mountGetMessagesByUserHandler } from "./adapters/inbound/fastify/get-user-messages.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
+import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
+import { StorageBlobHealthcheckAdapter } from "./adapters/outbound/healthcheckers/storage-blob.adapter.js";
 import { MessageContentBlobAdapter } from "./adapters/outbound/message/message-content.adapter.js";
 import { MessageMetadataCosmosAdapter } from "./adapters/outbound/message/message-metadata.adapter.js";
 import { MessageStatusCosmosAdapter } from "./adapters/outbound/message/message-status.adapter.js";
@@ -42,6 +44,10 @@ export const createApp = (
           endpoint: config.COMMON_COSMOS_URI,
         });
 
+  const cosmosClientHealthcheckAdapter = new CosmosClientHealthcheckAdapter(
+    commonCosmosClient,
+  );
+
   const commonStorageAccountClient =
     config.NODE_ENV === "development"
       ? BlobServiceClient.fromConnectionString(
@@ -51,6 +57,10 @@ export const createApp = (
           config.COMMON_STORAGE_ACCOUNT_URI,
           aadCredentials,
         );
+
+  const storageBlobHealthcheckAdapter = new StorageBlobHealthcheckAdapter(
+    commonStorageAccountClient,
+  );
 
   const messageMetadataCosmosAdapter = new MessageMetadataCosmosAdapter(
     commonCosmosClient,
@@ -70,7 +80,13 @@ export const createApp = (
   );
 
   mountInfoHandler(server, makeGetInfoUseCase(appInfoReader));
-  mountHealthcheckHandler(server, makeHealthcheckUseCase([]));
+  mountHealthcheckHandler(
+    server,
+    makeHealthcheckUseCase([
+      cosmosClientHealthcheckAdapter,
+      storageBlobHealthcheckAdapter,
+    ]),
+  );
   mountGetMessagesByUserHandler(
     server,
     makeGetMessagesByUserUseCase(
