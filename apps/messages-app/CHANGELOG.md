@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.2.2
+
+### Patch Changes
+
+- 6aded60: Add MalformedEntityError and use it in the GetMessages business logic.
+
 ## 0.2.1
 
 ### Patch Changes
