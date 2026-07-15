@@ -1,7 +1,8 @@
-import { AppHealthchecker } from "@/application/ports/app-healthcheck.js";
 import { CosmosClient, RestError } from "@azure/cosmos";
 import { GenericError } from "@pagopa/hexagonal-core";
 import { Result, err, ok } from "neverthrow";
+
+import { AppHealthchecker } from "../../../application/ports/app-healthcheck.js";
 
 export class CosmosClientHealthcheckAdapter implements AppHealthchecker {
   constructor(

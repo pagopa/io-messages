@@ -1,4 +1,3 @@
-import { MalformedEntityError } from "@/application/ports/error.js";
 import {
   BlobServiceClient,
   ContainerClient,
@@ -12,6 +11,7 @@ import {
 import { Result, ResultAsync, err, fromThrowable, ok } from "neverthrow";
 import z from "zod";
 
+import { MalformedEntityError } from "../../../application/ports/error.js";
 import {
   MessageContent,
   MessageContentRepository,

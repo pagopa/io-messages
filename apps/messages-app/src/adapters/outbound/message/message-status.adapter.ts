@@ -1,4 +1,3 @@
-import { MalformedEntityError } from "@/application/ports/error.js";
 import {
   Container,
   CosmosClient,
@@ -13,6 +12,7 @@ import {
 import { Result, ResultAsync, err, ok } from "neverthrow";
 import z from "zod";
 
+import { MalformedEntityError } from "../../../application/ports/error.js";
 import {
   MessageStatus,
   MessageStatusRepository,
