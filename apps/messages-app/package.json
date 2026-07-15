@@ -26,6 +26,8 @@
     "@azure/cosmos": "catalog:",
     "@azure/identity": "catalog:",
     "@azure/storage-blob": "catalog:",
+    "@opentelemetry/api-logs": "catalog:",
+    "@pagopa/azure-tracing": "catalog:",
     "@pagopa/hexagonal-core": "catalog:",
     "@pagopa/hexagonal-fastify": "catalog:",
     "fastify": "^5.8.5",

@@ -1,3 +1,5 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import {
   Container,
   CosmosClient,
@@ -55,6 +57,7 @@ export class MessageMetadataCosmosAdapter implements MessageMetadataRepository {
     cosmosClient: CosmosClient,
     databaseName: string,
     containerName: string,
+    private logger: Logger,
   ) {
     this.#cosmosContainer = cosmosClient
       .database(databaseName)
@@ -119,13 +122,22 @@ export class MessageMetadataCosmosAdapter implements MessageMetadataRepository {
     // Once we retrieved the metadatas we perform runtime validation against the
     // adapter specific schema, we strip away invalid records and we map the
     // valid ones to the domain type required by the port.
-    //
-    // TODO: Log the invalid metadatas.
     const decodedMetadatas: MessageMetadata[] = [];
     for (const resource of resources.resources) {
       const parsed = cosmosMessageMetadataSchema.safeParse(resource);
       if (parsed.success) {
         decodedMetadatas.push(toMessageMetadata(parsed.data));
+      } else {
+        this.logger.trackEvent({
+          name: "MessageMetadataCosmosAdapter.getMessagesMetadataByUser.failed.parse",
+          properties: {
+            fiscalCode,
+            maximumID: maximumID ? maximumID : "undefined",
+            minimumID: minimumID ? minimumID : "undefined",
+            pageSize,
+            retrievedCount: resources.resources.length,
+          },
+        });
       }
     }
 

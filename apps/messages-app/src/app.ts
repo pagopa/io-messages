@@ -1,8 +1,13 @@
+import type { AppInsightsTelemetryClient } from "@pagopa/hexagonal-core/adapters/logger";
 import type { FastifyInstance } from "fastify";
 
 import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
+import { SeverityNumber, logs } from "@opentelemetry/api-logs";
+import { initAzureMonitor } from "@pagopa/azure-tracing/azure-monitor";
+import { emitCustomEvent } from "@pagopa/azure-tracing/logger";
+import { makeApplicationInsightsLogger } from "@pagopa/hexagonal-core/adapters/logger";
 import fastify from "fastify";
 
 import { AppConfig } from "./adapters/inbound/config/config.js";
@@ -18,6 +23,37 @@ import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/packa
 import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-messages.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
+
+initAzureMonitor();
+
+const aiLogger = logs.getLogger("io-messages-app");
+const stringify = (p?: Record<string, unknown>): Record<string, string> =>
+  Object.fromEntries(Object.entries(p ?? {}).map(([k, v]) => [k, String(v)]));
+
+const client: AppInsightsTelemetryClient = {
+  trackEvent: ({ name, properties }) =>
+    emitCustomEvent(name, stringify(properties))(),
+  trackException: ({ exception, properties }) =>
+    aiLogger.emit({
+      attributes: {
+        ...stringify(properties),
+        "exception.stack": exception.stack ?? "",
+      },
+      body: exception.message,
+      severityNumber: SeverityNumber.ERROR,
+    }),
+  trackTrace: ({ message, properties, severity }) =>
+    aiLogger.emit({
+      attributes: stringify(properties),
+      body: message,
+      severityNumber: severity as unknown as SeverityNumber,
+    }),
+};
+
+const logger = makeApplicationInsightsLogger({
+  baseProperties: { service: "io-messages-app" },
+  client,
+});
 
 export const createApp = (
   config: AppConfig,
@@ -58,17 +94,20 @@ export const createApp = (
     commonCosmosClient,
     config.COMMON_COSMOS_DATABASE_NAME,
     config.MESSAGE_METADATA_CONTAINER_NAME,
+    logger,
   );
 
   const messageStatusCosmosAdapter = new MessageStatusCosmosAdapter(
     commonCosmosClient,
     config.COMMON_COSMOS_DATABASE_NAME,
     config.MESSAGE_STATUS_CONTAINER_NAME,
+    logger,
   );
 
   const messageContentBlobAdapter = new MessageContentBlobAdapter(
     commonStorageAccountClient,
     config.MESSAGE_CONTENT_CONTAINER_NAME,
+    logger,
   );
 
   mountInfoHandler(server, makeGetInfoUseCase(appInfoReader));
