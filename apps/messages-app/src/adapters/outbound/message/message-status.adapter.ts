@@ -1,3 +1,4 @@
+import { MalformedEntityError } from "@/application/ports/error.js";
 import {
   Container,
   CosmosClient,
@@ -8,7 +9,6 @@ import {
   GenericError,
   NotFoundError,
   TooManyRequestsError,
-  ValidationError,
 } from "@pagopa/hexagonal-core";
 import { Result, ResultAsync, err, ok } from "neverthrow";
 import z from "zod";
@@ -56,13 +56,12 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
       .container(containerName);
   }
 
-  // needs to know this information because he want to skip the status in this case.
   async #getLatestStatusById(
     messageID: string,
   ): Promise<
     Result<
       MessageStatus,
-      GenericError | NotFoundError | TooManyRequestsError | ValidationError
+      GenericError | MalformedEntityError | NotFoundError | TooManyRequestsError
     >
   > {
     // Statuses are partitioned by `messageId`, so we run one single-partition
@@ -118,9 +117,9 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
     const decoded = cosmosMessageStatusSchema.safeParse(rawStatus);
     if (!decoded.success) {
       return err(
-        // TODO: Find a better error type. GenericError is not a good choise
-        // here cause The caller needs to know if he need to perform a retry.
-        new ValidationError(`Invalid message status for message ${messageID}`),
+        new MalformedEntityError(
+          `Invalid message status for message ${messageID}`,
+        ),
       );
     }
 
@@ -129,9 +128,6 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
 
   // getLatestStatusById returns the latest message status of the message
   // identified by `messageID`.
-  //
-  // NOTE: For he moment this method uses ValidationError to tell the caller
-  // that the status obtained from the cosmos container is invalid. The caller
   async getLatestMessagesStatusByIds(
     messageIDs: string[],
   ): Promise<Result<MessageStatus[], GenericError | TooManyRequestsError>> {
@@ -142,8 +138,8 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
     const statuses: MessageStatus[] = [];
     for (const result of results) {
       if (result.isErr()) {
-        if (result.error instanceof ValidationError) {
-          // If a status is invalid we simply want to ignore it.
+        if (result.error instanceof MalformedEntityError) {
+          // If a status is malformed we simply want to ignore it.
           // TODO: Add a log in this case.
           continue;
         }

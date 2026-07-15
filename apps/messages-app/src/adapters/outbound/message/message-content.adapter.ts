@@ -1,3 +1,4 @@
+import { MalformedEntityError } from "@/application/ports/error.js";
 import {
   BlobServiceClient,
   ContainerClient,
@@ -7,7 +8,6 @@ import {
   GenericError,
   NotFoundError,
   TooManyRequestsError,
-  ValidationError,
 } from "@pagopa/hexagonal-core";
 import { Result, ResultAsync, err, fromThrowable, ok } from "neverthrow";
 import z from "zod";
@@ -71,16 +71,14 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
       blobServiceClient.getContainerClient(containerName);
   }
 
-  // getMessagesContentByIds returns a map, keyed by message id, containing one
-  // entry for each requested id. Each entry is a `Result`: `ok` with the
-  // content, or `err` with a skippable error (missing/invalid content). Fatal
-  // TODO : Find another error type to communicate such thing.
+  // getContentById returns the content of the message identified by
+  // `messageID`.
   async #getContentById(
     messageID: string,
   ): Promise<
     Result<
       MessageContent,
-      GenericError | NotFoundError | TooManyRequestsError | ValidationError
+      GenericError | MalformedEntityError | NotFoundError | TooManyRequestsError
     >
   > {
     const blobClient = this.#messageContainer.getBlobClient(
@@ -120,7 +118,7 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
       // In this case we know that the message content is malformed
       // TODO: Add a log.
       return err(
-        new ValidationError(
+        new MalformedEntityError(
           `invalid message content for message with id: ${messageID}" ${parsedContent.error.name}: ${parsedContent.error.message}`,
         ),
       );
@@ -129,12 +127,8 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
     return ok(parsedContent.value);
   }
 
-  // getContentById returns the content of the message identified by
-  // `messageID`.
-  //
-  // NOTE: This method uses `ValidationError` to tell the caller that the
-  // message content retrieved is malformed.
-  // In case the validation fails it returns a GenericError.
+  // parseContent perform runtime validation over the buffer.
+  // errors short-circuit and fail the whole operation.
   #parseContent(buffer: Buffer): Result<MessageContent, GenericError> {
     const parsedMessageContent = fromThrowable(
       () => blobMessageContentSchema.parse(JSON.parse(buffer.toString())),
@@ -149,13 +143,11 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
     return ok(toMessageContent(parsedMessageContent.value));
   }
 
-  // parseContent perform runtime validation over the buffer.
-  // errors short-circuit and fail the whole operation.
   async getMessagesContentByIds(
     messageIDs: string[],
   ): Promise<
     Result<
-      Map<string, Result<MessageContent, NotFoundError | ValidationError>>,
+      Map<string, Result<MessageContent, MalformedEntityError | NotFoundError>>,
       GenericError | TooManyRequestsError
     >
   > {
@@ -165,7 +157,7 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
 
     const contentById = new Map<
       string,
-      Result<MessageContent, NotFoundError | ValidationError>
+      Result<MessageContent, MalformedEntityError | NotFoundError>
     >();
 
     for (let index = 0; index < messageIDs.length; index++) {
@@ -173,11 +165,11 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
       const result = results[index];
 
       if (result.isErr()) {
-        // Skippable errors (missing/invalid content) are reported per-item so
+        // Skippable errors (missing/malformed content) are reported per-item so
         // the business layer can decide whether to skip the message or fail.
         if (
           result.error instanceof NotFoundError ||
-          result.error instanceof ValidationError
+          result.error instanceof MalformedEntityError
         ) {
           contentById.set(messageID, err(result.error));
           continue;
