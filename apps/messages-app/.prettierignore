@@ -1,0 +1,13 @@
+bin
+CHANGELOG.md
+coverage
+dist
+generated
+openapi
+.env
+.env.example
+tsconfig.json
+eslint.config.js
+package.json
+node_modules
+vitest.config.mjs*

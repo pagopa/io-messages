@@ -2,10 +2,11 @@ import {
   GenericError,
   NotFoundError,
   TooManyRequestsError,
-  ValidationError,
 } from "@pagopa/hexagonal-core";
 import { Result } from "neverthrow";
 import z from "zod";
+
+import { MalformedEntityError } from "./error.js";
 
 export const hasPreconditionSchema = z
   .enum(["ALWAYS", "ONCE", "NEVER"])
@@ -52,16 +53,18 @@ export interface MessageContentRepository {
    *
    * The result is a map keyed by message id containing one entry for each
    * requested id. Each entry is itself a `Result`: `ok` with the content, or
-   * `err` with a `NotFoundError`/`ValidationError` when the content is missing
+   * `err` with a `NotFoundError`/`MalformedEntityError` when the content is missing
    * or malformed. This lets the business layer decide whether to skip such
-   * messages or fail. Fatal errors (e.g. throttling) short-circuit and fail the
+   * messages or fail.
+   *
+   * Fatal errors (e.g. throttling) short-circuit and fail the
    * whole operation.
    */
   getMessagesContentByIds(
     messageIDs: string[],
   ): Promise<
     Result<
-      Map<string, Result<MessageContent, NotFoundError | ValidationError>>,
+      Map<string, Result<MessageContent, MalformedEntityError | NotFoundError>>,
       GenericError | TooManyRequestsError
     >
   >;
