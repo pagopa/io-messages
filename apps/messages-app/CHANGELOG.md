@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.2.3
+
+### Patch Changes
+
+- 23b00ca: Remove at alias for src directory
+
 ## 0.2.2
 
 ### Patch Changes
