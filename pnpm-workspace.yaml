@@ -23,6 +23,7 @@ catalog:
   "@pagopa/fp-ts-kafkajs": ^0.3.0
   "@pagopa/hexagonal-core": ^0.4.0
   "@pagopa/hexagonal-fastify": ^0.1.0
+  "@pagopa/hexagonal-openapi": ^0.1.1
   "@pagopa/io-app-email-templates": ^0.8.1
   "@pagopa/io-backend-notifications-sdk": ^9.7.0
   "@pagopa/io-functions-admin-sdk": ^1.10.1

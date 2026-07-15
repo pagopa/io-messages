@@ -8,6 +8,7 @@ import { SeverityNumber, logs } from "@opentelemetry/api-logs";
 import { initAzureMonitor } from "@pagopa/azure-tracing/azure-monitor";
 import { emitCustomEvent } from "@pagopa/azure-tracing/logger";
 import { makeApplicationInsightsLogger } from "@pagopa/hexagonal-core/adapters/logger";
+import "@pagopa/hexagonal-openapi";
 import fastify from "fastify";
 
 import { AppConfig } from "./adapters/inbound/config/config.js";

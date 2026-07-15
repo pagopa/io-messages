@@ -57,6 +57,9 @@ catalogs:
     '@pagopa/hexagonal-fastify':
       specifier: ^0.1.0
       version: 0.1.0
+    '@pagopa/hexagonal-openapi':
+      specifier: ^0.1.1
+      version: 0.1.1
     '@pagopa/io-app-email-templates':
       specifier: ^0.8.1
       version: 0.8.1
@@ -515,6 +518,9 @@ importers:
       '@pagopa/hexagonal-fastify':
         specifier: 'catalog:'
         version: 0.1.0(@standard-schema/spec@1.1.0)(fastify@5.8.5)(neverthrow@8.2.0)(zod@4.1.13)
+      '@pagopa/hexagonal-openapi':
+        specifier: 'catalog:'
+        version: 0.1.1(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)
       fastify:
         specifier: ^5.8.5
         version: 5.8.5
@@ -1073,6 +1079,11 @@ packages:
     resolution: {integrity: sha512-sNiLY51vZOmSPFZA5TF35KZ2HbgYklQnTSDnkghamzLb3EkNtcQnrBQEj5AOCxHpTtXpqMCRM1CrmV2rG6nw4g==}
     peerDependencies:
       openapi-types: '>=7'
+
+  '@asteasolutions/zod-to-openapi@8.5.0':
+    resolution: {integrity: sha512-SABbKiObg5dLRiTFnqiW1WWwGcg1BJfmHtT2asIBnBHg6Smy/Ms2KHc650+JI4Hw7lSkdiNebEGXpwoxfben8Q==}
+    peerDependencies:
+      zod: ^4.0.0
 
   '@azure-rest/core-client@2.5.1':
     resolution: {integrity: sha512-EHaOXW0RYDKS5CFffnixdyRPak5ytiCtU7uXDcP/uiY+A6jFRwNGzzJBiznkCzvi5EYpY+YWinieqHb0oY916A==}
@@ -2068,6 +2079,11 @@ packages:
       '@standard-schema/spec': ^1.1.0
       fastify: ^5.8.4
       neverthrow: ^8.2.0
+      zod: ^4.0.0
+
+  '@pagopa/hexagonal-openapi@0.1.1':
+    resolution: {integrity: sha512-JXJgkUBT3Wn9M3LIdYPvDatG/vg21MytP7A5eroy2x1GM9rF9C1kGP0dGRCvZQLr+KYuWCBcpEAQzm2UsqD1DA==}
+    peerDependencies:
       zod: ^4.0.0
 
   '@pagopa/io-app-email-templates@0.8.1':
@@ -4627,6 +4643,9 @@ packages:
   openapi-types@10.0.0:
     resolution: {integrity: sha512-Y8xOCT2eiKGYDzMW9R4x5cmfc3vGaaI4EL2pwhDmodWw1HlK18YcZ4uJxc7Rdp7/gGzAygzH9SXr6GKYIXbRcQ==}
 
+  openapi3-ts@4.6.0:
+    resolution: {integrity: sha512-a4sfn6L2sIShhtzJqmjGrARvxAW/3F2BJDdyRVvNF9VhAsZSh5hSyI3a9TNvmzBxXmq66nY5LNT5bQcBxYAZZg==}
+
   optimist@0.6.1:
     resolution: {integrity: sha512-snN4O4TkigujZphWLN0E//nQmm7790RYaE53DdL7ZYwee2D8DDo9/EyYiKUfN3rneWUjhJnueija3G9I2i0h3g==}
 
@@ -6047,6 +6066,11 @@ snapshots:
       call-me-maybe: 1.0.2
       openapi-types: 10.0.0
       z-schema: 5.0.5
+
+  '@asteasolutions/zod-to-openapi@8.5.0(zod@4.1.13)':
+    dependencies:
+      openapi3-ts: 4.6.0
+      zod: 4.1.13
 
   '@azure-rest/core-client@2.5.1':
     dependencies:
@@ -7553,6 +7577,17 @@ snapshots:
       fastify: 5.8.5
       neverthrow: 8.2.0
       zod: 4.1.13
+
+  '@pagopa/hexagonal-openapi@0.1.1(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)':
+    dependencies:
+      '@asteasolutions/zod-to-openapi': 8.5.0(zod@4.1.13)
+      '@pagopa/hexagonal-core': 0.4.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)
+      yaml: 2.9.0
+      zod: 4.1.13
+    transitivePeerDependencies:
+      - '@pagopa/azure-tracing'
+      - '@standard-schema/spec'
+      - neverthrow
 
   '@pagopa/io-app-email-templates@0.8.1':
     dependencies:
@@ -10349,6 +10384,10 @@ snapshots:
       wsl-utils: 0.1.0
 
   openapi-types@10.0.0: {}
+
+  openapi3-ts@4.6.0:
+    dependencies:
+      yaml: 2.9.0
 
   optimist@0.6.1:
     dependencies:
