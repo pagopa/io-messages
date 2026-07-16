@@ -73,7 +73,8 @@ export const createApp = (
     config.npm_package_version,
   );
 
-  const aadCredentials = new DefaultAzureCredential();
+  const aadCredentials =
+    config.NODE_ENV == "production" ? new DefaultAzureCredential() : undefined;
 
   const commonCosmosClient =
     config.NODE_ENV === "development"
