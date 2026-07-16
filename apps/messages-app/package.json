@@ -30,7 +30,6 @@
     "@pagopa/azure-tracing": "catalog:",
     "@pagopa/hexagonal-core": "catalog:",
     "@pagopa/hexagonal-fastify": "catalog:",
-    "@pagopa/hexagonal-openapi": "catalog:",
     "fastify": "^5.8.5",
     "neverthrow": "^8.2.0",
     "zod": "catalog:"
