@@ -26,44 +26,44 @@ import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-m
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
 
-initAzureMonitor();
-
-const aiLogger = logs.getLogger("io-messages-app");
-const stringify = (p?: Record<string, unknown>): Record<string, string> =>
-  Object.fromEntries(Object.entries(p ?? {}).map(([k, v]) => [k, String(v)]));
-
-const client: AppInsightsTelemetryClient = {
-  trackEvent: ({ name, properties }) =>
-    emitCustomEvent(name, stringify(properties))(),
-  trackException: ({ exception, properties }) =>
-    aiLogger.emit({
-      attributes: {
-        ...stringify(properties),
-        "exception.stack": exception.stack ?? "",
-      },
-      body: exception.message,
-      severityNumber: SeverityNumber.ERROR,
-    }),
-  trackTrace: ({ message, properties, severity }) =>
-    aiLogger.emit({
-      attributes: stringify(properties),
-      body: message,
-      severityNumber: severity as unknown as SeverityNumber,
-    }),
-};
-
-const logger = makeApplicationInsightsLogger({
-  baseProperties: { service: "io-messages-app" },
-  client,
-});
-
-const crypto = new CryptoAdapter();
-
 export const createApp = (
   config: AppConfig,
 ): {
   server: FastifyInstance;
 } => {
+  initAzureMonitor();
+
+  const aiLogger = logs.getLogger("io-messages-app");
+  const stringify = (p?: Record<string, unknown>): Record<string, string> =>
+    Object.fromEntries(Object.entries(p ?? {}).map(([k, v]) => [k, String(v)]));
+
+  const client: AppInsightsTelemetryClient = {
+    trackEvent: ({ name, properties }) =>
+      emitCustomEvent(name, stringify(properties))(),
+    trackException: ({ exception, properties }) =>
+      aiLogger.emit({
+        attributes: {
+          ...stringify(properties),
+          "exception.stack": exception.stack ?? "",
+        },
+        body: exception.message,
+        severityNumber: SeverityNumber.ERROR,
+      }),
+    trackTrace: ({ message, properties, severity }) =>
+      aiLogger.emit({
+        attributes: stringify(properties),
+        body: message,
+        severityNumber: severity as unknown as SeverityNumber,
+      }),
+  };
+
+  const logger = makeApplicationInsightsLogger({
+    baseProperties: { service: "io-messages-app" },
+    client,
+  });
+
+  const crypto = new CryptoAdapter();
+
   const server = fastify({
     // We only enable access logs during local development.
     logger: config.NODE_ENV === "development",
