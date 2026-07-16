@@ -31,10 +31,10 @@ export const createApp = (
 
   const commonCosmosClient =
     config.NODE_ENV === "development"
-      ? new CosmosClient(config.COMMON_COSMOS_CONNECTION_STRING)
+      ? new CosmosClient(config.REMOTE_CONTENT_COSMOS_CONNECTION_STRING)
       : new CosmosClient({
           aadCredentials,
-          endpoint: config.COMMON_COSMOS_URI,
+          endpoint: config.REMOTE_CONTENT_COSMOS_URI,
         });
 
   mountInfoHandler(server, makeGetInfoUseCase(appInfoReader));

@@ -5,19 +5,19 @@ import z from "zod";
 // selects which set of variables is required.
 const commonCosmosConfigSchema = z.discriminatedUnion("NODE_ENV", [
   z.object({
-    COMMON_COSMOS_CONNECTION_STRING: z.string().min(1),
     NODE_ENV: z.literal("development"),
+    REMOTE_CONTENT_COSMOS_CONNECTION_STRING: z.string().min(1),
   }),
   z.object({
-    COMMON_COSMOS_URI: z.url(),
     NODE_ENV: z.literal("production"),
+    REMOTE_CONTENT_COSMOS_URI: z.url(),
   }),
 ]);
 
 const baseConfigSchema = z.object({
-  COMMON_COSMOS_DATABASE_NAME: z.string().min(2),
   HOST: z.ipv4(),
   PORT: z.coerce.number().int().min(1025).max(65_535), // Read as string, parsed as integer.
+  REMOTE_CONTENT_COSMOS_DATABASE_NAME: z.string().min(2),
   npm_package_name: z.string().min(3),
   npm_package_version: z.string().min(5),
 });
