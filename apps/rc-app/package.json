@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@azure/cosmos": "catalog:",
+    "redis": "catalog:",
     "@azure/identity": "catalog:",
     "@pagopa/hexagonal-core": "catalog:",
     "@pagopa/hexagonal-fastify": "catalog:",

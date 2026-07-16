@@ -3,7 +3,7 @@ import { createApp } from "./app.js";
 
 const start = async () => {
   const config = configSchema.parse(process.env);
-  const { server } = createApp(config);
+  const { server } = await createApp(config);
 
   try {
     server.listen({ host: config.HOST, port: config.PORT });

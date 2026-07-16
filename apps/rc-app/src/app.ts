@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { createClient, type RedisClientType } from "redis";
 
 import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
@@ -8,15 +9,14 @@ import { AppConfig } from "./adapters/inbound/config/config.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
 import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
+import { RedisClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/redis.adapter.js";
 import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/package-json-app-info-reader.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
 
-export const createApp = (
+export const createApp = async (
   config: AppConfig,
-): {
-  server: FastifyInstance;
-} => {
+): Promise<{ server: FastifyInstance }> => {
   const server = fastify({
     // We only enable access logs during local development.
     logger: config.NODE_ENV === "development",
@@ -37,11 +37,26 @@ export const createApp = (
           endpoint: config.REMOTE_CONTENT_COSMOS_URI,
         });
 
+  const redisClient = createClient({
+    password: config.REDIS_PASSWORD,
+    socket: {
+      host: config.REDIS_URL,
+      port: config.REDIS_PORT,
+    },
+  });
+
+  redisClient.on("error", (err) => {
+    server.log.error({ err }, "redis error");
+  });
+
+  await redisClient.connect();
+
   mountInfoHandler(server, makeGetInfoUseCase(appInfoReader));
   mountHealthcheckHandler(
     server,
     makeHealthcheckUseCase([
       new CosmosClientHealthcheckAdapter(commonCosmosClient, "common-cosmos"),
+      new RedisClientHealthcheckAdapter(redisClient as never, "redis"),
     ]),
   );
 
