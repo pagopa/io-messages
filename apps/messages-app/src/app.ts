@@ -14,6 +14,7 @@ import { AppConfig } from "./adapters/inbound/config/config.js";
 import { mountGetMessagesByUserHandler } from "./adapters/inbound/fastify/get-user-messages.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
+import { CryptoAdapter } from "./adapters/outbound/crypto/crypto.adapter.js";
 import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
 import { StorageBlobHealthcheckAdapter } from "./adapters/outbound/healthcheckers/storage-blob.adapter.js";
 import { MessageContentBlobAdapter } from "./adapters/outbound/message/message-content.adapter.js";
@@ -55,6 +56,8 @@ const logger = makeApplicationInsightsLogger({
   client,
 });
 
+const crypto = new CryptoAdapter();
+
 export const createApp = (
   config: AppConfig,
 ): {
@@ -95,6 +98,7 @@ export const createApp = (
     config.COMMON_COSMOS_DATABASE_NAME,
     config.MESSAGE_METADATA_CONTAINER_NAME,
     logger,
+    crypto,
   );
 
   const messageStatusCosmosAdapter = new MessageStatusCosmosAdapter(

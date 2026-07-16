@@ -14,6 +14,7 @@ import {
 import { Result, ResultAsync, err, ok } from "neverthrow";
 import z from "zod";
 
+import { CryptoRepository } from "../../../application/ports/crypto.js";
 import {
   MessageMetadata,
   MessageMetadataRepository,
@@ -58,6 +59,7 @@ export class MessageMetadataCosmosAdapter implements MessageMetadataRepository {
     databaseName: string,
     containerName: string,
     private logger: Logger,
+    private crypto: CryptoRepository,
   ) {
     this.#cosmosContainer = cosmosClient
       .database(databaseName)
@@ -131,7 +133,7 @@ export class MessageMetadataCosmosAdapter implements MessageMetadataRepository {
         this.logger.trackEvent({
           name: "MessageMetadataCosmosAdapter.getMessagesMetadataByUser.failed.parse",
           properties: {
-            fiscalCode,
+            fiscalCode: this.crypto.toSha256(fiscalCode),
             messageId: resource.id,
           },
         });
