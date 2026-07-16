@@ -6,6 +6,7 @@ import {
   SqlQuerySpec,
 } from "@azure/cosmos";
 import { GenericError, TooManyRequestsError } from "@pagopa/hexagonal-core";
+import { Logger } from "@pagopa/hexagonal-core/domain/ports";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MessageStatus } from "../../../../application/ports/message-status.js";
@@ -45,10 +46,14 @@ const queryMock = vi
   .mockReturnValue(queryIterator);
 const fetchNextMock = vi.spyOn(queryIterator, "fetchNext");
 
+const trackEventMock = vi.fn();
 const adapter = new MessageStatusCosmosAdapter(
   cosmosClient,
   "db",
   "message-status",
+  {
+    trackEvent: trackEventMock,
+  } as unknown as Logger,
 );
 
 describe("getLatestMessagesStatusByIds", () => {
@@ -56,6 +61,7 @@ describe("getLatestMessagesStatusByIds", () => {
     queryMock.mockClear();
     fetchNextMock.mockReset();
     fetchNextMock.mockResolvedValue(feedResponseWith([aMessageStatus]));
+    trackEventMock.mockReset();
   });
 
   it("returns the latest status of each message", async () => {
@@ -73,6 +79,7 @@ describe("getLatestMessagesStatusByIds", () => {
     expect(queryMock).toHaveBeenCalledWith(expectedQuery, {
       partitionKey: aMessageStatus.messageId,
     });
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("ignores messages whose status is missing", async () => {
@@ -90,6 +97,7 @@ describe("getLatestMessagesStatusByIds", () => {
     const result = await adapter.getLatestMessagesStatusByIds(["malformed"]);
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toEqual([]);
+    expect(trackEventMock).toHaveBeenCalledTimes(1);
   });
 
   it("returns only the valid statuses when some are missing or malformed", async () => {
@@ -106,6 +114,7 @@ describe("getLatestMessagesStatusByIds", () => {
     ]);
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toEqual([aMessageStatus]);
+    expect(trackEventMock).toHaveBeenCalledTimes(2);
   });
 
   it("returns a TooManyRequestsError when Cosmos throttles the request", async () => {
@@ -116,6 +125,7 @@ describe("getLatestMessagesStatusByIds", () => {
     const result = await adapter.getLatestMessagesStatusByIds(["id"]);
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("returns a GenericError on an unexpected Cosmos RestError", async () => {
@@ -124,6 +134,7 @@ describe("getLatestMessagesStatusByIds", () => {
     const result = await adapter.getLatestMessagesStatusByIds(["id"]);
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("returns a GenericError on a non-RestError failure", async () => {
@@ -132,5 +143,6 @@ describe("getLatestMessagesStatusByIds", () => {
     const result = await adapter.getLatestMessagesStatusByIds(["id"]);
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 });
