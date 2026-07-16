@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.2.4
+
+### Patch Changes
+
+- c5e169e: Add logs through @pagopa/azure-tracing
+
 ## 0.2.3
 
 ### Patch Changes

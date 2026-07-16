@@ -1,6 +1,6 @@
 {
   "name": "messages-app",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "private": false,
   "license": "MIT",
   "type": "module",
@@ -26,6 +26,8 @@
     "@azure/cosmos": "catalog:",
     "@azure/identity": "catalog:",
     "@azure/storage-blob": "catalog:",
+    "@opentelemetry/api-logs": "catalog:",
+    "@pagopa/azure-tracing": "catalog:",
     "@pagopa/hexagonal-core": "catalog:",
     "@pagopa/hexagonal-fastify": "catalog:",
     "fastify": "^5.8.5",
@@ -33,9 +35,9 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@pagopa/eslint-config": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "@pagopa/eslint-config": "catalog:",
     "eslint": "catalog:",
     "prettier": "catalog:",
     "typescript": "catalog:",
