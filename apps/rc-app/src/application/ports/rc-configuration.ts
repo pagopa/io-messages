@@ -6,9 +6,7 @@ import {
 import { Result } from "neverthrow";
 import z from "zod";
 
-export declare const RC_CONFIGURATION_MODEL_PK_FIELD = "configurationId";
-
-const RcConfigurationIdSchema = z.ulid();
+export const RcConfigurationIdSchema = z.ulid();
 export type RcConfigurationId = z.infer<typeof RcConfigurationIdSchema>;
 
 const rcClientCertSchema = z.object({
