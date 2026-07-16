@@ -10,9 +10,11 @@ import {
   GenericError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
+import { Logger } from "@pagopa/hexagonal-core/domain/ports";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MessageMetadata } from "../../../../application/ports/message-metadata.js";
+import { CryptoAdapter } from "../../crypto/crypto.adapter.js";
 import { MessageMetadataCosmosAdapter } from "../message-metadata.adapter.js";
 
 const aFiscalCode = FiscalCodeSchema.parse("RSSMRA85M01H501Z");
@@ -54,10 +56,15 @@ const queryMock = vi
   .mockReturnValue(queryIterator);
 const fetchNextMock = vi.spyOn(queryIterator, "fetchNext");
 
+const trackEventMock = vi.fn();
 const adapter = new MessageMetadataCosmosAdapter(
   cosmosClient,
   "db",
   "messages",
+  {
+    trackEvent: trackEventMock,
+  } as unknown as Logger,
+  new CryptoAdapter(),
 );
 
 describe("getMessagesMetadataByUser", () => {
@@ -65,6 +72,7 @@ describe("getMessagesMetadataByUser", () => {
     queryMock.mockClear();
     fetchNextMock.mockReset();
     fetchNextMock.mockResolvedValue(feedResponseWith([aMessageMetadata]));
+    trackEventMock.mockReset();
   });
 
   it("returns the message metadata of the user", async () => {
@@ -72,6 +80,7 @@ describe("getMessagesMetadataByUser", () => {
 
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toEqual([aMessageMetadata]);
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("queries the user's non-pending messages ordered by descending id", async () => {
@@ -83,6 +92,7 @@ describe("getMessagesMetadataByUser", () => {
         "SELECT * FROM c WHERE c.fiscalCode = @fiscalCode and c.isPending = false ORDER BY c.id DESC",
     };
     expect(queryMock).toHaveBeenCalledWith(expectedQuery, { maxItemCount: 10 });
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("narrows the query with the maximumID cursor when provided", async () => {
@@ -97,6 +107,7 @@ describe("getMessagesMetadataByUser", () => {
         "SELECT * FROM c WHERE c.fiscalCode = @fiscalCode and c.isPending = false AND c.id < @maximumId ORDER BY c.id DESC",
     };
     expect(queryMock).toHaveBeenCalledWith(expectedQuery, { maxItemCount: 10 });
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("narrows the query with the minimumID cursor when provided", async () => {
@@ -116,6 +127,7 @@ describe("getMessagesMetadataByUser", () => {
         "SELECT * FROM c WHERE c.fiscalCode = @fiscalCode and c.isPending = false AND c.id > @minimumId ORDER BY c.id DESC",
     };
     expect(queryMock).toHaveBeenCalledWith(expectedQuery, { maxItemCount: 10 });
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("ignores documents that do not match the adapter schema", async () => {
@@ -128,6 +140,7 @@ describe("getMessagesMetadataByUser", () => {
 
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toEqual([aMessageMetadata]);
+    expect(trackEventMock).toHaveBeenCalledTimes(1);
   });
 
   it("returns an empty array when the user has no messages", async () => {
@@ -137,6 +150,7 @@ describe("getMessagesMetadataByUser", () => {
 
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toEqual([]);
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("returns a TooManyRequestsError when Cosmos throttles the request", async () => {
@@ -148,6 +162,7 @@ describe("getMessagesMetadataByUser", () => {
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("returns a GenericError on an unexpected Cosmos RestError", async () => {
@@ -157,6 +172,7 @@ describe("getMessagesMetadataByUser", () => {
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("returns a GenericError on a non-RestError failure", async () => {
@@ -166,5 +182,6 @@ describe("getMessagesMetadataByUser", () => {
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 });
