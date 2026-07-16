@@ -60,6 +60,7 @@ variable "entra_id_admin_ids" {
 
 variable "application_insights" {
   type = object({
+    id                = string
     connection_string = string
   })
 }

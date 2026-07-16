@@ -1,15 +1,14 @@
 import type { GenericError, UseCase } from "@pagopa/hexagonal-core";
 import type { FastifyInstance } from "fastify";
 
-import { AppHealthcheck } from "@/application/ports/app-healthcheck.js";
 import { ProblemDetailsSchema, defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
 
+import { AppHealthcheck } from "../../../application/ports/app-healthcheck.js";
 import { HealthcheckOutputSchema } from "./dto/healthcheck.dto.js";
 
 const healthcheckContract = defineRoute({
   method: "get",
-  operationId: "healthcheck",
   path: "/api/health",
   request: {},
   response: {

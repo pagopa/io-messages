@@ -1,4 +1,5 @@
-import { MalformedEntityError } from "@/application/ports/error.js";
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import {
   Container,
   CosmosClient,
@@ -13,6 +14,7 @@ import {
 import { Result, ResultAsync, err, ok } from "neverthrow";
 import z from "zod";
 
+import { MalformedEntityError } from "../../../application/ports/error.js";
 import {
   MessageStatus,
   MessageStatusRepository,
@@ -50,6 +52,7 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
     cosmosClient: CosmosClient,
     databaseName: string,
     containerName: string,
+    private logger: Logger,
   ) {
     this.#cosmosContainer = cosmosClient
       .database(databaseName)
@@ -140,13 +143,25 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
       if (result.isErr()) {
         if (result.error instanceof MalformedEntityError) {
           // If a status is malformed we simply want to ignore it.
-          // TODO: Add a log in this case.
+          this.logger.trackEvent({
+            name: "MessageStatusCosmosAdapter.getLatestMessagesStatusByIds.failed.parse",
+            properties: {
+              errorMessage: result.error.message,
+              errorName: result.error.name,
+            },
+          });
           continue;
         }
 
         if (result.error instanceof NotFoundError) {
           // If a status is migging we simply want to ignore it.
-          // TODO: Add a log in this case.
+          this.logger.trackEvent({
+            name: "MessageStatusCosmosAdapter.getLatestMessagesStatusByIds.failed.notFound",
+            properties: {
+              errorMessage: result.error.message,
+              errorName: result.error.name,
+            },
+          });
           continue;
         }
 

@@ -1,4 +1,5 @@
-import { MalformedEntityError } from "@/application/ports/error.js";
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import {
   BlobServiceClient,
   ContainerClient,
@@ -12,6 +13,7 @@ import {
 import { Result, ResultAsync, err, fromThrowable, ok } from "neverthrow";
 import z from "zod";
 
+import { MalformedEntityError } from "../../../application/ports/error.js";
 import {
   MessageContent,
   MessageContentRepository,
@@ -66,7 +68,11 @@ const toMessageContent = (c: BlobMessageContent): MessageContent => c;
 export class MessageContentBlobAdapter implements MessageContentRepository {
   #messageContainer: ContainerClient;
 
-  constructor(blobServiceClient: BlobServiceClient, containerName: string) {
+  constructor(
+    blobServiceClient: BlobServiceClient,
+    containerName: string,
+    private logger: Logger,
+  ) {
     this.#messageContainer =
       blobServiceClient.getContainerClient(containerName);
   }
@@ -116,7 +122,12 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
     const parsedContent = this.#parseContent(downloadResult.value);
     if (parsedContent.isErr()) {
       // In this case we know that the message content is malformed
-      // TODO: Add a log.
+      this.logger.trackEvent({
+        name: "MessageContentBlobAdapter.getContentById.failed.parse",
+        properties: {
+          messageID,
+        },
+      });
       return err(
         new MalformedEntityError(
           `invalid message content for message with id: ${messageID}" ${parsedContent.error.name}: ${parsedContent.error.message}`,

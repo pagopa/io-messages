@@ -1,7 +1,8 @@
-import { AppHealthchecker } from "@/application/ports/app-healthcheck.js";
 import { BlobServiceClient, RestError } from "@azure/storage-blob";
 import { GenericError } from "@pagopa/hexagonal-core";
 import { Result, err, ok } from "neverthrow";
+
+import { AppHealthchecker } from "../../../application/ports/app-healthcheck.js";
 
 export class StorageBlobHealthcheckAdapter implements AppHealthchecker {
   constructor(

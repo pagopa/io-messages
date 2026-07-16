@@ -31,6 +31,9 @@ module "messages_ca" {
         COMMON_COSMOS_URI               = var.common_cosmos_account.endpoint
         COMMON_STORAGE_ACCOUNT_URI      = var.common_storage_account.endpoint
         PN_SERVICE_ID                   = "01G40DWQGKY5GRWSNM4303VNRP" # PN
+
+        APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
+        APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
       }
 
       liveness_probe = {
@@ -80,4 +83,11 @@ module "azure-role-assignments" {
       collections         = ["messages", "message-status"]
     }
   ]
+}
+
+resource "azurerm_role_assignment" "messages_ca_appinsights_metrics_publisher" {
+  scope                = var.application_insights.id
+  role_definition_name = "Monitoring Metrics Publisher"
+  principal_id         = module.messages_ca.principal_id
+  description          = "Allow messages container app to publish telemetry to Application Insights"
 }

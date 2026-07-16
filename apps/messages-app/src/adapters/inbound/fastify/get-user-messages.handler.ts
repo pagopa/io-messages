@@ -16,7 +16,6 @@ import {
 
 const getMessagesByUserContract = defineRoute({
   method: "get",
-  operationId: "getMessagesByUser",
   path: "/api/messages/{fiscal_code}",
   request: {
     path: z.object({
