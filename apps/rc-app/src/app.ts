@@ -1,9 +1,9 @@
 import type { FastifyInstance } from "fastify";
-import { createClient, type RedisClientType } from "redis";
 
 import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
 import fastify from "fastify";
+import { createClient } from "redis";
 
 import { AppConfig } from "./adapters/inbound/config/config.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
