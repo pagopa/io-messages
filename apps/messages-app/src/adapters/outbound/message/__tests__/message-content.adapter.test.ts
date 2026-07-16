@@ -1,3 +1,5 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import { BlobServiceClient, RestError } from "@azure/storage-blob";
 import {
   GenericError,
@@ -37,7 +39,11 @@ const downloadToBufferMock = vi
   .spyOn(blobClient, "downloadToBuffer")
   .mockImplementation(() => Promise.resolve(aValidBuffer));
 
-const adapter = new MessageContentBlobAdapter(blobServiceClient, "messages");
+const trackEventMock = vi.fn();
+
+const adapter = new MessageContentBlobAdapter(blobServiceClient, "messages", {
+  trackEvent: trackEventMock,
+} as unknown as Logger);
 
 describe("getMessagesContentByIds", () => {
   beforeEach(() => {
@@ -45,6 +51,7 @@ describe("getMessagesContentByIds", () => {
     downloadToBufferMock.mockImplementation(() =>
       Promise.resolve(aValidBuffer),
     );
+    trackEventMock.mockReset();
   });
 
   it("returns the content for each existing and valid message", async () => {
@@ -60,6 +67,7 @@ describe("getMessagesContentByIds", () => {
     expect(contentById.get("id-2")?._unsafeUnwrap()).toEqual(
       aValidMessageContent,
     );
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("reports a NotFoundError per-item when the blob does not exist", async () => {
@@ -73,6 +81,7 @@ describe("getMessagesContentByIds", () => {
     const entry = result._unsafeUnwrap().get("missing");
     expect(entry?.isErr()).toBe(true);
     expect(entry?._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("reports a MalformedEntityError per-item when the content is invalid", async () => {
@@ -86,6 +95,7 @@ describe("getMessagesContentByIds", () => {
     const entry = result._unsafeUnwrap().get("malformed");
     expect(entry?.isErr()).toBe(true);
     expect(entry?._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
+    expect(trackEventMock).toHaveBeenCalledTimes(1);
   });
 
   it("reports a MalformedEntityError per-item when the buffer is not valid JSON", async () => {
@@ -99,6 +109,7 @@ describe("getMessagesContentByIds", () => {
     const entry = result._unsafeUnwrap().get("broken-json");
     expect(entry?.isErr()).toBe(true);
     expect(entry?._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
+    expect(trackEventMock).toHaveBeenCalledTimes(1);
   });
 
   it("collects both valid and skippable-error entries in the same map", async () => {
@@ -117,6 +128,7 @@ describe("getMessagesContentByIds", () => {
     expect(contentById.get("missing")?._unsafeUnwrapErr()).toBeInstanceOf(
       NotFoundError,
     );
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("fails the whole operation with a TooManyRequestsError on throttling", async () => {
@@ -127,6 +139,7 @@ describe("getMessagesContentByIds", () => {
     const result = await adapter.getMessagesContentByIds(["id-1"]);
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("fails the whole operation with a GenericError on unexpected RestError status", async () => {
@@ -137,6 +150,7 @@ describe("getMessagesContentByIds", () => {
     const result = await adapter.getMessagesContentByIds(["id-1"]);
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("fails the whole operation with a GenericError on non-RestError failures", async () => {
@@ -147,5 +161,6 @@ describe("getMessagesContentByIds", () => {
     const result = await adapter.getMessagesContentByIds(["id-1"]);
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 });
