@@ -132,10 +132,7 @@ export class MessageMetadataCosmosAdapter implements MessageMetadataRepository {
           name: "MessageMetadataCosmosAdapter.getMessagesMetadataByUser.failed.parse",
           properties: {
             fiscalCode,
-            maximumID: maximumID ? maximumID : "undefined",
-            minimumID: minimumID ? minimumID : "undefined",
-            pageSize,
-            retrievedCount: resources.resources.length,
+            messageId: resource.id,
           },
         });
       }

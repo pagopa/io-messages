@@ -125,8 +125,6 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
       this.logger.trackEvent({
         name: "MessageContentBlobAdapter.getContentById.failed.parse",
         properties: {
-          errorMessage: parsedContent.error.message,
-          errorName: parsedContent.error.name,
           messageID,
         },
       });
