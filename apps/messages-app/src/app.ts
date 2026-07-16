@@ -16,6 +16,7 @@ import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
 import { CryptoAdapter } from "./adapters/outbound/crypto/crypto.adapter.js";
 import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
+import { LoggerHealthcheckAdapter } from "./adapters/outbound/healthcheckers/logger.adapter.js";
 import { StorageBlobHealthcheckAdapter } from "./adapters/outbound/healthcheckers/storage-blob.adapter.js";
 import { MessageContentBlobAdapter } from "./adapters/outbound/message/message-content.adapter.js";
 import { MessageMetadataCosmosAdapter } from "./adapters/outbound/message/message-metadata.adapter.js";
@@ -74,7 +75,7 @@ export const createApp = (
   );
 
   const aadCredentials =
-    config.NODE_ENV == "production" ? new DefaultAzureCredential() : undefined;
+    config.NODE_ENV === "production" ? new DefaultAzureCredential() : undefined;
 
   const commonCosmosClient =
     config.NODE_ENV === "development"
@@ -119,6 +120,7 @@ export const createApp = (
   mountHealthcheckHandler(
     server,
     makeHealthcheckUseCase([
+      new LoggerHealthcheckAdapter(logger, "logger"),
       new CosmosClientHealthcheckAdapter(commonCosmosClient, "common-cosmos"),
       new StorageBlobHealthcheckAdapter(
         commonStorageAccountClient,
