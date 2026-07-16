@@ -17,10 +17,12 @@ catalog:
   "@azure/service-bus": ^7.9.5
   "@azure/storage-blob": ^12.29.1
   "@azure/storage-queue": ^12.28.1
+  "@opentelemetry/api-logs": ^0.218.0
+  "@pagopa/azure-tracing": ^0.5.5
   "@pagopa/eslint-config": ^4.0.6
   "@pagopa/fp-ts-kafkajs": ^0.3.0
-  "@pagopa/hexagonal-core": ^0.1.1
-  "@pagopa/hexagonal-fastify": ^0.1.0
+  "@pagopa/hexagonal-core": ^0.4.0
+  "@pagopa/hexagonal-fastify": ^0.2.0
   "@pagopa/io-app-email-templates": ^0.8.1
   "@pagopa/io-backend-notifications-sdk": ^9.7.0
   "@pagopa/io-functions-admin-sdk": ^1.10.1

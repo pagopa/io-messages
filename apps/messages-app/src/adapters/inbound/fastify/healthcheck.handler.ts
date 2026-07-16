@@ -9,7 +9,6 @@ import { HealthcheckOutputSchema } from "./dto/healthcheck.dto.js";
 
 const healthcheckContract = defineRoute({
   method: "get",
-  operationId: "healthcheck",
   path: "/api/health",
   request: {},
   response: {
