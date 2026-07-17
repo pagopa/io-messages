@@ -77,12 +77,12 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
               return new TooManyRequestsError();
             default:
               return new GenericError(
-                `error obtaining messages metadata: ${err.name}: ${err.message}`,
+                `error obtaining rc configuration: ${err.name}: ${err.message}`,
               );
           }
         }
 
-        return new GenericError(`error obtaining messages metadata: ${err}`);
+        return new GenericError(`error obtaining rc configuration: ${err}`);
       },
     );
 

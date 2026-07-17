@@ -7,7 +7,7 @@ import type { AppInfo, AppInfoReader } from "../../ports/app-info.js";
 import { makeGetInfoUseCase } from "../info.use-case.js";
 
 const anAppInfo: AppInfo = {
-  name: "messages-app",
+  name: "rc-app",
   version: "1.2.3",
 };
 
