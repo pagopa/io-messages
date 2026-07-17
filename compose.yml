@@ -7,6 +7,12 @@ services:
       - ".:/workspace:cached"
     network_mode: "service:azurite"
 
+  rc-app:
+    image: io-rc-app:latest
+    env_file: ./apps/rc-app/.env
+    ports:
+      - 3010:3000
+
   messages-app:
     image: io-messages-app:latest
     env_file: ./apps/messages-app/.env
