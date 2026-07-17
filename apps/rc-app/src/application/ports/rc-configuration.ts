@@ -45,18 +45,6 @@ export const rcConfigurationSchema = z.object({
 });
 export type RCConfiguration = z.TypeOf<typeof rcConfigurationSchema>;
 
-//Move it to the adapter layer, those fields are specific to the CosmosDB adapter and should not be
-// exposed in the domain model
-export const retrievedRCConfigurationSchema = rcConfigurationSchema.extend({
-  _etag: z.string(),
-  _rid: z.string(),
-  _self: z.string(),
-  _ts: z.number(),
-});
-export type RetrievedRCConfiguration = z.TypeOf<
-  typeof retrievedRCConfigurationSchema
->;
-
 export interface RemoteContentRepository {
   getRemoteContentConfiguration(
     configurationId: RcConfigurationId,
