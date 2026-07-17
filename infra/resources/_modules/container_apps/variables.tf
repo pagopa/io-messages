@@ -96,6 +96,15 @@ variable "common_storage_account" {
   })
 }
 
+variable "redis_cache" {
+  type = object({
+    id         = string
+    hostname   = string
+    port       = string
+    access_key = string
+  })
+}
+
 variable "subscription_id" {
   type = string
 }

@@ -26,6 +26,9 @@ module "remote_content_ca" {
         PORT                                = 3000
         REMOTE_CONTENT_COSMOS_DATABASE_NAME = "remote-content-cosmos-01"
         REMOTE_CONTENT_COSMOS_URI           = var.common_cosmos_account.endpoint
+        REDIS_URL                           = var.redis_cache.hostname
+        REDIS_PORT                          = var.redis_cache.port
+        REDIS_PASSWORD                      = var.redis_cache.access_key
       }
 
       liveness_probe = {
