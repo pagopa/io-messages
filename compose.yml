@@ -40,9 +40,26 @@ services:
 
   cosmos:
     image: "mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-latest"
+    environment:
+      GATEWAY_PUBLIC_ENDPOINT: "cosmos"
     ports:
       - "8081:8081" # Gateway endpoint (HTTP).
+      - "8080:8080" # Health probe endpoint.
       - "1234:1234" # Data Explorer UI.
+
+  cosmos-setup:
+    image: node:24-alpine@sha256:2bdb65ed1dab192432bc31c95f94155ca5ad7fc1392fb7eb7526ab682fa5bf14
+    depends_on:
+      - cosmos
+    working_dir: /app
+    volumes:
+      - ./setup-cosmos-containers.js:/app/setup-cosmos-containers.js
+    environment:
+      COSMOSDB_URI: "http://cosmos:8081"
+      COSMOSDB_KEY: "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
+      COSMOSDB_NAME: "io-messages"
+      COSMOSDB_HEALTH_URL: "http://cosmos:8080/ready"
+    command: sh -c "npm install @azure/cosmos@^4.9.0 && node setup-cosmos-containers.js"
 
   eventhubs:
     image: "mcr.microsoft.com/azure-messaging/eventhubs-emulator:latest@sha256:25ec4141efb69933a0c82e6a787fa147a3895519e7d236d4c41ba568e03100eb"
