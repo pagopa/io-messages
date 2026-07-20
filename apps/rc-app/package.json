@@ -17,7 +17,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "pnpm lint:check --fix",
     "lint:check": "eslint .",
-    "dev": "npx tsx --watch --env-file=.env src/main.ts",
+    "dev": "tsx --watch --env-file=.env src/main.ts",
     "start": "node dist/main.js",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
@@ -28,8 +28,8 @@
     "@azure/identity": "catalog:",
     "@pagopa/hexagonal-core": "catalog:",
     "@pagopa/hexagonal-fastify": "catalog:",
-    "fastify": "^5.8.5",
-    "neverthrow": "^8.2.0",
+    "fastify": "catalog:",
+    "neverthrow": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
