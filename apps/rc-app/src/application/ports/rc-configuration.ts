@@ -1,6 +1,7 @@
 import {
   FiscalCodeSchema,
   GenericError,
+  NotFoundError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
 import { Result } from "neverthrow";
@@ -48,5 +49,7 @@ export type RCConfiguration = z.TypeOf<typeof rcConfigurationSchema>;
 export interface RemoteContentRepository {
   getRemoteContentConfiguration(
     configurationId: RcConfigurationId,
-  ): Promise<Result<RCConfiguration, GenericError | TooManyRequestsError>>;
+  ): Promise<
+    Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
+  >;
 }

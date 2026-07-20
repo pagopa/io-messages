@@ -1,8 +1,9 @@
 import type { RedisClientType } from "redis";
 
-import { GenericError } from "@pagopa/hexagonal-core";
+import { GenericError, NotFoundError } from "@pagopa/hexagonal-core";
 import { Result, ResultAsync, err, ok } from "neverthrow";
 
+import { MalformedEntityError } from "../../../application/ports/error.js";
 import {
   RCConfiguration,
   RcConfigurationId,
@@ -23,7 +24,9 @@ export class RCConfigurationCacheAdapter
 
   async getCachedRemoteContentConfiguration(
     configurationId: RcConfigurationId,
-  ): Promise<Result<RCConfiguration, GenericError>> {
+  ): Promise<
+    Result<RCConfiguration, GenericError | MalformedEntityError | NotFoundError>
+  > {
     const getResult = await ResultAsync.fromPromise(
       this.#redisClient.get(
         `${RC_CONFIGURATION_REDIS_PREFIX}-${configurationId}`,
@@ -41,14 +44,28 @@ export class RCConfigurationCacheAdapter
     const value = getResult.value;
     if (value === null) {
       return err(
-        new GenericError(`Missing cached ${configurationId} rc configuration`),
+        new NotFoundError(
+          `rc-configuration`,
+          `Missing cached ${configurationId} rc configuration`,
+        ),
       );
     }
-    const parsedValue = JSON.parse(value);
-    const validationResult = rcConfigurationSchema.safeParse(parsedValue);
+    const parseResult = Result.fromThrowable(
+      JSON.parse,
+      () =>
+        new MalformedEntityError(
+          `Malformed cached json rc configuration for ${configurationId}`,
+        ),
+    )(value);
+
+    if (parseResult.isErr()) {
+      return err(parseResult.error);
+    }
+
+    const validationResult = rcConfigurationSchema.safeParse(parseResult.value);
     if (!validationResult.success) {
       return err(
-        new GenericError(
+        new MalformedEntityError(
           `Malformed cached ${configurationId} rc configuration`,
         ),
       );

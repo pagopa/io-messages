@@ -1,8 +1,9 @@
 import type { RedisClientType } from "redis";
 
-import { GenericError } from "@pagopa/hexagonal-core";
+import { GenericError, NotFoundError } from "@pagopa/hexagonal-core";
 import { describe, expect, it, vi } from "vitest";
 
+import { MalformedEntityError } from "../../../../application/ports/error.js";
 import { RCConfigurationCacheAdapter } from "../rc-configuration-cache.adapter.js";
 
 const aConfigurationId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
@@ -44,7 +45,7 @@ describe("RCConfigurationCacheAdapter", () => {
       });
     });
 
-    it("returns a GenericError when the key does not exist in cache", async () => {
+    it("returns a NotFoundError when the key does not exist in cache", async () => {
       const { mockGet, mockRedisClient } = makeMocks();
       mockGet.mockResolvedValueOnce(null);
 
@@ -53,11 +54,10 @@ describe("RCConfigurationCacheAdapter", () => {
         await adapter.getCachedRemoteContentConfiguration(aConfigurationId);
 
       expect(result.isErr()).toBe(true);
-      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
-      expect(result._unsafeUnwrapErr().message).toContain("Missing cached");
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
     });
 
-    it("returns a GenericError when the cached value fails schema validation", async () => {
+    it("returns a MalformedEntityError when the cached value fails schema validation", async () => {
       const { mockGet, mockRedisClient } = makeMocks();
       mockGet.mockResolvedValueOnce(JSON.stringify({ invalid: "data" }));
 
@@ -66,8 +66,7 @@ describe("RCConfigurationCacheAdapter", () => {
         await adapter.getCachedRemoteContentConfiguration(aConfigurationId);
 
       expect(result.isErr()).toBe(true);
-      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
-      expect(result._unsafeUnwrapErr().message).toContain("Malformed cached");
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
     });
 
     it("returns a GenericError when Redis throws", async () => {

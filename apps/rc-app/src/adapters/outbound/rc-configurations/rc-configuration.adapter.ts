@@ -7,6 +7,7 @@ import {
 import {
   FiscalCodeSchema,
   GenericError,
+  NotFoundError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
 import { Result, ResultAsync, err, ok } from "neverthrow";
@@ -58,7 +59,9 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
 
   async getRemoteContentConfiguration(
     configurationId: RcConfigurationId,
-  ): Promise<Result<RCConfiguration, GenericError | TooManyRequestsError>> {
+  ): Promise<
+    Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
+  > {
     const queryText =
       "SELECT * FROM c WHERE c.configurationId = @configurationId";
     const parameters = [{ name: "@configurationId", value: configurationId }];
@@ -77,12 +80,14 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
               return new TooManyRequestsError();
             default:
               return new GenericError(
-                `error obtaining rc configuration: ${err.name}: ${err.message}`,
+                `error obtaining rc configuration with id ${configurationId}: ${err.name}: ${err.message}`,
               );
           }
         }
 
-        return new GenericError(`error obtaining rc configuration: ${err}`);
+        return new GenericError(
+          `error obtaining rc configuration with id ${configurationId}: ${err}`,
+        );
       },
     );
 
@@ -93,7 +98,10 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
     const resources = cosmosResponse.value.resources;
     if (resources.length === 0) {
       return err(
-        new GenericError(`RC configuration not found: ${configurationId}`),
+        new NotFoundError(
+          `rc-configuration`,
+          `RC configuration not found: ${configurationId}`,
+        ),
       );
     }
 
