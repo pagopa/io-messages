@@ -28,13 +28,13 @@ const rcEnvironmentConfigSchema = z.object({
 });
 
 const rcTestEnvironmentConfigSchema = rcEnvironmentConfigSchema.extend({
-  testUsers: z.array(FiscalCodeSchema).readonly(),
+  testUsers: z.array(FiscalCodeSchema),
 });
 
 export const rcConfigurationSchema = z.object({
   configurationId: RcConfigurationIdSchema,
   description: z.string().min(1),
-  disableLollipopFor: z.array(FiscalCodeSchema).readonly(),
+  disableLollipopFor: z.array(FiscalCodeSchema),
   hasPrecondition: z.enum(["ALWAYS", "ONCE", "NEVER"]),
   id: z.string().min(1),
   isLollipopEnabled: z.boolean(),

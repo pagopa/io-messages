@@ -25,7 +25,7 @@ export const RC_CONFIGURATION_COLLECTION_NAME = "message-configuration";
 export const cosmosRCConfigurationSchema = z.object({
   configurationId: RcConfigurationIdSchema,
   description: z.string().min(1),
-  disableLollipopFor: z.array(FiscalCodeSchema).readonly(),
+  disableLollipopFor: z.array(FiscalCodeSchema),
   hasPrecondition: z.enum(["ALWAYS", "ONCE", "NEVER"]),
   id: z.string().min(1),
   isLollipopEnabled: z.boolean(),
