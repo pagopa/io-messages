@@ -4,8 +4,9 @@ module "container_apps" {
   environment         = local.environment
   resource_group_name = azurerm_resource_group.itn_com.name
 
-  common_cosmos_account  = data.azurerm_cosmosdb_account.cosmos_api
-  common_storage_account = module.storage_api_weu.common_storage_account
+  common_cosmos_account        = data.azurerm_cosmosdb_account.cosmos_api
+  communication_cosmos_account = module.cosmos.io_com_cosmos_account
+  common_storage_account       = module.storage_api_weu.common_storage_account
 
   redis_cache = {
     id         = azurerm_redis_cache.com.id

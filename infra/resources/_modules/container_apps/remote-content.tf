@@ -25,7 +25,7 @@ module "remote_content_ca" {
         NODE_ENV                            = "production"
         PORT                                = 3000
         REMOTE_CONTENT_COSMOS_DATABASE_NAME = "remote-content-cosmos-01"
-        REMOTE_CONTENT_COSMOS_URI           = var.common_cosmos_account.endpoint
+        REMOTE_CONTENT_COSMOS_URI           = var.communication_cosmos_account.endpoint
         REDIS_URL                           = var.redis_cache.hostname
         REDIS_PORT                          = var.redis_cache.port
         REDIS_PASSWORD                      = var.redis_cache.access_key
@@ -60,8 +60,8 @@ module "remote_content_ca_role_assignments" {
 
   cosmos = [
     {
-      account_name        = var.common_cosmos_account.name
-      resource_group_name = var.common_cosmos_account.resource_group_name
+      account_name        = var.communication_cosmos_account.name
+      resource_group_name = var.communication_cosmos_account.resource_group_name
       description         = "Allow web app to read and write on cosmos containers"
       role                = "writer"
       database            = "remote-content-cosmos-01"
