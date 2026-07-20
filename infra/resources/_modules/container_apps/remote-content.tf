@@ -29,6 +29,7 @@ module "remote_content_ca" {
         REDIS_URL                           = var.redis_cache.hostname
         REDIS_PORT                          = var.redis_cache.port
         REDIS_PASSWORD                      = var.redis_cache.access_key
+        REDIS_TLS_ENABLED                   = "true"
       }
 
       liveness_probe = {
