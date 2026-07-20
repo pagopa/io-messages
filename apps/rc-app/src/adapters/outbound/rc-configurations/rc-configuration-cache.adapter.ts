@@ -10,9 +10,7 @@ import {
 } from "../../../application/ports/rc-configuration.js";
 import { RemoteContentCacheRepository } from "../../../application/ports/rc-configuration-cache.js";
 
-export const RC_CONFIGURATION_REDIS_PREFIX = "RC-CONFIGURATION";
-
-// getTask(redisClient, `${RC_CONFIGURATION_REDIS_PREFIX}-${configurationId}`)
+const RC_CONFIGURATION_REDIS_PREFIX = "RC-CONFIGURATION";
 
 export class RCConfigurationCacheAdapter
   implements RemoteContentCacheRepository
