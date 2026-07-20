@@ -7,6 +7,13 @@ module "container_apps" {
   common_cosmos_account  = data.azurerm_cosmosdb_account.cosmos_api
   common_storage_account = module.storage_api_weu.common_storage_account
 
+  redis_cache = {
+    id         = azurerm_redis_cache.com.id
+    hostname   = azurerm_redis_cache.com.hostname
+    port       = azurerm_redis_cache.com.ssl_port
+    access_key = azurerm_redis_cache.com.primary_access_key
+  }
+
   subscription_id = data.azurerm_subscription.current.subscription_id
 
   virtual_network                      = data.azurerm_virtual_network.vnet_common_itn

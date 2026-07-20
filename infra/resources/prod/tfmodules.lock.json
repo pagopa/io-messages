@@ -142,5 +142,17 @@
     "version": "3.0.0",
     "name": "azure_role_assignments",
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-role-assignments/azurerm/3.0.0"
+  },
+  "container_apps.remote_content_ca": {
+    "hash": "9571c4d329ac0e58d0ccfb4bc09705b009c66d0e9d154d4def5d043af1b4deb4",
+    "version": "5.0.0",
+    "name": "azure_container_app",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app/azurerm/5.0.0"
+  },
+  "container_apps.remote_content_ca_role_assignments": {
+    "hash": "a3799c27a216622ce77e31673e068e8c7ae702b6507fb76dc857e8a1afd83a58",
+    "version": "3.0.0",
+    "name": "azure_role_assignments",
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-role-assignments/azurerm/3.0.0"
   }
 }

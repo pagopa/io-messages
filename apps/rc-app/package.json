@@ -1,0 +1,44 @@
+{
+  "name": "rc-app",
+  "version": "0.0.0",
+  "private": false,
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/main.js",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "clean": "shx rm -rf dist",
+    "build": "tsc",
+    "build:watch": "tsc -w",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "lint": "pnpm lint:check --fix",
+    "lint:check": "eslint .",
+    "dev": "tsx --watch --env-file=.env src/main.ts",
+    "start": "node dist/main.js",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@azure/cosmos": "catalog:",
+    "redis": "catalog:",
+    "@azure/identity": "catalog:",
+    "@pagopa/hexagonal-core": "catalog:",
+    "@pagopa/hexagonal-fastify": "catalog:",
+    "fastify": "catalog:",
+    "neverthrow": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "@pagopa/eslint-config": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
