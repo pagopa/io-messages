@@ -62,7 +62,7 @@ module "remote_content_ca_role_assignments" {
     {
       account_name        = var.common_cosmos_account.name
       resource_group_name = var.common_cosmos_account.resource_group_name
-      description         = "Allow web app to read on cosmos containers"
+      description         = "Allow web app to read and write on cosmos containers"
       role                = "writer"
       database            = "remote-content-cosmos-01"
       collections         = ["message-configuration"]
