@@ -1,5 +1,9 @@
 import { CosmosClient, RestError } from "@azure/cosmos";
-import { GenericError, TooManyRequestsError } from "@pagopa/hexagonal-core";
+import {
+  GenericError,
+  NotFoundError,
+  TooManyRequestsError,
+} from "@pagopa/hexagonal-core";
 import { describe, expect, it, vi } from "vitest";
 
 import { RCConfigurationCosmosAdapter } from "../rc-configuration.adapter.js";
@@ -53,7 +57,7 @@ describe("RCConfigurationCosmosAdapter", () => {
       });
     });
 
-    it("returns a GenericError when no resources are found", async () => {
+    it("returns a NotFoundError when no resources are found", async () => {
       const { mockCosmosClient, mockFetchNext } = makeMocks();
       mockFetchNext.mockResolvedValueOnce({ resources: [] });
 
@@ -65,7 +69,7 @@ describe("RCConfigurationCosmosAdapter", () => {
         await adapter.getRemoteContentConfiguration(aConfigurationId);
 
       expect(result.isErr()).toBe(true);
-      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
     });
 
     it("returns a TooManyRequestsError when Cosmos responds with 429", async () => {

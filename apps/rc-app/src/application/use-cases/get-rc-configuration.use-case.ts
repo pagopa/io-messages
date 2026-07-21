@@ -1,5 +1,6 @@
 import type {
   GenericError,
+  NotFoundError,
   TooManyRequestsError,
   UseCase,
 } from "@pagopa/hexagonal-core";
@@ -10,15 +11,15 @@ import type {
   RemoteContentRepository,
 } from "../ports/rc-configuration.js";
 
-export type GetRcConfiguratioUseCase = UseCase<
+export type GetRcConfigurationUseCase = UseCase<
   {
     configurationId: RcConfigurationId;
   },
   RCConfiguration,
-  GenericError | TooManyRequestsError
+  GenericError | NotFoundError | TooManyRequestsError
 >;
 
 export const makeGetRcConfigurationUseCase =
-  (repository: RemoteContentRepository): GetRcConfiguratioUseCase =>
-  ({ configurationId }) =>
+  (repository: RemoteContentRepository): GetRcConfigurationUseCase =>
+  async ({ configurationId }) =>
     repository.getRemoteContentConfiguration(configurationId);

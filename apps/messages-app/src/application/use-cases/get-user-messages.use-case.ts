@@ -160,6 +160,10 @@ export const makeGetMessagesByUserUseCase =
 
       const messageMetadataPage = metadata.value;
 
+      if (messageMetadataPage.length === 0) {
+        break;
+      }
+
       // If we received fewer metadatas than the requested buffer, there are no
       // more messages to retrieve: we reached the end of the page. This also
       // avoids an extra empty round-trip to Cosmos just to discover the end.

@@ -1,6 +1,7 @@
 import z from "zod";
 
 import { RCConfiguration } from "../../../../application/ports/rc-configuration.js";
+import { FiscalCodeSchema } from "@pagopa/hexagonal-core";
 
 const RcClientCertDtoSchema = z.object({
   clientCert: z.string(),
@@ -21,7 +22,7 @@ const RcEnvironmentConfigDtoSchema = z.object({
 });
 
 const RcTestEnvironmentConfigDtoSchema = RcEnvironmentConfigDtoSchema.extend({
-  testUsers: z.array(z.string()),
+  testUsers: z.array(FiscalCodeSchema),
 });
 
 export const RcConfigurationResponseSchema = z.object({

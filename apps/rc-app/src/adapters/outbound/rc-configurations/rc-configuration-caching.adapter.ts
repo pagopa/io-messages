@@ -1,4 +1,8 @@
-import { GenericError, TooManyRequestsError } from "@pagopa/hexagonal-core";
+import {
+  GenericError,
+  NotFoundError,
+  TooManyRequestsError,
+} from "@pagopa/hexagonal-core";
 import { Result, err, ok } from "neverthrow";
 
 import {
@@ -16,7 +20,9 @@ export class CachingRemoteContentRepository implements RemoteContentRepository {
 
   async getRemoteContentConfiguration(
     configurationId: RcConfigurationId,
-  ): Promise<Result<RCConfiguration, GenericError | TooManyRequestsError>> {
+  ): Promise<
+    Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
+  > {
     const cached =
       await this.cache.getCachedRemoteContentConfiguration(configurationId);
     if (cached.isOk()) {

@@ -4,7 +4,7 @@ import { ProblemDetailsSchema, defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
 import z from "zod";
 
-import { GetRcConfiguratioUseCase } from "../../../application/use-cases/get-rc-configuration.use-case.js";
+import { GetRcConfigurationUseCase } from "../../../application/use-cases/get-rc-configuration.use-case.js";
 import {
   RcConfigurationResponseSchema,
   toRcConfigurationResponse,
@@ -14,11 +14,6 @@ const getRcConfigurationContract = defineRoute({
   method: "get",
   path: "/api/rc-configurations/{configurationId}",
   request: {
-    headers: z.object({
-      "X-Subscription-Id": z.string().min(1),
-      "X-User-Groups": z.string().min(1),
-      "X-User-Id": z.string().min(1),
-    }),
     path: z.object({
       configurationId: z.string().min(1),
     }),
@@ -34,7 +29,7 @@ const getRcConfigurationContract = defineRoute({
 
 export const mountGetRcConfigurationHandler = (
   server: FastifyInstance,
-  useCase: GetRcConfiguratioUseCase,
+  useCase: GetRcConfigurationUseCase,
 ): void => {
   mountFastifyRoute(server, {
     contract: getRcConfigurationContract,

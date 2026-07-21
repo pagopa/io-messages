@@ -1,6 +1,7 @@
 import {
   FiscalCodeSchema,
   GenericError,
+  NotFoundError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
 import { Result } from "neverthrow";
@@ -46,7 +47,16 @@ export const rcConfigurationSchema = z.object({
 export type RCConfiguration = z.TypeOf<typeof rcConfigurationSchema>;
 
 export interface RemoteContentRepository {
+  /**
+   * Returns the RC configuration identified by the given configuration ID.
+   *
+   * Returns a `NotFoundError` if no matching configuration exists, a
+   * `TooManyRequestsError` if the upstream store is rate-limiting requests,
+   * or a `GenericError` on other infrastructure failures.
+   */
   getRemoteContentConfiguration(
     configurationId: RcConfigurationId,
-  ): Promise<Result<RCConfiguration, GenericError | TooManyRequestsError>>;
+  ): Promise<
+    Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
+  >;
 }

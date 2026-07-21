@@ -79,3 +79,5 @@ catalog:
   "vitest": ^3.2.4
   "winston": ^3.18.3
   "zod": ^4.1.13
+  "fastify": "^5.8.5"
+  "neverthrow": "^8.2.0"
