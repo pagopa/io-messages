@@ -148,8 +148,8 @@ catalogs:
       specifier: ^2.16.11
       version: 2.16.11
     html-to-text:
-      specifier: ^4.0.0
-      version: 4.0.0
+      specifier: ^5.1.0
+      version: 5.1.1
     io-ts:
       specifier: ^2.2.22
       version: 2.2.22
@@ -938,7 +938,7 @@ importers:
         version: 2.16.11
       html-to-text:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 5.1.1
       io-messages-common-legacy:
         specifier: workspace:*
         version: link:../../packages/io-messages-common-legacy
@@ -4026,8 +4026,8 @@ packages:
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
 
-  html-to-text@4.0.0:
-    resolution: {integrity: sha512-QQl5EEd97h6+3crtgBhkEAO6sQnZyDff8DAeJzoSkOc1Dqe1UvTUZER0B+KjBe6fPZqq549l2VUhtracus3ndA==}
+  html-to-text@5.1.1:
+    resolution: {integrity: sha512-Bci6bD/JIfZSvG4s0gW/9mMKwBRoe/1RWLxUME/d6WUSZCdY7T60bssf/jFf7EYXRyqU4P5xdClVqiYU0/ypdA==}
     engines: {node: '>= 4.0.0'}
     hasBin: true
 
@@ -4671,9 +4671,6 @@ packages:
     resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
     engines: {node: '>=16 || 14 >=14.17'}
 
-  minimist@0.0.10:
-    resolution: {integrity: sha512-iotkTvxc+TwOm5Ieim8VnSNvCDjCK9S8G3scJ50ZthspSxa7jx50jkhYduuAtAjvfDUwSgOwf8+If99AlOEhyw==}
-
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
 
@@ -4839,9 +4836,6 @@ packages:
 
   openapi-types@10.0.0:
     resolution: {integrity: sha512-Y8xOCT2eiKGYDzMW9R4x5cmfc3vGaaI4EL2pwhDmodWw1HlK18YcZ4uJxc7Rdp7/gGzAygzH9SXr6GKYIXbRcQ==}
-
-  optimist@0.6.1:
-    resolution: {integrity: sha512-snN4O4TkigujZphWLN0E//nQmm7790RYaE53DdL7ZYwee2D8DDo9/EyYiKUfN3rneWUjhJnueija3G9I2i0h3g==}
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -6139,10 +6133,6 @@ packages:
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
     engines: {node: '>=0.10.0'}
-
-  wordwrap@0.0.3:
-    resolution: {integrity: sha512-1tMA907+V4QmxV7dbRvb4/8MaRALK6q9Abid3ndMYnbyo8piisCmeONVqVSXqQA3KaP4SLt5b7ud6E2sqP8TFw==}
-    engines: {node: '>=0.4.0'}
 
   wordwrap@1.0.0:
     resolution: {integrity: sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==}
@@ -9868,12 +9858,12 @@ snapshots:
 
   html-escaper@2.0.2: {}
 
-  html-to-text@4.0.0:
+  html-to-text@5.1.1:
     dependencies:
       he: 1.2.0
       htmlparser2: 3.10.1
       lodash: 4.17.21
-      optimist: 0.6.1
+      minimist: 1.2.8
 
   html-void-elements@1.0.5: {}
 
@@ -10517,8 +10507,6 @@ snapshots:
     dependencies:
       brace-expansion: 2.0.2
 
-  minimist@0.0.10: {}
-
   minimist@1.2.8: {}
 
   minipass@7.1.2: {}
@@ -10670,11 +10658,6 @@ snapshots:
       wsl-utils: 0.1.0
 
   openapi-types@10.0.0: {}
-
-  optimist@0.6.1:
-    dependencies:
-      minimist: 0.0.10
-      wordwrap: 0.0.3
 
   optionator@0.9.4:
     dependencies:
@@ -12099,8 +12082,6 @@ snapshots:
       winston-transport: 4.9.0
 
   word-wrap@1.2.5: {}
-
-  wordwrap@0.0.3: {}
 
   wordwrap@1.0.0: {}
 
