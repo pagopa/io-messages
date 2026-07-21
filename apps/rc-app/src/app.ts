@@ -48,6 +48,7 @@ export const createApp = async (
     socket: {
       host: config.REDIS_URL,
       port: config.REDIS_PORT,
+      tls: config.REDIS_TLS_ENABLED,
     },
   });
 

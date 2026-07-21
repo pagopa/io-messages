@@ -87,6 +87,15 @@ variable "common_cosmos_account" {
   })
 }
 
+variable "communication_cosmos_account" {
+  type = object({
+    id                  = string
+    name                = string
+    endpoint            = string
+    resource_group_name = string
+  })
+}
+
 variable "common_storage_account" {
   type = object({
     endpoint            = string

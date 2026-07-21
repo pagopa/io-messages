@@ -19,6 +19,7 @@ const baseConfigSchema = z.object({
   PORT: z.coerce.number().int().min(1025).max(65_535), // Read as string, parsed as integer.
   REDIS_PASSWORD: z.string().min(1),
   REDIS_PORT: z.coerce.number().int().min(1).max(65_535),
+  REDIS_TLS_ENABLED: z.stringbool().default(true),
   REDIS_URL: z.string().min(1),
   REMOTE_CONTENT_COSMOS_DATABASE_NAME: z.string().min(2),
   npm_package_name: z.string().min(3),
