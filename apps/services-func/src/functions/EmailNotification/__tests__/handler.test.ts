@@ -23,6 +23,7 @@ import {
 } from "@pagopa/ts-commons/lib/strings";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
+import { HtmlToTextOptions } from "html-to-text";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { aFiscalCode } from "../../../__mocks__/mocks";
@@ -105,8 +106,10 @@ const aSenderMetadata: CreatedMessageEventSenderMetadata = {
 };
 
 const HTML_TO_TEXT_OPTIONS: HtmlToTextOptions = {
-  ignoreImage: true, // ignore all document images
-  tables: true,
+  selectors: [
+    { format: "skip", selector: "img" }, // ignore all document images
+    { format: "dataTable", selector: "table.class#id" },
+  ],
 };
 
 const MAIL_FROM =

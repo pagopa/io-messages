@@ -32,7 +32,6 @@
     "@pagopa/eslint-config": "catalog:",
     "@pagopa/openapi-codegen-ts": "catalog:",
     "@types/express": "catalog:",
-    "@types/html-to-text": "catalog:",
     "@types/node": "catalog:",
     "@types/redis": "catalog:",
     "@vitest/coverage-v8": "catalog:",
