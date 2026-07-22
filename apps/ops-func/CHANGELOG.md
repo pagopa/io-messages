@@ -1,5 +1,11 @@
 # ops-func
 
+## 1.0.7
+
+### Patch Changes
+
+- 8481f33: Bump fast-xml-parser
+
 ## 1.0.6
 
 ### Patch Changes

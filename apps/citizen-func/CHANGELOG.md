@@ -1,5 +1,11 @@
 ### Changelog
 
+## 6.0.14
+
+### Patch Changes
+
+- 8481f33: Bump fast-xml-parser
+
 ## 6.0.13
 
 ### Patch Changes
