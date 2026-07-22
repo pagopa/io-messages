@@ -1,5 +1,11 @@
 # rc-app
 
+## 0.1.0
+
+### Minor Changes
+
+- 4d1a8a3: Add getRCConfiguration API
+
 ## 0.0.2
 
 ### Patch Changes
