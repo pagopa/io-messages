@@ -7,6 +7,7 @@ const key =
   process.env.COSMOSDB_KEY ||
   "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 const databaseId = process.env.COSMOSDB_NAME || "io-messages";
+const remoteContentDatabaseId = "remote-content";
 const healthUrl = process.env.COSMOSDB_HEALTH_URL || "http://cosmos:8080/ready";
 
 const cosmosClient = new CosmosClient({
@@ -23,6 +24,10 @@ const containers = [
   { id: "profiles", partitionKey: "/fiscalCode" },
   { id: "services", partitionKey: "/serviceId" },
   { id: "notifications", partitionKey: "/messageId" },
+];
+
+const remoteContentContainers = [
+  { id: "message-configuration", partitionKey: "/configurationId" },
 ];
 
 const profiles = [
@@ -159,6 +164,22 @@ const services = [
   },
 ];
 
+const RCMessageConfigurations = [
+  {
+    containerId: "message-configuration",
+    document: {
+      configurationId: "01HMVMCDD3JFYTPKT4ZN4WQ73B",
+      description: "A new RC Configuration fortesting purpose",
+      disableLollipopFor: [],
+      hasPrecondition: "NEVER",
+      id: "01HMVMCDD3JFYTPKT4ZN4WQ73B",
+      isLollipopEnabled: false,
+      name: "Updated configuration",
+      userId: "local",
+    },
+  },
+];
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const waitForCosmos = async () => {
@@ -205,6 +226,7 @@ const addDocumentToContainer = async (database, containerId, document) => {
   }
 };
 
+//messages containers creation
 (async () => {
   await waitForCosmos();
 
@@ -227,6 +249,28 @@ const addDocumentToContainer = async (database, containerId, document) => {
 
   await Promise.all(
     services.map(({ containerId, document }) =>
+      addDocumentToContainer(database, containerId, document),
+    ),
+  );
+})();
+
+//remote content containers creation
+(async () => {
+  await waitForCosmos();
+
+  const { database } = await cosmosClient.databases.createIfNotExists({
+    id: remoteContentDatabaseId,
+  });
+  console.log(`Database ${remoteContentDatabaseId} ready.`);
+
+  await Promise.all(
+    remoteContentContainers.map((container) =>
+      createContainerIfNotExists(database, container),
+    ),
+  );
+
+  await Promise.all(
+    RCMessageConfigurations.map(({ containerId, document }) =>
       addDocumentToContainer(database, containerId, document),
     ),
   );
