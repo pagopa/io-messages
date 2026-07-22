@@ -1,7 +1,7 @@
+import { FiscalCodeSchema } from "@pagopa/hexagonal-core";
 import z from "zod";
 
 import { RCConfiguration } from "../../../../application/ports/rc-configuration.js";
-import { FiscalCodeSchema } from "@pagopa/hexagonal-core";
 
 const RcClientCertDtoSchema = z.object({
   clientCert: z.string(),
