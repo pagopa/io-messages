@@ -12,7 +12,7 @@ import {
 
 const getRcConfigurationContract = defineRoute({
   method: "get",
-  path: "/api/rc-configurations/{configurationId}",
+  path: "/api/internal/rc-configurations/{configurationId}",
   request: {
     path: z.object({
       configurationId: z.string().min(1),
