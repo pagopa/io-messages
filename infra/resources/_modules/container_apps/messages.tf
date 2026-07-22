@@ -1,6 +1,6 @@
 module "messages_ca" {
   source  = "pagopa-dx/azure-container-app/azurerm"
-  version = "~> 5.0"
+  version = "~> 6.0"
 
   environment = {
     prefix          = var.environment.prefix
@@ -91,3 +91,4 @@ resource "azurerm_role_assignment" "messages_ca_appinsights_metrics_publisher" {
   principal_id         = module.messages_ca.principal_id
   description          = "Allow messages container app to publish telemetry to Application Insights"
 }
+
