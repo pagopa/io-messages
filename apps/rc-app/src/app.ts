@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
 import fastify from "fastify";
-import { createClient } from "redis";
+import { type RedisClientType, createClient } from "redis";
 
 import { AppConfig } from "./adapters/inbound/config/config.js";
 import { mountGetRcConfigurationHandler } from "./adapters/inbound/fastify/get-rc-configuration.handler.js";
@@ -48,7 +48,7 @@ export const createApp = async (
           endpoint: config.REMOTE_CONTENT_COSMOS_URI,
         });
 
-  const redisClient = createClient({
+  const redisClient: RedisClientType = createClient({
     password: config.REDIS_PASSWORD,
     socket: {
       host: config.REDIS_URL,
@@ -68,7 +68,7 @@ export const createApp = async (
     server,
     makeHealthcheckUseCase([
       new CosmosClientHealthcheckAdapter(commonCosmosClient, "common-cosmos"),
-      new RedisClientHealthcheckAdapter(redisClient as never, "redis"),
+      new RedisClientHealthcheckAdapter(redisClient, "redis"),
     ]),
   );
 
@@ -80,7 +80,7 @@ export const createApp = async (
           commonCosmosClient,
           config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
         ),
-        new RCConfigurationCacheAdapter(redisClient as never),
+        new RCConfigurationCacheAdapter(redisClient),
       ),
     ),
   );
