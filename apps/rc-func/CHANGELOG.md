@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.0.10
+
+### Patch Changes
+
+- 8481f33: Bump fast-xml-parser
+
 ## 2.0.9
 
 ### Patch Changes
