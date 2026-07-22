@@ -1,5 +1,11 @@
 # services-func
 
+## 2.1.7
+
+### Patch Changes
+
+- 8481f33: Bump fast-xml-parser
+
 ## 2.1.6
 
 ### Patch Changes

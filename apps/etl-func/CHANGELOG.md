@@ -1,5 +1,11 @@
 # etl-func
 
+## 1.0.14
+
+### Patch Changes
+
+- 8481f33: Bump fast-xml-parser
+
 ## 1.0.13
 
 ### Patch Changes

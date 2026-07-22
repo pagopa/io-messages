@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 2.1.9
+
+### Patch Changes
+
+- 8481f33: Bump fast-xml-parser
+
 ## 2.1.8
 
 ### Patch Changes
