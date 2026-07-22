@@ -46,6 +46,7 @@ import { Millisecond } from "@pagopa/ts-commons/lib/units";
 import { Second } from "@pagopa/ts-commons/lib/units";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
+import { HtmlToTextOptions } from "html-to-text";
 import { MessageContentBlobAdapter } from "io-messages-common-legacy/adapters/message-content";
 
 import { pagoPaEcommerceClient } from "./clients/pagopa-ecommerce";
@@ -300,8 +301,10 @@ app.storageQueue("CreateNotification", {
 // ---------------------------------------------------------------------------
 
 const HTML_TO_TEXT_OPTIONS: HtmlToTextOptions = {
-  ignoreImage: true, // ignore all document images
-  tables: true,
+  selectors: [
+    { format: "skip", selector: "img" }, // ignore all document images
+    { format: "dataTable", selector: "table.class#id" },
+  ],
 };
 
 const emailNotificationHandler = getEmailNotificationHandler(

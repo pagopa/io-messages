@@ -85,8 +85,8 @@ catalogs:
       specifier: ^4.19.7
       version: 4.19.7
     "@types/html-to-text":
-      specifier: ^1.4.31
-      version: 1.4.31
+      specifier: ^9.0.4
+      version: 9.0.4
     "@types/lolex":
       specifier: ^5.1.6
       version: 5.1.6
@@ -148,8 +148,8 @@ catalogs:
       specifier: ^2.16.11
       version: 2.16.11
     html-to-text:
-      specifier: ^4.0.0
-      version: 4.0.0
+      specifier: ^10.0.0
+      version: 10.0.0
     io-ts:
       specifier: ^2.2.22
       version: 2.2.22
@@ -308,9 +308,6 @@ importers:
       "@types/express":
         specifier: "catalog:"
         version: 4.17.25
-      "@types/html-to-text":
-        specifier: "catalog:"
-        version: 1.4.31
       "@types/node":
         specifier: "catalog:"
         version: 24.13.1
@@ -937,7 +934,7 @@ importers:
         version: 2.16.11
       html-to-text:
         specifier: "catalog:"
-        version: 4.0.0
+        version: 10.0.0
       io-messages-common-legacy:
         specifier: workspace:*
         version: link:../../packages/io-messages-common-legacy
@@ -992,7 +989,7 @@ importers:
         version: 4.19.7
       "@types/html-to-text":
         specifier: "catalog:"
-        version: 1.4.31
+        version: 9.0.4
       "@types/lolex":
         specifier: "catalog:"
         version: 5.1.6
@@ -3368,6 +3365,14 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  "@selderee/plugin-htmlparser2@0.12.0":
+    resolution:
+      {
+        integrity: sha512-oELmoyA6ML9jDRMV3kgcMQFKxUfBU0yFVn6yTctVaLT5ygXnxH52I3TZEgV9EhXJC68/uFvE5Daj1/25c0Xa/A==,
+      }
+    peerDependencies:
+      selderee: ~0.12.0
+
   "@sendgrid/client@6.5.5":
     resolution:
       {
@@ -3487,10 +3492,10 @@ packages:
         integrity: sha512-dVd04UKsfpINUnK0yBoYHDF3xu7xVH4BuDotC/xGuycx4CgbP48X/KF/586bcObxT0HENHXEU8Nqtu6NR+eKhw==,
       }
 
-  "@types/html-to-text@1.4.31":
+  "@types/html-to-text@9.0.4":
     resolution:
       {
-        integrity: sha512-9vTFw6vYZNnjPOep9WRXs7cw0vg04pAZgcX9bqx70q1BNT7y9sOJovpbiNIcSNyHF/6LscLvGhtb5Og1T0UEvA==,
+        integrity: sha512-pUY3cKH/Nm2yYrEmDlPR1mR7yszjGx4DrwPjQ702C4/D5CwHuZTgZdIdwPkRbcuhs7BAh2L5rg3CL5cbRiGTCQ==,
       }
 
   "@types/http-errors@2.0.5":
@@ -4840,6 +4845,13 @@ packages:
         integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==,
       }
 
+  deepmerge-ts@7.1.5:
+    resolution:
+      {
+        integrity: sha512-HOJkrhaYsweh+W+e74Yn7YStZOilkoPb6fycpwNLKzSPtruFs48nYis0zy5yJz1+ktUhHxoRDJ27RQAWLIJVJw==,
+      }
+    engines: { node: ">=16.0.0" }
+
   deepmerge@4.3.1:
     resolution:
       {
@@ -4984,16 +4996,10 @@ packages:
       }
     deprecated: We recently announced deprecation of JS v1 SDK. Starting September 2020 Microsoft will not provide support for this library. Existing applications using this library will continue to work as-is. We strongly recommend upgrading to @azure/cosmos library. Please file any issues in the Azure SDK for JS repo https://github.com/Azure/azure-sdk-for-js
 
-  dom-serializer@0.2.2:
+  dom-serializer@2.0.0:
     resolution:
       {
-        integrity: sha512-2/xPb3ORsQ42nHYiSunXkDjPLBaEj/xTwUO4B7XCZQTRk7EBtTOPaygh10YAAh2OI1Qrp6NWfpAhzswj0ydt9g==,
-      }
-
-  domelementtype@1.3.1:
-    resolution:
-      {
-        integrity: sha512-BSKB+TSpMpFI/HOxCNr1O8aMOTZ8hT3pM3GQ0w/mWRmkhEDSFJkkyzz4XQsBV44BChwGkrDfMyjVD0eA2aFV3w==,
+        integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==,
       }
 
   domelementtype@2.3.0:
@@ -5002,16 +5008,17 @@ packages:
         integrity: sha512-OLETBj6w0OsagBwdXnPdN0cnMfF9opN69co+7ZrbfPGrdpPVNBUj02spi6B1N7wChLQiPn4CSH/zJvXw56gmHw==,
       }
 
-  domhandler@2.4.2:
+  domhandler@5.0.3:
     resolution:
       {
-        integrity: sha512-JiK04h0Ht5u/80fdLMCEmV4zkNh2BcoMFBmZ/91WtYZ8qVXSKjiw7fXMgFPnHcSZgOo3XdinHvmnDUeMf5R4wA==,
+        integrity: sha512-cgwlv/1iFQiFnU96XXgROh8xTeetsnJiDsTc7TYCLFd9+/WNkIqPTxiM/8pSd8VIrhXGTf1Ny1q1hquVqDJB5w==,
       }
+    engines: { node: ">= 4" }
 
-  domutils@1.7.0:
+  domutils@3.2.2:
     resolution:
       {
-        integrity: sha512-Lgd2XcJ/NjEw+7tFvfKxOzCYKZsdct5lczQ2ZaQY8Djz7pfAD3Gbp8ySJWtreII/vDlMVmxwa6pHmdxIYgttDg==,
+        integrity: sha512-6kZKyUajlDuqlHKVX1w7gyslj9MPIXzIFiz/rGu35uC1wMi+kMhQwGhl4lt9unC9Vb9INnY9Z3/ZA3+FhASLaw==,
       }
 
   dotenv-cli@3.2.0:
@@ -5130,17 +5137,19 @@ packages:
       }
     engines: { node: ">=8.6" }
 
-  entities@1.1.2:
+  entities@4.5.0:
     resolution:
       {
-        integrity: sha512-f2LZMYl1Fzu7YSBKg+RoROelpOaNrcGmE9AZubeDfrCEia483oW4MI4VyFd5VNHIgQ/7qm1I0wUHK1eJnn2y2w==,
+        integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==,
       }
+    engines: { node: ">=0.12" }
 
-  entities@2.2.0:
+  entities@7.0.1:
     resolution:
       {
-        integrity: sha512-p92if5Nz619I0w+akJrLZH0MX0Pb5DX39XOwQTtXSdQQOaYH03S1uIQp4mhOZtAXrxq4ViO67YTiLBo2638o9A==,
+        integrity: sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==,
       }
+    engines: { node: ">=0.12" }
 
   error-ex@1.3.4:
     resolution:
@@ -6022,13 +6031,6 @@ packages:
         integrity: sha512-I5GTdSfhYfAPNztx2xJRQpG8cuDSNt599/7YUn7Gx/WxNMsG+a835k97TDkFgk123cwjfwINaZknkKkphx/f2A==,
       }
 
-  he@1.2.0:
-    resolution:
-      {
-        integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==,
-      }
-    hasBin: true
-
   helmet-csp@2.10.0:
     resolution:
       {
@@ -6055,13 +6057,12 @@ packages:
         integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==,
       }
 
-  html-to-text@4.0.0:
+  html-to-text@10.0.0:
     resolution:
       {
-        integrity: sha512-QQl5EEd97h6+3crtgBhkEAO6sQnZyDff8DAeJzoSkOc1Dqe1UvTUZER0B+KjBe6fPZqq549l2VUhtracus3ndA==,
+        integrity: sha512-2OH59Gtprdczel+7Rxgpz9hGVJREaf8Lt1H4kZwWHpEn70VQKRuMNGsb2eDbwaTzrYzb0hheiOG1P7Dim0B4dQ==,
       }
-    engines: { node: ">= 4.0.0" }
-    hasBin: true
+    engines: { node: ">=20.19.0" }
 
   html-void-elements@1.0.5:
     resolution:
@@ -6069,10 +6070,10 @@ packages:
         integrity: sha512-uE/TxKuyNIcx44cIWnjr/rfIATDH7ZaOMmstu0CwhFG1Dunhlp4OC6/NMbhiwoq5BpW0ubi303qnEk/PZj614w==,
       }
 
-  htmlparser2@3.10.1:
+  htmlparser2@10.1.0:
     resolution:
       {
-        integrity: sha512-IgieNijUMbkDovyoKObU1DUhm1iwNYE/fuifEoEHfd1oZKZDaONBSkal7Y01shxsM49R4XaMdGez3WnF9UfiCQ==,
+        integrity: sha512-VTZkM9GWRAtEpveh7MSF6SjjrpNVNNVJfFup7xTY3UpFtm67foy9HDVXneLtFVt4pMz5kZtgNcvCniNFb1hlEQ==,
       }
 
   http-errors@2.0.0:
@@ -6889,6 +6890,12 @@ packages:
         integrity: sha512-Xq9nH7KlWZmXAtodXDDRE7vs6DU1gTU8zYDHDiWLSip45Egwq3plLHzPn27NgvzL2r1LMPC1vdqh98sQxtqj4A==,
       }
 
+  leac@0.7.0:
+    resolution:
+      {
+        integrity: sha512-qMrZeyEekgdRQ9o6a4NAB2EQZrv827GJdn1vnapwSJ90hWRB4TzUSunvacPkxQ2TnNqHNI1/zSt0hlo0crG8Jw==,
+      }
+
   levn@0.4.1:
     resolution:
       {
@@ -7228,12 +7235,6 @@ packages:
       }
     engines: { node: ">=16 || 14 >=14.17" }
 
-  minimist@0.0.10:
-    resolution:
-      {
-        integrity: sha512-iotkTvxc+TwOm5Ieim8VnSNvCDjCK9S8G3scJ50ZthspSxa7jx50jkhYduuAtAjvfDUwSgOwf8+If99AlOEhyw==,
-      }
-
   minimist@1.2.8:
     resolution:
       {
@@ -7526,12 +7527,6 @@ packages:
         integrity: sha512-Y8xOCT2eiKGYDzMW9R4x5cmfc3vGaaI4EL2pwhDmodWw1HlK18YcZ4uJxc7Rdp7/gGzAygzH9SXr6GKYIXbRcQ==,
       }
 
-  optimist@0.6.1:
-    resolution:
-      {
-        integrity: sha512-snN4O4TkigujZphWLN0E//nQmm7790RYaE53DdL7ZYwee2D8DDo9/EyYiKUfN3rneWUjhJnueija3G9I2i0h3g==,
-      }
-
   optionator@0.9.4:
     resolution:
       {
@@ -7648,6 +7643,12 @@ packages:
       }
     engines: { node: ">=4" }
 
+  parseley@0.13.1:
+    resolution:
+      {
+        integrity: sha512-uNBJZzmb60l6p6VWLTmevizNAGnE0xoSf1n0B4q3ntegDNzcS68NRCcBDZTcyXHxt2XhBChsCuqj4M+nChvE/A==,
+      }
+
   parseurl@1.3.3:
     resolution:
       {
@@ -7740,6 +7741,12 @@ packages:
         integrity: sha512-//nshmD55c46FuFw26xV/xFAaB5HF9Xdap7HJBBnrKdAd6/GxDBaNA1870O79+9ueg61cZLSVc+OaFlfmObYVQ==,
       }
     engines: { node: ">= 14.16" }
+
+  peberminta@0.10.0:
+    resolution:
+      {
+        integrity: sha512-80B2AsU+I4Qdb0ZAPSfe9UwvGzwkM37IKIFEvdS3D/3Ndgv2bsuJ0bfG1+iEYO+l7Gfd4EUJmuRyq7efLgRMzQ==,
+      }
 
   performance-now@2.1.0:
     resolution:
@@ -8406,6 +8413,12 @@ packages:
     resolution:
       {
         integrity: sha512-l4KnYfEyqYJxDwlNVyRfO2E4NTHfMKAWdUuA8J0yve2Dz/E/PdBepY03RvyJpssIpRFwJoCD55wA+mEDs6ByWA==,
+      }
+
+  selderee@0.12.0:
+    resolution:
+      {
+        integrity: sha512-b1YMh3+DHZp59DLna3qVwQ5iOla/nrI6mLBNW02XxU77M3046Df6VLkoaJyFz20VsGIG5kkp+FK0kg4K4HnUFw==,
       }
 
   semaphore@1.0.5:
@@ -9785,13 +9798,6 @@ packages:
         integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==,
       }
     engines: { node: ">=0.10.0" }
-
-  wordwrap@0.0.3:
-    resolution:
-      {
-        integrity: sha512-1tMA907+V4QmxV7dbRvb4/8MaRALK6q9Abid3ndMYnbyo8piisCmeONVqVSXqQA3KaP4SLt5b7ud6E2sqP8TFw==,
-      }
-    engines: { node: ">=0.4.0" }
 
   wordwrap@1.0.0:
     resolution:
@@ -11817,6 +11823,12 @@ snapshots:
   "@rollup/rollup-win32-x64-msvc@4.53.3":
     optional: true
 
+  "@selderee/plugin-htmlparser2@0.12.0(selderee@0.12.0)":
+    dependencies:
+      domelementtype: 2.3.0
+      domhandler: 5.0.3
+      selderee: 0.12.0
+
   "@sendgrid/client@6.5.5":
     dependencies:
       "@sendgrid/helpers": 6.5.5
@@ -11891,7 +11903,7 @@ snapshots:
       "@types/qs": 6.14.0
       "@types/serve-static": 1.15.10
 
-  "@types/html-to-text@1.4.31": {}
+  "@types/html-to-text@9.0.4": {}
 
   "@types/http-errors@2.0.5": {}
 
@@ -12706,6 +12718,8 @@ snapshots:
 
   deep-is@0.1.4: {}
 
+  deepmerge-ts@7.1.5: {}
+
   deepmerge@4.3.1: {}
 
   default-browser-id@5.0.1: {}
@@ -12789,23 +12803,23 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  dom-serializer@0.2.2:
+  dom-serializer@2.0.0:
     dependencies:
       domelementtype: 2.3.0
-      entities: 2.2.0
-
-  domelementtype@1.3.1: {}
+      domhandler: 5.0.3
+      entities: 4.5.0
 
   domelementtype@2.3.0: {}
 
-  domhandler@2.4.2:
+  domhandler@5.0.3:
     dependencies:
-      domelementtype: 1.3.1
+      domelementtype: 2.3.0
 
-  domutils@1.7.0:
+  domutils@3.2.2:
     dependencies:
-      dom-serializer: 0.2.2
-      domelementtype: 1.3.1
+      dom-serializer: 2.0.0
+      domelementtype: 2.3.0
+      domhandler: 5.0.3
 
   dotenv-cli@3.2.0:
     dependencies:
@@ -12873,9 +12887,9 @@ snapshots:
       ansi-colors: 4.1.3
       strip-ansi: 6.0.1
 
-  entities@1.1.2: {}
+  entities@4.5.0: {}
 
-  entities@2.2.0: {}
+  entities@7.0.1: {}
 
   error-ex@1.3.4:
     dependencies:
@@ -13576,8 +13590,6 @@ snapshots:
 
   hast-util-whitespace@1.0.4: {}
 
-  he@1.2.0: {}
-
   helmet-csp@2.10.0:
     dependencies:
       bowser: 2.9.0
@@ -13591,23 +13603,22 @@ snapshots:
 
   html-escaper@2.0.2: {}
 
-  html-to-text@4.0.0:
+  html-to-text@10.0.0:
     dependencies:
-      he: 1.2.0
-      htmlparser2: 3.10.1
-      lodash: 4.17.21
-      optimist: 0.6.1
+      "@selderee/plugin-htmlparser2": 0.12.0(selderee@0.12.0)
+      deepmerge-ts: 7.1.5
+      dom-serializer: 2.0.0
+      htmlparser2: 10.1.0
+      selderee: 0.12.0
 
   html-void-elements@1.0.5: {}
 
-  htmlparser2@3.10.1:
+  htmlparser2@10.1.0:
     dependencies:
-      domelementtype: 1.3.1
-      domhandler: 2.4.2
-      domutils: 1.7.0
-      entities: 1.1.2
-      inherits: 2.0.4
-      readable-stream: 3.6.2
+      domelementtype: 2.3.0
+      domhandler: 5.0.3
+      domutils: 3.2.2
+      entities: 7.0.1
 
   http-errors@2.0.0:
     dependencies:
@@ -14069,6 +14080,8 @@ snapshots:
 
   kuler@2.0.0: {}
 
+  leac@0.7.0: {}
+
   levn@0.4.1:
     dependencies:
       prelude-ls: 1.2.1
@@ -14240,8 +14253,6 @@ snapshots:
     dependencies:
       brace-expansion: 2.0.2
 
-  minimist@0.0.10: {}
-
   minimist@1.2.8: {}
 
   minipass@7.1.2: {}
@@ -14394,11 +14405,6 @@ snapshots:
 
   openapi-types@10.0.0: {}
 
-  optimist@0.6.1:
-    dependencies:
-      minimist: 0.0.10
-      wordwrap: 0.0.3
-
   optionator@0.9.4:
     dependencies:
       deep-is: 0.1.4
@@ -14484,6 +14490,11 @@ snapshots:
       error-ex: 1.3.4
       json-parse-better-errors: 1.0.2
 
+  parseley@0.13.1:
+    dependencies:
+      leac: 0.7.0
+      peberminta: 0.10.0
+
   parseurl@1.3.3: {}
 
   path-exists@4.0.0: {}
@@ -14523,6 +14534,8 @@ snapshots:
   pathe@2.0.3: {}
 
   pathval@2.0.1: {}
+
+  peberminta@0.10.0: {}
 
   performance-now@2.1.0: {}
 
@@ -14944,6 +14957,10 @@ snapshots:
   sax@0.5.8: {}
 
   secure-json-parse@4.1.0: {}
+
+  selderee@0.12.0:
+    dependencies:
+      parseley: 0.13.1
 
   semaphore@1.0.5: {}
 
@@ -15822,8 +15839,6 @@ snapshots:
       winston-transport: 4.9.0
 
   word-wrap@1.2.5: {}
-
-  wordwrap@0.0.3: {}
 
   wordwrap@1.0.0: {}
 

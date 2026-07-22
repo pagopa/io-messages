@@ -1,5 +1,11 @@
 # services-func
 
+## 2.1.6
+
+### Patch Changes
+
+- c76ee5e: Resolve minimist vulnerabilities
+
 ## 2.1.5
 
 ### Patch Changes

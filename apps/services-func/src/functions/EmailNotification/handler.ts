@@ -10,7 +10,7 @@ import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
-import * as HtmlToText from "html-to-text";
+import { HtmlToTextOptions, convert } from "html-to-text";
 import * as t from "io-ts";
 import * as NodeMailer from "nodemailer";
 
@@ -136,7 +136,7 @@ export const getEmailNotificationHandler = (
           )();
 
           // converts the HTML to pure text to generate the text version of the message
-          const bodyText = HtmlToText.fromString(
+          const bodyText = convert(
             documentHtml,
             notificationDefaultParams.HTML_TO_TEXT_OPTIONS,
           );
