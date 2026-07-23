@@ -75,9 +75,6 @@ catalogs:
     '@pagopa/ts-commons':
       specifier: ^13.1.2
       version: 13.1.2
-    '@types/documentdb':
-      specifier: ^1.10.13
-      version: 1.10.13
     '@types/express':
       specifier: ^4.17.25
       version: 4.17.25
@@ -123,9 +120,6 @@ catalogs:
     date-fns:
       specifier: ^4.1.0
       version: 4.1.0
-    documentdb:
-      specifier: ^1.15.3
-      version: 1.15.3
     durable-functions:
       specifier: ^3.3.0
       version: 3.3.0
@@ -921,9 +915,6 @@ importers:
       date-fns:
         specifier: 'catalog:'
         version: 4.1.0
-      documentdb:
-        specifier: 'catalog:'
-        version: 1.15.3
       express:
         specifier: 'catalog:'
         version: 4.21.2
@@ -982,9 +973,6 @@ importers:
       '@pagopa/openapi-codegen-ts':
         specifier: 'catalog:'
         version: 14.0.1(chokidar@3.6.0)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
-      '@types/documentdb':
-        specifier: 'catalog:'
-        version: 1.10.13
       '@types/express-serve-static-core':
         specifier: 'catalog:'
         version: 4.19.7
@@ -2567,9 +2555,6 @@ packages:
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
-  '@types/documentdb@1.10.13':
-    resolution: {integrity: sha512-fIZNlSx+HFlw+fvmAUuW8mR+5VELHbDRXr/z5xfei3qgbnt2l9uMGfDvSEq2wUWkVomtgo2+/TBwvXBYHYFwGQ==}
-
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
@@ -3011,16 +2996,9 @@ packages:
     resolution: {integrity: sha512-pbnl5XzGBdrFU/wT4jqmJVPn2B6UHPBOhzMQkY/SPUPB6QtUXtmBHBIwCbXJol93mOpGMnQyP/+BB19q04xj7g==}
     engines: {node: '>=4'}
 
-  big-integer@1.6.52:
-    resolution: {integrity: sha512-QxD8cf2eVqJOOz63z6JIN9BzvVs/dlySa5HGSBH5xtR8dPteIRQnBxxKqkNTiT6jbDTF6jAfrd4oMcND9RGbQg==}
-    engines: {node: '>=0.6'}
-
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
-
-  binary-search-bounds@2.0.3:
-    resolution: {integrity: sha512-GMGnMG7owGQwTBNWdOnWvU6KC2k/lULWdbdXq95kxJHdTzeDa9x8QNwMXCv/7pfPGx9Zdi1nmCDZ0j+Tmk+vRg==}
 
   body-parser@1.20.3:
     resolution: {integrity: sha512-7rAxByjUMqQ3/bHJy7D6OGXvx/MMc4IqBn/X0fcM1QUcAItpZrBEYhWGem+tzXH90c+G01ypMcYJBO9Y30203g==}
@@ -3424,10 +3402,6 @@ packages:
   doctrine@3.0.0:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
-
-  documentdb@1.15.3:
-    resolution: {integrity: sha512-V+B0D1arcWVT3uv/Nms2aNNeJBgndysDcXfyOFgz2dlMCmY8cWMFXFuo+6T4A8PjLL2pI9QSoo4CwXQBREFcnA==}
-    deprecated: We recently announced deprecation of JS v1 SDK. Starting September 2020 Microsoft will not provide support for this library. Existing applications using this library will continue to work as-is. We strongly recommend upgrading to @azure/cosmos library. Please file any issues in the Azure SDK for JS repo https://github.com/Azure/azure-sdk-for-js
 
   dom-serializer@2.0.0:
     resolution: {integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==}
@@ -4117,9 +4091,6 @@ packages:
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
-
-  int64-buffer@0.1.10:
-    resolution: {integrity: sha512-v7cSY1J8ydZ0GyjUHqF+1bshJ6cnEVLo9EnjB8p+4HDRPZc9N5jjmvUV7NvEsqQOKyH0pmIBFWXVQbiS0+OBbA==}
 
   internal-slot@1.1.0:
     resolution: {integrity: sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==}
@@ -5083,9 +5054,6 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
-  priorityqueuejs@1.0.0:
-    resolution: {integrity: sha512-lg++21mreCEOuGWTbO5DnJKAdxfjrdN0S9ysoW9SzdSJvbkWpkaDdpG/cdsPCsEnoLUwmd9m3WcZhngW7yKA2g==}
-
   priorityqueuejs@2.0.0:
     resolution: {integrity: sha512-19BMarhgpq3x4ccvVi8k2QpJZcymo/iFUcrhPd4V96kYGovOdTsWwy7fxChYi4QY+m2EnGBWSX9Buakz+tWNQQ==}
 
@@ -5351,10 +5319,6 @@ packages:
 
   selderee@0.12.0:
     resolution: {integrity: sha512-b1YMh3+DHZp59DLna3qVwQ5iOla/nrI6mLBNW02XxU77M3046Df6VLkoaJyFz20VsGIG5kkp+FK0kg4K4HnUFw==}
-
-  semaphore@1.0.5:
-    resolution: {integrity: sha512-15WnK4TxpOk33fL0UoDnJ5myIWwJiodIZHtPRBoSxcaADt1Tm7kxEERd8n0vsw6OWsXwCCeROjSKU9MqfHaS1A==}
-    engines: {node: '>=0.8.0'}
 
   semaphore@1.1.0:
     resolution: {integrity: sha512-O4OZEaNtkMd/K0i6js9SL+gqy0ZCBMgUvlSqHKi4IBdjhe7wB8pwztUk1BbZ1fmrvpwFrPbHzqd2w5pTcJH6LA==}
@@ -5747,10 +5711,6 @@ packages:
   tunnel-agent@0.6.0:
     resolution: {integrity: sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w==}
 
-  tunnel@0.0.5:
-    resolution: {integrity: sha512-gj5sdqherx4VZKMcBA4vewER7zdK25Td+z1npBqpbDys4eJrLx+SlYjJvq1bDXs2irkuJM5pf8ktaEQVipkrbA==}
-    engines: {node: '>=0.6.11 <=0.7.0 || >=0.7.3'}
-
   turbo-darwin-64@2.5.0:
     resolution: {integrity: sha512-fP1hhI9zY8hv0idym3hAaXdPi80TLovmGmgZFocVAykFtOxF+GlfIgM/l4iLAV9ObIO4SUXPVWHeBZQQ+Hpjag==}
     cpu: [x64]
@@ -5870,9 +5830,6 @@ packages:
 
   underscore@1.13.7:
     resolution: {integrity: sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g==}
-
-  underscore@1.8.3:
-    resolution: {integrity: sha512-5WsVTFcH1ut/kkhAaHf4PVgI8c7++GiVcpCGxPouI6ZVjsqPnSDf8h/8HtVqc0t4fzRXwnMK70EcZeAs3PIddg==}
 
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
@@ -8179,10 +8136,6 @@ snapshots:
 
   '@types/deep-eql@4.0.2': {}
 
-  '@types/documentdb@1.10.13':
-    dependencies:
-      '@types/node': 24.13.1
-
   '@types/estree@1.0.8': {}
 
   '@types/express-serve-static-core@4.19.7':
@@ -8711,11 +8664,7 @@ snapshots:
     dependencies:
       is-windows: 1.0.2
 
-  big-integer@1.6.52: {}
-
   binary-extensions@2.3.0: {}
-
-  binary-search-bounds@2.0.3: {}
 
   body-parser@1.20.3:
     dependencies:
@@ -9087,19 +9036,6 @@ snapshots:
   doctrine@3.0.0:
     dependencies:
       esutils: 2.0.3
-
-  documentdb@1.15.3:
-    dependencies:
-      big-integer: 1.6.52
-      binary-search-bounds: 2.0.3
-      debug: 4.4.3
-      int64-buffer: 0.1.10
-      priorityqueuejs: 1.0.0
-      semaphore: 1.0.5
-      tunnel: 0.0.5
-      underscore: 1.8.3
-    transitivePeerDependencies:
-      - supports-color
 
   dom-serializer@2.0.0:
     dependencies:
@@ -10011,8 +9947,6 @@ snapshots:
       wrappy: 1.0.2
 
   inherits@2.0.4: {}
-
-  int64-buffer@0.1.10: {}
 
   internal-slot@1.1.0:
     dependencies:
@@ -10931,8 +10865,6 @@ snapshots:
 
   prettier@3.6.2: {}
 
-  priorityqueuejs@1.0.0: {}
-
   priorityqueuejs@2.0.0: {}
 
   process-nextick-args@2.0.1: {}
@@ -11273,8 +11205,6 @@ snapshots:
   selderee@0.12.0:
     dependencies:
       parseley: 0.13.1
-
-  semaphore@1.0.5: {}
 
   semaphore@1.1.0: {}
 
@@ -11719,8 +11649,6 @@ snapshots:
     dependencies:
       safe-buffer: 5.2.1
 
-  tunnel@0.0.5: {}
-
   turbo-darwin-64@2.5.0:
     optional: true
 
@@ -11847,8 +11775,6 @@ snapshots:
       which-boxed-primitive: 1.1.1
 
   underscore@1.13.7: {}
-
-  underscore@1.8.3: {}
 
   undici-types@7.18.2: {}
 

@@ -37,7 +37,6 @@ import {
   NonEmptyString,
   OrganizationFiscalCode,
 } from "@pagopa/ts-commons/lib/strings";
-import { QueryError } from "documentdb";
 import * as O from "fp-ts/Option";
 import * as E from "fp-ts/lib/Either";
 import { Option, none, some } from "fp-ts/lib/Option";
@@ -60,6 +59,11 @@ import {
   PaymentDuplicatedStatusFaultPaymentProblemJson,
 } from "../../../generated/pagopa-ecommerce/PaymentDuplicatedStatusFaultPaymentProblemJson";
 import { GetMessageHandler } from "../handler";
+
+interface QueryError {
+  body: string;
+  code: number;
+}
 
 // Tests
 // -----------------------

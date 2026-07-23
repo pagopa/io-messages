@@ -29,7 +29,6 @@ catalog:
   "@pagopa/io-functions-commons": ^32.1.0
   "@pagopa/openapi-codegen-ts": ^14.0.1
   "@pagopa/ts-commons": ^13.1.2
-  "@types/documentdb": ^1.10.13
   "@types/express": ^4.17.25
   "@types/express-serve-static-core": ^4.19.7
   "@types/html-to-text": ^9.0.4
@@ -46,7 +45,6 @@ catalog:
   "applicationinsights": ^2.9.8
   "avsc": ^5.7.9
   "date-fns": ^4.1.0
-  "documentdb": ^1.15.3
   "durable-functions": ^3.3.0
   "esbuild": ^0.25.12
   "eslint": 8.57.1
