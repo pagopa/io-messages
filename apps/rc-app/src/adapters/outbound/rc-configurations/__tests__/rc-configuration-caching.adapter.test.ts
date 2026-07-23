@@ -21,6 +21,8 @@ const aValidConfiguration = {
   userId: "user-123",
 };
 
+const cacheTTLInSeconds = 60;
+
 const makeMocks = () => {
   const mockGetFromRepo = vi.fn();
   const mockGetFromCache = vi.fn();
@@ -51,7 +53,11 @@ describe("CachingRemoteContentRepository", () => {
         makeMocks();
       mockGetFromCache.mockResolvedValueOnce(ok(aValidConfiguration));
 
-      const sut = new CachingRemoteContentRepository(repository, cache);
+      const sut = new CachingRemoteContentRepository(
+        repository,
+        cache,
+        cacheTTLInSeconds,
+      );
       const result = await sut.getRemoteContentConfiguration(aConfigurationId);
 
       expect(result.isOk()).toBe(true);
@@ -75,7 +81,11 @@ describe("CachingRemoteContentRepository", () => {
       mockGetFromRepo.mockResolvedValueOnce(ok(aValidConfiguration));
       mockSetInCache.mockResolvedValueOnce(ok(aValidConfiguration));
 
-      const sut = new CachingRemoteContentRepository(repository, cache);
+      const sut = new CachingRemoteContentRepository(
+        repository,
+        cache,
+        cacheTTLInSeconds,
+      );
       const result = await sut.getRemoteContentConfiguration(aConfigurationId);
 
       expect(result.isOk()).toBe(true);
@@ -86,6 +96,7 @@ describe("CachingRemoteContentRepository", () => {
       expect(mockSetInCache).toHaveBeenCalledWith(
         aConfigurationId,
         aValidConfiguration,
+        cacheTTLInSeconds,
       );
     });
 
@@ -104,7 +115,11 @@ describe("CachingRemoteContentRepository", () => {
         err(new GenericError("cosmos unavailable")),
       );
 
-      const sut = new CachingRemoteContentRepository(repository, cache);
+      const sut = new CachingRemoteContentRepository(
+        repository,
+        cache,
+        cacheTTLInSeconds,
+      );
       const result = await sut.getRemoteContentConfiguration(aConfigurationId);
 
       expect(result.isErr()).toBe(true);
@@ -128,7 +143,11 @@ describe("CachingRemoteContentRepository", () => {
         err(new GenericError("redis write failed")),
       );
 
-      const sut = new CachingRemoteContentRepository(repository, cache);
+      const sut = new CachingRemoteContentRepository(
+        repository,
+        cache,
+        cacheTTLInSeconds,
+      );
       const result = await sut.getRemoteContentConfiguration(aConfigurationId);
 
       expect(result.isOk()).toBe(true);
