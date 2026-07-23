@@ -35,7 +35,6 @@
     "dotenv-cli": "^3.1.0",
     "eslint": "catalog:",
     "modclean": "catalog:",
-    "npm-run-all": "catalog:",
     "oval": "catalog:",
     "prettier": "catalog:",
     "typescript": "catalog:",
