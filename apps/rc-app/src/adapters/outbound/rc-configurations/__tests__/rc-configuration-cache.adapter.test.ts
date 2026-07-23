@@ -1,3 +1,4 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
 import type { RedisClientType } from "redis";
 
 import { GenericError, NotFoundError } from "@pagopa/hexagonal-core";
@@ -26,16 +27,22 @@ const makeMocks = () => {
     get: mockGet,
     set: mockSet,
   } as unknown as RedisClientType;
-  return { mockGet, mockRedisClient, mockSet };
+  const mockLogger = {
+    trackEvent: vi.fn(),
+  } as unknown as Logger;
+  return { mockGet, mockLogger, mockRedisClient, mockSet };
 };
 
 describe("RCConfigurationCacheAdapter", () => {
   describe("getCachedRemoteContentConfiguration", () => {
     it("returns the configuration when a valid cached value is found", async () => {
-      const { mockGet, mockRedisClient } = makeMocks();
+      const { mockGet, mockLogger, mockRedisClient } = makeMocks();
       mockGet.mockResolvedValueOnce(JSON.stringify(aValidConfiguration));
 
-      const adapter = new RCConfigurationCacheAdapter(mockRedisClient);
+      const adapter = new RCConfigurationCacheAdapter(
+        mockRedisClient,
+        mockLogger,
+      );
       const result =
         await adapter.getCachedRemoteContentConfiguration(aConfigurationId);
 
@@ -46,10 +53,13 @@ describe("RCConfigurationCacheAdapter", () => {
     });
 
     it("returns a NotFoundError when the key does not exist in cache", async () => {
-      const { mockGet, mockRedisClient } = makeMocks();
+      const { mockGet, mockLogger, mockRedisClient } = makeMocks();
       mockGet.mockResolvedValueOnce(null);
 
-      const adapter = new RCConfigurationCacheAdapter(mockRedisClient);
+      const adapter = new RCConfigurationCacheAdapter(
+        mockRedisClient,
+        mockLogger,
+      );
       const result =
         await adapter.getCachedRemoteContentConfiguration(aConfigurationId);
 
@@ -58,10 +68,13 @@ describe("RCConfigurationCacheAdapter", () => {
     });
 
     it("returns a MalformedEntityError when the cached value fails schema validation", async () => {
-      const { mockGet, mockRedisClient } = makeMocks();
+      const { mockGet, mockLogger, mockRedisClient } = makeMocks();
       mockGet.mockResolvedValueOnce(JSON.stringify({ invalid: "data" }));
 
-      const adapter = new RCConfigurationCacheAdapter(mockRedisClient);
+      const adapter = new RCConfigurationCacheAdapter(
+        mockRedisClient,
+        mockLogger,
+      );
       const result =
         await adapter.getCachedRemoteContentConfiguration(aConfigurationId);
 
@@ -70,10 +83,13 @@ describe("RCConfigurationCacheAdapter", () => {
     });
 
     it("returns a GenericError when Redis throws", async () => {
-      const { mockGet, mockRedisClient } = makeMocks();
+      const { mockGet, mockLogger, mockRedisClient } = makeMocks();
       mockGet.mockRejectedValueOnce(new Error("connection refused"));
 
-      const adapter = new RCConfigurationCacheAdapter(mockRedisClient);
+      const adapter = new RCConfigurationCacheAdapter(
+        mockRedisClient,
+        mockLogger,
+      );
       const result =
         await adapter.getCachedRemoteContentConfiguration(aConfigurationId);
 
@@ -85,10 +101,13 @@ describe("RCConfigurationCacheAdapter", () => {
 
   describe("setCachedRemoteContentConfiguration", () => {
     it("returns the configuration on successful set", async () => {
-      const { mockRedisClient, mockSet } = makeMocks();
+      const { mockLogger, mockRedisClient, mockSet } = makeMocks();
       mockSet.mockResolvedValueOnce("OK");
 
-      const adapter = new RCConfigurationCacheAdapter(mockRedisClient);
+      const adapter = new RCConfigurationCacheAdapter(
+        mockRedisClient,
+        mockLogger,
+      );
       const result = await adapter.setCachedRemoteContentConfiguration(
         aConfigurationId,
         aValidConfiguration,
@@ -99,10 +118,13 @@ describe("RCConfigurationCacheAdapter", () => {
     });
 
     it("calls set with EX option when ttlInSeconds is provided", async () => {
-      const { mockRedisClient, mockSet } = makeMocks();
+      const { mockLogger, mockRedisClient, mockSet } = makeMocks();
       mockSet.mockResolvedValueOnce("OK");
 
-      const adapter = new RCConfigurationCacheAdapter(mockRedisClient);
+      const adapter = new RCConfigurationCacheAdapter(
+        mockRedisClient,
+        mockLogger,
+      );
       await adapter.setCachedRemoteContentConfiguration(
         aConfigurationId,
         aValidConfiguration,
@@ -117,10 +139,13 @@ describe("RCConfigurationCacheAdapter", () => {
     });
 
     it("calls set without EX option when ttlInSeconds is not provided", async () => {
-      const { mockRedisClient, mockSet } = makeMocks();
+      const { mockLogger, mockRedisClient, mockSet } = makeMocks();
       mockSet.mockResolvedValueOnce("OK");
 
-      const adapter = new RCConfigurationCacheAdapter(mockRedisClient);
+      const adapter = new RCConfigurationCacheAdapter(
+        mockRedisClient,
+        mockLogger,
+      );
       await adapter.setCachedRemoteContentConfiguration(
         aConfigurationId,
         aValidConfiguration,
@@ -134,10 +159,13 @@ describe("RCConfigurationCacheAdapter", () => {
     });
 
     it("returns a GenericError when Redis throws", async () => {
-      const { mockRedisClient, mockSet } = makeMocks();
+      const { mockLogger, mockRedisClient, mockSet } = makeMocks();
       mockSet.mockRejectedValueOnce(new Error("write failed"));
 
-      const adapter = new RCConfigurationCacheAdapter(mockRedisClient);
+      const adapter = new RCConfigurationCacheAdapter(
+        mockRedisClient,
+        mockLogger,
+      );
       const result = await adapter.setCachedRemoteContentConfiguration(
         aConfigurationId,
         aValidConfiguration,

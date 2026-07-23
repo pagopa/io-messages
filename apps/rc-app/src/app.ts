@@ -1,7 +1,11 @@
+import type { AppInsightsTelemetryClient } from "@pagopa/hexagonal-core/adapters/logger";
 import type { FastifyInstance } from "fastify";
 
 import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
+import { SeverityNumber, logs } from "@opentelemetry/api-logs";
+import { emitCustomEvent } from "@pagopa/azure-tracing/logger";
+import { makeApplicationInsightsLogger } from "@pagopa/hexagonal-core/adapters/logger";
 import fastify from "fastify";
 import { type RedisClientType, createClient } from "redis";
 
@@ -22,6 +26,36 @@ import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
 export const createApp = async (
   config: AppConfig,
 ): Promise<{ server: FastifyInstance }> => {
+  const aiLogger = logs.getLogger("io-rc-app");
+
+  const stringify = (p?: Record<string, unknown>): Record<string, string> =>
+    Object.fromEntries(Object.entries(p ?? {}).map(([k, v]) => [k, String(v)]));
+
+  const client: AppInsightsTelemetryClient = {
+    trackEvent: ({ name, properties }) =>
+      emitCustomEvent(name, stringify(properties))(),
+    trackException: ({ exception, properties }) =>
+      aiLogger.emit({
+        attributes: {
+          ...stringify(properties),
+          "exception.stack": exception.stack ?? "",
+        },
+        body: exception.message,
+        severityNumber: SeverityNumber.ERROR,
+      }),
+    trackTrace: ({ message, properties, severity }) =>
+      aiLogger.emit({
+        attributes: stringify(properties),
+        body: message,
+        severityNumber: severity as unknown as SeverityNumber,
+      }),
+  };
+
+  const logger = makeApplicationInsightsLogger({
+    baseProperties: { service: "io-messages-app" },
+    client,
+  });
+
   const server = fastify({
     // We only enable access logs during local development.
     logger: config.NODE_ENV === "development",
@@ -80,7 +114,7 @@ export const createApp = async (
           commonCosmosClient,
           config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
         ),
-        new RCConfigurationCacheAdapter(redisClient),
+        new RCConfigurationCacheAdapter(redisClient, logger),
       ),
     ),
   );
