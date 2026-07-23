@@ -5,6 +5,47 @@ info:
   description: Internal API for reading Remote Content configurations.
 
 paths:
+  /api/info:
+    get:
+      operationId: getInfo
+      summary: Get application info.
+      description: Returns the application name and current version.
+      responses:
+        "200":
+          description: Application info.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppInfo"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+  /api/health:
+    get:
+      operationId: getHealthcheck
+      summary: Check application health.
+      description: >-
+        Returns the health status of the application. A 200 response with a
+        non-empty `failures` array means the app is running but one or more
+        dependencies are unavailable.
+      responses:
+        "200":
+          description: Health status of the application and its dependencies.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthcheckOutput"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
   /api/internal/rc-configurations/{configurationId}:
     get:
       operationId: getRcConfiguration
@@ -53,6 +94,36 @@ paths:
 
 components:
   schemas:
+    AppInfo:
+      type: object
+      description: Application name and version.
+      properties:
+        name:
+          type: string
+          description: Application name.
+          example: rc-app
+        version:
+          type: string
+          description: Application version.
+          example: 0.1.0
+      required:
+        - name
+        - version
+
+    HealthcheckOutput:
+      type: object
+      description: Health status of the application.
+      properties:
+        failures:
+          type: array
+          description: >-
+            List of error messages from unhealthy dependencies. Empty when all
+            dependencies are healthy.
+          items:
+            type: string
+      required:
+        - failures
+
     Ulid:
       type: string
       pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
