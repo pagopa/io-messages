@@ -15,6 +15,7 @@ import { mountGetRcConfigurationHandler } from "./adapters/inbound/fastify/get-r
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
 import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
+import { LoggerHealthcheckAdapter } from "./adapters/outbound/healthcheckers/logger.adapter.js";
 import { RedisClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/redis.adapter.js";
 import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/package-json-app-info-reader.js";
 import { RCConfigurationCosmosAdapter } from "./adapters/outbound/rc-configurations/rc-configuration.adapter.js";
@@ -103,6 +104,7 @@ export const createApp = async (
   mountHealthcheckHandler(
     server,
     makeHealthcheckUseCase([
+      new LoggerHealthcheckAdapter(logger, "logger"),
       new CosmosClientHealthcheckAdapter(commonCosmosClient, "common-cosmos"),
       new RedisClientHealthcheckAdapter(redisClient, "redis"),
     ]),
