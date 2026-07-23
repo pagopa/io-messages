@@ -1,11 +1,14 @@
-import type {
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
+import {
   GenericError,
+  NotFoundError,
   TooManyRequestsError,
   UseCase,
 } from "@pagopa/hexagonal-core";
-
 import { err, ok } from "neverthrow";
 
+import { ServiceToRCConfigMap } from "../../adapters/inbound/config/config.js";
 import {
   MessageContent,
   MessageContentRepository,
@@ -23,6 +26,10 @@ import {
   PaginatedPublicMessagesCollection,
   PublicMessage,
 } from "../ports/messages.js";
+import {
+  RCConfiguration,
+  RCConfigurationRepository,
+} from "../ports/rc-configuration.js";
 
 export type GetMessagesByUserUseCase = UseCase<
   {
@@ -83,6 +90,70 @@ const computeMessageCategory = (
 };
 
 /**
+ * getConfigurationIDFromMessageContent returns the correct remote content
+ * configuration id.
+ *
+ * If the configurationID is not specified inside the message content, we need
+ * to take it from the SERVICE_TO_RC_MAP.
+ */
+export const getConfigurationIDFromMessageContent = (
+  configurationID: string | undefined,
+  serviceID: string,
+  serviceToRCMap: ServiceToRCConfigMap,
+): string => {
+  if (configurationID) return configurationID;
+
+  const configruationIDFromMap = serviceToRCMap.get(serviceID);
+  if (!configruationIDFromMap) {
+    // This cse should never happen, if it happens then the
+    // `ServiceToRCConfigMap` in the configuration is malformed.
+    // We feel confident to throw an error.
+    throw new GenericError(
+      `Cannot find configurationID ${configurationID} either in the message content or in the configuration map`,
+    );
+  }
+
+  return configruationIDFromMap;
+};
+
+/**
+ * computeThirdPartyProperties returns the remote content properties.
+ * If the message is not a remote content message, it will return undefined.
+ */
+export const computeThirdPartyProperties = (
+  content: MessageContent,
+  rcConfiguration: RCConfiguration,
+  isRead: boolean,
+): { has_attachments: boolean; has_precondition: boolean } | undefined => {
+  // If the message is not a remote content message, return undefined.
+  if (!content.third_party_data) return undefined;
+
+  // Preconditions are taken from the message using the remote content
+  // configuration as fallback.
+  const preconditions = content.third_party_data.has_precondition
+    ? content.third_party_data.has_precondition
+    : rcConfiguration.hasPrecondition;
+
+  // `has_precondition` is true if:
+  //
+  // - preconditions are "ALWAYS" (we always shows preconditions)
+  // - preconditions are "ONCE" and the message is not read.
+  //
+  // Otherwise, `has_precontition` is false.
+  const has_precondition =
+    preconditions === "ALWAYS"
+      ? true
+      : preconditions === "NEVER"
+        ? false
+        : !isRead;
+
+  return {
+    has_attachments: content.third_party_data.has_attachments,
+    has_precondition,
+  };
+};
+
+/**
  * makeGetMessagesByUserUseCase returns a page of archived/non archived messages.
  * The page is formed as follows:
  *
@@ -99,7 +170,10 @@ export const makeGetMessagesByUserUseCase =
     messageMetadataRepository: MessageMetadataRepository,
     messageStatusRepository: MessageStatusRepository,
     messageContentRepository: MessageContentRepository,
+    remoteContentConfigurationRepository: RCConfigurationRepository,
     pnServiceId: string,
+    serviceToRCMap: ServiceToRCConfigMap,
+    logger: Logger,
   ): GetMessagesByUserUseCase =>
   async ({ archived, fiscalCode, maximumID, minimumID, pageSize }) => {
     // To fetch a page of messages, we need to retrieve:
@@ -228,12 +302,71 @@ export const makeGetMessagesByUserUseCase =
     const contentById = messageContents.value;
     const items: PublicMessage[] = [];
 
+    // We use a Map in order to avoid calling multiple times the
+    // `remoteContentConfigurationRepository.getConfigurationIDFromMessageContent`
+    // using the same configurationID.
+    const rcConfigurationCache = new Map<string, RCConfiguration>();
     for (const { metadata, status } of selectedMessages) {
+      let thirdPartyProperties: ReturnType<typeof computeThirdPartyProperties>;
+
       const content = contentById.get(metadata.id);
 
       // Skip messages whose content is missing or invalid.
       if (!content || content.isErr()) {
         continue;
+      }
+
+      const messageContent = content.value;
+
+      if (messageContent.third_party_data) {
+        const configurationID = getConfigurationIDFromMessageContent(
+          messageContent.third_party_data?.configuration_id,
+          metadata.senderServiceId,
+          serviceToRCMap,
+        );
+
+        const rcConfigurationFromMap =
+          rcConfigurationCache.get(configurationID);
+
+        if (!rcConfigurationFromMap) {
+          const getRemoteContentConfigurationResponse =
+            await remoteContentConfigurationRepository.getRemoteContentConfiguration(
+              configurationID,
+            );
+
+          if (getRemoteContentConfigurationResponse.isErr()) {
+            if (
+              getRemoteContentConfigurationResponse.error instanceof
+              NotFoundError
+            ) {
+              // If the remoteContentConfiguration was not found we simply skip
+              // the message and track an event.
+              logger.trackEvent({
+                name: "GetMessagesByUserUseCase.getRemoteContentConfigurationResponse.failed.notFound",
+                properties: {
+                  messageID: metadata.id,
+                  rcConfigurationID: configurationID,
+                },
+              });
+
+              continue;
+            }
+
+            // Otherwise we simply return the error to the caller.
+            return err(getRemoteContentConfigurationResponse.error);
+          }
+
+          rcConfigurationCache.set(
+            configurationID,
+            getRemoteContentConfigurationResponse.value,
+          );
+        }
+
+        thirdPartyProperties = computeThirdPartyProperties(
+          messageContent,
+          rcConfigurationCache.get(configurationID)!,
+          status.isRead,
+        );
       }
 
       items.push({
@@ -245,15 +378,11 @@ export const makeGetMessagesByUserUseCase =
         ),
         created_at: metadata.createdAt,
         fiscal_code: metadata.fiscalCode,
-
-        has_attachments:
-          content.value.third_party_data?.has_attachments ?? false,
-        has_precondition: false, // TODO: Compute from RC configuration.
+        ...thirdPartyProperties,
         id: metadata.id,
         is_archived: status.isArchived,
         is_read: status.isRead,
         message_title: content.value.subject,
-        // (organization_fiscal_code, organization_name, service_name).
         organization_fiscal_code: "00000000000",
         organization_name: "Mocked organization name",
         sender_service_id: metadata.senderServiceId,
