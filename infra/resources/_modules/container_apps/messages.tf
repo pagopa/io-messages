@@ -28,9 +28,18 @@ module "messages_ca" {
         MESSAGE_METADATA_CONTAINER_NAME = "messages"
         MESSAGE_STATUS_CONTAINER_NAME   = "message-status"
         MESSAGE_CONTENT_CONTAINER_NAME  = "message-content"
-        COMMON_COSMOS_URI               = var.common_cosmos_account.endpoint
-        COMMON_STORAGE_ACCOUNT_URI      = var.common_storage_account.endpoint
-        PN_SERVICE_ID                   = "01G40DWQGKY5GRWSNM4303VNRP" # PN
+        RC_APP_BASE_URL                 = "https://${module.remote_content_ca.url}/api/internal/rc-configurations"
+        SERVICE_TO_RC_MAP = jsonencode({
+          "01G40DWQGKY5GRWSNM4303VNRP" = "01HMVMHCZZ8D0VTFWMRHBM5D6F", # PN
+          "01GQQZ9HF5GAPRVKJM1VDAVFHM" = "01HMVMDTHXCESMZ72NA701EKGQ", # IO Sign
+          "01H4ZJ62C1CPGJ0PX8Q1BP7FAB" = "01HMVMCDD3JFYTPKT4ZN4WQ73B", # PagoPA Receipt (Test)
+          "01HD63674XJ1R6XCNHH24PCRR2" = "01HMVM9W74RWH93NT1EYNKKNNR", # PagoPA Receipt
+          "01GQQDPM127KFGG6T3660D5TXD" = "01HMVM4N4XFJ8VBR1FXYFZ9QFB", # Third Party Mock
+        })
+
+        COMMON_COSMOS_URI          = var.common_cosmos_account.endpoint
+        COMMON_STORAGE_ACCOUNT_URI = var.common_storage_account.endpoint
+        PN_SERVICE_ID              = "01G40DWQGKY5GRWSNM4303VNRP" # PN
 
         APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
         APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
