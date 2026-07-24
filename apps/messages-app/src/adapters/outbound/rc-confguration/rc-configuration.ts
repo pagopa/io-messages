@@ -90,31 +90,30 @@ export class RCConfigurationHttpClientAdapter
 
     if (response.isErr()) return err(response.error);
 
-    if (response.value.status === 200) {
-      const jsonResponse = await ResultAsync.fromPromise(
-        response.value.json(),
-        () => new GenericError("invalid json response from rc-app"),
-      );
-
-      if (jsonResponse.isErr()) {
-        return err(jsonResponse.error);
-      }
-
-      const parsedResult = rcConfigurationApiResponseSchema.safeParse(
-        jsonResponse.value,
-      );
-
-      if (!parsedResult.success)
-        return err(
-          new GenericError(
-            `malformed remote content configuration returned by the rc-app: ${parsedResult.error.message}`,
-          ),
+    switch (response.value.status) {
+      case 200:
+        const jsonResponse = await ResultAsync.fromPromise(
+          response.value.json(),
+          () => new GenericError("invalid json response from rc-app"),
         );
 
-      return ok(this.toDomainRCConfiguration(parsedResult.data));
-    }
+        if (jsonResponse.isErr()) {
+          return err(jsonResponse.error);
+        }
 
-    switch (response.value.status) {
+        const parsedResult = rcConfigurationApiResponseSchema.safeParse(
+          jsonResponse.value,
+        );
+
+        if (!parsedResult.success)
+          return err(
+            new GenericError(
+              `malformed remote content configuration returned by the rc-app: ${parsedResult.error.message}`,
+            ),
+          );
+
+        return ok(this.toDomainRCConfiguration(parsedResult.data));
+
       case 400:
         return err(
           new GenericError(
