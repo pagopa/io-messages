@@ -1,5 +1,11 @@
 # services-func
 
+## 2.1.8
+
+### Patch Changes
+
+- 4f3db72: Remove documentdb dependency.
+
 ## 2.1.7
 
 ### Patch Changes
