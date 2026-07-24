@@ -1,5 +1,12 @@
 # rc-app
 
+## 0.1.1
+
+### Patch Changes
+
+- 24d4dd4: Add rcconfiguration cache ttl
+- c8fea8e: Add logger
+
 ## 0.1.0
 
 ### Minor Changes
