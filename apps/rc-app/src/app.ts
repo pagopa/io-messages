@@ -81,6 +81,7 @@ export const createApp = async (
           config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
         ),
         new RCConfigurationCacheAdapter(redisClient),
+        config.RC_CONFIGURATION_CACHE_TTL,
       ),
     ),
   );
