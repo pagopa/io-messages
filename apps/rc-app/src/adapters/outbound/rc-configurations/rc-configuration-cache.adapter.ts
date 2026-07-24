@@ -1,3 +1,4 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
 import type { RedisClientType } from "redis";
 
 import { GenericError, NotFoundError } from "@pagopa/hexagonal-core";
@@ -18,7 +19,10 @@ export class RCConfigurationCacheAdapter
 {
   #redisClient: RedisClientType;
 
-  constructor(redisClient: RedisClientType) {
+  constructor(
+    redisClient: RedisClientType,
+    private logger: Logger,
+  ) {
     this.#redisClient = redisClient;
   }
 
@@ -64,6 +68,14 @@ export class RCConfigurationCacheAdapter
 
     const validationResult = rcConfigurationSchema.safeParse(parseResult.value);
     if (!validationResult.success) {
+      // If a status is malformed we want to track it
+      this.logger.trackEvent({
+        name: "RCConfigurationCacheAdapter.getCachedRemoteContentConfiguration.failed.parse",
+        properties: {
+          errorMessage: validationResult.error.message,
+          errorName: validationResult.error.name,
+        },
+      });
       return err(
         new MalformedEntityError(
           `Malformed cached ${configurationId} rc configuration`,

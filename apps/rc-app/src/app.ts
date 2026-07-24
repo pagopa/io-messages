@@ -1,7 +1,12 @@
+import type { AppInsightsTelemetryClient } from "@pagopa/hexagonal-core/adapters/logger";
 import type { FastifyInstance } from "fastify";
 
 import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
+import { SeverityNumber, logs } from "@opentelemetry/api-logs";
+import { initAzureMonitor } from "@pagopa/azure-tracing/azure-monitor";
+import { emitCustomEvent } from "@pagopa/azure-tracing/logger";
+import { makeApplicationInsightsLogger } from "@pagopa/hexagonal-core/adapters/logger";
 import fastify from "fastify";
 import { type RedisClientType, createClient } from "redis";
 
@@ -10,6 +15,7 @@ import { mountGetRcConfigurationHandler } from "./adapters/inbound/fastify/get-r
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
 import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
+import { LoggerHealthcheckAdapter } from "./adapters/outbound/healthcheckers/logger.adapter.js";
 import { RedisClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/redis.adapter.js";
 import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/package-json-app-info-reader.js";
 import { RCConfigurationCosmosAdapter } from "./adapters/outbound/rc-configurations/rc-configuration.adapter.js";
@@ -22,6 +28,37 @@ import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
 export const createApp = async (
   config: AppConfig,
 ): Promise<{ server: FastifyInstance }> => {
+  initAzureMonitor();
+  const aiLogger = logs.getLogger("io-rc-app");
+
+  const stringify = (p?: Record<string, unknown>): Record<string, string> =>
+    Object.fromEntries(Object.entries(p ?? {}).map(([k, v]) => [k, String(v)]));
+
+  const client: AppInsightsTelemetryClient = {
+    trackEvent: ({ name, properties }) =>
+      emitCustomEvent(name, stringify(properties))(),
+    trackException: ({ exception, properties }) =>
+      aiLogger.emit({
+        attributes: {
+          ...stringify(properties),
+          "exception.stack": exception.stack ?? "",
+        },
+        body: exception.message,
+        severityNumber: SeverityNumber.ERROR,
+      }),
+    trackTrace: ({ message, properties, severity }) =>
+      aiLogger.emit({
+        attributes: stringify(properties),
+        body: message,
+        severityNumber: severity as unknown as SeverityNumber,
+      }),
+  };
+
+  const logger = makeApplicationInsightsLogger({
+    baseProperties: { service: "io-rc-app" },
+    client,
+  });
+
   const server = fastify({
     // We only enable access logs during local development.
     logger: config.NODE_ENV === "development",
@@ -67,6 +104,7 @@ export const createApp = async (
   mountHealthcheckHandler(
     server,
     makeHealthcheckUseCase([
+      new LoggerHealthcheckAdapter(logger, "logger"),
       new CosmosClientHealthcheckAdapter(commonCosmosClient, "common-cosmos"),
       new RedisClientHealthcheckAdapter(redisClient, "redis"),
     ]),
@@ -80,7 +118,7 @@ export const createApp = async (
           commonCosmosClient,
           config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
         ),
-        new RCConfigurationCacheAdapter(redisClient),
+        new RCConfigurationCacheAdapter(redisClient, logger),
         config.RC_CONFIGURATION_CACHE_TTL,
       ),
     ),
