@@ -28,6 +28,8 @@
     "@azure/identity": "catalog:",
     "@pagopa/hexagonal-core": "catalog:",
     "@pagopa/hexagonal-fastify": "catalog:",
+    "@opentelemetry/api-logs": "catalog:",
+    "@pagopa/azure-tracing": "catalog:",
     "fastify": "catalog:",
     "neverthrow": "catalog:",
     "zod": "catalog:"
