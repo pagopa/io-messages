@@ -63,6 +63,7 @@ describe("RCConfigurationCacheAdapter", () => {
       const result =
         await adapter.getCachedRemoteContentConfiguration(aConfigurationId);
 
+      expect(mockLogger.trackEvent).not.toHaveBeenCalled();
       expect(result.isErr()).toBe(true);
       expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
     });
@@ -78,6 +79,7 @@ describe("RCConfigurationCacheAdapter", () => {
       const result =
         await adapter.getCachedRemoteContentConfiguration(aConfigurationId);
 
+      expect(mockLogger.trackEvent).toHaveBeenCalledOnce();
       expect(result.isErr()).toBe(true);
       expect(result._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
     });
@@ -93,6 +95,7 @@ describe("RCConfigurationCacheAdapter", () => {
       const result =
         await adapter.getCachedRemoteContentConfiguration(aConfigurationId);
 
+      expect(mockLogger.trackEvent).not.toHaveBeenCalled();
       expect(result.isErr()).toBe(true);
       expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
       expect(result._unsafeUnwrapErr().message).toContain("Redis error");
@@ -113,6 +116,7 @@ describe("RCConfigurationCacheAdapter", () => {
         aValidConfiguration,
       );
 
+      expect(mockLogger.trackEvent).not.toHaveBeenCalled();
       expect(result.isOk()).toBe(true);
       expect(result._unsafeUnwrap()).toEqual(aValidConfiguration);
     });
@@ -131,6 +135,7 @@ describe("RCConfigurationCacheAdapter", () => {
         3600,
       );
 
+      expect(mockLogger.trackEvent).not.toHaveBeenCalled();
       expect(mockSet).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
@@ -151,6 +156,7 @@ describe("RCConfigurationCacheAdapter", () => {
         aValidConfiguration,
       );
 
+      expect(mockLogger.trackEvent).not.toHaveBeenCalled();
       expect(mockSet).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
@@ -171,6 +177,7 @@ describe("RCConfigurationCacheAdapter", () => {
         aValidConfiguration,
       );
 
+      expect(mockLogger.trackEvent).not.toHaveBeenCalled();
       expect(result.isErr()).toBe(true);
       expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
       expect(result._unsafeUnwrapErr().message).toContain("Redis error");
