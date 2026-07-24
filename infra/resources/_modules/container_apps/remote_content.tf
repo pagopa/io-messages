@@ -30,7 +30,9 @@ module "remote_content_ca" {
         REDIS_PORT                          = var.redis_cache.port
         REDIS_PASSWORD                      = var.redis_cache.access_key
         REDIS_TLS_ENABLED                   = "true"
-        RC_CONFIGURATION_CACHE_TTL = "28800"
+        RC_CONFIGURATION_CACHE_TTL = "28800",
+        APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
+        APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
       }
 
       liveness_probe = {
@@ -70,4 +72,11 @@ module "remote_content_ca_role_assignments" {
       collections         = ["message-configuration"]
     }
   ]
+}
+
+resource "azurerm_role_assignment" "remote_content_ca_appinsights_metrics_publisher" {
+  scope                = var.application_insights.id
+  role_definition_name = "Monitoring Metrics Publisher"
+  principal_id         = module.remote_content_ca.principal_id
+  description          = "Allow rc container app to publish telemetry to Application Insights"
 }
