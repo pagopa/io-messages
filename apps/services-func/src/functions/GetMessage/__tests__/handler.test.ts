@@ -26,6 +26,10 @@ import {
 } from "@pagopa/io-functions-commons/dist/src/models/notification_status";
 import { toAuthorizedCIDRs } from "@pagopa/io-functions-commons/dist/src/models/service";
 import {
+  CosmosEmptyResponse,
+  CosmosErrors,
+} from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
+import {
   IAzureApiAuthorization,
   UserGroup,
 } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_api_auth";
@@ -59,11 +63,6 @@ import {
   PaymentDuplicatedStatusFaultPaymentProblemJson,
 } from "../../../generated/pagopa-ecommerce/PaymentDuplicatedStatusFaultPaymentProblemJson";
 import { GetMessageHandler } from "../handler";
-
-interface QueryError {
-  body: string;
-  code: number;
-}
 
 // Tests
 // -----------------------
@@ -247,7 +246,7 @@ describe("GetMessageHandler", () => {
   }
 
   function getMessageStatusModelMock(
-    s: TE.TaskEither<QueryError, Option<MessageStatus>> = TE.of(
+    s: TE.TaskEither<CosmosErrors, Option<MessageStatus>> = TE.of(
       some(aMessageStatus),
     ),
   ): any {
@@ -554,10 +553,7 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel as any,
       getMessageStatusModelMock(
-        TE.left<QueryError, Option<MessageStatus>>({
-          body: "error",
-          code: 1,
-        }),
+        TE.left<CosmosErrors, Option<MessageStatus>>(CosmosEmptyResponse),
       ),
       getNotificationModelMock(),
       getNotificationStatusModelMock(),
