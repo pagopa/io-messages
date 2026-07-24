@@ -226,6 +226,9 @@ catalogs:
       specifier: ^4.1.13
       version: 4.1.13
 
+overrides:
+  handlebars@<4.7.9: '>=4.7.9'
+
 importers:
 
   .:
@@ -3956,8 +3959,8 @@ packages:
   graphlib@2.1.8:
     resolution: {integrity: sha512-jcLLfkpoVGmH7/InMC/1hIvOPSUh38oJtGhvrOFGzioE1DZ+0YW16RgmOJhHiuWTvGiJQ9Z1Ik43JvkRPRvE+A==}
 
-  handlebars@4.7.8:
-    resolution: {integrity: sha512-vafaFqs8MZkRrSX7sFVUdo3ap/eNiLnb4IakshzvP56X5Nr1iGKAIqdX6tMlm6HcNRIkr6AxO5jFEoJzzpT8aQ==}
+  handlebars@4.7.9:
+    resolution: {integrity: sha512-4E71E0rpOaQuJR2A3xDZ+GM1HyWYv1clR58tC8emQNeQe3RH7MAzSbat+V0wG78LQBo6m6bzSG/L4pBuCsgnUQ==}
     engines: {node: '>=0.4.7'}
     hasBin: true
 
@@ -9799,7 +9802,7 @@ snapshots:
     dependencies:
       lodash: 4.17.21
 
-  handlebars@4.7.8:
+  handlebars@4.7.9:
     dependencies:
       minimist: 1.2.8
       neo-async: 2.6.2
@@ -11766,7 +11769,7 @@ snapshots:
     dependencies:
       colors: 1.4.0
       fs-extra: 9.1.0
-      handlebars: 4.7.8
+      handlebars: 4.7.9
       lodash: 4.17.21
       lunr: 2.3.9
       marked: 2.0.7
