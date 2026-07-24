@@ -73,3 +73,10 @@ module "remote_content_ca_role_assignments" {
     }
   ]
 }
+
+resource "azurerm_role_assignment" "remote_content_ca_appinsights_metrics_publisher" {
+  scope                = var.application_insights.id
+  role_definition_name = "Monitoring Metrics Publisher"
+  principal_id         = module.remote_content_ca.principal_id
+  description          = "Allow rc container app to publish telemetry to Application Insights"
+}
