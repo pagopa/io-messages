@@ -44,7 +44,6 @@
     "abort-controller": "catalog:",
     "applicationinsights": "catalog:",
     "date-fns": "catalog:",
-    "documentdb": "catalog:",
     "express": "catalog:",
     "fast-check": "catalog:",
     "fp-ts": "catalog:",
@@ -66,7 +65,6 @@
   "devDependencies": {
     "@pagopa/eslint-config": "catalog:",
     "@pagopa/openapi-codegen-ts": "catalog:",
-    "@types/documentdb": "catalog:",
     "@types/express-serve-static-core": "catalog:",
     "@types/html-to-text": "catalog:",
     "@types/lolex": "catalog:",

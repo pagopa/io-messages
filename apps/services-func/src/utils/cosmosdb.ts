@@ -7,7 +7,6 @@ import { getConfigOrThrow } from "../utils/config";
 
 const config = getConfigOrThrow();
 
-// Setup DocumentDB
 export const cosmosDbUri = config.COSMOSDB_URI;
 export const cosmosDbName = config.COSMOSDB_NAME;
 export const cosmosDbKey = config.COSMOSDB_KEY;
