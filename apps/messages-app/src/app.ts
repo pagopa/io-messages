@@ -22,6 +22,7 @@ import { MessageContentBlobAdapter } from "./adapters/outbound/message/message-c
 import { MessageMetadataCosmosAdapter } from "./adapters/outbound/message/message-metadata.adapter.js";
 import { MessageStatusCosmosAdapter } from "./adapters/outbound/message/message-status.adapter.js";
 import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/package-json-app-info-reader.js";
+import { RCConfigurationHttpClientAdapter } from "./adapters/outbound/rc-confguration/rc-configuration.js";
 import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-messages.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
@@ -116,6 +117,9 @@ export const createApp = (
     logger,
   );
 
+  const remoteContentConfigurationReposiory =
+    new RCConfigurationHttpClientAdapter(config.RC_APP_BASE_URL);
+
   mountInfoHandler(server, makeGetInfoUseCase(appInfoReader));
   mountHealthcheckHandler(
     server,
@@ -135,7 +139,10 @@ export const createApp = (
       messageMetadataCosmosAdapter,
       messageStatusCosmosAdapter,
       messageContentBlobAdapter,
+      remoteContentConfigurationReposiory,
       config.PN_SERVICE_ID,
+      config.SERVICE_TO_RC_MAP,
+      logger,
     ),
   );
 

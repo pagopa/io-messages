@@ -1,3 +1,5 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import { CosmosClient } from "@azure/cosmos";
 import { BlobServiceClient } from "@azure/storage-blob";
 import {
@@ -13,6 +15,7 @@ import { CryptoAdapter } from "../../../adapters/outbound/crypto/crypto.adapter.
 import { MessageContentBlobAdapter } from "../../../adapters/outbound/message/message-content.adapter.js";
 import { MessageMetadataCosmosAdapter } from "../../../adapters/outbound/message/message-metadata.adapter.js";
 import { MessageStatusCosmosAdapter } from "../../../adapters/outbound/message/message-status.adapter.js";
+import { RCConfigurationHttpClientAdapter } from "../../../adapters/outbound/rc-confguration/rc-configuration.js";
 import { MalformedEntityError } from "../../ports/error.js";
 import {
   MessageContent,
@@ -26,7 +29,12 @@ import {
   MessageStatus,
   MessageStatusRepository,
 } from "../../ports/message-status.js";
-import { makeGetMessagesByUserUseCase } from "../get-user-messages.use-case.js";
+import { RCConfiguration } from "../../ports/rc-configuration.js";
+import {
+  computeThirdPartyProperties,
+  getConfigurationIDFromMessageContent,
+  makeGetMessagesByUserUseCase,
+} from "../get-user-messages.use-case.js";
 
 const aFiscalCode = "RSSMRA80A01H501U";
 const aPnServiceId = "pn-service-id";
@@ -37,6 +45,11 @@ const ULID_C = "01JR5JZCS6K0DT7M1EV8N2FW9P";
 const ULID_D = "01JZCS6K0DT7M1EV8N2FW9P3GX";
 const ULID_E = "01J6K0DT7M1EV8N2FW9P3GXAQ4";
 const ULID_F = "01JDT7M1EV8N2FW9P3GXAQ4HYB";
+
+// Valid ULIDs used as remote-content configuration ids (a separate namespace
+// from the message ids above).
+const RC_CONFIG_ID_A = "01HAQ4HYBR5JZCS6K0DT7M1EV8";
+const RC_CONFIG_ID_B = "01HHYBR5JZCS6K0DT7M1EV8N2F";
 
 const aMessageMetadata = (
   id: string,
@@ -73,6 +86,30 @@ const aMessageContent = (
   markdown: "a".repeat(80),
   require_secure_channels: false,
   subject: "a valid subject",
+  ...overrides,
+});
+
+const aThirdPartyData = (
+  overrides: Partial<NonNullable<MessageContent["third_party_data"]>> = {},
+): NonNullable<MessageContent["third_party_data"]> => ({
+  configuration_id: RC_CONFIG_ID_A,
+  has_attachments: false,
+  has_remote_content: false,
+  id: "tpd-id",
+  ...overrides,
+});
+
+const anRCConfiguration = (
+  overrides: Partial<RCConfiguration> = {},
+): RCConfiguration => ({
+  configurationId: RC_CONFIG_ID_A,
+  description: "a description",
+  disableLollipopFor: [],
+  hasPrecondition: "ALWAYS",
+  id: "an-rc-id",
+  isLollipopEnabled: false,
+  name: "a name",
+  userId: "a-user-id",
   ...overrides,
 });
 
@@ -116,11 +153,24 @@ const messageContentRepository: MessageContentRepository =
     noopLogger,
   );
 
+const remoteContentConfigurationReposiory =
+  new RCConfigurationHttpClientAdapter(new URL("http://localhost/rc-app"));
+
+const serviceToRcMap = new Map<string, string>();
+
+const trackEventMock = vi.fn();
+const logger = {
+  trackEvent: trackEventMock,
+} as unknown as Logger;
+
 const getMessagesByUser = makeGetMessagesByUserUseCase(
   messageMetadataRepository,
   messageStatusRepository,
   messageContentRepository,
+  remoteContentConfigurationReposiory,
   aPnServiceId,
+  serviceToRcMap,
+  logger,
 );
 
 const baseInput = {
@@ -447,20 +497,24 @@ describe("makeGetMessagesByUserUseCase - message category", () => {
             ULID_A,
             ok(
               aMessageContent({
-                third_party_data: {
+                third_party_data: aThirdPartyData({
                   has_attachments: true,
                   has_remote_content: true,
                   id: "tpd-id",
                   original_receipt_date: "2023-01-01T00:00:00.000Z",
                   original_sender: "a sender",
                   summary: "a summary",
-                },
+                }),
               }),
             ),
           ],
         ]),
       ),
     );
+    vi.spyOn(
+      remoteContentConfigurationReposiory,
+      "getRemoteContentConfiguration",
+    ).mockResolvedValue(ok(anRCConfiguration()));
 
     const [item] = (await getMessagesByUser(baseInput))._unsafeUnwrap().items;
     expect(item).toMatchObject({
@@ -498,17 +552,21 @@ describe("makeGetMessagesByUserUseCase - message category", () => {
             ULID_A,
             ok(
               aMessageContent({
-                third_party_data: {
+                third_party_data: aThirdPartyData({
                   has_attachments: false,
                   has_remote_content: false,
                   id: "tpd-id",
-                },
+                }),
               }),
             ),
           ],
         ]),
       ),
     );
+    vi.spyOn(
+      remoteContentConfigurationReposiory,
+      "getRemoteContentConfiguration",
+    ).mockResolvedValue(ok(anRCConfiguration()));
 
     const [item] = (await getMessagesByUser(baseInput))._unsafeUnwrap().items;
     expect(item).toMatchObject({ category: { tag: "GENERIC" } });
@@ -660,5 +718,313 @@ describe("makeGetMessagesByUserUseCase - error handling", () => {
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBe(anError);
+  });
+});
+
+const mockSingleMessage = (
+  id: string,
+  content: MessageContent,
+  statusOverrides: Partial<MessageStatus> = {},
+  metadataOverrides: Partial<MessageMetadata> = {},
+): void => {
+  vi.spyOn(
+    messageMetadataRepository,
+    "getMessagesMetadataByUser",
+  ).mockResolvedValue(ok([aMessageMetadata(id, metadataOverrides)]));
+  vi.spyOn(
+    messageStatusRepository,
+    "getLatestMessagesStatusByIds",
+  ).mockResolvedValue(ok([aMessageStatus(id, statusOverrides)]));
+  vi.spyOn(
+    messageContentRepository,
+    "getMessagesContentByIds",
+  ).mockResolvedValue(ok(contentMapOf([[id, ok(content)]])));
+};
+
+describe("makeGetMessagesByUserUseCase - remote content (third_party_data)", () => {
+  it("computes has_precondition=true from the RC configuration (ALWAYS) when the message has none", async () => {
+    mockSingleMessage(
+      ULID_A,
+      aMessageContent({ third_party_data: aThirdPartyData() }),
+      { isRead: false },
+    );
+    const getRCConfiguration = vi
+      .spyOn(
+        remoteContentConfigurationReposiory,
+        "getRemoteContentConfiguration",
+      )
+      .mockResolvedValue(ok(anRCConfiguration({ hasPrecondition: "ALWAYS" })));
+
+    const [item] = (await getMessagesByUser(baseInput))._unsafeUnwrap().items;
+
+    expect(item).toMatchObject({
+      has_attachments: false,
+      has_precondition: true,
+    });
+    expect(getRCConfiguration).toHaveBeenCalledWith(RC_CONFIG_ID_A);
+  });
+
+  it("uses the has_precondition from the message over the RC configuration", async () => {
+    mockSingleMessage(
+      ULID_A,
+      aMessageContent({
+        third_party_data: aThirdPartyData({ has_precondition: "NEVER" }),
+      }),
+    );
+    vi.spyOn(
+      remoteContentConfigurationReposiory,
+      "getRemoteContentConfiguration",
+    ).mockResolvedValue(ok(anRCConfiguration({ hasPrecondition: "ALWAYS" })));
+
+    const [item] = (await getMessagesByUser(baseInput))._unsafeUnwrap().items;
+
+    expect(item).toMatchObject({ has_precondition: false });
+  });
+
+  it("computes has_precondition=true when RC hasPrecondition is ONCE and the message is unread", async () => {
+    mockSingleMessage(
+      ULID_A,
+      aMessageContent({ third_party_data: aThirdPartyData() }),
+      { isRead: false },
+    );
+    vi.spyOn(
+      remoteContentConfigurationReposiory,
+      "getRemoteContentConfiguration",
+    ).mockResolvedValue(ok(anRCConfiguration({ hasPrecondition: "ONCE" })));
+
+    const [item] = (await getMessagesByUser(baseInput))._unsafeUnwrap().items;
+
+    expect(item).toMatchObject({ has_precondition: true });
+  });
+
+  it("computes has_precondition=false when RC hasPrecondition is ONCE and the message is read", async () => {
+    mockSingleMessage(
+      ULID_A,
+      aMessageContent({ third_party_data: aThirdPartyData() }),
+      { isRead: true },
+    );
+    vi.spyOn(
+      remoteContentConfigurationReposiory,
+      "getRemoteContentConfiguration",
+    ).mockResolvedValue(ok(anRCConfiguration({ hasPrecondition: "ONCE" })));
+
+    const [item] = (await getMessagesByUser(baseInput))._unsafeUnwrap().items;
+
+    expect(item).toMatchObject({ has_precondition: false });
+  });
+
+  it("resolves the configuration id from the SERVICE_TO_RC_MAP when the message has none", async () => {
+    const mappedServiceId = "mapped-service-id";
+    const localUseCase = makeGetMessagesByUserUseCase(
+      messageMetadataRepository,
+      messageStatusRepository,
+      messageContentRepository,
+      remoteContentConfigurationReposiory,
+      aPnServiceId,
+      new Map([[mappedServiceId, RC_CONFIG_ID_B]]),
+      logger,
+    );
+    mockSingleMessage(
+      ULID_A,
+      aMessageContent({
+        third_party_data: aThirdPartyData({ configuration_id: undefined }),
+      }),
+      {},
+      { senderServiceId: mappedServiceId },
+    );
+    const getRCConfiguration = vi
+      .spyOn(
+        remoteContentConfigurationReposiory,
+        "getRemoteContentConfiguration",
+      )
+      .mockResolvedValue(ok(anRCConfiguration()));
+
+    const result = await localUseCase(baseInput);
+
+    expect(result.isOk()).toBe(true);
+    expect(getRCConfiguration).toHaveBeenCalledWith(RC_CONFIG_ID_B);
+  });
+});
+
+describe("makeGetMessagesByUserUseCase - remote content errors and caching", () => {
+  it("skips the message and tracks an event when the RC configuration is not found", async () => {
+    mockSingleMessage(
+      ULID_A,
+      aMessageContent({ third_party_data: aThirdPartyData() }),
+    );
+    vi.spyOn(
+      remoteContentConfigurationReposiory,
+      "getRemoteContentConfiguration",
+    ).mockResolvedValue(
+      err(new NotFoundError("remote-content configuration", "not found")),
+    );
+
+    const result = await getMessagesByUser(baseInput);
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap().items).toEqual([]);
+    expect(trackEventMock).toHaveBeenCalledWith({
+      name: "GetMessagesByUserUseCase.getRemoteContentConfigurationResponse.failed.notFound",
+      properties: {
+        messageID: ULID_A,
+        rcConfigurationID: RC_CONFIG_ID_A,
+      },
+    });
+  });
+
+  it("returns the error when the RC configuration fetch fails with a non NotFound error", async () => {
+    const anError = new TooManyRequestsError();
+    mockSingleMessage(
+      ULID_A,
+      aMessageContent({ third_party_data: aThirdPartyData() }),
+    );
+    vi.spyOn(
+      remoteContentConfigurationReposiory,
+      "getRemoteContentConfiguration",
+    ).mockResolvedValue(err(anError));
+
+    const result = await getMessagesByUser(baseInput);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBe(anError);
+  });
+
+  it("rejects when the configuration id is missing both in the message and in the map", async () => {
+    mockSingleMessage(
+      ULID_A,
+      aMessageContent({
+        third_party_data: aThirdPartyData({ configuration_id: undefined }),
+      }),
+    );
+
+    await expect(getMessagesByUser(baseInput)).rejects.toThrow(GenericError);
+  });
+
+  it("fetches the RC configuration only once for messages sharing the same configuration id", async () => {
+    vi.spyOn(
+      messageMetadataRepository,
+      "getMessagesMetadataByUser",
+    ).mockResolvedValue(
+      ok([aMessageMetadata(ULID_B), aMessageMetadata(ULID_A)]),
+    );
+    vi.spyOn(
+      messageStatusRepository,
+      "getLatestMessagesStatusByIds",
+    ).mockResolvedValue(ok([aMessageStatus(ULID_B), aMessageStatus(ULID_A)]));
+    vi.spyOn(
+      messageContentRepository,
+      "getMessagesContentByIds",
+    ).mockResolvedValue(
+      ok(
+        contentMapOf([
+          [
+            ULID_B,
+            ok(aMessageContent({ third_party_data: aThirdPartyData() })),
+          ],
+          [
+            ULID_A,
+            ok(aMessageContent({ third_party_data: aThirdPartyData() })),
+          ],
+        ]),
+      ),
+    );
+    const getRCConfiguration = vi
+      .spyOn(
+        remoteContentConfigurationReposiory,
+        "getRemoteContentConfiguration",
+      )
+      .mockResolvedValue(ok(anRCConfiguration()));
+
+    const result = await getMessagesByUser(baseInput);
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap().items).toHaveLength(2);
+    expect(getRCConfiguration).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not leak third party properties to non remote-content messages", async () => {
+    vi.spyOn(
+      messageMetadataRepository,
+      "getMessagesMetadataByUser",
+    ).mockResolvedValue(
+      ok([aMessageMetadata(ULID_B), aMessageMetadata(ULID_A)]),
+    );
+    vi.spyOn(
+      messageStatusRepository,
+      "getLatestMessagesStatusByIds",
+    ).mockResolvedValue(ok([aMessageStatus(ULID_B), aMessageStatus(ULID_A)]));
+    vi.spyOn(
+      messageContentRepository,
+      "getMessagesContentByIds",
+    ).mockResolvedValue(
+      ok(
+        contentMapOf([
+          [
+            ULID_B,
+            ok(
+              aMessageContent({
+                third_party_data: aThirdPartyData({ has_attachments: true }),
+              }),
+            ),
+          ],
+          [ULID_A, ok(aMessageContent())],
+        ]),
+      ),
+    );
+    vi.spyOn(
+      remoteContentConfigurationReposiory,
+      "getRemoteContentConfiguration",
+    ).mockResolvedValue(ok(anRCConfiguration({ hasPrecondition: "ALWAYS" })));
+
+    const { items } = (await getMessagesByUser(baseInput))._unsafeUnwrap();
+
+    expect(items[0]).toMatchObject({
+      has_attachments: true,
+      has_precondition: true,
+      id: ULID_B,
+    });
+    expect(items[1].id).toBe(ULID_A);
+    expect(items[1]).not.toHaveProperty("has_attachments");
+    expect(items[1]).not.toHaveProperty("has_precondition");
+  });
+});
+
+describe("getConfigurationIDFromMessageContent", () => {
+  it("returns the configuration id from the message content when present", () => {
+    expect(
+      getConfigurationIDFromMessageContent(
+        RC_CONFIG_ID_A,
+        "a-service",
+        new Map(),
+      ),
+    ).toBe(RC_CONFIG_ID_A);
+  });
+
+  it("falls back to the SERVICE_TO_RC_MAP when the message has no configuration id", () => {
+    expect(
+      getConfigurationIDFromMessageContent(
+        undefined,
+        "a-service",
+        new Map([["a-service", RC_CONFIG_ID_B]]),
+      ),
+    ).toBe(RC_CONFIG_ID_B);
+  });
+
+  it("throws a GenericError when the id is missing everywhere", () => {
+    expect(() =>
+      getConfigurationIDFromMessageContent(undefined, "a-service", new Map()),
+    ).toThrow(GenericError);
+  });
+});
+
+describe("computeThirdPartyProperties", () => {
+  it("returns undefined when the content is not a remote content message", () => {
+    expect(
+      computeThirdPartyProperties(
+        aMessageContent(),
+        anRCConfiguration(),
+        false,
+      ),
+    ).toBeUndefined();
   });
 });

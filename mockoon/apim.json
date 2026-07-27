@@ -13,7 +13,7 @@
       "type": "http",
       "documentation": "",
       "method": "get",
-      "endpoint": "api/v1/messages-sending/remote-contents/configurations/01ARZ3NDEKTSV4RRFFQ69G5FAV",
+      "endpoint": "api/v1/messages-sending/remote-contents/configurations/01HMVMCDD3JFYTPKT4ZN4WQ73B",
       "responses": [
         {
           "uuid": "3da508c5-a2a7-412c-bf72-144d6b0fafd8",
@@ -92,3 +92,4 @@
   "data": [],
   "callbacks": []
 }
+
