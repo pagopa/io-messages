@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 2.1.10
+
+### Patch Changes
+
+- 4867892: Update handlebars
+
 ## 2.1.9
 
 ### Patch Changes
