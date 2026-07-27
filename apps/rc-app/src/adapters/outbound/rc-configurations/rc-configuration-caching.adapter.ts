@@ -16,6 +16,7 @@ export class CachingRemoteContentRepository implements RemoteContentRepository {
   constructor(
     private readonly repository: RemoteContentRepository,
     private readonly cache: RemoteContentCacheRepository,
+    private readonly cacheTtlInSeconds: number,
   ) {}
 
   async getRemoteContentConfiguration(
@@ -38,6 +39,7 @@ export class CachingRemoteContentRepository implements RemoteContentRepository {
     await this.cache.setCachedRemoteContentConfiguration(
       configurationId,
       result.value,
+      this.cacheTtlInSeconds,
     );
 
     return ok(result.value);

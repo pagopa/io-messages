@@ -1,5 +1,4 @@
 import z from "zod";
-
 // Cosmos is configured with a connection string in local development and with
 // Azure credentials (account URI) in production. The NODE_ENV discriminant
 // selects which set of variables is required.
@@ -17,6 +16,7 @@ const commonCosmosConfigSchema = z.discriminatedUnion("NODE_ENV", [
 const baseConfigSchema = z.object({
   HOST: z.ipv4(),
   PORT: z.coerce.number().int().min(1025).max(65_535), // Read as string, parsed as integer.
+  RC_CONFIGURATION_CACHE_TTL: z.coerce.number().int().min(1),
   REDIS_PASSWORD: z.string().min(1),
   REDIS_PORT: z.coerce.number().int().min(1).max(65_535),
   REDIS_TLS_ENABLED: z.stringbool().default(true),
