@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.2.6
+
+### Patch Changes
+
+- 98dcf01: Make initAzureMonitor run before the entire applicative.
+
 ## 0.2.5
 
 ### Patch Changes
