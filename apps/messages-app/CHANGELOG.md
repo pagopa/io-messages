@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.2.5
+
+### Patch Changes
+
+- a6c2832: Call rc-app in order to get rc details in get messages.
+
 ## 0.2.4
 
 ### Patch Changes
