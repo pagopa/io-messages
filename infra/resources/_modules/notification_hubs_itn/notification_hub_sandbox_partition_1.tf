@@ -21,11 +21,11 @@ resource "azurerm_notification_hub" "sandbox" {
     bundle_id        = local.apns_credential.bundle_id
     team_id          = local.apns_credential.team_id
     key_id           = local.apns_credential.key_id
-    token            = data.azurerm_key_vault_secret.ntfns_test_token.value
+    token            = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=notification-hub-dev-token)"
   }
 
   gcm_credential {
-    api_key = data.azurerm_key_vault_secret.ntfns_test_api_key.value
+    api_key = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=notification-hub-dev-api-key)"
   }
 
   tags = var.tags
