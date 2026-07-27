@@ -4,7 +4,6 @@ import type { FastifyInstance } from "fastify";
 import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
 import { SeverityNumber, logs } from "@opentelemetry/api-logs";
-import { initAzureMonitor } from "@pagopa/azure-tracing/azure-monitor";
 import { emitCustomEvent } from "@pagopa/azure-tracing/logger";
 import { makeApplicationInsightsLogger } from "@pagopa/hexagonal-core/adapters/logger";
 import fastify from "fastify";
@@ -28,7 +27,6 @@ import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
 export const createApp = async (
   config: AppConfig,
 ): Promise<{ server: FastifyInstance }> => {
-  initAzureMonitor();
   const aiLogger = logs.getLogger("io-rc-app");
 
   const stringify = (p?: Record<string, unknown>): Record<string, string> =>

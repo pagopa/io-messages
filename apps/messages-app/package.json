@@ -17,8 +17,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "pnpm lint:check --fix",
     "lint:check": "eslint .",
-    "dev": "tsx --watch --env-file=.env src/main.ts",
-    "start": "node dist/main.js",
+    "dev": "tsx --watch --env-file=.env --import ./src/instrumentation.ts ./src/main.ts",
+    "start": "node --import ./dist/instrumentation.js dist/main.js",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
   },

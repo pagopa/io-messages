@@ -5,7 +5,6 @@ import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { SeverityNumber, logs } from "@opentelemetry/api-logs";
-import { initAzureMonitor } from "@pagopa/azure-tracing/azure-monitor";
 import { emitCustomEvent } from "@pagopa/azure-tracing/logger";
 import { makeApplicationInsightsLogger } from "@pagopa/hexagonal-core/adapters/logger";
 import fastify from "fastify";
@@ -32,8 +31,6 @@ export const createApp = (
 ): {
   server: FastifyInstance;
 } => {
-  initAzureMonitor();
-
   const aiLogger = logs.getLogger("io-messages-app");
   const stringify = (p?: Record<string, unknown>): Record<string, string> =>
     Object.fromEntries(Object.entries(p ?? {}).map(([k, v]) => [k, String(v)]));
