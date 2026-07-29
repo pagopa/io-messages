@@ -79,7 +79,9 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
 
   // parseContent perform runtime validation over the buffer.
   // errors short-circuit and fail the whole operation.
-  #parseContent(buffer: Buffer): Result<MessageContent, GenericError> {
+  #parseContent(
+    buffer: Buffer,
+  ): Result<MessageContent, GenericError | MalformedEntityError> {
     const parsedMessageContent = fromThrowable(
       () => blobMessageContentSchema.parse(JSON.parse(buffer.toString())),
       () =>
@@ -87,7 +89,7 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
     )();
 
     if (parsedMessageContent.isErr()) {
-      return err(parsedMessageContent.error);
+      return err(new MalformedEntityError(parsedMessageContent.error.message));
     }
 
     return ok(toMessageContent(parsedMessageContent.value));
@@ -144,11 +146,7 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
           messageID,
         },
       });
-      return err(
-        new MalformedEntityError(
-          `invalid message content for message with id: ${messageID}" ${parsedContent.error.name}: ${parsedContent.error.message}`,
-        ),
-      );
+      return err(parsedContent.error);
     }
 
     return ok(parsedContent.value);

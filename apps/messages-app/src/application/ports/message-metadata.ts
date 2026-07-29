@@ -7,6 +7,8 @@ import {
 import { Result } from "neverthrow";
 import z from "zod";
 
+import { MalformedEntityError } from "./error.js";
+
 export const featureLevelSchema = z
   .enum(["ADVANCED", "STANDARD"])
   .default("STANDARD");
@@ -36,7 +38,10 @@ export interface MessageMetadataRepository {
     fiscalCode: FiscalCode,
     messageId: string,
   ): Promise<
-    Result<MessageMetadata, GenericError | NotFoundError | TooManyRequestsError>
+    Result<
+      MessageMetadata,
+      GenericError | MalformedEntityError | NotFoundError | TooManyRequestsError
+    >
   >;
 
   /**

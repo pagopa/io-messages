@@ -16,6 +16,7 @@ import { Result, ResultAsync, err, ok } from "neverthrow";
 import z from "zod";
 
 import { CryptoRepository } from "../../../application/ports/crypto.js";
+import { MalformedEntityError } from "../../../application/ports/error.js";
 import {
   MessageMetadata,
   MessageMetadataRepository,
@@ -71,7 +72,10 @@ export class MessageMetadataCosmosAdapter implements MessageMetadataRepository {
     fiscalCode: FiscalCode,
     messageId: string,
   ): Promise<
-    Result<MessageMetadata, GenericError | NotFoundError | TooManyRequestsError>
+    Result<
+      MessageMetadata,
+      GenericError | MalformedEntityError | NotFoundError | TooManyRequestsError
+    >
   > {
     // Messages are partitioned by `fiscalCode`, so this is an efficient
     // single-partition point read.
@@ -125,9 +129,7 @@ export class MessageMetadataCosmosAdapter implements MessageMetadataRepository {
           messageId,
         },
       });
-      return err(
-        new GenericError(`invalid message metadata for message ${messageId}`),
-      );
+      return err(new MalformedEntityError(parsed.error.message));
     }
 
     return ok(toMessageMetadata(parsed.data));

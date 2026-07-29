@@ -16,6 +16,7 @@ import {
 import { Logger } from "@pagopa/hexagonal-core/domain/ports";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { MalformedEntityError } from "../../../../application/ports/error.js";
 import { MessageMetadata } from "../../../../application/ports/message-metadata.js";
 import { CryptoAdapter } from "../../crypto/crypto.adapter.js";
 import { MessageMetadataCosmosAdapter } from "../message-metadata.adapter.js";
@@ -243,7 +244,7 @@ describe("getMessageMetadataByFiscalCodeAndId", () => {
     expect(trackEventMock).not.toHaveBeenCalled();
   });
 
-  it("returns a GenericError when the resource does not match the schema", async () => {
+  it("returns a MalformedEntityError when the resource does not match the schema", async () => {
     readMock.mockResolvedValue({
       resource: { ...aMessageMetadata, id: "not-a-ulid" },
     } as unknown as ItemResponse<never>);
@@ -254,7 +255,7 @@ describe("getMessageMetadataByFiscalCodeAndId", () => {
     );
 
     expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
     expect(trackEventMock).toHaveBeenCalledTimes(1);
   });
 
