@@ -7,9 +7,11 @@ import { CosmosIngestionCollector } from "../event-collector.js";
 const createMock = vi.fn();
 
 const mocks = vi.hoisted(() => ({
-  TelemetryClient: vi.fn().mockImplementation(() => ({
-    trackEvent: vi.fn(),
-  })),
+  TelemetryClient: vi.fn().mockImplementation(function () {
+    return {
+      trackEvent: vi.fn(),
+    };
+  }),
 }));
 
 const telemetryServiceMock = new TelemetryEventService(

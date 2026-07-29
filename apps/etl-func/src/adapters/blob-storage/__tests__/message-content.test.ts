@@ -8,12 +8,14 @@ import { BlobNotFoundError } from "../blob.js";
 import { BlobMessageContent, MessageContentError } from "../message-content.js";
 
 const mocks = vi.hoisted(() => ({
-  BlobServiceClient: vi.fn().mockReturnValue({
-    getContainerClient: () => ({
-      getBlobClient: () => ({
-        downloadToBuffer: downloadMock,
+  BlobServiceClient: vi.fn().mockImplementation(function () {
+    return {
+      getContainerClient: () => ({
+        getBlobClient: () => ({
+          downloadToBuffer: downloadMock,
+        }),
       }),
-    }),
+    };
   }),
 }));
 

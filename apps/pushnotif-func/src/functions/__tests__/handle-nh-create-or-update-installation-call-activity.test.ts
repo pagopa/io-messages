@@ -63,6 +63,7 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
 
   it(
     "should call a createOrUpdateInstallation using the right notification hub partition ending with a success",
+    { timeout: 10000 },
     async () => {
       vi.spyOn(
         NotificationHubsClient.prototype,
@@ -88,7 +89,6 @@ describe("HandleNHCreateOrUpdateInstallationCallActivity", () => {
         }),
       );
     },
-    { timeout: 10000 },
   );
 
   it("should trigger a retry if CreateOrUpdateInstallation fails", async () => {
