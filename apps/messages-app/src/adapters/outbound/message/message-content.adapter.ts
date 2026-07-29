@@ -77,7 +77,7 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
       blobServiceClient.getContainerClient(containerName);
   }
 
-  // getMessageContentById returns the content of the message identified by
+  // parseContent perform runtime validation over the buffer.
   // errors short-circuit and fail the whole operation.
   #parseContent(buffer: Buffer): Result<MessageContent, GenericError> {
     const parsedMessageContent = fromThrowable(
@@ -93,7 +93,7 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
     return ok(toMessageContent(parsedMessageContent.value));
   }
 
-  // parseContent perform runtime validation over the buffer.
+  // getMessageContentById returns the content of the message identified by
   // `messageID`.
   async getMessageContentById(
     messageID: string,
