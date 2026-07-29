@@ -2,12 +2,15 @@ import {
   CosmosClient,
   CosmosDiagnostics,
   FeedResponse,
+  Item,
+  ItemResponse,
   RestError,
   SqlQuerySpec,
 } from "@azure/cosmos";
 import {
   FiscalCodeSchema,
   GenericError,
+  NotFoundError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
 import { Logger } from "@pagopa/hexagonal-core/domain/ports";
@@ -55,6 +58,12 @@ const queryMock = vi
   .spyOn(container.items, "query")
   .mockReturnValue(queryIterator);
 const fetchNextMock = vi.spyOn(queryIterator, "fetchNext");
+
+const item = container.item(aMessageMetadata.id, aFiscalCode);
+vi.spyOn(container, "item").mockReturnValue(item as Item);
+const readMock = vi.spyOn(item, "read").mockResolvedValue({
+  resource: aMessageMetadata,
+} as unknown as ItemResponse<never>);
 
 const trackEventMock = vi.fn();
 const adapter = new MessageMetadataCosmosAdapter(
@@ -179,6 +188,109 @@ describe("getMessagesMetadataByUser", () => {
     fetchNextMock.mockRejectedValue(new Error("unexpected"));
 
     const result = await adapter.getMessagesMetadataByUser(aFiscalCode, 10);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("getMessageMetadataByFiscalCodeAndId", () => {
+  beforeEach(() => {
+    readMock.mockReset();
+    readMock.mockResolvedValue({
+      resource: aMessageMetadata,
+    } as unknown as ItemResponse<never>);
+    trackEventMock.mockReset();
+  });
+
+  it("returns the metadata for an existing message", async () => {
+    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
+      aFiscalCode,
+      aMessageMetadata.id,
+    );
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toEqual(aMessageMetadata);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns a NotFoundError when the resource is undefined", async () => {
+    readMock.mockResolvedValue({
+      resource: undefined,
+    } as unknown as ItemResponse<never>);
+
+    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
+      aFiscalCode,
+      "missing-id",
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns a NotFoundError when Cosmos throws a 404 RestError", async () => {
+    readMock.mockRejectedValue(new RestError("not found", { statusCode: 404 }));
+
+    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
+      aFiscalCode,
+      "missing-id",
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns a GenericError when the resource does not match the schema", async () => {
+    readMock.mockResolvedValue({
+      resource: { ...aMessageMetadata, id: "not-a-ulid" },
+    } as unknown as ItemResponse<never>);
+
+    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
+      aFiscalCode,
+      "malformed-id",
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(trackEventMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns a TooManyRequestsError when Cosmos throttles the request", async () => {
+    readMock.mockRejectedValue(new RestError("throttled", { statusCode: 429 }));
+
+    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
+      aFiscalCode,
+      aMessageMetadata.id,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns a GenericError on an unexpected Cosmos RestError", async () => {
+    readMock.mockRejectedValue(new RestError("boom", { statusCode: 500 }));
+
+    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
+      aFiscalCode,
+      aMessageMetadata.id,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns a GenericError on a non-RestError failure", async () => {
+    readMock.mockRejectedValue(new Error("unexpected"));
+
+    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
+      aFiscalCode,
+      aMessageMetadata.id,
+    );
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);

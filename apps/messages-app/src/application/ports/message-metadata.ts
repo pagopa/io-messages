@@ -1,6 +1,7 @@
 import {
   FiscalCode,
   GenericError,
+  NotFoundError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
 import { Result } from "neverthrow";
@@ -25,6 +26,19 @@ export const messageMetadataSchema = z.object({
 export type MessageMetadata = z.TypeOf<typeof messageMetadataSchema>;
 
 export interface MessageMetadataRepository {
+  /**
+   * Returns the metadata of the single message identified by the provided
+   * `messageId` belonging to the user identified by `fiscalCode`.
+   *
+   * Returns a `NotFoundError` when no such message exists.
+   */
+  getMessageMetadataByFiscalCodeAndId(
+    fiscalCode: FiscalCode,
+    messageId: string,
+  ): Promise<
+    Result<MessageMetadata, GenericError | NotFoundError | TooManyRequestsError>
+  >;
+
   /**
    * Returns a page of message metadata for the user identified by the provided
    * fiscal code. Content and status are retrieved separately.

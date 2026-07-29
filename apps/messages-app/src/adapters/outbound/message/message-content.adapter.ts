@@ -77,9 +77,25 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
       blobServiceClient.getContainerClient(containerName);
   }
 
-  // getContentById returns the content of the message identified by
+  // getMessageContentById returns the content of the message identified by
+  // errors short-circuit and fail the whole operation.
+  #parseContent(buffer: Buffer): Result<MessageContent, GenericError> {
+    const parsedMessageContent = fromThrowable(
+      () => blobMessageContentSchema.parse(JSON.parse(buffer.toString())),
+      () =>
+        new GenericError(`Invalid messageContentSchema for message content`),
+    )();
+
+    if (parsedMessageContent.isErr()) {
+      return err(parsedMessageContent.error);
+    }
+
+    return ok(toMessageContent(parsedMessageContent.value));
+  }
+
+  // parseContent perform runtime validation over the buffer.
   // `messageID`.
-  async #getContentById(
+  async getMessageContentById(
     messageID: string,
   ): Promise<
     Result<
@@ -123,7 +139,7 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
     if (parsedContent.isErr()) {
       // In this case we know that the message content is malformed
       this.logger.trackEvent({
-        name: "MessageContentBlobAdapter.getContentById.failed.parse",
+        name: "MessageContentBlobAdapter.getMessageContentById.failed.parse",
         properties: {
           messageID,
         },
@@ -138,22 +154,6 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
     return ok(parsedContent.value);
   }
 
-  // parseContent perform runtime validation over the buffer.
-  // errors short-circuit and fail the whole operation.
-  #parseContent(buffer: Buffer): Result<MessageContent, GenericError> {
-    const parsedMessageContent = fromThrowable(
-      () => blobMessageContentSchema.parse(JSON.parse(buffer.toString())),
-      () =>
-        new GenericError(`Invalid messageContentSchema for message content`),
-    )();
-
-    if (parsedMessageContent.isErr()) {
-      return err(parsedMessageContent.error);
-    }
-
-    return ok(toMessageContent(parsedMessageContent.value));
-  }
-
   async getMessagesContentByIds(
     messageIDs: string[],
   ): Promise<
@@ -163,7 +163,7 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
     >
   > {
     const results = await Promise.all(
-      messageIDs.map((messageID) => this.#getContentById(messageID)),
+      messageIDs.map((messageID) => this.getMessageContentById(messageID)),
     );
 
     const contentById = new Map<
