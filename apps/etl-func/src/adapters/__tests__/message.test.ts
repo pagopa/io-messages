@@ -21,12 +21,16 @@ import { MessageAdapter } from "../message.js";
 import { EventErrorTableStorage } from "../table-storage/event-error-table-storage.js";
 
 const mocks = vi.hoisted(() => ({
-  TableClient: vi.fn().mockImplementation(() => ({
-    createEntity: createEntity,
-  })),
-  TelemetryClient: vi.fn().mockImplementation(() => ({
-    trackEvent: trackEventMock,
-  })),
+  TableClient: vi.fn().mockImplementation(function () {
+    return {
+      createEntity: createEntity,
+    };
+  }),
+  TelemetryClient: vi.fn().mockImplementation(function () {
+    return {
+      trackEvent: trackEventMock,
+    };
+  }),
 }));
 const createEntity = vi.fn(() => Promise.resolve());
 const trackEventMock = vi.fn(() => Promise.resolve());

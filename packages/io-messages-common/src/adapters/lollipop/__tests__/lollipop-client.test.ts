@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   aProblemJson,
@@ -11,6 +11,10 @@ import LollipopClient from "../lollipop-client.js";
 const apiKey = "anApiKey";
 const baseUrl = "https://mockurl.com";
 const client = new LollipopClient(apiKey, baseUrl);
+
+beforeEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("LollipopClient", () => {
   it("returns a valid LcParams on successful request", async () => {

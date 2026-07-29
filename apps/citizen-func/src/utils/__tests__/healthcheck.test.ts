@@ -60,8 +60,10 @@ vi.mock("@azure/cosmos", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@azure/cosmos")>();
   return {
     ...actual,
-    CosmosClient: vi.fn().mockReturnValue({
-      getDatabaseAccount: mockGetDatabaseAccount,
+    CosmosClient: vi.fn().mockImplementation(function () {
+      return {
+        getDatabaseAccount: mockGetDatabaseAccount,
+      };
     }),
   };
 });

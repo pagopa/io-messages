@@ -6,12 +6,14 @@ import { messageSchema } from "../avro.js";
 import { EventHubEventProducer } from "../eventhub/event.js";
 
 const mocks = vi.hoisted(() => ({
-  EventHubProducerClient: vi.fn().mockImplementation(() => ({
-    createBatch: () => ({
-      tryAdd: tryAddMock,
-    }),
-    sendBatch: sendBatchMock,
-  })),
+  EventHubProducerClient: vi.fn().mockImplementation(function () {
+    return {
+      createBatch: () => ({
+        tryAdd: tryAddMock,
+      }),
+      sendBatch: sendBatchMock,
+    };
+  }),
 }));
 
 vi.mock("@azure/event-hubs", async (importOriginal) => {

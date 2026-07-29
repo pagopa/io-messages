@@ -1,5 +1,5 @@
 import { aFiscalCode, aMaskedFiscalCode } from "@/__mocks__/message.js";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import PDVTokenizerClient from "../pdv-tokenizer-client.js";
 
@@ -7,6 +7,10 @@ const apiKey = "anApiKey";
 const baseUrl = "https://mockurl.com";
 const client = new PDVTokenizerClient(apiKey, baseUrl);
 const fiscalCode = aFiscalCode;
+
+beforeEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("PDVTokenizerClient", () => {
   it("should return a token on successful tokenization", async () => {

@@ -4,7 +4,7 @@ import {
   aLollipopLambdaRequestBody,
   aLollipopLambdaSuccessResponse,
 } from "@/__mocks__/lollipop-lambda.js";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LollipopLambdaErrorResponse } from "../definitions.js";
 import LollipopIntegrationCheckClient from "../lollipop-integration-check.js";
@@ -20,6 +20,10 @@ const aLollipopLambdaErrorResponse: LollipopLambdaErrorResponse = {
   success: false,
   timestamp: "2026-01-29T10:00:00Z",
 };
+
+beforeEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("LollipopIntegrationCheckClient.checkWithGet", () => {
   it("returns a valid LollipopLambdaSuccessResponse on successful request", async () => {
