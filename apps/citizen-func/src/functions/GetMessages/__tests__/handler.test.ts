@@ -162,16 +162,15 @@ const aRetrievedMessageView: RetrievedMessageView = pipe(
 //----------------------------
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getByMessageContentByIdMock: ReturnType<typeof vi.fn> = vi
-  .fn()
-  .mockResolvedValue({
-    markdown: "a markdown",
-    subject: "a subject",
-  });
+const getByMessageContentByIdMock = vi.fn().mockResolvedValue({
+  markdown: "a markdown",
+  subject: "a subject",
+});
 
 const messageContentRepositoryMock: MessageContentRepository = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  getByMessageContentById: getByMessageContentByIdMock,
+  getByMessageContentById:
+    getByMessageContentByIdMock as unknown as MessageContentRepository["getByMessageContentById"],
   storeMessageContent: vi.fn().mockResolvedValue(void 0),
 };
 

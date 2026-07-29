@@ -37,6 +37,13 @@ const repo = new MessageContentBlobAdapter(
   CONTAINER_NAME,
 );
 
+// `downloadBlobContent` is private: expose it through a typed view so it can be spied on
+const repoInternals = repo as unknown as {
+  downloadBlobContent: (
+    blobName: string,
+  ) => Promise<BlobStorageErrorException | NodeJS.ReadableStream>;
+};
+
 describe("MessageContentBlobAdapter.getByMessageContentById", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -77,7 +84,7 @@ describe("MessageContentBlobAdapter.getByMessageContentById", () => {
       "BlobNotFound",
       "The specified blob does not exist.",
     );
-    vi.spyOn(repo as never, "downloadBlobContent").mockResolvedValueOnce(
+    vi.spyOn(repoInternals, "downloadBlobContent").mockResolvedValueOnce(
       blobNotFoundError,
     );
     const result2 = await repo.getByMessageContentById(MESSAGE_ID);
@@ -98,7 +105,7 @@ describe("MessageContentBlobAdapter.getByMessageContentById", () => {
       "GenericCode",
       "Something went wrong",
     );
-    vi.spyOn(repo as never, "downloadBlobContent").mockResolvedValueOnce(
+    vi.spyOn(repoInternals, "downloadBlobContent").mockResolvedValueOnce(
       genericError,
     );
     await expect(repo.getByMessageContentById(MESSAGE_ID)).rejects.toThrow(
@@ -117,7 +124,7 @@ describe("MessageContentBlobAdapter.getByMessageContentById", () => {
       "AuthorizationFailure",
       "Access denied to blob storage",
     );
-    vi.spyOn(repo as never, "downloadBlobContent").mockResolvedValueOnce(
+    vi.spyOn(repoInternals, "downloadBlobContent").mockResolvedValueOnce(
       customError,
     );
     await expect(repo.getByMessageContentById(MESSAGE_ID)).rejects.toThrow(

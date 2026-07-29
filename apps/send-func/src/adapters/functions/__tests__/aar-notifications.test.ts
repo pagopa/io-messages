@@ -18,9 +18,11 @@ import { getNotification } from "../aar-notifications.js";
 
 const trackEventMock = vi.fn(() => Promise.resolve());
 const mocks = vi.hoisted(() => ({
-  TelemetryClient: vi.fn().mockImplementation(() => ({
-    trackEvent: trackEventMock,
-  })),
+  TelemetryClient: vi.fn().mockImplementation(function () {
+    return {
+      trackEvent: trackEventMock,
+    };
+  }),
 }));
 
 const telemetryClient = new mocks.TelemetryClient();
