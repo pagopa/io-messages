@@ -1,8 +1,5 @@
-module "remote_content_ca" {
-  source  = "pagopa-dx/azure-container-app/azurerm"
-  version = "~> 6.0"
-
-  environment = {
+locals {
+  remote_content_ca_environment = {
     prefix          = var.environment.prefix
     env_short       = var.environment.env_short
     location        = var.environment.location
@@ -10,6 +7,23 @@ module "remote_content_ca" {
     app_name        = "rc"
     instance_number = "01"
   }
+
+  remote_content_ca_name = provider::dx::resource_name({
+    prefix          = local.remote_content_ca_environment.prefix
+    environment     = local.remote_content_ca_environment.env_short
+    location        = local.remote_content_ca_environment.location
+    domain          = local.remote_content_ca_environment.domain
+    name            = local.remote_content_ca_environment.app_name
+    instance_number = tonumber(local.remote_content_ca_environment.instance_number)
+    resource_type   = "container_app"
+  })
+}
+
+module "remote_content_ca" {
+  source  = "pagopa-dx/azure-container-app/azurerm"
+  version = "~> 6.0"
+
+  environment = local.remote_content_ca_environment
 
   container_app_environment_id = module.com_cae_env.id
 
@@ -21,18 +35,19 @@ module "remote_content_ca" {
       name  = "io-rc"
 
       app_settings = {
-        HOST                                = "0.0.0.0"
-        NODE_ENV                            = "production"
-        PORT                                = 3000
-        REMOTE_CONTENT_COSMOS_DATABASE_NAME = "remote-content-cosmos-01"
-        REMOTE_CONTENT_COSMOS_URI           = var.communication_cosmos_account.endpoint
-        REDIS_URL                           = var.redis_cache.hostname
-        REDIS_PORT                          = var.redis_cache.port
-        REDIS_PASSWORD                      = var.redis_cache.access_key
-        REDIS_TLS_ENABLED                   = "true"
-        RC_CONFIGURATION_CACHE_TTL = "28800",
+        HOST                                      = "0.0.0.0"
+        NODE_ENV                                  = "production"
+        PORT                                      = 3000
+        REMOTE_CONTENT_COSMOS_DATABASE_NAME       = "remote-content-cosmos-01"
+        REMOTE_CONTENT_COSMOS_URI                 = var.communication_cosmos_account.endpoint
+        REDIS_URL                                 = var.redis_cache.hostname
+        REDIS_PORT                                = var.redis_cache.port
+        REDIS_PASSWORD                            = var.redis_cache.access_key
+        REDIS_TLS_ENABLED                         = "true"
+        RC_CONFIGURATION_CACHE_TTL                = "28800",
         APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
         APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
+        OTEL_SERVICE_NAME                         = local.remote_content_ca_name
       }
 
       liveness_probe = {
