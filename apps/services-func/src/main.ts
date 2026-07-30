@@ -21,10 +21,6 @@ import {
   NotificationModel,
 } from "@pagopa/io-functions-commons/dist/src/models/notification";
 import {
-  NOTIFICATION_STATUS_COLLECTION_NAME,
-  NotificationStatusModel,
-} from "@pagopa/io-functions-commons/dist/src/models/notification_status";
-import {
   PROFILE_COLLECTION_NAME,
   ProfileModel,
 } from "@pagopa/io-functions-commons/dist/src/models/profile";
@@ -116,10 +112,6 @@ const messageStatusModel = new MessageStatusModel(
 
 const notificationModel = new NotificationModel(
   cosmosdbInstance.container(NOTIFICATION_COLLECTION_NAME),
-);
-
-const notificationStatusModel = new NotificationStatusModel(
-  cosmosdbInstance.container(NOTIFICATION_STATUS_COLLECTION_NAME),
 );
 
 const profileModel = new ProfileModel(
@@ -232,8 +224,6 @@ app.http("GetMessage", {
     serviceModel,
     messageModel,
     messageStatusModel,
-    notificationModel,
-    notificationStatusModel,
     blobServiceClientForMessageContentAdapter,
     canAccessMessageReadStatus(
       profileModel,
