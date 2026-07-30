@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.2.7
+
+### Patch Changes
+
+- 14bbbe9: update required ports and adapters for the upcoming getMessage implementation
+
 ## 0.2.6
 
 ### Patch Changes
