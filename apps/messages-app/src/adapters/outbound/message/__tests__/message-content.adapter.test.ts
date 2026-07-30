@@ -164,3 +164,93 @@ describe("getMessagesContentByIds", () => {
     expect(trackEventMock).not.toHaveBeenCalled();
   });
 });
+
+describe("getMessageContentById", () => {
+  beforeEach(() => {
+    downloadToBufferMock.mockReset();
+    downloadToBufferMock.mockImplementation(() =>
+      Promise.resolve(aValidBuffer),
+    );
+    trackEventMock.mockReset();
+  });
+
+  it("returns the content for an existing valid message", async () => {
+    const result = await adapter.getMessageContentById("id-1");
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toEqual(aValidMessageContent);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns a NotFoundError when the blob does not exist", async () => {
+    downloadToBufferMock.mockImplementation(() =>
+      Promise.reject(new RestError("not found", { statusCode: 404 })),
+    );
+
+    const result = await adapter.getMessageContentById("missing");
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns a MalformedEntityError when the content is invalid", async () => {
+    downloadToBufferMock.mockImplementation(() =>
+      Promise.resolve(Buffer.from(JSON.stringify({ subject: "" }))),
+    );
+
+    const result = await adapter.getMessageContentById("malformed");
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
+    expect(trackEventMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns a MalformedEntityError when the buffer is not valid JSON", async () => {
+    downloadToBufferMock.mockImplementation(() =>
+      Promise.resolve(Buffer.from("not-a-json")),
+    );
+
+    const result = await adapter.getMessageContentById("broken-json");
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
+    expect(trackEventMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns a TooManyRequestsError on throttling", async () => {
+    downloadToBufferMock.mockImplementation(() =>
+      Promise.reject(new RestError("throttled", { statusCode: 429 })),
+    );
+
+    const result = await adapter.getMessageContentById("id-1");
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns a GenericError on an unexpected RestError status", async () => {
+    downloadToBufferMock.mockImplementation(() =>
+      Promise.reject(new RestError("boom", { statusCode: 500 })),
+    );
+
+    const result = await adapter.getMessageContentById("id-1");
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns a GenericError on non-RestError failures", async () => {
+    downloadToBufferMock.mockImplementation(() =>
+      Promise.reject(new Error("unexpected")),
+    );
+
+    const result = await adapter.getMessageContentById("id-1");
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});

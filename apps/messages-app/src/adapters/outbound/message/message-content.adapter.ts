@@ -77,9 +77,27 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
       blobServiceClient.getContainerClient(containerName);
   }
 
-  // getContentById returns the content of the message identified by
+  // parseContent perform runtime validation over the buffer.
+  // errors short-circuit and fail the whole operation.
+  #parseContent(
+    buffer: Buffer,
+  ): Result<MessageContent, GenericError | MalformedEntityError> {
+    const parsedMessageContent = fromThrowable(
+      () => blobMessageContentSchema.parse(JSON.parse(buffer.toString())),
+      () =>
+        new GenericError(`Invalid messageContentSchema for message content`),
+    )();
+
+    if (parsedMessageContent.isErr()) {
+      return err(new MalformedEntityError(parsedMessageContent.error.message));
+    }
+
+    return ok(toMessageContent(parsedMessageContent.value));
+  }
+
+  // getMessageContentById returns the content of the message identified by
   // `messageID`.
-  async #getContentById(
+  async getMessageContentById(
     messageID: string,
   ): Promise<
     Result<
@@ -123,35 +141,15 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
     if (parsedContent.isErr()) {
       // In this case we know that the message content is malformed
       this.logger.trackEvent({
-        name: "MessageContentBlobAdapter.getContentById.failed.parse",
+        name: "MessageContentBlobAdapter.getMessageContentById.failed.parse",
         properties: {
           messageID,
         },
       });
-      return err(
-        new MalformedEntityError(
-          `invalid message content for message with id: ${messageID}" ${parsedContent.error.name}: ${parsedContent.error.message}`,
-        ),
-      );
+      return err(parsedContent.error);
     }
 
     return ok(parsedContent.value);
-  }
-
-  // parseContent perform runtime validation over the buffer.
-  // errors short-circuit and fail the whole operation.
-  #parseContent(buffer: Buffer): Result<MessageContent, GenericError> {
-    const parsedMessageContent = fromThrowable(
-      () => blobMessageContentSchema.parse(JSON.parse(buffer.toString())),
-      () =>
-        new GenericError(`Invalid messageContentSchema for message content`),
-    )();
-
-    if (parsedMessageContent.isErr()) {
-      return err(parsedMessageContent.error);
-    }
-
-    return ok(toMessageContent(parsedMessageContent.value));
   }
 
   async getMessagesContentByIds(
@@ -163,7 +161,7 @@ export class MessageContentBlobAdapter implements MessageContentRepository {
     >
   > {
     const results = await Promise.all(
-      messageIDs.map((messageID) => this.#getContentById(messageID)),
+      messageIDs.map((messageID) => this.getMessageContentById(messageID)),
     );
 
     const contentById = new Map<

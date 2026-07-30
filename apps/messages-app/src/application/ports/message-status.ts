@@ -1,6 +1,12 @@
-import { GenericError, TooManyRequestsError } from "@pagopa/hexagonal-core";
+import {
+  GenericError,
+  NotFoundError,
+  TooManyRequestsError,
+} from "@pagopa/hexagonal-core";
 import { Result } from "neverthrow";
 import z from "zod";
+
+import { MalformedEntityError } from "./error.js";
 
 export const notRejectedMessageStatusValueSchema = z.enum([
   "ACCEPTED",
@@ -28,6 +34,22 @@ export const messageStatusSchema = z.object({
 export type MessageStatus = z.TypeOf<typeof messageStatusSchema>;
 
 export interface MessageStatusRepository {
+  /**
+   * Returns the latest version of the status for the single message identified
+   * by the provided `messageId`.
+   *
+   * Returns a `NotFoundError` when no status exists for the message, a
+   * `MalformedEntityError` when the stored document cannot be parsed.
+   */
+  getLatestMessageStatusById(
+    messageId: string,
+  ): Promise<
+    Result<
+      MessageStatus,
+      GenericError | MalformedEntityError | NotFoundError | TooManyRequestsError
+    >
+  >;
+
   /**
    * Returns the latest version of the status for each of the messages
    * identified by the provided message ids.

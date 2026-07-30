@@ -59,7 +59,7 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
       .container(containerName);
   }
 
-  async #getLatestStatusById(
+  async getLatestMessageStatusById(
     messageID: string,
   ): Promise<
     Result<
@@ -110,7 +110,7 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
       return err(
         new NotFoundError(
           "message status",
-          `cannot find any message sttus for message identified by id ${messageID}`,
+          `cannot find any message status for message identified by id ${messageID}`,
         ),
       );
     }
@@ -129,13 +129,12 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
     return ok(toMessageStatus(decoded.data));
   }
 
-  // getLatestStatusById returns the latest message status of the message
   // identified by `messageID`.
   async getLatestMessagesStatusByIds(
     messageIDs: string[],
   ): Promise<Result<MessageStatus[], GenericError | TooManyRequestsError>> {
     const results = await Promise.all(
-      messageIDs.map((messageID) => this.#getLatestStatusById(messageID)),
+      messageIDs.map((messageID) => this.getLatestMessageStatusById(messageID)),
     );
 
     const statuses: MessageStatus[] = [];
