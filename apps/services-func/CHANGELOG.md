@@ -1,5 +1,12 @@
 # services-func
 
+## 2.1.9
+
+### Patch Changes
+
+- 535eb1e: Remove unused notification-status.
+- 3fa33f0: Update form data peer dependency
+
 ## 2.1.8
 
 ### Patch Changes

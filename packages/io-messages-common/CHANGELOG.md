@@ -1,5 +1,11 @@
 # io-messages-common
 
+## 1.4.4
+
+### Patch Changes
+
+- 3fa33f0: Update form data peer dependency
+
 ## 1.4.3
 
 ### Patch Changes
