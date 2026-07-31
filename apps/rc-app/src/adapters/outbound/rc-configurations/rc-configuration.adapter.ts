@@ -5,6 +5,7 @@ import {
   SqlQuerySpec,
 } from "@azure/cosmos";
 import {
+  ConflictError,
   FiscalCodeSchema,
   GenericError,
   NotFoundError,
@@ -55,6 +56,42 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
     this.#cosmosContainer = cosmosClient
       .database(databaseName)
       .container(RC_CONFIGURATION_COLLECTION_NAME);
+  }
+
+  async createRemoteContentConfiguration(
+    configuration: RCConfiguration,
+  ): Promise<
+    Result<RCConfiguration, ConflictError | GenericError | TooManyRequestsError>
+  > {
+    const cosmosResponse = await ResultAsync.fromPromise(
+      this.#cosmosContainer.items.create(configuration),
+      (error) => {
+        if (error instanceof RestError) {
+          switch (error.statusCode) {
+            case 409:
+              return new ConflictError(
+                `an rc configuration with id ${configuration.configurationId} already exists`,
+              );
+            case 429:
+              return new TooManyRequestsError();
+            default:
+              return new GenericError(
+                `error creating rc configuration with id ${configuration.configurationId}: ${error.name}: ${error.message}`,
+              );
+          }
+        }
+
+        return new GenericError(
+          `error creating rc configuration with id ${configuration.configurationId}: ${error}`,
+        );
+      },
+    );
+
+    if (cosmosResponse.isErr()) {
+      return err(cosmosResponse.error);
+    }
+
+    return ok(configuration);
   }
 
   async getRemoteContentConfiguration(

@@ -1,4 +1,5 @@
 import {
+  ConflictError,
   FiscalCodeSchema,
   GenericError,
   NotFoundError,
@@ -47,6 +48,15 @@ export const rcConfigurationSchema = z.object({
 export type RCConfiguration = z.TypeOf<typeof rcConfigurationSchema>;
 
 export interface RemoteContentRepository {
+  /**
+   * Create a new RC configuration in the repository.
+   */
+  createRemoteContentConfiguration(
+    configuration: RCConfiguration,
+  ): Promise<
+    Result<RCConfiguration, ConflictError | GenericError | TooManyRequestsError>
+  >;
+
   /**
    * Returns the RC configuration identified by the given configuration ID.
    *
