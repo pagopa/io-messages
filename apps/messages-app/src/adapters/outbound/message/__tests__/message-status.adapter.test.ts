@@ -2,6 +2,7 @@ import {
   CosmosClient,
   CosmosDiagnostics,
   FeedResponse,
+  ItemResponse,
   RestError,
   SqlQuerySpec,
 } from "@azure/cosmos";
@@ -50,6 +51,7 @@ const queryMock = vi
   .spyOn(container.items, "query")
   .mockReturnValue(queryIterator);
 const fetchNextMock = vi.spyOn(queryIterator, "fetchNext");
+const upsertMock = vi.spyOn(container.items, "upsert");
 
 const trackEventMock = vi.fn();
 const adapter = new MessageStatusCosmosAdapter(
@@ -230,5 +232,50 @@ describe("getLatestMessageStatusById", () => {
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
     expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("upsertMessageStatus", () => {
+  beforeEach(() => {
+    upsertMock.mockReset();
+    upsertMock.mockResolvedValue({} as unknown as ItemResponse<MessageStatus>);
+    trackEventMock.mockReset();
+  });
+
+  it("returns the upserted MessageStatus on success", async () => {
+    const result = await adapter.upsertMessageStatus(aMessageStatus);
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toEqual(aMessageStatus);
+    expect(upsertMock).toHaveBeenCalledWith(aMessageStatus);
+  });
+
+  it("returns a TooManyRequestsError when Cosmos throttles the request", async () => {
+    upsertMock.mockRejectedValue(
+      new RestError("throttled", { statusCode: 429 }),
+    );
+
+    const result = await adapter.upsertMessageStatus(aMessageStatus);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
+  });
+
+  it("returns a GenericError on an unexpected Cosmos RestError", async () => {
+    upsertMock.mockRejectedValue(new RestError("boom", { statusCode: 500 }));
+
+    const result = await adapter.upsertMessageStatus(aMessageStatus);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+  });
+
+  it("returns a GenericError on a non-RestError failure", async () => {
+    upsertMock.mockRejectedValue(new Error("unexpected"));
+
+    const result = await adapter.upsertMessageStatus(aMessageStatus);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
   });
 });

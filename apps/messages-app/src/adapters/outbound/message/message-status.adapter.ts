@@ -171,4 +171,34 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
 
     return ok(statuses);
   }
+
+  async upsertMessageStatus(
+    messageStatus: MessageStatus,
+  ): Promise<Result<MessageStatus, GenericError | TooManyRequestsError>> {
+    const upsertResult = await ResultAsync.fromPromise(
+      this.#cosmosContainer.items.upsert(messageStatus),
+      (e) => {
+        if (e instanceof RestError) {
+          switch (e.statusCode) {
+            case 429:
+              return new TooManyRequestsError();
+            default:
+              return new GenericError(
+                `error upserting status for message ${messageStatus.messageId}: ${e.name}: ${e.message}`,
+              );
+          }
+        }
+
+        return new GenericError(
+          `error upserting message status for message ${messageStatus.messageId}: ${e}`,
+        );
+      },
+    );
+
+    if (upsertResult.isErr()) {
+      return err(upsertResult.error);
+    }
+
+    return ok(messageStatus);
+  }
 }

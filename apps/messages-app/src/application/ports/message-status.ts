@@ -59,4 +59,14 @@ export interface MessageStatusRepository {
   getLatestMessagesStatusByIds(
     messageIDs: string[],
   ): Promise<Result<MessageStatus[], GenericError | TooManyRequestsError>>;
+
+  /**
+   * Upserts the provided message status, creating it if it does not exist or
+   * replacing it if it does.
+   *
+   * Returns the upserted `MessageStatus` on success.
+   */
+  upsertMessageStatus(
+    messageStatus: MessageStatus,
+  ): Promise<Result<MessageStatus, GenericError | TooManyRequestsError>>;
 }
