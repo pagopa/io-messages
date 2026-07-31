@@ -1,4 +1,4 @@
-import { CosmosClient, RestError } from "@azure/cosmos";
+import { CosmosClient, ErrorResponse, RestError } from "@azure/cosmos";
 import {
   ConflictError,
   GenericError,
@@ -20,6 +20,12 @@ const aValidCosmosResource = {
   isLollipopEnabled: false,
   name: "A name",
   userId: "user-123",
+};
+
+const makeCosmosError = (code: number | string, message = "cosmos failure") => {
+  const error = new ErrorResponse(message);
+  error.code = code;
+  return error;
 };
 
 const makeMocks = () => {
@@ -76,6 +82,36 @@ describe("RCConfigurationCosmosAdapter", () => {
 
     it("returns a TooManyRequestsError when Cosmos responds with 429", async () => {
       const { mockCosmosClient, mockFetchNext } = makeMocks();
+      mockFetchNext.mockRejectedValueOnce(makeCosmosError(429));
+
+      const adapter = new RCConfigurationCosmosAdapter(
+        mockCosmosClient,
+        "myDatabase",
+      );
+      const result =
+        await adapter.getRemoteContentConfiguration(aConfigurationId);
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
+    });
+
+    it("returns a GenericError when Cosmos responds with another status code", async () => {
+      const { mockCosmosClient, mockFetchNext } = makeMocks();
+      mockFetchNext.mockRejectedValueOnce(makeCosmosError(500));
+
+      const adapter = new RCConfigurationCosmosAdapter(
+        mockCosmosClient,
+        "myDatabase",
+      );
+      const result =
+        await adapter.getRemoteContentConfiguration(aConfigurationId);
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    });
+
+    it("returns a TooManyRequestsError when the transport layer reports 429", async () => {
+      const { mockCosmosClient, mockFetchNext } = makeMocks();
       mockFetchNext.mockRejectedValueOnce(
         new RestError("Too Many Requests", { statusCode: 429 }),
       );
@@ -91,10 +127,10 @@ describe("RCConfigurationCosmosAdapter", () => {
       expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
     });
 
-    it("returns a GenericError when Cosmos responds with a non-429 RestError", async () => {
+    it("returns a GenericError when the transport layer fails without a status code", async () => {
       const { mockCosmosClient, mockFetchNext } = makeMocks();
       mockFetchNext.mockRejectedValueOnce(
-        new RestError("Internal Server Error", { statusCode: 500 }),
+        new RestError("getaddrinfo ENOTFOUND", { code: "ENOTFOUND" }),
       );
 
       const adapter = new RCConfigurationCosmosAdapter(
@@ -108,9 +144,9 @@ describe("RCConfigurationCosmosAdapter", () => {
       expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
     });
 
-    it("returns a GenericError when a non-RestError is thrown", async () => {
+    it("returns a GenericError when the thrown value is not a Cosmos error", async () => {
       const { mockCosmosClient, mockFetchNext } = makeMocks();
-      mockFetchNext.mockRejectedValueOnce(new Error("network failure"));
+      mockFetchNext.mockRejectedValueOnce("network failure");
 
       const adapter = new RCConfigurationCosmosAdapter(
         mockCosmosClient,
@@ -121,6 +157,7 @@ describe("RCConfigurationCosmosAdapter", () => {
 
       expect(result.isErr()).toBe(true);
       expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+      expect(result._unsafeUnwrapErr().message).toContain("network failure");
     });
 
     it("returns a GenericError when the resource does not match the schema", async () => {
@@ -195,6 +232,66 @@ describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => 
 
   it("returns a ConflictError when Cosmos responds with 409", async () => {
     const { mockCosmosClient, mockCreate } = makeMocks();
+    mockCreate.mockRejectedValueOnce(makeCosmosError(409));
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result =
+      await adapter.createRemoteContentConfiguration(aValidCosmosResource);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(ConflictError);
+  });
+
+  it("returns a TooManyRequestsError when Cosmos responds with 429", async () => {
+    const { mockCosmosClient, mockCreate } = makeMocks();
+    mockCreate.mockRejectedValueOnce(makeCosmosError(429));
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result =
+      await adapter.createRemoteContentConfiguration(aValidCosmosResource);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
+  });
+
+  it("returns a GenericError when Cosmos responds with another status code", async () => {
+    const { mockCosmosClient, mockCreate } = makeMocks();
+    mockCreate.mockRejectedValueOnce(makeCosmosError(500));
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result =
+      await adapter.createRemoteContentConfiguration(aValidCosmosResource);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+  });
+
+  it("returns a GenericError when the status code is not numeric", async () => {
+    const { mockCosmosClient, mockCreate } = makeMocks();
+    mockCreate.mockRejectedValueOnce(makeCosmosError("ENOTFOUND"));
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result =
+      await adapter.createRemoteContentConfiguration(aValidCosmosResource);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+  });
+
+  it("returns a ConflictError when the transport layer reports 409", async () => {
+    const { mockCosmosClient, mockCreate } = makeMocks();
     mockCreate.mockRejectedValueOnce(
       new RestError("Conflict", { statusCode: 409 }),
     );
@@ -210,28 +307,9 @@ describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => 
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(ConflictError);
   });
 
-  it("returns a TooManyRequestsError when Cosmos responds with 429", async () => {
+  it("returns a GenericError when the thrown value is not a Cosmos error", async () => {
     const { mockCosmosClient, mockCreate } = makeMocks();
-    mockCreate.mockRejectedValueOnce(
-      new RestError("Too Many Requests", { statusCode: 429 }),
-    );
-
-    const adapter = new RCConfigurationCosmosAdapter(
-      mockCosmosClient,
-      "myDatabase",
-    );
-    const result =
-      await adapter.createRemoteContentConfiguration(aValidCosmosResource);
-
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
-  });
-
-  it("returns a GenericError when Cosmos responds with another RestError", async () => {
-    const { mockCosmosClient, mockCreate } = makeMocks();
-    mockCreate.mockRejectedValueOnce(
-      new RestError("Internal Server Error", { statusCode: 500 }),
-    );
+    mockCreate.mockRejectedValueOnce("network failure");
 
     const adapter = new RCConfigurationCosmosAdapter(
       mockCosmosClient,
@@ -242,20 +320,6 @@ describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => 
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
-  });
-
-  it("returns a GenericError when a non-RestError is thrown", async () => {
-    const { mockCosmosClient, mockCreate } = makeMocks();
-    mockCreate.mockRejectedValueOnce(new Error("network failure"));
-
-    const adapter = new RCConfigurationCosmosAdapter(
-      mockCosmosClient,
-      "myDatabase",
-    );
-    const result =
-      await adapter.createRemoteContentConfiguration(aValidCosmosResource);
-
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toContain("network failure");
   });
 });
