@@ -80,6 +80,7 @@ describe("getMessageDetailsByServiceIds", () => {
       `https://apim.example/api/v1/internal/services/${aServiceID}`,
       {
         headers: {
+          "Content-Type": "application/json",
           "Ocp-Apim-Subscription-Key": "subscription-key",
         },
       },

@@ -127,8 +127,8 @@ export class MessageDetailServicesAdapter implements MessageDetailRepository {
     const response = await ResultAsync.fromPromise(
       fetch(serviceDetailURL.toString(), {
         headers: {
-          "Ocp-Apim-Subscription-Key": this.apimSubscriptionKey,
           "Content-Type": "application/json",
+          "Ocp-Apim-Subscription-Key": this.apimSubscriptionKey,
         },
       }),
       (err) => new GenericError(String(err)),
