@@ -1,3 +1,8 @@
+data "azurerm_key_vault_secret" "services_apim_subscription_key" {
+  name         = "services-apim-subscription-key"
+  key_vault_id = var.key_vault_id
+}
+
 module "messages_ca" {
   source  = "pagopa-dx/azure-container-app/azurerm"
   version = "~> 6.0"
@@ -43,7 +48,11 @@ module "messages_ca" {
 
         APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
         APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
+
+        APIM_BASE_URL = "https://api-app.internal.io.pagopa.it"
       }
+
+      secret_names = ["APIM_SUBSCRIPTION_KEY"]
 
       liveness_probe = {
         path = "/api/info"
@@ -61,6 +70,13 @@ module "messages_ca" {
   container_port = 3000
 
   resource_group_name = var.resource_group_name
+
+  secrets = [
+    {
+      name                = "APIM_SUBSCRIPTION_KEY"
+      key_vault_secret_id = data.azurerm_key_vault_secret.services_apim_subscription_key.versionless_id
+    }
+  ]
 
   tags = var.tags
 }
