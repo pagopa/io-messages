@@ -2,4 +2,4 @@
 "messages-app": minor
 ---
 
-Add message detail repository and adapter
+Add services cms repository and adapter
