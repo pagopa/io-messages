@@ -26,6 +26,7 @@ const aValidConfiguration = {
 const makeRepository = (): RemoteContentRepository => ({
   createRemoteContentConfiguration: vi.fn(),
   getRemoteContentConfiguration: vi.fn(),
+  updateRemoteContentConfiguration: vi.fn(),
 });
 
 describe("makeGetRcConfigurationUseCase", () => {

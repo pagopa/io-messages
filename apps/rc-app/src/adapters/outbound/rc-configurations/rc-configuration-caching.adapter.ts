@@ -66,4 +66,25 @@ export class CachingRemoteContentRepository implements RemoteContentRepository {
 
     return ok(result.value);
   }
+
+  async updateRemoteContentConfiguration(
+    configuration: RCConfiguration,
+  ): Promise<
+    Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
+  > {
+    const result =
+      await this.repository.updateRemoteContentConfiguration(configuration);
+    if (result.isErr()) {
+      return err(result.error);
+    }
+
+    // We simply ignore caching errors.
+    await this.cache.setCachedRemoteContentConfiguration(
+      result.value.configurationId,
+      result.value,
+      this.cacheTtlInSeconds,
+    );
+
+    return ok(result.value);
+  }
 }

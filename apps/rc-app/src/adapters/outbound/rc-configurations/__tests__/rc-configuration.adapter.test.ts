@@ -32,15 +32,25 @@ const makeMocks = () => {
   const mockFetchNext = vi.fn();
   const mockQuery = vi.fn().mockReturnValue({ fetchNext: mockFetchNext });
   const mockCreate = vi.fn();
+  const mockReplace = vi.fn();
+  const mockItem = vi.fn().mockReturnValue({ replace: mockReplace });
   const mockCosmosClient = {
     database: vi.fn().mockReturnValue({
       container: vi.fn().mockReturnValue({
+        item: mockItem,
         items: { create: mockCreate, query: mockQuery },
       }),
     }),
   } as unknown as CosmosClient;
 
-  return { mockCosmosClient, mockCreate, mockFetchNext, mockQuery };
+  return {
+    mockCosmosClient,
+    mockCreate,
+    mockFetchNext,
+    mockItem,
+    mockQuery,
+    mockReplace,
+  };
 };
 
 describe("RCConfigurationCosmosAdapter", () => {
@@ -317,6 +327,157 @@ describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => 
     );
     const result =
       await adapter.createRemoteContentConfiguration(aValidCosmosResource);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toContain("network failure");
+  });
+});
+
+describe("RCConfigurationCosmosAdapter.updateRemoteContentConfiguration", () => {
+  it("replaces the document addressing it by id and partition key", async () => {
+    const { mockCosmosClient, mockItem, mockReplace } = makeMocks();
+    mockReplace.mockResolvedValueOnce({ resource: aValidCosmosResource });
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result =
+      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
+
+    expect(mockItem).toHaveBeenCalledWith(
+      aValidCosmosResource.id,
+      aConfigurationId,
+    );
+    expect(mockReplace).toHaveBeenCalledWith(aValidCosmosResource);
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toStrictEqual(aValidCosmosResource);
+  });
+
+  it("persists and returns the optional environments of the RC configuration", async () => {
+    const { mockCosmosClient, mockReplace } = makeMocks();
+    const anEnvironment = {
+      baseUrl: "https://example.com",
+      detailsAuthentication: {
+        headerKeyName: "X-Api-Key",
+        key: "a-key",
+        type: "API_KEY",
+      },
+    };
+    const aConfigurationWithEnvironments = {
+      ...aValidCosmosResource,
+      prodEnvironment: anEnvironment,
+      testEnvironment: { ...anEnvironment, testUsers: [] },
+    };
+    mockReplace.mockResolvedValueOnce({
+      resource: aConfigurationWithEnvironments,
+    });
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result = await adapter.updateRemoteContentConfiguration(
+      aConfigurationWithEnvironments,
+    );
+
+    expect(mockReplace).toHaveBeenCalledWith(aConfigurationWithEnvironments);
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toStrictEqual(
+      aConfigurationWithEnvironments,
+    );
+  });
+
+  it("returns a NotFoundError when Cosmos responds with 404", async () => {
+    const { mockCosmosClient, mockReplace } = makeMocks();
+    mockReplace.mockRejectedValueOnce(makeCosmosError(404));
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result =
+      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
+    expect(result._unsafeUnwrapErr().message).toContain(aConfigurationId);
+  });
+
+  it("returns a TooManyRequestsError when Cosmos responds with 429", async () => {
+    const { mockCosmosClient, mockReplace } = makeMocks();
+    mockReplace.mockRejectedValueOnce(makeCosmosError(429));
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result =
+      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
+  });
+
+  it("returns a GenericError when Cosmos responds with another status code", async () => {
+    const { mockCosmosClient, mockReplace } = makeMocks();
+    mockReplace.mockRejectedValueOnce(makeCosmosError(500));
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result =
+      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toContain(aConfigurationId);
+  });
+
+  it("returns a GenericError when the status code is not numeric", async () => {
+    const { mockCosmosClient, mockReplace } = makeMocks();
+    mockReplace.mockRejectedValueOnce(makeCosmosError("ENOTFOUND"));
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result =
+      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+  });
+
+  it("returns a NotFoundError when the transport layer reports 404", async () => {
+    const { mockCosmosClient, mockReplace } = makeMocks();
+    mockReplace.mockRejectedValueOnce(
+      new RestError("Not Found", { statusCode: 404 }),
+    );
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result =
+      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
+  });
+
+  it("returns a GenericError when the thrown value is not a Cosmos error", async () => {
+    const { mockCosmosClient, mockReplace } = makeMocks();
+    mockReplace.mockRejectedValueOnce("network failure");
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result =
+      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);

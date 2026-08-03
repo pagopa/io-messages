@@ -165,4 +165,37 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
       );
     }
   }
+
+  async updateRemoteContentConfiguration(
+    configuration: RCConfiguration,
+  ): Promise<
+    Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
+  > {
+    const cosmosResponse = await ResultAsync.fromPromise(
+      this.#cosmosContainer
+        .item(configuration.id, configuration.configurationId)
+        .replace(configuration),
+      (error) => {
+        switch (getStatusCode(error)) {
+          case StatusCodes.NotFound:
+            return new NotFoundError(
+              `rc-configuration`,
+              `RC configuration not found: ${configuration.configurationId}`,
+            );
+          case StatusCodes.TooManyRequests:
+            return new TooManyRequestsError();
+          default:
+            return new GenericError(
+              `error updating rc configuration with id ${configuration.configurationId}: ${getErrorMessage(error)}`,
+            );
+        }
+      },
+    );
+
+    if (cosmosResponse.isErr()) {
+      return err(cosmosResponse.error);
+    }
+
+    return ok(configuration);
+  }
 }

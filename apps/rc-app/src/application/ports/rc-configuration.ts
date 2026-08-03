@@ -69,4 +69,18 @@ export interface RemoteContentRepository {
   ): Promise<
     Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
   >;
+
+  /**
+   * Updates an existing RC configuration, replacing it with the given one.
+   *
+   * Returns a `NotFoundError` if no configuration exists for the given
+   * `configurationId`, a `TooManyRequestsError` if the upstream store is
+   * rate-limiting requests, or a `GenericError` on other infrastructure
+   * failures.
+   */
+  updateRemoteContentConfiguration(
+    configuration: RCConfiguration,
+  ): Promise<
+    Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
+  >;
 }
