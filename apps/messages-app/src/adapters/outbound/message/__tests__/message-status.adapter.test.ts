@@ -7,6 +7,7 @@ import {
   SqlQuerySpec,
 } from "@azure/cosmos";
 import {
+  ConflictError,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -14,10 +15,7 @@ import {
 import { Logger } from "@pagopa/hexagonal-core/domain/ports";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  MalformedEntityError,
-  MessageStatusVersionConflictError,
-} from "../../../../application/ports/error.js";
+import { MalformedEntityError } from "../../../../application/ports/error.js";
 import { MessageStatus } from "../../../../application/ports/message-status.js";
 import { MessageStatusCosmosAdapter } from "../message-status.adapter.js";
 
@@ -254,7 +252,7 @@ describe("createMessageStatus", () => {
     expect(createMock).toHaveBeenCalledWith(aMessageStatus);
   });
 
-  it("returns a MessageStatusVersionConflictError when the version exists", async () => {
+  it("returns a ConflictError when the version exists", async () => {
     createMock.mockRejectedValue(
       new RestError("conflict", { statusCode: 409 }),
     );
@@ -262,9 +260,7 @@ describe("createMessageStatus", () => {
     const result = await adapter.createMessageStatus(aMessageStatus);
 
     expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(
-      MessageStatusVersionConflictError,
-    );
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(ConflictError);
   });
 
   it("returns a TooManyRequestsError when Cosmos throttles the request", async () => {

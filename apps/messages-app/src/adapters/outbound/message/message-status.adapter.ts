@@ -7,6 +7,7 @@ import {
   SqlQuerySpec,
 } from "@azure/cosmos";
 import {
+  ConflictError,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -14,10 +15,7 @@ import {
 import { Result, ResultAsync, err, ok } from "neverthrow";
 import z from "zod";
 
-import {
-  MalformedEntityError,
-  MessageStatusVersionConflictError,
-} from "../../../application/ports/error.js";
+import { MalformedEntityError } from "../../../application/ports/error.js";
 import {
   MessageStatus,
   MessageStatusRepository,
@@ -68,10 +66,7 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
   async createMessageStatus(
     messageStatus: MessageStatus,
   ): Promise<
-    Result<
-      MessageStatus,
-      GenericError | MessageStatusVersionConflictError | TooManyRequestsError
-    >
+    Result<MessageStatus, ConflictError | GenericError | TooManyRequestsError>
   > {
     const createResult = await ResultAsync.fromPromise(
       this.#cosmosContainer.items.create(messageStatus),
@@ -79,9 +74,8 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
         if (e instanceof RestError) {
           switch (e.statusCode) {
             case 409:
-              return new MessageStatusVersionConflictError(
-                messageStatus.messageId,
-                messageStatus.version,
+              return new ConflictError(
+                `Version ${messageStatus.version} already exists for message status ${messageStatus.messageId}`,
               );
             case 429:
               return new TooManyRequestsError();

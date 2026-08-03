@@ -1,4 +1,5 @@
 import type {
+  ConflictError,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -7,10 +8,7 @@ import type {
 
 import { err } from "neverthrow";
 
-import type {
-  MalformedEntityError,
-  MessageStatusVersionConflictError,
-} from "../ports/error.js";
+import type { MalformedEntityError } from "../ports/error.js";
 
 import {
   MessageStatus,
@@ -27,9 +25,9 @@ export type UpdateMessageStatusInput = {
 } & MessageStatusFlagsUpdate;
 
 export type UpdateMessageStatusError =
+  | ConflictError
   | GenericError
   | MalformedEntityError
-  | MessageStatusVersionConflictError
   | NotFoundError
   | TooManyRequestsError;
 
@@ -42,7 +40,6 @@ export type UpdateMessageStatusUseCase = UseCase<
 export const makeUpdateMessageStatusUseCase =
   (
     messageStatusRepository: MessageStatusRepository,
-    now: () => Date,
   ): UpdateMessageStatusUseCase =>
   async ({ isArchived, isRead, messageId }) => {
     const latestStatusResult =
@@ -59,7 +56,7 @@ export const makeUpdateMessageStatusUseCase =
       ...(isArchived === undefined ? {} : { isArchived }),
       ...(isRead === undefined ? {} : { isRead }),
       id: createMessageStatusId(latestStatus.messageId, version),
-      updatedAt: now().toISOString(),
+      updatedAt: new Date().toISOString(),
       version,
     };
 

@@ -1,4 +1,5 @@
 import {
+  ConflictError,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -6,10 +7,7 @@ import {
 import { Result } from "neverthrow";
 import z from "zod";
 
-import {
-  MalformedEntityError,
-  MessageStatusVersionConflictError,
-} from "./error.js";
+import { MalformedEntityError } from "./error.js";
 
 export const notRejectedMessageStatusValueSchema = z.enum([
   "ACCEPTED",
@@ -50,16 +48,13 @@ export interface MessageStatusRepository {
   /**
    * Creates the provided message status as a new immutable version.
    *
-   * Returns a `MessageStatusVersionConflictError` when the version already
+   * Returns a `ConflictError` when the version already
    * exists and must not be overwritten.
    */
   createMessageStatus(
     messageStatus: MessageStatus,
   ): Promise<
-    Result<
-      MessageStatus,
-      GenericError | MessageStatusVersionConflictError | TooManyRequestsError
-    >
+    Result<MessageStatus, ConflictError | GenericError | TooManyRequestsError>
   >;
 
   /**

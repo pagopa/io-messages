@@ -1,20 +1,18 @@
 import {
+  ConflictError,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
 import { err, ok } from "neverthrow";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
   MessageStatus,
   MessageStatusRepository,
 } from "../../ports/message-status.js";
 
-import {
-  MalformedEntityError,
-  MessageStatusVersionConflictError,
-} from "../../ports/error.js";
+import { MalformedEntityError } from "../../ports/error.js";
 import { makeUpdateMessageStatusUseCase } from "../update-message-status.use-case.js";
 
 const messageId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
@@ -36,6 +34,15 @@ const makeRepository = (): MessageStatusRepository => ({
 });
 
 describe("makeUpdateMessageStatusUseCase", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(updatedAt);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("creates the next immutable version with the requested flags", async () => {
     const repository = makeRepository();
     const expectedStatus: MessageStatus = {
@@ -49,7 +56,7 @@ describe("makeUpdateMessageStatusUseCase", () => {
     vi.mocked(repository.createMessageStatus).mockResolvedValue(
       ok(expectedStatus),
     );
-    const useCase = makeUpdateMessageStatusUseCase(repository, () => updatedAt);
+    const useCase = makeUpdateMessageStatusUseCase(repository);
 
     const result = await useCase({
       isArchived: false,
@@ -84,7 +91,7 @@ describe("makeUpdateMessageStatusUseCase", () => {
     ],
   ])("updates only the provided flag", async (input, expectedFlags) => {
     const repository = makeRepository();
-    const useCase = makeUpdateMessageStatusUseCase(repository, () => updatedAt);
+    const useCase = makeUpdateMessageStatusUseCase(repository);
 
     await useCase(input);
 
@@ -103,7 +110,7 @@ describe("makeUpdateMessageStatusUseCase", () => {
     vi.mocked(repository.getLatestMessageStatusById).mockResolvedValue(
       err(error),
     );
-    const useCase = makeUpdateMessageStatusUseCase(repository, () => updatedAt);
+    const useCase = makeUpdateMessageStatusUseCase(repository);
 
     const result = await useCase({ isRead: true, messageId });
 
@@ -113,12 +120,12 @@ describe("makeUpdateMessageStatusUseCase", () => {
 
   it.each([
     new GenericError("create failed"),
-    new MessageStatusVersionConflictError(messageId, 1),
+    new ConflictError(messageId),
     new TooManyRequestsError(),
   ])("propagates create errors", async (error) => {
     const repository = makeRepository();
     vi.mocked(repository.createMessageStatus).mockResolvedValue(err(error));
-    const useCase = makeUpdateMessageStatusUseCase(repository, () => updatedAt);
+    const useCase = makeUpdateMessageStatusUseCase(repository);
 
     const result = await useCase({ isArchived: false, messageId });
 
