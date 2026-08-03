@@ -14,11 +14,15 @@ import {
 import { Logger } from "@pagopa/hexagonal-core/domain/ports";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { MalformedEntityError } from "../../../../application/ports/error.js";
+import {
+  MalformedEntityError,
+  MessageStatusVersionConflictError,
+} from "../../../../application/ports/error.js";
 import { MessageStatus } from "../../../../application/ports/message-status.js";
 import { MessageStatusCosmosAdapter } from "../message-status.adapter.js";
 
 const aMessageStatus: MessageStatus = {
+  id: "01ARZ3NDEKTSV4RRFFQ69G5FAV-0000000000000000",
   isArchived: false,
   isRead: false,
   messageId: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
@@ -51,7 +55,7 @@ const queryMock = vi
   .spyOn(container.items, "query")
   .mockReturnValue(queryIterator);
 const fetchNextMock = vi.spyOn(queryIterator, "fetchNext");
-const upsertMock = vi.spyOn(container.items, "upsert");
+const createMock = vi.spyOn(container.items, "create");
 
 const trackEventMock = vi.fn();
 const adapter = new MessageStatusCosmosAdapter(
@@ -235,45 +239,58 @@ describe("getLatestMessageStatusById", () => {
   });
 });
 
-describe("upsertMessageStatus", () => {
+describe("createMessageStatus", () => {
   beforeEach(() => {
-    upsertMock.mockReset();
-    upsertMock.mockResolvedValue({} as unknown as ItemResponse<MessageStatus>);
+    createMock.mockReset();
+    createMock.mockResolvedValue({} as unknown as ItemResponse<MessageStatus>);
     trackEventMock.mockReset();
   });
 
-  it("returns the upserted MessageStatus on success", async () => {
-    const result = await adapter.upsertMessageStatus(aMessageStatus);
+  it("returns the created MessageStatus on success", async () => {
+    const result = await adapter.createMessageStatus(aMessageStatus);
 
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toEqual(aMessageStatus);
-    expect(upsertMock).toHaveBeenCalledWith(aMessageStatus);
+    expect(createMock).toHaveBeenCalledWith(aMessageStatus);
+  });
+
+  it("returns a MessageStatusVersionConflictError when the version exists", async () => {
+    createMock.mockRejectedValue(
+      new RestError("conflict", { statusCode: 409 }),
+    );
+
+    const result = await adapter.createMessageStatus(aMessageStatus);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(
+      MessageStatusVersionConflictError,
+    );
   });
 
   it("returns a TooManyRequestsError when Cosmos throttles the request", async () => {
-    upsertMock.mockRejectedValue(
+    createMock.mockRejectedValue(
       new RestError("throttled", { statusCode: 429 }),
     );
 
-    const result = await adapter.upsertMessageStatus(aMessageStatus);
+    const result = await adapter.createMessageStatus(aMessageStatus);
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
   });
 
   it("returns a GenericError on an unexpected Cosmos RestError", async () => {
-    upsertMock.mockRejectedValue(new RestError("boom", { statusCode: 500 }));
+    createMock.mockRejectedValue(new RestError("boom", { statusCode: 500 }));
 
-    const result = await adapter.upsertMessageStatus(aMessageStatus);
+    const result = await adapter.createMessageStatus(aMessageStatus);
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
   });
 
   it("returns a GenericError on a non-RestError failure", async () => {
-    upsertMock.mockRejectedValue(new Error("unexpected"));
+    createMock.mockRejectedValue(new Error("unexpected"));
 
-    const result = await adapter.upsertMessageStatus(aMessageStatus);
+    const result = await adapter.createMessageStatus(aMessageStatus);
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);

@@ -14,10 +14,14 @@ import {
 import { Result, ResultAsync, err, ok } from "neverthrow";
 import z from "zod";
 
-import { MalformedEntityError } from "../../../application/ports/error.js";
+import {
+  MalformedEntityError,
+  MessageStatusVersionConflictError,
+} from "../../../application/ports/error.js";
 import {
   MessageStatus,
   MessageStatusRepository,
+  messageStatusIdSchema,
 } from "../../../application/ports/message-status.js";
 
 // The message status as it is persisted on Cosmos. This is the adapter specific
@@ -25,9 +29,10 @@ import {
 // `MessageStatus` type: the adapter validates the raw document and then maps it
 // to the domain type required by the port.
 const cosmosMessageStatusSchema = z.object({
+  id: messageStatusIdSchema,
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
-  messageId: z.string().min(1),
+  messageId: z.ulid(),
   status: z.enum(["ACCEPTED", "THROTTLED", "FAILED", "PROCESSED", "REJECTED"]),
   updatedAt: z.string(),
   version: z.number(),
@@ -37,6 +42,7 @@ type CosmosMessageStatus = z.TypeOf<typeof cosmosMessageStatusSchema>;
 // Maps the adapter specific Cosmos representation to the domain type expected by
 // the port.
 const toMessageStatus = (s: CosmosMessageStatus): MessageStatus => ({
+  id: s.id,
   isArchived: s.isArchived,
   isRead: s.isRead,
   messageId: s.messageId,
@@ -57,6 +63,46 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
     this.#cosmosContainer = cosmosClient
       .database(databaseName)
       .container(containerName);
+  }
+
+  async createMessageStatus(
+    messageStatus: MessageStatus,
+  ): Promise<
+    Result<
+      MessageStatus,
+      GenericError | MessageStatusVersionConflictError | TooManyRequestsError
+    >
+  > {
+    const createResult = await ResultAsync.fromPromise(
+      this.#cosmosContainer.items.create(messageStatus),
+      (e) => {
+        if (e instanceof RestError) {
+          switch (e.statusCode) {
+            case 409:
+              return new MessageStatusVersionConflictError(
+                messageStatus.messageId,
+                messageStatus.version,
+              );
+            case 429:
+              return new TooManyRequestsError();
+            default:
+              return new GenericError(
+                `error creating status for message ${messageStatus.messageId}: ${e.name}: ${e.message}`,
+              );
+          }
+        }
+
+        return new GenericError(
+          `error creating message status for message ${messageStatus.messageId}: ${e}`,
+        );
+      },
+    );
+
+    if (createResult.isErr()) {
+      return err(createResult.error);
+    }
+
+    return ok(messageStatus);
   }
 
   async getLatestMessageStatusById(
@@ -170,35 +216,5 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
     }
 
     return ok(statuses);
-  }
-
-  async upsertMessageStatus(
-    messageStatus: MessageStatus,
-  ): Promise<Result<MessageStatus, GenericError | TooManyRequestsError>> {
-    const upsertResult = await ResultAsync.fromPromise(
-      this.#cosmosContainer.items.upsert(messageStatus),
-      (e) => {
-        if (e instanceof RestError) {
-          switch (e.statusCode) {
-            case 429:
-              return new TooManyRequestsError();
-            default:
-              return new GenericError(
-                `error upserting status for message ${messageStatus.messageId}: ${e.name}: ${e.message}`,
-              );
-          }
-        }
-
-        return new GenericError(
-          `error upserting message status for message ${messageStatus.messageId}: ${e}`,
-        );
-      },
-    );
-
-    if (upsertResult.isErr()) {
-      return err(upsertResult.error);
-    }
-
-    return ok(messageStatus);
   }
 }

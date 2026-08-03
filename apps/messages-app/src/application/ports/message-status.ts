@@ -6,7 +6,10 @@ import {
 import { Result } from "neverthrow";
 import z from "zod";
 
-import { MalformedEntityError } from "./error.js";
+import {
+  MalformedEntityError,
+  MessageStatusVersionConflictError,
+} from "./error.js";
 
 export const notRejectedMessageStatusValueSchema = z.enum([
   "ACCEPTED",
@@ -23,17 +26,42 @@ export const messageStatusValueSchema = z.union([
 ]);
 export type MessageStatusValue = z.TypeOf<typeof messageStatusValueSchema>;
 
+export const messageStatusIdSchema = z
+  .string()
+  .regex(/^[0-9A-HJKMNP-TV-Z]{26}-\d{16}$/);
+
+export const createMessageStatusId = (
+  messageId: string,
+  version: number,
+): string => `${messageId}-${String(version).padStart(16, "0")}`;
+
 export const messageStatusSchema = z.object({
+  id: messageStatusIdSchema,
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
-  messageId: z.string().min(1),
+  messageId: z.ulid(),
   status: messageStatusValueSchema,
   updatedAt: z.string(),
-  version: z.number(),
+  version: z.number().int().nonnegative(),
 });
 export type MessageStatus = z.TypeOf<typeof messageStatusSchema>;
 
 export interface MessageStatusRepository {
+  /**
+   * Creates the provided message status as a new immutable version.
+   *
+   * Returns a `MessageStatusVersionConflictError` when the version already
+   * exists and must not be overwritten.
+   */
+  createMessageStatus(
+    messageStatus: MessageStatus,
+  ): Promise<
+    Result<
+      MessageStatus,
+      GenericError | MessageStatusVersionConflictError | TooManyRequestsError
+    >
+  >;
+
   /**
    * Returns the latest version of the status for the single message identified
    * by the provided `messageId`.
@@ -59,14 +87,4 @@ export interface MessageStatusRepository {
   getLatestMessagesStatusByIds(
     messageIDs: string[],
   ): Promise<Result<MessageStatus[], GenericError | TooManyRequestsError>>;
-
-  /**
-   * Upserts the provided message status, creating it if it does not exist or
-   * replacing it if it does.
-   *
-   * Returns the upserted `MessageStatus` on success.
-   */
-  upsertMessageStatus(
-    messageStatus: MessageStatus,
-  ): Promise<Result<MessageStatus, GenericError | TooManyRequestsError>>;
 }
