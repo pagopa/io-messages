@@ -8,8 +8,7 @@ import {
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MalformedEntityError } from "../../../../application/ports/error.js";
-import { MessageDetail } from "../../../../application/ports/message-detail.js";
-import { MessageDetailServicesAdapter } from "../message-detail.adapter.js";
+import { ServicesCmsHttpClientAdapter } from "../services-cms.js";
 
 const aServiceID = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
 
@@ -34,13 +33,6 @@ const aServicesAppMessageDetail = {
   },
 };
 
-const aMessageDetail: MessageDetail = {
-  organization_fiscal_code: "01234567890",
-  organization_name: "An organization name",
-  sender_service_id: aServiceID,
-  service_name: "A service name",
-};
-
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     headers: { "Content-Type": "application/json" },
@@ -50,7 +42,7 @@ const jsonResponse = (body: unknown, status = 200) =>
 const fetchMock = vi.fn<typeof fetch>();
 const trackEventMock = vi.fn();
 
-const adapter = new MessageDetailServicesAdapter(
+const adapter = new ServicesCmsHttpClientAdapter(
   new URL("https://apim.example"),
   "subscription-key",
   {
@@ -67,14 +59,16 @@ describe("getMessageDetailsByServiceIds", () => {
   });
 
   it("returns the mapped service details for each valid service", async () => {
-    const result = await adapter.getMessageDetailsByServiceIds([aServiceID]);
+    const result = await adapter.getServicesCmsDetailsByServiceIds([
+      aServiceID,
+    ]);
 
     expect(result.isOk()).toBe(true);
     const detailsByServiceId = result._unsafeUnwrap();
 
     expect(detailsByServiceId.size).toBe(1);
     expect(detailsByServiceId.get(aServiceID)?._unsafeUnwrap()).toEqual(
-      aMessageDetail,
+      aServicesAppMessageDetail,
     );
     expect(fetchMock).toHaveBeenCalledWith(
       `https://apim.example/api/v1/internal/services/${aServiceID}`,
@@ -91,7 +85,9 @@ describe("getMessageDetailsByServiceIds", () => {
   it("reports a MalformedEntityError per-item when the service id is invalid", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ title: "Bad request" }, 400));
 
-    const result = await adapter.getMessageDetailsByServiceIds([aServiceID]);
+    const result = await adapter.getServicesCmsDetailsByServiceIds([
+      aServiceID,
+    ]);
 
     expect(result.isOk()).toBe(true);
     const entry = result._unsafeUnwrap().get(aServiceID);
@@ -104,7 +100,9 @@ describe("getMessageDetailsByServiceIds", () => {
   it("reports a NotFoundError per-item when the service does not exist", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ title: "Not found" }, 404));
 
-    const result = await adapter.getMessageDetailsByServiceIds([aServiceID]);
+    const result = await adapter.getServicesCmsDetailsByServiceIds([
+      aServiceID,
+    ]);
 
     expect(result.isOk()).toBe(true);
     const entry = result._unsafeUnwrap().get(aServiceID);
@@ -122,7 +120,9 @@ describe("getMessageDetailsByServiceIds", () => {
       }),
     );
 
-    const result = await adapter.getMessageDetailsByServiceIds([aServiceID]);
+    const result = await adapter.getServicesCmsDetailsByServiceIds([
+      aServiceID,
+    ]);
 
     expect(result.isOk()).toBe(true);
     const entry = result._unsafeUnwrap().get(aServiceID);
@@ -137,7 +137,9 @@ describe("getMessageDetailsByServiceIds", () => {
       jsonResponse({ ...aServicesAppMessageDetail, name: "" }),
     );
 
-    const result = await adapter.getMessageDetailsByServiceIds([aServiceID]);
+    const result = await adapter.getServicesCmsDetailsByServiceIds([
+      aServiceID,
+    ]);
 
     expect(result.isOk()).toBe(true);
     const entry = result._unsafeUnwrap().get(aServiceID);
@@ -153,7 +155,7 @@ describe("getMessageDetailsByServiceIds", () => {
       .mockResolvedValueOnce(jsonResponse(aServicesAppMessageDetail))
       .mockResolvedValueOnce(jsonResponse({ title: "Not found" }, 404));
 
-    const result = await adapter.getMessageDetailsByServiceIds([
+    const result = await adapter.getServicesCmsDetailsByServiceIds([
       aServiceID,
       missingServiceID,
     ]);
@@ -162,7 +164,7 @@ describe("getMessageDetailsByServiceIds", () => {
     const detailsByServiceId = result._unsafeUnwrap();
 
     expect(detailsByServiceId.get(aServiceID)?._unsafeUnwrap()).toEqual(
-      aMessageDetail,
+      aServicesAppMessageDetail,
     );
     expect(
       detailsByServiceId.get(missingServiceID)?._unsafeUnwrapErr(),
@@ -175,7 +177,9 @@ describe("getMessageDetailsByServiceIds", () => {
       jsonResponse({ title: "Too many requests" }, 429),
     );
 
-    const result = await adapter.getMessageDetailsByServiceIds([aServiceID]);
+    const result = await adapter.getServicesCmsDetailsByServiceIds([
+      aServiceID,
+    ]);
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
@@ -185,7 +189,9 @@ describe("getMessageDetailsByServiceIds", () => {
   it("fails the whole operation with a GenericError on unexpected response status", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ title: "Internal error" }, 500));
 
-    const result = await adapter.getMessageDetailsByServiceIds([aServiceID]);
+    const result = await adapter.getServicesCmsDetailsByServiceIds([
+      aServiceID,
+    ]);
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
@@ -195,7 +201,9 @@ describe("getMessageDetailsByServiceIds", () => {
   it("fails the whole operation with a GenericError on fetch failure", async () => {
     fetchMock.mockRejectedValue(new Error("network error"));
 
-    const result = await adapter.getMessageDetailsByServiceIds([aServiceID]);
+    const result = await adapter.getServicesCmsDetailsByServiceIds([
+      aServiceID,
+    ]);
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);

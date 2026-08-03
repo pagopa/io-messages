@@ -9,44 +9,37 @@ import { Result, ResultAsync, err, ok } from "neverthrow";
 import z from "zod";
 
 import { MalformedEntityError } from "../../../application/ports/error.js";
-import {
-  MessageDetail,
-  MessageDetailRepository,
-} from "../../../application/ports/message-detail.js";
-
-const ulidSchema = z.string().regex(new RegExp("^[0-9A-HJKMNP-TV-Z]{26}$"));
-
-const nonEmptyStringSchema = z.string().min(1);
+import { ServicesCmsRepository } from "../../../application/ports/services-cms.js";
 
 const organizationSchema = z.object({
-  department_name: nonEmptyStringSchema.optional(),
+  department_name: z.string().min(1).optional(),
   fiscal_code: z.string().regex(new RegExp("^\\d{11}$")),
-  name: nonEmptyStringSchema,
+  name: z.string().min(1),
 });
 
 const topicSchema = z.object({
   id: z.number().int(),
-  name: nonEmptyStringSchema,
+  name: z.string().min(1),
 });
 
 const serviceMetadataSchema = z.object({
-  address: nonEmptyStringSchema.optional(),
-  app_android: nonEmptyStringSchema.optional(),
-  app_ios: nonEmptyStringSchema.optional(),
+  address: z.string().min(1).optional(),
+  app_android: z.string().min(1).optional(),
+  app_ios: z.string().min(1).optional(),
   category: z.enum(["STANDARD", "SPECIAL"]).optional(),
-  cta: nonEmptyStringSchema.optional(),
-  custom_special_flow: nonEmptyStringSchema.optional(),
-  email: nonEmptyStringSchema.optional(),
-  group_id: nonEmptyStringSchema.optional(),
-  pec: nonEmptyStringSchema.optional(),
-  phone: nonEmptyStringSchema.optional(),
-  privacy_url: nonEmptyStringSchema.optional(),
+  cta: z.string().min(1).optional(),
+  custom_special_flow: z.string().min(1).optional(),
+  email: z.string().min(1).optional(),
+  group_id: z.string().min(1).optional(),
+  pec: z.string().min(1).optional(),
+  phone: z.string().min(1).optional(),
+  privacy_url: z.string().min(1).optional(),
   scope: z.enum(["NATIONAL", "LOCAL"]),
-  support_url: nonEmptyStringSchema.optional(),
-  token_name: nonEmptyStringSchema.optional(),
+  support_url: z.string().min(1).optional(),
+  token_name: z.string().min(1).optional(),
   topic: topicSchema.optional(),
-  tos_url: nonEmptyStringSchema.optional(),
-  web_url: nonEmptyStringSchema.optional(),
+  tos_url: z.string().min(1).optional(),
+  web_url: z.string().min(1).optional(),
 });
 
 const serviceStatusSchema = z.union([
@@ -66,7 +59,7 @@ const serviceStatusSchema = z.union([
   }),
 ]);
 
-const servicesAppMessageDetailSchema = z.object({
+const servicesCmsDetailSchema = z.object({
   age: z
     .object({
       max: z.number().int().min(0).max(999).optional(),
@@ -83,26 +76,19 @@ const servicesAppMessageDetailSchema = z.object({
         ),
       ),
   ),
-  description: nonEmptyStringSchema,
-  id: ulidSchema,
+  description: z.string().min(1),
+  id: z.ulid(),
   last_update: z.string().datetime(),
   max_allowed_payment_amount: z.number().int().min(0).max(9999999999),
   metadata: serviceMetadataSchema,
-  name: nonEmptyStringSchema,
+  name: z.string().min(1),
   organization: organizationSchema,
   require_secure_channel: z.boolean(),
   status: serviceStatusSchema,
 });
-type ServicesAppMessageDetail = z.TypeOf<typeof servicesAppMessageDetailSchema>;
+type ServicesCmsDetail = z.TypeOf<typeof servicesCmsDetailSchema>;
 
-const toMessageDetail = (detail: ServicesAppMessageDetail): MessageDetail => ({
-  organization_fiscal_code: detail.organization.fiscal_code,
-  organization_name: detail.organization.name,
-  sender_service_id: detail.id,
-  service_name: detail.name,
-});
-
-export class MessageDetailServicesAdapter implements MessageDetailRepository {
+export class ServicesCmsHttpClientAdapter implements ServicesCmsRepository {
   #apimBaseURL: URL;
 
   constructor(
@@ -113,11 +99,11 @@ export class MessageDetailServicesAdapter implements MessageDetailRepository {
     this.#apimBaseURL = apimBaseURL;
   }
 
-  async #getMessageDetailByServiceId(
+  async #getServicesCmsDetailsByServiceId(
     serviceID: string,
   ): Promise<
     Result<
-      MessageDetail,
+      ServicesCmsDetail,
       GenericError | MalformedEntityError | NotFoundError | TooManyRequestsError
     >
   > {
@@ -148,7 +134,7 @@ export class MessageDetailServicesAdapter implements MessageDetailRepository {
 
         if (jsonResponse.isErr()) return err(jsonResponse.error);
 
-        const parsedResult = servicesAppMessageDetailSchema.safeParse(
+        const parsedResult = servicesCmsDetailSchema.safeParse(
           jsonResponse.value,
         );
         if (!parsedResult.success) {
@@ -159,7 +145,7 @@ export class MessageDetailServicesAdapter implements MessageDetailRepository {
           );
         }
 
-        return ok(toMessageDetail(parsedResult.data));
+        return ok(parsedResult.data);
       }
 
       case 400:
@@ -189,23 +175,26 @@ export class MessageDetailServicesAdapter implements MessageDetailRepository {
     }
   }
 
-  async getMessageDetailsByServiceIds(
+  async getServicesCmsDetailsByServiceIds(
     serviceIDs: string[],
   ): Promise<
     Result<
-      Map<string, Result<MessageDetail, MalformedEntityError | NotFoundError>>,
+      Map<
+        string,
+        Result<ServicesCmsDetail, MalformedEntityError | NotFoundError>
+      >,
       GenericError | TooManyRequestsError
     >
   > {
     const results = await Promise.all(
       serviceIDs.map((serviceID) =>
-        this.#getMessageDetailByServiceId(serviceID),
+        this.#getServicesCmsDetailsByServiceId(serviceID),
       ),
     );
 
     const detailsByServiceId = new Map<
       string,
-      Result<MessageDetail, MalformedEntityError | NotFoundError>
+      Result<ServicesCmsDetail, MalformedEntityError | NotFoundError>
     >();
 
     for (let index = 0; index < serviceIDs.length; index++) {
