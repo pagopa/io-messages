@@ -60,5 +60,5 @@ export const makeUpdateMessageStatusUseCase =
       version,
     };
 
-    return messageStatusRepository.createMessageStatus(newStatus);
+    return await messageStatusRepository.createMessageStatus(newStatus);
   };
