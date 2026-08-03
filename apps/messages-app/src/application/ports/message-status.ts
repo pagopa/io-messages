@@ -40,7 +40,7 @@ export const messageStatusSchema = z.object({
   messageId: z.ulid(),
   status: messageStatusValueSchema,
   updatedAt: z.string(),
-  version: z.number().int().nonnegative(),
+  version: z.int().nonnegative(),
 });
 export type MessageStatus = z.TypeOf<typeof messageStatusSchema>;
 
