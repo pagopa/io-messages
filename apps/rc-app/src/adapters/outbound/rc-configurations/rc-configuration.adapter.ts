@@ -26,11 +26,35 @@ import {
 
 export const RC_CONFIGURATION_COLLECTION_NAME = "message-configuration";
 
+const rcClientCertSchema = z.object({
+  clientCert: z.string().min(1),
+  clientKey: z.string().min(1),
+  serverCa: z.string().min(1),
+});
+
+const rcAuthenticationConfigSchema = z.object({
+  cert: rcClientCertSchema.optional(),
+  headerKeyName: z.string().min(1),
+  key: z.string().min(1),
+  type: z.string().min(1),
+});
+
+const rcEnvironmentConfigSchema = z.object({
+  baseUrl: z.string().min(1),
+  detailsAuthentication: rcAuthenticationConfigSchema,
+});
+
+const rcTestEnvironmentConfigSchema = rcEnvironmentConfigSchema.extend({
+  testUsers: z.array(FiscalCodeSchema),
+});
+
 export const cosmosRCConfigurationSchema = z.object({
   configurationId: RcConfigurationIdSchema,
   description: z.string().min(1),
   disableLollipopFor: z.array(FiscalCodeSchema),
   hasPrecondition: z.enum(["ALWAYS", "ONCE", "NEVER"]),
+  prodEnvironment: rcEnvironmentConfigSchema.optional(),
+  testEnvironment: rcTestEnvironmentConfigSchema.optional(),
   id: z.string().min(1),
   isLollipopEnabled: z.boolean(),
   name: z.string().min(1),
@@ -72,6 +96,8 @@ const toRcConfiguration = (m: CosmosRCConfiguration): RCConfiguration => ({
   id: m.id,
   isLollipopEnabled: m.isLollipopEnabled,
   name: m.name,
+  prodEnvironment: m.prodEnvironment,
+  testEnvironment: m.testEnvironment,
   userId: m.userId,
 });
 
