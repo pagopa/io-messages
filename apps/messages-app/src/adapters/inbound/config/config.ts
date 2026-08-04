@@ -46,6 +46,8 @@ const serviceToRCConfigMapSchema = z.preprocess(
 export type ServiceToRCConfigMap = z.infer<typeof serviceToRCConfigMapSchema>;
 
 const baseConfigSchema = z.object({
+  APIM_BASE_URL: z.url().transform((val) => new URL(val)),
+  APIM_SUBSCRIPTION_KEY: z.string().min(1),
   COMMON_COSMOS_DATABASE_NAME: z.string().min(2),
   HOST: z.ipv4(),
   MESSAGE_CONTENT_CONTAINER_NAME: z.string().min(3),

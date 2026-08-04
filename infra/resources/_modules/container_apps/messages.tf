@@ -43,6 +43,9 @@ module "messages_ca" {
 
         APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
         APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
+
+        APIM_BASE_URL         = "https://io-p-itn-svc-services-ca-01.ambitioussea-e5d71305.italynorth.azurecontainerapps.io"
+        APIM_SUBSCRIPTION_KEY = "dummy"
       }
 
       liveness_probe = {
