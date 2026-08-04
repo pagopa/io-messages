@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.3.0
+
+### Minor Changes
+
+- 9ce9735: Implement get service cms instead of mocked values
+
 ## 0.2.7
 
 ### Patch Changes
