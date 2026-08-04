@@ -83,6 +83,62 @@ describe("RCConfigurationCosmosAdapter", () => {
       });
     });
 
+    it("returns the optional environments of the stored resource", async () => {
+      const { mockCosmosClient, mockFetchNext } = makeMocks();
+      const anEnvironment = {
+        baseUrl: "https://example.com",
+        detailsAuthentication: {
+          headerKeyName: "X-Api-Key",
+          key: "a-key",
+          type: "API_KEY",
+        },
+      };
+      const aResourceWithEnvironments = {
+        ...aValidRcConfiguration,
+        prodEnvironment: anEnvironment,
+        testEnvironment: { ...anEnvironment, testUsers: [] },
+      };
+      mockFetchNext.mockResolvedValueOnce({
+        resources: [aResourceWithEnvironments],
+      });
+
+      const adapter = new RCConfigurationCosmosAdapter(
+        mockCosmosClient,
+        "myDatabase",
+      );
+      const result =
+        await adapter.getRemoteContentConfiguration(aConfigurationId);
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap()).toStrictEqual(aResourceWithEnvironments);
+    });
+
+    it("strips the Cosmos system properties from the returned configuration", async () => {
+      const { mockCosmosClient, mockFetchNext } = makeMocks();
+      mockFetchNext.mockResolvedValueOnce({
+        resources: [
+          {
+            ...aValidRcConfiguration,
+            _attachments: "attachments/",
+            _etag: '"00000000-0000-0000-0000-000000000000"',
+            _rid: "aRid",
+            _self: "aSelfLink",
+            _ts: 1700000000,
+          },
+        ],
+      });
+
+      const adapter = new RCConfigurationCosmosAdapter(
+        mockCosmosClient,
+        "myDatabase",
+      );
+      const result =
+        await adapter.getRemoteContentConfiguration(aConfigurationId);
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap()).toStrictEqual(aValidRcConfiguration);
+    });
+
     it("returns a NotFoundError when no resources are found", async () => {
       const { mockCosmosClient, mockFetchNext } = makeMocks();
       mockFetchNext.mockResolvedValueOnce({ resources: [] });

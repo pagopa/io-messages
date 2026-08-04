@@ -21,7 +21,6 @@ import {
   RcConfigurationId,
   RcConfigurationIdSchema,
   RemoteContentRepository,
-  rcConfigurationSchema,
 } from "../../../application/ports/rc-configuration.js";
 
 export const RC_CONFIGURATION_COLLECTION_NAME = "message-configuration";
@@ -191,7 +190,7 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
       );
     }
 
-    const parsed = rcConfigurationSchema.safeParse(resources[0]);
+    const parsed = cosmosRCConfigurationSchema.safeParse(resources[0]);
     if (parsed.success) {
       return ok(toRcConfiguration(parsed.data));
     } else {
