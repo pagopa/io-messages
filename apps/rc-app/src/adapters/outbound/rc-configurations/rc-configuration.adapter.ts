@@ -53,11 +53,11 @@ export const cosmosRCConfigurationSchema = z.object({
   description: z.string().min(1),
   disableLollipopFor: z.array(FiscalCodeSchema),
   hasPrecondition: z.enum(["ALWAYS", "ONCE", "NEVER"]),
-  prodEnvironment: rcEnvironmentConfigSchema.optional(),
-  testEnvironment: rcTestEnvironmentConfigSchema.optional(),
   id: z.string().min(1),
   isLollipopEnabled: z.boolean(),
   name: z.string().min(1),
+  prodEnvironment: rcEnvironmentConfigSchema.optional(),
+  testEnvironment: rcTestEnvironmentConfigSchema.optional(),
   userId: z.string().min(1),
 });
 
@@ -115,8 +115,17 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
   ): Promise<
     Result<RCConfiguration, ConflictError | GenericError | TooManyRequestsError>
   > {
+    const dtoRC = cosmosRCConfigurationSchema.safeParse(configuration);
+    if (!dtoRC.success) {
+      return err(
+        new GenericError(
+          `error mapping domain entity to cosmos dto for Remote Content Configuration with id: ${configuration.id}`,
+        ),
+      );
+    }
+
     const cosmosResponse = await ResultAsync.fromPromise(
-      this.#cosmosContainer.items.create(configuration),
+      this.#cosmosContainer.items.create(dtoRC.data),
       (error) => {
         switch (getStatusCode(error)) {
           case StatusCodes.Conflict:
@@ -137,7 +146,7 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
       return err(cosmosResponse.error);
     }
 
-    return ok(configuration);
+    return ok(toRcConfiguration(dtoRC.data));
   }
 
   async getRemoteContentConfiguration(
@@ -197,10 +206,19 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
   ): Promise<
     Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
   > {
+    const dtoRC = cosmosRCConfigurationSchema.safeParse(configuration);
+    if (!dtoRC.success) {
+      return err(
+        new GenericError(
+          `error mapping domain entity to cosmos dto for Remote Content Configuration with id: ${configuration.id}`,
+        ),
+      );
+    }
+
     const cosmosResponse = await ResultAsync.fromPromise(
       this.#cosmosContainer
-        .item(configuration.id, configuration.configurationId)
-        .replace(configuration),
+        .item(dtoRC.data.id, dtoRC.data.configurationId)
+        .replace(dtoRC.data),
       (error) => {
         switch (getStatusCode(error)) {
           case StatusCodes.NotFound:
@@ -222,6 +240,6 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
       return err(cosmosResponse.error);
     }
 
-    return ok(configuration);
+    return ok(toRcConfiguration(dtoRC.data));
   }
 }

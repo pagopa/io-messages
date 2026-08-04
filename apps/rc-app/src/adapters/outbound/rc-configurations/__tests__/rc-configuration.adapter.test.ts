@@ -7,11 +7,12 @@ import {
 } from "@pagopa/hexagonal-core";
 import { describe, expect, it, vi } from "vitest";
 
+import { RCConfiguration } from "../../../../application/ports/rc-configuration.js";
 import { RCConfigurationCosmosAdapter } from "../rc-configuration.adapter.js";
 
 const aConfigurationId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
 
-const aValidCosmosResource = {
+const aValidRcConfiguration = {
   configurationId: aConfigurationId,
   description: "A description",
   disableLollipopFor: [],
@@ -19,8 +20,15 @@ const aValidCosmosResource = {
   id: "some-id",
   isLollipopEnabled: false,
   name: "A name",
+  prodEnvironment: undefined,
+  testEnvironment: undefined,
   userId: "user-123",
 };
+
+const anInvalidConfiguration = {
+  ...aValidRcConfiguration,
+  hasPrecondition: "NOT_A_PRECONDITION",
+} as unknown as RCConfiguration;
 
 const makeCosmosError = (code: number | string, message = "cosmos failure") => {
   const error = new ErrorResponse(message);
@@ -58,7 +66,7 @@ describe("RCConfigurationCosmosAdapter", () => {
     it("returns the RC configuration when the query returns a valid resource", async () => {
       const { mockCosmosClient, mockFetchNext } = makeMocks();
       mockFetchNext.mockResolvedValueOnce({
-        resources: [aValidCosmosResource],
+        resources: [aValidRcConfiguration],
       });
 
       const adapter = new RCConfigurationCosmosAdapter(
@@ -192,18 +200,19 @@ describe("RCConfigurationCosmosAdapter", () => {
 describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => {
   it("returns the created RC configuration when Cosmos accepts the document", async () => {
     const { mockCosmosClient, mockCreate } = makeMocks();
-    mockCreate.mockResolvedValueOnce({ resource: aValidCosmosResource });
+    mockCreate.mockResolvedValueOnce({ resource: aValidRcConfiguration });
 
     const adapter = new RCConfigurationCosmosAdapter(
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.createRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.createRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
-    expect(mockCreate).toHaveBeenCalledWith(aValidCosmosResource);
+    expect(mockCreate).toHaveBeenCalledWith(aValidRcConfiguration);
     expect(result.isOk()).toBe(true);
-    expect(result._unsafeUnwrap()).toStrictEqual(aValidCosmosResource);
+    expect(result._unsafeUnwrap()).toStrictEqual(aValidRcConfiguration);
   });
 
   it("persists and returns the optional environments of the RC configuration", async () => {
@@ -217,7 +226,7 @@ describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => 
       },
     };
     const aConfigurationWithEnvironments = {
-      ...aValidCosmosResource,
+      ...aValidRcConfiguration,
       prodEnvironment: anEnvironment,
       testEnvironment: { ...anEnvironment, testUsers: [] },
     };
@@ -248,8 +257,9 @@ describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => 
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.createRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.createRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(ConflictError);
@@ -263,8 +273,9 @@ describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => 
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.createRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.createRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
@@ -278,8 +289,9 @@ describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => 
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.createRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.createRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
@@ -293,8 +305,9 @@ describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => 
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.createRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.createRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
@@ -310,8 +323,9 @@ describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => 
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.createRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.createRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(ConflictError);
@@ -325,34 +339,73 @@ describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => 
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.createRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.createRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
     expect(result._unsafeUnwrapErr().message).toContain("network failure");
+  });
+
+  it("returns a GenericError without calling Cosmos when the configuration does not match the DTO schema", async () => {
+    const { mockCosmosClient, mockCreate } = makeMocks();
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result = await adapter.createRemoteContentConfiguration(
+      anInvalidConfiguration,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toContain(
+      anInvalidConfiguration.id,
+    );
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
+  it("strips the properties that are not part of the DTO before persisting them", async () => {
+    const { mockCosmosClient, mockCreate } = makeMocks();
+    mockCreate.mockResolvedValueOnce({ resource: aValidRcConfiguration });
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result = await adapter.createRemoteContentConfiguration({
+      ...aValidRcConfiguration,
+      anUnknownProperty: "a value",
+    } as unknown as RCConfiguration);
+
+    expect(mockCreate).toHaveBeenCalledWith(aValidRcConfiguration);
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toStrictEqual(aValidRcConfiguration);
   });
 });
 
 describe("RCConfigurationCosmosAdapter.updateRemoteContentConfiguration", () => {
   it("replaces the document addressing it by id and partition key", async () => {
     const { mockCosmosClient, mockItem, mockReplace } = makeMocks();
-    mockReplace.mockResolvedValueOnce({ resource: aValidCosmosResource });
+    mockReplace.mockResolvedValueOnce({ resource: aValidRcConfiguration });
 
     const adapter = new RCConfigurationCosmosAdapter(
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.updateRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
     expect(mockItem).toHaveBeenCalledWith(
-      aValidCosmosResource.id,
+      aValidRcConfiguration.id,
       aConfigurationId,
     );
-    expect(mockReplace).toHaveBeenCalledWith(aValidCosmosResource);
+    expect(mockReplace).toHaveBeenCalledWith(aValidRcConfiguration);
     expect(result.isOk()).toBe(true);
-    expect(result._unsafeUnwrap()).toStrictEqual(aValidCosmosResource);
+    expect(result._unsafeUnwrap()).toStrictEqual(aValidRcConfiguration);
   });
 
   it("persists and returns the optional environments of the RC configuration", async () => {
@@ -366,7 +419,7 @@ describe("RCConfigurationCosmosAdapter.updateRemoteContentConfiguration", () => 
       },
     };
     const aConfigurationWithEnvironments = {
-      ...aValidCosmosResource,
+      ...aValidRcConfiguration,
       prodEnvironment: anEnvironment,
       testEnvironment: { ...anEnvironment, testUsers: [] },
     };
@@ -397,8 +450,9 @@ describe("RCConfigurationCosmosAdapter.updateRemoteContentConfiguration", () => 
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.updateRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
@@ -413,8 +467,9 @@ describe("RCConfigurationCosmosAdapter.updateRemoteContentConfiguration", () => 
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.updateRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
@@ -428,8 +483,9 @@ describe("RCConfigurationCosmosAdapter.updateRemoteContentConfiguration", () => 
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.updateRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
@@ -444,8 +500,9 @@ describe("RCConfigurationCosmosAdapter.updateRemoteContentConfiguration", () => 
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.updateRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
@@ -461,8 +518,9 @@ describe("RCConfigurationCosmosAdapter.updateRemoteContentConfiguration", () => 
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.updateRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
@@ -476,11 +534,50 @@ describe("RCConfigurationCosmosAdapter.updateRemoteContentConfiguration", () => 
       mockCosmosClient,
       "myDatabase",
     );
-    const result =
-      await adapter.updateRemoteContentConfiguration(aValidCosmosResource);
+    const result = await adapter.updateRemoteContentConfiguration(
+      aValidRcConfiguration,
+    );
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
     expect(result._unsafeUnwrapErr().message).toContain("network failure");
+  });
+
+  it("returns a GenericError without calling Cosmos when the configuration does not match the DTO schema", async () => {
+    const { mockCosmosClient, mockItem, mockReplace } = makeMocks();
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result = await adapter.updateRemoteContentConfiguration(
+      anInvalidConfiguration,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toContain(
+      anInvalidConfiguration.id,
+    );
+    expect(mockItem).not.toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it("strips the properties that are not part of the DTO before persisting them", async () => {
+    const { mockCosmosClient, mockReplace } = makeMocks();
+    mockReplace.mockResolvedValueOnce({ resource: aValidRcConfiguration });
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result = await adapter.updateRemoteContentConfiguration({
+      ...aValidRcConfiguration,
+      anUnknownProperty: "a value",
+    } as unknown as RCConfiguration);
+
+    expect(mockReplace).toHaveBeenCalledWith(aValidRcConfiguration);
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toStrictEqual(aValidRcConfiguration);
   });
 });
