@@ -314,7 +314,7 @@ export const makeGetMessagesByUserUseCase =
     messageMetadataRepository: MessageMetadataRepository,
     messageStatusRepository: MessageStatusRepository,
     messageContentRepository: MessageContentRepository,
-    messageDetailRepository: ServicesCmsRepository,
+    servicesCmsRepository: ServicesCmsRepository,
     remoteContentConfigurationRepository: RCConfigurationRepository,
     pnServiceId: string,
     serviceToRCMap: ServiceToRCConfigMap,
@@ -362,17 +362,15 @@ export const makeGetMessagesByUserUseCase =
       ...new Set(selectedMessages.map((s) => s.metadata.senderServiceId)),
     ];
 
-    const messageDetails =
-      await messageDetailRepository.getServicesCmsDetailsByServiceIds(
-        serviceIDs,
-      );
+    const serviceDetails =
+      await servicesCmsRepository.getServicesCmsDetailsByServiceIds(serviceIDs);
 
-    if (messageDetails.isErr()) {
-      return err(messageDetails.error);
+    if (serviceDetails.isErr()) {
+      return err(serviceDetails.error);
     }
 
     const contentById = messageContents.value;
-    const messageDetailsByServiceId = messageDetails.value;
+    const serviceDetailsByServiceId = serviceDetails.value;
     const items: PublicMessage[] = [];
 
     // We use a Map in order to avoid calling multiple times the
@@ -390,11 +388,11 @@ export const makeGetMessagesByUserUseCase =
       }
 
       const messageContent = content.value;
-      const messageDetail = messageDetailsByServiceId.get(
+      const serviceDetails = serviceDetailsByServiceId.get(
         metadata.senderServiceId,
       );
 
-      if (!messageDetail || messageDetail.isErr()) {
+      if (!serviceDetails || serviceDetails.isErr()) {
         logger.trackEvent({
           name: "GetMessagesByUserUseCase.getMessageDetailResponse.failed.skippable",
           properties: {
@@ -458,10 +456,10 @@ export const makeGetMessagesByUserUseCase =
         is_archived: status.isArchived,
         is_read: status.isRead,
         message_title: content.value.subject,
-        organization_fiscal_code: messageDetail.value.organization.fiscal_code,
-        organization_name: messageDetail.value.organization.name,
-        sender_service_id: messageDetail.value.id,
-        service_name: messageDetail.value.name,
+        organization_fiscal_code: serviceDetails.value.organization.fiscal_code,
+        organization_name: serviceDetails.value.organization.name,
+        sender_service_id: serviceDetails.value.id,
+        service_name: serviceDetails.value.name,
         status: status.status,
         time_to_live: metadata.timeToLiveSeconds,
       });

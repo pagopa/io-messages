@@ -115,7 +115,7 @@ export const createApp = (
     logger,
   );
 
-  const messageDetailRepository = new ServicesCmsHttpClientAdapter(
+  const servicesCmsAdapter = new ServicesCmsHttpClientAdapter(
     config.APIM_BASE_URL,
     config.APIM_SUBSCRIPTION_KEY,
     logger,
@@ -143,7 +143,7 @@ export const createApp = (
       messageMetadataCosmosAdapter,
       messageStatusCosmosAdapter,
       messageContentBlobAdapter,
-      messageDetailRepository,
+      servicesCmsAdapter,
       remoteContentConfigurationReposiory,
       config.PN_SERVICE_ID,
       config.SERVICE_TO_RC_MAP,
