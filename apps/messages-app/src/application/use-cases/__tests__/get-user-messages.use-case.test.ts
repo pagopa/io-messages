@@ -75,6 +75,7 @@ const aMessageStatus = (
   messageId: string,
   overrides: Partial<MessageStatus> = {},
 ): MessageStatus => ({
+  id: `${messageId}-0000000000000000`,
   isArchived: false,
   isRead: false,
   messageId,

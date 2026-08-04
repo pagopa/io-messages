@@ -3,10 +3,13 @@ import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
 import {
   Container,
   CosmosClient,
+  ErrorResponse,
   RestError,
   SqlQuerySpec,
+  StatusCodes,
 } from "@azure/cosmos";
 import {
+  ConflictError,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -18,16 +21,41 @@ import { MalformedEntityError } from "../../../application/ports/error.js";
 import {
   MessageStatus,
   MessageStatusRepository,
+  messageStatusIdSchema,
 } from "../../../application/ports/message-status.js";
+
+/**
+ * Extracts the HTTP status code from an error thrown by the Cosmos SDK.
+ *
+ * The SDK reports HTTP failures by throwing an `ErrorResponse`, which carries
+ * the status in `code`, while `RestError` (carrying it in `statusCode`) only
+ * surfaces for transport level failures such as DNS or connection errors.
+ * Returns `undefined` when no numeric status can be determined, e.g. for a
+ * `RestError` whose `code` is a Node error string like `ENOTFOUND`.
+ */
+const getStatusCode = (error: unknown): number | undefined => {
+  const statusCode =
+    error instanceof ErrorResponse
+      ? Number(error.code)
+      : error instanceof RestError
+        ? error.statusCode
+        : undefined;
+
+  return Number.isNaN(statusCode) ? undefined : statusCode;
+};
+
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? `${error.name}: ${error.message}` : String(error);
 
 // The message status as it is persisted on Cosmos. This is the adapter specific
 // representation  and it is intentionally kept separate from the domain
 // `MessageStatus` type: the adapter validates the raw document and then maps it
 // to the domain type required by the port.
 const cosmosMessageStatusSchema = z.object({
+  id: messageStatusIdSchema,
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
-  messageId: z.string().min(1),
+  messageId: z.ulid(),
   status: z.enum(["ACCEPTED", "THROTTLED", "FAILED", "PROCESSED", "REJECTED"]),
   updatedAt: z.string(),
   version: z.number(),
@@ -37,6 +65,7 @@ type CosmosMessageStatus = z.TypeOf<typeof cosmosMessageStatusSchema>;
 // Maps the adapter specific Cosmos representation to the domain type expected by
 // the port.
 const toMessageStatus = (s: CosmosMessageStatus): MessageStatus => ({
+  id: s.id,
   isArchived: s.isArchived,
   isRead: s.isRead,
   messageId: s.messageId,
@@ -57,6 +86,36 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
     this.#cosmosContainer = cosmosClient
       .database(databaseName)
       .container(containerName);
+  }
+
+  async createMessageStatus(
+    messageStatus: MessageStatus,
+  ): Promise<
+    Result<MessageStatus, ConflictError | GenericError | TooManyRequestsError>
+  > {
+    const createResult = await ResultAsync.fromPromise(
+      this.#cosmosContainer.items.create(messageStatus),
+      (err) => {
+        switch (getStatusCode(err)) {
+          case StatusCodes.Conflict:
+            return new ConflictError(
+              `Version ${messageStatus.version} already exists for message status ${messageStatus.messageId}`,
+            );
+          case StatusCodes.TooManyRequests:
+            return new TooManyRequestsError();
+          default:
+            return new GenericError(
+              `error creating status for message ${messageStatus.messageId}: ${getErrorMessage(err)}`,
+            );
+        }
+      },
+    );
+
+    if (createResult.isErr()) {
+      return err(createResult.error);
+    }
+
+    return ok(messageStatus);
   }
 
   async getLatestMessageStatusById(
@@ -83,20 +142,14 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
         .query(querySpec, { partitionKey: messageID })
         .fetchNext(),
       (err) => {
-        if (err instanceof RestError) {
-          switch (err.statusCode) {
-            case 429:
-              return new TooManyRequestsError();
-            default:
-              return new GenericError(
-                `error obtaining latest status for message ${messageID}: ${err.name}: ${err.message}`,
-              );
-          }
+        switch (getStatusCode(err)) {
+          case StatusCodes.TooManyRequests:
+            return new TooManyRequestsError();
+          default:
+            return new GenericError(
+              `error obtaining latest message status for message ${messageID}: ${err}`,
+            );
         }
-
-        return new GenericError(
-          `error obtaining latest message status for message ${messageID}: ${err}`,
-        );
       },
     );
 

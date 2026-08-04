@@ -2,10 +2,12 @@ import {
   CosmosClient,
   CosmosDiagnostics,
   FeedResponse,
+  ItemResponse,
   RestError,
   SqlQuerySpec,
 } from "@azure/cosmos";
 import {
+  ConflictError,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -18,6 +20,7 @@ import { MessageStatus } from "../../../../application/ports/message-status.js";
 import { MessageStatusCosmosAdapter } from "../message-status.adapter.js";
 
 const aMessageStatus: MessageStatus = {
+  id: "01ARZ3NDEKTSV4RRFFQ69G5FAV-0000000000000000",
   isArchived: false,
   isRead: false,
   messageId: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
@@ -50,6 +53,7 @@ const queryMock = vi
   .spyOn(container.items, "query")
   .mockReturnValue(queryIterator);
 const fetchNextMock = vi.spyOn(queryIterator, "fetchNext");
+const createMock = vi.spyOn(container.items, "create");
 
 const trackEventMock = vi.fn();
 const adapter = new MessageStatusCosmosAdapter(
@@ -230,5 +234,61 @@ describe("getLatestMessageStatusById", () => {
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
     expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("createMessageStatus", () => {
+  beforeEach(() => {
+    createMock.mockReset();
+    createMock.mockResolvedValue({} as unknown as ItemResponse<MessageStatus>);
+    trackEventMock.mockReset();
+  });
+
+  it("returns the created MessageStatus on success", async () => {
+    const result = await adapter.createMessageStatus(aMessageStatus);
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toEqual(aMessageStatus);
+    expect(createMock).toHaveBeenCalledWith(aMessageStatus);
+  });
+
+  it("returns a ConflictError when the version exists", async () => {
+    createMock.mockRejectedValue(
+      new RestError("conflict", { statusCode: 409 }),
+    );
+
+    const result = await adapter.createMessageStatus(aMessageStatus);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(ConflictError);
+  });
+
+  it("returns a TooManyRequestsError when Cosmos throttles the request", async () => {
+    createMock.mockRejectedValue(
+      new RestError("throttled", { statusCode: 429 }),
+    );
+
+    const result = await adapter.createMessageStatus(aMessageStatus);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
+  });
+
+  it("returns a GenericError on an unexpected Cosmos RestError", async () => {
+    createMock.mockRejectedValue(new RestError("boom", { statusCode: 500 }));
+
+    const result = await adapter.createMessageStatus(aMessageStatus);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+  });
+
+  it("returns a GenericError on a non-RestError failure", async () => {
+    createMock.mockRejectedValue(new Error("unexpected"));
+
+    const result = await adapter.createMessageStatus(aMessageStatus);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
   });
 });
