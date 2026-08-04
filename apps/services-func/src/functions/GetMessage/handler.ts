@@ -20,14 +20,9 @@ import {
   MessageStatusModel,
   RetrievedMessageStatus,
 } from "@pagopa/io-functions-commons/dist/src/models/message_status";
-import { NotificationModel } from "@pagopa/io-functions-commons/dist/src/models/notification";
-import { NotificationStatusModel } from "@pagopa/io-functions-commons/dist/src/models/notification_status";
 import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
 import { wrapHandlerV4 } from "@pagopa/io-functions-commons/dist/src/utils/azure-functions-v4-express-adapter";
-import {
-  getMessageNotificationStatuses,
-  retrievedMessageToPublic,
-} from "@pagopa/io-functions-commons/dist/src/utils/messages";
+import { retrievedMessageToPublic } from "@pagopa/io-functions-commons/dist/src/utils/messages";
 import {
   AzureApiAuthMiddleware,
   IAzureApiAuthorization,
@@ -267,8 +262,6 @@ export const GetMessageHandler =
   (
     messageModel: MessageModel,
     messageStatusModel: MessageStatusModel,
-    notificationModel: NotificationModel,
-    notificationStatusModel: NotificationStatusModel,
     messageContentRepository: MessageContentRepository,
     canAccessMessageReadStatus: MessageReadStatusAuth,
     pagoPaEcommerceClient: PagoPaEcommerceClient,
@@ -358,19 +351,6 @@ export const GetMessageHandler =
       ...retrievedMessageToExternal(retrievedMessage),
     };
 
-    const errorOrNotificationStatuses = await getMessageNotificationStatuses(
-      notificationModel,
-      notificationStatusModel,
-      retrievedMessage.id,
-    )();
-
-    if (E.isLeft(errorOrNotificationStatuses)) {
-      return ResponseErrorInternal(
-        `Error retrieving NotificationStatus: ${errorOrNotificationStatuses.left.name}|${errorOrNotificationStatuses.left.message}`,
-      );
-    }
-    const notificationStatuses = errorOrNotificationStatuses.right;
-
     const errorOrMaybeMessageStatus =
       await messageStatusModel.findLastVersionByModelId([
         retrievedMessage.id,
@@ -388,7 +368,6 @@ export const GetMessageHandler =
     return pipe(
       {
         message,
-        notification: pipe(notificationStatuses, O.toUndefined),
         // we do not return the status date-time
         status: pipe(
           maybeMessageStatus,
@@ -466,8 +445,6 @@ export function GetMessage(
   serviceModel: ServiceModel,
   messageModel: MessageModel,
   messageStatusModel: MessageStatusModel,
-  notificationModel: NotificationModel,
-  notificationStatusModel: NotificationStatusModel,
   messageContentRepository: MessageContentRepository,
   canAccessMessageReadStatus: MessageReadStatusAuth,
   pagoPaEcommerceClient: PagoPaEcommerceClient,
@@ -475,8 +452,6 @@ export function GetMessage(
   const handler = GetMessageHandler(
     messageModel,
     messageStatusModel,
-    notificationModel,
-    notificationStatusModel,
     messageContentRepository,
     canAccessMessageReadStatus,
     pagoPaEcommerceClient,

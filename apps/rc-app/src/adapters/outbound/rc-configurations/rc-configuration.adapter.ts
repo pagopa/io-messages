@@ -1,10 +1,13 @@
 import {
   Container,
   CosmosClient,
+  ErrorResponse,
   RestError,
   SqlQuerySpec,
+  StatusCodes,
 } from "@azure/cosmos";
 import {
+  ConflictError,
   FiscalCodeSchema,
   GenericError,
   NotFoundError,
@@ -18,10 +21,31 @@ import {
   RcConfigurationId,
   RcConfigurationIdSchema,
   RemoteContentRepository,
-  rcConfigurationSchema,
 } from "../../../application/ports/rc-configuration.js";
 
 export const RC_CONFIGURATION_COLLECTION_NAME = "message-configuration";
+
+const rcClientCertSchema = z.object({
+  clientCert: z.string().min(1),
+  clientKey: z.string().min(1),
+  serverCa: z.string().min(1),
+});
+
+const rcAuthenticationConfigSchema = z.object({
+  cert: rcClientCertSchema.optional(),
+  headerKeyName: z.string().min(1),
+  key: z.string().min(1),
+  type: z.string().min(1),
+});
+
+const rcEnvironmentConfigSchema = z.object({
+  baseUrl: z.string().min(1),
+  detailsAuthentication: rcAuthenticationConfigSchema,
+});
+
+const rcTestEnvironmentConfigSchema = rcEnvironmentConfigSchema.extend({
+  testUsers: z.array(FiscalCodeSchema),
+});
 
 export const cosmosRCConfigurationSchema = z.object({
   configurationId: RcConfigurationIdSchema,
@@ -31,10 +55,36 @@ export const cosmosRCConfigurationSchema = z.object({
   id: z.string().min(1),
   isLollipopEnabled: z.boolean(),
   name: z.string().min(1),
+  prodEnvironment: rcEnvironmentConfigSchema.optional(),
+  testEnvironment: rcTestEnvironmentConfigSchema.optional(),
   userId: z.string().min(1),
 });
 
 type CosmosRCConfiguration = z.TypeOf<typeof cosmosRCConfigurationSchema>;
+
+/**
+ * Extracts the HTTP status code from an error thrown by the Cosmos SDK.
+ *
+ * The SDK reports HTTP failures by throwing an `ErrorResponse`, which carries
+ * the status in `code`, while `RestError` (carrying it in `statusCode`) only
+ * surfaces for transport level failures such as DNS or connection errors.
+ * Returns `undefined` when no numeric status can be determined, e.g. for a
+ * `RestError` whose `code` is a Node error string like `ENOTFOUND`.
+ */
+const getStatusCode = (error: unknown): number | undefined => {
+  const statusCode =
+    error instanceof ErrorResponse
+      ? Number(error.code)
+      : error instanceof RestError
+        ? error.statusCode
+        : undefined;
+
+  return Number.isNaN(statusCode) ? undefined : statusCode;
+};
+
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+
 // Maps the adapter specific Cosmos representation to the domain type expected by
 // the port.
 const toRcConfiguration = (m: CosmosRCConfiguration): RCConfiguration => ({
@@ -45,6 +95,8 @@ const toRcConfiguration = (m: CosmosRCConfiguration): RCConfiguration => ({
   id: m.id,
   isLollipopEnabled: m.isLollipopEnabled,
   name: m.name,
+  prodEnvironment: m.prodEnvironment,
+  testEnvironment: m.testEnvironment,
   userId: m.userId,
 });
 
@@ -55,6 +107,45 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
     this.#cosmosContainer = cosmosClient
       .database(databaseName)
       .container(RC_CONFIGURATION_COLLECTION_NAME);
+  }
+
+  async createRemoteContentConfiguration(
+    configuration: RCConfiguration,
+  ): Promise<
+    Result<RCConfiguration, ConflictError | GenericError | TooManyRequestsError>
+  > {
+    const dtoRC = cosmosRCConfigurationSchema.safeParse(configuration);
+    if (!dtoRC.success) {
+      return err(
+        new GenericError(
+          `error mapping domain entity to cosmos dto for Remote Content Configuration with id: ${configuration.id}`,
+        ),
+      );
+    }
+
+    const cosmosResponse = await ResultAsync.fromPromise(
+      this.#cosmosContainer.items.create(dtoRC.data),
+      (error) => {
+        switch (getStatusCode(error)) {
+          case StatusCodes.Conflict:
+            return new ConflictError(
+              `an rc configuration with id ${configuration.configurationId} already exists`,
+            );
+          case StatusCodes.TooManyRequests:
+            return new TooManyRequestsError();
+          default:
+            return new GenericError(
+              `error creating rc configuration with id ${configuration.configurationId}: ${getErrorMessage(error)}`,
+            );
+        }
+      },
+    );
+
+    if (cosmosResponse.isErr()) {
+      return err(cosmosResponse.error);
+    }
+
+    return ok(toRcConfiguration(dtoRC.data));
   }
 
   async getRemoteContentConfiguration(
@@ -73,21 +164,15 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
 
     const cosmosResponse = await ResultAsync.fromPromise(
       this.#cosmosContainer.items.query(querySpec).fetchNext(),
-      (err) => {
-        if (err instanceof RestError) {
-          switch (err.statusCode) {
-            case 429:
-              return new TooManyRequestsError();
-            default:
-              return new GenericError(
-                `error obtaining rc configuration with id ${configurationId}: ${err.name}: ${err.message}`,
-              );
-          }
+      (error) => {
+        switch (getStatusCode(error)) {
+          case StatusCodes.TooManyRequests:
+            return new TooManyRequestsError();
+          default:
+            return new GenericError(
+              `error obtaining rc configuration with id ${configurationId}: ${getErrorMessage(error)}`,
+            );
         }
-
-        return new GenericError(
-          `error obtaining rc configuration with id ${configurationId}: ${err}`,
-        );
       },
     );
 
@@ -105,7 +190,7 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
       );
     }
 
-    const parsed = rcConfigurationSchema.safeParse(resources[0]);
+    const parsed = cosmosRCConfigurationSchema.safeParse(resources[0]);
     if (parsed.success) {
       return ok(toRcConfiguration(parsed.data));
     } else {
@@ -113,5 +198,47 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
         new GenericError(`error parsing RC configuration: ${parsed.error}`),
       );
     }
+  }
+
+  async updateRemoteContentConfiguration(
+    configuration: RCConfiguration,
+  ): Promise<
+    Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
+  > {
+    const dtoRC = cosmosRCConfigurationSchema.safeParse(configuration);
+    if (!dtoRC.success) {
+      return err(
+        new GenericError(
+          `error mapping domain entity to cosmos dto for Remote Content Configuration with id: ${configuration.id}`,
+        ),
+      );
+    }
+
+    const cosmosResponse = await ResultAsync.fromPromise(
+      this.#cosmosContainer
+        .item(dtoRC.data.id, dtoRC.data.configurationId)
+        .replace(dtoRC.data),
+      (error) => {
+        switch (getStatusCode(error)) {
+          case StatusCodes.NotFound:
+            return new NotFoundError(
+              `rc-configuration`,
+              `RC configuration not found: ${configuration.configurationId}`,
+            );
+          case StatusCodes.TooManyRequests:
+            return new TooManyRequestsError();
+          default:
+            return new GenericError(
+              `error updating rc configuration with id ${configuration.configurationId}: ${getErrorMessage(error)}`,
+            );
+        }
+      },
+    );
+
+    if (cosmosResponse.isErr()) {
+      return err(cosmosResponse.error);
+    }
+
+    return ok(toRcConfiguration(dtoRC.data));
   }
 }

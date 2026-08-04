@@ -11,12 +11,16 @@ const publishMock = vi.fn();
 const createEntity = vi.fn(() => Promise.resolve());
 
 const mocks = vi.hoisted(() => ({
-  TableClient: vi.fn().mockImplementation(() => ({
-    createEntity: createEntity,
-  })),
-  TelemetryClient: vi.fn().mockImplementation(() => ({
-    trackEvent: vi.fn(),
-  })),
+  TableClient: vi.fn().mockImplementation(function () {
+    return {
+      createEntity: createEntity,
+    };
+  }),
+  TelemetryClient: vi.fn().mockImplementation(function () {
+    return {
+      trackEvent: vi.fn(),
+    };
+  }),
 }));
 
 const messageStatusesErrorTableClientMock = new mocks.TableClient();

@@ -1,5 +1,11 @@
 # cqrs-func
 
+## 2.1.11
+
+### Patch Changes
+
+- 3fa33f0: Update form data peer dependency
+
 ## 2.1.10
 
 ### Patch Changes

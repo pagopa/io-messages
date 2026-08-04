@@ -20,18 +20,24 @@ import messagesIngestion from "../messages-ingestion.js";
 const logger = pino();
 
 const mocks = vi.hoisted(() => ({
-  EventHubProducerClient: vi.fn().mockImplementation(() => ({
-    createBatch: () => ({
-      tryAdd: tryAddMock,
-    }),
-    sendBatch: sendBatchMock,
-  })),
-  TableClient: vi.fn().mockImplementation(() => ({
-    createEntity: createEntity,
-  })),
-  TelemetryClient: vi.fn().mockImplementation(() => ({
-    trackEvent: vi.fn(),
-  })),
+  EventHubProducerClient: vi.fn().mockImplementation(function () {
+    return {
+      createBatch: () => ({
+        tryAdd: tryAddMock,
+      }),
+      sendBatch: sendBatchMock,
+    };
+  }),
+  TableClient: vi.fn().mockImplementation(function () {
+    return {
+      createEntity: createEntity,
+    };
+  }),
+  TelemetryClient: vi.fn().mockImplementation(function () {
+    return {
+      trackEvent: vi.fn(),
+    };
+  }),
 }));
 
 const tryAddMock = vi.fn(() => true);

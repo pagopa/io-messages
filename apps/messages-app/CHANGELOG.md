@@ -1,5 +1,17 @@
 # messages-app
 
+## 0.3.0
+
+### Minor Changes
+
+- 9ce9735: Implement get service cms instead of mocked values
+
+## 0.2.7
+
+### Patch Changes
+
+- 14bbbe9: update required ports and adapters for the upcoming getMessage implementation
+
 ## 0.2.6
 
 ### Patch Changes

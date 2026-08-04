@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.8.16
+
+### Patch Changes
+
+- 3fa33f0: Update form data peer dependency
+
 ## 2.8.15
 
 ### Patch Changes

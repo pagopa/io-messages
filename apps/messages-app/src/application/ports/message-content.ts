@@ -48,6 +48,22 @@ export type MessageContent = z.TypeOf<typeof messageContentSchema>;
 
 export interface MessageContentRepository {
   /**
+   * Returns the content of the single message identified by the provided
+   * `messageId`.
+   *
+   * Returns a `NotFoundError` when the blob does not exist, a
+   * `MalformedEntityError` when the blob content cannot be parsed.
+   */
+  getMessageContentById(
+    messageId: string,
+  ): Promise<
+    Result<
+      MessageContent,
+      GenericError | MalformedEntityError | NotFoundError | TooManyRequestsError
+    >
+  >;
+
+  /**
    * Returns the contents of the messages identified by the provided message
    * ids. The blobs are retrieved in parallel.
    *

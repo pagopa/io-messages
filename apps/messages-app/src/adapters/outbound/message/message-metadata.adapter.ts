@@ -9,12 +9,14 @@ import {
 import {
   FiscalCode,
   GenericError,
+  NotFoundError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
 import { Result, ResultAsync, err, ok } from "neverthrow";
 import z from "zod";
 
 import { CryptoRepository } from "../../../application/ports/crypto.js";
+import { MalformedEntityError } from "../../../application/ports/error.js";
 import {
   MessageMetadata,
   MessageMetadataRepository,
@@ -64,6 +66,73 @@ export class MessageMetadataCosmosAdapter implements MessageMetadataRepository {
     this.#cosmosContainer = cosmosClient
       .database(databaseName)
       .container(containerName);
+  }
+
+  async getMessageMetadataByFiscalCodeAndId(
+    fiscalCode: FiscalCode,
+    messageId: string,
+  ): Promise<
+    Result<
+      MessageMetadata,
+      GenericError | MalformedEntityError | NotFoundError | TooManyRequestsError
+    >
+  > {
+    // Messages are partitioned by `fiscalCode`, so this is an efficient
+    // single-partition point read.
+    const readResult = await ResultAsync.fromPromise(
+      this.#cosmosContainer
+        .item(messageId, fiscalCode)
+        .read<CosmosMessageMetadata>(),
+      (e) => {
+        if (e instanceof RestError) {
+          switch (e.statusCode) {
+            case 404:
+              return new NotFoundError(
+                "message metadata",
+                `cannot find message metadata for message ${messageId}`,
+              );
+            case 429:
+              return new TooManyRequestsError();
+            default:
+              return new GenericError(
+                `error obtaining message metadata for message ${messageId}: ${e.name}: ${e.message}`,
+              );
+          }
+        }
+        return new GenericError(
+          `error obtaining message metadata for message ${messageId}: ${e}`,
+        );
+      },
+    );
+
+    if (readResult.isErr()) {
+      return err(readResult.error);
+    }
+
+    const { resource } = readResult.value;
+
+    if (!resource) {
+      return err(
+        new NotFoundError(
+          "message metadata",
+          `cannot find message metadata for message ${messageId}`,
+        ),
+      );
+    }
+
+    const parsed = cosmosMessageMetadataSchema.safeParse(resource);
+    if (!parsed.success) {
+      this.logger.trackEvent({
+        name: "MessageMetadataCosmosAdapter.getMessageMetadataByFiscalCodeAndId.failed.parse",
+        properties: {
+          fiscalCode: this.crypto.toSha256(fiscalCode),
+          messageId,
+        },
+      });
+      return err(new MalformedEntityError(parsed.error.message));
+    }
+
+    return ok(toMessageMetadata(parsed.data));
   }
 
   async getMessagesMetadataByUser(

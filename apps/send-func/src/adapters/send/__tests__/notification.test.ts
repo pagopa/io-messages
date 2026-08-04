@@ -14,13 +14,17 @@ import {
   anAttachmentName,
   anAuthErrorResponse,
 } from "@/__mocks__/notification.js";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import NotificationClient from "../notification.js";
 
 const apiKey = "anApiKey";
 const baseUrl = "https://mockurl.com";
 const client = new NotificationClient(apiKey, baseUrl);
+
+beforeEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("NotificationClient.checkAarQrCodeIO", () => {
   it("returns a valid CheckQrMandateResponse on successful request", async () => {

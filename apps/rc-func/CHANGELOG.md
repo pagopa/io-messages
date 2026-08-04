@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.0.11
+
+### Patch Changes
+
+- 3fa33f0: Update form data peer dependency
+
 ## 2.0.10
 
 ### Patch Changes

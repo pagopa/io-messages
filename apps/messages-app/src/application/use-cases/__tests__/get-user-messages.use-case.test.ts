@@ -9,7 +9,7 @@ import {
 } from "@pagopa/hexagonal-core";
 import { noopLogger } from "@pagopa/hexagonal-core/adapters/logger";
 import { Result, err, ok } from "neverthrow";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CryptoAdapter } from "../../../adapters/outbound/crypto/crypto.adapter.js";
 import { MessageContentBlobAdapter } from "../../../adapters/outbound/message/message-content.adapter.js";
@@ -30,6 +30,10 @@ import {
   MessageStatusRepository,
 } from "../../ports/message-status.js";
 import { RCConfiguration } from "../../ports/rc-configuration.js";
+import {
+  ServicesCmsDetail,
+  ServicesCmsRepository,
+} from "../../ports/services-cms.js";
 import {
   computeThirdPartyProperties,
   getConfigurationIDFromMessageContent,
@@ -71,6 +75,7 @@ const aMessageStatus = (
   messageId: string,
   overrides: Partial<MessageStatus> = {},
 ): MessageStatus => ({
+  id: `${messageId}-0000000000000000`,
   isArchived: false,
   isRead: false,
   messageId,
@@ -110,6 +115,31 @@ const anRCConfiguration = (
   isLollipopEnabled: false,
   name: "a name",
   userId: "a-user-id",
+  ...overrides,
+});
+
+const aMessageDetail = (
+  serviceID = "a-service-id",
+  overrides: Partial<ServicesCmsDetail> = {},
+): ServicesCmsDetail => ({
+  authorized_cidrs: ["192.0.2.0/24"],
+  authorized_recipients: ["AAABBB00A00A000A"],
+  description: "A service description",
+  id: serviceID,
+  last_update: "2024-01-01T00:00:00.000Z",
+  max_allowed_payment_amount: 9999999999,
+  metadata: {
+    scope: "NATIONAL",
+  },
+  name: "A service name",
+  organization: {
+    fiscal_code: "01234567890",
+    name: "An organization name",
+  },
+  require_secure_channel: false,
+  status: {
+    value: "published",
+  },
   ...overrides,
 });
 
@@ -156,6 +186,13 @@ const messageContentRepository: MessageContentRepository =
 const remoteContentConfigurationReposiory =
   new RCConfigurationHttpClientAdapter(new URL("http://localhost/rc-app"));
 
+const getMessageDetailsByServiceIdsMock =
+  vi.fn<ServicesCmsRepository["getServicesCmsDetailsByServiceIds"]>();
+
+const messageDetailRepository: ServicesCmsRepository = {
+  getServicesCmsDetailsByServiceIds: getMessageDetailsByServiceIdsMock,
+};
+
 const serviceToRcMap = new Map<string, string>();
 
 const trackEventMock = vi.fn();
@@ -167,6 +204,7 @@ const getMessagesByUser = makeGetMessagesByUserUseCase(
   messageMetadataRepository,
   messageStatusRepository,
   messageContentRepository,
+  messageDetailRepository,
   remoteContentConfigurationReposiory,
   aPnServiceId,
   serviceToRcMap,
@@ -178,6 +216,21 @@ const baseInput = {
   fiscalCode: aFiscalCode,
   pageSize: 2,
 };
+
+beforeEach(() => {
+  getMessageDetailsByServiceIdsMock.mockReset();
+  getMessageDetailsByServiceIdsMock.mockImplementation(async (serviceIDs) =>
+    ok(
+      new Map(
+        serviceIDs.map((serviceID) => [
+          serviceID,
+          ok(aMessageDetail(serviceID)),
+        ]),
+      ),
+    ),
+  );
+  trackEventMock.mockReset();
+});
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -221,6 +274,9 @@ describe("makeGetMessagesByUserUseCase - pagination", () => {
     expect(
       messageMetadataRepository.getMessagesMetadataByUser,
     ).toHaveBeenCalledWith(aFiscalCode, 4, undefined, undefined);
+    expect(getMessageDetailsByServiceIdsMock).toHaveBeenCalledWith([
+      "a-service-id",
+    ]);
   });
 
   it("sets next when a further page exists", async () => {
@@ -354,6 +410,7 @@ describe("makeGetMessagesByUserUseCase - pagination", () => {
     expect(
       messageContentRepository.getMessagesContentByIds,
     ).toHaveBeenCalledTimes(1);
+    expect(getMessageDetailsByServiceIdsMock).toHaveBeenCalledWith([]);
   });
 });
 
@@ -445,6 +502,91 @@ describe("makeGetMessagesByUserUseCase - filtering", () => {
     expect(page.items).toHaveLength(1);
     expect(page.items.map((i) => i.id)).toEqual([ULID_C]);
     expect(page.prev).toBe(ULID_C);
+  });
+
+  it("skips messages whose service detail is missing or malformed", async () => {
+    vi.spyOn(
+      messageMetadataRepository,
+      "getMessagesMetadataByUser",
+    ).mockResolvedValue(
+      ok([
+        aMessageMetadata(ULID_B, { senderServiceId: "service-b" }),
+        aMessageMetadata(ULID_A, { senderServiceId: "service-a" }),
+      ]),
+    );
+    vi.spyOn(
+      messageStatusRepository,
+      "getLatestMessagesStatusByIds",
+    ).mockResolvedValue(ok([aMessageStatus(ULID_B), aMessageStatus(ULID_A)]));
+    vi.spyOn(
+      messageContentRepository,
+      "getMessagesContentByIds",
+    ).mockResolvedValue(
+      ok(
+        contentMapOf([
+          [ULID_B, ok(aMessageContent())],
+          [ULID_A, ok(aMessageContent())],
+        ]),
+      ),
+    );
+    getMessageDetailsByServiceIdsMock.mockResolvedValue(
+      ok(
+        new Map<
+          string,
+          Result<ServicesCmsDetail, MalformedEntityError | NotFoundError>
+        >([
+          ["service-a", err(new NotFoundError("service detail", "not found"))],
+          ["service-b", ok(aMessageDetail("service-b"))],
+        ]),
+      ),
+    );
+
+    const result = await getMessagesByUser(baseInput);
+
+    expect(result.isOk()).toBe(true);
+    const page = result._unsafeUnwrap();
+    expect(page.items.map((i) => i.id)).toEqual([ULID_B]);
+    expect(trackEventMock).toHaveBeenCalledWith({
+      name: "GetMessagesByUserUseCase.getMessageDetailResponse.failed.skippable",
+      properties: {
+        messageID: ULID_A,
+        serviceID: "service-a",
+      },
+    });
+  });
+
+  it("deduplicates service ids when fetching service details", async () => {
+    vi.spyOn(
+      messageMetadataRepository,
+      "getMessagesMetadataByUser",
+    ).mockResolvedValue(
+      ok([
+        aMessageMetadata(ULID_B, { senderServiceId: "same-service" }),
+        aMessageMetadata(ULID_A, { senderServiceId: "same-service" }),
+      ]),
+    );
+    vi.spyOn(
+      messageStatusRepository,
+      "getLatestMessagesStatusByIds",
+    ).mockResolvedValue(ok([aMessageStatus(ULID_B), aMessageStatus(ULID_A)]));
+    vi.spyOn(
+      messageContentRepository,
+      "getMessagesContentByIds",
+    ).mockResolvedValue(
+      ok(
+        contentMapOf([
+          [ULID_B, ok(aMessageContent())],
+          [ULID_A, ok(aMessageContent())],
+        ]),
+      ),
+    );
+
+    const result = await getMessagesByUser(baseInput);
+
+    expect(result.isOk()).toBe(true);
+    expect(getMessageDetailsByServiceIdsMock).toHaveBeenCalledWith([
+      "same-service",
+    ]);
   });
 });
 
@@ -719,6 +861,28 @@ describe("makeGetMessagesByUserUseCase - error handling", () => {
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBe(anError);
   });
+
+  it("returns the error raised while fetching the service details", async () => {
+    const anError = new GenericError("cannot read service details");
+    vi.spyOn(
+      messageMetadataRepository,
+      "getMessagesMetadataByUser",
+    ).mockResolvedValue(ok([aMessageMetadata(ULID_A)]));
+    vi.spyOn(
+      messageStatusRepository,
+      "getLatestMessagesStatusByIds",
+    ).mockResolvedValue(ok([aMessageStatus(ULID_A)]));
+    vi.spyOn(
+      messageContentRepository,
+      "getMessagesContentByIds",
+    ).mockResolvedValue(ok(contentMapOf([[ULID_A, ok(aMessageContent())]])));
+    getMessageDetailsByServiceIdsMock.mockResolvedValue(err(anError));
+
+    const result = await getMessagesByUser(baseInput);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBe(anError);
+  });
 });
 
 const mockSingleMessage = (
@@ -819,6 +983,7 @@ describe("makeGetMessagesByUserUseCase - remote content (third_party_data)", () 
       messageMetadataRepository,
       messageStatusRepository,
       messageContentRepository,
+      messageDetailRepository,
       remoteContentConfigurationReposiory,
       aPnServiceId,
       new Map([[mappedServiceId, RC_CONFIG_ID_B]]),

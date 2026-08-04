@@ -6,8 +6,6 @@ import { ExternalMessageResponseWithoutContent } from "@pagopa/io-functions-comm
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FeatureLevelType";
 import { MaxAllowedPaymentAmount } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/MaxAllowedPaymentAmount";
 import { NotRejectedMessageStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NotRejectedMessageStatusValue";
-import { NotificationChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NotificationChannel";
-import { NotificationChannelStatusValueEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NotificationChannelStatusValue";
 import { ReadStatusEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ReadStatus";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ServiceId";
 import { TimeToLiveSeconds } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/TimeToLiveSeconds";
@@ -16,14 +14,6 @@ import {
   RetrievedMessageWithoutContent,
 } from "@pagopa/io-functions-commons/dist/src/models/message";
 import { MessageStatus } from "@pagopa/io-functions-commons/dist/src/models/message_status";
-import {
-  NotificationAddressSourceEnum,
-  RetrievedNotification,
-} from "@pagopa/io-functions-commons/dist/src/models/notification";
-import {
-  RetrievedNotificationStatus,
-  makeStatusId,
-} from "@pagopa/io-functions-commons/dist/src/models/notification_status";
 import { toAuthorizedCIDRs } from "@pagopa/io-functions-commons/dist/src/models/service";
 import {
   CosmosEmptyResponse,
@@ -187,43 +177,8 @@ describe("GetMessageHandler", () => {
   const aPublicExtendedMessageResponse: ExternalMessageResponseWithoutContent =
     {
       message: aPublicExtendedMessage,
-      notification: {
-        email: NotificationChannelStatusValueEnum.SENT,
-        webhook: NotificationChannelStatusValueEnum.SENT,
-      },
       status: NotRejectedMessageStatusValueEnum.ACCEPTED,
     };
-
-  function getNotificationModelMock(
-    aRetrievedNotification: any = {
-      data: "data",
-    },
-  ): any {
-    return {
-      findNotificationForMessage: vi.fn(() =>
-        TE.of(some(aRetrievedNotification)),
-      ),
-    };
-  }
-
-  const aRetrievedNotificationStatus: RetrievedNotificationStatus = {
-    _etag: "_etag",
-    _rid: "_rid",
-    _self: "xyz",
-    _ts: 1,
-    channel: NotificationChannelEnum.EMAIL,
-    id: "1" as NonEmptyString,
-    kind: "IRetrievedNotificationStatus",
-    messageId: "1" as NonEmptyString,
-    notificationId: "1" as NonEmptyString,
-    status: NotificationChannelStatusValueEnum.SENT,
-    statusId: makeStatusId(
-      "1" as NonEmptyString,
-      NotificationChannelEnum.EMAIL,
-    ),
-    updatedAt: aDate,
-    version: 1 as NonNegativeInteger,
-  };
 
   const aMessageStatus: MessageStatus = {
     isArchived: false,
@@ -232,18 +187,6 @@ describe("GetMessageHandler", () => {
     status: NotRejectedMessageStatusValueEnum.ACCEPTED,
     updatedAt: aDate,
   };
-
-  function getNotificationStatusModelMock(
-    retrievedNotificationStatus: any = TE.of(
-      some(aRetrievedNotificationStatus),
-    ),
-  ): any {
-    return {
-      findOneNotificationStatusByNotificationChannel: vi.fn(
-        () => retrievedNotificationStatus,
-      ),
-    };
-  }
 
   function getMessageStatusModelMock(
     s: TE.TaskEither<CosmosErrors, Option<MessageStatus>> = TE.of(
@@ -306,8 +249,6 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel as any,
       getMessageStatusModelMock(),
-      getNotificationModelMock(),
-      getNotificationStatusModelMock(),
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
@@ -345,8 +286,6 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel as any,
       getMessageStatusModelMock(),
-      getNotificationModelMock(),
-      getNotificationStatusModelMock(),
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
@@ -382,8 +321,6 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel as any,
       getMessageStatusModelMock(),
-      getNotificationModelMock(),
-      getNotificationStatusModelMock(),
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
@@ -425,8 +362,6 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel as any,
       getMessageStatusModelMock(),
-      {} as any,
-      {} as any,
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
@@ -462,8 +397,6 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel as any,
       getMessageStatusModelMock(),
-      {} as any,
-      {} as any,
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
@@ -483,65 +416,6 @@ describe("GetMessageHandler", () => {
     expect(result.kind).toBe("IResponseErrorNotFound");
   });
 
-  it("should provide information about notification status", async () => {
-    const aRetrievedNotification: RetrievedNotification = {
-      _etag: "_etag",
-      _rid: "_rid",
-      _self: "xyz",
-      _ts: 1,
-      channels: {
-        [NotificationChannelEnum.EMAIL]: {
-          addressSource: NotificationAddressSourceEnum.PROFILE_ADDRESS,
-          toAddress: "x@example.com" as EmailString,
-        },
-      },
-      fiscalCode: aFiscalCode,
-      id: "A_NOTIFICATION_ID" as NonEmptyString,
-      kind: "IRetrievedNotification",
-      messageId: "A_MESSAGE_ID" as NonEmptyString,
-    };
-
-    const mockMessageModel = {
-      findMessageForRecipient: vi.fn(() =>
-        TE.of(some(aRetrievedMessageWithoutContent)),
-      ),
-      getContentFromBlob: vi.fn(() => TE.of(none)),
-    };
-
-    const getMessageHandler = GetMessageHandler(
-      mockMessageModel as any,
-      getMessageStatusModelMock(),
-      getNotificationModelMock(aRetrievedNotification),
-      getNotificationStatusModelMock(),
-      makeBlobServiceFromMessageModel(mockMessageModel) as any,
-      mockMessageReadStatusAuth,
-      getPagopaEcommerceClientMock(),
-    );
-
-    const result = await getMessageHandler(
-      mockContext,
-      aUserAuthenticationTrustedApplication,
-      undefined as any, // not used
-      someUserAttributes,
-      aFiscalCode,
-      aRetrievedMessageWithoutContent.id,
-    );
-
-    expect(mockMessageModel.getContentFromBlob).toHaveBeenCalledTimes(1);
-    expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledTimes(1);
-    expect(mockMessageModel.findMessageForRecipient).toHaveBeenCalledWith(
-      aRetrievedMessageWithoutContent.fiscalCode,
-      aRetrievedMessageWithoutContent.id,
-    );
-
-    expect(result.kind).toBe("IResponseSuccessJson");
-    if (result.kind === "IResponseSuccessJson") {
-      expect(result.value).toEqual({
-        ...aPublicExtendedMessageResponse,
-      });
-    }
-  });
-
   it("should fail if any error occurs trying to retrieve the message status", async () => {
     const mockMessageModel = {
       findMessageForRecipient: vi.fn(() =>
@@ -555,45 +429,6 @@ describe("GetMessageHandler", () => {
       getMessageStatusModelMock(
         TE.left<CosmosErrors, Option<MessageStatus>>(CosmosEmptyResponse),
       ),
-      getNotificationModelMock(),
-      getNotificationStatusModelMock(),
-      makeBlobServiceFromMessageModel(mockMessageModel) as any,
-      mockMessageReadStatusAuth,
-      getPagopaEcommerceClientMock(),
-    );
-
-    const result = await getMessageHandler(
-      mockContext,
-      aUserAuthenticationDeveloper,
-      undefined as any, // not used
-      someUserAttributes,
-      aFiscalCode,
-      aRetrievedMessageWithoutContent.id,
-    );
-
-    expect(result.kind).toBe("IResponseErrorInternal");
-  });
-
-  it("should fail if any error occurs trying to retrieve the notification status", async () => {
-    const mockMessageModel = {
-      findMessageForRecipient: vi.fn(() =>
-        TE.of(some(aRetrievedMessageWithoutContent)),
-      ),
-      getContentFromBlob: vi.fn(() => TE.of(none)),
-    };
-
-    const getMessageHandler = GetMessageHandler(
-      mockMessageModel as any,
-      getMessageStatusModelMock(),
-      {
-        findNotificationForMessage: vi.fn(() =>
-          TE.left({
-            body: "error",
-            code: 1,
-          }),
-        ),
-      } as any,
-      getNotificationStatusModelMock(),
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
@@ -614,23 +449,6 @@ describe("GetMessageHandler", () => {
   // ---------------------------
   // Advanced Features
   // ---------------------------
-
-  const aRetrievedNotification: RetrievedNotification = {
-    _etag: "_etag",
-    _rid: "_rid",
-    _self: "xyz",
-    _ts: 1,
-    channels: {
-      [NotificationChannelEnum.EMAIL]: {
-        addressSource: NotificationAddressSourceEnum.PROFILE_ADDRESS,
-        toAddress: "x@example.com" as EmailString,
-      },
-    },
-    fiscalCode: aFiscalCode,
-    id: "A_NOTIFICATION_ID" as NonEmptyString,
-    kind: "IRetrievedNotification",
-    messageId: "A_MESSAGE_ID" as NonEmptyString,
-  };
 
   const aRetrievedMessageWithAdvancedFeatures = {
     ...aRetrievedMessageWithoutContent,
@@ -665,8 +483,6 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel as any,
       getMessageStatusModelMock(),
-      getNotificationModelMock(aRetrievedNotification),
-      getNotificationStatusModelMock(),
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
@@ -707,8 +523,6 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel as any,
       getMessageStatusModelMock(),
-      getNotificationModelMock(aRetrievedNotification),
-      getNotificationStatusModelMock(),
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
@@ -756,8 +570,6 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel as any,
       getMessageStatusModelMock(),
-      getNotificationModelMock(aRetrievedNotification),
-      getNotificationStatusModelMock(),
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
@@ -806,8 +618,6 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel as any,
       getMessageStatusModelMock(),
-      getNotificationModelMock(aRetrievedNotification),
-      getNotificationStatusModelMock(),
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
@@ -859,8 +669,6 @@ describe("GetMessageHandler", () => {
     const getMessageHandler = GetMessageHandler(
       mockMessageModel as any,
       getMessageStatusModelMock(),
-      getNotificationModelMock(aRetrievedNotification),
-      getNotificationStatusModelMock(),
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(),
@@ -910,8 +718,6 @@ describe("GetMessageHandler", () => {
           }),
         ),
       ),
-      getNotificationModelMock(aRetrievedNotification),
-      getNotificationStatusModelMock(),
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(409, {
@@ -965,8 +771,6 @@ describe("GetMessageHandler", () => {
           }),
         ),
       ),
-      getNotificationModelMock(aRetrievedNotification),
-      getNotificationStatusModelMock(),
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(404),
@@ -1016,8 +820,6 @@ describe("GetMessageHandler", () => {
           }),
         ),
       ),
-      getNotificationModelMock(aRetrievedNotification),
-      getNotificationStatusModelMock(),
       makeBlobServiceFromMessageModel(mockMessageModel) as any,
       mockMessageReadStatusAuth,
       getPagopaEcommerceClientMock(503, {
