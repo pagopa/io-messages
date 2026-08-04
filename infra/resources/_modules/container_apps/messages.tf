@@ -1,8 +1,5 @@
-module "messages_ca" {
-  source  = "pagopa-dx/azure-container-app/azurerm"
-  version = "~> 6.0"
-
-  environment = {
+locals {
+  messages_ca_environment = {
     prefix          = var.environment.prefix
     env_short       = var.environment.env_short
     location        = var.environment.location
@@ -10,6 +7,23 @@ module "messages_ca" {
     app_name        = "messages"
     instance_number = "01"
   }
+
+  messages_ca_name = provider::dx::resource_name({
+    prefix          = local.messages_ca_environment.prefix
+    environment     = local.messages_ca_environment.env_short
+    location        = local.messages_ca_environment.location
+    domain          = local.messages_ca_environment.domain
+    name            = local.messages_ca_environment.app_name
+    instance_number = tonumber(local.messages_ca_environment.instance_number)
+    resource_type   = "container_app"
+  })
+}
+
+module "messages_ca" {
+  source  = "pagopa-dx/azure-container-app/azurerm"
+  version = "~> 6.0"
+
+  environment = local.messages_ca_environment
 
   container_app_environment_id = module.com_cae_env.id
 
@@ -43,6 +57,7 @@ module "messages_ca" {
 
         APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
         APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
+        OTEL_SERVICE_NAME                         = local.messages_ca_name
 
         APIM_BASE_URL         = "https://io-p-itn-svc-services-ca-01.ambitioussea-e5d71305.italynorth.azurecontainerapps.io"
         APIM_SUBSCRIPTION_KEY = "dummy"
