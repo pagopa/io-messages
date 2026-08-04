@@ -68,6 +68,25 @@ describe("RCConfigurationCacheAdapter", () => {
       expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
     });
 
+    it("returns a MalformedEntityError when the cached value is not valid JSON", async () => {
+      const { mockGet, mockLogger, mockRedisClient } = makeMocks();
+      mockGet.mockResolvedValueOnce("not-a-json");
+
+      const adapter = new RCConfigurationCacheAdapter(
+        mockRedisClient,
+        mockLogger,
+      );
+      const result =
+        await adapter.getCachedRemoteContentConfiguration(aConfigurationId);
+
+      expect(mockLogger.trackEvent).not.toHaveBeenCalled();
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
+      expect(result._unsafeUnwrapErr().message).toContain(
+        "Malformed cached json rc configuration",
+      );
+    });
+
     it("returns a MalformedEntityError when the cached value fails schema validation", async () => {
       const { mockGet, mockLogger, mockRedisClient } = makeMocks();
       mockGet.mockResolvedValueOnce(JSON.stringify({ invalid: "data" }));
@@ -99,6 +118,24 @@ describe("RCConfigurationCacheAdapter", () => {
       expect(result.isErr()).toBe(true);
       expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
       expect(result._unsafeUnwrapErr().message).toContain("Redis error");
+    });
+    it("returns a GenericError when Redis rejects with a non-Error value", async () => {
+      const { mockGet, mockLogger, mockRedisClient } = makeMocks();
+      mockGet.mockRejectedValueOnce("connection refused");
+
+      const adapter = new RCConfigurationCacheAdapter(
+        mockRedisClient,
+        mockLogger,
+      );
+      const result =
+        await adapter.getCachedRemoteContentConfiguration(aConfigurationId);
+
+      expect(mockLogger.trackEvent).not.toHaveBeenCalled();
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+      expect(result._unsafeUnwrapErr().message).toContain(
+        "Redis error: connection refused",
+      );
     });
   });
 

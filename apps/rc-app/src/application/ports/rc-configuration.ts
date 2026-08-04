@@ -1,4 +1,5 @@
 import {
+  ConflictError,
   FiscalCodeSchema,
   GenericError,
   NotFoundError,
@@ -48,6 +49,15 @@ export type RCConfiguration = z.TypeOf<typeof rcConfigurationSchema>;
 
 export interface RemoteContentRepository {
   /**
+   * Create a new RC configuration in the repository.
+   */
+  createRemoteContentConfiguration(
+    configuration: RCConfiguration,
+  ): Promise<
+    Result<RCConfiguration, ConflictError | GenericError | TooManyRequestsError>
+  >;
+
+  /**
    * Returns the RC configuration identified by the given configuration ID.
    *
    * Returns a `NotFoundError` if no matching configuration exists, a
@@ -56,6 +66,20 @@ export interface RemoteContentRepository {
    */
   getRemoteContentConfiguration(
     configurationId: RcConfigurationId,
+  ): Promise<
+    Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
+  >;
+
+  /**
+   * Updates an existing RC configuration, replacing it with the given one.
+   *
+   * Returns a `NotFoundError` if no configuration exists for the given
+   * `configurationId`, a `TooManyRequestsError` if the upstream store is
+   * rate-limiting requests, or a `GenericError` on other infrastructure
+   * failures.
+   */
+  updateRemoteContentConfiguration(
+    configuration: RCConfiguration,
   ): Promise<
     Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
   >;

@@ -1,4 +1,5 @@
 import {
+  ConflictError,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -19,6 +20,27 @@ export class CachingRemoteContentRepository implements RemoteContentRepository {
     private readonly cacheTtlInSeconds: number,
   ) {}
 
+  async createRemoteContentConfiguration(
+    configuration: RCConfiguration,
+  ): Promise<
+    Result<RCConfiguration, ConflictError | GenericError | TooManyRequestsError>
+  > {
+    const result =
+      await this.repository.createRemoteContentConfiguration(configuration);
+    if (result.isErr()) {
+      return err(result.error);
+    }
+
+    // We simply ignore caching errors.
+    await this.cache.setCachedRemoteContentConfiguration(
+      result.value.configurationId,
+      result.value,
+      this.cacheTtlInSeconds,
+    );
+
+    return ok(result.value);
+  }
+
   async getRemoteContentConfiguration(
     configurationId: RcConfigurationId,
   ): Promise<
@@ -38,6 +60,27 @@ export class CachingRemoteContentRepository implements RemoteContentRepository {
 
     await this.cache.setCachedRemoteContentConfiguration(
       configurationId,
+      result.value,
+      this.cacheTtlInSeconds,
+    );
+
+    return ok(result.value);
+  }
+
+  async updateRemoteContentConfiguration(
+    configuration: RCConfiguration,
+  ): Promise<
+    Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
+  > {
+    const result =
+      await this.repository.updateRemoteContentConfiguration(configuration);
+    if (result.isErr()) {
+      return err(result.error);
+    }
+
+    // We simply ignore caching errors.
+    await this.cache.setCachedRemoteContentConfiguration(
+      result.value.configurationId,
       result.value,
       this.cacheTtlInSeconds,
     );
