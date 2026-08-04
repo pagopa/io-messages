@@ -30,6 +30,7 @@ import {
   RCConfiguration,
   RCConfigurationRepository,
 } from "../ports/rc-configuration.js";
+import { ServicesCmsRepository } from "../ports/services-cms.js";
 
 export type GetMessagesByUserUseCase = UseCase<
   {
@@ -313,6 +314,7 @@ export const makeGetMessagesByUserUseCase =
     messageMetadataRepository: MessageMetadataRepository,
     messageStatusRepository: MessageStatusRepository,
     messageContentRepository: MessageContentRepository,
+    servicesCmsRepository: ServicesCmsRepository,
     remoteContentConfigurationRepository: RCConfigurationRepository,
     pnServiceId: string,
     serviceToRCMap: ServiceToRCConfigMap,
@@ -356,7 +358,19 @@ export const makeGetMessagesByUserUseCase =
       return err(messageContents.error);
     }
 
+    const serviceIDs = [
+      ...new Set(selectedMessages.map((s) => s.metadata.senderServiceId)),
+    ];
+
+    const serviceDetails =
+      await servicesCmsRepository.getServicesCmsDetailsByServiceIds(serviceIDs);
+
+    if (serviceDetails.isErr()) {
+      return err(serviceDetails.error);
+    }
+
     const contentById = messageContents.value;
+    const serviceDetailsByServiceId = serviceDetails.value;
     const items: PublicMessage[] = [];
 
     // We use a Map in order to avoid calling multiple times the
@@ -374,6 +388,21 @@ export const makeGetMessagesByUserUseCase =
       }
 
       const messageContent = content.value;
+      const serviceDetails = serviceDetailsByServiceId.get(
+        metadata.senderServiceId,
+      );
+
+      if (!serviceDetails || serviceDetails.isErr()) {
+        logger.trackEvent({
+          name: "GetMessagesByUserUseCase.getMessageDetailResponse.failed.skippable",
+          properties: {
+            messageID: metadata.id,
+            serviceID: metadata.senderServiceId,
+          },
+        });
+
+        continue;
+      }
 
       if (messageContent.third_party_data) {
         const configurationID = getConfigurationIDFromMessageContent(
@@ -415,7 +444,6 @@ export const makeGetMessagesByUserUseCase =
       }
 
       items.push({
-        // TODO: Mocked service information. Enrich with real service data
         category: computeMessageCategory(
           content.value,
           metadata.senderServiceId,
@@ -428,10 +456,10 @@ export const makeGetMessagesByUserUseCase =
         is_archived: status.isArchived,
         is_read: status.isRead,
         message_title: content.value.subject,
-        organization_fiscal_code: "00000000000",
-        organization_name: "Mocked organization name",
-        sender_service_id: metadata.senderServiceId,
-        service_name: "Mocked service name",
+        organization_fiscal_code: serviceDetails.value.organization.fiscal_code,
+        organization_name: serviceDetails.value.organization.name,
+        sender_service_id: serviceDetails.value.id,
+        service_name: serviceDetails.value.name,
         status: status.status,
         time_to_live: metadata.timeToLiveSeconds,
       });
