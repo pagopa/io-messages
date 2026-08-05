@@ -11,8 +11,6 @@ services:
     build:
       context: .
       dockerfile: ./apps/rc-app/Dockerfile
-    image: io-rc-app:latest
-    pull_policy: never
     env_file: ./apps/rc-app/.env
     ports:
       - 3010:3000
@@ -21,8 +19,6 @@ services:
     build:
       context: .
       dockerfile: ./apps/messages-app/Dockerfile
-    image: io-messages-app:latest
-    pull_policy: never
     env_file: ./apps/messages-app/.env
     ports:
       - 3000:3000
