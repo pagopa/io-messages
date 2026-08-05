@@ -10,6 +10,8 @@ import z from "zod";
 const MANAGE_SUBSCRIPTION_PREFIX = "MANAGE-";
 const ALLOWED_RC_CONFIG_API_GROUP = "ApiRemoteContentConfigurationWrite";
 
+// APIM may send its full user resource path; only its final segment identifies
+// the user stored in an RC configuration.
 const apimUserIdSchema = z
   .string()
   .min(1)
@@ -27,6 +29,12 @@ export interface RcConfigurationAuthContext {
   userId: string;
 }
 
+/**
+ * Authenticates and pre-authorizes requests forwarded by APIM.
+ *
+ * Missing, malformed, or unauthorized APIM headers produce `ForbiddenError` to
+ * preserve the legacy endpoint behavior.
+ */
 export const makeRcConfigurationAuthMiddleware =
   (
     internalUserId: string,
@@ -49,6 +57,8 @@ export const makeRcConfigurationAuthMiddleware =
 
     const isInternalUser = userId === internalUserId;
 
+    // Regular users require both a management subscription and membership in
+    // the write group.
     const canManageConfigurations =
       subscriptionId.startsWith(MANAGE_SUBSCRIPTION_PREFIX) &&
       userGroups.includes(ALLOWED_RC_CONFIG_API_GROUP);
