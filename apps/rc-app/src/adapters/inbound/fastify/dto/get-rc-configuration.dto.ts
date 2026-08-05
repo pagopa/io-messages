@@ -1,45 +1,15 @@
-import { FiscalCodeSchema } from "@pagopa/hexagonal-core";
-import z from "zod";
+import {
+  RCConfigurationResponse,
+  rcConfigurationResponseSchema,
+} from "io-messages-common/adapters/outbound/remote-content";
 
 import { RCConfiguration } from "../../../../application/ports/rc-configuration.js";
 
-const RcClientCertDtoSchema = z.object({
-  client_cert: z.string().min(1),
-  client_key: z.string().min(1),
-  server_ca: z.string().min(1),
-});
-
-const RcAuthenticationConfigDtoSchema = z.object({
-  cert: RcClientCertDtoSchema.optional(),
-  header_key_name: z.string().min(1),
-  key: z.string().min(1),
-  type: z.string().min(1),
-});
-
-const RcEnvironmentConfigDtoSchema = z.object({
-  base_url: z.string().min(1),
-  details_authentication: RcAuthenticationConfigDtoSchema,
-});
-
-const RcTestEnvironmentConfigDtoSchema = RcEnvironmentConfigDtoSchema.extend({
-  test_users: z.array(FiscalCodeSchema),
-});
-
-export const RcConfigurationResponseSchema = z.object({
-  configuration_id: z.ulid(),
-  description: z.string().min(1),
-  disable_lollipop_for: z.array(FiscalCodeSchema),
-  has_precondition: z.enum(["ALWAYS", "ONCE", "NEVER"]),
-  is_lollipop_enabled: z.boolean(),
-  name: z.string().min(1),
-  prod_environment: RcEnvironmentConfigDtoSchema.optional(),
-  test_environment: RcTestEnvironmentConfigDtoSchema.optional(),
-  user_id: z.string().min(1),
-});
+export const RcConfigurationResponseSchema = rcConfigurationResponseSchema;
 
 const toRcEnvironmentResponse = (
   environment: NonNullable<RCConfiguration["prodEnvironment"]>,
-): z.TypeOf<typeof RcEnvironmentConfigDtoSchema> => ({
+): NonNullable<RCConfigurationResponse["prod_environment"]> => ({
   base_url: environment.baseUrl,
   details_authentication: {
     cert:
@@ -58,7 +28,7 @@ const toRcEnvironmentResponse = (
 
 export const toRcConfigurationResponse = (
   configuration: RCConfiguration,
-): z.TypeOf<typeof RcConfigurationResponseSchema> => ({
+): RCConfigurationResponse => ({
   configuration_id: configuration.configurationId,
   description: configuration.description,
   disable_lollipop_for: configuration.disableLollipopFor,

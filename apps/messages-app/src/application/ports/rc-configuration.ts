@@ -37,7 +37,6 @@ export const rcConfigurationSchema = z.object({
   description: z.string().min(1),
   disableLollipopFor: z.array(FiscalCodeSchema),
   hasPrecondition: z.enum(["ALWAYS", "ONCE", "NEVER"]),
-  id: z.string().min(1),
   isLollipopEnabled: z.boolean(),
   name: z.string().min(1),
   prodEnvironment: rcEnvironmentConfigSchema.optional(),

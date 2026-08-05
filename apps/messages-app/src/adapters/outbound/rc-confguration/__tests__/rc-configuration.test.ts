@@ -13,14 +13,13 @@ const aBaseURL = new URL("http://localhost/api/internal/rc-configurations");
 const anApiResponse = (
   overrides: Record<string, unknown> = {},
 ): Record<string, unknown> => ({
-  configurationId: RC_CONFIG_ID,
+  configuration_id: RC_CONFIG_ID,
   description: "a description",
-  disableLollipopFor: [],
-  hasPrecondition: "ALWAYS",
-  id: "an-rc-id",
-  isLollipopEnabled: false,
+  disable_lollipop_for: [],
+  has_precondition: "ALWAYS",
+  is_lollipop_enabled: false,
   name: "a name",
-  userId: "a-user-id",
+  user_id: "a-user-id",
   ...overrides,
 });
 
@@ -56,7 +55,6 @@ describe("RCConfigurationHttpClientAdapter - getRemoteContentConfiguration", () 
       description: "a description",
       disableLollipopFor: [],
       hasPrecondition: "ALWAYS",
-      id: "an-rc-id",
       isLollipopEnabled: false,
       name: "a name",
       prodEnvironment: undefined,
@@ -92,7 +90,7 @@ describe("RCConfigurationHttpClientAdapter - getRemoteContentConfiguration", () 
     stubFetch(
       aFetchResponse(200, () =>
         Promise.resolve(
-          anApiResponse({ hasPrecondition: "NOT_A_VALID_VALUE" }),
+          anApiResponse({ has_precondition: "NOT_A_VALID_VALUE" }),
         ),
       ),
     );

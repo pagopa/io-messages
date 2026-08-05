@@ -1,56 +1,41 @@
 import {
-  FiscalCodeSchema,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
+import {
+  RCConfigurationResponse,
+  rcConfigurationResponseSchema,
+} from "io-messages-common/adapters/outbound/remote-content";
 import { Result, ResultAsync, err, ok } from "neverthrow";
-import z from "zod";
 
 import {
   RCConfiguration,
   RCConfigurationRepository,
 } from "../../../application/ports/rc-configuration.js";
 
-const rcClientCertSchema = z.object({
-  clientCert: z.string().min(1),
-  clientKey: z.string().min(1),
-  serverCa: z.string().min(1),
-});
-
-const rcAuthenticationConfigSchema = z.object({
-  cert: rcClientCertSchema.optional(),
-  headerKeyName: z.string().min(1),
-  key: z.string().min(1),
-  type: z.string().min(1),
-});
-
-const rcEnvironmentConfigSchema = z.object({
-  baseUrl: z.string().min(1),
-  detailsAuthentication: rcAuthenticationConfigSchema,
-});
-
-const rcTestEnvironmentConfigSchema = rcEnvironmentConfigSchema.extend({
-  testUsers: z.array(FiscalCodeSchema),
-});
-
-// rcConfigurationApiResponseSchema represents the remote-content configuration
-// obtained as response from the rc-app micro-service.
-const rcConfigurationApiResponseSchema = z.object({
-  configurationId: z.ulid(),
-  description: z.string().min(1),
-  disableLollipopFor: z.array(FiscalCodeSchema),
-  hasPrecondition: z.enum(["ALWAYS", "ONCE", "NEVER"]),
-  id: z.string().min(1),
-  isLollipopEnabled: z.boolean(),
-  name: z.string().min(1),
-  prodEnvironment: rcEnvironmentConfigSchema.optional(),
-  testEnvironment: rcTestEnvironmentConfigSchema.optional(),
-  userId: z.string().min(1),
-});
-type RCConfigurationApiResponse = z.infer<
-  typeof rcConfigurationApiResponseSchema
+type RCEnvironmentResponse = NonNullable<
+  RCConfigurationResponse["prod_environment"]
 >;
+
+const toDomainEnvironment = (
+  environment: RCEnvironmentResponse,
+): NonNullable<RCConfiguration["prodEnvironment"]> => ({
+  baseUrl: environment.base_url,
+  detailsAuthentication: {
+    cert:
+      environment.details_authentication.cert === undefined
+        ? undefined
+        : {
+            clientCert: environment.details_authentication.cert.client_cert,
+            clientKey: environment.details_authentication.cert.client_key,
+            serverCa: environment.details_authentication.cert.server_ca,
+          },
+    headerKeyName: environment.details_authentication.header_key_name,
+    key: environment.details_authentication.key,
+    type: environment.details_authentication.type,
+  },
+});
 
 export class RCConfigurationHttpClientAdapter
   implements RCConfigurationRepository
@@ -62,19 +47,29 @@ export class RCConfigurationHttpClientAdapter
   }
 
   private toDomainRCConfiguration(
-    rcConfigurationApiResponse: RCConfigurationApiResponse,
+    rcConfigurationApiResponse: RCConfigurationResponse,
   ): RCConfiguration {
     return {
-      configurationId: rcConfigurationApiResponse.configurationId,
+      configurationId: rcConfigurationApiResponse.configuration_id,
       description: rcConfigurationApiResponse.description,
-      disableLollipopFor: rcConfigurationApiResponse.disableLollipopFor,
-      hasPrecondition: rcConfigurationApiResponse.hasPrecondition,
-      id: rcConfigurationApiResponse.id,
-      isLollipopEnabled: rcConfigurationApiResponse.isLollipopEnabled,
+      disableLollipopFor: rcConfigurationApiResponse.disable_lollipop_for,
+      hasPrecondition: rcConfigurationApiResponse.has_precondition,
+      isLollipopEnabled: rcConfigurationApiResponse.is_lollipop_enabled,
       name: rcConfigurationApiResponse.name,
-      prodEnvironment: rcConfigurationApiResponse.prodEnvironment,
-      testEnvironment: rcConfigurationApiResponse.testEnvironment,
-      userId: rcConfigurationApiResponse.userId,
+      prodEnvironment:
+        rcConfigurationApiResponse.prod_environment === undefined
+          ? undefined
+          : toDomainEnvironment(rcConfigurationApiResponse.prod_environment),
+      testEnvironment:
+        rcConfigurationApiResponse.test_environment === undefined
+          ? undefined
+          : {
+              ...toDomainEnvironment(
+                rcConfigurationApiResponse.test_environment,
+              ),
+              testUsers: rcConfigurationApiResponse.test_environment.test_users,
+            },
+      userId: rcConfigurationApiResponse.user_id,
     };
   }
 
@@ -100,7 +95,7 @@ export class RCConfigurationHttpClientAdapter
         return err(jsonResponse.error);
       }
 
-      const parsedResult = rcConfigurationApiResponseSchema.safeParse(
+      const parsedResult = rcConfigurationResponseSchema.safeParse(
         jsonResponse.value,
       );
 

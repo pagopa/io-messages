@@ -111,7 +111,6 @@ const anRCConfiguration = (
   description: "a description",
   disableLollipopFor: [],
   hasPrecondition: "ALWAYS",
-  id: "an-rc-id",
   isLollipopEnabled: false,
   name: "a name",
   userId: "a-user-id",

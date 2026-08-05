@@ -31,6 +31,7 @@
     "@pagopa/hexagonal-core": "catalog:",
     "@pagopa/hexagonal-fastify": "catalog:",
     "fastify": "^5.8.5",
+    "io-messages-common": "workspace:^",
     "neverthrow": "^8.2.0",
     "zod": "catalog:"
   },
