@@ -73,6 +73,12 @@ paths:
           description: Request not authorized.
         "404":
           description: Resource not found.
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
         "500":
           description: There was an error trying to get the configuration.
           content:

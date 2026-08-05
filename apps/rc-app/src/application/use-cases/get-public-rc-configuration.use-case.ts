@@ -22,7 +22,7 @@ interface GetPublicRcConfigurationInput {
 export type GetPublicRcConfigurationUseCase = UseCase<
   GetPublicRcConfigurationInput,
   RCConfiguration,
-  ForbiddenError | GenericError | NotFoundError
+  ForbiddenError | GenericError | NotFoundError | TooManyRequestsError
 >;
 
 export const makeGetPublicRcConfigurationUseCase =
@@ -34,10 +34,6 @@ export const makeGetPublicRcConfigurationUseCase =
       configurationId,
     });
     if (configurationResult.isErr()) {
-      if (configurationResult.error instanceof TooManyRequestsError) {
-        return err(new GenericError(configurationResult.error.message));
-      }
-
       return err(configurationResult.error);
     }
 
