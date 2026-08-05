@@ -66,7 +66,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RcConfigurationResponse"
+                $ref: "#/components/schemas/RCConfigurationResponse"
         "400":
           description: Bad request.
           content:
@@ -128,130 +128,145 @@ components:
       type: string
       pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
       example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
-    RcConfigurationResponse:
+    RCConfigurationPublic:
+      allOf:
+        - $ref: "#/components/schemas/RCConfigurationBase"
+        - $ref: "#/components/schemas/RCConfigurationEnvironment"
+    NewRCConfigurationBase:
       type: object
-      description: A remote-content configuration.
       properties:
-        configurationId:
-          type: string
-          format: ulid
-          description: ULID identifier of the configuration.
-          example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
-        description:
-          type: string
-          description: Human-readable description of the configuration.
-        disableLollipopFor:
-          type: array
-          description: List of fiscal codes for which Lollipop is disabled.
-          items:
-            $ref: "#/components/schemas/FiscalCode"
-        hasPrecondition:
-          $ref: "#/components/schemas/HasPrecondition"
-        id:
-          type: string
-          description: Internal document identifier.
-        isLollipopEnabled:
-          type: boolean
-          description: Whether Lollipop signing is enabled for this configuration.
         name:
           type: string
-          description: Name of the configuration.
-        prodEnvironment:
-          $ref: "#/components/schemas/RcEnvironmentConfig"
-        testEnvironment:
-          $ref: "#/components/schemas/RcTestEnvironmentConfig"
-        userId:
+          minLength: 1
+          description: Configuration name.
+        description:
           type: string
-          description: Identifier of the user who owns this configuration.
+          minLength: 1
+          description: Configuration description.
+        has_precondition:
+          $ref: "#/components/schemas/HasPrecondition"
+        disable_lollipop_for:
+          type: array
+          items:
+            type: string
+            description: User's fiscal code.
+            format: FiscalCode
+            x-import: "@pagopa/ts-commons/lib/strings"
+            example: SPNDNL80R13C555X
+        is_lollipop_enabled:
+          type: boolean
+          description: Flag to check if lollipop is enabled
       required:
-        - configurationId
-        - description
-        - disableLollipopFor
-        - hasPrecondition
-        - id
-        - isLollipopEnabled
         - name
-        - userId
-
-    RcEnvironmentConfig:
-      type: object
-      description: Environment configuration for a remote-content service.
-      properties:
-        baseUrl:
-          type: string
-          description: Base URL of the remote-content service.
-        detailsAuthentication:
-          $ref: "#/components/schemas/RcAuthenticationConfig"
-      required:
-        - baseUrl
-        - detailsAuthentication
-
-    RcTestEnvironmentConfig:
+        - description
+        - has_precondition
+        - disable_lollipop_for
+        - is_lollipop_enabled
+    RCConfigurationBase:
       allOf:
-        - $ref: "#/components/schemas/RcEnvironmentConfig"
+        - $ref: "#/components/schemas/NewRCConfigurationBase"
         - type: object
-          description: Environment configuration for testing, with a list of allowed test users.
           properties:
-            testUsers:
+            configuration_id:
+              type: string
+              description: Ulid string.
+              format: Ulid
+              x-import: "@pagopa/ts-commons/lib/strings"
+              example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
+          required:
+            - configuration_id
+    RCConfigurationEnvironment:
+      type: object
+      properties:
+        test_environment:
+          $ref: "#/components/schemas/RCConfigurationTestEnvironment"
+        prod_environment:
+          $ref: "#/components/schemas/RCConfigurationProdEnvironment"
+    RCConfigurationProdEnvironment:
+      type: object
+      properties:
+        base_url:
+          type: string
+          minLength: 1
+          description: Base url of the server.
+        details_authentication:
+          $ref: "#/components/schemas/RCAuthenticationConfig"
+      required:
+        - base_url
+        - details_authentication
+    RCAuthenticationConfig:
+      type: object
+      properties:
+        header_key_name:
+          type: string
+          minLength: 1
+          description: header key name
+        key:
+          type: string
+          minLength: 1
+          description: authentication config key
+        type:
+          type: string
+          minLength: 1
+          description: authentication config type
+        cert:
+          $ref: "#/components/schemas/RCClientCert"
+      required:
+        - header_key_name
+        - key
+        - type
+    RCClientCert:
+      type: object
+      properties:
+        client_cert:
+          type: string
+          minLength: 1
+          description: authentication config client cert
+        client_key:
+          type: string
+          minLength: 1
+          description: authentication config client key
+        server_ca:
+          type: string
+          minLength: 1
+          description: authentication config server ca
+      required:
+        - client_cert
+        - client_key
+        - server_ca
+    RCConfigurationTestEnvironment:
+      allOf:
+        - $ref: "#/components/schemas/RCConfigurationProdEnvironment"
+        - type: object
+          properties:
+            test_users:
               type: array
-              description: Fiscal codes of users allowed to use this test environment.
               items:
                 $ref: "#/components/schemas/FiscalCode"
           required:
-            - testUsers
-
-    RcAuthenticationConfig:
-      type: object
-      description: Authentication configuration for a remote-content service.
-      properties:
-        headerKeyName:
-          type: string
-          description: Name of the HTTP header used to pass the authentication key.
-        key:
-          type: string
-          description: Authentication key value.
-        type:
-          type: string
-          description: Authentication type (e.g. API_KEY, Bearer).
-        cert:
-          $ref: "#/components/schemas/RcClientCert"
-      required:
-        - headerKeyName
-        - key
-        - type
-
-    RcClientCert:
-      type: object
-      description: Mutual TLS certificate configuration.
-      properties:
-        clientCert:
-          type: string
-          description: PEM-encoded client certificate.
-        clientKey:
-          type: string
-          description: PEM-encoded client private key.
-        serverCa:
-          type: string
-          description: PEM-encoded server CA certificate.
-      required:
-        - clientCert
-        - clientKey
-        - serverCa
-
+            - test_users
+    RCConfigurationResponse:
+      allOf:
+        - $ref: "#/components/schemas/RCConfigurationPublic"
+        - type: object
+          properties:
+            user_id:
+              type: string
+              minLength: 1
+          required:
+            - user_id
     HasPrecondition:
       type: string
-      description: >-
-        Controls when the app must show a precondition screen before opening
-        the message.
-      enum:
+      x-extensible-enum:
         - ALWAYS
         - ONCE
         - NEVER
 
     FiscalCode:
       type: string
-      description: Italian fiscal code of a citizen.
-      pattern: "^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1}$"
+      description: User's fiscal code.
+      format: FiscalCode
+      x-import: "@pagopa/ts-commons/lib/strings"
       example: SPNDNL80R13C555X
 
     ProblemDetails:

@@ -7,9 +7,9 @@ import z from "zod";
 import { RcConfigurationIdSchema } from "../../../application/ports/rc-configuration.js";
 import { GetPublicRcConfigurationUseCase } from "../../../application/use-cases/get-public-rc-configuration.use-case.js";
 import {
-  RcConfigurationPublicResponseSchema,
-  toRcConfigurationPublicResponse,
-} from "./dto/get-public-rc-configuration.dto.js";
+  RcConfigurationResponseSchema,
+  toRcConfigurationResponse,
+} from "./dto/get-rc-configuration.dto.js";
 import { makeRcConfigurationAuthMiddleware } from "./middlewares/rc-configuration-auth.middleware.js";
 
 const getPublicRcConfigurationContract = defineRoute({
@@ -21,7 +21,7 @@ const getPublicRcConfigurationContract = defineRoute({
     }),
   },
   response: {
-    200: RcConfigurationPublicResponseSchema,
+    200: RcConfigurationResponseSchema,
     400: ProblemDetailsSchema,
     403: ProblemDetailsSchema,
     404: ProblemDetailsSchema,
@@ -42,7 +42,7 @@ export const mountGetPublicRcConfigurationHandler = (
       userId: context.userId,
     }),
     middlewares: [makeRcConfigurationAuthMiddleware(internalUserId)],
-    outputMapper: toRcConfigurationPublicResponse,
+    outputMapper: toRcConfigurationResponse,
     useCase,
   });
 };

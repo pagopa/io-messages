@@ -170,10 +170,31 @@ components:
           type: string
           minLength: 1
           description: authentication config type
+        cert:
+          $ref: "#/components/schemas/RCClientCert"
       required:
         - header_key_name
         - key
         - type
+    RCClientCert:
+      type: object
+      properties:
+        client_cert:
+          type: string
+          minLength: 1
+          description: authentication config client cert
+        client_key:
+          type: string
+          minLength: 1
+          description: authentication config client key
+        server_ca:
+          type: string
+          minLength: 1
+          description: authentication config server ca
+      required:
+        - client_cert
+        - client_key
+        - server_ca
     RCConfigurationTestEnvironment:
       allOf:
         - $ref: "#/components/schemas/RCConfigurationProdEnvironment"
