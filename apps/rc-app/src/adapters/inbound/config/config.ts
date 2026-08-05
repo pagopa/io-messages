@@ -15,6 +15,7 @@ const commonCosmosConfigSchema = z.discriminatedUnion("NODE_ENV", [
 
 const baseConfigSchema = z.object({
   HOST: z.ipv4(),
+  INTERNAL_USER_ID: z.string().min(1),
   PORT: z.coerce.number().int().min(1025).max(65_535), // Read as string, parsed as integer.
   RC_CONFIGURATION_CACHE_TTL: z.coerce.number().int().min(1),
   REDIS_PASSWORD: z.string().min(1),

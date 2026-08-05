@@ -50,6 +50,8 @@ module "remote_content_ca" {
         OTEL_SERVICE_NAME                         = local.remote_content_ca_name
       }
 
+      secret_names = ["INTERNAL_USER_ID"]
+
       liveness_probe = {
         path = "/api/info"
       }
@@ -66,6 +68,13 @@ module "remote_content_ca" {
   container_port = 3000
 
   resource_group_name = var.resource_group_name
+
+  secrets = [
+    {
+      name                = "INTERNAL_USER_ID"
+      key_vault_secret_id = "${trimsuffix(var.key_vault_uri, "/")}/secrets/apim-internal-user-id"
+    }
+  ]
 
   tags = var.tags
 }
@@ -85,6 +94,17 @@ module "remote_content_ca_role_assignments" {
       role                = "writer"
       database            = "remote-content-cosmos-01"
       collections         = ["message-configuration"]
+    }
+  ]
+
+  key_vault = [
+    {
+      name                = var.key_vault_name
+      resource_group_name = var.resource_group_name
+      description         = "Allow rc container app to resolve Key Vault secret references"
+      roles = {
+        secrets = "reader"
+      }
     }
   ]
 }
