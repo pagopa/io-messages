@@ -1,56 +1,32 @@
 import {
-  FiscalCodeSchema,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
+import {
+  type RcConfigurationResponse,
+  RcConfigurationResponseSchema,
+} from "io-messages-common/adapters/remote-content";
 import { Result, ResultAsync, err, ok } from "neverthrow";
-import z from "zod";
 
 import {
   RCConfiguration,
   RCConfigurationRepository,
+  rcConfigurationSchema,
 } from "../../../application/ports/rc-configuration.js";
 
-const rcClientCertSchema = z.object({
-  clientCert: z.string().min(1),
-  clientKey: z.string().min(1),
-  serverCa: z.string().min(1),
-});
-
-const rcAuthenticationConfigSchema = z.object({
-  cert: rcClientCertSchema.optional(),
-  headerKeyName: z.string().min(1),
-  key: z.string().min(1),
-  type: z.string().min(1),
-});
-
-const rcEnvironmentConfigSchema = z.object({
-  baseUrl: z.string().min(1),
-  detailsAuthentication: rcAuthenticationConfigSchema,
-});
-
-const rcTestEnvironmentConfigSchema = rcEnvironmentConfigSchema.extend({
-  testUsers: z.array(FiscalCodeSchema),
-});
-
-// rcConfigurationApiResponseSchema represents the remote-content configuration
-// obtained as response from the rc-app micro-service.
-const rcConfigurationApiResponseSchema = z.object({
-  configurationId: z.ulid(),
-  description: z.string().min(1),
-  disableLollipopFor: z.array(FiscalCodeSchema),
-  hasPrecondition: z.enum(["ALWAYS", "ONCE", "NEVER"]),
-  id: z.string().min(1),
-  isLollipopEnabled: z.boolean(),
-  name: z.string().min(1),
-  prodEnvironment: rcEnvironmentConfigSchema.optional(),
-  testEnvironment: rcTestEnvironmentConfigSchema.optional(),
-  userId: z.string().min(1),
-});
-type RCConfigurationApiResponse = z.infer<
-  typeof rcConfigurationApiResponseSchema
+type RcEnvironmentResponse = NonNullable<
+  RcConfigurationResponse["prod_environment"]
 >;
+
+const toDomainEnvironment = (environment: RcEnvironmentResponse) => ({
+  baseUrl: environment.base_url,
+  detailsAuthentication: {
+    headerKeyName: environment.details_authentication.header_key_name,
+    key: environment.details_authentication.key,
+    type: environment.details_authentication.type,
+  },
+});
 
 export class RCConfigurationHttpClientAdapter
   implements RCConfigurationRepository
@@ -62,20 +38,35 @@ export class RCConfigurationHttpClientAdapter
   }
 
   private toDomainRCConfiguration(
-    rcConfigurationApiResponse: RCConfigurationApiResponse,
-  ): RCConfiguration {
-    return {
-      configurationId: rcConfigurationApiResponse.configurationId,
-      description: rcConfigurationApiResponse.description,
-      disableLollipopFor: rcConfigurationApiResponse.disableLollipopFor,
-      hasPrecondition: rcConfigurationApiResponse.hasPrecondition,
-      id: rcConfigurationApiResponse.id,
-      isLollipopEnabled: rcConfigurationApiResponse.isLollipopEnabled,
-      name: rcConfigurationApiResponse.name,
-      prodEnvironment: rcConfigurationApiResponse.prodEnvironment,
-      testEnvironment: rcConfigurationApiResponse.testEnvironment,
-      userId: rcConfigurationApiResponse.userId,
-    };
+    response: RcConfigurationResponse,
+  ): Result<RCConfiguration, GenericError> {
+    const parsedResult = rcConfigurationSchema.safeParse({
+      configurationId: response.configuration_id,
+      description: response.description,
+      disableLollipopFor: response.disable_lollipop_for,
+      hasPrecondition: response.has_precondition,
+      id: response.configuration_id,
+      isLollipopEnabled: response.is_lollipop_enabled,
+      name: response.name,
+      prodEnvironment: response.prod_environment
+        ? toDomainEnvironment(response.prod_environment)
+        : undefined,
+      testEnvironment: response.test_environment
+        ? {
+            ...toDomainEnvironment(response.test_environment),
+            testUsers: response.test_environment.test_users,
+          }
+        : undefined,
+      userId: response.user_id,
+    });
+
+    return parsedResult.success
+      ? ok(parsedResult.data)
+      : err(
+          new GenericError(
+            `malformed remote content configuration returned by the rc-app: ${parsedResult.error.message}`,
+          ),
+        );
   }
 
   async getRemoteContentConfiguration(
@@ -100,7 +91,7 @@ export class RCConfigurationHttpClientAdapter
         return err(jsonResponse.error);
       }
 
-      const parsedResult = rcConfigurationApiResponseSchema.safeParse(
+      const parsedResult = RcConfigurationResponseSchema.safeParse(
         jsonResponse.value,
       );
 
@@ -111,7 +102,7 @@ export class RCConfigurationHttpClientAdapter
           ),
         );
 
-      return ok(this.toDomainRCConfiguration(parsedResult.data));
+      return this.toDomainRCConfiguration(parsedResult.data);
     }
 
     switch (response.value.status) {

@@ -31,6 +31,7 @@
     "@opentelemetry/api-logs": "catalog:",
     "@pagopa/azure-tracing": "catalog:",
     "fastify": "catalog:",
+    "io-messages-common": "workspace:^",
     "neverthrow": "catalog:",
     "zod": "catalog:"
   },

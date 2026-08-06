@@ -1,43 +1,40 @@
-import { FiscalCodeSchema } from "@pagopa/hexagonal-core";
-import z from "zod";
+import {
+  type RcConfigurationResponse,
+  RcConfigurationResponseSchema,
+} from "io-messages-common/adapters/remote-content";
 
 import { RCConfiguration } from "../../../../application/ports/rc-configuration.js";
 
-const RcClientCertDtoSchema = z.object({
-  clientCert: z.string(),
-  clientKey: z.string(),
-  serverCa: z.string(),
-});
+export { RcConfigurationResponseSchema };
 
-const RcAuthenticationConfigDtoSchema = z.object({
-  cert: RcClientCertDtoSchema.optional(),
-  headerKeyName: z.string(),
-  key: z.string(),
-  type: z.string(),
-});
-
-const RcEnvironmentConfigDtoSchema = z.object({
-  baseUrl: z.string(),
-  detailsAuthentication: RcAuthenticationConfigDtoSchema,
-});
-
-const RcTestEnvironmentConfigDtoSchema = RcEnvironmentConfigDtoSchema.extend({
-  testUsers: z.array(FiscalCodeSchema),
-});
-
-export const RcConfigurationResponseSchema = z.object({
-  configurationId: z.string(),
-  description: z.string(),
-  disableLollipopFor: z.array(z.string()),
-  hasPrecondition: z.enum(["ALWAYS", "ONCE", "NEVER"]),
-  id: z.string(),
-  isLollipopEnabled: z.boolean(),
-  name: z.string(),
-  prodEnvironment: RcEnvironmentConfigDtoSchema.optional(),
-  testEnvironment: RcTestEnvironmentConfigDtoSchema.optional(),
-  userId: z.string(),
+const toRcEnvironmentResponse = (
+  environment: NonNullable<RCConfiguration["prodEnvironment"]>,
+) => ({
+  base_url: environment.baseUrl,
+  details_authentication: {
+    header_key_name: environment.detailsAuthentication.headerKeyName,
+    key: environment.detailsAuthentication.key,
+    type: environment.detailsAuthentication.type,
+  },
 });
 
 export const toRcConfigurationResponse = (
   rc: RCConfiguration,
-): z.TypeOf<typeof RcConfigurationResponseSchema> => rc;
+): RcConfigurationResponse => ({
+  configuration_id: rc.configurationId,
+  description: rc.description,
+  disable_lollipop_for: rc.disableLollipopFor,
+  has_precondition: rc.hasPrecondition,
+  is_lollipop_enabled: rc.isLollipopEnabled,
+  name: rc.name,
+  prod_environment: rc.prodEnvironment
+    ? toRcEnvironmentResponse(rc.prodEnvironment)
+    : undefined,
+  test_environment: rc.testEnvironment
+    ? {
+        ...toRcEnvironmentResponse(rc.testEnvironment),
+        test_users: rc.testEnvironment.testUsers,
+      }
+    : undefined,
+  user_id: rc.userId,
+});
