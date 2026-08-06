@@ -7,21 +7,11 @@ locals {
     app_name        = "rc"
     instance_number = "01"
   }
-
-  remote_content_ca_name = provider::dx::resource_name({
-    prefix          = local.remote_content_ca_environment.prefix
-    environment     = local.remote_content_ca_environment.env_short
-    location        = local.remote_content_ca_environment.location
-    domain          = local.remote_content_ca_environment.domain
-    name            = local.remote_content_ca_environment.app_name
-    instance_number = tonumber(local.remote_content_ca_environment.instance_number)
-    resource_type   = "container_app"
-  })
 }
 
 module "remote_content_ca" {
   source  = "pagopa-dx/azure-container-app/azurerm"
-  version = "~> 6.0"
+  version = "~> 6.1"
 
   environment = local.remote_content_ca_environment
 
@@ -47,7 +37,6 @@ module "remote_content_ca" {
         RC_CONFIGURATION_CACHE_TTL                = "28800",
         APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
         APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
-        OTEL_SERVICE_NAME                         = local.remote_content_ca_name
       }
 
       liveness_probe = {
