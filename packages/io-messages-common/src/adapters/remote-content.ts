@@ -1,0 +1,41 @@
+import { fiscalCodeSchema } from "@/domain/fiscal-code.js";
+import { z } from "zod";
+
+const RcClientCertDtoSchema = z.object({
+  clientCert: z.string(),
+  clientKey: z.string(),
+  serverCa: z.string(),
+});
+
+const RcAuthenticationConfigDtoSchema = z.object({
+  cert: RcClientCertDtoSchema.optional(),
+  headerKeyName: z.string(),
+  key: z.string(),
+  type: z.string(),
+});
+
+const RcEnvironmentConfigDtoSchema = z.object({
+  baseUrl: z.string(),
+  detailsAuthentication: RcAuthenticationConfigDtoSchema,
+});
+
+const RcTestEnvironmentConfigDtoSchema = RcEnvironmentConfigDtoSchema.extend({
+  testUsers: z.array(fiscalCodeSchema),
+});
+
+export const RcConfigurationResponseSchema = z.object({
+  configurationId: z.string(),
+  description: z.string(),
+  disableLollipopFor: z.array(z.string()),
+  hasPrecondition: z.enum(["ALWAYS", "ONCE", "NEVER"]),
+  id: z.string(),
+  isLollipopEnabled: z.boolean(),
+  name: z.string(),
+  prodEnvironment: RcEnvironmentConfigDtoSchema.optional(),
+  testEnvironment: RcTestEnvironmentConfigDtoSchema.optional(),
+  userId: z.string(),
+});
+
+export type RcConfigurationResponse = z.infer<
+  typeof RcConfigurationResponseSchema
+>;
