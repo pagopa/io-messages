@@ -13,14 +13,30 @@ const aBaseURL = new URL("http://localhost/api/internal/rc-configurations");
 const anApiResponse = (
   overrides: Record<string, unknown> = {},
 ): Record<string, unknown> => ({
-  configurationId: RC_CONFIG_ID,
+  configuration_id: RC_CONFIG_ID,
   description: "a description",
-  disableLollipopFor: [],
-  hasPrecondition: "ALWAYS",
-  id: "an-rc-id",
-  isLollipopEnabled: false,
+  disable_lollipop_for: [],
+  has_precondition: "ALWAYS",
+  is_lollipop_enabled: false,
   name: "a name",
-  userId: "a-user-id",
+  prod_environment: {
+    base_url: "https://example.com",
+    details_authentication: {
+      header_key_name: "x-api-key",
+      key: "secret",
+      type: "API_KEY",
+    },
+  },
+  test_environment: {
+    base_url: "https://test.example.com",
+    details_authentication: {
+      header_key_name: "x-test-api-key",
+      key: "test-secret",
+      type: "API_KEY",
+    },
+    test_users: [],
+  },
+  user_id: "a-user-id",
   ...overrides,
 });
 
@@ -56,11 +72,26 @@ describe("RCConfigurationHttpClientAdapter - getRemoteContentConfiguration", () 
       description: "a description",
       disableLollipopFor: [],
       hasPrecondition: "ALWAYS",
-      id: "an-rc-id",
+      id: RC_CONFIG_ID,
       isLollipopEnabled: false,
       name: "a name",
-      prodEnvironment: undefined,
-      testEnvironment: undefined,
+      prodEnvironment: {
+        baseUrl: "https://example.com",
+        detailsAuthentication: {
+          headerKeyName: "x-api-key",
+          key: "secret",
+          type: "API_KEY",
+        },
+      },
+      testEnvironment: {
+        baseUrl: "https://test.example.com",
+        detailsAuthentication: {
+          headerKeyName: "x-test-api-key",
+          key: "test-secret",
+          type: "API_KEY",
+        },
+        testUsers: [],
+      },
       userId: "a-user-id",
     });
     expect(fetch).toHaveBeenCalledWith(`${aBaseURL}/${RC_CONFIG_ID}`);
@@ -92,7 +123,7 @@ describe("RCConfigurationHttpClientAdapter - getRemoteContentConfiguration", () 
     stubFetch(
       aFetchResponse(200, () =>
         Promise.resolve(
-          anApiResponse({ hasPrecondition: "NOT_A_VALID_VALUE" }),
+          anApiResponse({ has_precondition: "NOT_A_VALID_VALUE" }),
         ),
       ),
     );

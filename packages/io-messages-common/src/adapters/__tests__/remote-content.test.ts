@@ -4,18 +4,17 @@ import { rcConfigurationSchema } from "../../domain/remote-content.js";
 import { RcConfigurationResponseSchema } from "../remote-content.js";
 
 const aResponse = {
-  configurationId: "not-a-domain-ulid",
-  description: "",
-  disableLollipopFor: ["not-a-fiscal-code"],
-  hasPrecondition: "ALWAYS",
-  id: "",
-  isLollipopEnabled: false,
-  name: "",
-  userId: "",
+  configuration_id: "01JAQ4HYBR5JZCS6K0DT7M1EV8",
+  description: "a description",
+  disable_lollipop_for: ["SPNDNL80R13C555X"],
+  has_precondition: "ALWAYS",
+  is_lollipop_enabled: false,
+  name: "a name",
+  user_id: "a-user-id",
 };
 
 describe("remote content contracts", () => {
-  it("keeps the inbound response contract distinct from the domain entity", () => {
+  it("defines a snake-case response distinct from the domain entity", () => {
     expect(RcConfigurationResponseSchema.safeParse(aResponse).success).toBe(
       true,
     );

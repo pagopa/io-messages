@@ -15,6 +15,19 @@ import {
   rcConfigurationSchema,
 } from "../../../application/ports/rc-configuration.js";
 
+type RcEnvironmentResponse = NonNullable<
+  RcConfigurationResponse["prod_environment"]
+>;
+
+const toDomainEnvironment = (environment: RcEnvironmentResponse) => ({
+  baseUrl: environment.base_url,
+  detailsAuthentication: {
+    headerKeyName: environment.details_authentication.header_key_name,
+    key: environment.details_authentication.key,
+    type: environment.details_authentication.type,
+  },
+});
+
 export class RCConfigurationHttpClientAdapter
   implements RCConfigurationRepository
 {
@@ -28,16 +41,23 @@ export class RCConfigurationHttpClientAdapter
     response: RcConfigurationResponse,
   ): Result<RCConfiguration, GenericError> {
     const parsedResult = rcConfigurationSchema.safeParse({
-      configurationId: response.configurationId,
+      configurationId: response.configuration_id,
       description: response.description,
-      disableLollipopFor: response.disableLollipopFor,
-      hasPrecondition: response.hasPrecondition,
-      id: response.id,
-      isLollipopEnabled: response.isLollipopEnabled,
+      disableLollipopFor: response.disable_lollipop_for,
+      hasPrecondition: response.has_precondition,
+      id: response.configuration_id,
+      isLollipopEnabled: response.is_lollipop_enabled,
       name: response.name,
-      prodEnvironment: response.prodEnvironment,
-      testEnvironment: response.testEnvironment,
-      userId: response.userId,
+      prodEnvironment: response.prod_environment
+        ? toDomainEnvironment(response.prod_environment)
+        : undefined,
+      testEnvironment: response.test_environment
+        ? {
+            ...toDomainEnvironment(response.test_environment),
+            testUsers: response.test_environment.test_users,
+          }
+        : undefined,
+      userId: response.user_id,
     });
 
     return parsedResult.success
