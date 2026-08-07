@@ -19,6 +19,23 @@ const anApiResponse = (
   has_precondition: "ALWAYS",
   is_lollipop_enabled: false,
   name: "a name",
+  prod_environment: {
+    base_url: "https://example.com",
+    details_authentication: {
+      header_key_name: "x-api-key",
+      key: "secret",
+      type: "API_KEY",
+    },
+  },
+  test_environment: {
+    base_url: "https://test.example.com",
+    details_authentication: {
+      header_key_name: "x-test-api-key",
+      key: "test-secret",
+      type: "API_KEY",
+    },
+    test_users: [],
+  },
   user_id: "a-user-id",
   ...overrides,
 });
@@ -55,10 +72,26 @@ describe("RCConfigurationHttpClientAdapter - getRemoteContentConfiguration", () 
       description: "a description",
       disableLollipopFor: [],
       hasPrecondition: "ALWAYS",
+      id: RC_CONFIG_ID,
       isLollipopEnabled: false,
       name: "a name",
-      prodEnvironment: undefined,
-      testEnvironment: undefined,
+      prodEnvironment: {
+        baseUrl: "https://example.com",
+        detailsAuthentication: {
+          headerKeyName: "x-api-key",
+          key: "secret",
+          type: "API_KEY",
+        },
+      },
+      testEnvironment: {
+        baseUrl: "https://test.example.com",
+        detailsAuthentication: {
+          headerKeyName: "x-test-api-key",
+          key: "test-secret",
+          type: "API_KEY",
+        },
+        testUsers: [],
+      },
       userId: "a-user-id",
     });
     expect(fetch).toHaveBeenCalledWith(`${aBaseURL}/${RC_CONFIG_ID}`);

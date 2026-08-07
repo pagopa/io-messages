@@ -4,33 +4,24 @@ import {
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
 import {
-  RCConfigurationResponse,
-  rcConfigurationResponseSchema,
-} from "io-messages-common/adapters/outbound/remote-content";
+  type RcConfigurationResponse,
+  RcConfigurationResponseSchema,
+} from "io-messages-common/adapters/remote-content";
 import { Result, ResultAsync, err, ok } from "neverthrow";
 
 import {
   RCConfiguration,
   RCConfigurationRepository,
+  rcConfigurationSchema,
 } from "../../../application/ports/rc-configuration.js";
 
-type RCEnvironmentResponse = NonNullable<
-  RCConfigurationResponse["prod_environment"]
+type RcEnvironmentResponse = NonNullable<
+  RcConfigurationResponse["prod_environment"]
 >;
 
-const toDomainEnvironment = (
-  environment: RCEnvironmentResponse,
-): NonNullable<RCConfiguration["prodEnvironment"]> => ({
+const toDomainEnvironment = (environment: RcEnvironmentResponse) => ({
   baseUrl: environment.base_url,
   detailsAuthentication: {
-    cert:
-      environment.details_authentication.cert === undefined
-        ? undefined
-        : {
-            clientCert: environment.details_authentication.cert.client_cert,
-            clientKey: environment.details_authentication.cert.client_key,
-            serverCa: environment.details_authentication.cert.server_ca,
-          },
     headerKeyName: environment.details_authentication.header_key_name,
     key: environment.details_authentication.key,
     type: environment.details_authentication.type,
@@ -47,30 +38,35 @@ export class RCConfigurationHttpClientAdapter
   }
 
   private toDomainRCConfiguration(
-    rcConfigurationApiResponse: RCConfigurationResponse,
-  ): RCConfiguration {
-    return {
-      configurationId: rcConfigurationApiResponse.configuration_id,
-      description: rcConfigurationApiResponse.description,
-      disableLollipopFor: rcConfigurationApiResponse.disable_lollipop_for,
-      hasPrecondition: rcConfigurationApiResponse.has_precondition,
-      isLollipopEnabled: rcConfigurationApiResponse.is_lollipop_enabled,
-      name: rcConfigurationApiResponse.name,
-      prodEnvironment:
-        rcConfigurationApiResponse.prod_environment === undefined
-          ? undefined
-          : toDomainEnvironment(rcConfigurationApiResponse.prod_environment),
-      testEnvironment:
-        rcConfigurationApiResponse.test_environment === undefined
-          ? undefined
-          : {
-              ...toDomainEnvironment(
-                rcConfigurationApiResponse.test_environment,
-              ),
-              testUsers: rcConfigurationApiResponse.test_environment.test_users,
-            },
-      userId: rcConfigurationApiResponse.user_id,
-    };
+    response: RcConfigurationResponse,
+  ): Result<RCConfiguration, GenericError> {
+    const parsedResult = rcConfigurationSchema.safeParse({
+      configurationId: response.configuration_id,
+      description: response.description,
+      disableLollipopFor: response.disable_lollipop_for,
+      hasPrecondition: response.has_precondition,
+      id: response.configuration_id,
+      isLollipopEnabled: response.is_lollipop_enabled,
+      name: response.name,
+      prodEnvironment: response.prod_environment
+        ? toDomainEnvironment(response.prod_environment)
+        : undefined,
+      testEnvironment: response.test_environment
+        ? {
+            ...toDomainEnvironment(response.test_environment),
+            testUsers: response.test_environment.test_users,
+          }
+        : undefined,
+      userId: response.user_id,
+    });
+
+    return parsedResult.success
+      ? ok(parsedResult.data)
+      : err(
+          new GenericError(
+            `malformed remote content configuration returned by the rc-app: ${parsedResult.error.message}`,
+          ),
+        );
   }
 
   async getRemoteContentConfiguration(
@@ -95,7 +91,7 @@ export class RCConfigurationHttpClientAdapter
         return err(jsonResponse.error);
       }
 
-      const parsedResult = rcConfigurationResponseSchema.safeParse(
+      const parsedResult = RcConfigurationResponseSchema.safeParse(
         jsonResponse.value,
       );
 
@@ -106,7 +102,7 @@ export class RCConfigurationHttpClientAdapter
           ),
         );
 
-      return ok(this.toDomainRCConfiguration(parsedResult.data));
+      return this.toDomainRCConfiguration(parsedResult.data);
     }
 
     switch (response.value.status) {

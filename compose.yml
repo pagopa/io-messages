@@ -8,13 +8,17 @@ services:
     network_mode: "service:azurite"
 
   rc-app:
-    image: io-rc-app:latest
+    build:
+      context: .
+      dockerfile: ./apps/rc-app/Dockerfile
     env_file: ./apps/rc-app/.env
     ports:
       - 3010:3000
 
   messages-app:
-    image: io-messages-app:latest
+    build:
+      context: .
+      dockerfile: ./apps/messages-app/Dockerfile
     env_file: ./apps/messages-app/.env
     ports:
       - 3000:3000
