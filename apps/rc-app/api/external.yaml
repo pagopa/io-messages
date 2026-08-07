@@ -78,9 +78,79 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "#/components/schemas/ProblemJson"
         "500":
           description: There was an error trying to get the configuration.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemJson"
+
+    put:
+      operationId: updateRCConfiguration
+      summary: Update an existing remote-content configuration
+      description: >-
+        Update the remote-content configuration identified by the provided
+        configurationId using the provided payload.
+      parameters:
+        - in: path
+          name: configurationId
+          required: true
+          description: Ulid string.
+          schema:
+            type: string
+            format: Ulid
+            x-import: "@pagopa/ts-commons/lib/strings"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewRCConfigurationPublic"
+            examples:
+              text/json:
+                value:
+                  name: Descriptive configuration name
+                  description: Configuration description
+                  has_precondition: NEVER
+                  disable_lollipop_for:
+                    - DIXDPZ44E08F367A
+                  is_lollipop_enabled: false
+                  test_environment:
+                    base_url: string
+                    details_authentication:
+                      header_key_name: string
+                      key: string
+                      type: API-KEY
+                    test_users:
+                      - DIXDPZ44E08F367A
+                  prod_environment:
+                    base_url: string
+                    details_authentication:
+                      header_key_name: string
+                      key: string
+                      type: API-KEY
+      responses:
+        "204":
+          description: Configuration updated.
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemJson"
+        "403":
+          description: Request not authorized.
+        "404":
+          description: Resource not found.
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemJson"
+        "500":
+          description: There was an error updating the configuration.
           content:
             application/json:
               schema:
@@ -98,6 +168,10 @@ components:
     RCConfigurationPublic:
       allOf:
         - $ref: "#/components/schemas/RCConfigurationBase"
+        - $ref: "#/components/schemas/RCConfigurationEnvironment"
+    NewRCConfigurationPublic:
+      allOf:
+        - $ref: "#/components/schemas/NewRCConfigurationBase"
         - $ref: "#/components/schemas/RCConfigurationEnvironment"
     NewRCConfigurationBase:
       type: object
