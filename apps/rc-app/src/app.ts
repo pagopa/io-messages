@@ -14,6 +14,7 @@ import { mountGetPublicRcConfigurationHandler } from "./adapters/inbound/fastify
 import { mountGetRcConfigurationHandler } from "./adapters/inbound/fastify/get-rc-configuration.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
+import { mountUpdateRcConfigurationHandler } from "./adapters/inbound/fastify/update-rc-configuration.handler.js";
 import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
 import { LoggerHealthcheckAdapter } from "./adapters/outbound/healthcheckers/logger.adapter.js";
 import { RedisClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/redis.adapter.js";
@@ -25,6 +26,7 @@ import { makeGetPublicRcConfigurationUseCase } from "./application/use-cases/get
 import { makeGetRcConfigurationUseCase } from "./application/use-cases/get-rc-configuration.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
+import { makeUpdateRcConfigurationUseCase } from "./application/use-cases/update-rc-configuration.use-case.js";
 
 export const createApp = async (
   config: AppConfig,
@@ -125,6 +127,22 @@ export const createApp = async (
   mountGetPublicRcConfigurationHandler(
     server,
     makeGetPublicRcConfigurationUseCase(getRcConfigurationUseCase),
+    config.INTERNAL_USER_ID,
+  );
+
+  mountUpdateRcConfigurationHandler(
+    server,
+    makeUpdateRcConfigurationUseCase(
+      new CachingRemoteContentRepository(
+        new RCConfigurationCosmosAdapter(
+          commonCosmosClient,
+          config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
+        ),
+        new RCConfigurationCacheAdapter(redisClient, logger),
+        config.RC_CONFIGURATION_CACHE_TTL,
+      ),
+      logger,
+    ),
     config.INTERNAL_USER_ID,
   );
 
