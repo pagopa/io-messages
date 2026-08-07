@@ -1,5 +1,11 @@
 # etl-func
 
+## 1.0.15
+
+### Patch Changes
+
+- 5f9d9a6: restart ingest message-status from 20260731
+
 ## 1.0.14
 
 ### Patch Changes
