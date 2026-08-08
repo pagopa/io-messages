@@ -52,11 +52,11 @@ catalogs:
       specifier: ^0.3.0
       version: 0.3.0
     '@pagopa/hexagonal-core':
-      specifier: ^0.4.0
-      version: 0.4.0
+      specifier: ^0.5.0
+      version: 0.5.0
     '@pagopa/hexagonal-fastify':
-      specifier: ^0.2.0
-      version: 0.2.0
+      specifier: ^0.3.0
+      version: 0.3.0
     '@pagopa/io-app-email-templates':
       specifier: ^0.8.1
       version: 0.8.1
@@ -511,10 +511,10 @@ importers:
         version: 0.5.5(typescript@5.9.3)
       '@pagopa/hexagonal-core':
         specifier: 'catalog:'
-        version: 0.4.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)
+        version: 0.5.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)
       '@pagopa/hexagonal-fastify':
         specifier: 'catalog:'
-        version: 0.2.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(fastify@5.8.5)(neverthrow@8.2.0)(zod@4.1.13)
+        version: 0.3.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(fastify@5.8.5)(neverthrow@8.2.0)(zod@4.1.13)
       fastify:
         specifier: ^5.8.5
         version: 5.8.5
@@ -720,10 +720,10 @@ importers:
         version: 0.5.5(typescript@5.9.3)
       '@pagopa/hexagonal-core':
         specifier: 'catalog:'
-        version: 0.4.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)
+        version: 0.5.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)
       '@pagopa/hexagonal-fastify':
         specifier: 'catalog:'
-        version: 0.2.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(fastify@5.8.5)(neverthrow@8.2.0)(zod@4.1.13)
+        version: 0.3.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(fastify@5.8.5)(neverthrow@8.2.0)(zod@4.1.13)
       fastify:
         specifier: 'catalog:'
         version: 5.8.5
@@ -2240,8 +2240,8 @@ packages:
   '@pagopa/fp-ts-kafkajs@0.3.0':
     resolution: {integrity: sha512-16/71Bvn8oa6KAAqFuWRd4aAZbILHPu0B5NLrU67l0as/YiunWzTz5yKep5MOiHw+SvgBOWLmsJCQh9Wpyg+jw==}
 
-  '@pagopa/hexagonal-core@0.4.0':
-    resolution: {integrity: sha512-qHXbt1/QvzbW87v6KIZ48m5EJtzh/Flvr7Ii1CRB2tPKJ2iwGNTqZXiGhBTy26Sk2fxk2BDS92RnjdyHY7K9/Q==}
+  '@pagopa/hexagonal-core@0.5.0':
+    resolution: {integrity: sha512-DNB89AAkGauvDchnbDF6YgWpwevwkpoIaHj3eWl7Uaxx13fdwKoMrzxkw7JzJhmugasoPosUkG4bjyL40L810Q==}
     peerDependencies:
       '@pagopa/azure-tracing': ^0.5.4
       '@standard-schema/spec': ^1.1.0
@@ -2251,8 +2251,8 @@ packages:
       '@pagopa/azure-tracing':
         optional: true
 
-  '@pagopa/hexagonal-fastify@0.2.0':
-    resolution: {integrity: sha512-Ch9DBIwyjtj6mqB78ftOweDBACkMHh54lKZqavUo9AWVE3UXm8FgEnCufLhp9iWjGKvRzsfdZ7wuzMYZ7qGJKg==}
+  '@pagopa/hexagonal-fastify@0.3.0':
+    resolution: {integrity: sha512-VMkxXzqKyp4m98P7od7W5g8LKIMYmtp+vv3xLZcxHuV3hU2SWzYzEM7vEAQWJsp5Fv0KdLihp9qNXLpEa43XXw==}
     peerDependencies:
       '@standard-schema/spec': ^1.1.0
       fastify: ^5.8.4
@@ -7376,7 +7376,7 @@ snapshots:
       - encoding
       - typescript
 
-  '@pagopa/hexagonal-core@0.4.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)':
+  '@pagopa/hexagonal-core@0.5.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)':
     dependencies:
       '@standard-schema/spec': 1.1.0
       neverthrow: 8.2.0
@@ -7384,9 +7384,9 @@ snapshots:
     optionalDependencies:
       '@pagopa/azure-tracing': 0.5.5(typescript@5.9.3)
 
-  '@pagopa/hexagonal-fastify@0.2.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(fastify@5.8.5)(neverthrow@8.2.0)(zod@4.1.13)':
+  '@pagopa/hexagonal-fastify@0.3.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(fastify@5.8.5)(neverthrow@8.2.0)(zod@4.1.13)':
     dependencies:
-      '@pagopa/hexagonal-core': 0.4.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)
+      '@pagopa/hexagonal-core': 0.5.0(@pagopa/azure-tracing@0.5.5(typescript@5.9.3))(@standard-schema/spec@1.1.0)(neverthrow@8.2.0)(zod@4.1.13)
       '@standard-schema/spec': 1.1.0
       fastify: 5.8.5
       neverthrow: 8.2.0

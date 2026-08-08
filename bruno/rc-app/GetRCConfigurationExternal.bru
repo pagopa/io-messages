@@ -1,0 +1,16 @@
+meta {
+  name: GetRCConfigurationExternal
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{rc_app_base_url}}/api/rc-configurations/{{configuration_id}}
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -10,9 +10,11 @@ import fastify from "fastify";
 import { type RedisClientType, createClient } from "redis";
 
 import { AppConfig } from "./adapters/inbound/config/config.js";
+import { mountGetPublicRcConfigurationHandler } from "./adapters/inbound/fastify/get-public-rc-configuration.handler.js";
 import { mountGetRcConfigurationHandler } from "./adapters/inbound/fastify/get-rc-configuration.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
+import { mountUpdateRcConfigurationHandler } from "./adapters/inbound/fastify/update-rc-configuration.handler.js";
 import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
 import { LoggerHealthcheckAdapter } from "./adapters/outbound/healthcheckers/logger.adapter.js";
 import { RedisClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/redis.adapter.js";
@@ -20,9 +22,11 @@ import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/packa
 import { RCConfigurationCosmosAdapter } from "./adapters/outbound/rc-configurations/rc-configuration.adapter.js";
 import { RCConfigurationCacheAdapter } from "./adapters/outbound/rc-configurations/rc-configuration-cache.adapter.js";
 import { CachingRemoteContentRepository } from "./adapters/outbound/rc-configurations/rc-configuration-caching.adapter.js";
+import { makeGetPublicRcConfigurationUseCase } from "./application/use-cases/get-public-rc-configuration.use-case.js";
 import { makeGetRcConfigurationUseCase } from "./application/use-cases/get-rc-configuration.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
+import { makeUpdateRcConfigurationUseCase } from "./application/use-cases/update-rc-configuration.use-case.js";
 
 export const createApp = async (
   config: AppConfig,
@@ -108,9 +112,27 @@ export const createApp = async (
     ]),
   );
 
-  mountGetRcConfigurationHandler(
+  const getRcConfigurationUseCase = makeGetRcConfigurationUseCase(
+    new CachingRemoteContentRepository(
+      new RCConfigurationCosmosAdapter(
+        commonCosmosClient,
+        config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
+      ),
+      new RCConfigurationCacheAdapter(redisClient, logger),
+      config.RC_CONFIGURATION_CACHE_TTL,
+    ),
+  );
+
+  mountGetRcConfigurationHandler(server, getRcConfigurationUseCase);
+  mountGetPublicRcConfigurationHandler(
     server,
-    makeGetRcConfigurationUseCase(
+    makeGetPublicRcConfigurationUseCase(getRcConfigurationUseCase),
+    config.INTERNAL_USER_ID,
+  );
+
+  mountUpdateRcConfigurationHandler(
+    server,
+    makeUpdateRcConfigurationUseCase(
       new CachingRemoteContentRepository(
         new RCConfigurationCosmosAdapter(
           commonCosmosClient,
@@ -119,7 +141,9 @@ export const createApp = async (
         new RCConfigurationCacheAdapter(redisClient, logger),
         config.RC_CONFIGURATION_CACHE_TTL,
       ),
+      logger,
     ),
+    config.INTERNAL_USER_ID,
   );
 
   return { server };
