@@ -67,7 +67,7 @@ resource "azurerm_cosmosdb_mongo_database" "db_payments" {
   account_name        = module.payments_cosmos_account.name
 
   autoscale_settings {
-    max_throughput = 2000
+    max_throughput = 3000
   }
 }
 
