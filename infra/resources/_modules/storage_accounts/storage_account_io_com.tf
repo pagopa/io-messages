@@ -74,6 +74,11 @@ resource "azurerm_storage_table" "messages_ingestion_error" {
   storage_account_name = module.com_st.name
 }
 
+resource "azurerm_storage_table" "message_statuses_ingestion_error" {
+  name                 = "MessageStatusesDataplanIngestionErrors"
+  storage_account_name = module.com_st.name
+}
+
 resource "azurerm_storage_queue" "delete_messages" {
   name                 = "delete-messages"
   storage_account_name = module.com_st.name
