@@ -53,9 +53,9 @@ export const makeUpdateRcConfigurationUseCase =
       logger.trackEvent({
         name: "UpdateRcConfigurationUseCase.failed.update",
         properties: {
+          configurationId,
           error: result.error.name,
           message: result.error.message,
-          configurationId,
           userId,
         },
       });
