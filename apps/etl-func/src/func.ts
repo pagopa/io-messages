@@ -180,7 +180,7 @@ const main = async (config: Config) => {
       telemetryService,
     ),
     leaseContainerName: "dataplan-ingestion-lease",
-    leaseContainerPrefix: "message-status-1-",
+    leaseContainerPrefix: "message-status-2-",
     maxItemsPerInvocation: 50,
     retry: {
       maxRetryCount: 5,
@@ -192,7 +192,7 @@ const main = async (config: Config) => {
       },
       strategy: "exponentialBackoff",
     },
-    startFromTime: "2023/01/01T00:00:00Z",
+    startFromTime: "2026/07/31T00:00:00Z",
   });
 };
 
