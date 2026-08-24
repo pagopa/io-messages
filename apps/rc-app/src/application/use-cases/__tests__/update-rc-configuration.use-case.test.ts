@@ -78,14 +78,7 @@ describe("makeUpdateRcConfigurationUseCase", () => {
       id: aConfigurationId,
       userId: aUserId,
     });
-    expect(logger.trackEvent).toHaveBeenCalledWith({
-      name: "UpdateRcConfigurationUseCase.failed.update",
-      properties: {
-        configurationId: aConfigurationId,
-        configurationName: aConfigurationUpdate.name,
-        userId: aUserId,
-      },
-    });
+    expect(logger.trackEvent).not.toHaveBeenCalled();
   });
 
   it("updates the configuration preserving the owner when the caller is internal", async () => {
@@ -152,15 +145,16 @@ describe("makeUpdateRcConfigurationUseCase", () => {
     expect(repository.updateRemoteContentConfiguration).not.toHaveBeenCalled();
   });
 
-  it("returns repository update errors without tracking an event", async () => {
+  it("returns repository update errors and tracks an event", async () => {
     const logger = makeLogger();
     const repository = makeRepository();
+    const error = new TooManyRequestsError();
     vi.mocked(repository.getRemoteContentConfiguration).mockResolvedValueOnce(
       ok(aValidConfiguration),
     );
     vi.mocked(
       repository.updateRemoteContentConfiguration,
-    ).mockResolvedValueOnce(err(new TooManyRequestsError()));
+    ).mockResolvedValueOnce(err(error));
 
     const result = await makeUpdateRcConfigurationUseCase(
       repository,
@@ -169,7 +163,15 @@ describe("makeUpdateRcConfigurationUseCase", () => {
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
-    expect(logger.trackEvent).not.toHaveBeenCalled();
+    expect(logger.trackEvent).toHaveBeenCalledWith({
+      name: "UpdateRcConfigurationUseCase.failed.update",
+      properties: {
+        configurationId: aConfigurationId,
+        error: error.name,
+        message: error.message,
+        userId: aUserId,
+      },
+    });
   });
 
   it("returns GenericError from the read path", async () => {
