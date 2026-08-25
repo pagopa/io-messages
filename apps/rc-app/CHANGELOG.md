@@ -1,5 +1,11 @@
 # rc-app
 
+## 0.2.0
+
+### Minor Changes
+
+- 6f40929: Add the external get rc configuration endpoint in `rc-app`.
+
 ## 0.1.2
 
 ### Patch Changes
