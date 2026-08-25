@@ -1,5 +1,11 @@
 # rc-app
 
+## 0.3.0
+
+### Minor Changes
+
+- 40cd3e1: Add UpdateRCConfiguration endpoint
+
 ## 0.2.0
 
 ### Minor Changes
