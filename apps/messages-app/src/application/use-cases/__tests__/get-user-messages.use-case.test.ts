@@ -8,6 +8,7 @@ import {
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
 import { noopLogger } from "@pagopa/hexagonal-core/adapters/logger";
+import { RCConfiguration } from "io-messages-common/domain/remote-content";
 import { Result, err, ok } from "neverthrow";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -29,7 +30,6 @@ import {
   MessageStatus,
   MessageStatusRepository,
 } from "../../ports/message-status.js";
-import { RCConfiguration } from "../../ports/rc-configuration.js";
 import {
   ServicesCmsDetail,
   ServicesCmsRepository,
@@ -111,7 +111,7 @@ const anRCConfiguration = (
   description: "a description",
   disableLollipopFor: [],
   hasPrecondition: "ALWAYS",
-  id: "an-rc-id",
+  id: RC_CONFIG_ID_A,
   isLollipopEnabled: false,
   name: "a name",
   userId: "a-user-id",

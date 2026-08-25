@@ -1,6 +1,11 @@
 meta {
   name: rc-app
-  seq: 13
+}
+
+headers {
+  X-User-Groups: ApiRemoteContentConfigurationWrite
+  X-Subscription-Id: {{rc_subscription_id}}
+  X-User-Id: {{sender_user_id}}
 }
 
 auth {

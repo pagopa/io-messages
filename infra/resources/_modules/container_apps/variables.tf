@@ -53,6 +53,16 @@ variable "key_vault_id" {
   description = "Id of the team domain key vault"
 }
 
+variable "key_vault_name" {
+  type        = string
+  description = "Name of the team domain key vault"
+}
+
+variable "key_vault_uri" {
+  type        = string
+  description = "URI of the team domain key vault"
+}
+
 variable "entra_id_admin_ids" {
   type        = set(string)
   description = "Id of Entra ID groups that should be admins of the Container App Environment"

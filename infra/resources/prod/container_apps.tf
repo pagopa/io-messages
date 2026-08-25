@@ -24,7 +24,9 @@ module "container_apps" {
 
   log_analytics_workspace_id = data.azurerm_log_analytics_workspace.common.id
 
-  key_vault_id = module.key_vaults.com.id
+  key_vault_id   = module.key_vaults.com.id
+  key_vault_name = module.key_vaults.com.name
+  key_vault_uri  = module.key_vaults.com.vault_uri
 
   application_insights = data.azurerm_application_insights.common
 
