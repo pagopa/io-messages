@@ -13,9 +13,9 @@ import { MessageContent } from "../../../../application/ports/message-content.js
 import { MessageContentBlobAdapter } from "../message-content.adapter.js";
 
 const aValidMessageContent: MessageContent = {
+  due_date: "2026-08-31T12:00:00.000Z",
   markdown:
     "A valid markdown, this should be more than 80 chars, otherwise an error occurs. Ensure that this line is long enough.",
-  require_secure_channels: false,
   subject: "A valid subject used as title",
 };
 

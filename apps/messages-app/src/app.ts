@@ -10,6 +10,7 @@ import { makeApplicationInsightsLogger } from "@pagopa/hexagonal-core/adapters/l
 import fastify from "fastify";
 
 import { AppConfig } from "./adapters/inbound/config/config.js";
+import { mountGetMessageHandler } from "./adapters/inbound/fastify/get-message.handler.js";
 import { mountGetMessagesByUserHandler } from "./adapters/inbound/fastify/get-user-messages.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
@@ -23,6 +24,7 @@ import { MessageStatusCosmosAdapter } from "./adapters/outbound/message/message-
 import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/package-json-app-info-reader.js";
 import { RCConfigurationHttpClientAdapter } from "./adapters/outbound/rc-confguration/rc-configuration.js";
 import { ServicesCmsHttpClientAdapter } from "./adapters/outbound/services-cms/services-cms.js";
+import { makeGetMessageUseCase } from "./application/use-cases/get-message.use-case.js";
 import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-messages.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
@@ -136,6 +138,17 @@ export const createApp = (
         "common-storage-account",
       ),
     ]),
+  );
+  mountGetMessageHandler(
+    server,
+    makeGetMessageUseCase(
+      messageMetadataCosmosAdapter,
+      messageStatusCosmosAdapter,
+      messageContentBlobAdapter,
+      servicesCmsAdapter,
+      config.PN_SERVICE_ID,
+      config.SERVICE_TO_RC_MAP,
+    ),
   );
   mountGetMessagesByUserHandler(
     server,

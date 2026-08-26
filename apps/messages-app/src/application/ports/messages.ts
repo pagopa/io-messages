@@ -40,7 +40,7 @@ const messageCategoryPNSchema = thirdPartyDataSchema.extend({
   tag: z.literal("PN"),
 });
 
-const messageCategorySchema = z.union([
+export const messageCategorySchema = z.union([
   messageCategoryPaymentSchema,
   messageCategoryBaseSchema,
   messageCategoryPNSchema,
