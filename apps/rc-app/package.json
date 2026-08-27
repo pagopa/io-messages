@@ -33,6 +33,7 @@
     "io-messages-common": "workspace:^",
     "neverthrow": "catalog:",
     "redis": "catalog:",
+    "ulid": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
