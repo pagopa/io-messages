@@ -162,7 +162,9 @@ export const makeGetMessageUseCase =
 
     const statusResult =
       await messageStatusRepository.getLatestMessageStatusById(messageId);
-    if (statusResult.isErr()) return err(statusResult.error);
+    if (statusResult.isErr()) {
+      return err(new GenericError(statusResult.error.message));
+    }
 
     if (!service) {
       const serviceResult = await getService(

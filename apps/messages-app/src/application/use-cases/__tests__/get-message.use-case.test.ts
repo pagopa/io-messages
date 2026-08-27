@@ -169,6 +169,23 @@ describe("makeGetMessageUseCase - retrieval", () => {
 
     expect(result._unsafeUnwrapErr()).toBe(notFound);
   });
+
+  it("returns a generic error when public enrichment status is missing", async () => {
+    vi.mocked(
+      statusRepository.getLatestMessageStatusById,
+    ).mockResolvedValueOnce(
+      err(new NotFoundError("status", "status not found")),
+    );
+
+    const result = await getMessage({
+      fiscalCode,
+      messageId,
+      publicMessage: true,
+    });
+
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toContain("status not found");
+  });
 });
 
 describe("makeGetMessageUseCase - enrichment", () => {
