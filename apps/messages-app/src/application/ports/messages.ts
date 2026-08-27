@@ -9,6 +9,7 @@
 // own types, so the application core does not depend on the HTTP/Fastify layer.
 import z from "zod";
 
+import { messageContentSchema } from "./message-content.js";
 import { messageStatusValueSchema } from "./message-status.js";
 
 const messageStatusAttributesSchema = z.object({
@@ -47,29 +48,54 @@ export const messageCategorySchema = z.union([
 ]);
 export type MessageCategory = z.TypeOf<typeof messageCategorySchema>;
 
-const enrichedMessageSchema = messageStatusAttributesSchema.extend({
-  category: messageCategorySchema.optional(),
+const messageBaseSchema = z.object({
   created_at: z.string(),
   fiscal_code: z.string(),
-  has_attachments: z.boolean().default(false),
-  has_precondition: z.boolean().default(false),
   id: z.string(),
-  message_title: z.string(),
-  organization_fiscal_code: z.string(),
-  organization_name: z.string(),
   sender_service_id: z.string().min(1),
-  service_name: z.string(),
-  status: messageStatusValueSchema.optional(),
   time_to_live: z.number().int().min(3600).max(604800).optional(),
 });
 
-const createdMessageWithoutContentSchema = z.object({
-  created_at: z.string(),
-  fiscal_code: z.string(),
-  id: z.string(),
-  sender_service_id: z.string().min(1),
-  time_to_live: z.number().int().min(3600).max(604800).optional(),
+const enrichedMessageBaseSchema = messageBaseSchema.extend({
+  message_title: z.string(),
+  organization_fiscal_code: z.string(),
+  organization_name: z.string(),
+  service_name: z.string(),
 });
+
+export const messageWithContentSchema = messageBaseSchema.extend({
+  content: messageContentSchema,
+});
+export type MessageWithContent = z.TypeOf<typeof messageWithContentSchema>;
+
+export const enrichedMessageWithContentSchema =
+  enrichedMessageBaseSchema.extend({
+    category: messageCategorySchema,
+    content: messageContentSchema,
+    is_archived: z.boolean(),
+    is_read: z.boolean(),
+  });
+export type EnrichedMessageWithContent = z.TypeOf<
+  typeof enrichedMessageWithContentSchema
+>;
+
+export const messageSchema = z.object({
+  message: z.union([
+    enrichedMessageWithContentSchema,
+    messageWithContentSchema,
+  ]),
+});
+export type MessageOutput = z.TypeOf<typeof messageSchema>;
+
+const enrichedMessageSchema = enrichedMessageBaseSchema.extend({
+  ...messageStatusAttributesSchema.shape,
+  category: messageCategorySchema.optional(),
+  has_attachments: z.boolean().default(false),
+  has_precondition: z.boolean().default(false),
+  status: messageStatusValueSchema.optional(),
+});
+
+const createdMessageWithoutContentSchema = messageBaseSchema;
 
 const publicMessageSchema = z.union([
   enrichedMessageSchema,

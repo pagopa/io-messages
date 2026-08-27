@@ -14,7 +14,11 @@ import {
 } from "../ports/message-content.js";
 import { MessageMetadataRepository } from "../ports/message-metadata.js";
 import { MessageStatusRepository } from "../ports/message-status.js";
-import { MessageCategory } from "../ports/messages.js";
+import {
+  MessageCategory,
+  MessageOutput,
+  MessageWithContent,
+} from "../ports/messages.js";
 import {
   ServicesCmsDetail,
   ServicesCmsRepository,
@@ -26,36 +30,13 @@ type GetMessageError =
   | NotFoundError
   | TooManyRequestsError;
 
-export interface MessageWithContent {
-  content: MessageContent;
-  created_at: string;
-  fiscal_code: string;
-  id: string;
-  sender_service_id: string;
-  time_to_live?: number;
-}
-
-export interface EnrichedMessageWithContent extends MessageWithContent {
-  category: MessageCategory;
-  is_archived: boolean;
-  is_read: boolean;
-  message_title: string;
-  organization_fiscal_code: string;
-  organization_name: string;
-  service_name: string;
-}
-
-export interface GetMessageOutput {
-  message: EnrichedMessageWithContent | MessageWithContent;
-}
-
 export type GetMessageUseCase = UseCase<
   {
     fiscalCode: string;
     messageId: string;
     publicMessage: boolean;
   },
-  GetMessageOutput,
+  MessageOutput,
   GetMessageError
 >;
 

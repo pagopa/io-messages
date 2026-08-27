@@ -1,8 +1,10 @@
 import z from "zod";
 
 import { messageContentSchema } from "../../../../application/ports/message-content.js";
-import { messageCategorySchema } from "../../../../application/ports/messages.js";
-import { GetMessageOutput } from "../../../../application/use-cases/get-message.use-case.js";
+import {
+  MessageOutput,
+  messageCategorySchema,
+} from "../../../../application/ports/messages.js";
 
 const messageWithContentSchema = z.object({
   content: messageContentSchema,
@@ -33,5 +35,5 @@ export const GetMessageResponseSchema = z.object({
 export type GetMessageResponse = z.infer<typeof GetMessageResponseSchema>;
 
 export const toGetMessageResponse = (
-  output: GetMessageOutput,
+  output: MessageOutput,
 ): GetMessageResponse => output;
