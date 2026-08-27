@@ -5,14 +5,14 @@ import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
 
 import { CreateRcConfigurationUseCase } from "../../../application/use-cases/create-rc-configuration.use-case.js";
 import {
+  CreateRcConfigurationRequestSchema,
+  toRcConfigurationCreate,
+} from "./dto/create-rc-configuration.dto.js";
+import {
   RcConfigurationResponseSchema,
   toRcConfigurationResponse,
 } from "./dto/get-rc-configuration.dto.js";
 import { makeRcConfigurationAuthMiddleware } from "./middlewares/rc-configuration-auth.middleware.js";
-import {
-  CreateRcConfigurationRequestSchema,
-  toRcConfigurationCreate,
-} from "./dto/create-rc-configuration.dto.js";
 
 const createRcConfigurationContract = defineRoute({
   method: "post",
