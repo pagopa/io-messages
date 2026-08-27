@@ -235,6 +235,7 @@ describe("makeGetMessageUseCase - enrichment", () => {
         subject: "a valid subject",
         third_party_data: {
           has_attachments: true,
+          has_precondition: "ALWAYS",
           has_remote_content: true,
           id: "third-party-id",
         },
@@ -291,14 +292,24 @@ describe("makeGetMessageUseCase - enrichment", () => {
 
     expect(result._unsafeUnwrap().message).toMatchObject({
       category: {
-        configuration_id: configurationId,
         has_attachments: true,
+        has_remote_content: true,
+        id: "third-party-id",
         tag: "PN",
       },
       content: {
-        third_party_data: { configuration_id: configurationId },
+        third_party_data: {
+          configuration_id: configurationId,
+          has_precondition: "ALWAYS",
+        },
       },
     });
+    expect(result._unsafeUnwrap().message).not.toHaveProperty(
+      "category.configuration_id",
+    );
+    expect(result._unsafeUnwrap().message).not.toHaveProperty(
+      "category.has_precondition",
+    );
     expect(result._unsafeUnwrap().message).not.toHaveProperty(
       "has_attachments",
     );

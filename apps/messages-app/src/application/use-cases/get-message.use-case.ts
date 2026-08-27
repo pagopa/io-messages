@@ -71,7 +71,15 @@ const computeCategory = (
 
   if (content.third_party_data) {
     return senderServiceId === pnServiceId
-      ? { ...content.third_party_data, tag: "PN" }
+      ? {
+          has_attachments: content.third_party_data.has_attachments,
+          has_remote_content: content.third_party_data.has_remote_content,
+          id: content.third_party_data.id,
+          original_receipt_date: content.third_party_data.original_receipt_date,
+          original_sender: content.third_party_data.original_sender,
+          summary: content.third_party_data.summary,
+          tag: "PN",
+        }
       : { tag: "GENERIC" };
   }
 

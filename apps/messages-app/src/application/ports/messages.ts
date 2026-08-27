@@ -35,16 +35,13 @@ const thirdPartyDataSchema = z.object({
   original_receipt_date: z.string().optional(),
   original_sender: z.string().min(1).optional(),
   summary: z.string().min(1).optional(),
-});
-
-const messageCategoryPNSchema = thirdPartyDataSchema.extend({
   tag: z.literal("PN"),
 });
 
 export const messageCategorySchema = z.union([
   messageCategoryPaymentSchema,
   messageCategoryBaseSchema,
-  messageCategoryPNSchema,
+  thirdPartyDataSchema,
 ]);
 export type MessageCategory = z.TypeOf<typeof messageCategorySchema>;
 
