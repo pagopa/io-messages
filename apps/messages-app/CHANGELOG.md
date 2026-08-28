@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.4.0
+
+### Minor Changes
+
+- 7a300a3: Added UpsertMessageStatus API on messages-app
+
 ## 0.3.0
 
 ### Minor Changes
