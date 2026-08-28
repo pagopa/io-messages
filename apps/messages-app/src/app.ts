@@ -4,12 +4,14 @@ import type { FastifyInstance } from "fastify";
 import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
+import { QueueClient } from "@azure/storage-queue";
 import { SeverityNumber, logs } from "@opentelemetry/api-logs";
 import { emitCustomEvent } from "@pagopa/azure-tracing/logger";
 import { makeApplicationInsightsLogger } from "@pagopa/hexagonal-core/adapters/logger";
 import fastify from "fastify";
 
 import { AppConfig } from "./adapters/inbound/config/config.js";
+import { mountCreateMessageHandler } from "./adapters/inbound/fastify/create-message.handler.js";
 import { mountGetMessagesByUserHandler } from "./adapters/inbound/fastify/get-user-messages.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
@@ -18,14 +20,23 @@ import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthchecke
 import { LoggerHealthcheckAdapter } from "./adapters/outbound/healthcheckers/logger.adapter.js";
 import { StorageBlobHealthcheckAdapter } from "./adapters/outbound/healthcheckers/storage-blob.adapter.js";
 import { MessageContentBlobAdapter } from "./adapters/outbound/message/message-content.adapter.js";
+import { MessageCreatedEventQueueAdapter } from "./adapters/outbound/message/message-created-event.adapter.js";
 import { MessageMetadataCosmosAdapter } from "./adapters/outbound/message/message-metadata.adapter.js";
 import { MessageStatusCosmosAdapter } from "./adapters/outbound/message/message-status.adapter.js";
+import { BlobProcessingMessagePayloadStore } from "./adapters/outbound/message/processing-message.adapter.js";
 import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/package-json-app-info-reader.js";
 import { RCConfigurationHttpClientAdapter } from "./adapters/outbound/rc-confguration/rc-configuration.js";
 import { ServicesCmsHttpClientAdapter } from "./adapters/outbound/services-cms/services-cms.js";
+import { makeCreateMessageUseCase } from "./application/use-cases/create-message.use-case.js";
 import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-messages.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
+
+const getQueueUrl = (queueServiceUri: URL, queueName: string): string => {
+  const queueUrl = new URL(queueServiceUri);
+  queueUrl.pathname = `${queueUrl.pathname.replace(/\/$/, "")}/${queueName}`;
+  return queueUrl.toString();
+};
 
 export const createApp = (
   config: AppConfig,
@@ -115,6 +126,29 @@ export const createApp = (
     logger,
   );
 
+  const processingMessagePayloadStore = new BlobProcessingMessagePayloadStore(
+    commonStorageAccountClient,
+    config.PROCESSING_MESSAGE_CONTAINER_NAME,
+  );
+
+  const messageCreatedQueueClient =
+    config.NODE_ENV === "development"
+      ? new QueueClient(
+          config.COMMON_STORAGE_ACCOUNT_CONNECTION_STRING,
+          config.MESSAGE_CREATED_QUEUE_NAME,
+        )
+      : new QueueClient(
+          getQueueUrl(
+            new URL(config.COMMON_STORAGE_QUEUE_URI),
+            config.MESSAGE_CREATED_QUEUE_NAME,
+          ),
+          aadCredentials,
+        );
+
+  const messageCreatedEventPublisher = new MessageCreatedEventQueueAdapter(
+    messageCreatedQueueClient,
+  );
+
   const servicesCmsAdapter = new ServicesCmsHttpClientAdapter(
     config.APIM_BASE_URL,
     config.APIM_SUBSCRIPTION_KEY,
@@ -136,6 +170,17 @@ export const createApp = (
         "common-storage-account",
       ),
     ]),
+  );
+  mountCreateMessageHandler(
+    server,
+    makeCreateMessageUseCase(
+      messageMetadataCosmosAdapter,
+      servicesCmsAdapter,
+      remoteContentConfigurationReposiory,
+      processingMessagePayloadStore,
+      messageCreatedEventPublisher,
+      logger,
+    ),
   );
   mountGetMessagesByUserHandler(
     server,

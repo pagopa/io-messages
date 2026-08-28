@@ -1,0 +1,33 @@
+meta {
+  name: CreateMessage
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{messages_app_base_url}}/api/v1/messages
+  body: json
+  auth: inherit
+}
+
+headers {
+  x-user-groups: ApiMessageWrite
+  x-user-email: {{sender_email}}
+  x-subscription-id: {{sender_subscription_id}}
+  x-user-id: {{sender_user_id}}
+  x-forwarded-for: {{receipt_id}}
+}
+
+body:json {
+  {
+    "content": {
+      "subject": "Subject of a test message",
+      "markdown": "Body of a test message, this should be at least 80 chars long, otherwise you will obtain 400"
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
