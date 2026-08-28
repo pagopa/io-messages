@@ -10,9 +10,10 @@ import z from "zod";
 
 import { MalformedEntityError } from "../../../application/ports/error.js";
 import { ServicesCmsRepository } from "../../../application/ports/services-cms.js";
+import { authorizedCidrSchema } from "../../../domain/client-ip.js";
 
 const organizationSchema = z.object({
-  department_name: z.string().min(1).optional(),
+  department_name: z.string().min(1),
   fiscal_code: z.string().regex(new RegExp("^\\d{11}$")),
   name: z.string().min(1),
 });
@@ -66,7 +67,7 @@ const servicesCmsDetailSchema = z.object({
       min: z.number().int().min(0).max(999).optional(),
     })
     .optional(),
-  authorized_cidrs: z.array(z.string()),
+  authorized_cidrs: z.array(authorizedCidrSchema),
   authorized_recipients: z.array(
     z
       .string()
@@ -85,6 +86,7 @@ const servicesCmsDetailSchema = z.object({
   organization: organizationSchema,
   require_secure_channel: z.boolean(),
   status: serviceStatusSchema,
+  version: z.number().int().nonnegative(),
 });
 type ServicesCmsDetail = z.TypeOf<typeof servicesCmsDetailSchema>;
 

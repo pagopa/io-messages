@@ -38,6 +38,7 @@ const messageWithoutContentSchema = z.object({
   id: messageIDSchema,
   indexedId: messageIDSchema,
   isPending: z.boolean().optional(),
+  kind: z.literal("INewMessageWithoutContent").optional(),
   senderServiceId: z.string().min(1),
   senderUserId: z.string().min(1),
   timeToLiveSeconds: z.number().int().min(3600).max(604800),

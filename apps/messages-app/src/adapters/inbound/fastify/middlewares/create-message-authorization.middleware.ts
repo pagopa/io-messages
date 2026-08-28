@@ -7,17 +7,9 @@ import { ForbiddenError } from "@pagopa/hexagonal-core";
 import { err, ok } from "neverthrow";
 import z from "zod";
 
-export const createMessagePermissionSchema = z.enum([
-  "ApiLimitedMessageWrite",
-  "ApiMessageWrite",
-  "ApiMessageWriteAdvanced",
-  "ApiMessageWriteEUCovidCert",
-  "ApiMessageWriteWithPayee",
-  "ApiThirdPartyMessageWrite",
-]);
-export type CreateMessagePermission = z.TypeOf<
-  typeof createMessagePermissionSchema
->;
+import type { CreateMessagePermission } from "../../../../application/ports/create-message.js";
+
+import { createMessagePermissionSchema } from "../../../../application/ports/create-message.js";
 
 const apimHeadersSchema = z.object({
   "x-subscription-id": z.string().min(1),

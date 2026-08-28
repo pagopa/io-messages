@@ -4,19 +4,16 @@ import type {
 } from "@pagopa/hexagonal-core";
 
 import { GenericError } from "@pagopa/hexagonal-core";
-import { isIP } from "node:net";
 import { Result, err, ok } from "neverthrow";
 import z from "zod";
+
+import type { ClientIp } from "../../../../domain/client-ip.js";
+
+import { clientIpSchema } from "../../../../domain/client-ip.js";
 
 const headersSchema = z.object({
   "x-forwarded-for": z.string().min(1),
 });
-
-const clientIpSchema = z
-  .string()
-  .refine((value) => isIP(value) !== 0)
-  .brand<"ClientIp">();
-export type ClientIp = z.TypeOf<typeof clientIpSchema>;
 
 const clientIpExtractionError = (): GenericError =>
   new GenericError("IP address cannot be extracted from the request");

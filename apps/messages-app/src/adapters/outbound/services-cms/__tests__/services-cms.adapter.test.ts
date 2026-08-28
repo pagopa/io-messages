@@ -24,6 +24,7 @@ const aServicesAppMessageDetail = {
   },
   name: "A service name",
   organization: {
+    department_name: "A department name",
     fiscal_code: "01234567890",
     name: "An organization name",
   },
@@ -31,6 +32,7 @@ const aServicesAppMessageDetail = {
   status: {
     value: "published",
   },
+  version: 1,
 };
 
 const jsonResponse = (body: unknown, status = 200) =>

@@ -133,6 +133,7 @@ const aMessageDetail = (
   },
   name: "A service name",
   organization: {
+    department_name: "A department name",
     fiscal_code: "01234567890",
     name: "An organization name",
   },
@@ -140,6 +141,7 @@ const aMessageDetail = (
   status: {
     value: "published",
   },
+  version: 1,
   ...overrides,
 });
 

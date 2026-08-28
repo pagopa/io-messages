@@ -527,6 +527,9 @@ importers:
       neverthrow:
         specifier: ^8.2.0
         version: 8.2.0
+      ulid:
+        specifier: 'catalog:'
+        version: 3.0.1
       zod:
         specifier: 'catalog:'
         version: 4.1.13
