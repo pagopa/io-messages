@@ -1,5 +1,6 @@
 import {
   ConflictError,
+  ForbiddenError,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -16,8 +17,10 @@ import { MalformedEntityError } from "../../ports/error.js";
 import { makeUpdateMessageStatusUseCase } from "../update-message-status.use-case.js";
 
 const messageId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
+const fiscalCode = "RSSMRA80A01H501U";
 const updatedAt = new Date("2024-02-03T04:05:06.000Z");
 const latestStatus: MessageStatus = {
+  fiscalCode,
   id: `${messageId}-0000000000000000`,
   isArchived: true,
   isRead: false,
@@ -59,6 +62,7 @@ describe("makeUpdateMessageStatusUseCase", () => {
     const useCase = makeUpdateMessageStatusUseCase(repository);
 
     const result = await useCase({
+      fiscalCode,
       isArchived: false,
       isRead: true,
       messageId,
@@ -70,6 +74,7 @@ describe("makeUpdateMessageStatusUseCase", () => {
     );
     expect(repository.createMessageStatus).toHaveBeenCalledWith(expectedStatus);
     expect(latestStatus).toEqual({
+      fiscalCode,
       id: `${messageId}-0000000000000000`,
       isArchived: true,
       isRead: false,
@@ -82,11 +87,11 @@ describe("makeUpdateMessageStatusUseCase", () => {
 
   it.each([
     [
-      { isArchived: false, messageId },
+      { fiscalCode, isArchived: false, messageId },
       { isArchived: false, isRead: false },
     ],
     [
-      { isRead: true, messageId },
+      { fiscalCode, isRead: true, messageId },
       { isArchived: true, isRead: true },
     ],
   ])("updates only the provided flag", async (input, expectedFlags) => {
@@ -100,35 +105,69 @@ describe("makeUpdateMessageStatusUseCase", () => {
     );
   });
 
-  it.each([
-    new GenericError("read failed"),
-    new MalformedEntityError("invalid status"),
-    new NotFoundError("message status", "missing"),
-    new TooManyRequestsError(),
-  ])("propagates latest-status errors", async (error) => {
+  it("returns forbidden without writing when the status belongs to another user", async () => {
+    const repository = makeRepository();
+    const useCase = makeUpdateMessageStatusUseCase(repository);
+
+    const result = await useCase({
+      fiscalCode: "FRMTTR76M06B715E",
+      isRead: true,
+      messageId,
+    });
+
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(ForbiddenError);
+    expect(repository.createMessageStatus).not.toHaveBeenCalled();
+  });
+
+  it("returns forbidden without writing when the legacy status has no owner", async () => {
     const repository = makeRepository();
     vi.mocked(repository.getLatestMessageStatusById).mockResolvedValue(
-      err(error),
+      ok({ ...latestStatus, fiscalCode: undefined }),
     );
     const useCase = makeUpdateMessageStatusUseCase(repository);
 
-    const result = await useCase({ isRead: true, messageId });
+    const result = await useCase({ fiscalCode, isRead: true, messageId });
 
-    expect(result._unsafeUnwrapErr()).toBe(error);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(ForbiddenError);
     expect(repository.createMessageStatus).not.toHaveBeenCalled();
   });
 
   it.each([
-    new GenericError("create failed"),
-    new ConflictError(messageId),
-    new TooManyRequestsError(),
-  ])("propagates create errors", async (error) => {
+    [new GenericError("read failed"), GenericError],
+    [new MalformedEntityError("invalid status"), GenericError],
+    [new NotFoundError("message status", "missing"), NotFoundError],
+    [new TooManyRequestsError(), GenericError],
+  ])(
+    "maps latest-status errors for legacy HTTP parity",
+    async (error, kind) => {
+      const repository = makeRepository();
+      vi.mocked(repository.getLatestMessageStatusById).mockResolvedValue(
+        err(error),
+      );
+      const useCase = makeUpdateMessageStatusUseCase(repository);
+
+      const result = await useCase({ fiscalCode, isRead: true, messageId });
+
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(kind);
+      expect(repository.createMessageStatus).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    [new GenericError("create failed"), GenericError],
+    [new ConflictError(messageId), GenericError],
+    [new TooManyRequestsError(), GenericError],
+  ])("maps create errors to internal errors", async (error, kind) => {
     const repository = makeRepository();
     vi.mocked(repository.createMessageStatus).mockResolvedValue(err(error));
     const useCase = makeUpdateMessageStatusUseCase(repository);
 
-    const result = await useCase({ isArchived: false, messageId });
+    const result = await useCase({
+      fiscalCode,
+      isArchived: false,
+      messageId,
+    });
 
-    expect(result._unsafeUnwrapErr()).toBe(error);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(kind);
   });
 });

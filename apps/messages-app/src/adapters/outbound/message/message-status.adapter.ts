@@ -10,6 +10,7 @@ import {
 } from "@azure/cosmos";
 import {
   ConflictError,
+  FiscalCodeSchema,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -52,6 +53,7 @@ const getErrorMessage = (error: unknown): string =>
 // `MessageStatus` type: the adapter validates the raw document and then maps it
 // to the domain type required by the port.
 const cosmosMessageStatusSchema = z.object({
+  fiscalCode: FiscalCodeSchema.optional(),
   id: messageStatusIdSchema,
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
@@ -65,6 +67,7 @@ type CosmosMessageStatus = z.TypeOf<typeof cosmosMessageStatusSchema>;
 // Maps the adapter specific Cosmos representation to the domain type expected by
 // the port.
 const toMessageStatus = (s: CosmosMessageStatus): MessageStatus => ({
+  fiscalCode: s.fiscalCode,
   id: s.id,
   isArchived: s.isArchived,
   isRead: s.isRead,
