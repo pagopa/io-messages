@@ -1,15 +1,9 @@
-import type {
+import {
   FiscalCode,
   ForbiddenError,
   GenericError,
   NotFoundError,
   UseCase,
-} from "@pagopa/hexagonal-core";
-
-import {
-  ForbiddenError as ForbiddenErrorClass,
-  GenericError as GenericErrorClass,
-  NotFoundError as NotFoundErrorClass,
 } from "@pagopa/hexagonal-core";
 import { err, ok } from "neverthrow";
 
@@ -48,18 +42,18 @@ export const makeUpdateMessageStatusUseCase =
       await messageStatusRepository.getLatestMessageStatusById(messageId);
 
     if (latestStatusResult.isErr()) {
-      if (latestStatusResult.error instanceof NotFoundErrorClass) {
+      if (latestStatusResult.error instanceof NotFoundError) {
         return err(latestStatusResult.error);
       }
-      if (latestStatusResult.error instanceof GenericErrorClass) {
+      if (latestStatusResult.error instanceof GenericError) {
         return err(latestStatusResult.error);
       }
-      return err(new GenericErrorClass(latestStatusResult.error.message));
+      return err(new GenericError(latestStatusResult.error.message));
     }
 
     const latestStatus = latestStatusResult.value;
     if (latestStatus.fiscalCode !== fiscalCode) {
-      return err(new ForbiddenErrorClass());
+      return err(new ForbiddenError());
     }
 
     const version = latestStatus.version + 1;
@@ -76,10 +70,10 @@ export const makeUpdateMessageStatusUseCase =
     const createResult =
       await messageStatusRepository.createMessageStatus(newStatus);
     if (createResult.isErr()) {
-      if (createResult.error instanceof GenericErrorClass) {
+      if (createResult.error instanceof GenericError) {
         return err(createResult.error);
       }
-      return err(new GenericErrorClass(createResult.error.message));
+      return err(new GenericError(createResult.error.message));
     }
 
     return ok(createResult.value);
