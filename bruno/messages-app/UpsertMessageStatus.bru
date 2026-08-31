@@ -1,0 +1,18 @@
+meta {
+  name: UpsertMessageStatus
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{messages_app_base_url}}/api/messages/{{fiscal_code}}/01KKV4T39HGAY3278B8GRP9KG2/message-status
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "change_type": "archiving",
+    "is_archived": true
+  }
+}

@@ -14,6 +14,7 @@ import { mountGetMessageHandler } from "./adapters/inbound/fastify/get-message.h
 import { mountGetMessagesByUserHandler } from "./adapters/inbound/fastify/get-user-messages.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
+import { mountUpsertMessageStatusHandler } from "./adapters/inbound/fastify/upsert-message-status.handler.js";
 import { CryptoAdapter } from "./adapters/outbound/crypto/crypto.adapter.js";
 import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
 import { LoggerHealthcheckAdapter } from "./adapters/outbound/healthcheckers/logger.adapter.js";
@@ -28,6 +29,7 @@ import { makeGetMessageUseCase } from "./application/use-cases/get-message.use-c
 import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-messages.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
+import { makeUpdateMessageStatusUseCase } from "./application/use-cases/update-message-status.use-case.js";
 
 export const createApp = (
   config: AppConfig,
@@ -162,6 +164,10 @@ export const createApp = (
       config.SERVICE_TO_RC_MAP,
       logger,
     ),
+  );
+  mountUpsertMessageStatusHandler(
+    server,
+    makeUpdateMessageStatusUseCase(messageStatusCosmosAdapter),
   );
 
   return { server };
