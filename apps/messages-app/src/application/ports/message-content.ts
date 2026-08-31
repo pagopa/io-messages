@@ -14,6 +14,7 @@ export const hasPreconditionSchema = z
 export type HasPrecondition = z.TypeOf<typeof hasPreconditionSchema>;
 
 export const messageContentSchema = z.object({
+  due_date: z.string().optional(),
   eu_covid_cert: z.object({ auth_code: z.string().optional() }).optional(),
   markdown: z.string().min(80).max(10000),
   payment_data: z
@@ -28,7 +29,7 @@ export const messageContentSchema = z.object({
         .optional(),
     })
     .optional(),
-  require_secure_channels: z.boolean().default(false),
+  require_secure_channels: z.boolean().optional(),
   subject: z.string().min(10).max(120),
   third_party_data: z
     .object({
