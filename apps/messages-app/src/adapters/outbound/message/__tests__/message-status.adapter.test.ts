@@ -20,6 +20,7 @@ import { MessageStatus } from "../../../../application/ports/message-status.js";
 import { MessageStatusCosmosAdapter } from "../message-status.adapter.js";
 
 const aMessageStatus: MessageStatus = {
+  fiscalCode: "RSSMRA80A01H501U",
   id: "01ARZ3NDEKTSV4RRFFQ69G5FAV-0000000000000000",
   isArchived: false,
   isRead: false,
@@ -204,6 +205,30 @@ describe("getLatestMessageStatusById", () => {
     expect(trackEventMock).not.toHaveBeenCalled();
   });
 
+  it("accepts a legacy status without a fiscal code", async () => {
+    const legacyStatus = { ...aMessageStatus };
+    delete legacyStatus.fiscalCode;
+    fetchNextMock.mockResolvedValue(feedResponseWith([legacyStatus]));
+
+    const result = await adapter.getLatestMessageStatusById(
+      legacyStatus.messageId,
+    );
+
+    expect(result._unsafeUnwrap()).toEqual(legacyStatus);
+  });
+
+  it("returns a MalformedEntityError when the fiscal code is invalid", async () => {
+    fetchNextMock.mockResolvedValue(
+      feedResponseWith([{ ...aMessageStatus, fiscalCode: "invalid" }]),
+    );
+
+    const result = await adapter.getLatestMessageStatusById(
+      aMessageStatus.messageId,
+    );
+
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
+  });
+
   it("returns a TooManyRequestsError when Cosmos throttles the request", async () => {
     fetchNextMock.mockRejectedValue(
       new RestError("throttled", { statusCode: 429 }),
@@ -250,6 +275,9 @@ describe("createMessageStatus", () => {
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toEqual(aMessageStatus);
     expect(createMock).toHaveBeenCalledWith(aMessageStatus);
+    expect(createMock).toHaveBeenCalledWith(
+      expect.objectContaining({ fiscalCode: aMessageStatus.fiscalCode }),
+    );
   });
 
   it("returns a ConflictError when the version exists", async () => {

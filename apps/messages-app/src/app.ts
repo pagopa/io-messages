@@ -12,9 +12,11 @@ import fastify from "fastify";
 
 import { AppConfig } from "./adapters/inbound/config/config.js";
 import { mountCreateMessageHandler } from "./adapters/inbound/fastify/create-message.handler.js";
+import { mountGetMessageHandler } from "./adapters/inbound/fastify/get-message.handler.js";
 import { mountGetMessagesByUserHandler } from "./adapters/inbound/fastify/get-user-messages.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
+import { mountUpsertMessageStatusHandler } from "./adapters/inbound/fastify/upsert-message-status.handler.js";
 import { CryptoAdapter } from "./adapters/outbound/crypto/crypto.adapter.js";
 import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
 import { LoggerHealthcheckAdapter } from "./adapters/outbound/healthcheckers/logger.adapter.js";
@@ -28,9 +30,11 @@ import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/packa
 import { RCConfigurationHttpClientAdapter } from "./adapters/outbound/rc-confguration/rc-configuration.js";
 import { ServicesCmsHttpClientAdapter } from "./adapters/outbound/services-cms/services-cms.js";
 import { makeCreateMessageUseCase } from "./application/use-cases/create-message.use-case.js";
+import { makeGetMessageUseCase } from "./application/use-cases/get-message.use-case.js";
 import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-messages.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
+import { makeUpdateMessageStatusUseCase } from "./application/use-cases/update-message-status.use-case.js";
 
 const getQueueUrl = (queueServiceUri: URL, queueName: string): string => {
   const queueUrl = new URL(queueServiceUri);
@@ -182,6 +186,17 @@ export const createApp = (
       logger,
     ),
   );
+  mountGetMessageHandler(
+    server,
+    makeGetMessageUseCase(
+      messageMetadataCosmosAdapter,
+      messageStatusCosmosAdapter,
+      messageContentBlobAdapter,
+      servicesCmsAdapter,
+      config.PN_SERVICE_ID,
+      config.SERVICE_TO_RC_MAP,
+    ),
+  );
   mountGetMessagesByUserHandler(
     server,
     makeGetMessagesByUserUseCase(
@@ -194,6 +209,10 @@ export const createApp = (
       config.SERVICE_TO_RC_MAP,
       logger,
     ),
+  );
+  mountUpsertMessageStatusHandler(
+    server,
+    makeUpdateMessageStatusUseCase(messageStatusCosmosAdapter),
   );
 
   return { server };

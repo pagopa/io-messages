@@ -1,5 +1,17 @@
 # messages-app
 
+## 0.5.0
+
+### Minor Changes
+
+- 2574fd8: Add GetMessage endpoint.
+
+## 0.4.0
+
+### Minor Changes
+
+- 7a300a3: Added UpsertMessageStatus API on messages-app
+
 ## 0.3.0
 
 ### Minor Changes

@@ -1,5 +1,6 @@
 import {
   ConflictError,
+  FiscalCodeSchema,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -34,6 +35,7 @@ export const createMessageStatusId = (
 ): string => `${messageId}-${String(version).padStart(16, "0")}`;
 
 export const messageStatusSchema = z.object({
+  fiscalCode: FiscalCodeSchema.optional(),
   id: messageStatusIdSchema,
   isArchived: z.boolean().default(false),
   isRead: z.boolean().default(false),
