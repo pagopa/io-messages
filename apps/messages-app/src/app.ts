@@ -138,12 +138,12 @@ export const createApp = (
   const messageCreatedQueueClient =
     config.NODE_ENV === "development"
       ? new QueueClient(
-          config.COMMON_STORAGE_ACCOUNT_CONNECTION_STRING,
+          config.COMMUNICATION_STORAGE_ACCOUNT_CONNECTION_STRING,
           config.MESSAGE_CREATED_QUEUE_NAME,
         )
       : new QueueClient(
           getQueueUrl(
-            new URL(config.COMMON_STORAGE_QUEUE_URI),
+            new URL(config.COMMUNICATION_STORAGE_QUEUE_URI),
             config.MESSAGE_CREATED_QUEUE_NAME,
           ),
           aadCredentials,

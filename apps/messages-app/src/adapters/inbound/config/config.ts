@@ -29,6 +29,24 @@ const commonStorageAccountConfigSchema = z.discriminatedUnion("NODE_ENV", [
   }),
 ]);
 
+// Storage Account is configured with a connection string in local development and with
+// Azure credentials (account URI) in production. The NODE_ENV discriminant
+// selects which set of variables is required.
+const communicationStorageAccountConfigSchema = z.discriminatedUnion(
+  "NODE_ENV",
+  [
+    z.object({
+      COMMUNICATION_STORAGE_ACCOUNT_CONNECTION_STRING: z.string().min(1),
+      NODE_ENV: z.literal("development"),
+    }),
+    z.object({
+      COMMUNICATION_STORAGE_ACCOUNT_URI: z.url(),
+      COMMUNICATION_STORAGE_QUEUE_URI: z.url(),
+      NODE_ENV: z.literal("production"),
+    }),
+  ],
+);
+
 const serviceToRCConfigMapSchema = z.preprocess(
   (input) => {
     if (typeof input === "string") {
@@ -68,5 +86,6 @@ const baseConfigSchema = z.object({
 // discriminated union instead of nesting it.
 export const configSchema = baseConfigSchema
   .and(commonCosmosConfigSchema)
-  .and(commonStorageAccountConfigSchema);
+  .and(commonStorageAccountConfigSchema)
+  .and(communicationStorageAccountConfigSchema);
 export type AppConfig = z.TypeOf<typeof configSchema>;
