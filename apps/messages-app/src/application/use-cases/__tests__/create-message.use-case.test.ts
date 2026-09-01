@@ -101,7 +101,6 @@ const aService = (
   status: {
     value: "published",
   },
-  version: 7,
   ...overrides,
 });
 
@@ -270,7 +269,6 @@ describe("makeCreateMessageUseCase", () => {
     ).toHaveBeenCalledWith({
       defaultAddresses: {},
       messageId,
-      serviceVersion: 7,
     });
 
     const createOrder = vi.mocked(

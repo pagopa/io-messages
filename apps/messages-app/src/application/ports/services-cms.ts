@@ -83,7 +83,6 @@ export const servicesCmsDetailSchema = z.object({
   organization: organizationSchema,
   require_secure_channel: z.boolean(),
   status: serviceStatusSchema,
-  version: z.number().int().nonnegative(),
 });
 export type ServicesCmsDetail = z.TypeOf<typeof servicesCmsDetailSchema>;
 

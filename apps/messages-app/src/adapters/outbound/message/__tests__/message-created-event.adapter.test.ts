@@ -8,7 +8,6 @@ import { MessageCreatedEventQueueAdapter } from "../message-created-event.adapte
 const aMessageCreatedEvent: MessageCreatedEvent = {
   defaultAddresses: {},
   messageId: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
-  serviceVersion: 1,
 };
 
 const queueClient = new QueueClient(
@@ -25,7 +24,10 @@ describe("MessageCreatedEventQueueAdapter", () => {
 
     const result = await adapter.publish(aMessageCreatedEvent);
     const encodedEvent = Buffer.from(
-      JSON.stringify(aMessageCreatedEvent),
+      JSON.stringify({
+        ...aMessageCreatedEvent,
+        serviceVersion: 0,
+      }),
     ).toString("base64");
 
     expect(result.isOk()).toBe(true);

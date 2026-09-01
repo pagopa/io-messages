@@ -10,7 +10,6 @@ const defaultAddressesSchema = z.object({
 export const messageCreatedEventSchema = z.object({
   defaultAddresses: defaultAddressesSchema.optional(),
   messageId: messageIDSchema,
-  serviceVersion: z.number().nonnegative(),
 });
 export type MessageCreatedEvent = z.TypeOf<typeof messageCreatedEventSchema>;
 

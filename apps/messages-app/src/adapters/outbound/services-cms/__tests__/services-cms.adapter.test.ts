@@ -32,7 +32,6 @@ const aServicesAppMessageDetail = {
   status: {
     value: "published",
   },
-  version: 1,
 };
 
 const jsonResponse = (body: unknown, status = 200) =>

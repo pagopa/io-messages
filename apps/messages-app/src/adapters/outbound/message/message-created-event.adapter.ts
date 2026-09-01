@@ -15,7 +15,13 @@ export class MessageCreatedEventQueueAdapter
   async publish(
     event: MessageCreatedEvent,
   ): Promise<Result<void, GenericError>> {
-    const encodedEvent = Buffer.from(JSON.stringify(event)).toString("base64");
+    const encodedEvent = Buffer.from(
+      JSON.stringify({
+        ...event,
+        // Required by the legacy ProcessMessage decoder but otherwise unused.
+        serviceVersion: 0,
+      }),
+    ).toString("base64");
 
     const publishResult = await ResultAsync.fromPromise(
       this.queueClient.sendMessage(encodedEvent),

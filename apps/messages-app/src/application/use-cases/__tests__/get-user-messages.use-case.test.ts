@@ -141,7 +141,6 @@ const aMessageDetail = (
   status: {
     value: "published",
   },
-  version: 1,
   ...overrides,
 });
 

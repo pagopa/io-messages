@@ -388,7 +388,6 @@ export const makeCreateMessageUseCase =
     const publishResult = await messageCreatedEventPublisher.publish({
       defaultAddresses: {},
       messageId,
-      serviceVersion: service.version,
     });
     if (publishResult.isErr()) {
       logger.trackEvent({
