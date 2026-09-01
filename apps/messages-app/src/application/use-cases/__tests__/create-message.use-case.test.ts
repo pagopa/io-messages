@@ -93,7 +93,6 @@ const aService = (
   },
   name: "A service name",
   organization: {
-    department_name: "A department",
     fiscal_code: "01234567890",
     name: "An organization",
   },
@@ -255,7 +254,6 @@ describe("makeCreateMessageUseCase", () => {
       content: input.message.content,
       message: expectedMetadata,
       senderMetadata: {
-        departmentName: "A department",
         organizationFiscalCode: "01234567890",
         organizationName: "An organization",
         requireSecureChannels: true,

@@ -29,7 +29,6 @@ const aProcessingMessagePayload: ProcessingMessagePayload = {
     timeToLiveSeconds: 3600,
   },
   senderMetadata: {
-    departmentName: "Department",
     organizationFiscalCode: "12345678901",
     organizationName: "Organization",
     requireSecureChannels: false,

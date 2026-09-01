@@ -10,7 +10,6 @@ import { authorizedCidrSchema } from "../../domain/client-ip.js";
 import { MalformedEntityError } from "./error.js";
 
 const organizationSchema = z.object({
-  department_name: z.string().min(1),
   fiscal_code: z.string().regex(new RegExp("^\\d{11}$")),
   name: z.string().min(1),
 });

@@ -24,10 +24,7 @@ describe("MessageCreatedEventQueueAdapter", () => {
 
     const result = await adapter.publish(aMessageCreatedEvent);
     const encodedEvent = Buffer.from(
-      JSON.stringify({
-        ...aMessageCreatedEvent,
-        serviceVersion: 0,
-      }),
+      JSON.stringify(aMessageCreatedEvent),
     ).toString("base64");
 
     expect(result.isOk()).toBe(true);

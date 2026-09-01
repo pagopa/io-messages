@@ -361,7 +361,6 @@ export const makeCreateMessageUseCase =
           fiscalCode,
         },
         senderMetadata: {
-          departmentName: service.organization.department_name,
           organizationFiscalCode: service.organization.fiscal_code,
           organizationName: service.organization.name,
           requireSecureChannels:

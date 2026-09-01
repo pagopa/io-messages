@@ -45,7 +45,6 @@ const messageWithoutContentSchema = z.object({
 });
 
 const senderMetadataSchema = z.object({
-  departmentName: z.string().min(1),
   organizationFiscalCode: organizationFiscalCodeSchema,
   organizationName: organizationNameSchema,
   //TODO: Check if this should be optional.
