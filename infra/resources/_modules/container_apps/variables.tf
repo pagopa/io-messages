@@ -120,6 +120,14 @@ variable "communication_storage_account_uri" {
   description = "Blob service URI of the communication storage account"
 }
 
+variable "communication_storage_account_name" {
+  type = string
+}
+
+variable "communication_storage_account_resource_group" {
+  type = string
+}
+
 variable "communication_storage_queue_uri" {
   type        = string
   description = "Queue service URI of the communication storage account"

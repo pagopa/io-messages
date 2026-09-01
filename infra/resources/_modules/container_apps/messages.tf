@@ -93,8 +93,23 @@ module "azure-role-assignments" {
       container_name       = "message-content"
       role                 = "reader"
       description          = "Allow web app to read blob"
-    }
+    },
+    {
+      storage_account_name = var.communication_storage_account_name
+      resource_group_name  = var.common_storage_account.resource_group_name
+      container_name       = "message-processing"
+      role                 = "writer"
+      description          = "Allow web app to read blob"
+    },
   ]
+
+  storage_queue = [{
+    storage_account_name = var.communication_storage_account_name
+    resource_group_name  = var.common_storage_account.resource_group_name
+    queue_names          = ["message-created-v2", "message-created-v2-poison"]
+    role                 = "writer"
+    description          = "Allow web app to wtite messages in queues"
+  }]
 
   cosmos = [
     {
