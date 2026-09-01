@@ -524,6 +524,9 @@ importers:
       neverthrow:
         specifier: ^8.2.0
         version: 8.2.0
+      semver:
+        specifier: 'catalog:'
+        version: 7.7.3
       zod:
         specifier: 'catalog:'
         version: 4.1.13
@@ -534,6 +537,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 24.13.1
+      '@types/semver':
+        specifier: 'catalog:'
+        version: 7.7.1
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 4.1.10(vitest@4.1.10)
@@ -7822,7 +7828,7 @@ snapshots:
     dependencies:
       vfile-message: 4.0.3
 
-  '@typescript-eslint/eslint-plugin@8.48.0(@typescript-eslint/parser@8.48.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.8.3)':
+  '@typescript-eslint/eslint-plugin@8.48.0(@typescript-eslint/parser@8.48.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.2
       '@typescript-eslint/parser': 8.48.0(eslint@8.57.1)(typescript@5.8.3)
@@ -10798,7 +10804,7 @@ snapshots:
 
   typescript-eslint@8.48.0(eslint@8.57.1)(typescript@5.8.3):
     dependencies:
-      '@typescript-eslint/eslint-plugin': 8.48.0(@typescript-eslint/parser@8.48.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.8.3)
+      '@typescript-eslint/eslint-plugin': 8.48.0(@typescript-eslint/parser@8.48.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3)
       '@typescript-eslint/parser': 8.48.0(eslint@8.57.1)(typescript@5.8.3)
       '@typescript-eslint/typescript-estree': 8.48.0(typescript@5.8.3)
       '@typescript-eslint/utils': 8.48.0(eslint@8.57.1)(typescript@5.8.3)

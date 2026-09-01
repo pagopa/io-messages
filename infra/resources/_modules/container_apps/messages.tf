@@ -25,14 +25,17 @@ module "messages_ca" {
       name  = "io-messages"
 
       app_settings = {
-        HOST                            = "0.0.0.0"
-        NODE_ENV                        = "production"
-        PORT                            = 3000
-        COMMON_COSMOS_DATABASE_NAME     = "db"
-        MESSAGE_METADATA_CONTAINER_NAME = "messages"
-        MESSAGE_STATUS_CONTAINER_NAME   = "message-status"
-        MESSAGE_CONTENT_CONTAINER_NAME  = "message-content"
-        RC_APP_BASE_URL                 = "https://${module.remote_content_ca.url}/api/internal/rc-configurations"
+        HOST                               = "0.0.0.0"
+        NODE_ENV                           = "production"
+        PORT                               = 3000
+        COMMON_COSMOS_DATABASE_NAME        = "db"
+        MESSAGE_METADATA_CONTAINER_NAME    = "messages"
+        MESSAGE_STATUS_CONTAINER_NAME      = "message-status"
+        MESSAGE_CONTENT_CONTAINER_NAME     = "message-content"
+        PROFILE_CONTAINER_NAME             = "profiles"
+        SERVICE_PREFERENCES_CONTAINER_NAME = "service-preferences"
+        MIN_APP_VERSION_WITH_READ_AUTH     = "2.14.0"
+        RC_APP_BASE_URL                    = "https://${module.remote_content_ca.url}/api/internal/rc-configurations"
         SERVICE_TO_RC_MAP = jsonencode({
           "01G40DWQGKY5GRWSNM4303VNRP" = "01HMVMHCZZ8D0VTFWMRHBM5D6F", # PN
           "01GQQZ9HF5GAPRVKJM1VDAVFHM" = "01HMVMDTHXCESMZ72NA701EKGQ", # IO Sign
@@ -48,8 +51,10 @@ module "messages_ca" {
         APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
         APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
 
-        APIM_BASE_URL         = "https://io-p-itn-svc-services-ca-01.ambitioussea-e5d71305.italynorth.azurecontainerapps.io"
-        APIM_SUBSCRIPTION_KEY = "dummy"
+        APIM_BASE_URL             = "https://io-p-itn-svc-services-ca-01.ambitioussea-e5d71305.italynorth.azurecontainerapps.io"
+        APIM_SUBSCRIPTION_KEY     = "dummy"
+        PAGOPA_ECOMMERCE_BASE_URL = "https://api.platform.pagopa.it/ecommerce/payment-requests-service/v1"
+        PAGOPA_ECOMMERCE_API_KEY  = data.azurerm_key_vault_secret.pagopa_ecommerce_key.value
       }
 
       liveness_probe = {
@@ -96,7 +101,7 @@ module "azure-role-assignments" {
       description         = "Allow web app to read on cosmos containers"
       role                = "writer"
       database            = "db"
-      collections         = ["messages", "message-status"]
+      collections         = ["messages", "message-status", "profiles", "service-preferences"]
     }
   ]
 }

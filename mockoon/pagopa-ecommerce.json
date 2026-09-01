@@ -1,0 +1,160 @@
+{
+  "uuid": "a89ed897-2d30-413f-83b7-78d0a6d6ff41",
+  "lastMigration": 33,
+  "name": "PagoPA eCommerce",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3000,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "60bdf595-864c-4f60-87dc-f0b39d2d3861",
+      "type": "http",
+      "documentation": "Deterministic payment statuses for local messages-app testing",
+      "method": "get",
+      "endpoint": "api/v1/payment-requests/:rpt_id",
+      "responses": [
+        {
+          "uuid": "37e4549d-47da-4fb6-8129-0cf4dc61247c",
+          "body": "{\n  \"amount\": 100\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Payment not paid",
+          "headers": [],
+          "bodyType": "INLINE",
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "rpt_id",
+              "value": "38291048166265852349589452273",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "callbacks": []
+        },
+        {
+          "uuid": "e91af8df-cabe-4587-9d1e-aaf69e4c5376",
+          "body": "{\n  \"faultCodeCategory\": \"PAYMENT_UNKNOWN\",\n  \"faultCodeDetail\": \"PAA_PAGAMENTO_SCONOSCIUTO\",\n  \"title\": \"Payment not found\"\n}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "Payment not found",
+          "headers": [],
+          "bodyType": "INLINE",
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "rpt_id",
+              "value": "38291048166265852349589452270",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "callbacks": []
+        },
+        {
+          "uuid": "46c3213b-2acc-49ea-a23d-fd76c5a98898",
+          "body": "{\n  \"faultCodeCategory\": \"PAYMENT_DUPLICATED\",\n  \"faultCodeDetail\": \"PAA_PAGAMENTO_DUPLICATO\",\n  \"title\": \"Conflict\"\n}",
+          "latency": 0,
+          "statusCode": 409,
+          "label": "Payment already paid",
+          "headers": [],
+          "bodyType": "INLINE",
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "rpt_id",
+              "value": "38291048166265852349589452271",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "callbacks": []
+        },
+        {
+          "uuid": "0e616e66-fd15-4732-bb95-a35fb9272464",
+          "body": "{\n  \"faultCodeCategory\": \"PAYMENT_ONGOING\",\n  \"faultCodeDetail\": \"PPT_PAGAMENTO_IN_CORSO\",\n  \"title\": \"Conflict\"\n}",
+          "latency": 0,
+          "statusCode": 409,
+          "label": "Other payment conflict",
+          "headers": [],
+          "bodyType": "INLINE",
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "rpt_id",
+              "value": "38291048166265852349589452272",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "callbacks": []
+        },
+        {
+          "uuid": "653ad5d9-4fde-4dbf-ac71-33b3ee7a0c4a",
+          "body": "{\n  \"title\": \"Internal Server Error\"\n}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Unexpected error",
+          "headers": [],
+          "bodyType": "INLINE",
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "60bdf595-864c-4f60-87dc-f0b39d2d3861"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "proxyReqHeaders": [],
+  "proxyResHeaders": [],
+  "data": [],
+  "callbacks": []
+}

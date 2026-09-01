@@ -1,3 +1,4 @@
+import { valid } from "semver";
 import z from "zod";
 
 // Cosmos is configured with a connection string in local development and with
@@ -53,9 +54,16 @@ const baseConfigSchema = z.object({
   MESSAGE_CONTENT_CONTAINER_NAME: z.string().min(3),
   MESSAGE_METADATA_CONTAINER_NAME: z.string().min(3),
   MESSAGE_STATUS_CONTAINER_NAME: z.string().min(3),
+  MIN_APP_VERSION_WITH_READ_AUTH: z
+    .string()
+    .refine((value) => valid(value) !== null, "Invalid semantic version"),
+  PAGOPA_ECOMMERCE_API_KEY: z.string().min(1),
+  PAGOPA_ECOMMERCE_BASE_URL: z.url().transform((val) => new URL(val)),
   PN_SERVICE_ID: z.string().min(1),
   PORT: z.coerce.number().int().min(1025).max(65_535), // Read as string, parsed as integer.
+  PROFILE_CONTAINER_NAME: z.string().min(3),
   RC_APP_BASE_URL: z.url().transform((val) => new URL(val)),
+  SERVICE_PREFERENCES_CONTAINER_NAME: z.string().min(3),
   SERVICE_TO_RC_MAP: serviceToRCConfigMapSchema,
   npm_package_name: z.string().min(3),
   npm_package_version: z.string().min(5),

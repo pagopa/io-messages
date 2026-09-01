@@ -22,6 +22,7 @@ const containers = [
   { id: "messages", partitionKey: "/fiscalCode" },
   { id: "message-status", partitionKey: "/messageId" },
   { id: "profiles", partitionKey: "/fiscalCode" },
+  { id: "service-preferences", partitionKey: "/fiscalCode" },
   { id: "services", partitionKey: "/serviceId" },
   { id: "notifications", partitionKey: "/messageId" },
 ];
@@ -45,12 +46,42 @@ const profiles = [
         mode: "AUTO",
         version: 1,
       },
+      lastAppVersion: "2.1.0.0",
+      pushNotificationsContentType: "UNSET",
+      reminderStatus: "ENABLED",
+      id: "LVTEST00A00A200X-0000000000000001",
+      version: 1,
+      kind: "IRetrievedProfile",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
+    },
+  },
+  {
+    containerId: "profiles",
+    document: {
+      fiscalCode: "LVTEST00A00A200X",
+      isEmailEnabled: true,
+      isEmailValidated: true,
+      isInboxEnabled: true,
+      isTestProfile: false,
+      isWebhookEnabled: true,
+      email: "lvtest@example.com",
+      servicePreferencesSettings: {
+        mode: "AUTO",
+        version: 1,
+      },
       lastAppVersion: "UNKNOWN",
       pushNotificationsContentType: "UNSET",
       reminderStatus: "ENABLED",
       id: "LVTEST00A00A200X-0000000000000000",
       version: 0,
-      kind: "INewProfile",
+      kind: "IRetrievedProfile",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
     },
   },
   {
@@ -72,7 +103,11 @@ const profiles = [
       reminderStatus: "ENABLED",
       id: "LVTEST00A00A199X-0000000000000000",
       version: 0,
-      kind: "INewProfile",
+      kind: "IRetrievedProfile",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
     },
   },
   {
@@ -94,7 +129,11 @@ const profiles = [
       reminderStatus: "ENABLED",
       id: "LVTEST00A00A198X-0000000000000000",
       version: 0,
-      kind: "INewProfile",
+      kind: "IRetrievedProfile",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
     },
   },
   {
@@ -116,7 +155,11 @@ const profiles = [
       reminderStatus: "ENABLED",
       id: "LVTEST00A00A197X-0000000000000000",
       version: 0,
-      kind: "INewProfile",
+      kind: "IRetrievedProfile",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
     },
   },
   {
@@ -138,7 +181,28 @@ const profiles = [
       reminderStatus: "ENABLED",
       id: "LVTEST00A00A196X-0000000000000000",
       version: 0,
-      kind: "INewProfile",
+      kind: "IRetrievedProfile",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
+    },
+  },
+];
+
+const servicePreferences = [
+  {
+    containerId: "service-preferences",
+    document: {
+      accessReadMessageStatus: "ALLOW",
+      fiscalCode: "LVTEST00A00A200X",
+      id: "LVTEST00A00A200X-subscription-id-0000000000000001",
+      isEmailEnabled: true,
+      isInboxEnabled: true,
+      isWebhookEnabled: true,
+      kind: "IRetrievedServicePreference",
+      serviceId: "subscription-id",
+      settingsVersion: 1,
     },
   },
 ];
@@ -159,7 +223,11 @@ const services = [
       organizationName: "Wilkinson LLC",
       requireSecureChannels: false,
       version: 0,
-      kind: "INewService",
+      kind: "IRetrievedService",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
     },
   },
 ];
@@ -176,9 +244,21 @@ const RCMessageConfigurations = [
       isLollipopEnabled: false,
       name: "Updated configuration",
       userId: "local",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
     },
   },
 ];
+
+// maps containerId → partition key field path (used to derive the pk value for replace)
+const containerPartitionKeyMap = Object.fromEntries(
+  [...containers, ...remoteContentContainers].map(({ id, partitionKey }) => [
+    id,
+    partitionKey,
+  ]),
+);
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -216,9 +296,17 @@ const createContainerIfNotExists = async (database, { id, partitionKey }) => {
 
 const addDocumentToContainer = async (database, containerId, document) => {
   try {
-    await database.container(containerId).items.upsert(document, {
-      disableAutomaticIdGeneration: true,
-    });
+    const container = database.container(containerId);
+    // Use create + replace instead of upsert: the Linux CosmosDB emulator (vnext)
+    // does not initialize _etag correctly on upsert-as-insert.
+    const partitionKeyField = containerPartitionKeyMap[containerId].slice(1);
+    const partitionKeyValue = document[partitionKeyField];
+    try {
+      await container.items.create(document);
+    } catch (createError) {
+      if (createError.code !== 409) throw createError;
+      await container.item(document.id, partitionKeyValue).replace(document);
+    }
     console.log(`Document ${document.id} ready in container ${containerId}.`);
   } catch (error) {
     console.error(`Error adding document to container ${containerId}:`, error);
@@ -243,6 +331,12 @@ const addDocumentToContainer = async (database, containerId, document) => {
 
   await Promise.all(
     profiles.map(({ containerId, document }) =>
+      addDocumentToContainer(database, containerId, document),
+    ),
+  );
+
+  await Promise.all(
+    servicePreferences.map(({ containerId, document }) =>
       addDocumentToContainer(database, containerId, document),
     ),
   );
