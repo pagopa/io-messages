@@ -4,9 +4,11 @@ module "container_apps" {
   environment         = local.environment
   resource_group_name = azurerm_resource_group.itn_com.name
 
-  common_cosmos_account        = data.azurerm_cosmosdb_account.cosmos_api
-  communication_cosmos_account = module.cosmos.io_com_cosmos_account
-  common_storage_account       = module.storage_api_weu.common_storage_account
+  common_cosmos_account             = data.azurerm_cosmosdb_account.cosmos_api
+  communication_cosmos_account      = module.cosmos.io_com_cosmos_account
+  common_storage_account            = module.storage_api_weu.common_storage_account
+  communication_storage_account_uri = "https://${module.storage_api_weu.com_st_name}.blob.core.windows.net"
+  communication_storage_queue_uri   = "https://${module.storage_api_weu.com_st_name}.queue.core.windows.net"
 
   redis_cache = {
     id         = azurerm_redis_cache.com.id
