@@ -195,7 +195,6 @@ const validateRemoteContent = async (
   }
 
   if (!thirdPartyData.configuration_id) {
-    //TODO: This check returns 403 for retrocompatibility but maybe 400 is better.
     return err(new ForbiddenError());
   }
 

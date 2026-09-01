@@ -47,9 +47,7 @@ const messageWithoutContentSchema = z.object({
 const senderMetadataSchema = z.object({
   organizationFiscalCode: organizationFiscalCodeSchema,
   organizationName: organizationNameSchema,
-  //TODO: Check if this should be optional.
   requireSecureChannels: z.boolean(),
-  //TODO: Check if there should be a ddefault.
   serviceCategory: z.enum(["SPECIAL", "STANDARD"]),
   serviceName: z.string().min(1),
   serviceUserEmail: z.email(),
