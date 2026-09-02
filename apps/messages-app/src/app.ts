@@ -109,6 +109,16 @@ export const createApp = (
           aadCredentials,
         );
 
+  const communicationStorageAccountClient =
+    config.NODE_ENV === "development"
+      ? BlobServiceClient.fromConnectionString(
+          config.COMMUNICATION_STORAGE_ACCOUNT_CONNECTION_STRING,
+        )
+      : new BlobServiceClient(
+          config.COMMUNICATION_STORAGE_ACCOUNT_URI,
+          aadCredentials,
+        );
+
   const messageMetadataCosmosAdapter = new MessageMetadataCosmosAdapter(
     commonCosmosClient,
     config.COMMON_COSMOS_DATABASE_NAME,
@@ -131,7 +141,7 @@ export const createApp = (
   );
 
   const processingMessagePayloadStore = new BlobProcessingMessagePayloadStore(
-    commonStorageAccountClient,
+    communicationStorageAccountClient,
     config.PROCESSING_MESSAGE_CONTAINER_NAME,
   );
 
