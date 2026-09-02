@@ -169,7 +169,7 @@ export const createApp = (
     logger,
   );
 
-  const remoteContentConfigurationReposiory =
+  const remoteContentConfigurationRepository =
     new RCConfigurationHttpClientAdapter(config.RC_APP_BASE_URL);
 
   mountInfoHandler(server, makeGetInfoUseCase(appInfoReader));
@@ -190,7 +190,7 @@ export const createApp = (
     makeCreateMessageUseCase(
       messageMetadataCosmosAdapter,
       servicesCmsAdapter,
-      remoteContentConfigurationReposiory,
+      remoteContentConfigurationRepository,
       processingMessagePayloadStore,
       messageCreatedEventPublisher,
       logger,
@@ -214,7 +214,7 @@ export const createApp = (
       messageStatusCosmosAdapter,
       messageContentBlobAdapter,
       servicesCmsAdapter,
-      remoteContentConfigurationReposiory,
+      remoteContentConfigurationRepository,
       config.PN_SERVICE_ID,
       config.SERVICE_TO_RC_MAP,
       logger,
