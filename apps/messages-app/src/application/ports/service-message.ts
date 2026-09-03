@@ -1,21 +1,8 @@
-import { FiscalCodeSchema } from "@pagopa/hexagonal-core";
 import z from "zod";
 
 import { messageContentSchema } from "./message-content.js";
 import { messageStatusValueSchema } from "./message-status.js";
 import { paymentStatusSchema } from "./payment-status.js";
-
-export const getServiceMessageInputSchema = z.object({
-  fiscalCode: FiscalCodeSchema,
-  groups: z.set(z.string()).readonly(),
-  messageId: z.string().min(1),
-  serviceId: z.string().min(1),
-  subscriptionId: z.string().min(1),
-});
-
-export type GetServiceMessageInput = z.TypeOf<
-  typeof getServiceMessageInputSchema
->;
 
 export const readStatusSchema = z.enum(["READ", "UNREAD", "UNAVAILABLE"]);
 

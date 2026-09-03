@@ -1,4 +1,5 @@
 import {
+  FiscalCode,
   ForbiddenError,
   GenericError,
   NotFoundError,
@@ -16,10 +17,7 @@ import {
 import { MessageReadAuthorizationRepository } from "../ports/message-read-authorization.js";
 import { MessageStatusRepository } from "../ports/message-status.js";
 import { PaymentStatusRepository } from "../ports/payment-status.js";
-import {
-  GetServiceMessageInput,
-  ServiceMessage,
-} from "../ports/service-message.js";
+import { ServiceMessage } from "../ports/service-message.js";
 
 const ADVANCED_READ_GROUP = "ApiMessageReadAdvanced";
 
@@ -29,6 +27,14 @@ export type GetServiceMessageError =
   | MalformedEntityError
   | NotFoundError
   | TooManyRequestsError;
+
+export interface GetServiceMessageInput {
+  readonly fiscalCode: FiscalCode;
+  readonly groups: ReadonlySet<string>;
+  readonly messageId: string;
+  readonly serviceId: string;
+  readonly subscriptionId: string;
+}
 
 export type GetServiceMessageUseCase = UseCase<
   GetServiceMessageInput,
