@@ -1,21 +1,19 @@
 import type {
+  EmailAddress,
   EmptyHttpMiddlewareContext,
   HttpRequestMiddleware,
 } from "@pagopa/hexagonal-core";
 
-import { GenericError } from "@pagopa/hexagonal-core";
+import { EmailAddressSchema, GenericError } from "@pagopa/hexagonal-core";
 import { err, ok } from "neverthrow";
 import z from "zod";
 
-const userEmailSchema = z.email().brand<"UserEmail">();
-export type UserEmail = z.TypeOf<typeof userEmailSchema>;
-
 const headersSchema = z.object({
-  "x-user-email": userEmailSchema,
+  "x-user-email": EmailAddressSchema,
 });
 
 export interface UserEmailContext {
-  userEmail: UserEmail;
+  userEmail: EmailAddress;
 }
 
 /**
