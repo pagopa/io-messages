@@ -15,11 +15,6 @@ import { BlockList } from "node:net";
 import { ulid } from "ulid";
 
 import type { ClientIp } from "../../domain/client-ip.js";
-import type {
-  CreateMessagePermission,
-  CreatedMessage,
-  NewMessage,
-} from "../ports/create-message.js";
 import type { MessageCreatedEventPublisher } from "../ports/message-created-event.js";
 import type {
   MessageMetadata,
@@ -31,6 +26,13 @@ import type {
   ServicesCmsDetail,
   ServicesCmsRepository,
 } from "../ports/services-cms.js";
+
+import {
+  type CreateMessagePermission,
+  type CreatedMessage,
+  type NewMessage,
+  createMessagePermissionSchema,
+} from "../ports/create-message.js";
 
 export interface CreateMessageInput {
   clientIp: ClientIp;
@@ -64,21 +66,25 @@ const validatePayloadPermissions = (
 ): Result<void, ForbiddenError> => {
   if (
     message.content.eu_covid_cert &&
-    !permissions.has("ApiMessageWriteEUCovidCert")
+    !permissions.has(
+      createMessagePermissionSchema.enum.ApiMessageWriteEUCovidCert,
+    )
   ) {
     return err(new ForbiddenError());
   }
 
   if (
     message.content.payment_data?.payee &&
-    !permissions.has("ApiMessageWriteWithPayee")
+    !permissions.has(
+      createMessagePermissionSchema.enum.ApiMessageWriteWithPayee,
+    )
   ) {
     return err(new ForbiddenError());
   }
 
   if (
     message.feature_level_type === "ADVANCED" &&
-    !permissions.has("ApiMessageWriteAdvanced")
+    !permissions.has(createMessagePermissionSchema.enum.ApiMessageWriteAdvanced)
   ) {
     return err(new ForbiddenError());
   }
@@ -88,7 +94,9 @@ const validatePayloadPermissions = (
   if (
     message.content.third_party_data &&
     message.feature_level_type === "STANDARD" &&
-    !permissions.has("ApiThirdPartyMessageWrite")
+    !permissions.has(
+      createMessagePermissionSchema.enum.ApiThirdPartyMessageWrite,
+    )
   ) {
     return err(new ForbiddenError());
   }
