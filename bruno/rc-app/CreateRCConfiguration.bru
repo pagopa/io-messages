@@ -1,11 +1,11 @@
 meta {
-  name: UpdateRCConfiguration
+  name: CreateRCConfiguration
   type: http
-  seq: 6
+  seq: 5
 }
 
-put {
-  url: {{rc_app_base_url}}/api/rc-configurations/{{configuration_id}}
+post {
+  url: {{rc_app_base_url}}/api/rc-configurations
   body: json
   auth: inherit
 }
@@ -18,7 +18,7 @@ headers {
 
 body:json {
   {
-    "name": "Updated configuration",
+    "name": "New configuration",
     "description": "A new RC Configuration",
     "has_precondition": "NEVER",
     "disable_lollipop_for": [],
