@@ -8,8 +8,10 @@ import { emitCustomEvent } from "@pagopa/azure-tracing/logger";
 import { makeApplicationInsightsLogger } from "@pagopa/hexagonal-core/adapters/logger";
 import fastify from "fastify";
 import { type RedisClientType, createClient } from "redis";
+import { ulid } from "ulid";
 
 import { AppConfig } from "./adapters/inbound/config/config.js";
+import { mountCreateRcConfigurationHandler } from "./adapters/inbound/fastify/create-rc-configuration.handler.js";
 import { mountGetPublicRcConfigurationHandler } from "./adapters/inbound/fastify/get-public-rc-configuration.handler.js";
 import { mountGetRcConfigurationHandler } from "./adapters/inbound/fastify/get-rc-configuration.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
@@ -22,6 +24,7 @@ import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/packa
 import { RCConfigurationCosmosAdapter } from "./adapters/outbound/rc-configurations/rc-configuration.adapter.js";
 import { RCConfigurationCacheAdapter } from "./adapters/outbound/rc-configurations/rc-configuration-cache.adapter.js";
 import { CachingRemoteContentRepository } from "./adapters/outbound/rc-configurations/rc-configuration-caching.adapter.js";
+import { makeCreateRcConfigurationUseCase } from "./application/use-cases/create-rc-configuration.use-case.js";
 import { makeGetPublicRcConfigurationUseCase } from "./application/use-cases/get-public-rc-configuration.use-case.js";
 import { makeGetRcConfigurationUseCase } from "./application/use-cases/get-rc-configuration.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
@@ -96,6 +99,15 @@ export const createApp = async (
     },
   });
 
+  const remoteContentRepository = new CachingRemoteContentRepository(
+    new RCConfigurationCosmosAdapter(
+      commonCosmosClient,
+      config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
+    ),
+    new RCConfigurationCacheAdapter(redisClient, logger),
+    config.RC_CONFIGURATION_CACHE_TTL,
+  );
+
   redisClient.on("error", (err) => {
     server.log.error({ err }, "redis error");
   });
@@ -130,19 +142,15 @@ export const createApp = async (
     config.INTERNAL_USER_ID,
   );
 
+  mountCreateRcConfigurationHandler(
+    server,
+    makeCreateRcConfigurationUseCase(remoteContentRepository, ulid),
+    config.INTERNAL_USER_ID,
+  );
+
   mountUpdateRcConfigurationHandler(
     server,
-    makeUpdateRcConfigurationUseCase(
-      new CachingRemoteContentRepository(
-        new RCConfigurationCosmosAdapter(
-          commonCosmosClient,
-          config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
-        ),
-        new RCConfigurationCacheAdapter(redisClient, logger),
-        config.RC_CONFIGURATION_CACHE_TTL,
-      ),
-      logger,
-    ),
+    makeUpdateRcConfigurationUseCase(remoteContentRepository, logger),
     config.INTERNAL_USER_ID,
   );
 
