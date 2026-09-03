@@ -1,5 +1,11 @@
 # rc-app
 
+## 0.4.0
+
+### Minor Changes
+
+- fe89141: Add CreateRCConfiguration endpoint
+
 ## 0.3.0
 
 ### Minor Changes
