@@ -33,6 +33,7 @@ import {
   type NewMessage,
   createMessagePermissionSchema,
 } from "../ports/create-message.js";
+import { MalformedEntityError } from "../ports/error.js";
 
 export interface CreateMessageInput {
   clientIp: ClientIp;
@@ -140,32 +141,21 @@ const getService = async (
 ): Promise<
   Result<
     ServicesCmsDetail,
-    ForbiddenError | GenericError | TooManyRequestsError
+    | ForbiddenError
+    | GenericError
+    | MalformedEntityError
+    | NotFoundError
+    | TooManyRequestsError
   >
 > => {
   const serviceDetails =
-    await servicesCmsRepository.getServicesCmsDetailsByServiceIds([
-      subscriptionId,
-    ]);
+    await servicesCmsRepository.getServiceCmsDetails(subscriptionId);
 
   if (serviceDetails.isErr()) {
     return err(serviceDetails.error);
   }
 
-  const serviceDetail = serviceDetails.value.get(subscriptionId);
-  if (!serviceDetail || serviceDetail.isErr()) {
-    if (!serviceDetail || serviceDetail.error instanceof NotFoundError) {
-      return err(new ForbiddenError());
-    }
-
-    return err(
-      new GenericError(
-        `invalid service detail for subscription ${subscriptionId}: ${serviceDetail.error.message}`,
-      ),
-    );
-  }
-
-  return ok(serviceDetail.value);
+  return ok(serviceDetails.value);
 };
 
 const getFiscalCode = (
@@ -280,6 +270,18 @@ export const makeCreateMessageUseCase =
       servicesCmsRepository,
     );
     if (serviceResult.isErr()) {
+      if (serviceResult.error instanceof NotFoundError) {
+        return err(new ForbiddenError());
+      }
+
+      if (serviceResult.error instanceof MalformedEntityError) {
+        return err(
+          new GenericError(
+            "Error while retrieving the service tied to the provided subscription id",
+          ),
+        );
+      }
+
       return err(serviceResult.error);
     }
     const service = serviceResult.value;

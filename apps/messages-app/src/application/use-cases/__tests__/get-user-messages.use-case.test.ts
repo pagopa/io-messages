@@ -189,7 +189,11 @@ const remoteContentConfigurationRepository =
 const getMessageDetailsByServiceIdsMock =
   vi.fn<ServicesCmsRepository["getServicesCmsDetailsByServiceIds"]>();
 
+const getServiceCmsDetailsMock =
+  vi.fn<ServicesCmsRepository["getServiceCmsDetails"]>();
+
 const messageDetailRepository: ServicesCmsRepository = {
+  getServiceCmsDetails: getServiceCmsDetailsMock,
   getServicesCmsDetailsByServiceIds: getMessageDetailsByServiceIdsMock,
 };
 

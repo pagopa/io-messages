@@ -145,6 +145,9 @@ const makeDependencies = (
     getMessagesMetadataByUser: vi.fn(),
   };
   const servicesCmsRepository: ServicesCmsRepository = {
+    getServiceCmsDetails: vi
+      .fn<ServicesCmsRepository["getServiceCmsDetails"]>()
+      .mockResolvedValue(ok(service)),
     getServicesCmsDetailsByServiceIds: vi
       .fn<ServicesCmsRepository["getServicesCmsDetailsByServiceIds"]>()
       .mockResolvedValue(ok(new Map([[serviceId, ok(service)]]))),
@@ -370,7 +373,7 @@ describe("makeCreateMessageUseCase", () => {
     new TooManyRequestsError(),
   ])("propagates service repository errors", async (error) => {
     vi.mocked(
-      dependencies.servicesCmsRepository.getServicesCmsDetailsByServiceIds,
+      dependencies.servicesCmsRepository.getServiceCmsDetails,
     ).mockResolvedValue(err(error));
 
     const result = await useCase(anInput());
@@ -379,27 +382,10 @@ describe("makeCreateMessageUseCase", () => {
     expectNoPersistence(dependencies);
   });
 
-  it("returns forbidden when the service map has no subscription entry", async () => {
-    vi.mocked(
-      dependencies.servicesCmsRepository.getServicesCmsDetailsByServiceIds,
-    ).mockResolvedValue(ok(new Map()));
-
-    const result = await useCase(anInput());
-
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(ForbiddenError);
-    expectNoPersistence(dependencies);
-  });
-
   it("returns forbidden when the service does not exist", async () => {
     vi.mocked(
-      dependencies.servicesCmsRepository.getServicesCmsDetailsByServiceIds,
-    ).mockResolvedValue(
-      ok(
-        new Map([
-          [serviceId, err(new NotFoundError("service detail", serviceId))],
-        ]),
-      ),
-    );
+      dependencies.servicesCmsRepository.getServiceCmsDetails,
+    ).mockResolvedValue(err(new NotFoundError("service detail", serviceId)));
 
     const result = await useCase(anInput());
 
@@ -409,19 +395,15 @@ describe("makeCreateMessageUseCase", () => {
 
   it("maps malformed service details to a generic error", async () => {
     vi.mocked(
-      dependencies.servicesCmsRepository.getServicesCmsDetailsByServiceIds,
-    ).mockResolvedValue(
-      ok(
-        new Map([
-          [serviceId, err(new MalformedEntityError("invalid service"))],
-        ]),
-      ),
-    );
+      dependencies.servicesCmsRepository.getServiceCmsDetails,
+    ).mockResolvedValue(err(new MalformedEntityError("invalid service")));
 
     const result = await useCase(anInput());
 
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
-    expect(result._unsafeUnwrapErr().message).toContain("invalid service");
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: Error while retrieving the service tied to the provided subscription id",
+    );
     expectNoPersistence(dependencies);
   });
 
@@ -935,8 +917,8 @@ describe("makeCreateMessageUseCase", () => {
     await useCase(anInput());
 
     expect(
-      dependencies.servicesCmsRepository.getServicesCmsDetailsByServiceIds,
-    ).toHaveBeenCalledWith([serviceId]);
+      dependencies.servicesCmsRepository.getServiceCmsDetails,
+    ).toHaveBeenCalledWith(serviceId);
   });
 
   it("stores the path fiscal code as a branded value", async () => {

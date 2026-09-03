@@ -86,6 +86,14 @@ export const servicesCmsDetailSchema = z.object({
 export type ServicesCmsDetail = z.TypeOf<typeof servicesCmsDetailSchema>;
 
 export interface ServicesCmsRepository {
+  getServiceCmsDetails(
+    serviceID: string,
+  ): Promise<
+    Result<
+      ServicesCmsDetail,
+      GenericError | MalformedEntityError | NotFoundError | TooManyRequestsError
+    >
+  >;
   getServicesCmsDetailsByServiceIds(
     serviceIDs: string[],
   ): Promise<

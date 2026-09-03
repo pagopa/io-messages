@@ -99,7 +99,7 @@ export class ServicesCmsHttpClientAdapter implements ServicesCmsRepository {
     this.#apimBaseURL = apimBaseURL;
   }
 
-  async #getServicesCmsDetailsByServiceId(
+  async getServiceCmsDetails(
     serviceID: string,
   ): Promise<
     Result<
@@ -187,9 +187,7 @@ export class ServicesCmsHttpClientAdapter implements ServicesCmsRepository {
     >
   > {
     const results = await Promise.all(
-      serviceIDs.map((serviceID) =>
-        this.#getServicesCmsDetailsByServiceId(serviceID),
-      ),
+      serviceIDs.map((serviceID) => this.getServiceCmsDetails(serviceID)),
     );
 
     const detailsByServiceId = new Map<
