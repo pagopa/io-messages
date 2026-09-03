@@ -200,6 +200,49 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
     }
   }
 
+  async listRemoteContentConfigurations(
+    configurationIds: RcConfigurationId[],
+  ): Promise<Result<RCConfiguration[], GenericError | TooManyRequestsError>> {
+    if (configurationIds.length === 0) {
+      return ok([]);
+    }
+
+    const querySpec: SqlQuerySpec = {
+      parameters: [{ name: "@configurationIds", value: configurationIds }],
+      query:
+        "SELECT * FROM n WHERE ARRAY_CONTAINS(@configurationIds, n.configurationId)",
+    };
+
+    const cosmosResponse = await ResultAsync.fromPromise(
+      this.#cosmosContainer.items.query(querySpec).fetchAll(),
+      (error) => {
+        switch (getStatusCode(error)) {
+          case StatusCodes.TooManyRequests:
+            return new TooManyRequestsError();
+          default:
+            return new GenericError(
+              `error listing rc configurations by id: ${getErrorMessage(error)}`,
+            );
+        }
+      },
+    );
+
+    if (cosmosResponse.isErr()) {
+      return err(cosmosResponse.error);
+    }
+
+    const parsed = z
+      .array(cosmosRCConfigurationSchema)
+      .safeParse(cosmosResponse.value.resources);
+    if (parsed.success) {
+      return ok(parsed.data.map(toRcConfiguration));
+    }
+
+    return err(
+      new GenericError(`error parsing RC configurations: ${parsed.error}`),
+    );
+  }
+
   async updateRemoteContentConfiguration(
     configuration: RCConfiguration,
   ): Promise<
