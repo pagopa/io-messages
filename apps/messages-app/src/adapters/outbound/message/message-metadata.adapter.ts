@@ -32,7 +32,7 @@ const cosmosMessageMetadataSchema = z.object({
   fiscalCode: z.string(),
   id: z.ulid(),
   indexedId: z.ulid(),
-  isPending: z.boolean().default(false),
+  isPending: z.boolean().default(true),
   senderServiceId: z.string().min(1),
   senderUserId: z.string().min(1),
   timeToLiveSeconds: z.number(),

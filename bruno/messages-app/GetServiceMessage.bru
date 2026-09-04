@@ -1,0 +1,26 @@
+meta {
+  name: GetServiceMessage
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{messages_app_base_url}}/api/services/messages/{{fiscal_code}}/01M1EGM45AYC90TETN5C00SWHM
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-service-id: {{sender_subscription_id}}
+  x-subscription-id: {{sender_subscription_id}}
+  x-user-groups: ApiMessageRead,ApiMessageReadAdvanced
+}
+
+vars:pre-request {
+  message_id: 01M0YRTA395JBSZNWG7W63ZJDV
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

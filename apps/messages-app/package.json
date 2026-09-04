@@ -34,12 +34,14 @@
     "fastify": "^5.8.5",
     "io-messages-common": "workspace:^",
     "neverthrow": "^8.2.0",
+    "semver": "catalog:",
     "ulid": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@pagopa/eslint-config": "catalog:",
     "@types/node": "catalog:",
+    "@types/semver": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
     "prettier": "catalog:",

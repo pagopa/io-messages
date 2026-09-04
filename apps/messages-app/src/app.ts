@@ -13,6 +13,7 @@ import fastify from "fastify";
 import { AppConfig } from "./adapters/inbound/config/config.js";
 import { mountCreateMessageHandler } from "./adapters/inbound/fastify/create-message.handler.js";
 import { mountGetMessageHandler } from "./adapters/inbound/fastify/get-message.handler.js";
+import { mountGetServiceMessageHandler } from "./adapters/inbound/fastify/get-service-message.handler.js";
 import { mountGetMessagesByUserHandler } from "./adapters/inbound/fastify/get-user-messages.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
@@ -26,11 +27,14 @@ import { MessageCreatedEventQueueAdapter } from "./adapters/outbound/message/mes
 import { MessageMetadataCosmosAdapter } from "./adapters/outbound/message/message-metadata.adapter.js";
 import { MessageStatusCosmosAdapter } from "./adapters/outbound/message/message-status.adapter.js";
 import { BlobProcessingMessagePayloadStore } from "./adapters/outbound/message/processing-message.adapter.js";
+import { MessageReadAuthorizationCosmosAdapter } from "./adapters/outbound/message-read-authorization/message-read-authorization.adapter.js";
 import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/package-json-app-info-reader.js";
+import { PagoPaEcommercePaymentStatusAdapter } from "./adapters/outbound/pagopa-ecommerce/payment-status.adapter.js";
 import { RCConfigurationHttpClientAdapter } from "./adapters/outbound/rc-confguration/rc-configuration.js";
 import { ServicesCmsHttpClientAdapter } from "./adapters/outbound/services-cms/services-cms.js";
 import { makeCreateMessageUseCase } from "./application/use-cases/create-message.use-case.js";
 import { makeGetMessageUseCase } from "./application/use-cases/get-message.use-case.js";
+import { makeGetServiceMessageUseCase } from "./application/use-cases/get-service-message.use-case.js";
 import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-messages.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
@@ -41,7 +45,7 @@ const getQueueUrl = (queueServiceUri: URL, queueName: string): string => {
   queueUrl.pathname = `${queueUrl.pathname.replace(/\/$/, "")}/${queueName}`;
   return queueUrl.toString();
 };
-
+/* eslint-disable max-lines-per-function */
 export const createApp = (
   config: AppConfig,
 ): {
@@ -169,6 +173,20 @@ export const createApp = (
     logger,
   );
 
+  const messageReadAuthorizationAdapter =
+    new MessageReadAuthorizationCosmosAdapter(
+      commonCosmosClient,
+      config.COMMON_COSMOS_DATABASE_NAME,
+      config.PROFILE_CONTAINER_NAME,
+      config.SERVICE_PREFERENCES_CONTAINER_NAME,
+      config.MIN_APP_VERSION_WITH_READ_AUTH,
+    );
+
+  const paymentStatusAdapter = new PagoPaEcommercePaymentStatusAdapter(
+    config.PAGOPA_ECOMMERCE_BASE_URL,
+    config.PAGOPA_ECOMMERCE_API_KEY,
+  );
+
   const remoteContentConfigurationRepository =
     new RCConfigurationHttpClientAdapter(config.RC_APP_BASE_URL);
 
@@ -205,6 +223,16 @@ export const createApp = (
       servicesCmsAdapter,
       config.PN_SERVICE_ID,
       config.SERVICE_TO_RC_MAP,
+    ),
+  );
+  mountGetServiceMessageHandler(
+    server,
+    makeGetServiceMessageUseCase(
+      messageMetadataCosmosAdapter,
+      messageStatusCosmosAdapter,
+      messageContentBlobAdapter,
+      messageReadAuthorizationAdapter,
+      paymentStatusAdapter,
     ),
   );
   mountGetMessagesByUserHandler(

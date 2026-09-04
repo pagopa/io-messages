@@ -265,6 +265,23 @@ describe("getMessageMetadataByFiscalCodeAndId", () => {
     expect(trackEventMock).not.toHaveBeenCalled();
   });
 
+  it("treats metadata without isPending as pending", async () => {
+    const metadataWithoutPending: Partial<MessageMetadata> = {
+      ...aMessageMetadata,
+    };
+    delete metadataWithoutPending.isPending;
+    readMock.mockResolvedValue({
+      resource: metadataWithoutPending,
+    } as unknown as ItemResponse<never>);
+
+    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
+      aFiscalCode,
+      aMessageMetadata.id,
+    );
+
+    expect(result._unsafeUnwrap().isPending).toBe(true);
+  });
+
   it("returns a NotFoundError when the resource is undefined", async () => {
     readMock.mockResolvedValue({
       resource: undefined,
