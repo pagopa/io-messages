@@ -1,5 +1,16 @@
 # messages-app
 
+## 0.6.0
+
+### Minor Changes
+
+- cb4e640: Add create message to messages-app
+
+### Patch Changes
+
+- Updated dependencies [cb4e640]
+  - io-messages-common@1.4.5
+
 ## 0.5.0
 
 ### Minor Changes
