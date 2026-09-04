@@ -96,16 +96,16 @@ module "azure-role-assignments" {
     },
     {
       storage_account_name = var.communication_storage_account_name
-      resource_group_name  = var.common_storage_account.resource_group_name
+      resource_group_name  = var.communication_storage_account_resource_group
       container_name       = "message-processing"
       role                 = "writer"
-      description          = "Allow web app to read blob"
+      description          = "Allow web app to read and write blob"
     },
   ]
 
   storage_queue = [{
     storage_account_name = var.communication_storage_account_name
-    resource_group_name  = var.common_storage_account.resource_group_name
+    resource_group_name  = var.communication_storage_account_resource_group
     queue_names          = ["message-created-v2", "message-created-v2-poison"]
     role                 = "writer"
     description          = "Allow web app to wtite messages in queues"
