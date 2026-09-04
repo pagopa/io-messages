@@ -38,7 +38,7 @@ const createMessageResponse = {
   404: ProblemDetailsSchema,
   429: ProblemDetailsSchema,
   500: ProblemDetailsSchema,
-} as const;
+};
 
 const createMessageWithFiscalCodeInBodyContract = defineRoute({
   method: "post",
@@ -92,12 +92,6 @@ export const mountCreateMessageHandler = (
   server: FastifyInstance,
   useCase: CreateMessageUseCase,
 ): void => {
-  const middlewares = [
-    makeCreateMessageAuthorizationMiddleware(),
-    makeClientIpMiddleware(),
-    makeUserEmailMiddleware(),
-  ] as const;
-
   addLocationHeader(server);
 
   mountFastifyRoute(server, {
@@ -110,7 +104,11 @@ export const mountCreateMessageHandler = (
       userEmail: context.userEmail,
       userId: context.userId,
     }),
-    middlewares,
+    middlewares: [
+      makeCreateMessageAuthorizationMiddleware(),
+      makeClientIpMiddleware(),
+      makeUserEmailMiddleware(),
+    ],
     useCase,
   });
 
@@ -125,7 +123,11 @@ export const mountCreateMessageHandler = (
       userEmail: context.userEmail,
       userId: context.userId,
     }),
-    middlewares,
+    middlewares: [
+      makeCreateMessageAuthorizationMiddleware(),
+      makeClientIpMiddleware(),
+      makeUserEmailMiddleware(),
+    ],
     useCase,
   });
 };
