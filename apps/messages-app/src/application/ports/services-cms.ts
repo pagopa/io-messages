@@ -6,10 +6,10 @@ import {
 import { Result } from "neverthrow";
 import z from "zod";
 
+import { authorizedCidrSchema } from "../../domain/client-ip.js";
 import { MalformedEntityError } from "./error.js";
 
 const organizationSchema = z.object({
-  department_name: z.string().min(1).optional(),
   fiscal_code: z.string().regex(new RegExp("^\\d{11}$")),
   name: z.string().min(1),
 });
@@ -63,7 +63,7 @@ export const servicesCmsDetailSchema = z.object({
       min: z.number().int().min(0).max(999).optional(),
     })
     .optional(),
-  authorized_cidrs: z.array(z.string()),
+  authorized_cidrs: z.array(authorizedCidrSchema),
   authorized_recipients: z.array(
     z
       .string()
@@ -86,6 +86,14 @@ export const servicesCmsDetailSchema = z.object({
 export type ServicesCmsDetail = z.TypeOf<typeof servicesCmsDetailSchema>;
 
 export interface ServicesCmsRepository {
+  getServiceCmsDetails(
+    serviceID: string,
+  ): Promise<
+    Result<
+      ServicesCmsDetail,
+      GenericError | MalformedEntityError | NotFoundError | TooManyRequestsError
+    >
+  >;
   getServicesCmsDetailsByServiceIds(
     serviceIDs: string[],
   ): Promise<

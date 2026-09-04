@@ -43,13 +43,20 @@ module "messages_ca" {
 
         COMMON_COSMOS_URI          = var.common_cosmos_account.endpoint
         COMMON_STORAGE_ACCOUNT_URI = var.common_storage_account.endpoint
-        PN_SERVICE_ID              = "01G40DWQGKY5GRWSNM4303VNRP" # PN
+
+        COMMUNICATION_STORAGE_ACCOUNT_URI = var.communication_storage_account_uri
+        COMMUNICATION_STORAGE_QUEUE_URI   = var.communication_storage_queue_uri
+
+        PN_SERVICE_ID = "01G40DWQGKY5GRWSNM4303VNRP" # PN
 
         APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
         APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
 
         APIM_BASE_URL         = "https://io-p-itn-svc-services-ca-01.ambitioussea-e5d71305.italynorth.azurecontainerapps.io"
         APIM_SUBSCRIPTION_KEY = "dummy"
+
+        MESSAGE_CREATED_QUEUE_NAME        = "message-created-v2"
+        PROCESSING_MESSAGE_CONTAINER_NAME = "processing-message"
       }
 
       liveness_probe = {
@@ -86,8 +93,23 @@ module "azure-role-assignments" {
       container_name       = "message-content"
       role                 = "reader"
       description          = "Allow web app to read blob"
-    }
+    },
+    {
+      storage_account_name = var.communication_storage_account_name
+      resource_group_name  = var.communication_storage_account_resource_group
+      container_name       = "message-processing"
+      role                 = "writer"
+      description          = "Allow web app to read and write blob"
+    },
   ]
+
+  storage_queue = [{
+    storage_account_name = var.communication_storage_account_name
+    resource_group_name  = var.communication_storage_account_resource_group
+    queue_names          = ["message-created-v2", "message-created-v2-poison"]
+    role                 = "writer"
+    description          = "Allow web app to wtite messages in queues"
+  }]
 
   cosmos = [
     {
@@ -107,4 +129,3 @@ resource "azurerm_role_assignment" "messages_ca_appinsights_metrics_publisher" {
   principal_id         = module.messages_ca.principal_id
   description          = "Allow messages container app to publish telemetry to Application Insights"
 }
-

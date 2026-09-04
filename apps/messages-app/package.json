@@ -26,6 +26,7 @@
     "@azure/cosmos": "catalog:",
     "@azure/identity": "catalog:",
     "@azure/storage-blob": "catalog:",
+    "@azure/storage-queue": "catalog:",
     "@opentelemetry/api-logs": "catalog:",
     "@pagopa/azure-tracing": "catalog:",
     "@pagopa/hexagonal-core": "catalog:",
@@ -33,6 +34,7 @@
     "fastify": "^5.8.5",
     "io-messages-common": "workspace:^",
     "neverthrow": "^8.2.0",
+    "ulid": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
