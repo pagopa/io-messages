@@ -29,6 +29,24 @@ const commonStorageAccountConfigSchema = z.discriminatedUnion("NODE_ENV", [
   }),
 ]);
 
+// Storage Account is configured with a connection string in local development and with
+// Azure credentials (account URI) in production. The NODE_ENV discriminant
+// selects which set of variables is required.
+const communicationStorageAccountConfigSchema = z.discriminatedUnion(
+  "NODE_ENV",
+  [
+    z.object({
+      COMMUNICATION_STORAGE_ACCOUNT_CONNECTION_STRING: z.string().min(1),
+      NODE_ENV: z.literal("development"),
+    }),
+    z.object({
+      COMMUNICATION_STORAGE_ACCOUNT_URI: z.url(),
+      COMMUNICATION_STORAGE_QUEUE_URI: z.url(),
+      NODE_ENV: z.literal("production"),
+    }),
+  ],
+);
+
 const serviceToRCConfigMapSchema = z.preprocess(
   (input) => {
     if (typeof input === "string") {
@@ -52,6 +70,7 @@ const baseConfigSchema = z.object({
   COMMON_COSMOS_DATABASE_NAME: z.string().min(2),
   HOST: z.ipv4(),
   MESSAGE_CONTENT_CONTAINER_NAME: z.string().min(3),
+  MESSAGE_CREATED_QUEUE_NAME: z.string().min(3),
   MESSAGE_METADATA_CONTAINER_NAME: z.string().min(3),
   MESSAGE_STATUS_CONTAINER_NAME: z.string().min(3),
   MIN_APP_VERSION_WITH_READ_AUTH: z
@@ -61,6 +80,7 @@ const baseConfigSchema = z.object({
   PAGOPA_ECOMMERCE_BASE_URL: z.url().transform((val) => new URL(val)),
   PN_SERVICE_ID: z.string().min(1),
   PORT: z.coerce.number().int().min(1025).max(65_535), // Read as string, parsed as integer.
+  PROCESSING_MESSAGE_CONTAINER_NAME: z.string().min(3),
   PROFILE_CONTAINER_NAME: z.string().min(3),
   RC_APP_BASE_URL: z.url().transform((val) => new URL(val)),
   SERVICE_PREFERENCES_CONTAINER_NAME: z.string().min(3),
@@ -73,5 +93,6 @@ const baseConfigSchema = z.object({
 // discriminated union instead of nesting it.
 export const configSchema = baseConfigSchema
   .and(commonCosmosConfigSchema)
-  .and(commonStorageAccountConfigSchema);
+  .and(commonStorageAccountConfigSchema)
+  .and(communicationStorageAccountConfigSchema);
 export type AppConfig = z.TypeOf<typeof configSchema>;

@@ -183,13 +183,17 @@ const messageContentRepository: MessageContentRepository =
     noopLogger,
   );
 
-const remoteContentConfigurationReposiory =
+const remoteContentConfigurationRepository =
   new RCConfigurationHttpClientAdapter(new URL("http://localhost/rc-app"));
 
 const getMessageDetailsByServiceIdsMock =
   vi.fn<ServicesCmsRepository["getServicesCmsDetailsByServiceIds"]>();
 
+const getServiceCmsDetailsMock =
+  vi.fn<ServicesCmsRepository["getServiceCmsDetails"]>();
+
 const messageDetailRepository: ServicesCmsRepository = {
+  getServiceCmsDetails: getServiceCmsDetailsMock,
   getServicesCmsDetailsByServiceIds: getMessageDetailsByServiceIdsMock,
 };
 
@@ -205,7 +209,7 @@ const getMessagesByUser = makeGetMessagesByUserUseCase(
   messageStatusRepository,
   messageContentRepository,
   messageDetailRepository,
-  remoteContentConfigurationReposiory,
+  remoteContentConfigurationRepository,
   aPnServiceId,
   serviceToRcMap,
   logger,
@@ -654,7 +658,7 @@ describe("makeGetMessagesByUserUseCase - message category", () => {
       ),
     );
     vi.spyOn(
-      remoteContentConfigurationReposiory,
+      remoteContentConfigurationRepository,
       "getRemoteContentConfiguration",
     ).mockResolvedValue(ok(anRCConfiguration()));
 
@@ -706,7 +710,7 @@ describe("makeGetMessagesByUserUseCase - message category", () => {
       ),
     );
     vi.spyOn(
-      remoteContentConfigurationReposiory,
+      remoteContentConfigurationRepository,
       "getRemoteContentConfiguration",
     ).mockResolvedValue(ok(anRCConfiguration()));
 
@@ -914,7 +918,7 @@ describe("makeGetMessagesByUserUseCase - remote content (third_party_data)", () 
     );
     const getRCConfiguration = vi
       .spyOn(
-        remoteContentConfigurationReposiory,
+        remoteContentConfigurationRepository,
         "getRemoteContentConfiguration",
       )
       .mockResolvedValue(ok(anRCConfiguration({ hasPrecondition: "ALWAYS" })));
@@ -936,7 +940,7 @@ describe("makeGetMessagesByUserUseCase - remote content (third_party_data)", () 
       }),
     );
     vi.spyOn(
-      remoteContentConfigurationReposiory,
+      remoteContentConfigurationRepository,
       "getRemoteContentConfiguration",
     ).mockResolvedValue(ok(anRCConfiguration({ hasPrecondition: "ALWAYS" })));
 
@@ -952,7 +956,7 @@ describe("makeGetMessagesByUserUseCase - remote content (third_party_data)", () 
       { isRead: false },
     );
     vi.spyOn(
-      remoteContentConfigurationReposiory,
+      remoteContentConfigurationRepository,
       "getRemoteContentConfiguration",
     ).mockResolvedValue(ok(anRCConfiguration({ hasPrecondition: "ONCE" })));
 
@@ -968,7 +972,7 @@ describe("makeGetMessagesByUserUseCase - remote content (third_party_data)", () 
       { isRead: true },
     );
     vi.spyOn(
-      remoteContentConfigurationReposiory,
+      remoteContentConfigurationRepository,
       "getRemoteContentConfiguration",
     ).mockResolvedValue(ok(anRCConfiguration({ hasPrecondition: "ONCE" })));
 
@@ -984,7 +988,7 @@ describe("makeGetMessagesByUserUseCase - remote content (third_party_data)", () 
       messageStatusRepository,
       messageContentRepository,
       messageDetailRepository,
-      remoteContentConfigurationReposiory,
+      remoteContentConfigurationRepository,
       aPnServiceId,
       new Map([[mappedServiceId, RC_CONFIG_ID_B]]),
       logger,
@@ -999,7 +1003,7 @@ describe("makeGetMessagesByUserUseCase - remote content (third_party_data)", () 
     );
     const getRCConfiguration = vi
       .spyOn(
-        remoteContentConfigurationReposiory,
+        remoteContentConfigurationRepository,
         "getRemoteContentConfiguration",
       )
       .mockResolvedValue(ok(anRCConfiguration()));
@@ -1018,7 +1022,7 @@ describe("makeGetMessagesByUserUseCase - remote content errors and caching", () 
       aMessageContent({ third_party_data: aThirdPartyData() }),
     );
     vi.spyOn(
-      remoteContentConfigurationReposiory,
+      remoteContentConfigurationRepository,
       "getRemoteContentConfiguration",
     ).mockResolvedValue(
       err(new NotFoundError("remote-content configuration", "not found")),
@@ -1044,7 +1048,7 @@ describe("makeGetMessagesByUserUseCase - remote content errors and caching", () 
       aMessageContent({ third_party_data: aThirdPartyData() }),
     );
     vi.spyOn(
-      remoteContentConfigurationReposiory,
+      remoteContentConfigurationRepository,
       "getRemoteContentConfiguration",
     ).mockResolvedValue(err(anError));
 
@@ -1095,7 +1099,7 @@ describe("makeGetMessagesByUserUseCase - remote content errors and caching", () 
     );
     const getRCConfiguration = vi
       .spyOn(
-        remoteContentConfigurationReposiory,
+        remoteContentConfigurationRepository,
         "getRemoteContentConfiguration",
       )
       .mockResolvedValue(ok(anRCConfiguration()));
@@ -1137,7 +1141,7 @@ describe("makeGetMessagesByUserUseCase - remote content errors and caching", () 
       ),
     );
     vi.spyOn(
-      remoteContentConfigurationReposiory,
+      remoteContentConfigurationRepository,
       "getRemoteContentConfiguration",
     ).mockResolvedValue(ok(anRCConfiguration({ hasPrecondition: "ALWAYS" })));
 
