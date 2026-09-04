@@ -97,7 +97,7 @@ module "azure-role-assignments" {
     {
       storage_account_name = var.communication_storage_account_name
       resource_group_name  = var.communication_storage_account_resource_group
-      container_name       = "message-processing"
+      container_name       = "processing-message"
       role                 = "writer"
       description          = "Allow web app to read and write blob"
     },
