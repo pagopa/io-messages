@@ -24,7 +24,6 @@ const commonStorageAccountConfigSchema = z.discriminatedUnion("NODE_ENV", [
   }),
   z.object({
     COMMON_STORAGE_ACCOUNT_URI: z.url(),
-    COMMON_STORAGE_QUEUE_URI: z.url(),
     NODE_ENV: z.literal("production"),
   }),
 ]);
