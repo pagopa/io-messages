@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.6.1
+
+### Patch Changes
+
+- 5df138e: Remove unnecessary COMMON_STORAGE_QUEUE_URI
+
 ## 0.6.0
 
 ### Minor Changes
