@@ -1,0 +1,91 @@
+swagger: "2.0"
+info:
+  version: 1.0.0
+  title: IO Communication API
+  description: API for managing user notifications.
+host: localhost
+basePath: /api/communication/v1
+schemes:
+  - https
+security:
+  - Bearer: []
+paths:
+  /installations/{installationID}:
+    put:
+      operationId: createOrUpdateInstallation
+      summary: Create or update an Installation
+      description: Create or update an Installation in Azure Notification Hubs.
+      parameters:
+        - name: installationID
+          in: path
+          required: true
+          description: The ID of the installation.
+          type: string
+          minLength: 1
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Installation"
+      responses:
+        "200":
+          description: Success.
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+          examples:
+            application/json:
+              message: ok
+        "400":
+          description: Bad request.
+          schema:
+            $ref: "#/definitions/ProblemJson"
+        "401":
+          description: Bearer token null or expired.
+        "500":
+          description: There was an error registering the device.
+          schema:
+            $ref: "#/definitions/ProblemJson"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+definitions:
+  Installation:
+    type: object
+    description: Describes an app installation.
+    properties:
+      platform:
+        type: string
+        enum:
+          - apns
+          - fcmv1
+      pushChannel:
+        type: string
+    required:
+      - platform
+      - pushChannel
+  ProblemJson:
+    type: object
+    properties:
+      title:
+        type: string
+      status:
+        type: integer
+        format: int32
+        minimum: 100
+        maximum: 600
+        exclusiveMaximum: true
+      detail:
+        type: string
+  SuccessResponse:
+    type: object
+    properties:
+      message:
+        type: string
+    required:
+      - message
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header

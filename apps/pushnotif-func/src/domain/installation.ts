@@ -1,5 +1,8 @@
 import z from "zod";
 
+import { CreateOrUpdateInstallationMessage } from "../generated/notifications/CreateOrUpdateInstallationMessage";
+import { ErrorInternal } from "./error";
+
 export const supportedPlatformSchema = z.preprocess(
   (val) => (typeof val === "string" ? val.toLowerCase() : val),
   z.union([z.literal("apns"), z.literal("fcmv1")]),
@@ -25,3 +28,19 @@ export const installationSchema = z.object({
 
 export type Installation = z.infer<typeof installationSchema>;
 export type InstallationSummary = z.infer<typeof installationSummarySchema>;
+
+export const installationIdSchema = z.string().min(1);
+export const createOrUpdateInstallationSchema = z.object({
+  platform: z.enum(["apns", "fcmv1"]),
+  pushChannel: z.string(),
+});
+
+export type CreateOrUpdateInstallation = z.infer<
+  typeof createOrUpdateInstallationSchema
+>;
+
+export interface CreateOrUpdateInstallationRepository {
+  createOrUpdateInstallation(
+    installation: CreateOrUpdateInstallationMessage,
+  ): Promise<ErrorInternal | string>;
+}

@@ -3,11 +3,12 @@
 title CreateOrUpdateInstallation
 
 actor "IO user" as iou
-participant "IO Backend" as be
+participant "APIM" as apim
 
 queue "push-notifications" as pnq
 
 box "pushnotif-func"
+  participant "CreateOrUpdateInstallation HTTP" as api
   participant "CreateOrUpdateInstallation" as pn
 end box
 
@@ -17,15 +18,19 @@ participant "Notification Hub" as nh
 
 participant "app-insights" as ai
 
-iou -> be : Create/Update Installation
+iou -> apim : Create/Update Installation
 activate iou
-activate be
+activate apim
 
-be --> pnq : Push the Create/Update message to the queue
+apim -> api : PUT /api/communication/v1/installations/{id}
+activate api
+api --> pnq : Push the Create/Update message to the queue\n(10s visibility delay)
+api -[#green]> apim : 200 {"message":"ok"}
+deactivate api
 
-be -[#green]> iou
+apim -[#green]> iou
 
-deactivate be
+deactivate apim
 deactivate iou
 
 note right of pnq
