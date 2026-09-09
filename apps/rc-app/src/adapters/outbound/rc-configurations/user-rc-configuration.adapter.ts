@@ -1,7 +1,6 @@
 import {
   Container,
   CosmosClient,
-  ErrorResponse,
   RestError,
   SqlQuerySpec,
   StatusCodes,
@@ -25,17 +24,6 @@ const cosmosUserRCConfigurationSchema = z.object({
 type CosmosUserRCConfiguration = z.TypeOf<
   typeof cosmosUserRCConfigurationSchema
 >;
-
-const getStatusCode = (error: unknown): number | undefined => {
-  const statusCode =
-    error instanceof ErrorResponse
-      ? Number(error.code)
-      : error instanceof RestError
-        ? error.statusCode
-        : undefined;
-
-  return Number.isNaN(statusCode) ? undefined : statusCode;
-};
 
 const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? `${error.name}: ${error.message}` : String(error);
@@ -71,13 +59,19 @@ export class UserRCConfigurationCosmosAdapter
     const cosmosResponse = await ResultAsync.fromPromise(
       this.#cosmosContainer.items.query(querySpec).fetchAll(),
       (error) => {
-        switch (getStatusCode(error)) {
-          case StatusCodes.TooManyRequests:
-            return new TooManyRequestsError();
-          default:
-            return new GenericError(
-              `error listing user rc configurations by user id ${userId}: ${getErrorMessage(error)}`,
-            );
+        if (error instanceof RestError) {
+          switch (error.statusCode) {
+            case StatusCodes.TooManyRequests:
+              return new TooManyRequestsError();
+            default:
+              return new GenericError(
+                `error listing user rc configurations by user id ${userId}: ${getErrorMessage(error)}`,
+              );
+          }
+        } else {
+          return new GenericError(
+            `error listing user rc configurations by user id ${userId}: ${getErrorMessage(error)}`,
+          );
         }
       },
     );
