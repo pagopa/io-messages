@@ -1,5 +1,11 @@
 # rc-app
 
+## 0.4.1
+
+### Patch Changes
+
+- b1efa70: Add list rc-configuration to RCConfigurationCosmosAdapter
+
 ## 0.4.0
 
 ### Minor Changes
