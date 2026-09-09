@@ -1,4 +1,4 @@
-import { CosmosClient, ErrorResponse, RestError } from "@azure/cosmos";
+import { CosmosClient, RestError } from "@azure/cosmos";
 import {
   ConflictError,
   GenericError,
@@ -30,11 +30,8 @@ const anInvalidConfiguration = {
   hasPrecondition: "NOT_A_PRECONDITION",
 } as unknown as RCConfiguration;
 
-const makeCosmosError = (code: number | string, message = "cosmos failure") => {
-  const error = new ErrorResponse(message);
-  error.code = code;
-  return error;
-};
+const makeCosmosError = (statusCode: number, message = "cosmos failure") =>
+  new RestError(message, { statusCode });
 
 const makeMocks = () => {
   const mockFetchAll = vi.fn();
@@ -464,7 +461,9 @@ describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => 
 
   it("returns a GenericError when the status code is not numeric", async () => {
     const { mockCosmosClient, mockCreate } = makeMocks();
-    mockCreate.mockRejectedValueOnce(makeCosmosError("ENOTFOUND"));
+    mockCreate.mockRejectedValueOnce(
+      new RestError("getaddrinfo ENOTFOUND", { code: "ENOTFOUND" }),
+    );
 
     const adapter = new RCConfigurationCosmosAdapter(
       mockCosmosClient,
@@ -659,7 +658,9 @@ describe("RCConfigurationCosmosAdapter.updateRemoteContentConfiguration", () => 
 
   it("returns a GenericError when the status code is not numeric", async () => {
     const { mockCosmosClient, mockReplace } = makeMocks();
-    mockReplace.mockRejectedValueOnce(makeCosmosError("ENOTFOUND"));
+    mockReplace.mockRejectedValueOnce(
+      new RestError("getaddrinfo ENOTFOUND", { code: "ENOTFOUND" }),
+    );
 
     const adapter = new RCConfigurationCosmosAdapter(
       mockCosmosClient,

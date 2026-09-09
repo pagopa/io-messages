@@ -1,4 +1,4 @@
-import { CosmosClient, ErrorResponse, RestError } from "@azure/cosmos";
+import { CosmosClient, RestError } from "@azure/cosmos";
 import { GenericError, TooManyRequestsError } from "@pagopa/hexagonal-core";
 import { describe, expect, it, vi } from "vitest";
 
@@ -12,11 +12,8 @@ const aValidUserRCConfiguration = {
   userId: aUserId,
 };
 
-const makeCosmosError = (code: number | string, message = "cosmos failure") => {
-  const error = new ErrorResponse(message);
-  error.code = code;
-  return error;
-};
+const makeCosmosError = (statusCode: number, message = "cosmos failure") =>
+  new RestError(message, { statusCode });
 
 const makeMocks = () => {
   const mockFetchAll = vi.fn();
