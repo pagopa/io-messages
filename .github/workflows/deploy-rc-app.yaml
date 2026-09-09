@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   release:
-    uses: pagopa/dx/.github/workflows/release-azure-containerapp-v1.yaml@remove-custom-revision-suffix
+    uses: pagopa/dx/.github/workflows/release-azure-containerapp-v1.yaml@main
     name: Deploy
     secrets: inherit
     with:
