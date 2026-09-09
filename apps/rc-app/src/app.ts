@@ -16,6 +16,7 @@ import { mountGetPublicRcConfigurationHandler } from "./adapters/inbound/fastify
 import { mountGetRcConfigurationHandler } from "./adapters/inbound/fastify/get-rc-configuration.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
+import { mountListRcConfigurationHandler } from "./adapters/inbound/fastify/list-rc-configuration.handler.js";
 import { mountUpdateRcConfigurationHandler } from "./adapters/inbound/fastify/update-rc-configuration.handler.js";
 import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
 import { LoggerHealthcheckAdapter } from "./adapters/outbound/healthcheckers/logger.adapter.js";
@@ -24,11 +25,13 @@ import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/packa
 import { RCConfigurationCosmosAdapter } from "./adapters/outbound/rc-configurations/rc-configuration.adapter.js";
 import { RCConfigurationCacheAdapter } from "./adapters/outbound/rc-configurations/rc-configuration-cache.adapter.js";
 import { CachingRemoteContentRepository } from "./adapters/outbound/rc-configurations/rc-configuration-caching.adapter.js";
+import { UserRCConfigurationCosmosAdapter } from "./adapters/outbound/rc-configurations/user-rc-configuration.adapter.js";
 import { makeCreateRcConfigurationUseCase } from "./application/use-cases/create-rc-configuration.use-case.js";
 import { makeGetPublicRcConfigurationUseCase } from "./application/use-cases/get-public-rc-configuration.use-case.js";
 import { makeGetRcConfigurationUseCase } from "./application/use-cases/get-rc-configuration.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
+import { makeListRcConfigurationUseCase } from "./application/use-cases/list-rc-confguration.use-case.js";
 import { makeUpdateRcConfigurationUseCase } from "./application/use-cases/update-rc-configuration.use-case.js";
 
 export const createApp = async (
@@ -145,6 +148,25 @@ export const createApp = async (
   mountCreateRcConfigurationHandler(
     server,
     makeCreateRcConfigurationUseCase(remoteContentRepository, ulid),
+    config.INTERNAL_USER_ID,
+  );
+
+  mountListRcConfigurationHandler(
+    server,
+    makeListRcConfigurationUseCase(
+      new UserRCConfigurationCosmosAdapter(
+        commonCosmosClient,
+        config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
+      ),
+      new CachingRemoteContentRepository(
+        new RCConfigurationCosmosAdapter(
+          commonCosmosClient,
+          config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
+        ),
+        new RCConfigurationCacheAdapter(redisClient, logger),
+        config.RC_CONFIGURATION_CACHE_TTL,
+      ),
+    ),
     config.INTERNAL_USER_ID,
   );
 
