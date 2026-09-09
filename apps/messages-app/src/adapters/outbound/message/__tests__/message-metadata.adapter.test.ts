@@ -59,6 +59,7 @@ const queryMock = vi
   .spyOn(container.items, "query")
   .mockReturnValue(queryIterator);
 const fetchNextMock = vi.spyOn(queryIterator, "fetchNext");
+const createMock = vi.spyOn(container.items, "create");
 
 const item = container.item(aMessageMetadata.id, aFiscalCode);
 vi.spyOn(container, "item").mockReturnValue(item as Item);
@@ -76,6 +77,54 @@ const adapter = new MessageMetadataCosmosAdapter(
   } as unknown as Logger,
   new CryptoAdapter(),
 );
+
+describe("createMessageMetadata", () => {
+  beforeEach(() => {
+    createMock.mockReset();
+    createMock.mockResolvedValue({
+      resource: aMessageMetadata,
+    } as unknown as ItemResponse<MessageMetadata>);
+  });
+
+  it("creates and returns the message metadata", async () => {
+    const result = await adapter.createMessageMetadata(aMessageMetadata);
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toEqual(aMessageMetadata);
+    expect(createMock).toHaveBeenCalledWith(aMessageMetadata);
+  });
+
+  it("returns a TooManyRequestsError when Cosmos throttles the request", async () => {
+    createMock.mockRejectedValue(
+      new RestError("throttled", { statusCode: 429 }),
+    );
+
+    const result = await adapter.createMessageMetadata(aMessageMetadata);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
+  });
+
+  it("returns a GenericError on an unexpected Cosmos RestError", async () => {
+    createMock.mockRejectedValue(new RestError("boom", { statusCode: 500 }));
+
+    const result = await adapter.createMessageMetadata(aMessageMetadata);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toContain(aMessageMetadata.id);
+  });
+
+  it("returns a GenericError on a non-RestError failure", async () => {
+    createMock.mockRejectedValue(new Error("unexpected"));
+
+    const result = await adapter.createMessageMetadata(aMessageMetadata);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toContain("unexpected");
+  });
+});
 
 describe("getMessagesMetadataByUser", () => {
   beforeEach(() => {

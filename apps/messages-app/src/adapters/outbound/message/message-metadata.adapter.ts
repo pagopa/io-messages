@@ -68,6 +68,31 @@ export class MessageMetadataCosmosAdapter implements MessageMetadataRepository {
       .container(containerName);
   }
 
+  async createMessageMetadata(
+    metadata: MessageMetadata,
+  ): Promise<Result<MessageMetadata, GenericError | TooManyRequestsError>> {
+    const createResult = await ResultAsync.fromPromise(
+      this.#cosmosContainer.items.create(metadata),
+      (error) => {
+        if (error instanceof RestError) {
+          if (error.statusCode === 429) {
+            return new TooManyRequestsError();
+          }
+
+          return new GenericError(
+            `error creating message metadata for message ${metadata.id}: ${error.name}: ${error.message}`,
+          );
+        }
+
+        return new GenericError(
+          `error creating message metadata for message ${metadata.id}: ${error}`,
+        );
+      },
+    );
+
+    return createResult.isErr() ? err(createResult.error) : ok(metadata);
+  }
+
   async getMessageMetadataByFiscalCodeAndId(
     fiscalCode: FiscalCode,
     messageId: string,
