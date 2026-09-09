@@ -42,6 +42,16 @@ export interface RemoteContentRepository {
   >;
 
   /**
+   * Lists all RC configurations in the repository.
+   *
+   * Returns a `TooManyRequestsError` if the upstream store is rate-limiting requests,
+   * or a `GenericError` on other infrastructure failures.
+   */
+  listRemoteContentConfigurations(
+    configurationIds: RcConfigurationId[],
+  ): Promise<Result<RCConfiguration[], GenericError | TooManyRequestsError>>;
+
+  /**
    * Updates an existing RC configuration, replacing it with the given one.
    *
    * Returns a `NotFoundError` if no configuration exists for the given

@@ -1,7 +1,6 @@
 import {
   Container,
   CosmosClient,
-  ErrorResponse,
   RestError,
   SqlQuerySpec,
   StatusCodes,
@@ -62,26 +61,6 @@ export const cosmosRCConfigurationSchema = z.object({
 
 type CosmosRCConfiguration = z.TypeOf<typeof cosmosRCConfigurationSchema>;
 
-/**
- * Extracts the HTTP status code from an error thrown by the Cosmos SDK.
- *
- * The SDK reports HTTP failures by throwing an `ErrorResponse`, which carries
- * the status in `code`, while `RestError` (carrying it in `statusCode`) only
- * surfaces for transport level failures such as DNS or connection errors.
- * Returns `undefined` when no numeric status can be determined, e.g. for a
- * `RestError` whose `code` is a Node error string like `ENOTFOUND`.
- */
-const getStatusCode = (error: unknown): number | undefined => {
-  const statusCode =
-    error instanceof ErrorResponse
-      ? Number(error.code)
-      : error instanceof RestError
-        ? error.statusCode
-        : undefined;
-
-  return Number.isNaN(statusCode) ? undefined : statusCode;
-};
-
 const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? `${error.name}: ${error.message}` : String(error);
 
@@ -126,17 +105,23 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
     const cosmosResponse = await ResultAsync.fromPromise(
       this.#cosmosContainer.items.create(dtoRC.data),
       (error) => {
-        switch (getStatusCode(error)) {
-          case StatusCodes.Conflict:
-            return new ConflictError(
-              `an rc configuration with id ${configuration.configurationId} already exists`,
-            );
-          case StatusCodes.TooManyRequests:
-            return new TooManyRequestsError();
-          default:
-            return new GenericError(
-              `error creating rc configuration with id ${configuration.configurationId}: ${getErrorMessage(error)}`,
-            );
+        if (error instanceof RestError) {
+          switch (error.statusCode) {
+            case StatusCodes.Conflict:
+              return new ConflictError(
+                `an rc configuration with id ${configuration.configurationId} already exists`,
+              );
+            case StatusCodes.TooManyRequests:
+              return new TooManyRequestsError();
+            default:
+              return new GenericError(
+                `error creating rc configuration with id ${configuration.configurationId}: ${getErrorMessage(error)}`,
+              );
+          }
+        } else {
+          return new GenericError(
+            `error creating rc configuration with id ${configuration.configurationId}: ${getErrorMessage(error)}`,
+          );
         }
       },
     );
@@ -165,13 +150,19 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
     const cosmosResponse = await ResultAsync.fromPromise(
       this.#cosmosContainer.items.query(querySpec).fetchNext(),
       (error) => {
-        switch (getStatusCode(error)) {
-          case StatusCodes.TooManyRequests:
-            return new TooManyRequestsError();
-          default:
-            return new GenericError(
-              `error obtaining rc configuration with id ${configurationId}: ${getErrorMessage(error)}`,
-            );
+        if (error instanceof RestError) {
+          switch (error.statusCode) {
+            case StatusCodes.TooManyRequests:
+              return new TooManyRequestsError();
+            default:
+              return new GenericError(
+                `error obtaining rc configuration with id ${configurationId}: ${getErrorMessage(error)}`,
+              );
+          }
+        } else {
+          return new GenericError(
+            `error obtaining rc configuration with id ${configurationId}: ${getErrorMessage(error)}`,
+          );
         }
       },
     );
@@ -200,6 +191,55 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
     }
   }
 
+  async listRemoteContentConfigurations(
+    configurationIds: RcConfigurationId[],
+  ): Promise<Result<RCConfiguration[], GenericError | TooManyRequestsError>> {
+    if (configurationIds.length === 0) {
+      return ok([]);
+    }
+
+    const querySpec: SqlQuerySpec = {
+      parameters: [{ name: "@configurationIds", value: configurationIds }],
+      query:
+        "SELECT * FROM n WHERE ARRAY_CONTAINS(@configurationIds, n.configurationId)",
+    };
+
+    const cosmosResponse = await ResultAsync.fromPromise(
+      this.#cosmosContainer.items.query(querySpec).fetchAll(),
+      (error) => {
+        if (error instanceof RestError) {
+          switch (error.statusCode) {
+            case StatusCodes.TooManyRequests:
+              return new TooManyRequestsError();
+            default:
+              return new GenericError(
+                `error listing rc configurations by id: ${getErrorMessage(error)}`,
+              );
+          }
+        } else {
+          return new GenericError(
+            `error listing rc configurations by id: ${getErrorMessage(error)}`,
+          );
+        }
+      },
+    );
+
+    if (cosmosResponse.isErr()) {
+      return err(cosmosResponse.error);
+    }
+
+    const parsed = z
+      .array(cosmosRCConfigurationSchema)
+      .safeParse(cosmosResponse.value.resources);
+    if (parsed.success) {
+      return ok(parsed.data.map(toRcConfiguration));
+    }
+
+    return err(
+      new GenericError(`error parsing RC configurations: ${parsed.error}`),
+    );
+  }
+
   async updateRemoteContentConfiguration(
     configuration: RCConfiguration,
   ): Promise<
@@ -219,18 +259,24 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
         .item(dtoRC.data.id, dtoRC.data.configurationId)
         .replace(dtoRC.data),
       (error) => {
-        switch (getStatusCode(error)) {
-          case StatusCodes.NotFound:
-            return new NotFoundError(
-              `rc-configuration`,
-              `RC configuration not found: ${configuration.configurationId}`,
-            );
-          case StatusCodes.TooManyRequests:
-            return new TooManyRequestsError();
-          default:
-            return new GenericError(
-              `error updating rc configuration with id ${configuration.configurationId}: ${getErrorMessage(error)}`,
-            );
+        if (error instanceof RestError) {
+          switch (error.statusCode) {
+            case StatusCodes.NotFound:
+              return new NotFoundError(
+                `rc-configuration`,
+                `RC configuration not found: ${configuration.configurationId}`,
+              );
+            case StatusCodes.TooManyRequests:
+              return new TooManyRequestsError();
+            default:
+              return new GenericError(
+                `error updating rc configuration with id ${configuration.configurationId}: ${getErrorMessage(error)}`,
+              );
+          }
+        } else {
+          return new GenericError(
+            `error updating rc configuration with id ${configuration.configurationId}: ${getErrorMessage(error)}`,
+          );
         }
       },
     );
