@@ -1,5 +1,11 @@
 # rc-app
 
+## 0.5.0
+
+### Minor Changes
+
+- 192e8c6: Add ListRCConfiguration endpoint
+
 ## 0.4.1
 
 ### Patch Changes
