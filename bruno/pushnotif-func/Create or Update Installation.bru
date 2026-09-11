@@ -1,0 +1,48 @@
+meta {
+  name: Create or Update Installation
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{pushnotif_func_url}}/api/communication/v1/installations/{{installation_id}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "platform": "{{platform}}",
+    "pushChannel": "{{push_channel}}"
+  }
+}
+
+vars:pre-request {
+  fiscal_code: LVTEST00A00A199X
+  installation_id: local-installation-id
+  platform: fcmv1
+  push_channel: local-device-token
+}
+
+script:pre-request {
+  const userIdentity = {
+    fiscal_code: bru.getVar("fiscal_code"),
+  };
+
+  req.setHeader(
+    "x-user",
+    Buffer.from(JSON.stringify(userIdentity)).toString("base64"),
+  );
+}
+
+assert {
+  res.status: eq 200
+  res.body.message: eq ok
+}
+
+docs {
+  Registers the authenticated user's device for push notifications.
+
+  Locally, disable `HandleNHNotificationCall` before sending the request to
+  inspect the delayed message in the `push-notifications` Azurite queue.
+}
