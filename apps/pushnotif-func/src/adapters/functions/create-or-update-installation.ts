@@ -1,8 +1,7 @@
 import { HttpHandler } from "@azure/functions";
-import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
-import * as E from "fp-ts/Either";
+import { FiscalCode, FiscalCodeSchema } from "@pagopa/hexagonal-core";
 
-import { ErrorInternal, ErrorValidation } from "../../domain/error";
+import { ErrorValidation } from "../../domain/error";
 import {
   createHttpResponse,
   parseHttpRequestBody,
@@ -24,13 +23,14 @@ const getFiscalCode = (
     const user = JSON.parse(
       Buffer.from(userHeader, "base64").toString("utf8"),
     ) as unknown;
-    const fiscalCode =
+    const fiscalCode = FiscalCodeSchema.safeParse(
       typeof user === "object" && user !== null && "fiscal_code" in user
-        ? FiscalCode.decode(user.fiscal_code)
-        : FiscalCode.decode(undefined);
+        ? user.fiscal_code
+        : undefined,
+    );
 
-    return E.isRight(fiscalCode)
-      ? fiscalCode.right
+    return fiscalCode.success
+      ? fiscalCode.data
       : new ErrorValidation("Invalid x-user header");
   } catch {
     return new ErrorValidation("Invalid x-user header");
@@ -61,9 +61,9 @@ export const getCreateOrUpdateInstallationHandler =
       });
     }
 
-    const result = await useCase.execute(fiscalCode, installation);
-    if (result instanceof ErrorInternal) {
-      return createHttpResponse(500, { error: result.message });
+    const result = await useCase({ fiscalCode, installation });
+    if (result.isErr()) {
+      return createHttpResponse(500, { error: result.error.message });
     }
 
     return createHttpResponse(200, { message: "ok" });

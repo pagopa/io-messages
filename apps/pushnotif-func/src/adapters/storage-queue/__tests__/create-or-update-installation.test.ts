@@ -1,8 +1,8 @@
 import { QueueClient } from "@azure/storage-queue";
+import { GenericError } from "@pagopa/hexagonal-core";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { ErrorInternal } from "../../../domain/error";
-import { CreateOrUpdateInstallationMessage } from "../../../generated/notifications/CreateOrUpdateInstallationMessage";
+import { CreateOrUpdateInstallationMessage } from "../../../domain/installation";
 import { CreateOrUpdateInstallationQueueAdapter } from "../create-or-update-installation";
 
 const queueClientMock: Pick<QueueClient, "sendMessage"> = {
@@ -28,9 +28,10 @@ describe("CreateOrUpdateInstallationQueueAdapter", () => {
       messageId: "message-id",
     } as Awaited<ReturnType<QueueClient["sendMessage"]>>);
 
-    await expect(adapter.createOrUpdateInstallation(message)).resolves.toBe(
-      "message-id",
-    );
+    const result = await adapter.createOrUpdateInstallation(message);
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toBe("message-id");
 
     expect(queueClientMock.sendMessage).toHaveBeenCalledWith(
       Buffer.from(JSON.stringify(message)).toString("base64"),
@@ -38,16 +39,17 @@ describe("CreateOrUpdateInstallationQueueAdapter", () => {
     );
   });
 
-  test("maps queue errors to ErrorInternal", async () => {
+  test("maps queue errors to GenericError", async () => {
     vi.mocked(queueClientMock.sendMessage).mockRejectedValueOnce(
       new Error("queue unavailable"),
     );
 
     const result = await adapter.createOrUpdateInstallation(message);
 
-    expect(result).toBeInstanceOf(ErrorInternal);
-    expect(result).toMatchObject({
-      message: "Failed to enqueue installation update",
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr()).toMatchObject({
+      message: "Generic error: Failed to enqueue installation update",
     });
   });
 });

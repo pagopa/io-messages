@@ -1,30 +1,34 @@
-import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { FiscalCode, GenericError, UseCase } from "@pagopa/hexagonal-core";
 
-import { KindEnum } from "../../generated/notifications/CreateOrUpdateInstallationMessage";
-import { PlatformEnum } from "../../generated/notifications/Platform";
 import { toHash } from "../../utils/crypto";
 import {
   CreateOrUpdateInstallation,
   CreateOrUpdateInstallationRepository,
+  createOrUpdateInstallationMessageSchema,
 } from "../installation";
 
-export class CreateOrUpdateInstallationUseCase {
-  constructor(
-    private readonly repository: CreateOrUpdateInstallationRepository,
-  ) {}
+export type CreateOrUpdateInstallationUseCase = UseCase<
+  {
+    fiscalCode: FiscalCode;
+    installation: CreateOrUpdateInstallation;
+  },
+  string,
+  GenericError
+>;
 
-  execute(fiscalCode: FiscalCode, installation: CreateOrUpdateInstallation) {
-    const fiscalCodeHash = toHash(fiscalCode) as NonEmptyString;
-
-    return this.repository.createOrUpdateInstallation({
+export const makeCreateOrUpdateInstallationUseCase =
+  (
+    repository: CreateOrUpdateInstallationRepository,
+  ): CreateOrUpdateInstallationUseCase =>
+  async ({ fiscalCode, installation }) => {
+    const fiscalCodeHash = toHash(fiscalCode);
+    const message = createOrUpdateInstallationMessageSchema.parse({
       installationId: fiscalCodeHash,
-      kind: KindEnum.CreateOrUpdateInstallation,
-      platform:
-        installation.platform === "apns"
-          ? PlatformEnum.apns
-          : PlatformEnum.fcmv1,
+      kind: "CreateOrUpdateInstallation",
+      platform: installation.platform,
       pushChannel: installation.pushChannel,
       tags: [fiscalCodeHash],
     });
-  }
-}
+
+    return repository.createOrUpdateInstallation(message);
+  };

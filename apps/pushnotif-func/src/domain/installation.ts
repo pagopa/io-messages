@@ -1,7 +1,6 @@
+import { GenericError } from "@pagopa/hexagonal-core";
+import { Result } from "neverthrow";
 import z from "zod";
-
-import { CreateOrUpdateInstallationMessage } from "../generated/notifications/CreateOrUpdateInstallationMessage";
-import { ErrorInternal } from "./error";
 
 export const supportedPlatformSchema = z.preprocess(
   (val) => (typeof val === "string" ? val.toLowerCase() : val),
@@ -34,13 +33,23 @@ export const createOrUpdateInstallationSchema = z.object({
   platform: z.enum(["apns", "fcmv1"]),
   pushChannel: z.string(),
 });
+export const createOrUpdateInstallationMessageSchema = z.object({
+  installationId: z.hash("sha256"),
+  kind: z.literal("CreateOrUpdateInstallation"),
+  platform: z.enum(["apns", "fcmv1"]),
+  pushChannel: z.string(),
+  tags: z.array(z.hash("sha256")),
+});
 
 export type CreateOrUpdateInstallation = z.infer<
   typeof createOrUpdateInstallationSchema
+>;
+export type CreateOrUpdateInstallationMessage = z.infer<
+  typeof createOrUpdateInstallationMessageSchema
 >;
 
 export interface CreateOrUpdateInstallationRepository {
   createOrUpdateInstallation(
     installation: CreateOrUpdateInstallationMessage,
-  ): Promise<ErrorInternal | string>;
+  ): Promise<Result<string, GenericError>>;
 }

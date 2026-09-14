@@ -1,7 +1,8 @@
 import { HttpRequest, InvocationContext } from "@azure/functions";
+import { GenericError } from "@pagopa/hexagonal-core";
+import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { ErrorInternal } from "../../../domain/error";
 import { CreateOrUpdateInstallationUseCase } from "../../../domain/use-cases/create-or-update-installation";
 import { getCreateOrUpdateInstallationHandler } from "../create-or-update-installation";
 
@@ -11,12 +12,8 @@ const validUserHeader = Buffer.from(
 ).toString("base64");
 const validBody = { platform: "fcmv1", pushChannel: "push-channel" };
 const context = new InvocationContext();
-const useCaseMock: Pick<CreateOrUpdateInstallationUseCase, "execute"> = {
-  execute: vi.fn(),
-};
-const handler = getCreateOrUpdateInstallationHandler(
-  useCaseMock as CreateOrUpdateInstallationUseCase,
-);
+const useCaseMock: CreateOrUpdateInstallationUseCase = vi.fn();
+const handler = getCreateOrUpdateInstallationHandler(useCaseMock);
 
 const makeRequest = ({
   body = validBody,
@@ -42,13 +39,16 @@ describe("getCreateOrUpdateInstallationHandler", () => {
   beforeEach(() => vi.clearAllMocks());
 
   test("returns 200 after enqueuing a valid installation", async () => {
-    vi.mocked(useCaseMock.execute).mockResolvedValueOnce("message-id");
+    vi.mocked(useCaseMock).mockResolvedValueOnce(ok("message-id"));
 
     const response = (await handler(makeRequest(), context)) as Response;
 
     expect(response.status).toBe(200);
     await expect(responseBody(response)).resolves.toEqual({ message: "ok" });
-    expect(useCaseMock.execute).toHaveBeenCalledWith(fiscalCode, validBody);
+    expect(useCaseMock).toHaveBeenCalledWith({
+      fiscalCode,
+      installation: validBody,
+    });
   });
 
   test.each([
@@ -68,7 +68,7 @@ describe("getCreateOrUpdateInstallationHandler", () => {
     )) as Response;
 
     expect(response.status).toBe(401);
-    expect(useCaseMock.execute).not.toHaveBeenCalled();
+    expect(useCaseMock).not.toHaveBeenCalled();
   });
 
   test("returns 400 for an empty installation id", async () => {
@@ -78,7 +78,7 @@ describe("getCreateOrUpdateInstallationHandler", () => {
     )) as Response;
 
     expect(response.status).toBe(400);
-    expect(useCaseMock.execute).not.toHaveBeenCalled();
+    expect(useCaseMock).not.toHaveBeenCalled();
   });
 
   test.each([
@@ -92,19 +92,19 @@ describe("getCreateOrUpdateInstallationHandler", () => {
     )) as Response;
 
     expect(response.status).toBe(400);
-    expect(useCaseMock.execute).not.toHaveBeenCalled();
+    expect(useCaseMock).not.toHaveBeenCalled();
   });
 
   test("returns 500 when enqueueing fails", async () => {
-    vi.mocked(useCaseMock.execute).mockResolvedValueOnce(
-      new ErrorInternal("Failed to enqueue installation update"),
+    vi.mocked(useCaseMock).mockResolvedValueOnce(
+      err(new GenericError("Failed to enqueue installation update")),
     );
 
     const response = (await handler(makeRequest(), context)) as Response;
 
     expect(response.status).toBe(500);
     await expect(responseBody(response)).resolves.toEqual({
-      error: "Failed to enqueue installation update",
+      error: "Generic error: Failed to enqueue installation update",
     });
   });
 });

@@ -1,8 +1,9 @@
-import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
+import { FiscalCode } from "@pagopa/hexagonal-core";
+import { ok } from "neverthrow";
 import { describe, expect, test, vi } from "vitest";
 
 import { CreateOrUpdateInstallationRepository } from "../../installation";
-import { CreateOrUpdateInstallationUseCase } from "../create-or-update-installation";
+import { makeCreateOrUpdateInstallationUseCase } from "../create-or-update-installation";
 
 const fiscalCode = "RSSMRA80A01H501U" as FiscalCode;
 const fiscalCodeHash =
@@ -11,16 +12,19 @@ const fiscalCodeHash =
 describe("CreateOrUpdateInstallationUseCase", () => {
   test("maps the installation to the notification queue message", async () => {
     const repository: CreateOrUpdateInstallationRepository = {
-      createOrUpdateInstallation: vi.fn().mockResolvedValue("message-id"),
+      createOrUpdateInstallation: vi.fn().mockResolvedValue(ok("message-id")),
     };
-    const useCase = new CreateOrUpdateInstallationUseCase(repository);
+    const useCase = makeCreateOrUpdateInstallationUseCase(repository);
 
     await expect(
-      useCase.execute(fiscalCode, {
-        platform: "fcmv1",
-        pushChannel: "push-channel",
+      useCase({
+        fiscalCode,
+        installation: {
+          platform: "fcmv1",
+          pushChannel: "push-channel",
+        },
       }),
-    ).resolves.toBe("message-id");
+    ).resolves.toEqual(ok("message-id"));
 
     expect(repository.createOrUpdateInstallation).toHaveBeenCalledWith({
       installationId: fiscalCodeHash,

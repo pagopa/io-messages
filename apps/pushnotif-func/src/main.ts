@@ -60,7 +60,7 @@ import { ProcessMassiveJobQueueAdapter } from "./adapters/storage-queue/send-not
 import { CancelMassiveNotificationJobUseCase } from "./domain/use-cases/cancel-massive-notification-job";
 import { CheckMassiveJobStatusUseCase } from "./domain/use-cases/check-massive-job";
 import { MakeCreateMassiveNotificationJobUseCase } from "./domain/use-cases/create-massive-notification-job";
-import { CreateOrUpdateInstallationUseCase } from "./domain/use-cases/create-or-update-installation";
+import { makeCreateOrUpdateInstallationUseCase } from "./domain/use-cases/create-or-update-installation";
 import { GetMassiveNotificationJobUseCase } from "./domain/use-cases/get-massive-notification-job";
 import { HealthCheckUseCase } from "./domain/use-cases/health";
 import { InfoUseCase } from "./domain/use-cases/info";
@@ -292,7 +292,7 @@ const main = (config: Config) => {
   const createOrUpdateInstallationRepository =
     new CreateOrUpdateInstallationQueueAdapter(notifyQueueClient);
   const createOrUpdateInstallationUseCase =
-    new CreateOrUpdateInstallationUseCase(createOrUpdateInstallationRepository);
+    makeCreateOrUpdateInstallationUseCase(createOrUpdateInstallationRepository);
 
   app.http("CreateOrUpdateInstallation", {
     authLevel: "anonymous",
