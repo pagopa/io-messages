@@ -39,7 +39,6 @@
       "pnpmVersion": "none",
       "nvmInstallPath": "/opt/nvm"
     },
-    "ghcr.io/pagopa/devcontainer-features/azure-functions-core-tools:1": {},
     "ghcr.io/devcontainers/features/java:1": {
       "version": "17",
       "jdkDistro": "tem",
