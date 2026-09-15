@@ -14,15 +14,18 @@ import { messageSchema, messageStatusAvroSchema } from "./adapters/avro.js";
 import { makeStorageAccountClient } from "./adapters/blob-storage/index.js";
 import { BlobMessageContent } from "./adapters/blob-storage/message-content.js";
 import { Config, configFromEnvironment } from "./adapters/config.js";
+import { CosmosUserRCConfigurationRepository } from "./adapters/cosmos/user-rc-configuration.js";
 import { EventHubEventProducer } from "./adapters/eventhub/event.js";
 import { makeEventHubProducerClient } from "./adapters/eventhub/index.js";
 import messageStatusIngestionHandler from "./adapters/functions/message-status-ingestion.js";
 import messagesIngestionHandler from "./adapters/functions/messages-ingestion.js";
+import remoteContentMessageConfigurationChangeFeedHandler from "./adapters/functions/remote-content-message-configuration-change-feed.js";
 import { MessageAdapter } from "./adapters/message.js";
 import RedisRecipientRepository from "./adapters/redis/recipient.js";
 import { EventErrorTableStorage } from "./adapters/table-storage/event-error-table-storage.js";
 import { makeTableStorageAccountClient } from "./adapters/table-storage/index.js";
 import { CachedPDVTokenizerClient } from "./adapters/tokenizer/cached-tokenizer-client.js";
+import { AlignRemoteContentConfigurationUseCase } from "./domain/use-cases/align-remote-content-configuration.js";
 import { IngestMessageUseCase } from "./domain/use-cases/ingest-message.js";
 import { IngestMessageStatusUseCase } from "./domain/use-cases/ingest-message-status.js";
 
@@ -88,6 +91,16 @@ const main = async (config: Config) => {
     aadCredentials: azureCredentials,
     endpoint: config.iocomCosmos.accountUri,
   });
+  const remoteContentDatabase = ioComCosmosClient.database(
+    config.iocomCosmos.remoteContentDatabaseName,
+  );
+  const userRCConfigurationRepository = new CosmosUserRCConfigurationRepository(
+    remoteContentDatabase.container(
+      config.iocomCosmos.remoteContentUserConfigurationContainerName,
+    ),
+  );
+  const alignRemoteContentConfiguration =
+    new AlignRemoteContentConfigurationUseCase(userRCConfigurationRepository);
 
   const ingestMessageUseCase = new IngestMessageUseCase(
     messageAdapter,
@@ -193,6 +206,26 @@ const main = async (config: Config) => {
       strategy: "exponentialBackoff",
     },
     startFromTime: "2026/07/31T00:00:00Z",
+  });
+
+  app.cosmosDB("CosmosRemoteContentMessageConfigurationChangeFeed", {
+    connection: "IOCOM_COSMOS",
+    containerName:
+      config.iocomCosmos.remoteContentMessageConfigurationContainerName,
+    createLeaseContainerIfNotExists: false,
+    databaseName: config.iocomCosmos.remoteContentDatabaseName,
+    handler: remoteContentMessageConfigurationChangeFeedHandler(
+      alignRemoteContentConfiguration,
+      telemetryService,
+    ),
+    leaseContainerName: config.iocomCosmos.remoteContentLeaseContainerName,
+    leaseContainerPrefix: "RemoteContentMessageConfigurationChangeFeed-00",
+    retry: {
+      delayInterval: 10000,
+      maxRetryCount: -1,
+      strategy: "fixedDelay",
+    },
+    startFromBeginning: true,
   });
 };
 

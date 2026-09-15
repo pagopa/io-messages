@@ -21,6 +21,10 @@ locals {
       IOCOM_COSMOS__accountEndpoint                  = var.io_com_cosmos.endpoint
       IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME           = "data-lake-cosmos-01"
       IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME = "messages-summary"
+      RC_COSMOS_DBNAME                               = "remote-content-cosmos-01"
+      RC_LEASE_CONTAINER_NAME                        = "remote-content-leases"
+      RC_MESSAGE_CONFIGURATION_CONTAINER_NAME        = "message-configuration"
+      RC_USER_CONFIGURATION_CONTAINER_NAME           = "user-configurations"
       ACCOUNT_STORAGE__tableServiceUri               = var.app_settings.message_error_table_storage_uri
       MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME        = "MessageStatusesDataplanIngestionErrors",
     }
@@ -51,10 +55,11 @@ module "etl_func" {
 
   app_settings = local.etl_func.app_settings
 
-  sticky_app_setting_names = ["NODE_ENV", "AzureWebJobs.IngestMessageStatus.Disabled", "AzureWebJobs.IngestMessages.Disabled"]
+  sticky_app_setting_names = ["NODE_ENV", "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled", "AzureWebJobs.IngestMessageStatus.Disabled", "AzureWebJobs.IngestMessages.Disabled"]
   slot_app_settings = merge(local.etl_func.app_settings, {
-    "AzureWebJobs.IngestMessageStatus.Disabled" = "1"
-    "AzureWebJobs.IngestMessages.Disabled"      = "1"
+    "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "1"
+    "AzureWebJobs.IngestMessageStatus.Disabled"                               = "1"
+    "AzureWebJobs.IngestMessages.Disabled"                                    = "1"
   })
 
   virtual_network = var.virtual_network

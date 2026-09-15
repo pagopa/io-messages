@@ -22,6 +22,10 @@ const common = z.object({
   // Tokenizer
   PDV_TOKENIZER_API_KEY: z.string().min(1),
   PDV_TOKENIZER_BASE_URL: z.url(),
+  RC_COSMOS_DBNAME: z.string().min(1),
+  RC_LEASE_CONTAINER_NAME: z.string().min(1),
+  RC_MESSAGE_CONFIGURATION_CONTAINER_NAME: z.string().min(1),
+  RC_USER_CONFIGURATION_CONTAINER_NAME: z.string().min(1),
   REDIS_PASSWORD: z.string().min(1),
   // Redis
   REDIS_PING_INTERVAL: z.coerce.number(),

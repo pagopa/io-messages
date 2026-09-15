@@ -25,6 +25,10 @@
     "IOCOM_COSMOS__accountEndpoint": "https://io-d-itn-common-cosno-01.documents.azure.com:443",
     "IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME": "io-messages",
     "IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME": "message-ingestion-summary",
+    "RC_COSMOS_DBNAME": "remote-content-cosmos-01",
+    "RC_LEASE_CONTAINER_NAME": "remote-content-leases",
+    "RC_MESSAGE_CONFIGURATION_CONTAINER_NAME": "message-configuration",
+    "RC_USER_CONFIGURATION_CONTAINER_NAME": "user-configurations",
     "MESSAGE_CONTENT_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;",
     "MESSAGE_ERROR_TABLE_STORAGE_CONENCTION_STRING": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"
   }
