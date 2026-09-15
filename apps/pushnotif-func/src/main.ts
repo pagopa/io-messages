@@ -43,6 +43,7 @@ import { CosmosMassiveProgressAdapter } from "./adapters/cosmos/massive-progress
 import { makeCancelMassiveNotificationJobHandler } from "./adapters/functions/cancel-massive-notification-job";
 import { makeCheckMassiveJobHandler } from "./adapters/functions/check-massive-job";
 import { createMassiveNotificationJobHandler } from "./adapters/functions/create-massive-notification-job";
+import { getCreateOrUpdateInstallationHandler } from "./adapters/functions/create-or-update-installation";
 import { getGetMassiveNotificationJobHandler } from "./adapters/functions/get-massive-notification-job";
 import { getHealthHandler } from "./adapters/functions/health";
 import { getInfoHandler } from "./adapters/functions/info";
@@ -54,10 +55,12 @@ import { notificationHubHealthcheck } from "./adapters/notification-hub/health";
 import { NotificationHubInstallationAdapter } from "./adapters/notification-hub/installation";
 import { NotificationHubPushNotificationAdapter } from "./adapters/notification-hub/push-notification";
 import { CheckMassiveJobQueueAdapter } from "./adapters/storage-queue/check-job-message";
+import { CreateOrUpdateInstallationQueueAdapter } from "./adapters/storage-queue/create-or-update-installation";
 import { ProcessMassiveJobQueueAdapter } from "./adapters/storage-queue/send-notification-message";
 import { CancelMassiveNotificationJobUseCase } from "./domain/use-cases/cancel-massive-notification-job";
 import { CheckMassiveJobStatusUseCase } from "./domain/use-cases/check-massive-job";
 import { MakeCreateMassiveNotificationJobUseCase } from "./domain/use-cases/create-massive-notification-job";
+import { makeCreateOrUpdateInstallationUseCase } from "./domain/use-cases/create-or-update-installation";
 import { GetMassiveNotificationJobUseCase } from "./domain/use-cases/get-massive-notification-job";
 import { HealthCheckUseCase } from "./domain/use-cases/health";
 import { InfoUseCase } from "./domain/use-cases/info";
@@ -284,6 +287,20 @@ const main = (config: Config) => {
     ),
     methods: ["POST"],
     route: "api/v1/notify",
+  });
+
+  const createOrUpdateInstallationRepository =
+    new CreateOrUpdateInstallationQueueAdapter(notifyQueueClient);
+  const createOrUpdateInstallationUseCase =
+    makeCreateOrUpdateInstallationUseCase(createOrUpdateInstallationRepository);
+
+  app.http("CreateOrUpdateInstallation", {
+    authLevel: "anonymous",
+    handler: getCreateOrUpdateInstallationHandler(
+      createOrUpdateInstallationUseCase,
+    ),
+    methods: ["PUT"],
+    route: "api/communication/v1/installations/{id}",
   });
 
   df.app.activity(CreateOrUpdateActivityName, {
