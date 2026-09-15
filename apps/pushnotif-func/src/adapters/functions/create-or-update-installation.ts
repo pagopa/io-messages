@@ -1,5 +1,6 @@
 import { HttpHandler } from "@azure/functions";
 import { FiscalCode, FiscalCodeSchema } from "@pagopa/hexagonal-core";
+import { Result, err, ok } from "neverthrow";
 
 import { ErrorValidation } from "../../domain/error";
 import {
@@ -14,9 +15,9 @@ import { CreateOrUpdateInstallationUseCase } from "../../domain/use-cases/create
 
 const getFiscalCode = (
   userHeader: null | string,
-): ErrorValidation | FiscalCode => {
+): Result<FiscalCode, ErrorValidation> => {
   if (!userHeader) {
-    return new ErrorValidation("Missing x-user header");
+    return err(new ErrorValidation("Missing x-user header"));
   }
 
   try {
@@ -30,19 +31,21 @@ const getFiscalCode = (
     );
 
     return fiscalCode.success
-      ? fiscalCode.data
-      : new ErrorValidation("Invalid x-user header");
+      ? ok(fiscalCode.data)
+      : err(new ErrorValidation("Invalid x-user header"));
   } catch {
-    return new ErrorValidation("Invalid x-user header");
+    return err(new ErrorValidation("Invalid x-user header"));
   }
 };
 
 export const getCreateOrUpdateInstallationHandler =
   (useCase: CreateOrUpdateInstallationUseCase): HttpHandler =>
   async (request) => {
-    const fiscalCode = getFiscalCode(request.headers.get("x-user"));
-    if (fiscalCode instanceof ErrorValidation) {
-      return createHttpResponse(401, { error: fiscalCode.message });
+    const fiscalCodeResult = getFiscalCode(request.headers.get("x-user"));
+    if (fiscalCodeResult.isErr()) {
+      return createHttpResponse(401, {
+        error: fiscalCodeResult.error.message,
+      });
     }
 
     const installationId = installationIdSchema.safeParse(request.params.id);
@@ -61,7 +64,10 @@ export const getCreateOrUpdateInstallationHandler =
       });
     }
 
-    const result = await useCase({ fiscalCode, installation });
+    const result = await useCase({
+      fiscalCode: fiscalCodeResult.value,
+      installation,
+    });
     if (result.isErr()) {
       return createHttpResponse(500, { error: result.error.message });
     }
