@@ -1,5 +1,11 @@
 # io-messages-common
 
+## 1.4.5
+
+### Patch Changes
+
+- cb4e640: Add create message to messages-app
+
 ## 1.4.4
 
 ### Patch Changes

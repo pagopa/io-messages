@@ -84,6 +84,16 @@ resource "azurerm_storage_queue" "delete_messages" {
   storage_account_name = module.com_st.name
 }
 
+resource "azurerm_storage_queue" "message_created_v2" {
+  name                 = "message-created-v2"
+  storage_account_name = module.com_st.name
+}
+
+resource "azurerm_storage_queue" "message_created_v2_poison" {
+  name                 = "message-created-v2-poison"
+  storage_account_name = module.com_st.name
+}
+
 resource "azurerm_storage_queue" "push_notifications" {
   name                 = "push-notifications"
   storage_account_name = module.com_st.name

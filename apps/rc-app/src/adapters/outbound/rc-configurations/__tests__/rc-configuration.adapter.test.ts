@@ -1,4 +1,4 @@
-import { CosmosClient, ErrorResponse, RestError } from "@azure/cosmos";
+import { CosmosClient, RestError } from "@azure/cosmos";
 import {
   ConflictError,
   GenericError,
@@ -30,15 +30,16 @@ const anInvalidConfiguration = {
   hasPrecondition: "NOT_A_PRECONDITION",
 } as unknown as RCConfiguration;
 
-const makeCosmosError = (code: number | string, message = "cosmos failure") => {
-  const error = new ErrorResponse(message);
-  error.code = code;
-  return error;
-};
+const makeCosmosError = (statusCode: number, message = "cosmos failure") =>
+  new RestError(message, { statusCode });
 
 const makeMocks = () => {
+  const mockFetchAll = vi.fn();
   const mockFetchNext = vi.fn();
-  const mockQuery = vi.fn().mockReturnValue({ fetchNext: mockFetchNext });
+  const mockQuery = vi.fn().mockReturnValue({
+    fetchAll: mockFetchAll,
+    fetchNext: mockFetchNext,
+  });
   const mockCreate = vi.fn();
   const mockReplace = vi.fn();
   const mockItem = vi.fn().mockReturnValue({ replace: mockReplace });
@@ -54,12 +55,117 @@ const makeMocks = () => {
   return {
     mockCosmosClient,
     mockCreate,
+    mockFetchAll,
     mockFetchNext,
     mockItem,
     mockQuery,
     mockReplace,
   };
 };
+
+describe("RCConfigurationCosmosAdapter.listRemoteContentConfigurations", () => {
+  it("returns an empty list without querying Cosmos when no configuration IDs are provided", async () => {
+    const { mockCosmosClient, mockQuery } = makeMocks();
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result = await adapter.listRemoteContentConfigurations([]);
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toStrictEqual([]);
+    expect(mockQuery).not.toHaveBeenCalled();
+  });
+
+  it("returns all RC configurations matching the provided configuration IDs", async () => {
+    const { mockCosmosClient, mockFetchAll, mockQuery } = makeMocks();
+    const anotherConfigurationId = "01BX5ZZKBKACTAV9WEVGEMMVRZ";
+    const anotherValidRcConfiguration = {
+      ...aValidRcConfiguration,
+      configurationId: anotherConfigurationId,
+      id: "another-id",
+    };
+    mockFetchAll.mockResolvedValueOnce({
+      resources: [aValidRcConfiguration, anotherValidRcConfiguration],
+    });
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result = await adapter.listRemoteContentConfigurations([
+      aConfigurationId,
+      anotherConfigurationId,
+    ]);
+
+    expect(mockQuery).toHaveBeenCalledWith({
+      parameters: [
+        {
+          name: "@configurationIds",
+          value: [aConfigurationId, anotherConfigurationId],
+        },
+      ],
+      query:
+        "SELECT * FROM n WHERE ARRAY_CONTAINS(@configurationIds, n.configurationId)",
+    });
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toStrictEqual([
+      aValidRcConfiguration,
+      anotherValidRcConfiguration,
+    ]);
+  });
+
+  it("returns a TooManyRequestsError when Cosmos responds with 429", async () => {
+    const { mockCosmosClient, mockFetchAll } = makeMocks();
+    mockFetchAll.mockRejectedValueOnce(makeCosmosError(429));
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result = await adapter.listRemoteContentConfigurations([
+      aConfigurationId,
+    ]);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
+  });
+
+  it("returns a GenericError when Cosmos responds with another status code", async () => {
+    const { mockCosmosClient, mockFetchAll } = makeMocks();
+    mockFetchAll.mockRejectedValueOnce(makeCosmosError(500));
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result = await adapter.listRemoteContentConfigurations([
+      aConfigurationId,
+    ]);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+  });
+
+  it("returns a GenericError when one of the resources does not match the schema", async () => {
+    const { mockCosmosClient, mockFetchAll } = makeMocks();
+    mockFetchAll.mockResolvedValueOnce({
+      resources: [aValidRcConfiguration, { invalid: "data" }],
+    });
+
+    const adapter = new RCConfigurationCosmosAdapter(
+      mockCosmosClient,
+      "myDatabase",
+    );
+    const result = await adapter.listRemoteContentConfigurations([
+      aConfigurationId,
+    ]);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+  });
+});
 
 describe("RCConfigurationCosmosAdapter", () => {
   describe("getRemoteContentConfiguration", () => {
@@ -355,7 +461,9 @@ describe("RCConfigurationCosmosAdapter.createRemoteContentConfiguration", () => 
 
   it("returns a GenericError when the status code is not numeric", async () => {
     const { mockCosmosClient, mockCreate } = makeMocks();
-    mockCreate.mockRejectedValueOnce(makeCosmosError("ENOTFOUND"));
+    mockCreate.mockRejectedValueOnce(
+      new RestError("getaddrinfo ENOTFOUND", { code: "ENOTFOUND" }),
+    );
 
     const adapter = new RCConfigurationCosmosAdapter(
       mockCosmosClient,
@@ -550,7 +658,9 @@ describe("RCConfigurationCosmosAdapter.updateRemoteContentConfiguration", () => 
 
   it("returns a GenericError when the status code is not numeric", async () => {
     const { mockCosmosClient, mockReplace } = makeMocks();
-    mockReplace.mockRejectedValueOnce(makeCosmosError("ENOTFOUND"));
+    mockReplace.mockRejectedValueOnce(
+      new RestError("getaddrinfo ENOTFOUND", { code: "ENOTFOUND" }),
+    );
 
     const adapter = new RCConfigurationCosmosAdapter(
       mockCosmosClient,

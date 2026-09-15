@@ -29,6 +29,13 @@ export type MessageMetadata = z.TypeOf<typeof messageMetadataSchema>;
 
 export interface MessageMetadataRepository {
   /**
+   * Persists the metadata of a newly created message.
+   */
+  createMessageMetadata(
+    metadata: MessageMetadata,
+  ): Promise<Result<MessageMetadata, GenericError | TooManyRequestsError>>;
+
+  /**
    * Returns the metadata of the single message identified by the provided
    * `messageId` belonging to the user identified by `fiscalCode`.
    *

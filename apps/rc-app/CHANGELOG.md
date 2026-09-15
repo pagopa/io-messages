@@ -1,5 +1,23 @@
 # rc-app
 
+## 0.5.0
+
+### Minor Changes
+
+- 192e8c6: Add ListRCConfiguration endpoint
+
+## 0.4.1
+
+### Patch Changes
+
+- b1efa70: Add list rc-configuration to RCConfigurationCosmosAdapter
+
+## 0.4.0
+
+### Minor Changes
+
+- fe89141: Add CreateRCConfiguration endpoint
+
 ## 0.3.0
 
 ### Minor Changes

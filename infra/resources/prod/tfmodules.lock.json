@@ -1,9 +1,9 @@
 {
   "container_apps.azure-role-assignments": {
-    "hash": "a3799c27a216622ce77e31673e068e8c7ae702b6507fb76dc857e8a1afd83a58",
-    "version": "3.0.0",
+    "hash": "8afefbb742a762be737c3d4a7f99e61f353cd2022357d4af6c9a894ee052aece",
+    "version": "3.0.1",
     "name": "azure_role_assignments",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-role-assignments/azurerm/3.0.0"
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-role-assignments/azurerm/3.0.1"
   },
   "container_apps.com_cae": {
     "hash": "12b7790aabb912ffe88608b881dd1c77270b6115f14ba477907fea1b95dc97e2",
@@ -18,10 +18,10 @@
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app-environment/azurerm/2.0.0"
   },
   "container_apps.messages_ca": {
-    "hash": "860b4a28c2ed17b0061483d238aab56f8074a6e4fe0db399b36583423cf145be",
-    "version": "6.1.0",
+    "hash": "2aec0f1f1c95df3b049152e7ceb634a185b4714dc2a819b3b051997b23fa296d",
+    "version": "6.1.1",
     "name": "azure_container_app",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app/azurerm/6.1.0"
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app/azurerm/6.1.1"
   },
   "container_apps.payment_updater_ca_itn_01": {
     "hash": "f40ba13e4318b7b6a4ca8da9104573e699a138b55ad750f48bce7c14687c6edd",
@@ -36,16 +36,16 @@
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app/azurerm/3.0.1"
   },
   "container_apps.remote_content_ca": {
-    "hash": "860b4a28c2ed17b0061483d238aab56f8074a6e4fe0db399b36583423cf145be",
-    "version": "6.1.0",
+    "hash": "2aec0f1f1c95df3b049152e7ceb634a185b4714dc2a819b3b051997b23fa296d",
+    "version": "6.1.1",
     "name": "azure_container_app",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app/azurerm/6.1.0"
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app/azurerm/6.1.1"
   },
   "container_apps.remote_content_ca_role_assignments": {
-    "hash": "a3799c27a216622ce77e31673e068e8c7ae702b6507fb76dc857e8a1afd83a58",
-    "version": "3.0.0",
+    "hash": "8afefbb742a762be737c3d4a7f99e61f353cd2022357d4af6c9a894ee052aece",
+    "version": "3.0.1",
     "name": "azure_role_assignments",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-role-assignments/azurerm/3.0.0"
+    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-role-assignments/azurerm/3.0.1"
   },
   "cosmos.io_com_cosmos_account": {
     "hash": "1e6e66245084310310d36106509c99ee0eed25e98640680c4acc8cff426ff321",

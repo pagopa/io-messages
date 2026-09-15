@@ -67,6 +67,12 @@ export class CachingRemoteContentRepository implements RemoteContentRepository {
     return ok(result.value);
   }
 
+  async listRemoteContentConfigurations(
+    configurationIds: RcConfigurationId[],
+  ): Promise<Result<RCConfiguration[], GenericError | TooManyRequestsError>> {
+    return this.repository.listRemoteContentConfigurations(configurationIds);
+  }
+
   async updateRemoteContentConfiguration(
     configuration: RCConfiguration,
   ): Promise<

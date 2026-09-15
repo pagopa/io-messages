@@ -1,0 +1,32 @@
+meta {
+  name: CreateRCConfiguration
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{rc_app_base_url}}/api/rc-configurations
+  body: json
+  auth: inherit
+}
+
+headers {
+  x-subscription-id: {{rc_subscription_id}}
+  x-user-groups: ApiRemoteContentConfigurationWrite
+  x-user-id: {{sender_user_id}}
+}
+
+body:json {
+  {
+    "name": "New configuration",
+    "description": "A new RC Configuration",
+    "has_precondition": "NEVER",
+    "disable_lollipop_for": [],
+    "is_lollipop_enabled": false
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

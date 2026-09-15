@@ -26,6 +26,8 @@ const queues = [
   "push-notifications",
   "notify-messages",
   "message-created",
+  "message-created-v2",
+  "message-created-v2-poison",
   "message-created-poison",
   "message-processed",
   "notification-created",

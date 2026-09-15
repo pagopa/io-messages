@@ -28,6 +28,7 @@ const containers = [
 
 const remoteContentContainers = [
   { id: "message-configuration", partitionKey: "/configurationId" },
+  { id: "user-configurations", partitionKey: "/userId" },
 ];
 
 const profiles = [
@@ -180,6 +181,16 @@ const RCMessageConfigurations = [
   },
 ];
 
+const RCUserConfigurations = [
+  {
+    containerId: "user-configurations",
+    document: {
+      id: "01HMVMCDD3JFYTPKT4ZN4WQ73B",
+      userId: "local",
+    },
+  },
+];
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const waitForCosmos = async () => {
@@ -271,6 +282,12 @@ const addDocumentToContainer = async (database, containerId, document) => {
 
   await Promise.all(
     RCMessageConfigurations.map(({ containerId, document }) =>
+      addDocumentToContainer(database, containerId, document),
+    ),
+  );
+
+  await Promise.all(
+    RCUserConfigurations.map(({ containerId, document }) =>
       addDocumentToContainer(database, containerId, document),
     ),
   );

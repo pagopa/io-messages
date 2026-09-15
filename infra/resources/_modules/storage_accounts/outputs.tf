@@ -22,4 +22,3 @@ output "common_storage_account" {
     resource_group_name = module.storage_api.resource_group_name
   }
 }
-

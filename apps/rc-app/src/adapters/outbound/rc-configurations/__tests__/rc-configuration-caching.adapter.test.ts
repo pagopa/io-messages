@@ -30,6 +30,7 @@ const cacheTTLInSeconds = 60;
 const makeMocks = () => {
   const mockGetFromRepo = vi.fn();
   const mockCreateInRepo = vi.fn();
+  const mockListFromRepo = vi.fn();
   const mockUpdateInRepo = vi.fn();
   const mockGetFromCache = vi.fn();
   const mockSetInCache = vi.fn();
@@ -37,6 +38,7 @@ const makeMocks = () => {
   const repository: RemoteContentRepository = {
     createRemoteContentConfiguration: mockCreateInRepo,
     getRemoteContentConfiguration: mockGetFromRepo,
+    listRemoteContentConfigurations: mockListFromRepo,
     updateRemoteContentConfiguration: mockUpdateInRepo,
   };
 
@@ -50,6 +52,7 @@ const makeMocks = () => {
     mockCreateInRepo,
     mockGetFromCache,
     mockGetFromRepo,
+    mockListFromRepo,
     mockSetInCache,
     mockUpdateInRepo,
     repository,
@@ -235,6 +238,26 @@ describe("CachingRemoteContentRepository", () => {
         configurationId: aConfigurationId,
       });
     });
+  });
+});
+
+describe("CachingRemoteContentRepository.listRemoteContentConfigurations", () => {
+  it("delegates to the repository", async () => {
+    const { cache, mockListFromRepo, repository } = makeMocks();
+    mockListFromRepo.mockResolvedValueOnce(ok([aValidConfiguration]));
+
+    const sut = new CachingRemoteContentRepository(
+      repository,
+      cache,
+      cacheTTLInSeconds,
+    );
+    const result = await sut.listRemoteContentConfigurations([
+      aConfigurationId,
+    ]);
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toStrictEqual([aValidConfiguration]);
+    expect(mockListFromRepo).toHaveBeenCalledWith([aConfigurationId]);
   });
 });
 
