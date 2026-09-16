@@ -99,7 +99,7 @@ const main = async (config: Config) => {
       config.iocomCosmos.remoteContentUserConfigurationContainerName,
     ),
   );
-  const alignRemoteContentConfiguration =
+  const alignRemoteContentConfigurationUseCase =
     new AlignRemoteContentConfigurationUseCase(userRCConfigurationRepository);
 
   const ingestMessageUseCase = new IngestMessageUseCase(
@@ -215,7 +215,7 @@ const main = async (config: Config) => {
     createLeaseContainerIfNotExists: false,
     databaseName: config.iocomCosmos.remoteContentDatabaseName,
     handler: remoteContentMessageConfigurationChangeFeedHandler(
-      alignRemoteContentConfiguration,
+      alignRemoteContentConfigurationUseCase,
       telemetryService,
     ),
     leaseContainerName: config.iocomCosmos.remoteContentLeaseContainerName,
