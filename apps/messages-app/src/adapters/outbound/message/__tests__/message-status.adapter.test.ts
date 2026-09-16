@@ -8,6 +8,8 @@ import {
 } from "@azure/cosmos";
 import {
   ConflictError,
+  FiscalCode,
+  FiscalCodeSchema,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -20,7 +22,7 @@ import { MessageStatus } from "../../../../application/ports/message-status.js";
 import { MessageStatusCosmosAdapter } from "../message-status.adapter.js";
 
 const aMessageStatus: MessageStatus = {
-  fiscalCode: "RSSMRA80A01H501U",
+  fiscalCode: FiscalCodeSchema.parse("RSSMRA80A01H501U"),
   id: "01ARZ3NDEKTSV4RRFFQ69G5FAV-0000000000000000",
   isArchived: false,
   isRead: false,
@@ -219,7 +221,9 @@ describe("getLatestMessageStatusById", () => {
 
   it("returns a MalformedEntityError when the fiscal code is invalid", async () => {
     fetchNextMock.mockResolvedValue(
-      feedResponseWith([{ ...aMessageStatus, fiscalCode: "invalid" }]),
+      feedResponseWith([
+        { ...aMessageStatus, fiscalCode: "invalid" as FiscalCode },
+      ]),
     );
 
     const result = await adapter.getLatestMessageStatusById(

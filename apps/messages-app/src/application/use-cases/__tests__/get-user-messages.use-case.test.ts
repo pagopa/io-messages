@@ -3,6 +3,7 @@ import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
 import { CosmosClient } from "@azure/cosmos";
 import { BlobServiceClient } from "@azure/storage-blob";
 import {
+  FiscalCodeSchema,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -40,7 +41,7 @@ import {
   makeGetMessagesByUserUseCase,
 } from "../get-user-messages.use-case.js";
 
-const aFiscalCode = "RSSMRA80A01H501U";
+const aFiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
 const aPnServiceId = "pn-service-id";
 
 const ULID_A = "01JAQ4HYBR5JZCS6K0DT7M1EV8";

@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 
 import {
+  FiscalCodeSchema,
   ForbiddenError,
   GenericError,
   NotFoundError,
@@ -14,7 +15,7 @@ import type { UpdateMessageStatusUseCase } from "../../../../application/use-cas
 
 import { mountUpsertMessageStatusHandler } from "../upsert-message-status.handler.js";
 
-const fiscalCode = "RSSMRA80A01H501U";
+const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
 const messageId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
 const status: MessageStatus = {
   fiscalCode,
