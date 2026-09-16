@@ -4,6 +4,7 @@ import {
   Container,
   CosmosClient,
   RestError,
+  SqlParameter,
   SqlQuerySpec,
 } from "@azure/cosmos";
 import {
@@ -168,7 +169,9 @@ export class MessageMetadataCosmosAdapter implements MessageMetadataRepository {
   ): Promise<Result<MessageMetadata[], GenericError | TooManyRequestsError>> {
     let queryText =
       "SELECT * FROM c WHERE c.fiscalCode = @fiscalCode and c.isPending = false";
-    const parameters = [{ name: "@fiscalCode", value: fiscalCode }];
+    const parameters: SqlParameter[] = [
+      { name: "@fiscalCode", value: fiscalCode },
+    ];
 
     if (maximumID) {
       queryText += " AND c.id < @maximumId";

@@ -1,6 +1,7 @@
 import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
 
 import {
+  FiscalCode,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -35,7 +36,7 @@ import { ServicesCmsRepository } from "../ports/services-cms.js";
 export type GetMessagesByUserUseCase = UseCase<
   {
     archived: boolean;
-    fiscalCode: string;
+    fiscalCode: FiscalCode;
     maximumID?: string;
     minimumID?: string;
     pageSize: number;
@@ -218,7 +219,7 @@ const collectSelectedMessages = async (
     pageSize,
   }: {
     archived: boolean;
-    fiscalCode: string;
+    fiscalCode: FiscalCode;
     maximumID?: string;
     minimumID?: string;
     pageSize: number;

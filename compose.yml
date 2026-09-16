@@ -5,6 +5,7 @@ services:
     build: .devcontainer
     volumes:
       - ".:/workspace:cached"
+      - "azure-functions-core-tools:/home/vscode/.azure-functions-core-tools"
     network_mode: "service:azurite"
 
   rc-app:
@@ -192,3 +193,6 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: local
       ME_CONFIG_BASICAUTH: false
+
+volumes:
+  azure-functions-core-tools:
