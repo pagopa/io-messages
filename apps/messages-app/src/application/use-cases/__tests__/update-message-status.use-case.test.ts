@@ -1,5 +1,6 @@
 import {
   ConflictError,
+  FiscalCodeSchema,
   ForbiddenError,
   GenericError,
   NotFoundError,
@@ -17,7 +18,7 @@ import { MalformedEntityError } from "../../ports/error.js";
 import { makeUpdateMessageStatusUseCase } from "../update-message-status.use-case.js";
 
 const messageId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
-const fiscalCode = "RSSMRA80A01H501U";
+const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
 const updatedAt = new Date("2024-02-03T04:05:06.000Z");
 const latestStatus: MessageStatus = {
   fiscalCode,
@@ -110,7 +111,7 @@ describe("makeUpdateMessageStatusUseCase", () => {
     const useCase = makeUpdateMessageStatusUseCase(repository);
 
     const result = await useCase({
-      fiscalCode: "FRMTTR76M06B715E",
+      fiscalCode: FiscalCodeSchema.parse("FRMTTR76M06B715E"),
       isRead: true,
       messageId,
     });

@@ -1,4 +1,5 @@
 import {
+  FiscalCode,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -32,7 +33,7 @@ type GetMessageError =
 
 export type GetMessageUseCase = UseCase<
   {
-    fiscalCode: string;
+    fiscalCode: FiscalCode;
     messageId: string;
     publicMessage: boolean;
   },
