@@ -72,6 +72,10 @@ const baseConfigSchema = z.object({
   MESSAGE_CREATED_QUEUE_NAME: z.string().min(3),
   MESSAGE_METADATA_CONTAINER_NAME: z.string().min(3),
   MESSAGE_STATUS_CONTAINER_NAME: z.string().min(3),
+  PAGOPA_ECOMMERCE_API_KEY: z.string().min(1),
+  PAGOPA_ECOMMERCE_BASE_URL: z.url().transform((val) => new URL(val)),
+  PAGOPA_ECOMMERCE_UAT_API_KEY: z.string().min(1),
+  PAGOPA_ECOMMERCE_UAT_BASE_URL: z.url().transform((val) => new URL(val)),
   PN_SERVICE_ID: z.string().min(1),
   PORT: z.coerce.number().int().min(1025).max(65_535), // Read as string, parsed as integer.
   PROCESSING_MESSAGE_CONTAINER_NAME: z.string().min(3),
