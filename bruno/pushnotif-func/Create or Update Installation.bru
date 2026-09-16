@@ -19,25 +19,25 @@ body:json {
 
 vars:pre-request {
   fiscal_code: LVTEST00A00A199X
-  installation_id: local-installation-id
+  installation_id: 3ed4f28dda86626a321d9b02a03a0030ea6be8e0bf6c7ce8f2ab1540eae9bc69
   platform: fcmv1
   push_channel: local-device-token
 }
 
+assert {
+  res.status: eq 200
+  res.body.message: eq ok
+}
+
 script:pre-request {
   const userIdentity = {
-    fiscal_code: bru.getVar("fiscal_code"),
+    fiscal_code: bru.getRequestVar("fiscal_code")
   };
 
   req.setHeader(
     "x-user",
     Buffer.from(JSON.stringify(userIdentity)).toString("base64"),
   );
-}
-
-assert {
-  res.status: eq 200
-  res.body.message: eq ok
 }
 
 docs {
