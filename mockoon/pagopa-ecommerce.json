@@ -1,0 +1,229 @@
+{
+  "uuid": "7c5a13b0-56b5-43ec-a0ee-88bf19800a10",
+  "lastMigration": 33,
+  "name": "PagoPA Ecommerce",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3000,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "a1dfeeb7-4ddd-4de0-992d-7061263138b2",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "payment-requests/:rpt_id",
+      "responses": [
+        {
+          "uuid": "a1e77870-8f5d-4bf0-9877-f07c8dbfce6d",
+          "body": "{\n  \"rptId\": \"{{urlParam 'rpt_id'}}\",\n  \"paFiscalCode\": \"12345678901\",\n  \"paName\": \"PagoPA Mock PA\",\n  \"description\": \"PagoPA Ecommerce mock payment\",\n  \"amount\": 11400,\n  \"dueDate\": \"2025-05-31\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Payment info",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "0d8898d8-6bda-4496-84b5-a7e1bdde3400",
+          "body": "{\n  \"title\": \"Bad request\"\n}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "Invalid payment request",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "rpt_id",
+              "value": "400",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "3947b775-c2e9-45f9-a702-e3da9de0b0a2",
+          "body": "{\n  \"faultCodeCategory\": \"PAYMENT_UNKNOWN\",\n  \"faultCodeDetail\": \"PAA_PAGAMENTO_SCONOSCIUTO\"\n}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "Payment not found",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "rpt_id",
+              "value": "404",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "cb636476-1cab-433e-b5cb-d95c42415ee5",
+          "body": "{\n  \"faultCodeCategory\": \"PAYMENT_ONGOING\",\n  \"faultCodeDetail\": \"PAA_PAGAMENTO_IN_CORSO\"\n}",
+          "latency": 0,
+          "statusCode": 409,
+          "label": "Payment conflict",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "rpt_id",
+              "value": "409",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "6ec92bb4-cd24-4728-9182-b25f92f0ba4e",
+          "body": "{\n  \"faultCodeCategory\": \"PAYMENT_UNAVAILABLE\",\n  \"faultCodeDetail\": \"PPT_STAZIONE_INT_PA_TIMEOUT\"\n}",
+          "latency": 0,
+          "statusCode": 502,
+          "label": "PagoPA bad gateway",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "rpt_id",
+              "value": "502",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "53eb3984-9acc-4636-8387-68c983d6b02a",
+          "body": "{\n  \"faultCodeCategory\": \"PAYMENT_UNAVAILABLE\",\n  \"faultCodeDetail\": \"PAA_SYSTEM_ERROR\"\n}",
+          "latency": 0,
+          "statusCode": 503,
+          "label": "EC unavailable",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "rpt_id",
+              "value": "503",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "a1dfeeb7-4ddd-4de0-992d-7061263138b2"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With, Ocp-Apim-Subscription-Key"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}
