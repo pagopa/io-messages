@@ -1,3 +1,5 @@
+import type { NotificationEvent } from "@pagopa/io-functions-commons/dist/src/models/notification_event";
+
 import { FunctionOutput } from "@azure/functions";
 import { BlockedInboxOrChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/BlockedInboxOrChannel";
 import { FiscalCode } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FiscalCode";
@@ -6,7 +8,6 @@ import { MessageContent } from "@pagopa/io-functions-commons/dist/generated/defi
 import { NotificationChannelEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/NotificationChannel";
 import { ServiceId } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ServiceId";
 import { ServicesPreferencesModeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/ServicesPreferencesMode";
-import { CreatedMessageEventSenderMetadata } from "@pagopa/io-functions-commons/dist/src/models/created_message_sender_metadata";
 import { NewMessageWithoutContent } from "@pagopa/io-functions-commons/dist/src/models/message";
 import {
   NewNotification,
@@ -15,7 +16,6 @@ import {
   NotificationModel,
   createNewNotification,
 } from "@pagopa/io-functions-commons/dist/src/models/notification";
-import { NotificationEvent } from "@pagopa/io-functions-commons/dist/src/models/notification_event";
 import { RetrievedProfile } from "@pagopa/io-functions-commons/dist/src/models/profile";
 import { ulidGenerator } from "@pagopa/io-functions-commons/dist/src/utils/strings";
 import * as E from "fp-ts/lib/Either";
@@ -26,6 +26,7 @@ import * as t from "io-ts";
 
 import {
   CommonMessageData,
+  CreatedMessageEventSenderMetadata,
   NotificationCreatedEvent,
   ProcessedMessageEvent,
 } from "../../utils/events/message";
@@ -61,7 +62,7 @@ async function createNotification(
   newMessageWithoutContent: NewMessageWithoutContent,
   newMessageContent: MessageContent,
   newNotification: NewNotification,
-): Promise<NotificationEvent> {
+): Promise<Pick<NotificationEvent, "notificationId">> {
   const errorOrNotification =
     await lNotificationModel.create(newNotification)();
 
@@ -74,10 +75,7 @@ async function createNotification(
   const notification = errorOrNotification.right;
 
   return {
-    content: newMessageContent,
-    message: newMessageWithoutContent,
     notificationId: notification.id,
-    senderMetadata,
   };
 }
 
