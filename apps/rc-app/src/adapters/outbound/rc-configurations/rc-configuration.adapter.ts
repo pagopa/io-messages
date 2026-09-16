@@ -7,11 +7,11 @@ import {
 } from "@azure/cosmos";
 import {
   ConflictError,
-  FiscalCodeSchema,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
+import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import { Result, ResultAsync, err, ok } from "neverthrow";
 import z from "zod";
 
@@ -43,13 +43,13 @@ const rcEnvironmentConfigSchema = z.object({
 });
 
 const rcTestEnvironmentConfigSchema = rcEnvironmentConfigSchema.extend({
-  testUsers: z.array(FiscalCodeSchema),
+  testUsers: z.array(fiscalCodeSchema),
 });
 
 export const cosmosRCConfigurationSchema = z.object({
   configurationId: RcConfigurationIdSchema,
   description: z.string().min(1),
-  disableLollipopFor: z.array(FiscalCodeSchema),
+  disableLollipopFor: z.array(fiscalCodeSchema),
   hasPrecondition: z.enum(["ALWAYS", "ONCE", "NEVER"]),
   id: z.string().min(1),
   isLollipopEnabled: z.boolean(),
