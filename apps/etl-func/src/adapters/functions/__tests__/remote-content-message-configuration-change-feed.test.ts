@@ -71,22 +71,23 @@ describe("remoteContentMessageConfigurationChangeFeedHandler", () => {
     expect(executeMock).toHaveBeenNthCalledWith(2, anotherConfiguration);
   });
 
-  test("rejects malformed configurations and reports the failure", async () => {
-    await expect(
-      handler(
-        [{ ...validConfiguration, configurationId: "not-a-ulid" }],
-        context,
-      ),
-    ).rejects.toThrow();
+  test("reports malformed configurations and continues the batch", async () => {
+    const malformedConfiguration = {
+      ...validConfiguration,
+      configurationId: "not-a-ulid",
+    };
 
-    expect(executeMock).not.toHaveBeenCalled();
-    expect(contextErrorMock).toHaveBeenCalledOnce();
+    await handler([malformedConfiguration, validConfiguration], context);
+
+    expect(executeMock).toHaveBeenCalledOnce();
+    expect(executeMock).toHaveBeenCalledWith(validConfiguration);
+    expect(contextErrorMock).not.toHaveBeenCalled();
     expect(trackEventMock).toHaveBeenCalledWith(
-      TelemetryEventName.REMOTE_CONTENT_CHANGE_FEED_RETRY_FAILURE,
-      expect.objectContaining({
+      TelemetryEventName.REMOTE_CONTENT_CHANGE_FEED_PARSE_FAILURE,
+      {
+        detail: "Invalid configuration document",
         invocationId: context.invocationId,
-        isSuccess: "false",
-      }),
+      },
     );
   });
 

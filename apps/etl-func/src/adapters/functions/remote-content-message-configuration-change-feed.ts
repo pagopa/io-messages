@@ -15,9 +15,19 @@ const remoteContentMessageConfigurationChangeFeedHandler =
   async (documents: unknown[], context: InvocationContext) => {
     try {
       for (const document of documents) {
-        const configuration = rcConfigurationSchema.parse(document);
+        const configuration = rcConfigurationSchema.safeParse(document);
 
-        await alignRemoteContentConfiguration.execute(configuration);
+        if (configuration.success) {
+          await alignRemoteContentConfiguration.execute(configuration.data);
+        } else {
+          telemetryService.trackEvent(
+            TelemetryEventName.REMOTE_CONTENT_CHANGE_FEED_PARSE_FAILURE,
+            {
+              detail: "Invalid configuration document",
+              invocationId: context.invocationId,
+            },
+          );
+        }
       }
     } catch (error) {
       const failure = error instanceof Error ? error : new Error(String(error));
@@ -27,7 +37,6 @@ const remoteContentMessageConfigurationChangeFeedHandler =
         {
           detail: failure.message,
           invocationId: context.invocationId,
-          isSuccess: "false",
         },
       );
       context.error(failure.message);
