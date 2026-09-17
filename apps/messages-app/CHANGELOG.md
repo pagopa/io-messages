@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.6.2
+
+### Patch Changes
+
+- f9db689: Update zod version
+
 ## 0.6.1
 
 ### Patch Changes

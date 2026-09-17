@@ -1,5 +1,11 @@
 # rc-app
 
+## 0.5.1
+
+### Patch Changes
+
+- f9db689: Update zod version
+
 ## 0.5.0
 
 ### Minor Changes
