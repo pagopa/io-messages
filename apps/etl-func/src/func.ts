@@ -222,7 +222,7 @@ const main = async (config: Config) => {
     leaseContainerPrefix: "RemoteContentMessageConfigurationChangeFeed-00",
     retry: {
       delayInterval: 10000,
-      maxRetryCount: -1,
+      maxRetryCount: 5,
       strategy: "fixedDelay",
     },
     startFromBeginning: true,
