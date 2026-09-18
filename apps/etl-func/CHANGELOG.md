@@ -1,5 +1,11 @@
 # etl-func
 
+## 1.1.0
+
+### Minor Changes
+
+- 6b76724: Move the remote-content message configuration change-feed processing to etl-func.
+
 ## 1.0.15
 
 ### Patch Changes
