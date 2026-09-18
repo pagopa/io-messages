@@ -1,9 +1,7 @@
-import { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
 import {
   AzureApiAuthMiddleware,
   UserGroup,
 } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_api_auth";
-import { AzureUserAttributesMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_user_attributes";
 import { ClientIpMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/client_ip_middleware";
 import { ContextMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { OptionalFiscalCodeMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/fiscalcode";
@@ -27,6 +25,7 @@ import { pipe } from "fp-ts/lib/function";
 import { Errors } from "io-ts";
 
 import { ApiNewMessageWithDefaults } from "../functions/CreateMessage/types";
+import { ICreateMessageUserAttributes } from "./services-cms-user-attributes-middleware";
 
 /**
  * A request middleware that validates the Message payload.
@@ -52,11 +51,19 @@ export const MessagePayloadMiddleware: IRequestMiddleware<
  * sending a message through IO Platform. Every edit to this list of middlewares
  * applies also to Legal Message endpoint
  *
- * @param serviceModel
+ * @param userAttributesMiddleware
  * @returns an Array of Common middlewares applied to Send a message through IO App
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const commonCreateMessageMiddlewares = (serviceModel: ServiceModel) =>
+export const commonCreateMessageMiddlewares = (
+  userAttributesMiddleware: IRequestMiddleware<
+    | "IResponseErrorForbiddenNotAuthorized"
+    | "IResponseErrorInternal"
+    | "IResponseErrorQuery"
+    | "IResponseErrorTooManyRequests",
+    ICreateMessageUserAttributes
+  >,
+) =>
   [
     ContextMiddleware(),
     // allow only users in the ApiMessageWrite and ApiMessageWriteLimited groups
@@ -66,7 +73,7 @@ export const commonCreateMessageMiddlewares = (serviceModel: ServiceModel) =>
     // extracts the client IP from the request
     ClientIpMiddleware,
     // extracts custom user attributes from the request
-    AzureUserAttributesMiddleware(serviceModel),
+    userAttributesMiddleware,
     // extracts the create message payload from the request body
     MessagePayloadMiddleware,
     // extracts the optional fiscal code from the request params

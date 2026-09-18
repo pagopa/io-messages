@@ -2,6 +2,7 @@
  * Implements the API handlers for the Message resource.
  */
 import { RemoteContentClient } from "@/clients/remote-content";
+import { ServicesCmsClient } from "@/clients/services-cms";
 import { FunctionOutput, InvocationContext } from "@azure/functions";
 import { EUCovidCert } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/EUCovidCert";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FeatureLevelType";
@@ -29,7 +30,7 @@ import {
 } from "@pagopa/io-functions-commons/dist/src/utils/response";
 import {
   checkSourceIpForHandler,
-  clientIPAndCidrTuple as ipTuple,
+  clientIPAndCidrTuple,
 } from "@pagopa/io-functions-commons/dist/src/utils/source_ip_check";
 import {
   ObjectIdGenerator,
@@ -76,6 +77,11 @@ import {
 } from "../../utils/events/message";
 import { commonCreateMessageMiddlewares } from "../../utils/message_middlewares";
 import {
+  CosmosUserAttributesMiddleware,
+  ICreateMessageUserAttributes,
+  ServicesCmsUserAttributesMiddleware,
+} from "../../utils/services-cms-user-attributes-middleware";
+import {
   ApiNewMessageWithAdvancedFeatures,
   ApiNewMessageWithContentOf,
   ApiNewMessageWithDefaults,
@@ -95,7 +101,7 @@ type ICreateMessageHandler = (
   context: InvocationContext,
   auth: IAzureApiAuthorization,
   clientIp: ClientIp,
-  attrs: IAzureUserAttributes,
+  attrs: ICreateMessageUserAttributes,
   messagePayload: ApiNewMessageWithDefaults,
   maybeFiscalCode: Option<FiscalCode>,
 ) => Promise<
@@ -123,7 +129,7 @@ export type CreateMessageHandlerResponse = PromiseType<
  */
 export const canWriteMessage = (
   authGroups: IAzureApiAuthorization["groups"],
-  authorizedRecipients: IAzureUserAttributes["service"]["authorizedRecipients"],
+  authorizedRecipients: ICreateMessageUserAttributes["service"]["authorizedRecipients"],
   fiscalCode: FiscalCode,
 ): Either<
   | IResponseErrorForbiddenNotAuthorizedForProduction
@@ -200,7 +206,7 @@ export const ResponseErrorForbiddenNotAuthorizedForAttachments: IResponseErrorFo
  */
 export const canPaymentAmount = (
   messageContent: ApiNewMessage["content"],
-  maxAllowedPaymentAmount: IAzureUserAttributes["service"]["maxAllowedPaymentAmount"],
+  maxAllowedPaymentAmount: ICreateMessageUserAttributes["service"]["maxAllowedPaymentAmount"],
 ): Either<IResponseErrorValidation, true> => {
   const requestedAmount = messageContent.payment_data
     ? messageContent.payment_data.amount
@@ -234,7 +240,7 @@ export const createMessageDocument = (
   recipientFiscalCode: FiscalCode,
   timeToLiveSeconds: ApiNewMessageWithDefaults["time_to_live"],
   featureLevelType: ApiNewMessageWithDefaults["feature_level_type"],
-  serviceId: IAzureUserAttributes["service"]["serviceId"],
+  serviceId: ICreateMessageUserAttributes["service"]["serviceId"],
 ): TaskEither<
   IResponseErrorInternal | IResponseErrorQuery,
   NewMessageWithoutContent
@@ -494,7 +500,7 @@ export function CreateMessageHandler(
                     ? messagePayload.content.require_secure_channels
                     : service.requireSecureChannels,
                 serviceCategory: pipe(
-                  O.fromNullable(service.serviceMetadata?.category),
+                  O.fromNullable(service.serviceCategory),
                   O.getOrElseW(() => StandardServiceCategoryEnum.STANDARD),
                 ),
                 serviceName: service.serviceName,
@@ -516,7 +522,7 @@ export function CreateMessageHandler(
           {
             defaultAddresses: {}, // deprecated feature
             messageId: newMessageWithoutContent.id,
-            serviceVersion: service.version,
+            serviceVersion: service.serviceVersion,
           },
           CreatedMessageEvent.decode,
           TE.fromEither,
@@ -552,6 +558,8 @@ export function CreateMessage(
   telemetryClient: ReturnType<typeof initAppInsights>,
   remoteContentClient: RemoteContentClient,
   serviceModel: ServiceModel,
+  servicesCmsClient: ServicesCmsClient,
+  isServiceDetailsApiEnabled: boolean,
   messageModel: MessageModel,
   saveProcessingMessage: ReturnType<typeof makeUpsertBlobFromObject>,
   sandboxFiscalCode: NonEmptyString,
@@ -568,7 +576,11 @@ export function CreateMessage(
   );
   const middlewares = [
     // Common CreateMessage Middlewares
-    ...commonCreateMessageMiddlewares(serviceModel),
+    ...commonCreateMessageMiddlewares(
+      isServiceDetailsApiEnabled
+        ? ServicesCmsUserAttributesMiddleware(servicesCmsClient)
+        : CosmosUserAttributesMiddleware(serviceModel),
+    ),
     AzureAllowBodyPayloadMiddleware(
       ApiNewMessageWithContentOf(t.type({ eu_covid_cert: EUCovidCert })),
       new Set([UserGroup.ApiMessageWriteEUCovidCert]),
@@ -605,8 +617,8 @@ export function CreateMessage(
         _: InvocationContext,
         __: IAzureApiAuthorization,
         c: ClientIp,
-        u: IAzureUserAttributes,
-      ) => ipTuple(c, u),
+        u: ICreateMessageUserAttributes,
+      ) => clientIPAndCidrTuple(c, u as IAzureUserAttributes),
     ),
   );
 }

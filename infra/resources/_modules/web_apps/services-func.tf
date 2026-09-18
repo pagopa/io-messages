@@ -44,8 +44,9 @@ locals {
 
       APIM_BASE_URL = "https://api-app.internal.io.pagopa.it"
 
-      OPT_OUT_EMAIL_SWITCH_DATE = 1625781600
-      FF_OPT_IN_EMAIL_ENABLED   = "true"
+      OPT_OUT_EMAIL_SWITCH_DATE      = 1625781600
+      FF_OPT_IN_EMAIL_ENABLED        = "true"
+      FF_SERVICE_DETAILS_API_ENABLED = "false"
 
       // minimum app version that introduces read status opt-out
       // NOTE: right now is set to a non existing version, since it's not yet deployed
