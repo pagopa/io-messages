@@ -29,6 +29,16 @@ const jsonResponse = (body: unknown, status = 200) =>
 
 const fetchMock = vi.fn<typeof fetch>();
 
+const expectFetchRequest = (url: string, apiKey: string) => {
+  const request = fetchMock.mock.calls[0]?.[0];
+
+  expect(request).toBeInstanceOf(Request);
+  expect((request as Request).url).toBe(url);
+  expect((request as Request).headers.get("Ocp-Apim-Subscription-Key")).toBe(
+    apiKey,
+  );
+};
+
 const adapter = new PagoPAEcommerceHttpClientAdapter(
   {
     apiKey: "production-api-key",
@@ -52,13 +62,9 @@ describe("PagoPAEcommerceHttpClientAdapter", () => {
 
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toEqual(paymentInfo);
-    expect(fetchMock).toHaveBeenCalledWith(
+    expectFetchRequest(
       `https://pagopa.example/ecommerce/payment-requests/${rptId}`,
-      {
-        headers: {
-          "Ocp-Apim-Subscription-Key": "production-api-key",
-        },
-      },
+      "production-api-key",
     );
   });
 
@@ -66,13 +72,9 @@ describe("PagoPAEcommerceHttpClientAdapter", () => {
     const result = await adapter.getPaymentInfo(rptId, true);
 
     expect(result.isOk()).toBe(true);
-    expect(fetchMock).toHaveBeenCalledWith(
+    expectFetchRequest(
       `https://uat.pagopa.example/payment-requests/${rptId}`,
-      {
-        headers: {
-          "Ocp-Apim-Subscription-Key": "uat-api-key",
-        },
-      },
+      "uat-api-key",
     );
   });
 

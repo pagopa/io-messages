@@ -9,22 +9,27 @@ import {
   PaymentInfo,
   paymentInfoSchema,
 } from "io-messages-common/domain/payment";
-import { Result, ResultAsync, err, ok } from "neverthrow";
+import { Result, err, ok } from "neverthrow";
 
 import { MalformedEntityError } from "../../../application/ports/error.js";
 import {
   PaymentInfoError,
   PaymentInfoRepository,
 } from "../../../application/ports/payment-info.js";
+import { createClient } from "../../../generated/pagopa-ecommerce/client/index.js";
+import { getPaymentRequestInfo } from "../../../generated/pagopa-ecommerce/sdk.gen.js";
 
 interface PagoPAEcommerceEnvironment {
   apiKey: string;
   baseURL: URL;
 }
 
-const getResponseBody = async (response: Response): Promise<string> => {
+const toErrorBody = (error: unknown): string => {
+  if (typeof error === "string") return error;
+  if (error instanceof Error) return error.message;
+
   try {
-    return await response.text();
+    return JSON.stringify(error);
   } catch {
     return "unreadable response body";
   }
@@ -43,33 +48,32 @@ export class PagoPAEcommerceHttpClientAdapter implements PaymentInfoRepository {
     const environment = isTest
       ? this.uatEnvironment
       : this.productionEnvironment;
-    const paymentInfoURL = new URL(environment.baseURL);
-    paymentInfoURL.pathname = `${paymentInfoURL.pathname.replace(/\/$/, "")}/payment-requests/${rptId}`;
 
-    const response = await ResultAsync.fromPromise(
-      fetch(paymentInfoURL.toString(), {
-        headers: {
-          "Ocp-Apim-Subscription-Key": environment.apiKey,
-        },
+    const response = await getPaymentRequestInfo({
+      auth: environment.apiKey,
+      client: createClient({
+        baseUrl: environment.baseURL.toString(),
       }),
-      (error) => new GenericError(String(error)),
-    );
+      path: {
+        rpt_id: rptId,
+      },
+    });
 
-    if (response.isErr()) return err(response.error);
+    if (!response.response) {
+      return err(new GenericError(toErrorBody(response.error)));
+    }
 
-    switch (response.value.status) {
+    switch (response.response.status) {
       case 200: {
-        const jsonResponse = await ResultAsync.fromPromise(
-          response.value.json(),
-          () =>
+        if (!response.data) {
+          return err(
             new MalformedEntityError(
               "invalid json response from pagopa ecommerce",
             ),
-        );
+          );
+        }
 
-        if (jsonResponse.isErr()) return err(jsonResponse.error);
-
-        const parsedResult = paymentInfoSchema.safeParse(jsonResponse.value);
+        const parsedResult = paymentInfoSchema.safeParse(response.data);
         if (!parsedResult.success) {
           return err(
             new MalformedEntityError(
@@ -84,7 +88,7 @@ export class PagoPAEcommerceHttpClientAdapter implements PaymentInfoRepository {
       case 400:
         return err(
           new GenericError(
-            `malformed payment info request for rptId ${rptId}: ${await getResponseBody(response.value)}`,
+            `malformed payment info request for rptId ${rptId}: ${toErrorBody(response.error)}`,
           ),
         );
 
@@ -127,7 +131,7 @@ export class PagoPAEcommerceHttpClientAdapter implements PaymentInfoRepository {
       default:
         return err(
           new GenericError(
-            `unexpected pagopa ecommerce response for rptId ${rptId}: ${response.value.status}`,
+            `unexpected pagopa ecommerce response for rptId ${rptId}: ${response.response.status}`,
           ),
         );
     }
