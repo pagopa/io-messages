@@ -10,7 +10,6 @@ import {
   GetPaymentInfoResponseSchema,
   toGetPaymentInfoResponse,
 } from "./dto/get-payment-info.dto.js";
-import { makePaymentInfoAuthorizationMiddleware } from "./middlewares/payment-info-authorization.middleware.js";
 
 const getPaymentInfoContract = defineRoute({
   method: "get",
@@ -32,7 +31,6 @@ const getPaymentInfoContract = defineRoute({
   response: {
     200: GetPaymentInfoResponseSchema,
     400: ProblemDetailsSchema,
-    403: ProblemDetailsSchema,
     404: ProblemDetailsSchema,
     409: ProblemDetailsSchema,
     500: ProblemDetailsSchema,
@@ -50,10 +48,7 @@ export const mountGetPaymentInfoHandler = (
     inputMapper: (request, context) => ({
       isTest: request.query.test,
       rptId: request.path.rpt_id,
-      subscriptionId: context.subscriptionId,
-      userId: context.userId,
     }),
-    middlewares: [makePaymentInfoAuthorizationMiddleware()],
     outputMapper: toGetPaymentInfoResponse,
     useCase,
   });

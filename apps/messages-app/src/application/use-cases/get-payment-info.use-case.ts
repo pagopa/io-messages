@@ -9,8 +9,6 @@ import {
 export interface GetPaymentInfoInput {
   isTest: boolean;
   rptId: string;
-  subscriptionId?: string;
-  userId?: string;
 }
 
 export type GetPaymentInfoUseCase = UseCase<

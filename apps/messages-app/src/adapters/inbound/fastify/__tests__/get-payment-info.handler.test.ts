@@ -17,11 +17,6 @@ import type { GetPaymentInfoUseCase } from "../../../../application/use-cases/ge
 import { mountGetPaymentInfoHandler } from "../get-payment-info.handler.js";
 
 const rptId = "12345678901234567890123456789012345";
-const validHeaders = {
-  "x-subscription-id": "subscription-id",
-  "x-user-groups": "ApiPaymentInfoRead",
-  "x-user-id": "user-id",
-};
 
 const paymentInfo: PaymentInfo = {
   amount: 11400,
@@ -48,7 +43,6 @@ describe("mountGetPaymentInfoHandler", () => {
 
   it("maps a valid payment-info request", async () => {
     const response = await server.inject({
-      headers: validHeaders,
       method: "GET",
       url: `/api/payments/${rptId}?test=TRUE`,
     });
@@ -57,15 +51,12 @@ describe("mountGetPaymentInfoHandler", () => {
     expect(useCase).toHaveBeenCalledWith({
       isTest: true,
       rptId,
-      subscriptionId: "subscription-id",
-      userId: "user-id",
     });
     expect(response.json()).toEqual(paymentInfo);
   });
 
   it("defaults test mode to false", async () => {
     const response = await server.inject({
-      headers: validHeaders,
       method: "GET",
       url: `/api/payments/${rptId}`,
     });
@@ -74,32 +65,16 @@ describe("mountGetPaymentInfoHandler", () => {
     expect(useCase).toHaveBeenCalledWith({
       isTest: false,
       rptId,
-      subscriptionId: "subscription-id",
-      userId: "user-id",
     });
   });
 
   it("returns 400 when rpt_id is invalid", async () => {
     const response = await server.inject({
-      headers: validHeaders,
       method: "GET",
       url: "/api/payments/not-valid!",
     });
 
     expect(response.statusCode).toBe(400);
-    expect(response.headers["content-type"]).toContain(
-      "application/problem+json",
-    );
-    expect(useCase).not.toHaveBeenCalled();
-  });
-
-  it("returns 403 when APIM headers are missing", async () => {
-    const response = await server.inject({
-      method: "GET",
-      url: `/api/payments/${rptId}`,
-    });
-
-    expect(response.statusCode).toBe(403);
     expect(response.headers["content-type"]).toContain(
       "application/problem+json",
     );
@@ -116,7 +91,6 @@ describe("mountGetPaymentInfoHandler", () => {
     vi.mocked(useCase).mockResolvedValue(err(error));
 
     const response = await server.inject({
-      headers: validHeaders,
       method: "GET",
       url: `/api/payments/${rptId}`,
     });
