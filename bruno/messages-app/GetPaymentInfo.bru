@@ -1,0 +1,30 @@
+meta {
+  name: GetPaymentInfo
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{messages_app_base_url}}/api/payments/{{rpt_id}}?test=false
+  body: none
+  auth: inherit
+}
+
+params:query {
+  test: false
+}
+
+headers {
+  x-user-groups: ApiPaymentInfoRead
+  x-subscription-id: {{sender_subscription_id}}
+  x-user-id: {{sender_user_id}}
+}
+
+vars:pre-request {
+  rpt_id: 12345678901312345678901234567
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
