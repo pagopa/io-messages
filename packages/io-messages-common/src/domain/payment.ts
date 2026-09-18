@@ -1,4 +1,5 @@
 import z from "zod";
+
 import { rptIdSchema } from "./message.js";
 
 export const paymentAmountSchema = z.number().int().min(0).max(9999999999);
