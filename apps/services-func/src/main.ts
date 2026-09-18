@@ -47,6 +47,7 @@ import { MessageContentBlobAdapter } from "io-messages-common-legacy/adapters/me
 
 import { pagoPaEcommerceClient } from "./clients/pagopa-ecommerce";
 import { remoteContentClient } from "./clients/remote-content";
+import { makeServicesCmsClient } from "./clients/services-cms";
 import { CreateMessage } from "./functions/CreateMessage/handler";
 import { makeUpsertBlobFromObject } from "./functions/CreateMessage/utils";
 import { getCreateNotificationHandler } from "./functions/CreateNotification/handler";
@@ -66,6 +67,10 @@ import { makeRetrieveExpandedDataFromBlob } from "./utils/with-expanded-input";
 
 const config = getConfigOrThrow();
 const telemetryClient = initTelemetryClient(config);
+const servicesCmsClient = makeServicesCmsClient(
+  config.APIM_BASE_URL,
+  config.APIM_SUBSCRIPTION_KEY,
+);
 
 const aadCredentials = new DefaultAzureCredential();
 
@@ -202,6 +207,8 @@ app.http("CreateMessage", {
     telemetryClient,
     remoteContentClient,
     serviceModel,
+    servicesCmsClient,
+    config.FF_SERVICE_DETAILS_API_ENABLED,
     messageModel,
     makeUpsertBlobFromObject(
       blobServiceClientForIO,

@@ -69,6 +69,7 @@ export const IConfig = t.intersection([
     EMAIL_NOTIFICATION_SERVICE_BLACKLIST: CommaSeparatedListOf(ServiceId),
 
     FF_OPT_IN_EMAIL_ENABLED: t.boolean,
+    FF_SERVICE_DETAILS_API_ENABLED: t.boolean,
 
     // queues for handling message processing jobs
     MESSAGE_CONTAINER_NAME: NonEmptyString,
@@ -112,6 +113,11 @@ export const envConfig = {
   ...process.env,
   FF_OPT_IN_EMAIL_ENABLED: pipe(
     O.fromNullable(process.env.FF_OPT_IN_EMAIL_ENABLED),
+    O.map((_) => _.toLocaleLowerCase() === "true"),
+    O.getOrElse(() => false),
+  ),
+  FF_SERVICE_DETAILS_API_ENABLED: pipe(
+    O.fromNullable(process.env.FF_SERVICE_DETAILS_API_ENABLED),
     O.map((_) => _.toLocaleLowerCase() === "true"),
     O.getOrElse(() => false),
   ),
