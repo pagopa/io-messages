@@ -8,10 +8,10 @@ import {
   ServiceUnavailableError,
 } from "@pagopa/hexagonal-core";
 import fastify from "fastify";
+import { PaymentInfo } from "io-messages-common/domain/payment";
 import { err, ok } from "neverthrow";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { PaymentInfo } from "../../../../application/ports/payment-info.js";
 import type { GetPaymentInfoUseCase } from "../../../../application/use-cases/get-payment-info.use-case.js";
 
 import { mountGetPaymentInfoHandler } from "../get-payment-info.handler.js";

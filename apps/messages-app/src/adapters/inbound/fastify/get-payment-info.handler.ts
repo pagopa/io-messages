@@ -2,9 +2,9 @@ import type { FastifyInstance } from "fastify";
 
 import { ProblemDetailsSchema, defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
+import { rptIdSchema } from "io-messages-common/domain/message";
 import z from "zod";
 
-import { rptIdSchema } from "../../../application/ports/payment-info.js";
 import { GetPaymentInfoUseCase } from "../../../application/use-cases/get-payment-info.use-case.js";
 import {
   GetPaymentInfoResponseSchema,
@@ -45,7 +45,7 @@ export const mountGetPaymentInfoHandler = (
 ): void => {
   mountFastifyRoute(server, {
     contract: getPaymentInfoContract,
-    inputMapper: (request, context) => ({
+    inputMapper: (request) => ({
       isTest: request.query.test,
       rptId: request.path.rpt_id,
     }),

@@ -1,7 +1,7 @@
 import { UseCase } from "@pagopa/hexagonal-core";
+import { PaymentInfo } from "io-messages-common/domain/payment";
 
 import {
-  PaymentInfo,
   PaymentInfoError,
   PaymentInfoRepository,
 } from "../ports/payment-info.js";

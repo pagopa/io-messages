@@ -1,11 +1,9 @@
 import { GenericError } from "@pagopa/hexagonal-core";
+import { PaymentInfo } from "io-messages-common/domain/payment";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
-import type {
-  PaymentInfo,
-  PaymentInfoRepository,
-} from "../../ports/payment-info.js";
+import type { PaymentInfoRepository } from "../../ports/payment-info.js";
 
 import { makeGetPaymentInfoUseCase } from "../get-payment-info.use-case.js";
 

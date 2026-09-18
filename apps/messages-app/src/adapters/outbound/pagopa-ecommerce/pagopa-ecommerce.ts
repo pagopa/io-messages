@@ -5,14 +5,16 @@ import {
   NotFoundError,
   ServiceUnavailableError,
 } from "@pagopa/hexagonal-core";
+import {
+  PaymentInfo,
+  paymentInfoSchema,
+} from "io-messages-common/domain/payment";
 import { Result, ResultAsync, err, ok } from "neverthrow";
 
 import { MalformedEntityError } from "../../../application/ports/error.js";
 import {
-  PaymentInfo,
   PaymentInfoError,
   PaymentInfoRepository,
-  paymentInfoSchema,
 } from "../../../application/ports/payment-info.js";
 
 interface PagoPAEcommerceEnvironment {
