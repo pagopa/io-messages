@@ -9,5 +9,7 @@ export enum TelemetryEventName {
   MESSAGE_CONTENT_NOT_FOUND = "io.com.message.ingestion.content_not_found",
   MESSAGE_EXECUTION_ERROR = "io.com.message.ingestion.execution_error",
   MESSAGE_STATUS_EXECUTION_ERROR = "io.com.message_status.ingestion.execution_error",
+  REMOTE_CONTENT_CHANGE_FEED_PARSE_FAILURE = "io.com.message.etl.changefeed.parse.failure",
+  REMOTE_CONTENT_CHANGE_FEED_RETRY_FAILURE = "io.com.message.etl.changefeed.retry.failure",
   UNEXPECTED_ERROR = "io.com.message.ingestion.unexpected_error",
 }
