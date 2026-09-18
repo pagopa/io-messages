@@ -3,6 +3,8 @@ locals {
     app_settings = {
       NODE_ENV = "production"
 
+      "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "1"
+
       // IO COSMOSDB
       COSMOSDB_NAME = "db"
       COSMOSDB_URI  = var.cosmosdb_account_api.endpoint

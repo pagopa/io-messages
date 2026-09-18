@@ -27,7 +27,7 @@ locals {
       RC_USER_CONFIGURATION_CONTAINER_NAME                                      = "user-configurations"
       ACCOUNT_STORAGE__tableServiceUri                                          = var.app_settings.message_error_table_storage_uri
       MESSAGE_STATUS_ERROR_TABLE_STORAGE_NAME                                   = "MessageStatusesDataplanIngestionErrors",
-      "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "1"
+      "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "0"
     }
   }
 }
@@ -56,10 +56,11 @@ module "etl_func" {
 
   app_settings = local.etl_func.app_settings
 
-  sticky_app_setting_names = ["NODE_ENV", "AzureWebJobs.IngestMessageStatus.Disabled", "AzureWebJobs.IngestMessages.Disabled"]
+  sticky_app_setting_names = ["NODE_ENV", "AzureWebJobs.IngestMessageStatus.Disabled", "AzureWebJobs.IngestMessages.Disabled", "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled"]
   slot_app_settings = merge(local.etl_func.app_settings, {
-    "AzureWebJobs.IngestMessageStatus.Disabled" = "1"
-    "AzureWebJobs.IngestMessages.Disabled"      = "1"
+    "AzureWebJobs.CosmosRemoteContentMessageConfigurationChangeFeed.Disabled" = "1"
+    "AzureWebJobs.IngestMessageStatus.Disabled"                               = "1"
+    "AzureWebJobs.IngestMessages.Disabled"                                    = "1"
   })
 
   virtual_network = var.virtual_network
