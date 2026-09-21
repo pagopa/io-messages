@@ -94,6 +94,8 @@ export const IConfig = t.intersection([
     // a blob container to keep temporary message processing data
     PROCESSING_MESSAGE_CONTAINER_NAME: NonEmptyString,
     SANDBOX_FISCAL_CODE: NonEmptyString,
+    SERVICES_API_BASE_URL: NonEmptyString,
+    SERVICES_API_SUBSCRIPTION_KEY: NonEmptyString,
     TTL_FOR_USER_NOT_FOUND: NonNegativeIntegerFromString,
     WEBHOOK_CHANNEL_URL: NonEmptyString,
     isProduction: t.boolean,

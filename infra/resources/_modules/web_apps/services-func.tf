@@ -42,7 +42,8 @@ locals {
 
       PAGOPA_ECOMMERCE_BASE_URL = "https://api.platform.pagopa.it/ecommerce/payment-requests-service/v1"
 
-      APIM_BASE_URL = "https://api-app.internal.io.pagopa.it"
+      APIM_BASE_URL         = "https://api-app.internal.io.pagopa.it"
+      SERVICES_API_BASE_URL = "https://api.platform.pagopa.it"
 
       OPT_OUT_EMAIL_SWITCH_DATE      = 1625781600
       FF_OPT_IN_EMAIL_ENABLED        = "true"
@@ -63,6 +64,7 @@ locals {
       SANDBOX_FISCAL_CODE                  = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=services-sandbox-fiscalcode)"
       EMAIL_NOTIFICATION_SERVICE_BLACKLIST = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=services-email-blacklist-service-id)"
       APIM_SUBSCRIPTION_KEY                = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=services-apim-subscription-key)"
+      SERVICES_API_SUBSCRIPTION_KEY        = "dummy"
       PAGOPA_ECOMMERCE_API_KEY             = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=services-pagopa-ecommerce-prod-api-key)",
       SENDING_FUNC_API_KEY                 = "@Microsoft.KeyVault(VaultName=${var.key_vault.name};SecretName=rc-func-key)"
       SENDING_FUNC_API_URL                 = "https://${module.remote_content_func.function_app.function_app.default_hostname}"

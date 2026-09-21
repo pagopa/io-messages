@@ -68,8 +68,8 @@ import { makeRetrieveExpandedDataFromBlob } from "./utils/with-expanded-input";
 const config = getConfigOrThrow();
 const telemetryClient = initTelemetryClient(config);
 const servicesCmsClient = makeServicesCmsClient(
-  config.APIM_BASE_URL,
-  config.APIM_SUBSCRIPTION_KEY,
+  config.SERVICES_API_BASE_URL,
+  config.SERVICES_API_SUBSCRIPTION_KEY,
 );
 
 const aadCredentials = new DefaultAzureCredential();
