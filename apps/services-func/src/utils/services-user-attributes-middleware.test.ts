@@ -2,13 +2,24 @@ import type {
   ServicesCmsClient,
   ServicesCmsServiceDetails,
 } from "@/clients/services";
+import type { ServiceModel } from "@pagopa/io-functions-commons/dist/src/models/service";
+import type { IAzureUserAttributes } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_user_attributes";
 
+import { AzureUserAttributesMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_user_attributes";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as E from "fp-ts/lib/Either";
 import * as TE from "fp-ts/lib/TaskEither";
 import { describe, expect, it, vi } from "vitest";
 
-import { ServicesUserAttributesMiddleware } from "./services-user-attributes-middleware";
+import {
+  CosmosUserAttributesMiddleware,
+  ServicesUserAttributesMiddleware,
+} from "./services-user-attributes-middleware";
+
+vi.mock(
+  "@pagopa/io-functions-commons/dist/src/utils/middlewares/azure_user_attributes",
+  () => ({ AzureUserAttributesMiddleware: vi.fn() }),
+);
 
 const requestWithHeaders = (headers: Record<string, string | undefined>) =>
   ({ header: (name: string) => headers[name] }) as Parameters<
@@ -75,6 +86,39 @@ describe("ServicesCmsUserAttributesMiddleware", () => {
       email: "service@example.com",
       kind: "IAzureUserAttributes",
       service,
+    });
+  });
+});
+
+describe("CosmosUserAttributesMiddleware", () => {
+  it("maps legacy service details to the shared shape", async () => {
+    const attributes = {
+      email: "service@example.com",
+      kind: "IAzureUserAttributes",
+      service: {
+        ...service,
+        departmentName: "Department",
+        serviceMetadata: { category: "STANDARD" },
+        version: 1,
+      },
+    } as unknown as IAzureUserAttributes;
+    vi.mocked(AzureUserAttributesMiddleware).mockReturnValue(async () =>
+      E.right(attributes),
+    );
+
+    const middleware = CosmosUserAttributesMiddleware({} as ServiceModel);
+
+    const result = await middleware(requestWithHeaders({}));
+
+    expect(E.isRight(result) && result.right).toMatchObject({
+      email: "service@example.com",
+      kind: "IAzureUserAttributes",
+      service: {
+        ...service,
+        departmentName: "Department",
+        serviceCategory: "STANDARD",
+        serviceVersion: 1,
+      },
     });
   });
 });
