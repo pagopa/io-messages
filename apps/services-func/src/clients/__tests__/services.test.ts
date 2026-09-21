@@ -2,7 +2,7 @@ import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as E from "fp-ts/lib/Either";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { makeServicesCmsClient } from "../services-cms";
+import { makeServicesClient } from "../services";
 
 const serviceId = "01ARZ3NDEKTSV4RRFFQ69G5FAV" as NonEmptyString;
 const responseBody = {
@@ -20,7 +20,7 @@ const responseBody = {
 };
 
 const fetchApi = vi.fn<typeof fetch>();
-const client = makeServicesCmsClient(
+const client = makeServicesClient(
   "https://apim.example/base",
   "subscription-key",
   fetchApi,

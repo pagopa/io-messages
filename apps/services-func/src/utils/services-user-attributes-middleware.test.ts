@@ -1,18 +1,18 @@
 import type {
   ServicesCmsClient,
   ServicesCmsServiceDetails,
-} from "@/clients/services-cms";
+} from "@/clients/services";
 
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as E from "fp-ts/lib/Either";
 import * as TE from "fp-ts/lib/TaskEither";
 import { describe, expect, it, vi } from "vitest";
 
-import { ServicesCmsUserAttributesMiddleware } from "./services-cms-user-attributes-middleware";
+import { ServicesUserAttributesMiddleware } from "./services-user-attributes-middleware";
 
 const requestWithHeaders = (headers: Record<string, string | undefined>) =>
   ({ header: (name: string) => headers[name] }) as Parameters<
-    ReturnType<typeof ServicesCmsUserAttributesMiddleware>
+    ReturnType<typeof ServicesUserAttributesMiddleware>
   >[0];
 
 const service: ServicesCmsServiceDetails = {
@@ -31,7 +31,7 @@ const service: ServicesCmsServiceDetails = {
 
 describe("ServicesCmsUserAttributesMiddleware", () => {
   it("returns internal error when x-user-email is invalid", async () => {
-    const middleware = ServicesCmsUserAttributesMiddleware({
+    const middleware = ServicesUserAttributesMiddleware({
       getServiceDetails: vi.fn(),
     } as unknown as ServicesCmsClient);
 
@@ -43,7 +43,7 @@ describe("ServicesCmsUserAttributesMiddleware", () => {
   });
 
   it("returns forbidden when the service is missing", async () => {
-    const middleware = ServicesCmsUserAttributesMiddleware({
+    const middleware = ServicesUserAttributesMiddleware({
       getServiceDetails: () => TE.left({ kind: "NOT_FOUND" }),
     });
 
@@ -60,7 +60,7 @@ describe("ServicesCmsUserAttributesMiddleware", () => {
   });
 
   it("returns the API service details with the user email", async () => {
-    const middleware = ServicesCmsUserAttributesMiddleware({
+    const middleware = ServicesUserAttributesMiddleware({
       getServiceDetails: () => TE.right(service),
     });
 

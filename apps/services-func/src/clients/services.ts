@@ -111,7 +111,7 @@ const getServiceDetailsUrl = (
   return serviceDetailsUrl.toString();
 };
 
-export const makeServicesCmsClient = (
+export const makeServicesClient = (
   baseUrl: string,
   subscriptionKey: string,
   fetchApi: FetchApi = defaultFetchApi,

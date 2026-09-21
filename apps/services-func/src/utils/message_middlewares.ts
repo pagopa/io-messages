@@ -25,7 +25,7 @@ import { pipe } from "fp-ts/lib/function";
 import { Errors } from "io-ts";
 
 import { ApiNewMessageWithDefaults } from "../functions/CreateMessage/types";
-import { ICreateMessageUserAttributes } from "./services-cms-user-attributes-middleware";
+import { ICreateMessageUserAttributes } from "./services-user-attributes-middleware";
 
 /**
  * A request middleware that validates the Message payload.

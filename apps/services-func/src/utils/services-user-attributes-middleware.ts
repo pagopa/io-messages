@@ -18,7 +18,7 @@ import { pipe } from "fp-ts/lib/function";
 import {
   ServicesCmsClient,
   ServicesCmsServiceDetails,
-} from "../clients/services-cms";
+} from "../clients/services";
 
 export interface ICreateMessageUserAttributes {
   readonly email: EmailString;
@@ -68,7 +68,7 @@ export const CosmosUserAttributesMiddleware =
       })),
     );
 
-export const ServicesCmsUserAttributesMiddleware =
+export const ServicesUserAttributesMiddleware =
   (client: ServicesCmsClient): UserAttributesMiddleware =>
   async (request) => {
     const email = EmailString.decode(request.header("x-user-email"));

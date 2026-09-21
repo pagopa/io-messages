@@ -2,7 +2,7 @@
  * Implements the API handlers for the Message resource.
  */
 import { RemoteContentClient } from "@/clients/remote-content";
-import { ServicesCmsClient } from "@/clients/services-cms";
+import { ServicesCmsClient } from "@/clients/services";
 import { FunctionOutput, InvocationContext } from "@azure/functions";
 import { EUCovidCert } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/EUCovidCert";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FeatureLevelType";
@@ -79,8 +79,8 @@ import { commonCreateMessageMiddlewares } from "../../utils/message_middlewares"
 import {
   CosmosUserAttributesMiddleware,
   ICreateMessageUserAttributes,
-  ServicesCmsUserAttributesMiddleware,
-} from "../../utils/services-cms-user-attributes-middleware";
+  ServicesUserAttributesMiddleware,
+} from "../../utils/services-user-attributes-middleware";
 import {
   ApiNewMessageWithAdvancedFeatures,
   ApiNewMessageWithContentOf,
@@ -578,7 +578,7 @@ export function CreateMessage(
     // Common CreateMessage Middlewares
     ...commonCreateMessageMiddlewares(
       isServiceDetailsApiEnabled
-        ? ServicesCmsUserAttributesMiddleware(servicesCmsClient)
+        ? ServicesUserAttributesMiddleware(servicesCmsClient)
         : CosmosUserAttributesMiddleware(serviceModel),
     ),
     AzureAllowBodyPayloadMiddleware(
