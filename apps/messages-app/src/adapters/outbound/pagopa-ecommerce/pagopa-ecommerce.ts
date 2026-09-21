@@ -9,7 +9,7 @@ import {
   PaymentInfo,
   paymentInfoSchema,
 } from "io-messages-common/domain/payment";
-import { Result, err, ok } from "neverthrow";
+import { Result, ResultAsync, err, ok } from "neverthrow";
 
 import { MalformedEntityError } from "../../../application/ports/error.js";
 import {
@@ -28,11 +28,12 @@ const toErrorBody = (error: unknown): string => {
   if (typeof error === "string") return error;
   if (error instanceof Error) return error.message;
 
-  try {
-    return JSON.stringify(error);
-  } catch {
-    return "unreadable response body";
-  }
+  const errorBody = Result.fromThrowable(
+    () => JSON.stringify(error),
+    () => undefined,
+  )().unwrapOr(undefined);
+
+  return errorBody ?? "unreadable response body";
 };
 
 export class PagoPAEcommerceHttpClientAdapter implements PaymentInfoRepository {
@@ -49,16 +50,23 @@ export class PagoPAEcommerceHttpClientAdapter implements PaymentInfoRepository {
       ? this.uatEnvironment
       : this.productionEnvironment;
 
-    const response = await getPaymentRequestInfo({
-      auth: environment.apiKey,
-      client: createClient({
-        baseUrl: environment.baseURL.toString(),
+    const paymentRequestInfoResult = await ResultAsync.fromPromise(
+      getPaymentRequestInfo({
+        auth: environment.apiKey,
+        client: createClient({
+          baseUrl: environment.baseURL.toString(),
+        }),
+        path: {
+          rpt_id: rptId,
+        },
       }),
-      path: {
-        rpt_id: rptId,
-      },
-    });
+      (error) => new GenericError(toErrorBody(error)),
+    );
 
+    if (paymentRequestInfoResult.isErr())
+      return err(paymentRequestInfoResult.error);
+
+    const response = paymentRequestInfoResult.value;
     if (!response.response) {
       return err(new GenericError(toErrorBody(response.error)));
     }
