@@ -1,3 +1,4 @@
+import { dateStringSchema } from "io-messages-common/domain/date";
 import { PaymentInfo } from "io-messages-common/domain/payment";
 import z from "zod";
 
@@ -60,7 +61,7 @@ export type PaymentInfoInternalErrorResponse = z.TypeOf<
 export const GetPaymentInfoResponseSchema = z.object({
   amount: z.number(),
   description: z.string().optional(),
-  dueDate: z.string().optional(),
+  dueDate: dateStringSchema,
   paFiscalCode: z.string().optional(),
   paName: z.string().optional(),
   rptId: z.string().optional(),
