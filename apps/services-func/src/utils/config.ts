@@ -69,6 +69,7 @@ export const IConfig = t.intersection([
     EMAIL_NOTIFICATION_SERVICE_BLACKLIST: CommaSeparatedListOf(ServiceId),
 
     FF_OPT_IN_EMAIL_ENABLED: t.boolean,
+    FF_SERVICE_DETAILS_API_ENABLED: t.boolean,
 
     // queues for handling message processing jobs
     MESSAGE_CONTAINER_NAME: NonEmptyString,
@@ -93,6 +94,8 @@ export const IConfig = t.intersection([
     // a blob container to keep temporary message processing data
     PROCESSING_MESSAGE_CONTAINER_NAME: NonEmptyString,
     SANDBOX_FISCAL_CODE: NonEmptyString,
+    SERVICES_API_BASE_URL: NonEmptyString,
+    SERVICES_API_SUBSCRIPTION_KEY: NonEmptyString,
     TTL_FOR_USER_NOT_FOUND: NonNegativeIntegerFromString,
     WEBHOOK_CHANNEL_URL: NonEmptyString,
     isProduction: t.boolean,
@@ -112,6 +115,11 @@ export const envConfig = {
   ...process.env,
   FF_OPT_IN_EMAIL_ENABLED: pipe(
     O.fromNullable(process.env.FF_OPT_IN_EMAIL_ENABLED),
+    O.map((_) => _.toLocaleLowerCase() === "true"),
+    O.getOrElse(() => false),
+  ),
+  FF_SERVICE_DETAILS_API_ENABLED: pipe(
+    O.fromNullable(process.env.FF_SERVICE_DETAILS_API_ENABLED),
     O.map((_) => _.toLocaleLowerCase() === "true"),
     O.getOrElse(() => false),
   ),
