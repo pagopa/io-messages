@@ -1,13 +1,11 @@
-import {
-  BadGatewayError,
-  ConflictError,
-  GenericError,
-  NotFoundError,
-  ServiceUnavailableError,
-} from "@pagopa/hexagonal-core";
+import { GenericError } from "@pagopa/hexagonal-core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MalformedEntityError } from "../../../../application/ports/error.js";
+import {
+  PaymentInfoInternalError,
+  PaymentInfoUpstreamError,
+} from "../../../../application/ports/payment-info.js";
 import { PagoPAEcommerceHttpClientAdapter } from "../pagopa-ecommerce.js";
 
 const rptId = "12345678901234567890123456789012345";
@@ -102,21 +100,97 @@ describe("PagoPAEcommerceHttpClientAdapter", () => {
   });
 
   it.each([
-    [400, GenericError],
-    [401, GenericError],
-    [404, NotFoundError],
-    [409, ConflictError],
-    [502, BadGatewayError],
-    [503, ServiceUnavailableError],
-    [500, GenericError],
-  ])("maps upstream status %s", async (status, errorClass) => {
-    fetchMock.mockResolvedValue(jsonResponse({ title: "error" }, status));
+    [
+      400,
+      {
+        detail: "Formally invalid input",
+        status: 400,
+        title: "Bad Request",
+        type: "https://example.test/payment-error",
+      },
+      {
+        detail: "Formally invalid input",
+        status: 400,
+        title: "Bad Request",
+        type: "https://example.test/payment-error",
+      },
+    ],
+    [
+      401,
+      {},
+      {
+        detail: "Unexpected error from PagoPA Ecommerce API",
+        status: 401,
+        title: "Internal server error",
+      },
+    ],
+    [
+      500,
+      {},
+      {
+        detail: "Unexpected error from PagoPA Ecommerce API",
+        status: 500,
+        title: "Internal server error",
+      },
+    ],
+  ] as const)(
+    "maps upstream status %s to internal ProblemJson",
+    async (status, upstreamBody, expectedBody) => {
+      fetchMock.mockResolvedValue(jsonResponse(upstreamBody, status));
 
-    const result = await adapter.getPaymentInfo(rptId, false);
+      const result = await adapter.getPaymentInfo(rptId, false);
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(errorClass);
-  });
+      expect(result.isErr()).toBe(true);
+
+      const error = result._unsafeUnwrapErr();
+      expect(error).toBeInstanceOf(PaymentInfoInternalError);
+      expect(error).toMatchObject({ body: expectedBody });
+    },
+  );
+
+  it.each([
+    [
+      404,
+      {
+        faultCodeCategory: "PAYMENT_UNKNOWN",
+        faultCodeDetail: "PAA_PAGAMENTO_SCONOSCIUTO",
+      },
+    ],
+    [
+      409,
+      {
+        faultCodeCategory: "PAYMENT_ONGOING",
+        faultCodeDetail: "PAA_PAGAMENTO_IN_CORSO",
+      },
+    ],
+    [
+      502,
+      {
+        faultCodeCategory: "GENERIC_ERROR",
+        faultCodeDetail: "PPT_SYSTEM_ERROR",
+      },
+    ],
+    [
+      503,
+      {
+        faultCodeCategory: "DOMAIN_UNKNOWN",
+        faultCodeDetail: "PAA_SYSTEM_ERROR",
+      },
+    ],
+  ] as const)(
+    "preserves upstream status %s payment error body",
+    async (status, body) => {
+      fetchMock.mockResolvedValue(jsonResponse(body, status));
+
+      const result = await adapter.getPaymentInfo(rptId, false);
+
+      expect(result.isErr()).toBe(true);
+
+      const error = result._unsafeUnwrapErr();
+      expect(error).toBeInstanceOf(PaymentInfoUpstreamError);
+      expect(error).toMatchObject({ body, status });
+    },
+  );
 
   it("returns a GenericError when fetch rejects", async () => {
     fetchMock.mockRejectedValue(new Error("network error"));

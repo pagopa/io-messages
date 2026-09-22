@@ -1,12 +1,6 @@
 import type { FastifyInstance } from "fastify";
 
-import {
-  BadGatewayError,
-  ConflictError,
-  GenericError,
-  NotFoundError,
-  ServiceUnavailableError,
-} from "@pagopa/hexagonal-core";
+import { GenericError } from "@pagopa/hexagonal-core";
 import fastify from "fastify";
 import { PaymentInfo } from "io-messages-common/domain/payment";
 import { err, ok } from "neverthrow";
@@ -14,6 +8,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { GetPaymentInfoUseCase } from "../../../../application/use-cases/get-payment-info.use-case.js";
 
+import {
+  PaymentInfoInternalError,
+  PaymentInfoUpstreamError,
+} from "../../../../application/ports/payment-info.js";
 import { mountGetPaymentInfoHandler } from "../get-payment-info.handler.js";
 
 const rptId = "12345678901234567890123456789012345";
@@ -82,22 +80,93 @@ describe("mountGetPaymentInfoHandler", () => {
   });
 
   it.each([
-    [new NotFoundError("payment info", "missing"), 404],
-    [new ConflictError("payment conflict"), 409],
-    [new GenericError("failed"), 500],
-    [new BadGatewayError("pagopa bad gateway"), 502],
-    [new ServiceUnavailableError("pagopa unavailable"), 503],
-  ])("maps domain errors to problem responses", async (error, statusCode) => {
-    vi.mocked(useCase).mockResolvedValue(err(error));
+    [
+      404,
+      {
+        faultCodeCategory: "PAYMENT_UNKNOWN",
+        faultCodeDetail: "PAA_PAGAMENTO_SCONOSCIUTO",
+      },
+    ],
+    [
+      409,
+      {
+        faultCodeCategory: "PAYMENT_ONGOING",
+        faultCodeDetail: "PAA_PAGAMENTO_IN_CORSO",
+      },
+    ],
+    [
+      502,
+      {
+        faultCodeCategory: "GENERIC_ERROR",
+        faultCodeDetail: "PPT_SYSTEM_ERROR",
+      },
+    ],
+    [
+      503,
+      {
+        faultCodeCategory: "DOMAIN_UNKNOWN",
+        faultCodeDetail: "PAA_SYSTEM_ERROR",
+      },
+    ],
+  ] as const)(
+    "returns the documented %s payment error body",
+    async (statusCode, body) => {
+      vi.mocked(useCase).mockResolvedValue(
+        err(new PaymentInfoUpstreamError(statusCode, body)),
+      );
+
+      const response = await server.inject({
+        method: "GET",
+        url: `/api/payments/${rptId}`,
+      });
+
+      expect(response.statusCode).toBe(statusCode);
+      expect(response.headers["content-type"]).toContain(
+        "application/problem+json",
+      );
+      expect(response.json()).toEqual(body);
+    },
+  );
+
+  it("returns the default ProblemJson for generic internal errors", async () => {
+    vi.mocked(useCase).mockResolvedValue(err(new GenericError("failed")));
 
     const response = await server.inject({
       method: "GET",
       url: `/api/payments/${rptId}`,
     });
 
-    expect(response.statusCode).toBe(statusCode);
+    expect(response.statusCode).toBe(500);
     expect(response.headers["content-type"]).toContain(
       "application/problem+json",
     );
+    expect(response.json()).toEqual({
+      detail: "Unexpected error from PagoPA Ecommerce API",
+      status: 500,
+      title: "Internal server error",
+    });
+  });
+
+  it("returns the documented internal ProblemJson body", async () => {
+    const body = {
+      detail: "Formally invalid input",
+      status: 400,
+      title: "Bad Request",
+      type: "https://example.test/payment-error",
+    };
+    vi.mocked(useCase).mockResolvedValue(
+      err(new PaymentInfoInternalError(body)),
+    );
+
+    const response = await server.inject({
+      method: "GET",
+      url: `/api/payments/${rptId}`,
+    });
+
+    expect(response.statusCode).toBe(500);
+    expect(response.headers["content-type"]).toContain(
+      "application/problem+json",
+    );
+    expect(response.json()).toEqual(body);
   });
 });

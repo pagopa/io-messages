@@ -1,10 +1,4 @@
-import {
-  BadGatewayError,
-  ConflictError,
-  GenericError,
-  NotFoundError,
-  ServiceUnavailableError,
-} from "@pagopa/hexagonal-core";
+import { GenericError } from "@pagopa/hexagonal-core";
 import {
   PaymentInfo,
   paymentInfoSchema,
@@ -14,10 +8,15 @@ import { Result, ResultAsync, err, ok } from "neverthrow";
 import { MalformedEntityError } from "../../../application/ports/error.js";
 import {
   PaymentInfoError,
+  PaymentInfoInternalError,
   PaymentInfoRepository,
+  PaymentInfoUpstreamBody,
+  PaymentInfoUpstreamError,
+  PaymentInfoUpstreamStatus,
 } from "../../../application/ports/payment-info.js";
 import { createClient } from "../../../generated/pagopa-ecommerce/client/index.js";
 import { getPaymentRequestInfo } from "../../../generated/pagopa-ecommerce/sdk.gen.js";
+import { ProblemJson } from "../../../generated/pagopa-ecommerce/types.gen.js";
 
 interface PagoPAEcommerceEnvironment {
   apiKey: string;
@@ -35,6 +34,31 @@ const toErrorBody = (error: unknown): string => {
 
   return errorBody ?? "unreadable response body";
 };
+
+const toPaymentInfoUpstreamError = (
+  status: PaymentInfoUpstreamStatus,
+  body: unknown,
+): PaymentInfoError => {
+  if (!body) {
+    return new MalformedEntityError(
+      `missing ${status} error response from pagopa ecommerce`,
+    );
+  }
+
+  return new PaymentInfoUpstreamError(status, body as PaymentInfoUpstreamBody);
+};
+
+const toPaymentInfoInternalError = (
+  status: number,
+  error?: ProblemJson,
+): PaymentInfoInternalError =>
+  new PaymentInfoInternalError({
+    detail: error?.detail ?? "Unexpected error from PagoPA Ecommerce API",
+    instance: error?.instance,
+    status,
+    title: error?.title ?? "Internal server error",
+    type: error?.type,
+  });
 
 export class PagoPAEcommerceHttpClientAdapter implements PaymentInfoRepository {
   constructor(
@@ -95,53 +119,29 @@ export class PagoPAEcommerceHttpClientAdapter implements PaymentInfoRepository {
 
       case 400:
         return err(
-          new GenericError(
-            `malformed payment info request for rptId ${rptId}: ${toErrorBody(response.error)}`,
+          toPaymentInfoInternalError(
+            response.response.status,
+            response.error as ProblemJson,
           ),
         );
 
       case 401:
-        return err(
-          new GenericError(
-            `unauthorized pagopa ecommerce request for rptId ${rptId}`,
-          ),
-        );
+        return err(toPaymentInfoInternalError(response.response.status));
 
       case 404:
-        return err(
-          new NotFoundError(
-            "payment info",
-            `cannot find payment info for rptId ${rptId}`,
-          ),
-        );
+        return err(toPaymentInfoUpstreamError(404, response.error));
 
       case 409:
-        return err(
-          new ConflictError(
-            `conflict retrieving payment info for rptId ${rptId}`,
-          ),
-        );
+        return err(toPaymentInfoUpstreamError(409, response.error));
 
       case 502:
-        return err(
-          new BadGatewayError(
-            `bad gateway retrieving payment info for rptId ${rptId}`,
-          ),
-        );
+        return err(toPaymentInfoUpstreamError(502, response.error));
 
       case 503:
-        return err(
-          new ServiceUnavailableError(
-            `pagopa ecommerce unavailable retrieving payment info for rptId ${rptId}`,
-          ),
-        );
+        return err(toPaymentInfoUpstreamError(503, response.error));
 
       default:
-        return err(
-          new GenericError(
-            `unexpected pagopa ecommerce response for rptId ${rptId}: ${response.response.status}`,
-          ),
-        );
+        return err(toPaymentInfoInternalError(response.response.status));
     }
   }
 }
