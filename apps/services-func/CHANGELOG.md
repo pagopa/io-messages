@@ -1,5 +1,11 @@
 # services-func
 
+## 2.1.10
+
+### Patch Changes
+
+- 4b45004: Added HTTP Service client middleware
+
 ## 2.1.9
 
 ### Patch Changes
