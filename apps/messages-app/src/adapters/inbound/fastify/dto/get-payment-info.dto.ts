@@ -1,7 +1,4 @@
-import {
-  PaymentInfo,
-  paymentInfoSchema,
-} from "io-messages-common/domain/payment";
+import { PaymentInfo } from "io-messages-common/domain/payment";
 import z from "zod";
 
 const paymentProblemSchema = z.object({
@@ -60,7 +57,14 @@ export type PaymentInfoInternalErrorResponse = z.TypeOf<
   typeof PaymentInfoInternalErrorResponseSchema
 >;
 
-export const GetPaymentInfoResponseSchema = paymentInfoSchema;
+export const GetPaymentInfoResponseSchema = z.object({
+  amount: z.number(),
+  description: z.string().optional(),
+  dueDate: z.string().optional(),
+  paFiscalCode: z.string().optional(),
+  paName: z.string().optional(),
+  rptId: z.string().optional(),
+});
 export type GetPaymentInfoResponse = z.TypeOf<
   typeof GetPaymentInfoResponseSchema
 >;
