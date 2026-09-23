@@ -14,13 +14,20 @@ import {
   PaymentInfoUpstreamError,
   PaymentInfoUpstreamStatus,
 } from "../../../application/ports/payment-info.js";
-import { createClient } from "../../../generated/pagopa-ecommerce/client/index.js";
+import {
+  Client,
+  createClient,
+} from "../../../generated/pagopa-ecommerce/client/index.js";
 import { getPaymentRequestInfo } from "../../../generated/pagopa-ecommerce/sdk.gen.js";
 import { ProblemJson } from "../../../generated/pagopa-ecommerce/types.gen.js";
 
-interface PagoPAEcommerceEnvironment {
+interface PagoPAEcommerceEnvironmentData {
   apiKey: string;
   baseURL: URL;
+}
+interface PagoPAEcommerceEnvironment {
+  apiKey: string;
+  client: Client;
 }
 
 const toErrorBody = (error: unknown): string => {
@@ -61,25 +68,37 @@ const toPaymentInfoInternalError = (
   });
 
 export class PagoPAEcommerceHttpClientAdapter implements PaymentInfoRepository {
+  private readonly productionClient: PagoPAEcommerceEnvironment;
+  private readonly uatClient: PagoPAEcommerceEnvironment;
+
   constructor(
-    private readonly productionEnvironment: PagoPAEcommerceEnvironment,
-    private readonly uatEnvironment: PagoPAEcommerceEnvironment,
-  ) {}
+    private readonly productionEnvironment: PagoPAEcommerceEnvironmentData,
+    private readonly uatEnvironment: PagoPAEcommerceEnvironmentData,
+  ) {
+    this.productionClient = {
+      apiKey: this.productionEnvironment.apiKey,
+      client: createClient({
+        baseUrl: this.productionEnvironment.baseURL.toString(),
+      }),
+    };
+    this.uatClient = {
+      apiKey: this.uatEnvironment.apiKey,
+      client: createClient({
+        baseUrl: this.uatEnvironment.baseURL.toString(),
+      }),
+    };
+  }
 
   async getPaymentInfo(
     rptId: string,
     isTest: boolean,
   ): Promise<Result<PaymentInfo, PaymentInfoError>> {
-    const environment = isTest
-      ? this.uatEnvironment
-      : this.productionEnvironment;
+    const environment = isTest ? this.uatClient : this.productionClient;
 
     const paymentRequestInfoResult = await ResultAsync.fromPromise(
       getPaymentRequestInfo({
         auth: environment.apiKey,
-        client: createClient({
-          baseUrl: environment.baseURL.toString(),
-        }),
+        client: environment.client,
         path: {
           rpt_id: rptId,
         },
