@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.7.0
+
+### Minor Changes
+
+- 2eb46e6: Add GetPaymentInfo endpoint
+
 ## 0.6.2
 
 ### Patch Changes
