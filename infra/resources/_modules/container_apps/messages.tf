@@ -10,8 +10,7 @@ locals {
 }
 
 module "messages_ca" {
-  source  = "pagopa-dx/azure-container-app/azurerm"
-  version = "~> 6.1"
+  source = "git::https://github.com/pagopa/dx.git//infra/modules/azure_container_app?ref=CES-2316-il-modulo-terraform-container-app-riordina-i-secret"
 
   environment = local.messages_ca_environment
 
@@ -24,45 +23,110 @@ module "messages_ca" {
       image = "ghcr.io/pagopa/io-com-messages"
       name  = "io-messages"
 
-      app_settings = {
-        HOST                            = "0.0.0.0"
-        NODE_ENV                        = "production"
-        PORT                            = 3000
-        COMMON_COSMOS_DATABASE_NAME     = "db"
-        MESSAGE_METADATA_CONTAINER_NAME = "messages"
-        MESSAGE_STATUS_CONTAINER_NAME   = "message-status"
-        MESSAGE_CONTENT_CONTAINER_NAME  = "message-content"
-        RC_APP_BASE_URL                 = "https://${module.remote_content_ca.url}/api/internal/rc-configurations"
-        SERVICE_TO_RC_MAP = jsonencode({
-          "01G40DWQGKY5GRWSNM4303VNRP" = "01HMVMHCZZ8D0VTFWMRHBM5D6F", # PN
-          "01GQQZ9HF5GAPRVKJM1VDAVFHM" = "01HMVMDTHXCESMZ72NA701EKGQ", # IO Sign
-          "01H4ZJ62C1CPGJ0PX8Q1BP7FAB" = "01HMVMCDD3JFYTPKT4ZN4WQ73B", # PagoPA Receipt (Test)
-          "01HD63674XJ1R6XCNHH24PCRR2" = "01HMVM9W74RWH93NT1EYNKKNNR", # PagoPA Receipt
-          "01GQQDPM127KFGG6T3660D5TXD" = "01HMVM4N4XFJ8VBR1FXYFZ9QFB", # Third Party Mock
-        })
-
-        COMMON_COSMOS_URI          = var.common_cosmos_account.endpoint
-        COMMON_STORAGE_ACCOUNT_URI = var.common_storage_account.endpoint
-
-        COMMUNICATION_STORAGE_ACCOUNT_URI = var.communication_storage_account_uri
-        COMMUNICATION_STORAGE_QUEUE_URI   = var.communication_storage_queue_uri
-
-        PN_SERVICE_ID = "01G40DWQGKY5GRWSNM4303VNRP" # PN
-
-        APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
-        APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
-
-        APIM_BASE_URL         = "https://io-p-itn-svc-services-ca-01.ambitioussea-e5d71305.italynorth.azurecontainerapps.io"
-        APIM_SUBSCRIPTION_KEY = "dummy"
-
-        PAGOPA_ECOMMERCE_BASE_URL     = "https://api.platform.pagopa.it/ecommerce/payment-requests-service/v1"
-        PAGOPA_ECOMMERCE_UAT_BASE_URL = "https://api.uat.platform.pagopa.it/ecommerce/payment-requests-service/v1"
-
-        MESSAGE_CREATED_QUEUE_NAME        = "message-created-v2"
-        PROCESSING_MESSAGE_CONTAINER_NAME = "processing-message"
-      }
-
-      secret_names = ["PAGOPA_ECOMMERCE_API_KEY", "PAGOPA_ECOMMERCE_UAT_API_KEY"]
+      environment_variables = [
+        {
+          name  = "HOST"
+          value = "0.0.0.0"
+        },
+        {
+          name  = "NODE_ENV"
+          value = "production"
+        },
+        {
+          name  = "PORT"
+          value = "3000"
+        },
+        {
+          name  = "COMMON_COSMOS_DATABASE_NAME"
+          value = "db"
+        },
+        {
+          name  = "MESSAGE_METADATA_CONTAINER_NAME"
+          value = "messages"
+        },
+        {
+          name  = "MESSAGE_STATUS_CONTAINER_NAME"
+          value = "message-status"
+        },
+        {
+          name  = "MESSAGE_CONTENT_CONTAINER_NAME"
+          value = "message-content"
+        },
+        {
+          name  = "RC_APP_BASE_URL"
+          value = "https://${module.remote_content_ca.url}/api/internal/rc-configurations"
+        },
+        {
+          name = "SERVICE_TO_RC_MAP"
+          value = jsonencode({
+            "01G40DWQGKY5GRWSNM4303VNRP" = "01HMVMHCZZ8D0VTFWMRHBM5D6F", # PN
+            "01GQQZ9HF5GAPRVKJM1VDAVFHM" = "01HMVMDTHXCESMZ72NA701EKGQ", # IO Sign
+            "01H4ZJ62C1CPGJ0PX8Q1BP7FAB" = "01HMVMCDD3JFYTPKT4ZN4WQ73B", # PagoPA Receipt (Test)
+            "01HD63674XJ1R6XCNHH24PCRR2" = "01HMVM9W74RWH93NT1EYNKKNNR", # PagoPA Receipt
+            "01GQQDPM127KFGG6T3660D5TXD" = "01HMVM4N4XFJ8VBR1FXYFZ9QFB", # Third Party Mock
+          })
+        },
+        {
+          name  = "COMMON_COSMOS_URI"
+          value = var.common_cosmos_account.endpoint
+        },
+        {
+          name  = "COMMON_STORAGE_ACCOUNT_URI"
+          value = var.common_storage_account.endpoint
+        },
+        {
+          name  = "COMMUNICATION_STORAGE_ACCOUNT_URI"
+          value = var.communication_storage_account_uri
+        },
+        {
+          name  = "COMMUNICATION_STORAGE_QUEUE_URI"
+          value = var.communication_storage_queue_uri
+        },
+        {
+          name  = "PN_SERVICE_ID"
+          value = "01G40DWQGKY5GRWSNM4303VNRP"
+        },
+        {
+          name  = "APPLICATIONINSIGHTS_CONNECTION_STRING"
+          value = var.application_insights.connection_string
+        },
+        {
+          name  = "APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED"
+          value = "true"
+        },
+        {
+          name  = "APIM_BASE_URL"
+          value = "https://io-p-itn-svc-services-ca-01.ambitioussea-e5d71305.italynorth.azurecontainerapps.io"
+        },
+        {
+          name  = "APIM_SUBSCRIPTION_KEY"
+          value = "dummy"
+        },
+        {
+          name  = "PAGOPA_ECOMMERCE_BASE_URL"
+          value = "https://api.platform.pagopa.it/ecommerce/payment-requests-service/v1"
+        },
+        {
+          name  = "PAGOPA_ECOMMERCE_UAT_API_KEY"
+          value = "dummy"
+        },
+        {
+          name  = "PAGOPA_ECOMMERCE_UAT_BASE_URL"
+          value = "https://api.uat.platform.pagopa.it/ecommerce/payment-requests-service/v1"
+        },
+        {
+          name  = "MESSAGE_CREATED_QUEUE_NAME"
+          value = "message-created-v2"
+        },
+        {
+          name  = "PROCESSING_MESSAGE_CONTAINER_NAME"
+          value = "processing-message"
+        },
+        {
+          name  = "PAGOPA_ECOMMERCE_API_KEY"
+          value = data.azurerm_key_vault_secret.pagopa_ecommerce_key.versionless_id
+        },
+      ]
 
       liveness_probe = {
         path = "/api/info"
@@ -80,17 +144,6 @@ module "messages_ca" {
   container_port = 3000
 
   resource_group_name = var.resource_group_name
-
-  secrets = [
-    {
-      name                = "PAGOPA_ECOMMERCE_API_KEY"
-      key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_ecommerce_key.versionless_id
-    },
-    {
-      name                = "PAGOPA_ECOMMERCE_UAT_API_KEY"
-      key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_ecommerce_uat_key.versionless_id
-    }
-  ]
 
   tags = var.tags
 }
