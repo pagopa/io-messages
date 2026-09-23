@@ -13,6 +13,7 @@ import fastify from "fastify";
 import { AppConfig } from "./adapters/inbound/config/config.js";
 import { mountCreateMessageHandler } from "./adapters/inbound/fastify/create-message.handler.js";
 import { mountGetMessageHandler } from "./adapters/inbound/fastify/get-message.handler.js";
+import { mountGetPaymentInfoHandler } from "./adapters/inbound/fastify/get-payment-info.handler.js";
 import { mountGetMessagesByUserHandler } from "./adapters/inbound/fastify/get-user-messages.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
@@ -27,10 +28,12 @@ import { MessageMetadataCosmosAdapter } from "./adapters/outbound/message/messag
 import { MessageStatusCosmosAdapter } from "./adapters/outbound/message/message-status.adapter.js";
 import { BlobProcessingMessagePayloadStore } from "./adapters/outbound/message/processing-message.adapter.js";
 import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/package-json-app-info-reader.js";
+import { PagoPAEcommerceHttpClientAdapter } from "./adapters/outbound/pagopa-ecommerce/pagopa-ecommerce.js";
 import { RCConfigurationHttpClientAdapter } from "./adapters/outbound/rc-confguration/rc-configuration.js";
 import { ServicesCmsHttpClientAdapter } from "./adapters/outbound/services-cms/services-cms.js";
 import { makeCreateMessageUseCase } from "./application/use-cases/create-message.use-case.js";
 import { makeGetMessageUseCase } from "./application/use-cases/get-message.use-case.js";
+import { makeGetPaymentInfoUseCase } from "./application/use-cases/get-payment-info.use-case.js";
 import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-messages.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
@@ -172,6 +175,17 @@ export const createApp = (
   const remoteContentConfigurationRepository =
     new RCConfigurationHttpClientAdapter(config.RC_APP_BASE_URL);
 
+  const pagoPAEcommerceAdapter = new PagoPAEcommerceHttpClientAdapter(
+    {
+      apiKey: config.PAGOPA_ECOMMERCE_API_KEY,
+      baseURL: config.PAGOPA_ECOMMERCE_BASE_URL,
+    },
+    {
+      apiKey: config.PAGOPA_ECOMMERCE_UAT_API_KEY,
+      baseURL: config.PAGOPA_ECOMMERCE_UAT_BASE_URL,
+    },
+  );
+
   mountInfoHandler(server, makeGetInfoUseCase(appInfoReader));
   mountHealthcheckHandler(
     server,
@@ -206,6 +220,10 @@ export const createApp = (
       config.PN_SERVICE_ID,
       config.SERVICE_TO_RC_MAP,
     ),
+  );
+  mountGetPaymentInfoHandler(
+    server,
+    makeGetPaymentInfoUseCase(pagoPAEcommerceAdapter),
   );
   mountGetMessagesByUserHandler(
     server,
