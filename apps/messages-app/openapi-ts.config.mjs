@@ -15,7 +15,7 @@ export default [
     ],
   },
   {
-    input: "./api/consumed/api-third-party.yaml",
+    input: "./api/consumed/remote-content.yaml",
     output: {
       importFileExtension: ".js",
       path: "src/generated/remote-content",

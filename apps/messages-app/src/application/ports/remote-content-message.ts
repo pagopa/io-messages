@@ -1,5 +1,4 @@
 import {
-  BadGatewayError,
   ForbiddenError,
   GenericError,
   NotFoundError,
@@ -7,24 +6,27 @@ import {
   ValidationError,
 } from "@pagopa/hexagonal-core";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
-import { RemoteContentMessage } from "io-messages-common/adapters/remote-content-message";
+import { FiscalCode } from "io-messages-common/domain/fiscal-code";
 import { MessageId } from "io-messages-common/domain/message";
+import { RCAuthenticationConfig } from "io-messages-common/domain/remote-content";
+import { RemoteContentMessage } from "io-messages-common/domain/remote-content-message";
 import { Result } from "neverthrow";
 
 export interface RemoteContentMessageRepository {
   getRemoteContentMessage: (
     baseUrl: URL,
+    authentication: RCAuthenticationConfig,
     messageID: MessageId,
-    lollipopHeaders: LollipopHeaders,
+    fiscalCode: FiscalCode,
+    lollipopHeaders?: LollipopHeaders,
   ) => Promise<
     Result<
       RemoteContentMessage,
-      | GenericError
-      | ValidationError
       | ForbiddenError
+      | GenericError
       | NotFoundError
       | TooManyRequestsError
-      | BadGatewayError
+      | ValidationError
     >
   >;
 }

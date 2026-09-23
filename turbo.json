@@ -34,9 +34,11 @@
     },
     "generate": {
       "inputs": [
+        "api/**/*.yaml",
         "avro/**/*.json",
         "openapi/**/*.yaml",
-        "openapi/**/*.yaml.template"
+        "openapi/**/*.yaml.template",
+        "openapi-ts.config.*"
       ],
       "outputs": ["src/generated/**/*.ts"],
       "outputLogs": "errors-only"

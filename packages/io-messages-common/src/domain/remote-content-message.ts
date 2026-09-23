@@ -1,11 +1,13 @@
 import { z } from "zod";
 
 const remoteContentAttachmentSchema = z.object({
-  category: z
-    .string()
-    .regex(/[A-Z0-9_]+/)
-    .default("DOCUMENT")
-    .optional(),
+  category: z.preprocess(
+    (value) => value ?? "DOCUMENT",
+    z
+      .string()
+      .regex(/[A-Z0-9_]+/)
+      .optional(),
+  ),
   content_type: z.string().min(1).optional(),
   id: z.string().min(1),
   name: z.string().min(1).optional(),
