@@ -17,12 +17,6 @@
     "name": "azure_container_app_environment",
     "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app-environment/azurerm/2.0.0"
   },
-  "container_apps.messages_ca": {
-    "hash": "2aec0f1f1c95df3b049152e7ceb634a185b4714dc2a819b3b051997b23fa296d",
-    "version": "6.1.1",
-    "name": "azure_container_app",
-    "source": "https://registry.terraform.io/modules/pagopa-dx/azure-container-app/azurerm/6.1.1"
-  },
   "container_apps.payment_updater_ca_itn_01": {
     "hash": "f40ba13e4318b7b6a4ca8da9104573e699a138b55ad750f48bce7c14687c6edd",
     "version": "3.0.1",
