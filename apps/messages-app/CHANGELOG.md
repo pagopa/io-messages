@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.7.1
+
+### Patch Changes
+
+- ea5a255: Update dockerfile to include generate command
+
 ## 0.7.0
 
 ### Minor Changes

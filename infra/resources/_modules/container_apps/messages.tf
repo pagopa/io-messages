@@ -56,14 +56,13 @@ module "messages_ca" {
         APIM_SUBSCRIPTION_KEY = "dummy"
 
         PAGOPA_ECOMMERCE_BASE_URL     = "https://api.platform.pagopa.it/ecommerce/payment-requests-service/v1"
-        PAGOPA_ECOMMERCE_UAT_API_KEY  = "dummy"
         PAGOPA_ECOMMERCE_UAT_BASE_URL = "https://api.uat.platform.pagopa.it/ecommerce/payment-requests-service/v1"
 
         MESSAGE_CREATED_QUEUE_NAME        = "message-created-v2"
         PROCESSING_MESSAGE_CONTAINER_NAME = "processing-message"
       }
 
-      secret_names = ["PAGOPA_ECOMMERCE_API_KEY"]
+      secret_names = ["PAGOPA_ECOMMERCE_API_KEY", "PAGOPA_ECOMMERCE_UAT_API_KEY"]
 
       liveness_probe = {
         path = "/api/info"
@@ -86,6 +85,10 @@ module "messages_ca" {
     {
       name                = "PAGOPA_ECOMMERCE_API_KEY"
       key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_ecommerce_key.versionless_id
+    },
+    {
+      name                = "PAGOPA_ECOMMERCE_UAT_API_KEY"
+      key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_ecommerce_uat_key.versionless_id
     }
   ]
 
