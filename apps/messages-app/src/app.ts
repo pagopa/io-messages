@@ -194,6 +194,9 @@ export const createApp = (
       processingMessagePayloadStore,
       messageCreatedEventPublisher,
       logger,
+      undefined,
+      undefined,
+      config.FF_AGE_ELIGIBILITY_ENABLED,
     ),
   );
   mountGetMessageHandler(

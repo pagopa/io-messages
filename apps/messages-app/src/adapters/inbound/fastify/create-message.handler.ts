@@ -36,6 +36,7 @@ const createMessageResponse = {
   400: ProblemDetailsSchema,
   403: ProblemDetailsSchema,
   404: ProblemDetailsSchema,
+  422: ProblemDetailsSchema,
   429: ProblemDetailsSchema,
   500: ProblemDetailsSchema,
 };
