@@ -71,6 +71,7 @@ import { TaskEither } from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
+import { canSendToAge } from "../../utils/age-eligibility";
 import {
   CommonMessageData,
   CreatedMessageEvent,
@@ -116,6 +117,7 @@ type ICreateMessageHandler = (
   | IResponseErrorInternal
   | IResponseErrorNotFound
   | IResponseErrorQuery
+  | IResponseErrorRecipientAgeNotEligible
   | IResponseErrorValidation
   | IResponseSuccessRedirectToResource<Message, object>
 >;
@@ -150,6 +152,45 @@ export const canWriteMessage = (
   }
 
   return E.right(true);
+};
+
+export type IResponseErrorRecipientAgeNotEligible =
+  IResponse<"IResponseErrorRecipientAgeNotEligible">;
+
+export const ResponseErrorRecipientAgeNotEligible: IResponseErrorRecipientAgeNotEligible =
+  {
+    ...ResponseErrorGeneric(
+      HttpStatusCodeEnum.HTTP_STATUS_422,
+      "Validation Error",
+      "Recipient age not eligible",
+    ),
+    kind: "IResponseErrorRecipientAgeNotEligible",
+  };
+
+export const canSendMessageToRecipientAge = (
+  fiscalCode: FiscalCode,
+  ageRange: ICreateMessageUserAttributes["service"]["age"],
+  isServiceDetailsApiEnabled: boolean,
+  sandboxFiscalCode: NonEmptyString,
+): Either<
+  IResponseErrorInternal | IResponseErrorRecipientAgeNotEligible,
+  true
+> => {
+  if (
+    !isServiceDetailsApiEnabled ||
+    fiscalCode.toString() === sandboxFiscalCode.toString()
+  ) {
+    return E.right(true);
+  }
+
+  switch (canSendToAge(fiscalCode, ageRange).kind) {
+    case "ELIGIBLE":
+      return E.right(true);
+    case "INELIGIBLE":
+      return E.left(ResponseErrorRecipientAgeNotEligible);
+    case "MALFORMED_SERVICE_AGE_RANGE":
+      return E.left(ResponseErrorInternal("Invalid service age range"));
+  }
 };
 
 /**
@@ -317,6 +358,7 @@ export function CreateMessageHandler(
   saveProcessingMessage: ReturnType<typeof makeUpsertBlobFromObject>,
   sandboxFiscalCode: NonEmptyString,
   createdMessageOutput: FunctionOutput,
+  isServiceDetailsApiEnabled = false,
 ): ICreateMessageHandler {
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, max-lines-per-function
   return async (
@@ -463,6 +505,16 @@ export function CreateMessageHandler(
         canWriteMessage(auth.groups, authorizedRecipients, fiscalCode),
       ),
       TE.chainW(() =>
+        TE.fromEither(
+          canSendMessageToRecipientAge(
+            fiscalCode,
+            service.age,
+            isServiceDetailsApiEnabled,
+            sandboxFiscalCode,
+          ),
+        ),
+      ),
+      TE.chainW(() =>
         // check whether the client can ask for payment
         TE.fromEither(
           canPaymentAmount(
@@ -573,6 +625,7 @@ export function CreateMessage(
     saveProcessingMessage,
     sandboxFiscalCode,
     createdMessageOutput,
+    isServiceDetailsApiEnabled,
   );
   const middlewares = [
     // Common CreateMessage Middlewares
