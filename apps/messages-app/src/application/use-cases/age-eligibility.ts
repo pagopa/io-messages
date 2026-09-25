@@ -1,3 +1,5 @@
+import type { FiscalCode } from "io-messages-common/domain/fiscal-code";
+
 interface CalendarDate {
   readonly day: number;
   readonly month: number;
@@ -82,13 +84,9 @@ const decodeDigit = (value: string): number | undefined => {
 };
 
 const decodeBirthDate = (
-  fiscalCode: string,
+  fiscalCode: FiscalCode,
   referenceDate: CalendarDate,
 ): CalendarDate | undefined => {
-  if (fiscalCode.length !== 16) {
-    return undefined;
-  }
-
   const firstYearDigit = decodeDigit(fiscalCode[6]);
   const secondYearDigit = decodeDigit(fiscalCode[7]);
   const firstDayDigit = decodeDigit(fiscalCode[9]);
@@ -122,7 +120,7 @@ const decodeBirthDate = (
 };
 
 export const canSendToAge = (
-  fiscalCode: string,
+  fiscalCode: FiscalCode,
   ageRange: ServiceAgeRange | undefined,
   now: Date = new Date(),
 ): AgeEligibility => {
