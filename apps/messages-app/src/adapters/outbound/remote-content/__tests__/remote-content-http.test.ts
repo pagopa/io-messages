@@ -12,10 +12,14 @@ import {
 import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { RemoteContentServiceUnavailableError } from "../../../../application/ports/remote-content-message-attachment.js";
 import { RemoteContentHTTPAdapter } from "../remote-content-http.js";
 
 const baseURL = new URL("https://remote-content.example/api///");
 const messageID = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
+const attachmentURL =
+  "delivery/notifications/received/message-id/attachments/payment/document.pdf?attachmentIdx=0";
+const attachmentContent = "%PDF-1.7 attachment content";
 const fiscalCode = fiscalCodeSchema.parse("RSSMRA80A01H501U");
 const authentication: RCAuthenticationConfig = {
   headerKeyName: "x-provider-api-key",
@@ -61,6 +65,18 @@ const validPreconditionResponse = {
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     headers: { "Content-Type": "application/json" },
+    status,
+  });
+
+const attachmentResponse = (
+  status = 200,
+  headers: Record<string, string> = {},
+) =>
+  new Response(attachmentContent, {
+    headers: {
+      "Content-Type": "application/octet-stream",
+      ...headers,
+    },
     status,
   });
 
@@ -484,6 +500,241 @@ describe("RemoteContentHTTPAdapter - response-less precondition errors", () => {
       baseURL,
       authentication,
       messageID,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: network error",
+    );
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("RemoteContentHTTPAdapter - successful attachment responses", () => {
+  it("returns a Buffer and preserves the attachment path and configured headers", async () => {
+    fetchMock.mockResolvedValue(attachmentResponse());
+
+    const result = await adapter.getRemoteContentMessageAttachment(
+      baseURL,
+      authentication,
+      messageID,
+      attachmentURL,
+      fiscalCode,
+      lollipopHeaders,
+    );
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toEqual(Buffer.from(attachmentContent));
+
+    const request = getRequest();
+    expect(request.url).toBe(
+      `https://remote-content.example/api/messages/${messageID}/${attachmentURL}`,
+    );
+    expect(request.redirect).toBe("manual");
+    expect(request.headers.get("fiscal_code")).toBe(fiscalCode);
+    expect(request.headers.get(authentication.headerKeyName)).toBe(
+      authentication.key,
+    );
+    expect(request.headers.get("signature")).toBe(lollipopHeaders.signature);
+    expect(request.headers.get("x-pagopa-lollipop-user-id")).toBe(
+      lollipopHeaders["x-pagopa-lollipop-user-id"],
+    );
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("sends the fiscal code without Lollipop headers when they are not provided", async () => {
+    fetchMock.mockResolvedValue(attachmentResponse());
+    const attachmentURLWithLeadingSlash = "/documents/attachment.pdf";
+
+    const result = await adapter.getRemoteContentMessageAttachment(
+      baseURL,
+      authentication,
+      messageID,
+      attachmentURLWithLeadingSlash,
+      fiscalCode,
+    );
+
+    expect(result.isOk()).toBe(true);
+
+    const request = getRequest();
+    expect(request.url).toBe(
+      `https://remote-content.example/api/messages/${messageID}//documents/attachment.pdf`,
+    );
+    expect(request.headers.get("fiscal_code")).toBe(fiscalCode);
+    expect(request.headers.has("signature")).toBe(false);
+    expect(request.headers.has("x-pagopa-lollipop-user-id")).toBe(false);
+  });
+});
+
+describe("RemoteContentHTTPAdapter - attachment response validation", () => {
+  it("returns a GenericError when Hey API cannot parse a successful response", async () => {
+    const response = attachmentResponse();
+    vi.spyOn(response, "arrayBuffer").mockRejectedValue(
+      new Error("invalid array buffer"),
+    );
+    fetchMock.mockResolvedValue(response);
+
+    const result = await adapter.getRemoteContentMessageAttachment(
+      baseURL,
+      authentication,
+      messageID,
+      attachmentURL,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: Invalid attachment response from the Remote Content service.",
+    );
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("RemoteContentHTTPAdapter - attachment HTTP error responses", () => {
+  it.each([
+    {
+      errorType: ValidationError,
+      eventName:
+        "RemoteContentHTTPAdapter.getRemoteContentMessageAttachment.failed.badRequest",
+      status: 400,
+    },
+    {
+      errorType: GenericError,
+      eventName:
+        "RemoteContentHTTPAdapter.getRemoteContentMessageAttachment.failed.unauthorized",
+      status: 401,
+    },
+    {
+      errorType: ForbiddenError,
+      eventName:
+        "RemoteContentHTTPAdapter.getRemoteContentMessageAttachment.failed.forbidden",
+      status: 403,
+    },
+    {
+      errorType: NotFoundError,
+      eventName:
+        "RemoteContentHTTPAdapter.getRemoteContentMessageAttachment.failed.notFound",
+      status: 404,
+    },
+    {
+      errorType: TooManyRequestsError,
+      eventName:
+        "RemoteContentHTTPAdapter.getRemoteContentMessageAttachment.failed.tooManyRequests",
+      status: 429,
+    },
+  ])(
+    "maps attachment status $status to $errorType.name and tracks the failure",
+    async ({ errorType, eventName, status }) => {
+      fetchMock.mockResolvedValue(jsonResponse({}, status));
+
+      const result = await adapter.getRemoteContentMessageAttachment(
+        baseURL,
+        authentication,
+        messageID,
+        attachmentURL,
+        fiscalCode,
+      );
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(errorType);
+      expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+        name: eventName,
+        properties: {
+          attachmentURL,
+          baseURL: baseURL.toString(),
+          messageID,
+        },
+      });
+    },
+  );
+
+  it("returns a GenericError on an attachment 500 response", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({}, 500));
+
+    const result = await adapter.getRemoteContentMessageAttachment(
+      baseURL,
+      authentication,
+      messageID,
+      attachmentURL,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: The Remote Content service returned HTTP status 500.",
+    );
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["120", "120"],
+    [undefined, undefined],
+  ])(
+    "returns a ServiceUnavailableError with Retry-After %s on a 503 response",
+    async (retryAfterHeader, expectedRetryAfter) => {
+      fetchMock.mockResolvedValue(
+        attachmentResponse(
+          503,
+          retryAfterHeader ? { "Retry-After": retryAfterHeader } : {},
+        ),
+      );
+
+      const result = await adapter.getRemoteContentMessageAttachment(
+        baseURL,
+        authentication,
+        messageID,
+        attachmentURL,
+        fiscalCode,
+      );
+
+      expect(result.isErr()).toBe(true);
+      const error = result._unsafeUnwrapErr();
+      expect(error).toBeInstanceOf(RemoteContentServiceUnavailableError);
+      expect(error).toMatchObject({ retryAfter: expectedRetryAfter });
+      expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+        name: "RemoteContentHTTPAdapter.getRemoteContentMessageAttachment.failed.serviceUnavailable",
+        properties: {
+          attachmentURL,
+          baseURL: baseURL.toString(),
+          messageID,
+        },
+      });
+    },
+  );
+
+  it("returns a GenericError on an unexpected attachment response status", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({}, 418));
+
+    const result = await adapter.getRemoteContentMessageAttachment(
+      baseURL,
+      authentication,
+      messageID,
+      attachmentURL,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: The Remote Content service returned an unexpected HTTP status.",
+    );
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("RemoteContentHTTPAdapter - response-less attachment errors", () => {
+  it("returns a GenericError when the attachment request has no response", async () => {
+    fetchMock.mockRejectedValue("network error");
+
+    const result = await adapter.getRemoteContentMessageAttachment(
+      baseURL,
+      authentication,
+      messageID,
+      attachmentURL,
       fiscalCode,
     );
 

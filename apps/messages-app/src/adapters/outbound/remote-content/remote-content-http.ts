@@ -16,12 +16,20 @@ import {
   remoteContentMessageSchema,
 } from "io-messages-common/domain/remote-content-message";
 import {
+  RemoteContentAttachmentUrl,
+  RemoteContentMessageAttachment,
+} from "io-messages-common/domain/remote-content-message-attachment";
+import {
   RemoteContentMessagePrecondition,
   remoteContentMessagePreconditionSchema,
 } from "io-messages-common/domain/remote-content-message-precondition";
 import { Result, err, ok } from "neverthrow";
 
 import { RemoteContentMessageRepository } from "../../../application/ports/remote-content-message.js";
+import {
+  RemoteContentMessageAttachmentRepository,
+  RemoteContentServiceUnavailableError,
+} from "../../../application/ports/remote-content-message-attachment.js";
 import { RemoteContentMessagePreconditionRepository } from "../../../application/ports/remote-content-message-precondition.js";
 import { createClient } from "../../../generated/remote-content/client/client.gen.js";
 import { Client } from "../../../generated/remote-content/client/index.js";
@@ -30,6 +38,7 @@ import {
   getRemoteContentMessagePrecondition,
 } from "../../../generated/remote-content/sdk.gen.js";
 import {
+  GetRemoteContentMessageAttachmentErrors,
   PreconditionContent,
   RemoteContentDetailsResponse,
 } from "../../../generated/remote-content/types.gen.js";
@@ -37,6 +46,7 @@ import {
 export class RemoteContentHTTPAdapter
   implements
     RemoteContentMessageRepository,
+    RemoteContentMessageAttachmentRepository,
     RemoteContentMessagePreconditionRepository
 {
   readonly #client: Client;
@@ -57,6 +67,19 @@ export class RemoteContentHTTPAdapter
     )().unwrapOr(undefined);
 
     return errorBody ?? "unreadable response body";
+  }
+
+  private validateMessageAttachmentSuccessResponse(
+    response: ArrayBuffer | undefined,
+  ): Result<RemoteContentMessageAttachment, GenericError> {
+    if (!(response instanceof ArrayBuffer))
+      return err(
+        new GenericError(
+          `Invalid attachment response from the Remote Content service.`,
+        ),
+      );
+
+    return ok(Buffer.from(response));
   }
 
   private validateMessageDetailSuccessResponse(
@@ -186,6 +209,145 @@ export class RemoteContentHTTPAdapter
         return err(
           new GenericError(
             `The Remote Content service returned HTTP status 500.`,
+          ),
+        );
+
+      default:
+        return err(
+          new GenericError(
+            `The Remote Content service returned an unexpected HTTP status.`,
+          ),
+        );
+    }
+  }
+
+  async getRemoteContentMessageAttachment(
+    baseURL: URL,
+    authentication: RCAuthenticationConfig,
+    messageID: MessageId,
+    attachmentURL: RemoteContentAttachmentUrl,
+    fiscalCode: FiscalCode,
+    lollipopHeaders?: LollipopHeaders,
+  ) {
+    const getRCMessageAttachmentResult = await this.#client.get<
+      ArrayBuffer,
+      GetRemoteContentMessageAttachmentErrors
+    >({
+      baseUrl: baseURL.toString().replace(/\/+$/, ""),
+      headers: {
+        fiscal_code: fiscalCode,
+        ...lollipopHeaders,
+        // Hey API's `auth` option requires a static security header name,
+        // while each Remote Content provider configures its own.
+        [authentication.headerKeyName]: authentication.key,
+      },
+      parseAs: "arrayBuffer",
+      redirect: "manual",
+      // The generated SDK percent-encodes path parameters, while attachment
+      // paths may contain slashes and query parameters that must stay intact.
+      url: `/messages/${messageID}/${attachmentURL}`,
+    });
+
+    if (!getRCMessageAttachmentResult.response) {
+      return err(
+        new GenericError(this.toErrorBody(getRCMessageAttachmentResult.error)),
+      );
+    }
+
+    switch (getRCMessageAttachmentResult.response.status) {
+      case 200:
+        return this.validateMessageAttachmentSuccessResponse(
+          getRCMessageAttachmentResult.data,
+        );
+
+      case 400:
+        this.#logger.trackEvent({
+          name: "RemoteContentHTTPAdapter.getRemoteContentMessageAttachment.failed.badRequest",
+          properties: {
+            attachmentURL,
+            baseURL: baseURL.toString(),
+            messageID,
+          },
+        });
+        return err(
+          new ValidationError(
+            `Validation error returned by the Remote Content service.`,
+          ),
+        );
+
+      case 401:
+        this.#logger.trackEvent({
+          name: "RemoteContentHTTPAdapter.getRemoteContentMessageAttachment.failed.unauthorized",
+          properties: {
+            attachmentURL,
+            baseURL: baseURL.toString(),
+            messageID,
+          },
+        });
+        return err(
+          new GenericError(
+            `The Remote Content service returned HTTP status 401.`,
+          ),
+        );
+
+      case 403:
+        this.#logger.trackEvent({
+          name: "RemoteContentHTTPAdapter.getRemoteContentMessageAttachment.failed.forbidden",
+          properties: {
+            attachmentURL,
+            baseURL: baseURL.toString(),
+            messageID,
+          },
+        });
+        return err(new ForbiddenError());
+
+      case 404:
+        this.#logger.trackEvent({
+          name: "RemoteContentHTTPAdapter.getRemoteContentMessageAttachment.failed.notFound",
+          properties: {
+            attachmentURL,
+            baseURL: baseURL.toString(),
+            messageID,
+          },
+        });
+        return err(
+          new NotFoundError(
+            "RemoteContentMessageAttachment",
+            `The Remote Content service returned HTTP status 404.`,
+          ),
+        );
+
+      case 429:
+        this.#logger.trackEvent({
+          name: "RemoteContentHTTPAdapter.getRemoteContentMessageAttachment.failed.tooManyRequests",
+          properties: {
+            attachmentURL,
+            baseURL: baseURL.toString(),
+            messageID,
+          },
+        });
+        return err(new TooManyRequestsError());
+
+      case 500:
+        return err(
+          new GenericError(
+            `The Remote Content service returned HTTP status 500.`,
+          ),
+        );
+
+      case 503:
+        this.#logger.trackEvent({
+          name: "RemoteContentHTTPAdapter.getRemoteContentMessageAttachment.failed.serviceUnavailable",
+          properties: {
+            attachmentURL,
+            baseURL: baseURL.toString(),
+            messageID,
+          },
+        });
+        return err(
+          new RemoteContentServiceUnavailableError(
+            getRCMessageAttachmentResult.response.headers.get("Retry-After") ??
+              undefined,
           ),
         );
 
