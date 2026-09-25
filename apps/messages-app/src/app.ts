@@ -42,34 +42,33 @@ const getQueueUrl = (queueServiceUri: URL, queueName: string): string => {
   return queueUrl.toString();
 };
 
-export const createApp = (
-  config: AppConfig,
-): {
-  server: FastifyInstance;
-} => {
-  const aiLogger = logs.getLogger("io-messages-app");
-  const stringify = (p?: Record<string, unknown>): Record<string, string> =>
-    Object.fromEntries(Object.entries(p ?? {}).map(([k, v]) => [k, String(v)]));
+const stringify = (p?: Record<string, unknown>): Record<string, string> =>
+  Object.fromEntries(Object.entries(p ?? {}).map(([k, v]) => [k, String(v)]));
 
-  const client: AppInsightsTelemetryClient = {
-    trackEvent: ({ name, properties }) =>
-      emitCustomEvent(name, stringify(properties))(),
-    trackException: ({ exception, properties }) =>
-      aiLogger.emit({
-        attributes: {
-          ...stringify(properties),
-          "exception.stack": exception.stack ?? "",
-        },
-        body: exception.message,
-        severityNumber: SeverityNumber.ERROR,
-      }),
-    trackTrace: ({ message, properties, severity }) =>
-      aiLogger.emit({
-        attributes: stringify(properties),
-        body: message,
-        severityNumber: severity as unknown as SeverityNumber,
-      }),
-  };
+const makeTelemetryClient = (
+  aiLogger: ReturnType<typeof logs.getLogger>,
+): AppInsightsTelemetryClient => ({
+  trackEvent: ({ name, properties }) =>
+    emitCustomEvent(name, stringify(properties))(),
+  trackException: ({ exception, properties }) =>
+    aiLogger.emit({
+      attributes: {
+        ...stringify(properties),
+        "exception.stack": exception.stack ?? "",
+      },
+      body: exception.message,
+      severityNumber: SeverityNumber.ERROR,
+    }),
+  trackTrace: ({ message, properties, severity }) =>
+    aiLogger.emit({
+      attributes: stringify(properties),
+      body: message,
+      severityNumber: severity as unknown as SeverityNumber,
+    }),
+});
+
+export const createApp = (config: AppConfig): { server: FastifyInstance } => {
+  const client = makeTelemetryClient(logs.getLogger("io-messages-app"));
 
   const logger = makeApplicationInsightsLogger({
     baseProperties: { service: "io-messages-app" },
