@@ -27,6 +27,7 @@ const requestWithHeaders = (headers: Record<string, string | undefined>) =>
   >[0];
 
 const service: ServicesCmsServiceDetails = {
+  age: { max: 65, min: 18 },
   authorizedCIDRs: new Set(),
   authorizedRecipients: new Set(),
   maxAllowedPaymentAmount:
@@ -114,11 +115,19 @@ describe("CosmosUserAttributesMiddleware", () => {
       email: "service@example.com",
       kind: "IAzureUserAttributes",
       service: {
-        ...service,
+        authorizedCIDRs: service.authorizedCIDRs,
+        authorizedRecipients: service.authorizedRecipients,
         departmentName: "Department",
+        maxAllowedPaymentAmount: service.maxAllowedPaymentAmount,
+        organizationFiscalCode: service.organizationFiscalCode,
+        organizationName: service.organizationName,
+        requireSecureChannels: service.requireSecureChannels,
         serviceCategory: "STANDARD",
+        serviceId: service.serviceId,
+        serviceName: service.serviceName,
         serviceVersion: 1,
       },
     });
+    expect(E.isRight(result) && result.right.service).not.toHaveProperty("age");
   });
 });
