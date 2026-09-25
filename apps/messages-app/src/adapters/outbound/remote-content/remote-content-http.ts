@@ -15,16 +15,29 @@ import {
   RemoteContentMessage,
   remoteContentMessageSchema,
 } from "io-messages-common/domain/remote-content-message";
+import {
+  RemoteContentMessagePrecondition,
+  remoteContentMessagePreconditionSchema,
+} from "io-messages-common/domain/remote-content-message-precondition";
 import { Result, err, ok } from "neverthrow";
 
 import { RemoteContentMessageRepository } from "../../../application/ports/remote-content-message.js";
+import { RemoteContentMessagePreconditionRepository } from "../../../application/ports/remote-content-message-precondition.js";
 import { createClient } from "../../../generated/remote-content/client/client.gen.js";
 import { Client } from "../../../generated/remote-content/client/index.js";
-import { getRemoteContentMessageDetails } from "../../../generated/remote-content/sdk.gen.js";
-import { RemoteContentDetailsResponse } from "../../../generated/remote-content/types.gen.js";
+import {
+  getRemoteContentMessageDetails,
+  getRemoteContentMessagePrecondition,
+} from "../../../generated/remote-content/sdk.gen.js";
+import {
+  PreconditionContent,
+  RemoteContentDetailsResponse,
+} from "../../../generated/remote-content/types.gen.js";
 
 export class RemoteContentHTTPAdapter
-  implements RemoteContentMessageRepository
+  implements
+    RemoteContentMessageRepository,
+    RemoteContentMessagePreconditionRepository
 {
   readonly #client: Client;
   readonly #logger: Logger;
@@ -54,6 +67,21 @@ export class RemoteContentHTTPAdapter
       return err(
         new GenericError(
           `Invalid response shape from the Remote Content service.`,
+        ),
+      );
+
+    return ok(parsedResponse.data);
+  }
+
+  private validateMessagePreconditionSuccessResponse(
+    response: PreconditionContent | undefined,
+  ): Result<RemoteContentMessagePrecondition, GenericError> {
+    const parsedResponse =
+      remoteContentMessagePreconditionSchema.safeParse(response);
+    if (!parsedResponse.success)
+      return err(
+        new GenericError(
+          `Invalid precondition response shape from the Remote Content service.`,
         ),
       );
 
@@ -147,6 +175,121 @@ export class RemoteContentHTTPAdapter
       case 429:
         this.#logger.trackEvent({
           name: "RemoteContentHTTPAdapter.getRemoteContentMessage.failed.tooManyRequests",
+          properties: {
+            baseURL: baseURL.toString(),
+            messageID,
+          },
+        });
+        return err(new TooManyRequestsError());
+
+      case 500:
+        return err(
+          new GenericError(
+            `The Remote Content service returned HTTP status 500.`,
+          ),
+        );
+
+      default:
+        return err(
+          new GenericError(
+            `The Remote Content service returned an unexpected HTTP status.`,
+          ),
+        );
+    }
+  }
+
+  async getRemoteContentMessagePrecondition(
+    baseURL: URL,
+    authentication: RCAuthenticationConfig,
+    messageID: MessageId,
+    fiscalCode: FiscalCode,
+    lollipopHeaders?: LollipopHeaders,
+  ) {
+    const getRCMessagePreconditionResult =
+      await getRemoteContentMessagePrecondition({
+        baseUrl: baseURL.toString().replace(/\/+$/, ""),
+        client: this.#client,
+        headers: {
+          fiscal_code: fiscalCode,
+          ...lollipopHeaders,
+          // Hey API's `auth` option requires a static security header name,
+          // while each Remote Content provider configures its own.
+          [authentication.headerKeyName]: authentication.key,
+        },
+        path: { id: messageID },
+        redirect: "manual",
+      });
+
+    if (!getRCMessagePreconditionResult.response) {
+      return err(
+        new GenericError(
+          this.toErrorBody(getRCMessagePreconditionResult.error),
+        ),
+      );
+    }
+
+    switch (getRCMessagePreconditionResult.response.status) {
+      case 200:
+        return this.validateMessagePreconditionSuccessResponse(
+          getRCMessagePreconditionResult.data,
+        );
+
+      case 400:
+        this.#logger.trackEvent({
+          name: "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.badRequest",
+          properties: {
+            baseURL: baseURL.toString(),
+            messageID,
+          },
+        });
+        return err(
+          new ValidationError(
+            `Validation error returned by the Remote Content service.`,
+          ),
+        );
+
+      case 401:
+        this.#logger.trackEvent({
+          name: "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.unauthorized",
+          properties: {
+            baseURL: baseURL.toString(),
+            messageID,
+          },
+        });
+        return err(
+          new GenericError(
+            `The Remote Content service returned HTTP status 401.`,
+          ),
+        );
+
+      case 403:
+        this.#logger.trackEvent({
+          name: "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.forbidden",
+          properties: {
+            baseURL: baseURL.toString(),
+            messageID,
+          },
+        });
+        return err(new ForbiddenError());
+
+      case 404:
+        this.#logger.trackEvent({
+          name: "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.notFound",
+          properties: {
+            baseURL: baseURL.toString(),
+            messageID,
+          },
+        });
+        return err(
+          new NotFoundError(
+            "RemoteContentMessagePrecondition",
+            `The Remote Content service returned HTTP status 404.`,
+          ),
+        );
+
+      case 429:
+        this.#logger.trackEvent({
+          name: "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.tooManyRequests",
           properties: {
             baseURL: baseURL.toString(),
             messageID,

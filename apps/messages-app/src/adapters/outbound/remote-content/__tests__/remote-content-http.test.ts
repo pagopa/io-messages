@@ -53,6 +53,11 @@ const validResponse = {
   },
 };
 
+const validPreconditionResponse = {
+  markdown: "A".repeat(80),
+  title: "A valid precondition title",
+};
+
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     headers: { "Content-Type": "application/json" },
@@ -292,6 +297,200 @@ describe("RemoteContentHTTPAdapter - response-less errors", () => {
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: unreadable response body",
+    );
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("RemoteContentHTTPAdapter - successful precondition responses", () => {
+  it("returns a valid precondition and sends all configured headers", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(validPreconditionResponse));
+
+    const result = await adapter.getRemoteContentMessagePrecondition(
+      baseURL,
+      authentication,
+      messageID,
+      fiscalCode,
+      lollipopHeaders,
+    );
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toEqual(validPreconditionResponse);
+
+    const request = getRequest();
+    expect(request.url).toBe(
+      `https://remote-content.example/api/messages/${messageID}/precondition`,
+    );
+    expect(request.redirect).toBe("manual");
+    expect(request.headers.get("fiscal_code")).toBe(fiscalCode);
+    expect(request.headers.get(authentication.headerKeyName)).toBe(
+      authentication.key,
+    );
+    expect(request.headers.get("signature")).toBe(lollipopHeaders.signature);
+    expect(request.headers.get("x-pagopa-lollipop-user-id")).toBe(
+      lollipopHeaders["x-pagopa-lollipop-user-id"],
+    );
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("sends the fiscal code without Lollipop headers when they are not provided", async () => {
+    const emptyPreconditionResponse = {
+      markdown: "",
+      title: "",
+    };
+    fetchMock.mockResolvedValue(jsonResponse(emptyPreconditionResponse));
+
+    const result = await adapter.getRemoteContentMessagePrecondition(
+      baseURL,
+      authentication,
+      messageID,
+      fiscalCode,
+    );
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toEqual(emptyPreconditionResponse);
+
+    const request = getRequest();
+    expect(request.headers.get("fiscal_code")).toBe(fiscalCode);
+    expect(request.headers.has("signature")).toBe(false);
+    expect(request.headers.has("x-pagopa-lollipop-user-id")).toBe(false);
+  });
+});
+
+describe("RemoteContentHTTPAdapter - precondition response validation", () => {
+  it.each([
+    [{ markdown: validPreconditionResponse.markdown }],
+    [{ ...validPreconditionResponse, title: 42 }],
+  ])(
+    "returns a GenericError when a successful response does not match the domain schema",
+    async (response) => {
+      fetchMock.mockResolvedValue(jsonResponse(response));
+
+      const result = await adapter.getRemoteContentMessagePrecondition(
+        baseURL,
+        authentication,
+        messageID,
+        fiscalCode,
+      );
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+      expect(result._unsafeUnwrapErr().message).toBe(
+        "Generic error: Invalid precondition response shape from the Remote Content service.",
+      );
+      expect(trackEventMock).not.toHaveBeenCalled();
+    },
+  );
+});
+
+describe("RemoteContentHTTPAdapter - precondition HTTP error responses", () => {
+  it.each([
+    {
+      errorType: ValidationError,
+      eventName:
+        "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.badRequest",
+      status: 400,
+    },
+    {
+      errorType: GenericError,
+      eventName:
+        "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.unauthorized",
+      status: 401,
+    },
+    {
+      errorType: ForbiddenError,
+      eventName:
+        "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.forbidden",
+      status: 403,
+    },
+    {
+      errorType: NotFoundError,
+      eventName:
+        "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.notFound",
+      status: 404,
+    },
+    {
+      errorType: TooManyRequestsError,
+      eventName:
+        "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.tooManyRequests",
+      status: 429,
+    },
+  ])(
+    "maps precondition status $status to $errorType.name and tracks the failure",
+    async ({ errorType, eventName, status }) => {
+      fetchMock.mockResolvedValue(jsonResponse({}, status));
+
+      const result = await adapter.getRemoteContentMessagePrecondition(
+        baseURL,
+        authentication,
+        messageID,
+        fiscalCode,
+      );
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(errorType);
+      expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+        name: eventName,
+        properties: {
+          baseURL: baseURL.toString(),
+          messageID,
+        },
+      });
+    },
+  );
+
+  it("returns a GenericError on a precondition 500 response", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({}, 500));
+
+    const result = await adapter.getRemoteContentMessagePrecondition(
+      baseURL,
+      authentication,
+      messageID,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: The Remote Content service returned HTTP status 500.",
+    );
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns a GenericError on an unexpected precondition response status", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({}, 418));
+
+    const result = await adapter.getRemoteContentMessagePrecondition(
+      baseURL,
+      authentication,
+      messageID,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: The Remote Content service returned an unexpected HTTP status.",
+    );
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("RemoteContentHTTPAdapter - response-less precondition errors", () => {
+  it("returns a GenericError when the precondition request has no response", async () => {
+    fetchMock.mockRejectedValue("network error");
+
+    const result = await adapter.getRemoteContentMessagePrecondition(
+      baseURL,
+      authentication,
+      messageID,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: network error",
     );
     expect(trackEventMock).not.toHaveBeenCalled();
   });
