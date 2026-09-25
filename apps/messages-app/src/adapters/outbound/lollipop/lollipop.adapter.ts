@@ -24,10 +24,17 @@ const toGenericError = (error: unknown): GenericError =>
   new GenericError(error instanceof Error ? error.message : String(error));
 
 export class LollipopHttpClientAdapter implements LcParamsRepository {
+  private readonly client: ReturnType<typeof createClient>;
+
   constructor(
     private readonly apiKey: string,
     private readonly baseURL: URL,
-  ) {}
+  ) {
+    this.client = createClient({
+      auth: this.apiKey,
+      baseUrl: this.baseURL.toString(),
+    });
+  }
 
   async generateLcParams(
     assertionRef: AssertionRef,
@@ -37,7 +44,7 @@ export class LollipopHttpClientAdapter implements LcParamsRepository {
       generateLcParams({
         auth: this.apiKey,
         body: { operation_id: operationId },
-        client: createClient({ baseUrl: this.baseURL.toString() }),
+        client: this.client,
         path: { assertion_ref: assertionRef },
       }),
       toGenericError,
