@@ -27,4 +27,17 @@ export default [
       "zod",
     ],
   },
+  {
+    input: "./api/consumed/send.yaml",
+    output: {
+      importFileExtension: ".js",
+      path: "src/generated/send",
+    },
+    plugins: [
+      "@hey-api/client-fetch",
+      "@hey-api/typescript",
+      "@hey-api/sdk",
+      "zod",
+    ],
+  },
 ];
