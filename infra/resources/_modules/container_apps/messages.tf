@@ -25,46 +25,24 @@ module "messages_ca" {
 
       environment_variables = [
         {
-          name  = "HOST"
-          value = "0.0.0.0"
+          name  = "APIM_BASE_URL"
+          value = "https://io-p-itn-svc-services-ca-01.ambitioussea-e5d71305.italynorth.azurecontainerapps.io"
         },
         {
-          name  = "NODE_ENV"
-          value = "production"
+          name  = "APIM_SUBSCRIPTION_KEY"
+          value = "dummy"
         },
         {
-          name  = "PORT"
-          value = "3000"
+          name  = "APPLICATIONINSIGHTS_CONNECTION_STRING"
+          value = var.application_insights.connection_string
+        },
+        {
+          name  = "APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED"
+          value = "true"
         },
         {
           name  = "COMMON_COSMOS_DATABASE_NAME"
           value = "db"
-        },
-        {
-          name  = "MESSAGE_METADATA_CONTAINER_NAME"
-          value = "messages"
-        },
-        {
-          name  = "MESSAGE_STATUS_CONTAINER_NAME"
-          value = "message-status"
-        },
-        {
-          name  = "MESSAGE_CONTENT_CONTAINER_NAME"
-          value = "message-content"
-        },
-        {
-          name  = "RC_APP_BASE_URL"
-          value = "https://${module.remote_content_ca.url}/api/internal/rc-configurations"
-        },
-        {
-          name = "SERVICE_TO_RC_MAP"
-          value = jsonencode({
-            "01G40DWQGKY5GRWSNM4303VNRP" = "01HMVMHCZZ8D0VTFWMRHBM5D6F", # PN
-            "01GQQZ9HF5GAPRVKJM1VDAVFHM" = "01HMVMDTHXCESMZ72NA701EKGQ", # IO Sign
-            "01H4ZJ62C1CPGJ0PX8Q1BP7FAB" = "01HMVMCDD3JFYTPKT4ZN4WQ73B", # PagoPA Receipt (Test)
-            "01HD63674XJ1R6XCNHH24PCRR2" = "01HMVM9W74RWH93NT1EYNKKNNR", # PagoPA Receipt
-            "01GQQDPM127KFGG6T3660D5TXD" = "01HMVM4N4XFJ8VBR1FXYFZ9QFB", # Third Party Mock
-          })
         },
         {
           name  = "COMMON_COSMOS_URI"
@@ -83,48 +61,74 @@ module "messages_ca" {
           value = var.communication_storage_queue_uri
         },
         {
-          name  = "PN_SERVICE_ID"
-          value = "01G40DWQGKY5GRWSNM4303VNRP"
+          name  = "HOST"
+          value = "0.0.0.0"
         },
         {
-          name  = "APPLICATIONINSIGHTS_CONNECTION_STRING"
-          value = var.application_insights.connection_string
-        },
-        {
-          name  = "APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED"
-          value = "true"
-        },
-        {
-          name  = "APIM_BASE_URL"
-          value = "https://io-p-itn-svc-services-ca-01.ambitioussea-e5d71305.italynorth.azurecontainerapps.io"
-        },
-        {
-          name  = "APIM_SUBSCRIPTION_KEY"
-          value = "dummy"
-        },
-        {
-          name  = "PAGOPA_ECOMMERCE_BASE_URL"
-          value = "https://api.platform.pagopa.it/ecommerce/payment-requests-service/v1"
-        },
-        {
-          name  = "PAGOPA_ECOMMERCE_UAT_API_KEY"
-          value = "dummy"
-        },
-        {
-          name  = "PAGOPA_ECOMMERCE_UAT_BASE_URL"
-          value = "https://api.uat.platform.pagopa.it/ecommerce/payment-requests-service/v1"
+          name  = "MESSAGE_CONTENT_CONTAINER_NAME"
+          value = "message-content"
         },
         {
           name  = "MESSAGE_CREATED_QUEUE_NAME"
           value = "message-created-v2"
         },
         {
+          name  = "MESSAGE_METADATA_CONTAINER_NAME"
+          value = "messages"
+        },
+        {
+          name  = "MESSAGE_STATUS_CONTAINER_NAME"
+          value = "message-status"
+        },
+        {
+          name  = "NODE_ENV"
+          value = "production"
+        },
+        {
+          name  = "OTEL_SERVICE_NAME"
+          value = "io-p-itn-com-messages-ca-01"
+        },
+        {
+          name  = "PAGOPA_ECOMMERCE_BASE_URL"
+          value = "https://api.platform.pagopa.it/ecommerce/payment-requests-service/v1"
+        },
+        {
+          name  = "PAGOPA_ECOMMERCE_UAT_BASE_URL"
+          value = "https://api.uat.platform.pagopa.it/ecommerce/payment-requests-service/v1"
+        },
+        {
+          name  = "PN_SERVICE_ID"
+          value = "01G40DWQGKY5GRWSNM4303VNRP"
+        },
+        {
+          name  = "PORT"
+          value = "3000"
+        },
+        {
           name  = "PROCESSING_MESSAGE_CONTAINER_NAME"
           value = "processing-message"
         },
         {
+          name  = "RC_APP_BASE_URL"
+          value = "https://${module.remote_content_ca.url}/api/internal/rc-configurations"
+        },
+        {
+          name = "SERVICE_TO_RC_MAP"
+          value = jsonencode({
+            "01G40DWQGKY5GRWSNM4303VNRP" = "01HMVMHCZZ8D0VTFWMRHBM5D6F", # PN
+            "01GQQZ9HF5GAPRVKJM1VDAVFHM" = "01HMVMDTHXCESMZ72NA701EKGQ", # IO Sign
+            "01H4ZJ62C1CPGJ0PX8Q1BP7FAB" = "01HMVMCDD3JFYTPKT4ZN4WQ73B", # PagoPA Receipt (Test)
+            "01HD63674XJ1R6XCNHH24PCRR2" = "01HMVM9W74RWH93NT1EYNKKNNR", # PagoPA Receipt
+            "01GQQDPM127KFGG6T3660D5TXD" = "01HMVM4N4XFJ8VBR1FXYFZ9QFB", # Third Party Mock
+          })
+        },
+        {
           name  = "PAGOPA_ECOMMERCE_API_KEY"
           value = data.azurerm_key_vault_secret.pagopa_ecommerce_key.versionless_id
+        },
+        {
+          name  = "PAGOPA_ECOMMERCE_UAT_API_KEY"
+          value = "dummy"
         },
       ]
 
