@@ -1,5 +1,13 @@
 # messages-app
 
+## 0.7.2
+
+### Patch Changes
+
+- 74d7d6f: Add remote content ports and adapters
+- Updated dependencies [74d7d6f]
+  - io-messages-common@1.4.6
+
 ## 0.7.1
 
 ### Patch Changes

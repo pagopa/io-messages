@@ -1,4 +1,4 @@
-/** @type {import("@hey-api/openapi-ts").UserConfig[]} */
+/** @type {import("@hey-api/openapi-ts").UserConfig} */
 export default [
   {
     input:
@@ -20,6 +20,19 @@ export default [
     output: {
       importFileExtension: ".js",
       path: "src/generated/lollipop",
+    },
+    plugins: [
+      "@hey-api/client-fetch",
+      "@hey-api/typescript",
+      "@hey-api/sdk",
+      "zod",
+    ],
+  },
+  {
+    input: "./api/consumed/remote-content.yaml",
+    output: {
+      importFileExtension: ".js",
+      path: "src/generated/remote-content",
     },
     plugins: [
       "@hey-api/client-fetch",
