@@ -28,6 +28,7 @@ module "messages_ca" {
         HOST                            = "0.0.0.0"
         NODE_ENV                        = "production"
         PORT                            = 3000
+        FF_AGE_ELIGIBILITY_ENABLED      = "false"
         COMMON_COSMOS_DATABASE_NAME     = "db"
         MESSAGE_METADATA_CONTAINER_NAME = "messages"
         MESSAGE_STATUS_CONTAINER_NAME   = "message-status"

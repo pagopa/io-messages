@@ -16,27 +16,38 @@ import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 import nodeFetch from "node-fetch";
 
+import { ServiceAgeRange } from "../utils/age-eligibility";
+
 const DEFAULT_REQUEST_TIMEOUT_MS = 10000;
 
-const responseCodec = t.type({
-  authorized_cidrs: t.readonlyArray(CIDR),
-  authorized_recipients: t.readonlyArray(FiscalCode),
-  id: NonEmptyString,
-  max_allowed_payment_amount: WithinRangeInteger(0, 9999999999),
-  metadata: t.partial({
-    category: ServiceCategory,
-  }),
-  name: NonEmptyString,
-  organization: t.type({
-    fiscal_code: OrganizationFiscalCode,
+const responseCodec = t.intersection([
+  t.type({
+    authorized_cidrs: t.readonlyArray(CIDR),
+    authorized_recipients: t.readonlyArray(FiscalCode),
+    id: NonEmptyString,
+    max_allowed_payment_amount: WithinRangeInteger(0, 9999999999),
+    metadata: t.partial({
+      category: ServiceCategory,
+    }),
     name: NonEmptyString,
+    organization: t.type({
+      fiscal_code: OrganizationFiscalCode,
+      name: NonEmptyString,
+    }),
+    require_secure_channel: t.boolean,
   }),
-  require_secure_channel: t.boolean,
-});
+  t.partial({
+    age: t.partial({
+      max: WithinRangeInteger(0, 999),
+      min: WithinRangeInteger(0, 999),
+    }),
+  }),
+]);
 
 type ServicesCmsResponse = t.TypeOf<typeof responseCodec>;
 
 export interface ServicesCmsServiceDetails {
+  readonly age?: ServiceAgeRange;
   readonly authorizedCIDRs: ReadonlySet<CIDR>;
   readonly authorizedRecipients: ReadonlySet<FiscalCode>;
   readonly maxAllowedPaymentAmount: ServicesCmsResponse["max_allowed_payment_amount"];
@@ -91,6 +102,7 @@ const defaultFetchApi: FetchApi = nodeFetch as unknown as FetchApi;
 const toServiceDetails = (
   response: ServicesCmsResponse,
 ): ServicesCmsServiceDetails => ({
+  age: response.age,
   authorizedCIDRs: new Set(response.authorized_cidrs),
   authorizedRecipients: new Set(response.authorized_recipients),
   maxAllowedPaymentAmount: response.max_allowed_payment_amount,
