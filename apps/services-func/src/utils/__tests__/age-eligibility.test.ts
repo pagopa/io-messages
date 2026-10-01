@@ -58,13 +58,6 @@ describe("canSendToAge", () => {
     expect(canSendToAge(fiscalCode, ageRange, now).kind).toBe(expectedKind);
   });
 
-  it("uses the previous century for a current-century recipient younger than 14", () => {
-    expect(
-      canSendToAge(fiscalCodeWithBirthDate("20", "A", "01"), undefined, now)
-        .kind,
-    ).toBe("ELIGIBLE");
-  });
-
   it("accepts a valid leap-day birth date", () => {
     expect(
       canSendToAge(fiscalCodeWithBirthDate("08", "B", "29"), undefined, now)

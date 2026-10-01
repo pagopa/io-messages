@@ -111,8 +111,7 @@ const decodeBirthDate = (
     year: Math.floor(referenceDate.year / 100) * 100 + year,
   };
   const birthDate =
-    currentCenturyDate.year <= referenceDate.year &&
-    getAge(currentCenturyDate, referenceDate) >= 14
+    currentCenturyDate.year <= referenceDate.year
       ? currentCenturyDate
       : { ...currentCenturyDate, year: currentCenturyDate.year - 100 };
 
