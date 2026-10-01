@@ -1,5 +1,11 @@
 # io-messages-common
 
+## 1.4.6
+
+### Patch Changes
+
+- 74d7d6f: Add remote content ports and adapters
+
 ## 1.4.5
 
 ### Patch Changes

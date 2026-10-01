@@ -7,6 +7,7 @@ import {
   GenericError,
   NotFoundError,
   TooManyRequestsError,
+  UnprocessableEntityError,
   ValidationError,
 } from "@pagopa/hexagonal-core";
 import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
@@ -193,6 +194,7 @@ const makeUseCase = (dependencies: Dependencies): CreateMessageUseCase =>
     dependencies.logger,
     dependencies.generateMessageId,
     dependencies.clock,
+    true,
   );
 
 const anInput = (
@@ -806,6 +808,29 @@ describe("makeCreateMessageUseCase", () => {
     );
 
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(ForbiddenError);
+    expectNoPersistence(dependencies);
+  });
+
+  it("returns unprocessable entity when the recipient is not age eligible", async () => {
+    dependencies = makeDependencies(aService({ age: { min: 999 } }));
+    useCase = makeUseCase(dependencies);
+
+    const result = await useCase(anInput());
+
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(UnprocessableEntityError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Unprocessable entity: Recipient age not eligible",
+    );
+    expectNoPersistence(dependencies);
+  });
+
+  it("returns a generic error for a malformed service age range", async () => {
+    dependencies = makeDependencies(aService({ age: { max: 18, min: 19 } }));
+    useCase = makeUseCase(dependencies);
+
+    const result = await useCase(anInput());
+
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
     expectNoPersistence(dependencies);
   });
 

@@ -1,5 +1,11 @@
 # services-func
 
+## 2.1.11
+
+### Patch Changes
+
+- 0f43f39: Adding age check for services
+
 ## 2.1.10
 
 ### Patch Changes

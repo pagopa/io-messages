@@ -18,6 +18,10 @@ const rcAuthenticationConfigSchema = z.object({
   type: z.string().min(1),
 });
 
+export type RCAuthenticationConfig = z.infer<
+  typeof rcAuthenticationConfigSchema
+>;
+
 const rcEnvironmentConfigSchema = z.object({
   baseUrl: z.string().min(1),
   detailsAuthentication: rcAuthenticationConfigSchema,
