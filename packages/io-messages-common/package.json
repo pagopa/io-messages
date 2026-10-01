@@ -1,7 +1,7 @@
 {
   "name": "io-messages-common",
   "license": "UNLICENSED",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "private": true,
   "type": "module",
   "exports": {

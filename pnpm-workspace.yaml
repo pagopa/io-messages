@@ -17,6 +17,7 @@ catalog:
   "@azure/service-bus": ^7.9.5
   "@azure/storage-blob": ^12.29.1
   "@azure/storage-queue": ^12.28.1
+  "@hey-api/openapi-ts": ^0.99.0
   "@opentelemetry/api-logs": ^0.218.0
   "@pagopa/azure-tracing": ^0.5.5
   "@pagopa/eslint-config": ^4.0.6

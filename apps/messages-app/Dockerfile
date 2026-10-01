@@ -18,6 +18,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
   pnpm install --frozen-lockfile
 
 COPY --from=pruner /repo/out/full/ ./
+RUN pnpm --filter messages-app... generate
 RUN pnpm --filter messages-app... build
 
 RUN pnpm --filter messages-app --prod deploy --legacy /repo/deploy

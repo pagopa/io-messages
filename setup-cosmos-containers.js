@@ -31,6 +31,10 @@ const remoteContentContainers = [
   { id: "user-configurations", partitionKey: "/userId" },
 ];
 
+const paymentFixtureFiscalCode = "LVTEST00A00A200X";
+const paymentFixtureMessageId = "01M0YRTA395JBSZNWG7W63ZJDV";
+const paymentFixtureServiceId = "01JR0QRJ8MX1PD06DE6X5FWXS5";
+
 const profiles = [
   {
     containerId: "profiles",
@@ -165,6 +169,39 @@ const services = [
   },
 ];
 
+const messages = [
+  {
+    containerId: "messages",
+    document: {
+      id: paymentFixtureMessageId,
+      indexedId: paymentFixtureMessageId,
+      fiscalCode: paymentFixtureFiscalCode,
+      senderServiceId: paymentFixtureServiceId,
+      senderUserId: "local",
+      createdAt: "2025-05-31T10:00:00.000Z",
+      featureLevelType: "STANDARD",
+      isPending: false,
+      timeToLiveSeconds: 3600,
+    },
+  },
+];
+
+const messageStatuses = [
+  {
+    containerId: "message-status",
+    document: {
+      id: `${paymentFixtureMessageId}-0000000000000000`,
+      fiscalCode: paymentFixtureFiscalCode,
+      messageId: paymentFixtureMessageId,
+      isArchived: false,
+      isRead: false,
+      status: "PROCESSED",
+      updatedAt: "2025-05-31T10:00:00.000Z",
+      version: 0,
+    },
+  },
+];
+
 const RCMessageConfigurations = [
   {
     containerId: "message-configuration",
@@ -260,6 +297,18 @@ const addDocumentToContainer = async (database, containerId, document) => {
 
   await Promise.all(
     services.map(({ containerId, document }) =>
+      addDocumentToContainer(database, containerId, document),
+    ),
+  );
+
+  await Promise.all(
+    messages.map(({ containerId, document }) =>
+      addDocumentToContainer(database, containerId, document),
+    ),
+  );
+
+  await Promise.all(
+    messageStatuses.map(({ containerId, document }) =>
       addDocumentToContainer(database, containerId, document),
     ),
   );

@@ -44,6 +44,27 @@ const queues = [
 ];
 const tables = ["MessagesDataplanIngestionErrors"];
 
+const paymentFixtureMessageId = "01M0YRTA395JBSZNWG7W63ZJDV";
+const paymentMessageContents = [
+  {
+    blobName: `${paymentFixtureMessageId}.json`,
+    containerName: "message-content",
+    content: {
+      subject: "Payment fixture message",
+      markdown:
+        "This is a local payment fixture message used to query a valid RPT ID during local development and Bruno testing.",
+      payment_data: {
+        amount: 100,
+        invalid_after_due_date: false,
+        notice_number: "312345678901234567",
+        payee: {
+          fiscal_code: "12345678901",
+        },
+      },
+    },
+  },
+];
+
 const createContainerIfNotExists = async (name) => {
   try {
     const containerClient = blobServiceClient.getContainerClient(name);
@@ -77,10 +98,31 @@ const createTableIfNotExists = async (name) => {
   }
 };
 
+const uploadMessageContentIfNotExists = async ({
+  blobName,
+  containerName,
+  content,
+}) => {
+  try {
+    const containerClient = blobServiceClient.getContainerClient(containerName);
+    const blobClient = containerClient.getBlockBlobClient(blobName);
+    await blobClient.uploadData(Buffer.from(JSON.stringify(content)), {
+      blobHTTPHeaders: { blobContentType: "application/json" },
+    });
+    console.log(`Blob ${blobName} ready in container ${containerName}.`);
+  } catch (error) {
+    console.error(`Error uploading blob ${blobName}:`, error);
+  }
+};
+
 (async () => {
   await Promise.all([
     ...containers.map(createContainerIfNotExists),
     ...queues.map(createQueueIfNotExists),
     ...tables.map(createTableIfNotExists),
   ]);
+
+  await Promise.all(
+    paymentMessageContents.map(uploadMessageContentIfNotExists),
+  );
 })();
