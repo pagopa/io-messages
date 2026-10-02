@@ -5,6 +5,7 @@ import type { RCAuthenticationConfig } from "io-messages-common/domain/remote-co
 import { FiscalCodeSchema, GenericError } from "@pagopa/hexagonal-core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { RemoteContentServiceUnavailableError } from "../../../../application/ports/remote-content-message-attachment.js";
 import { SendHTTPAdapter } from "../send-http.js";
 
 const baseURL = new URL("https://send.example/api///");
@@ -65,9 +66,28 @@ const validPreconditionResponse = {
   title: "SEND precondition",
 };
 
+const documentAttachmentURL = `/delivery/notifications/received/${iun}/attachments/documents/0`;
+const paymentAttachmentURL = `/delivery/notifications/received/${iun}/attachments/payment/F24/?attachmentIdx=2`;
+const attachmentDownloadURL =
+  "https://download.send.example/notification-document";
+const attachmentContent = "%PDF-1.7 SEND attachment";
+const validAttachmentMetadata = {
+  contentLength: attachmentContent.length,
+  contentType: "application/pdf",
+  filename: "notification.pdf",
+  sha256: "a-sha256-digest",
+  url: attachmentDownloadURL,
+};
+
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     headers: { "Content-Type": "application/json" },
+    status,
+  });
+
+const attachmentResponse = (status = 200) =>
+  new Response(attachmentContent, {
+    headers: { "Content-Type": "application/pdf" },
     status,
   });
 
@@ -372,5 +392,267 @@ describe("SendHTTPAdapter - response-less precondition errors", () => {
       "Generic error: network error",
     );
     expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("SendHTTPAdapter - successful attachment responses", () => {
+  it("retrieves document metadata, downloads the attachment, and sends all configured headers", async () => {
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(validAttachmentMetadata))
+      .mockResolvedValueOnce(attachmentResponse());
+
+    const result = await adapter.getNotificationAttachment(
+      baseURL,
+      authentication,
+      iun,
+      documentAttachmentURL,
+      fiscalCode,
+      lollipopHeaders,
+    );
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toEqual(Buffer.from(attachmentContent));
+
+    const request = getRequest();
+    expect(request.url).toBe(
+      `https://send.example/api/delivery/notifications/received/${iun}/attachments/documents/0`,
+    );
+    expect(request.redirect).toBe("manual");
+    expect(request.headers.get("x-pagopa-cx-taxid")).toBe(fiscalCode);
+    expect(request.headers.get(authentication.headerKeyName)).toBe(
+      authentication.key,
+    );
+    expect(request.headers.get("signature")).toBe(lollipopHeaders.signature);
+    expect(fetchMock.mock.calls[1]?.[0]).toBe(attachmentDownloadURL);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("retrieves payment metadata with its index and omits Lollipop headers", async () => {
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(validAttachmentMetadata))
+      .mockResolvedValueOnce(attachmentResponse());
+
+    const result = await adapter.getNotificationAttachment(
+      baseURL,
+      authentication,
+      iun,
+      paymentAttachmentURL,
+      fiscalCode,
+    );
+
+    expect(result.isOk()).toBe(true);
+
+    const request = getRequest();
+    expect(request.url).toBe(
+      `https://send.example/api/delivery/notifications/received/${iun}/attachments/payment/F24?attachmentIdx=2`,
+    );
+    expect(request.headers.get("x-pagopa-cx-taxid")).toBe(fiscalCode);
+    expect(request.headers.has("signature")).toBe(false);
+    expect(request.headers.has("x-pagopa-lollipop-user-id")).toBe(false);
+  });
+});
+
+describe("SendHTTPAdapter - attachment path validation", () => {
+  it.each([
+    `/delivery/notifications/received/${iun}/attachments/unknown/0`,
+    `${documentAttachmentURL}?attachmentIdx=0`,
+    `/delivery/notifications/received/${iun}/attachments/payment/F24`,
+    `/delivery/notifications/received/${iun}/attachments/payment/F24?attachmentIdx=invalid`,
+  ])("rejects an unsupported attachment URL: %s", async (attachmentURL) => {
+    const result = await adapter.getNotificationAttachment(
+      baseURL,
+      authentication,
+      iun,
+      attachmentURL,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      `Generic error: Can not distinguish a PN document URL from a PN payment URL: ${attachmentURL}`,
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("SendHTTPAdapter - attachment metadata failures", () => {
+  it.each([
+    {
+      attachmentURL: documentAttachmentURL,
+      operation: "SentNotificationDocument",
+      status: 400,
+    },
+    {
+      attachmentURL: paymentAttachmentURL,
+      operation: "ReceivedNotificationAttachment",
+      status: 404,
+    },
+  ])(
+    "maps a $operation status $status to GenericError and tracks the failure",
+    async ({ attachmentURL, operation, status }) => {
+      fetchMock.mockResolvedValue(jsonResponse({}, status));
+
+      const result = await adapter.getNotificationAttachment(
+        baseURL,
+        authentication,
+        iun,
+        attachmentURL,
+        fiscalCode,
+      );
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+      expect(result._unsafeUnwrapErr().message).toBe(
+        `Generic error: Failed to fetch PN ${operation}: ${status}`,
+      );
+      expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+        name: "SendHTTPAdapter.getNotificationAttachment.failed",
+        properties: {
+          attachmentURL,
+          baseURL: baseURL.toString(),
+          iun,
+        },
+      });
+    },
+  );
+
+  it("returns a GenericError when the metadata request has no response", async () => {
+    fetchMock.mockRejectedValue("network error");
+
+    const result = await adapter.getNotificationAttachment(
+      baseURL,
+      authentication,
+      iun,
+      documentAttachmentURL,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: network error",
+    );
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("returns a GenericError when metadata does not match the SEND schema", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ ...validAttachmentMetadata, contentLength: "invalid" }),
+    );
+
+    const result = await adapter.getNotificationAttachment(
+      baseURL,
+      authentication,
+      iun,
+      documentAttachmentURL,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: Invalid attachment metadata response from SEND.",
+    );
+  });
+
+  it("returns a service-unavailable error with retry metadata", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        ...validAttachmentMetadata,
+        retryAfter: 10,
+        url: undefined,
+      }),
+    );
+
+    const result = await adapter.getNotificationAttachment(
+      baseURL,
+      authentication,
+      iun,
+      documentAttachmentURL,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(
+      RemoteContentServiceUnavailableError,
+    );
+    expect(result._unsafeUnwrapErr()).toMatchObject({ retryAfter: "10" });
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "SendHTTPAdapter.getNotificationAttachment.failed.serviceUnavailable",
+      properties: {
+        attachmentURL: documentAttachmentURL,
+        baseURL: baseURL.toString(),
+        iun,
+      },
+    });
+  });
+
+  it("returns a GenericError when metadata contains neither URL nor retry information", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        contentLength: validAttachmentMetadata.contentLength,
+        contentType: validAttachmentMetadata.contentType,
+        filename: validAttachmentMetadata.filename,
+        sha256: validAttachmentMetadata.sha256,
+      }),
+    );
+
+    const result = await adapter.getNotificationAttachment(
+      baseURL,
+      authentication,
+      iun,
+      documentAttachmentURL,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: The SEND attachment metadata contains neither url nor retryAfter.",
+    );
+  });
+});
+
+describe("SendHTTPAdapter - attachment download failures", () => {
+  it("returns a GenericError when the download response is not successful", async () => {
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(validAttachmentMetadata))
+      .mockResolvedValueOnce(attachmentResponse(500));
+
+    const result = await adapter.getNotificationAttachment(
+      baseURL,
+      authentication,
+      iun,
+      documentAttachmentURL,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: Failed to fetch PN download attachment: 500",
+    );
+  });
+
+  it("returns a GenericError when the download request fails", async () => {
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(validAttachmentMetadata))
+      .mockRejectedValueOnce(new Error("download error"));
+
+    const result = await adapter.getNotificationAttachment(
+      baseURL,
+      authentication,
+      iun,
+      documentAttachmentURL,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: download error",
+    );
   });
 });
