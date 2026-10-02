@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.7.5
+
+### Patch Changes
+
+- 3ad7cb0: Refactor pagopaecommerce adapter
+
 ## 0.7.4
 
 ### Patch Changes
