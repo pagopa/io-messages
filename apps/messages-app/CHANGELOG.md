@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.7.4
+
+### Patch Changes
+
+- 29497b0: Add lollipop adapter and lc-params repository
+
 ## 0.7.3
 
 ### Patch Changes
