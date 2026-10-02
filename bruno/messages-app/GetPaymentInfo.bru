@@ -14,12 +14,6 @@ params:query {
   test: false
 }
 
-headers {
-  x-user-groups: ApiPaymentInfoRead
-  x-subscription-id: {{sender_subscription_id}}
-  x-user-id: {{sender_user_id}}
-}
-
 vars:pre-request {
   rpt_id: 12345678901312345678901234567
 }
