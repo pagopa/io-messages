@@ -60,6 +60,11 @@ const validResponse = {
   },
 };
 
+const validPreconditionResponse = {
+  markdown: "A valid SEND precondition.",
+  title: "SEND precondition",
+};
+
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     headers: { "Content-Type": "application/json" },
@@ -235,6 +240,136 @@ describe("SendHTTPAdapter - response-less errors", () => {
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: unreadable response body",
+    );
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("SendHTTPAdapter - successful precondition responses", () => {
+  it("returns a valid precondition and sends all configured headers", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(validPreconditionResponse));
+
+    const result = await adapter.getNotificationPrecondition(
+      baseURL,
+      authentication,
+      iun,
+      fiscalCode,
+      lollipopHeaders,
+    );
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toEqual(validPreconditionResponse);
+
+    const request = getRequest();
+    expect(request.url).toBe(
+      `https://send.example/api/ext-registry-private/io/v1/notification-disclaimer/${iun}`,
+    );
+    expect(request.redirect).toBe("manual");
+    expect(request.headers.get("x-pagopa-cx-taxid")).toBe(fiscalCode);
+    expect(request.headers.get(authentication.headerKeyName)).toBe(
+      authentication.key,
+    );
+    expect(request.headers.get("signature")).toBe(lollipopHeaders.signature);
+    expect(request.headers.get("x-pagopa-lollipop-user-id")).toBe(
+      lollipopHeaders["x-pagopa-lollipop-user-id"],
+    );
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("accepts empty strings and omits Lollipop headers when they are not provided", async () => {
+    const emptyPreconditionResponse = {
+      markdown: "",
+      title: "",
+    };
+    fetchMock.mockResolvedValue(jsonResponse(emptyPreconditionResponse));
+
+    const result = await adapter.getNotificationPrecondition(
+      baseURL,
+      authentication,
+      iun,
+      fiscalCode,
+    );
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toEqual(emptyPreconditionResponse);
+
+    const request = getRequest();
+    expect(request.headers.get("x-pagopa-cx-taxid")).toBe(fiscalCode);
+    expect(request.headers.has("signature")).toBe(false);
+    expect(request.headers.has("x-pagopa-lollipop-user-id")).toBe(false);
+  });
+});
+
+describe("SendHTTPAdapter - precondition response validation", () => {
+  it.each([
+    [{ markdown: validPreconditionResponse.markdown }],
+    [{ ...validPreconditionResponse, title: 42 }],
+  ])(
+    "returns a GenericError when a successful response does not match the precondition schema",
+    async (response) => {
+      fetchMock.mockResolvedValue(jsonResponse(response));
+
+      const result = await adapter.getNotificationPrecondition(
+        baseURL,
+        authentication,
+        iun,
+        fiscalCode,
+      );
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+      expect(result._unsafeUnwrapErr().message).toBe(
+        "Generic error: Invalid precondition response shape from SEND service.",
+      );
+      expect(trackEventMock).not.toHaveBeenCalled();
+    },
+  );
+});
+
+describe("SendHTTPAdapter - precondition HTTP error responses", () => {
+  it.each([400, 404, 500])(
+    "maps precondition status %s to GenericError and tracks the failure",
+    async (status) => {
+      fetchMock.mockResolvedValue(jsonResponse({}, status));
+
+      const result = await adapter.getNotificationPrecondition(
+        baseURL,
+        authentication,
+        iun,
+        fiscalCode,
+      );
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+      expect(result._unsafeUnwrapErr().message).toBe(
+        `Generic error: Failed to fetch PN ReceivedPrecondition: ${status}`,
+      );
+      expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+        name: "SendHTTPAdapter.getNotificationPrecondition.failed",
+        properties: {
+          baseURL: baseURL.toString(),
+          iun,
+        },
+      });
+    },
+  );
+});
+
+describe("SendHTTPAdapter - response-less precondition errors", () => {
+  it("returns a GenericError when the precondition request has no response", async () => {
+    fetchMock.mockRejectedValue("network error");
+
+    const result = await adapter.getNotificationPrecondition(
+      baseURL,
+      authentication,
+      iun,
+      fiscalCode,
+    );
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Generic error: network error",
     );
     expect(trackEventMock).not.toHaveBeenCalled();
   });
