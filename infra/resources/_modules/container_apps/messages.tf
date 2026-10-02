@@ -85,10 +85,6 @@ module "messages_ca" {
           value = "production"
         },
         {
-          name  = "OTEL_SERVICE_NAME"
-          value = "io-p-itn-com-messages-ca-01"
-        },
-        {
           name  = "PAGOPA_ECOMMERCE_BASE_URL"
           value = "https://api.platform.pagopa.it/ecommerce/payment-requests-service/v1"
         },
