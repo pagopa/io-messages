@@ -1,5 +1,25 @@
 # messages-app
 
+## 0.7.4
+
+### Patch Changes
+
+- 29497b0: Add lollipop adapter and lc-params repository
+
+## 0.7.3
+
+### Patch Changes
+
+- 0f43f39: Adding age check for services
+
+## 0.7.2
+
+### Patch Changes
+
+- 74d7d6f: Add remote content ports and adapters
+- Updated dependencies [74d7d6f]
+  - io-messages-common@1.4.6
+
 ## 0.7.1
 
 ### Patch Changes

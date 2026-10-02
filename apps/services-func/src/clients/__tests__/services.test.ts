@@ -6,6 +6,7 @@ import { makeServicesClient } from "../services";
 
 const serviceId = "01ARZ3NDEKTSV4RRFFQ69G5FAV" as NonEmptyString;
 const responseBody = {
+  age: { max: 65, min: 18 },
   authorized_cidrs: ["192.0.2.0/24"],
   authorized_recipients: ["AAABBB00A00A000A"],
   id: serviceId,
@@ -41,6 +42,7 @@ describe("ServicesCmsClient", () => {
     expect(E.isRight(result)).toBe(true);
     if (E.isRight(result)) {
       expect(result.right).toMatchObject({
+        age: { max: 65, min: 18 },
         maxAllowedPaymentAmount: 1000,
         organizationFiscalCode: "01234567890",
         organizationName: "An organization",
@@ -79,6 +81,18 @@ describe("ServicesCmsClient", () => {
     };
     fetchApi.mockResolvedValue(
       new Response(JSON.stringify(invalidResponse), { status: 200 }),
+    );
+
+    const result = await client.getServiceDetails(serviceId)();
+
+    expect(E.isLeft(result) && result.left.kind).toBe("INVALID_RESPONSE");
+  });
+
+  it("rejects a response with invalid age bounds", async () => {
+    fetchApi.mockResolvedValue(
+      new Response(JSON.stringify({ ...responseBody, age: { min: 1000 } }), {
+        status: 200,
+      }),
     );
 
     const result = await client.getServiceDetails(serviceId)();
