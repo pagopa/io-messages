@@ -16,8 +16,62 @@
       "endpoint": "api/v1/internal/services/:serviceID",
       "responses": [
         {
+          "uuid": "11111111-1111-1111-1111-111111111111",
+          "body": "{\n  \"authorized_cidrs\": [],\n  \"authorized_recipients\": [\n    \"AAABBB00A00A000A\"\n  ],\n  \"description\": \"A service description\",\n  \"id\": \"{{urlParam 'serviceID'}}\",\n  \"last_update\": \"2024-01-01T00:00:00.000Z\",\n  \"max_allowed_payment_amount\": 999999999,\n  \"metadata\": {\n    \"scope\": \"NATIONAL\"\n  },\n  \"name\": \"A service name\",\n  \"organization\": {\n    \"fiscal_code\": \"01234567890\",\n    \"name\": \"An organization name\"\n  },\n  \"require_secure_channel\": false,\n  \"status\": {\n    \"value\": \"published\"\n  },\n  \"age\": {\n    \"min\": 14\n  }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Service detail - minimum age",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "serviceID",
+              "value": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "22222222-2222-2222-2222-222222222222",
+          "body": "{\n  \"authorized_cidrs\": [],\n  \"authorized_recipients\": [\n    \"AAABBB00A00A000A\"\n  ],\n  \"description\": \"A service description\",\n  \"id\": \"{{urlParam 'serviceID'}}\",\n  \"last_update\": \"2024-01-01T00:00:00.000Z\",\n  \"max_allowed_payment_amount\": 999999999,\n  \"metadata\": {\n    \"scope\": \"NATIONAL\"\n  },\n  \"name\": \"A service name\",\n  \"organization\": {\n    \"fiscal_code\": \"01234567890\",\n    \"name\": \"An organization name\"\n  },\n  \"require_secure_channel\": false,\n  \"status\": {\n    \"value\": \"published\"\n  },\n  \"age\": {\n    \"max\": 18\n  }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Service detail - maximum age",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "serviceID",
+              "value": "01ARZ3NDEKTSV4RRFFQ69G5FAT",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
           "uuid": "65385a6a-b468-4ec7-a180-25bef6bfe306",
-          "body": "{\n  \"authorized_cidrs\": [],\n  \"authorized_recipients\": [\n    \"AAABBB00A00A000A\"\n  ],\n  \"description\": \"A service description\",\n  \"id\": \"{{urlParam 'serviceID'}}\",\n  \"last_update\": \"2024-01-01T00:00:00.000Z\",\n  \"max_allowed_payment_amount\": 999999999,\n  \"metadata\": {\n    \"scope\": \"NATIONAL\"\n  },\n  \"name\": \"A service name\",\n  \"organization\": {\n    \"fiscal_code\": \"01234567890\",\n    \"name\": \"An organization name\"\n  },\n  \"require_secure_channel\": false,\n  \"status\": {\n    \"value\": \"published\"\n  },\n \"age\": {\"min\": 14}}",
+          "body": "{\n  \"authorized_cidrs\": [],\n  \"authorized_recipients\": [\n    \"AAABBB00A00A000A\"\n  ],\n  \"description\": \"A service description\",\n  \"id\": \"{{urlParam 'serviceID'}}\",\n  \"last_update\": \"2024-01-01T00:00:00.000Z\",\n  \"max_allowed_payment_amount\": 999999999,\n  \"metadata\": {\n    \"scope\": \"NATIONAL\"\n  },\n  \"name\": \"A service name\",\n  \"organization\": {\n    \"fiscal_code\": \"01234567890\",\n    \"name\": \"An organization name\"\n  },\n  \"require_secure_channel\": false,\n  \"status\": {\n    \"value\": \"published\"\n  }\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "Service detail",
