@@ -16,7 +16,7 @@ import { RemoteContentServiceUnavailableError } from "../../../../application/po
 import { RemoteContentHTTPAdapter } from "../remote-content-http.js";
 
 const baseURL = new URL("https://remote-content.example/api///");
-const messageID = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
+const messageID = "third-party-message-id";
 const attachmentURL =
   "delivery/notifications/received/message-id/attachments/payment/document.pdf?attachmentIdx=0";
 const attachmentContent = "%PDF-1.7 attachment content";

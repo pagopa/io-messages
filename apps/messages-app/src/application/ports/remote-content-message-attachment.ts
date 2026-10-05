@@ -8,7 +8,6 @@ import {
 } from "@pagopa/hexagonal-core";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { FiscalCode } from "io-messages-common/domain/fiscal-code";
-import { MessageId } from "io-messages-common/domain/message";
 import { RCAuthenticationConfig } from "io-messages-common/domain/remote-content";
 import {
   RemoteContentAttachmentUrl,
@@ -26,7 +25,7 @@ export interface RemoteContentMessageAttachmentRepository {
   getRemoteContentMessageAttachment: (
     baseUrl: URL,
     authentication: RCAuthenticationConfig,
-    messageID: MessageId,
+    messageID: string,
     attachmentURL: RemoteContentAttachmentUrl,
     fiscalCode: FiscalCode,
     lollipopHeaders?: LollipopHeaders,

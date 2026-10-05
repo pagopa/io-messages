@@ -9,7 +9,6 @@ import {
 } from "@pagopa/hexagonal-core";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { FiscalCode } from "io-messages-common/domain/fiscal-code";
-import { MessageId } from "io-messages-common/domain/message";
 import { RCAuthenticationConfig } from "io-messages-common/domain/remote-content";
 import {
   RemoteContentMessage,
@@ -114,7 +113,7 @@ export class RemoteContentHTTPAdapter
   async getRemoteContentMessage(
     baseURL: URL,
     authentication: RCAuthenticationConfig,
-    messageID: MessageId,
+    messageID: string,
     fiscalCode: FiscalCode,
     lollipopHeaders?: LollipopHeaders,
   ) {
@@ -224,7 +223,7 @@ export class RemoteContentHTTPAdapter
   async getRemoteContentMessageAttachment(
     baseURL: URL,
     authentication: RCAuthenticationConfig,
-    messageID: MessageId,
+    messageID: string,
     attachmentURL: RemoteContentAttachmentUrl,
     fiscalCode: FiscalCode,
     lollipopHeaders?: LollipopHeaders,
@@ -363,7 +362,7 @@ export class RemoteContentHTTPAdapter
   async getRemoteContentMessagePrecondition(
     baseURL: URL,
     authentication: RCAuthenticationConfig,
-    messageID: MessageId,
+    messageID: string,
     fiscalCode: FiscalCode,
     lollipopHeaders?: LollipopHeaders,
   ) {
