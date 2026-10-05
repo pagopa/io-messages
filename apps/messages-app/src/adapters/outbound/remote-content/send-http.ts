@@ -205,34 +205,31 @@ export class SendHTTPAdapter
     }
 
     const attachmentPath = attachmentPathResult.value;
+
+    const baseRequest = {
+      baseUrl: baseUrl.toString().replace(/\/+$/, ""),
+      client: this.#client,
+      headers: {
+        ...lollipopHeaders,
+        // Hey API's `auth` option requires a static security header name,
+        // while each Remote Content provider configures its own.
+        [authentication.headerKeyName]: authentication.key,
+        "x-pagopa-cx-taxid": fiscalCode,
+      },
+      redirect: "manual",
+    } as const;
+
     const getMetadataResult =
       attachmentPath.type === "document"
         ? await getSentNotificationDocument({
-            baseUrl: baseUrl.toString().replace(/\/+$/, ""),
-            client: this.#client,
-            headers: {
-              ...lollipopHeaders,
-              // Hey API's `auth` option requires a static security header name,
-              // while each Remote Content provider configures its own.
-              [authentication.headerKeyName]: authentication.key,
-              "x-pagopa-cx-taxid": fiscalCode,
-            },
+            ...baseRequest,
             path: {
               docIdx: attachmentPath.docIdx,
               iun: attachmentPath.iun,
             },
-            redirect: "manual",
           })
         : await getReceivedNotificationAttachment({
-            baseUrl: baseUrl.toString().replace(/\/+$/, ""),
-            client: this.#client,
-            headers: {
-              ...lollipopHeaders,
-              // Hey API's `auth` option requires a static security header name,
-              // while each Remote Content provider configures its own.
-              [authentication.headerKeyName]: authentication.key,
-              "x-pagopa-cx-taxid": fiscalCode,
-            },
+            ...baseRequest,
             path: {
               attachmentName: attachmentPath.attachmentName,
               iun: attachmentPath.iun,
@@ -240,7 +237,6 @@ export class SendHTTPAdapter
             query: {
               attachmentIdx: attachmentPath.attachmentIdx,
             },
-            redirect: "manual",
           });
 
     if (!getMetadataResult.response) {
