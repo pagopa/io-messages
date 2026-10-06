@@ -1,5 +1,5 @@
+import type { FiscalCode } from "@pagopa/hexagonal-core";
 import type { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
-import type { FiscalCode } from "io-messages-common/domain/fiscal-code";
 import type { RCConfiguration } from "io-messages-common/domain/remote-content";
 import type { RemoteContentAttachmentUrl } from "io-messages-common/domain/remote-content-message-attachment";
 

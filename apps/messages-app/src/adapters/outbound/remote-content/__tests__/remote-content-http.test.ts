@@ -3,13 +3,13 @@ import type { LollipopHeaders } from "io-messages-common/adapters/lollipop/defin
 import type { RCAuthenticationConfig } from "io-messages-common/domain/remote-content";
 
 import {
+  FiscalCodeSchema,
   ForbiddenError,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
   ValidationError,
 } from "@pagopa/hexagonal-core";
-import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RemoteContentServiceUnavailableError } from "../../../../application/ports/remote-content-message-attachment.js";
@@ -20,7 +20,7 @@ const messageID = "third-party-message-id";
 const attachmentURL =
   "delivery/notifications/received/message-id/attachments/payment/document.pdf?attachmentIdx=0";
 const attachmentContent = "%PDF-1.7 attachment content";
-const fiscalCode = fiscalCodeSchema.parse("RSSMRA80A01H501U");
+const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
 const authentication: RCAuthenticationConfig = {
   headerKeyName: "x-provider-api-key",
   key: "provider-api-key",
@@ -38,7 +38,7 @@ const lollipopHeaders: LollipopHeaders = {
   "x-pagopa-lollipop-original-url":
     "https://api.io.pagopa.it/api/v1/messages/message-id",
   "x-pagopa-lollipop-public-key": "a-public-key",
-  "x-pagopa-lollipop-user-id": fiscalCodeSchema.parse("RMLGNN97R06F158N"),
+  "x-pagopa-lollipop-user-id": FiscalCodeSchema.parse("RMLGNN97R06F158N"),
 };
 
 const validResponse = {

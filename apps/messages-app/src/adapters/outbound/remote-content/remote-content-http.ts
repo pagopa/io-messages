@@ -1,6 +1,7 @@
 import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
 
 import {
+  FiscalCode,
   ForbiddenError,
   GenericError,
   NotFoundError,
@@ -8,7 +9,7 @@ import {
   ValidationError,
 } from "@pagopa/hexagonal-core";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
-import { FiscalCode } from "io-messages-common/domain/fiscal-code";
+import { MessageId } from "io-messages-common/domain/message";
 import { RCAuthenticationConfig } from "io-messages-common/domain/remote-content";
 import {
   RemoteContentMessage,
@@ -113,7 +114,7 @@ export class RemoteContentHTTPAdapter
   async getRemoteContentMessage(
     baseURL: URL,
     authentication: RCAuthenticationConfig,
-    messageID: string,
+    messageID: MessageId,
     fiscalCode: FiscalCode,
     lollipopHeaders?: LollipopHeaders,
   ) {

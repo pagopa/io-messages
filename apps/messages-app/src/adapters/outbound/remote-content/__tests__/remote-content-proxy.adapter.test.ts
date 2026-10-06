@@ -1,6 +1,10 @@
 import type { RCConfiguration } from "io-messages-common/domain/remote-content";
 
-import { ForbiddenError, GenericError } from "@pagopa/hexagonal-core";
+import {
+  FiscalCodeSchema,
+  ForbiddenError,
+  GenericError,
+} from "@pagopa/hexagonal-core";
 import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -13,8 +17,9 @@ import type { RemoteContentProxyAttachmentRequest } from "../../../../applicatio
 import { RemoteContentServiceUnavailableError } from "../../../../application/ports/remote-content-message-attachment.js";
 import { RemoteContentProxyAdapter } from "../remote-content-proxy.adapter.js";
 
-const fiscalCode = fiscalCodeSchema.parse("RSSMRA80A01H501U");
-const otherFiscalCode = fiscalCodeSchema.parse("RMLGNN97R06F158N");
+const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
+const otherFiscalCode = FiscalCodeSchema.parse("RMLGNN97R06F158N");
+const testUserFiscalCode = fiscalCodeSchema.parse("RSSMRA80A01H501U");
 const pnServiceId = "send-service-id";
 const prodEnvironment = {
   baseUrl: "https://provider.example/prod",
@@ -31,7 +36,7 @@ const testEnvironment = {
     key: "test-key",
     type: "API_KEY",
   },
-  testUsers: [fiscalCode],
+  testUsers: [testUserFiscalCode],
 };
 const rcConfiguration: RCConfiguration = {
   configurationId: "01ARZ3NDEKTSV4RRFFQ69G5FAV",

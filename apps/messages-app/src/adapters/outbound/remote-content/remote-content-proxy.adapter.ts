@@ -36,8 +36,8 @@ export class RemoteContentProxyAdapter implements RemoteContentProxy {
       );
     }
 
-    const environmentName = rcConfiguration.testEnvironment?.testUsers.includes(
-      fiscalCode,
+    const environmentName = rcConfiguration.testEnvironment?.testUsers.some(
+      (testUser) => String(testUser) === String(fiscalCode),
     )
       ? "TEST"
       : "PROD";
