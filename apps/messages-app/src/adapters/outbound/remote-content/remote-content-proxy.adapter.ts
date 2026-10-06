@@ -90,23 +90,21 @@ export class RemoteContentProxyAdapter implements RemoteContentProxy {
     const route = this.resolveRoute(request);
     if (route.isErr()) return err(route.error);
 
-    if (route.value.provider === "SEND") {
-      return this.sendRepository.getNotification(
-        route.value.baseUrl,
-        route.value.authentication,
-        request.thirdPartyMessageId,
-        request.fiscalCode,
-        request.lollipopHeaders,
-      );
-    }
-
-    return this.genericRepository.getRemoteContentMessage(
+    const getMessage =
+      route.value.provider === "SEND"
+        ? this.sendRepository.getNotification.bind(this.sendRepository)
+        : this.genericRepository.getRemoteContentMessage.bind(
+            this.genericRepository,
+          );
+    const result = await getMessage(
       route.value.baseUrl,
       route.value.authentication,
       request.thirdPartyMessageId,
       request.fiscalCode,
       request.lollipopHeaders,
     );
+
+    return result;
   }
 
   async getRemoteContentMessageAttachment(
@@ -115,18 +113,15 @@ export class RemoteContentProxyAdapter implements RemoteContentProxy {
     const route = this.resolveRoute(request);
     if (route.isErr()) return err(route.error);
 
-    if (route.value.provider === "SEND") {
-      return this.sendRepository.getNotificationAttachment(
-        route.value.baseUrl,
-        route.value.authentication,
-        request.thirdPartyMessageId,
-        request.attachmentUrl,
-        request.fiscalCode,
-        request.lollipopHeaders,
-      );
-    }
-
-    return this.genericRepository.getRemoteContentMessageAttachment(
+    const getAttachment =
+      route.value.provider === "SEND"
+        ? this.sendRepository.getNotificationAttachment.bind(
+            this.sendRepository,
+          )
+        : this.genericRepository.getRemoteContentMessageAttachment.bind(
+            this.genericRepository,
+          );
+    const result = await getAttachment(
       route.value.baseUrl,
       route.value.authentication,
       request.thirdPartyMessageId,
@@ -134,6 +129,8 @@ export class RemoteContentProxyAdapter implements RemoteContentProxy {
       request.fiscalCode,
       request.lollipopHeaders,
     );
+
+    return result;
   }
 
   async getRemoteContentMessagePrecondition(
@@ -142,22 +139,22 @@ export class RemoteContentProxyAdapter implements RemoteContentProxy {
     const route = this.resolveRoute(request);
     if (route.isErr()) return err(route.error);
 
-    if (route.value.provider === "SEND") {
-      return this.sendRepository.getNotificationPrecondition(
-        route.value.baseUrl,
-        route.value.authentication,
-        request.thirdPartyMessageId,
-        request.fiscalCode,
-        request.lollipopHeaders,
-      );
-    }
-
-    return this.genericRepository.getRemoteContentMessagePrecondition(
+    const getPrecondition =
+      route.value.provider === "SEND"
+        ? this.sendRepository.getNotificationPrecondition.bind(
+            this.sendRepository,
+          )
+        : this.genericRepository.getRemoteContentMessagePrecondition.bind(
+            this.genericRepository,
+          );
+    const result = await getPrecondition(
       route.value.baseUrl,
       route.value.authentication,
       request.thirdPartyMessageId,
       request.fiscalCode,
       request.lollipopHeaders,
     );
+
+    return result;
   }
 }
