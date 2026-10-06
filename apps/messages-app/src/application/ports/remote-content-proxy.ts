@@ -1,4 +1,11 @@
-import type { FiscalCode } from "@pagopa/hexagonal-core";
+import type {
+  FiscalCode,
+  ForbiddenError,
+  GenericError,
+  NotFoundError,
+  TooManyRequestsError,
+  ValidationError,
+} from "@pagopa/hexagonal-core";
 import type { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import type { RCConfiguration } from "io-messages-common/domain/remote-content";
 import type { RemoteContentMessage } from "io-messages-common/domain/remote-content-message";
@@ -8,19 +15,15 @@ import type { Result } from "neverthrow";
 
 import type { MessageContent } from "./message-content.js";
 import type { MessageMetadata } from "./message-metadata.js";
-import type { RemoteContentMessageRepository } from "./remote-content-message.js";
 import type { RemoteContentMessageAttachmentRepository } from "./remote-content-message-attachment.js";
 import type { RemoteContentMessagePreconditionRepository } from "./remote-content-message-precondition.js";
 
-type RemoteContentMessageRepositoryResult = Awaited<
-  ReturnType<RemoteContentMessageRepository["getRemoteContentMessage"]>
->;
-
-type RemoteContentMessageError =
-  RemoteContentMessageRepositoryResult extends Result<unknown, infer Error>
-    ? Error
-    : never;
-
+export type RemoteContentMessageError =
+  | ForbiddenError
+  | GenericError
+  | NotFoundError
+  | TooManyRequestsError
+  | ValidationError;
 export interface RemoteContentProxyRequest {
   fiscalCode: FiscalCode;
   lollipopHeaders?: LollipopHeaders;
