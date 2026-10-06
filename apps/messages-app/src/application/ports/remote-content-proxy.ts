@@ -1,13 +1,25 @@
 import type { FiscalCode } from "@pagopa/hexagonal-core";
 import type { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import type { RCConfiguration } from "io-messages-common/domain/remote-content";
+import type { RemoteContentMessage } from "io-messages-common/domain/remote-content-message";
 import type { RemoteContentAttachmentUrl } from "io-messages-common/domain/remote-content-message-attachment";
+import type { SendNotificationResponse } from "io-messages-common/domain/send-notification";
+import type { Result } from "neverthrow";
 
 import type { MessageContent } from "./message-content.js";
 import type { MessageMetadata } from "./message-metadata.js";
 import type { RemoteContentMessageRepository } from "./remote-content-message.js";
 import type { RemoteContentMessageAttachmentRepository } from "./remote-content-message-attachment.js";
 import type { RemoteContentMessagePreconditionRepository } from "./remote-content-message-precondition.js";
+
+type RemoteContentMessageRepositoryResult = Awaited<
+  ReturnType<RemoteContentMessageRepository["getRemoteContentMessage"]>
+>;
+
+type RemoteContentMessageError =
+  RemoteContentMessageRepositoryResult extends Result<unknown, infer Error>
+    ? Error
+    : never;
 
 export interface RemoteContentProxyRequest {
   fiscalCode: FiscalCode;
@@ -25,7 +37,12 @@ export interface RemoteContentProxyAttachmentRequest
 export interface RemoteContentProxy {
   getRemoteContentMessage(
     request: RemoteContentProxyRequest,
-  ): ReturnType<RemoteContentMessageRepository["getRemoteContentMessage"]>;
+  ): Promise<
+    Result<
+      RemoteContentMessage | SendNotificationResponse,
+      RemoteContentMessageError
+    >
+  >;
 
   getRemoteContentMessageAttachment(
     request: RemoteContentProxyAttachmentRequest,

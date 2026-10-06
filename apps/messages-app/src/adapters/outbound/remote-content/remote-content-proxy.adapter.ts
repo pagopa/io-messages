@@ -11,14 +11,22 @@ import type {
   RemoteContentProxyAttachmentRequest,
   RemoteContentProxyRequest,
 } from "../../../application/ports/remote-content-proxy.js";
+import type { SendNotificationRepository } from "../../../application/ports/send-notification.js";
+import type { SendNotificationAttachmentRepository } from "../../../application/ports/send-notification-attachment.js";
+import type { SendNotificationPreconditionRepository } from "../../../application/ports/send-notification-precondition.js";
 
 type GenericRemoteContentRepository = RemoteContentMessageAttachmentRepository &
   RemoteContentMessagePreconditionRepository &
   RemoteContentMessageRepository;
 
+type SendRemoteContentRepository = SendNotificationAttachmentRepository &
+  SendNotificationPreconditionRepository &
+  SendNotificationRepository;
+
 export class RemoteContentProxyAdapter implements RemoteContentProxy {
   constructor(
     private readonly genericRepository: GenericRemoteContentRepository,
+    private readonly sendRepository: SendRemoteContentRepository,
     private readonly pnServiceId: string,
   ) {}
 
@@ -27,15 +35,13 @@ export class RemoteContentProxyAdapter implements RemoteContentProxy {
     rcConfiguration,
     senderServiceId,
   }: RemoteContentProxyRequest): Result<
-    { authentication: RCAuthenticationConfig; baseUrl: URL },
+    {
+      authentication: RCAuthenticationConfig;
+      baseUrl: URL;
+      provider: "GENERIC" | "SEND";
+    },
     GenericError
   > {
-    if (senderServiceId === this.pnServiceId) {
-      return err(
-        new GenericError("SEND remote content integration is not available."),
-      );
-    }
-
     const environmentName = rcConfiguration.testEnvironment?.testUsers.some(
       (testUser) => String(testUser) === String(fiscalCode),
     )
@@ -74,6 +80,7 @@ export class RemoteContentProxyAdapter implements RemoteContentProxy {
     return ok({
       authentication: environment.detailsAuthentication,
       baseUrl: baseUrlResult.value,
+      provider: senderServiceId === this.pnServiceId ? "SEND" : "GENERIC",
     });
   }
 
@@ -82,6 +89,16 @@ export class RemoteContentProxyAdapter implements RemoteContentProxy {
   ): ReturnType<RemoteContentProxy["getRemoteContentMessage"]> {
     const route = this.resolveRoute(request);
     if (route.isErr()) return err(route.error);
+
+    if (route.value.provider === "SEND") {
+      return this.sendRepository.getNotification(
+        route.value.baseUrl,
+        route.value.authentication,
+        request.thirdPartyMessageId,
+        request.fiscalCode,
+        request.lollipopHeaders,
+      );
+    }
 
     return this.genericRepository.getRemoteContentMessage(
       route.value.baseUrl,
@@ -98,6 +115,17 @@ export class RemoteContentProxyAdapter implements RemoteContentProxy {
     const route = this.resolveRoute(request);
     if (route.isErr()) return err(route.error);
 
+    if (route.value.provider === "SEND") {
+      return this.sendRepository.getNotificationAttachment(
+        route.value.baseUrl,
+        route.value.authentication,
+        request.thirdPartyMessageId,
+        request.attachmentUrl,
+        request.fiscalCode,
+        request.lollipopHeaders,
+      );
+    }
+
     return this.genericRepository.getRemoteContentMessageAttachment(
       route.value.baseUrl,
       route.value.authentication,
@@ -113,6 +141,16 @@ export class RemoteContentProxyAdapter implements RemoteContentProxy {
   ): ReturnType<RemoteContentProxy["getRemoteContentMessagePrecondition"]> {
     const route = this.resolveRoute(request);
     if (route.isErr()) return err(route.error);
+
+    if (route.value.provider === "SEND") {
+      return this.sendRepository.getNotificationPrecondition(
+        route.value.baseUrl,
+        route.value.authentication,
+        request.thirdPartyMessageId,
+        request.fiscalCode,
+        request.lollipopHeaders,
+      );
+    }
 
     return this.genericRepository.getRemoteContentMessagePrecondition(
       route.value.baseUrl,
