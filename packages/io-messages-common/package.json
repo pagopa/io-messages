@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@azure/functions": "catalog:",
+    "@pagopa/hexagonal-core": "catalog:",
     "pino": "catalog:",
     "ulid": "catalog:",
     "zod": "catalog:"
