@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.7.6
+
+### Patch Changes
+
+- 9e41784: Add build lollipop headers use case
+
 ## 0.7.5
 
 ### Patch Changes
