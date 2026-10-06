@@ -2,4 +2,4 @@
 "messages-app": patch
 ---
 
-Add lollipop adapter and lc-params repository
+Add build lollipop headers use case
