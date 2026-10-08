@@ -43,7 +43,7 @@ export class RemoteContentProxyAdapter implements RemoteContentProxy {
     GenericError
   > {
     const environmentName = rcConfiguration.testEnvironment?.testUsers.some(
-      (testUser) => String(testUser) === String(fiscalCode),
+      (testUser) => testUser === fiscalCode,
     )
       ? "TEST"
       : "PROD";

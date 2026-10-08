@@ -1,3 +1,5 @@
+import type { FiscalCode } from "@pagopa/hexagonal-core";
+
 import { z } from "zod";
 
 import { fiscalCodeSchema } from "./fiscal-code.js";
@@ -22,6 +24,28 @@ export type RCAuthenticationConfig = z.infer<
   typeof rcAuthenticationConfigSchema
 >;
 
+interface RcEnvironmentConfig {
+  baseUrl: string;
+  detailsAuthentication: RCAuthenticationConfig;
+}
+
+interface RcTestEnvironmentConfig extends RcEnvironmentConfig {
+  testUsers: FiscalCode[];
+}
+
+export interface RCConfiguration {
+  configurationId: RcConfigurationId;
+  description: string;
+  disableLollipopFor: FiscalCode[];
+  hasPrecondition: "ALWAYS" | "NEVER" | "ONCE";
+  id: string;
+  isLollipopEnabled: boolean;
+  name: string;
+  prodEnvironment?: RcEnvironmentConfig;
+  testEnvironment?: RcTestEnvironmentConfig;
+  userId: string;
+}
+
 const rcEnvironmentConfigSchema = z.object({
   baseUrl: z.string().min(1),
   detailsAuthentication: rcAuthenticationConfigSchema,
@@ -31,7 +55,7 @@ const rcTestEnvironmentConfigSchema = rcEnvironmentConfigSchema.extend({
   testUsers: z.array(fiscalCodeSchema),
 });
 
-export const rcConfigurationSchema = z.object({
+export const rcConfigurationSchema: z.ZodType<RCConfiguration> = z.object({
   configurationId: RcConfigurationIdSchema,
   description: z.string().min(1),
   disableLollipopFor: z.array(fiscalCodeSchema),
@@ -43,5 +67,3 @@ export const rcConfigurationSchema = z.object({
   testEnvironment: rcTestEnvironmentConfigSchema.optional(),
   userId: z.string().min(1),
 });
-
-export type RCConfiguration = z.infer<typeof rcConfigurationSchema>;
