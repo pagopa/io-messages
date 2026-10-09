@@ -16,7 +16,7 @@ import { RemoteContentServiceUnavailableError } from "../../../../application/po
 import { RemoteContentHTTPAdapter } from "../remote-content-http.js";
 
 const baseURL = new URL("https://remote-content.example/api///");
-const messageID = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
+const externalMessageID = "third-party-message-id";
 const attachmentURL =
   "delivery/notifications/received/message-id/attachments/payment/document.pdf?attachmentIdx=0";
 const attachmentContent = "%PDF-1.7 attachment content";
@@ -105,7 +105,7 @@ describe("RemoteContentHTTPAdapter - successful responses", () => {
     const result = await adapter.getRemoteContentMessage(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       fiscalCode,
       lollipopHeaders,
     );
@@ -123,7 +123,7 @@ describe("RemoteContentHTTPAdapter - successful responses", () => {
 
     const request = getRequest();
     expect(request.url).toBe(
-      `https://remote-content.example/api/messages/${messageID}`,
+      `https://remote-content.example/api/messages/${externalMessageID}`,
     );
     expect(request.redirect).toBe("manual");
     expect(request.headers.get("fiscal_code")).toBe(fiscalCode);
@@ -143,7 +143,7 @@ describe("RemoteContentHTTPAdapter - request and response validation", () => {
     const result = await adapter.getRemoteContentMessage(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       fiscalCode,
     );
 
@@ -161,7 +161,7 @@ describe("RemoteContentHTTPAdapter - request and response validation", () => {
     const result = await adapter.getRemoteContentMessage(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       fiscalCode,
     );
 
@@ -214,7 +214,7 @@ describe("RemoteContentHTTPAdapter - HTTP error responses", () => {
       const result = await adapter.getRemoteContentMessage(
         baseURL,
         authentication,
-        messageID,
+        externalMessageID,
         fiscalCode,
       );
 
@@ -224,7 +224,7 @@ describe("RemoteContentHTTPAdapter - HTTP error responses", () => {
         name: eventName,
         properties: {
           baseURL: baseURL.toString(),
-          messageID,
+          externalMessageID,
         },
       });
     },
@@ -236,7 +236,7 @@ describe("RemoteContentHTTPAdapter - HTTP error responses", () => {
     const result = await adapter.getRemoteContentMessage(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       fiscalCode,
     );
 
@@ -254,7 +254,7 @@ describe("RemoteContentHTTPAdapter - HTTP error responses", () => {
     const result = await adapter.getRemoteContentMessage(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       fiscalCode,
     );
 
@@ -284,7 +284,7 @@ describe("RemoteContentHTTPAdapter - response-less errors", () => {
       const result = await adapter.getRemoteContentMessage(
         baseURL,
         authentication,
-        messageID,
+        externalMessageID,
         fiscalCode,
       );
 
@@ -305,7 +305,7 @@ describe("RemoteContentHTTPAdapter - response-less errors", () => {
     const result = await adapter.getRemoteContentMessage(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       fiscalCode,
     );
 
@@ -325,7 +325,7 @@ describe("RemoteContentHTTPAdapter - successful precondition responses", () => {
     const result = await adapter.getRemoteContentMessagePrecondition(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       fiscalCode,
       lollipopHeaders,
     );
@@ -335,7 +335,7 @@ describe("RemoteContentHTTPAdapter - successful precondition responses", () => {
 
     const request = getRequest();
     expect(request.url).toBe(
-      `https://remote-content.example/api/messages/${messageID}/precondition`,
+      `https://remote-content.example/api/messages/${externalMessageID}/precondition`,
     );
     expect(request.redirect).toBe("manual");
     expect(request.headers.get("fiscal_code")).toBe(fiscalCode);
@@ -359,7 +359,7 @@ describe("RemoteContentHTTPAdapter - successful precondition responses", () => {
     const result = await adapter.getRemoteContentMessagePrecondition(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       fiscalCode,
     );
 
@@ -385,7 +385,7 @@ describe("RemoteContentHTTPAdapter - precondition response validation", () => {
       const result = await adapter.getRemoteContentMessagePrecondition(
         baseURL,
         authentication,
-        messageID,
+        externalMessageID,
         fiscalCode,
       );
 
@@ -439,7 +439,7 @@ describe("RemoteContentHTTPAdapter - precondition HTTP error responses", () => {
       const result = await adapter.getRemoteContentMessagePrecondition(
         baseURL,
         authentication,
-        messageID,
+        externalMessageID,
         fiscalCode,
       );
 
@@ -449,7 +449,7 @@ describe("RemoteContentHTTPAdapter - precondition HTTP error responses", () => {
         name: eventName,
         properties: {
           baseURL: baseURL.toString(),
-          messageID,
+          externalMessageID,
         },
       });
     },
@@ -461,7 +461,7 @@ describe("RemoteContentHTTPAdapter - precondition HTTP error responses", () => {
     const result = await adapter.getRemoteContentMessagePrecondition(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       fiscalCode,
     );
 
@@ -479,7 +479,7 @@ describe("RemoteContentHTTPAdapter - precondition HTTP error responses", () => {
     const result = await adapter.getRemoteContentMessagePrecondition(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       fiscalCode,
     );
 
@@ -499,7 +499,7 @@ describe("RemoteContentHTTPAdapter - response-less precondition errors", () => {
     const result = await adapter.getRemoteContentMessagePrecondition(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       fiscalCode,
     );
 
@@ -519,7 +519,7 @@ describe("RemoteContentHTTPAdapter - successful attachment responses", () => {
     const result = await adapter.getRemoteContentMessageAttachment(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       attachmentURL,
       fiscalCode,
       lollipopHeaders,
@@ -530,7 +530,7 @@ describe("RemoteContentHTTPAdapter - successful attachment responses", () => {
 
     const request = getRequest();
     expect(request.url).toBe(
-      `https://remote-content.example/api/messages/${messageID}/${attachmentURL}`,
+      `https://remote-content.example/api/messages/${externalMessageID}/${attachmentURL}`,
     );
     expect(request.redirect).toBe("manual");
     expect(request.headers.get("fiscal_code")).toBe(fiscalCode);
@@ -551,7 +551,7 @@ describe("RemoteContentHTTPAdapter - successful attachment responses", () => {
     const result = await adapter.getRemoteContentMessageAttachment(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       attachmentURLWithLeadingSlash,
       fiscalCode,
     );
@@ -560,7 +560,7 @@ describe("RemoteContentHTTPAdapter - successful attachment responses", () => {
 
     const request = getRequest();
     expect(request.url).toBe(
-      `https://remote-content.example/api/messages/${messageID}//documents/attachment.pdf`,
+      `https://remote-content.example/api/messages/${externalMessageID}//documents/attachment.pdf`,
     );
     expect(request.headers.get("fiscal_code")).toBe(fiscalCode);
     expect(request.headers.has("signature")).toBe(false);
@@ -579,7 +579,7 @@ describe("RemoteContentHTTPAdapter - attachment response validation", () => {
     const result = await adapter.getRemoteContentMessageAttachment(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       attachmentURL,
       fiscalCode,
     );
@@ -633,7 +633,7 @@ describe("RemoteContentHTTPAdapter - attachment HTTP error responses", () => {
       const result = await adapter.getRemoteContentMessageAttachment(
         baseURL,
         authentication,
-        messageID,
+        externalMessageID,
         attachmentURL,
         fiscalCode,
       );
@@ -645,7 +645,7 @@ describe("RemoteContentHTTPAdapter - attachment HTTP error responses", () => {
         properties: {
           attachmentURL,
           baseURL: baseURL.toString(),
-          messageID,
+          externalMessageID,
         },
       });
     },
@@ -657,7 +657,7 @@ describe("RemoteContentHTTPAdapter - attachment HTTP error responses", () => {
     const result = await adapter.getRemoteContentMessageAttachment(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       attachmentURL,
       fiscalCode,
     );
@@ -686,7 +686,7 @@ describe("RemoteContentHTTPAdapter - attachment HTTP error responses", () => {
       const result = await adapter.getRemoteContentMessageAttachment(
         baseURL,
         authentication,
-        messageID,
+        externalMessageID,
         attachmentURL,
         fiscalCode,
       );
@@ -700,7 +700,7 @@ describe("RemoteContentHTTPAdapter - attachment HTTP error responses", () => {
         properties: {
           attachmentURL,
           baseURL: baseURL.toString(),
-          messageID,
+          externalMessageID,
         },
       });
     },
@@ -712,7 +712,7 @@ describe("RemoteContentHTTPAdapter - attachment HTTP error responses", () => {
     const result = await adapter.getRemoteContentMessageAttachment(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       attachmentURL,
       fiscalCode,
     );
@@ -733,7 +733,7 @@ describe("RemoteContentHTTPAdapter - response-less attachment errors", () => {
     const result = await adapter.getRemoteContentMessageAttachment(
       baseURL,
       authentication,
-      messageID,
+      externalMessageID,
       attachmentURL,
       fiscalCode,
     );

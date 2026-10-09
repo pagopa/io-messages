@@ -114,7 +114,7 @@ export class RemoteContentHTTPAdapter
   async getRemoteContentMessage(
     baseURL: URL,
     authentication: RCAuthenticationConfig,
-    messageID: MessageId,
+    externalMessageID: MessageId,
     fiscalCode: FiscalCode,
     lollipopHeaders?: LollipopHeaders,
   ) {
@@ -128,7 +128,7 @@ export class RemoteContentHTTPAdapter
         // while each Remote Content provider configures its own.
         [authentication.headerKeyName]: authentication.key,
       },
-      path: { id: messageID },
+      path: { id: externalMessageID },
       redirect: "manual",
     });
 
@@ -147,7 +147,7 @@ export class RemoteContentHTTPAdapter
           name: "RemoteContentHTTPAdapter.getRemoteContentMessage.failed.badRequest",
           properties: {
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(
@@ -161,7 +161,7 @@ export class RemoteContentHTTPAdapter
           name: "RemoteContentHTTPAdapter.getRemoteContentMessage.failed.unauthorized",
           properties: {
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(
@@ -175,7 +175,7 @@ export class RemoteContentHTTPAdapter
           name: "RemoteContentHTTPAdapter.getRemoteContentMessage.failed.forbidden",
           properties: {
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(new ForbiddenError());
@@ -185,7 +185,7 @@ export class RemoteContentHTTPAdapter
           name: "RemoteContentHTTPAdapter.getRemoteContentMessage.failed.notFound",
           properties: {
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(
@@ -200,7 +200,7 @@ export class RemoteContentHTTPAdapter
           name: "RemoteContentHTTPAdapter.getRemoteContentMessage.failed.tooManyRequests",
           properties: {
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(new TooManyRequestsError());
@@ -224,7 +224,7 @@ export class RemoteContentHTTPAdapter
   async getRemoteContentMessageAttachment(
     baseURL: URL,
     authentication: RCAuthenticationConfig,
-    messageID: MessageId,
+    externalMessageID: string,
     attachmentURL: RemoteContentAttachmentUrl,
     fiscalCode: FiscalCode,
     lollipopHeaders?: LollipopHeaders,
@@ -245,7 +245,7 @@ export class RemoteContentHTTPAdapter
       redirect: "manual",
       // The generated SDK percent-encodes path parameters, while attachment
       // paths may contain slashes and query parameters that must stay intact.
-      url: `/messages/${messageID}/${attachmentURL}`,
+      url: `/messages/${externalMessageID}/${attachmentURL}`,
     });
 
     if (!getRCMessageAttachmentResult.response) {
@@ -266,7 +266,7 @@ export class RemoteContentHTTPAdapter
           properties: {
             attachmentURL,
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(
@@ -281,7 +281,7 @@ export class RemoteContentHTTPAdapter
           properties: {
             attachmentURL,
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(
@@ -296,7 +296,7 @@ export class RemoteContentHTTPAdapter
           properties: {
             attachmentURL,
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(new ForbiddenError());
@@ -307,7 +307,7 @@ export class RemoteContentHTTPAdapter
           properties: {
             attachmentURL,
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(
@@ -323,7 +323,7 @@ export class RemoteContentHTTPAdapter
           properties: {
             attachmentURL,
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(new TooManyRequestsError());
@@ -341,7 +341,7 @@ export class RemoteContentHTTPAdapter
           properties: {
             attachmentURL,
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(
@@ -363,7 +363,7 @@ export class RemoteContentHTTPAdapter
   async getRemoteContentMessagePrecondition(
     baseURL: URL,
     authentication: RCAuthenticationConfig,
-    messageID: MessageId,
+    externalMessageID: string,
     fiscalCode: FiscalCode,
     lollipopHeaders?: LollipopHeaders,
   ) {
@@ -378,7 +378,7 @@ export class RemoteContentHTTPAdapter
           // while each Remote Content provider configures its own.
           [authentication.headerKeyName]: authentication.key,
         },
-        path: { id: messageID },
+        path: { id: externalMessageID },
         redirect: "manual",
       });
 
@@ -401,7 +401,7 @@ export class RemoteContentHTTPAdapter
           name: "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.badRequest",
           properties: {
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(
@@ -415,7 +415,7 @@ export class RemoteContentHTTPAdapter
           name: "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.unauthorized",
           properties: {
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(
@@ -429,7 +429,7 @@ export class RemoteContentHTTPAdapter
           name: "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.forbidden",
           properties: {
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(new ForbiddenError());
@@ -439,7 +439,7 @@ export class RemoteContentHTTPAdapter
           name: "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.notFound",
           properties: {
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(
@@ -454,7 +454,7 @@ export class RemoteContentHTTPAdapter
           name: "RemoteContentHTTPAdapter.getRemoteContentMessagePrecondition.failed.tooManyRequests",
           properties: {
             baseURL: baseURL.toString(),
-            messageID,
+            externalMessageID,
           },
         });
         return err(new TooManyRequestsError());
