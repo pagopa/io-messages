@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.7.7
+
+### Patch Changes
+
+- 860cd08: Add remote content proxy for generic third party messages and SEND messages
+
 ## 0.7.6
 
 ### Patch Changes
