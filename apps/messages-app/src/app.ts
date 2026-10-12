@@ -14,6 +14,7 @@ import { AppConfig } from "./adapters/inbound/config/config.js";
 import { mountCreateMessageHandler } from "./adapters/inbound/fastify/create-message.handler.js";
 import { mountGetMessageHandler } from "./adapters/inbound/fastify/get-message.handler.js";
 import { mountGetPaymentInfoHandler } from "./adapters/inbound/fastify/get-payment-info.handler.js";
+import { mountGetRemoteContentMessageHandler } from "./adapters/inbound/fastify/get-rc-message.handler.js";
 import { mountGetMessagesByUserHandler } from "./adapters/inbound/fastify/get-user-messages.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
@@ -30,10 +31,14 @@ import { BlobProcessingMessagePayloadStore } from "./adapters/outbound/message/p
 import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/package-json-app-info-reader.js";
 import { PagoPAEcommerceHttpClientAdapter } from "./adapters/outbound/pagopa-ecommerce/pagopa-ecommerce.js";
 import { RCConfigurationHttpClientAdapter } from "./adapters/outbound/rc-confguration/rc-configuration.js";
+import { RemoteContentHTTPAdapter } from "./adapters/outbound/remote-content/remote-content-http.js";
+import { RemoteContentProxyAdapter } from "./adapters/outbound/remote-content/remote-content-proxy.adapter.js";
+import { SendHTTPAdapter } from "./adapters/outbound/remote-content/send-http.js";
 import { ServicesCmsHttpClientAdapter } from "./adapters/outbound/services-cms/services-cms.js";
 import { makeCreateMessageUseCase } from "./application/use-cases/create-message.use-case.js";
 import { makeGetMessageUseCase } from "./application/use-cases/get-message.use-case.js";
 import { makeGetPaymentInfoUseCase } from "./application/use-cases/get-payment-info.use-case.js";
+import { makeGetRemoteContentMessageUseCase } from "./application/use-cases/get-rc-message.use-case.js";
 import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-messages.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
@@ -174,6 +179,12 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
   const remoteContentConfigurationRepository =
     new RCConfigurationHttpClientAdapter(config.RC_APP_BASE_URL);
 
+  const remoteContentProxy = new RemoteContentProxyAdapter(
+    new RemoteContentHTTPAdapter(logger),
+    new SendHTTPAdapter(logger),
+    config.PN_SERVICE_ID,
+  );
+
   const pagoPAEcommerceAdapter = new PagoPAEcommerceHttpClientAdapter(
     {
       apiKey: config.PAGOPA_ECOMMERCE_API_KEY,
@@ -226,6 +237,17 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
   mountGetPaymentInfoHandler(
     server,
     makeGetPaymentInfoUseCase(pagoPAEcommerceAdapter),
+  );
+  mountGetRemoteContentMessageHandler(
+    server,
+    makeGetRemoteContentMessageUseCase(
+      messageMetadataCosmosAdapter,
+      messageContentBlobAdapter,
+      remoteContentConfigurationRepository,
+      remoteContentProxy,
+      config.PN_SERVICE_ID,
+      config.SERVICE_TO_RC_MAP,
+    ),
   );
   mountGetMessagesByUserHandler(
     server,
