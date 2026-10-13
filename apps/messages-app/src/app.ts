@@ -77,7 +77,7 @@ const makeTelemetryClient = (
     }),
 });
 
-export const createApp = (config: AppConfig): { server: FastifyInstance } => {
+const makeAppDependencies = (config: AppConfig) => {
   const client = makeTelemetryClient(logs.getLogger("io-messages-app"));
 
   const logger = makeApplicationInsightsLogger({
@@ -86,11 +86,6 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
   });
 
   const crypto = new CryptoAdapter();
-
-  const server = fastify({
-    // We only enable access logs during local development.
-    logger: config.NODE_ENV === "development",
-  });
 
   const appInfoReader = new PackageJsonAppInfoReader(
     config.npm_package_name,
@@ -203,6 +198,47 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
       baseURL: config.PAGOPA_ECOMMERCE_UAT_BASE_URL,
     },
   );
+
+  return {
+    appInfoReader,
+    buildLollipopHeadersUseCase,
+    commonCosmosClient,
+    commonStorageAccountClient,
+    logger,
+    messageContentBlobAdapter,
+    messageCreatedEventPublisher,
+    messageMetadataCosmosAdapter,
+    messageStatusCosmosAdapter,
+    pagoPAEcommerceAdapter,
+    processingMessagePayloadStore,
+    remoteContentConfigurationRepository,
+    remoteContentProxy,
+    servicesCmsAdapter,
+  };
+};
+
+export const createApp = (config: AppConfig): { server: FastifyInstance } => {
+  const server = fastify({
+    // We only enable access logs during local development.
+    logger: config.NODE_ENV === "development",
+  });
+
+  const {
+    appInfoReader,
+    buildLollipopHeadersUseCase,
+    commonCosmosClient,
+    commonStorageAccountClient,
+    logger,
+    messageContentBlobAdapter,
+    messageCreatedEventPublisher,
+    messageMetadataCosmosAdapter,
+    messageStatusCosmosAdapter,
+    pagoPAEcommerceAdapter,
+    processingMessagePayloadStore,
+    remoteContentConfigurationRepository,
+    remoteContentProxy,
+    servicesCmsAdapter,
+  } = makeAppDependencies(config);
 
   mountInfoHandler(server, makeGetInfoUseCase(appInfoReader));
   mountHealthcheckHandler(
