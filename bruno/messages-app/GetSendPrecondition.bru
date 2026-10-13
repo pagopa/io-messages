@@ -1,0 +1,36 @@
+meta {
+  name: GetSendPrecondition
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{messages_app_base_url}}/api/communication/v1/third-party-messages/{{message_id}}/precondition
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-user: {{send-func-x-user}}
+  ~signature-input: {{send-func-signature-input}}
+  ~signature: {{signature}}
+  ~x-pagopa-lollipop-original-method: GET
+  ~x-pagopa-lollipop-original-url: https://app-backend.io.italia.it/api/v1/third-party-messages/{{message_id}}/precondition
+}
+
+vars:pre-request {
+  message_id: 01K8MS00000000000000000003
+}
+
+docs {
+  SEND precondition (mock-server-send). Seeded by setup-*-containers.js.
+
+  message_id:
+  - 01K8MS00000000000000000003: lollipop disabled, 200
+  - 01K8MS00000000000000000004: lollipop enabled, 200 (enable the lollipop headers; the mock echoes the lollipop user id in `markdown`)
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

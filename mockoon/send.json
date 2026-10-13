@@ -669,9 +669,44 @@
       "responseMode": null,
       "streamingMode": null,
       "streamingInterval": 0
+    },
+    {
+      "uuid": "c3a1f7d2-6b84-4e0a-9d51-2f8e7b4a6c10",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "ext-registry-private/io/v1/notification-disclaimer/:iun",
+      "responses": [
+        {
+          "uuid": "d4b2a8e3-7c95-4f1b-8e62-3a9f8c5b7d21",
+          "body": "{\n  \"title\": \"SEND precondition title\",\n  \"markdown\": \"SEND precondition for notification {{urlParam 'iun'}}, tax id {{header 'x-pagopa-cx-taxid'}}, lollipop user id: {{header 'x-pagopa-lollipop-user-id'}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     }
   ],
   "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "c3a1f7d2-6b84-4e0a-9d51-2f8e7b4a6c10"
+    },
     {
       "type": "route",
       "uuid": "62e92699-5244-40d5-af02-585d8811d979"

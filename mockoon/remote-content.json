@@ -1,0 +1,94 @@
+{
+  "uuid": "9b2e4c61-3d7a-4f58-a1c0-6e8d2f7b5a93",
+  "lastMigration": 33,
+  "name": "Remote Content",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3000,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "1a7c3e95-4b28-4d61-b0f3-7c9e5a2d8b64",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "messages/:id/precondition",
+      "responses": [
+        {
+          "uuid": "2b8d4fa6-5c39-4e72-81a4-8dae6b3e9c75",
+          "body": "{\n  \"title\": \"Generic precondition title\",\n  \"markdown\": \"Generic precondition for message {{urlParam 'id'}}, fiscal code {{header 'fiscal_code'}}, lollipop user id: {{header 'x-pagopa-lollipop-user-id'}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Precondition",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "1a7c3e95-4b28-4d61-b0f3-7c9e5a2d8b64"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}

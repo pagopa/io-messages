@@ -162,6 +162,14 @@ services:
     volumes:
       - "./mockoon/lollipop.json:/data:readonly"
 
+  mock-server-remote-content:
+    image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
+    command: ["--data", "data", "--port", "3000"]
+    ports:
+      - "8011:3000"
+    volumes:
+      - "./mockoon/remote-content.json:/data:readonly"
+
   mysql:
     image: "mysql:8.0.42@sha256:4890b3247d48a6dc1f3ac1e979330af4e543d06f194322f3879b27e6c7052585"
     ports:

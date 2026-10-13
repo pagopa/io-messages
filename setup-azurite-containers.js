@@ -65,6 +65,31 @@ const paymentMessageContents = [
   },
 ];
 
+// Fixtures to test GET /api/communication/v1/third-party-messages/{id}/precondition.
+// Keep in sync with setup-cosmos-containers.js and the mocks in mockoon/.
+const preconditionId = (prefix, n) => `${prefix}${String(n).padStart(20, "0")}`;
+const preconditionMessageContents = [
+  { n: 1, cfg: 1, thirdPartyId: "generic-200" },
+  { n: 2, cfg: 2, thirdPartyId: "generic-200" },
+  { n: 3, cfg: 3, thirdPartyId: "ABCD-EFGH-IJKL-123456-M-7" },
+  { n: 4, cfg: 4, thirdPartyId: "ABCD-EFGH-IJKL-123456-M-7" },
+].map(({ n, cfg, thirdPartyId }) => ({
+  blobName: `${preconditionId("01K8MS", n)}.json`,
+  containerName: "message-content",
+  content: {
+    subject: `Precondition fixture message ${n}`,
+    markdown:
+      "This is a local third party message used to test the remote content precondition during local development and Bruno testing.",
+    third_party_data: {
+      configuration_id: preconditionId("01K8RC", cfg),
+      has_attachments: false,
+      has_precondition: "ALWAYS",
+      has_remote_content: true,
+      id: thirdPartyId,
+    },
+  },
+}));
+
 const createContainerIfNotExists = async (name) => {
   try {
     const containerClient = blobServiceClient.getContainerClient(name);
@@ -123,6 +148,8 @@ const uploadMessageContentIfNotExists = async ({
   ]);
 
   await Promise.all(
-    paymentMessageContents.map(uploadMessageContentIfNotExists),
+    [...paymentMessageContents, ...preconditionMessageContents].map(
+      uploadMessageContentIfNotExists,
+    ),
   );
 })();
