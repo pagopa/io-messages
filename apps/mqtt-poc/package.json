@@ -1,0 +1,45 @@
+{
+  "name": "mqtt-poc",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "pnpm lint:check --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "start": "node dist/server.js",
+    "setup": "tsx src/setup.ts",
+    "test:integration": "tsx src/integration.ts",
+    "benchmark": "tsx src/benchmark.ts",
+    "benchmark:matrix": "tsx src/matrix.ts",
+    "publisher": "tsx src/publisher.ts",
+    "demo": "tsx src/demo.ts",
+    "test:reliability": "tsx src/reliability.ts",
+    "test:dx": "tsx src/dx-test.ts",
+    "report": "tsx src/report.ts",
+    "local:up": "tsx src/stack.ts up",
+    "local:stop": "tsx src/stack.ts stop"
+  },
+  "dependencies": {
+    "amqplib": "^2.2.0",
+    "fastify": "catalog:",
+    "mqtt": "^5.16.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@pagopa/eslint-config": "catalog:",
+    "@types/amqplib": "^0.10.8",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "tsx": "^4.23.1",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

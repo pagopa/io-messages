@@ -202,5 +202,82 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: local
       ME_CONFIG_BASICAUTH: false
 
+  mqtt-onboarding:
+    profiles: ["mqtt-poc"]
+    build:
+      context: .
+      dockerfile: apps/mqtt-poc/Dockerfile
+    environment:
+      POC_STATE_DIR: /poc
+      POC_BROKER_URL: https://rabbitmq-mqtt:15671
+    volumes:
+      - ./apps/mqtt-poc/local:/poc
+    ports:
+      - "127.0.0.1:18443:8443"
+    networks: [mqtt-poc]
+    mem_limit: 512m
+    cpus: 1
+
+  rabbitmq-mqtt:
+    profiles: ["mqtt-poc"]
+    image: rabbitmq:4.3-management@sha256:8dd6e3570ddaa2ef82a6c3a8950e79c1f73893adfbdddbc374fc1f1ac8a0f5dd
+    entrypoint: ["/bin/sh", "/etc/rabbitmq/bootstrap.sh"]
+    command: ["rabbitmq-server"]
+    depends_on: [mqtt-onboarding]
+    volumes:
+      - ./apps/mqtt-poc/local:/poc:ro
+      - ./apps/mqtt-poc/infra/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./apps/mqtt-poc/infra/advanced.config:/etc/rabbitmq/advanced.config:ro
+      - ./apps/mqtt-poc/infra/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+      - ./apps/mqtt-poc/infra/bootstrap.sh:/etc/rabbitmq/bootstrap.sh:ro
+      - mqtt-poc-broker:/var/lib/rabbitmq
+    ports:
+      - "127.0.0.1:18883:8883"
+      - "127.0.0.1:15681:15671"
+      - "127.0.0.1:15682:5671"
+    networks: [mqtt-poc]
+    mem_limit: 1536m
+    cpus: 2
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mqtt-publisher:
+    profiles: ["mqtt-poc"]
+    build:
+      context: .
+      dockerfile: apps/mqtt-poc/Dockerfile
+    command: ["node", "dist/publisher.js"]
+    environment:
+      POC_STATE_DIR: /poc
+      POC_MQTT_URL: mqtts://rabbitmq-mqtt:8883
+      POC_AMQP_URL: amqps://rabbitmq-mqtt:5671/io-mqtt-poc
+    volumes:
+      - ./apps/mqtt-poc/local/publisher.json:/poc/publisher.json:ro
+      - ./apps/mqtt-poc/local/certs/ca.pem:/poc/certs/ca.pem:ro
+    depends_on:
+      rabbitmq-mqtt:
+        condition: service_healthy
+    networks: [mqtt-poc]
+    mem_limit: 256m
+    cpus: 0.5
+
+  mqtt-prometheus:
+    profiles: ["mqtt-poc"]
+    image: prom/prometheus:v3.5.0
+    volumes:
+      - ./apps/mqtt-poc/infra/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "127.0.0.1:19090:9090"
+    networks: [mqtt-poc]
+    mem_limit: 256m
+    cpus: 0.25
+
+networks:
+  mqtt-poc: {}
+
 volumes:
   azure-functions-core-tools:
+  mqtt-poc-broker:

@@ -1,0 +1,6 @@
+local/
+results/
+dist/
+coverage/
+examples/external-consumer/node_modules/
+examples/external-consumer/.env

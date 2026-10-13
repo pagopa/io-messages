@@ -1,0 +1,6 @@
+global:
+  scrape_interval: 10s
+scrape_configs:
+  - job_name: rabbitmq-mqtt-poc
+    static_configs:
+      - targets: ["rabbitmq-mqtt:15692"]
