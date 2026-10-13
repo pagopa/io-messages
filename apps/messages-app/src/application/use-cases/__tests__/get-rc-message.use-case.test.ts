@@ -1,13 +1,20 @@
-import { FiscalCodeSchema } from "@pagopa/hexagonal-core";
+import { FiscalCodeSchema, GenericError } from "@pagopa/hexagonal-core";
+import {
+  aSignatureInput,
+  anAssertionRef,
+} from "io-messages-common/adapters/lollipop/__mocks__/lollipop";
+import { lollipopHeadersSchema } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { fiscalCodeSchema as remoteFiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
-import { ok } from "neverthrow";
+import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MessageContentRepository } from "../../ports/message-content.js";
 import type { MessageMetadataRepository } from "../../ports/message-metadata.js";
 import type { RCConfiguration } from "../../ports/rc-configuration.js";
 import type { RemoteContentProxy } from "../../ports/remote-content-proxy.js";
+import type { BuildLollipopHeadersUseCase } from "../build-lollipop-headers.use-case.js";
 
+import { LollipopHeadersBuildError } from "../../ports/lc-params.js";
 import { RCConfigurationRepository } from "../../ports/rc-configuration.js";
 import { RemoteContentMessageBadGatewayError } from "../../ports/remote-content-message.js";
 import { makeGetRemoteContentMessageUseCase } from "../get-rc-message.use-case.js";
@@ -18,6 +25,20 @@ const remoteFiscalCode = remoteFiscalCodeSchema.parse("RSSMRA80A01H501U");
 const serviceId = "01JHYBR5JZCS6K0DT7M1EV8N2F";
 const pnServiceId = "pn-service-id";
 const standardConfigurationId = "01HAQ4HYBR5JZCS6K0DT7M1EV8";
+const lollipopRequestHeaders = {
+  signature: "sig1=:YQ==:",
+  "signature-input": aSignatureInput,
+  "x-pagopa-lollipop-original-method": "GET",
+  "x-pagopa-lollipop-original-url": "https://api.example.com/messages",
+};
+const fullLollipopHeaders = lollipopHeadersSchema.parse({
+  ...lollipopRequestHeaders,
+  "x-pagopa-lollipop-assertion-ref": anAssertionRef,
+  "x-pagopa-lollipop-assertion-type": "OIDC",
+  "x-pagopa-lollipop-auth-jwt": "lc-auth-token",
+  "x-pagopa-lollipop-public-key": "public-key",
+  "x-pagopa-lollipop-user-id": remoteFiscalCode,
+});
 
 const metadataRepository = {
   getMessageMetadataByFiscalCodeAndId: vi.fn().mockResolvedValue(
@@ -65,6 +86,7 @@ const genericRemoteMessage = {
 const remoteContentProxy = {
   getRemoteContentMessage: vi.fn(),
 } as unknown as RemoteContentProxy;
+const buildLollipopHeaders = vi.fn<BuildLollipopHeadersUseCase>();
 
 const sendRemoteMessage = {
   attachments: [
@@ -125,6 +147,7 @@ const makeUseCase = () =>
     contentRepository,
     rcConfigurationRepository,
     remoteContentProxy,
+    buildLollipopHeaders,
     pnServiceId,
     serviceToRcMap,
   );
@@ -138,6 +161,7 @@ beforeEach(() => {
   vi.mocked(remoteContentProxy.getRemoteContentMessage).mockResolvedValue(
     ok(genericRemoteMessage),
   );
+  vi.mocked(buildLollipopHeaders).mockResolvedValue(ok(fullLollipopHeaders));
 });
 
 describe("makeGetRemoteContentMessageUseCase", () => {
@@ -146,8 +170,9 @@ describe("makeGetRemoteContentMessageUseCase", () => {
 
     expect(result.isOk()).toBe(true);
     expect(remoteContentProxy.getRemoteContentMessage).toHaveBeenCalledWith({
+      assertionRef: undefined,
       fiscalCode,
-      lollipopHeaders: undefined,
+      lollipopRequestHeaders: undefined,
       rcConfiguration: anRCConfiguration(),
       senderServiceId: serviceId,
       thirdPartyMessageId: "third-party-message-id",
@@ -195,5 +220,84 @@ describe("makeGetRemoteContentMessageUseCase", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "REMOTE_CONTENT_NOT_PRESENT",
     );
+  });
+
+  it("builds full Lollipop headers when the configuration requires them", async () => {
+    vi.mocked(
+      rcConfigurationRepository.getRemoteContentConfiguration,
+    ).mockResolvedValueOnce(ok(anRCConfiguration({ isLollipopEnabled: true })));
+
+    const result = await makeUseCase()({
+      assertionRef: anAssertionRef,
+      fiscalCode,
+      lollipopRequestHeaders,
+      messageId,
+    });
+
+    expect(result.isOk()).toBe(true);
+    expect(buildLollipopHeaders).toHaveBeenCalledExactlyOnceWith({
+      assertionRef: anAssertionRef,
+      fiscalCode: remoteFiscalCode,
+      requestHeaders: lollipopRequestHeaders,
+    });
+    expect(remoteContentProxy.getRemoteContentMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ lollipopHeaders: fullLollipopHeaders }),
+    );
+  });
+
+  it("does not build Lollipop headers for a user excluded by configuration", async () => {
+    vi.mocked(
+      rcConfigurationRepository.getRemoteContentConfiguration,
+    ).mockResolvedValueOnce(
+      ok(
+        anRCConfiguration({
+          disableLollipopFor: [remoteFiscalCode],
+          isLollipopEnabled: true,
+        }),
+      ),
+    );
+
+    const result = await makeUseCase()({ fiscalCode, messageId });
+
+    expect(result.isOk()).toBe(true);
+    expect(buildLollipopHeaders).not.toHaveBeenCalled();
+    expect(remoteContentProxy.getRemoteContentMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ lollipopHeaders: undefined }),
+    );
+  });
+
+  it("maps missing required request headers to a generic internal error", async () => {
+    vi.mocked(
+      rcConfigurationRepository.getRemoteContentConfiguration,
+    ).mockResolvedValueOnce(ok(anRCConfiguration({ isLollipopEnabled: true })));
+
+    const result = await makeUseCase()({ fiscalCode, messageId });
+
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(LollipopHeadersBuildError);
+    expect(result._unsafeUnwrapErr().message).toContain("Bad request");
+    expect(buildLollipopHeaders).not.toHaveBeenCalled();
+    expect(remoteContentProxy.getRemoteContentMessage).not.toHaveBeenCalled();
+  });
+
+  it("maps Lollipop client failures to an internal error", async () => {
+    vi.mocked(
+      rcConfigurationRepository.getRemoteContentConfiguration,
+    ).mockResolvedValueOnce(ok(anRCConfiguration({ isLollipopEnabled: true })));
+    vi.mocked(buildLollipopHeaders).mockResolvedValueOnce(
+      err(new GenericError("LC unavailable")),
+    );
+
+    const result = await makeUseCase()({
+      assertionRef: anAssertionRef,
+      fiscalCode,
+      lollipopRequestHeaders,
+      messageId,
+    });
+
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(LollipopHeadersBuildError);
+    expect(result._unsafeUnwrapErr().message).toBe(
+      "Error extracting lollipop locals",
+    );
+    expect(remoteContentProxy.getRemoteContentMessage).not.toHaveBeenCalled();
   });
 });

@@ -50,6 +50,8 @@ const sendFixtureIun = "ABCD-EFGH-IJKL-123456-M-7";
 const sendFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4X";
 const genericFixtureMessageId = "01JXVZETAP064HCWTXBWC693QJ";
 const genericFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4Y";
+const lollipopFixtureMessageId = "01JXVZETAP064HCWTXBWC693QK";
+const lollipopFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4Z";
 const paymentMessageContents = [
   {
     blobName: `${paymentFixtureMessageId}.json`,
@@ -99,6 +101,23 @@ const genericMessageContents = [
         has_attachments: false,
         has_remote_content: true,
         id: "generic-remote-content-message",
+      },
+    },
+  },
+];
+const lollipopMessageContents = [
+  {
+    blobName: `${lollipopFixtureMessageId}.json`,
+    containerName: "message-content",
+    content: {
+      subject: "Generic RC Lollipop fixture",
+      markdown:
+        "This local generic Remote Content message exercises Lollipop header generation before fetching details from APIM Mockoon.",
+      third_party_data: {
+        configuration_id: lollipopFixtureConfigurationId,
+        has_attachments: false,
+        has_remote_content: true,
+        id: "generic-remote-content-lollipop-message",
       },
     },
   },
@@ -166,6 +185,7 @@ const uploadMessageContentIfNotExists = async ({
       ...paymentMessageContents,
       ...sendMessageContents,
       ...genericMessageContents,
+      ...lollipopMessageContents,
     ].map(uploadMessageContentIfNotExists),
   );
 })();

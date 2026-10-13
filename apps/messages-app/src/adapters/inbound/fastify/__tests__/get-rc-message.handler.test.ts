@@ -2,11 +2,16 @@ import type { FastifyInstance } from "fastify";
 
 import { FiscalCodeSchema, GenericError } from "@pagopa/hexagonal-core";
 import fastify from "fastify";
+import {
+  aSignatureInput,
+  anAssertionRef,
+} from "io-messages-common/adapters/lollipop/__mocks__/lollipop";
 import { err, ok } from "neverthrow";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { GetRemoteContentMessageUseCase } from "../../../../application/use-cases/get-rc-message.use-case.js";
 
+import { LollipopHeadersBuildError } from "../../../../application/ports/lc-params.js";
 import { RemoteContentMessageBadGatewayError } from "../../../../application/ports/remote-content-message.js";
 import { mountGetRemoteContentMessageHandler } from "../get-rc-message.handler.js";
 
@@ -14,6 +19,7 @@ const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
 const messageId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
 
 const userIdentity = {
+  assertion_ref: anAssertionRef,
   date_of_birth: "1980-01-01",
   family_name: "Rossi",
   fiscal_code: fiscalCode,
@@ -74,11 +80,38 @@ describe("mountGetRemoteContentMessageHandler", () => {
 
     expect(response.statusCode).toBe(200);
     expect(useCase).toHaveBeenCalledWith({
+      assertionRef: anAssertionRef,
       fiscalCode,
-      lollipopHeaders: undefined,
+      lollipopRequestHeaders: undefined,
       messageId,
     });
     expect(response.json()).toEqual(validOutput);
+  });
+
+  it("forwards client Lollipop request headers separately from x-user assertion_ref", async () => {
+    const requestHeaders = {
+      signature: "sig1=:YQ==:",
+      "signature-input": aSignatureInput,
+      "x-pagopa-lollipop-original-method": "GET",
+      "x-pagopa-lollipop-original-url": "https://api.example.com/messages",
+    };
+
+    const response = await server.inject({
+      headers: {
+        ...requestHeaders,
+        "x-user": toBase64(userIdentity),
+      },
+      method: "GET",
+      url: `/api/v1/third-party-messages/${messageId}`,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(useCase).toHaveBeenCalledWith({
+      assertionRef: anAssertionRef,
+      fiscalCode,
+      lollipopRequestHeaders: requestHeaders,
+      messageId,
+    });
   });
 
   it("preserves SEND-specific message fields in the response", async () => {
@@ -166,5 +199,29 @@ describe("mountGetRemoteContentMessageHandler", () => {
     });
 
     expect(response.statusCode).toBe(500);
+  });
+
+  it("maps Lollipop header extraction failures to the internal error contract", async () => {
+    vi.mocked(useCase).mockResolvedValue(
+      err(new LollipopHeadersBuildError("Error extracting lollipop locals")),
+    );
+
+    const response = await server.inject({
+      headers: {
+        "x-user": toBase64(userIdentity),
+      },
+      method: "GET",
+      url: `/api/v1/third-party-messages/${messageId}`,
+    });
+
+    expect(response.statusCode).toBe(500);
+    expect(response.headers["content-type"]).toContain(
+      "application/problem+json",
+    );
+    expect(response.json()).toMatchObject({
+      detail: "Error extracting lollipop locals",
+      status: 500,
+      title: "Internal server error",
+    });
   });
 });

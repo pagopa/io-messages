@@ -48,7 +48,8 @@ module "messages_ca" {
         COMMUNICATION_STORAGE_ACCOUNT_URI = var.communication_storage_account_uri
         COMMUNICATION_STORAGE_QUEUE_URI   = var.communication_storage_queue_uri
 
-        PN_SERVICE_ID = "01G40DWQGKY5GRWSNM4303VNRP" # PN
+        PN_SERVICE_ID    = "01G40DWQGKY5GRWSNM4303VNRP" # PN
+        LOLLIPOP_API_URL = "https://io-p-itn-auth-lollipop-func-02.azurewebsites.net/api/v1"
 
         APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
         APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
@@ -63,7 +64,11 @@ module "messages_ca" {
         PROCESSING_MESSAGE_CONTAINER_NAME = "processing-message"
       }
 
-      secret_names = ["PAGOPA_ECOMMERCE_API_KEY", "PAGOPA_ECOMMERCE_UAT_API_KEY"]
+      secret_names = [
+        "PAGOPA_ECOMMERCE_API_KEY",
+        "PAGOPA_ECOMMERCE_UAT_API_KEY",
+        "LOLLIPOP_API_KEY",
+      ]
 
       liveness_probe = {
         path = "/api/info"
@@ -90,6 +95,10 @@ module "messages_ca" {
     {
       name                = "PAGOPA_ECOMMERCE_UAT_API_KEY"
       key_vault_secret_id = data.azurerm_key_vault_secret.pagopa_ecommerce_uat_key.versionless_id
+    },
+    {
+      name                = "LOLLIPOP_API_KEY"
+      key_vault_secret_id = data.azurerm_key_vault_secret.lollipop_func_key.versionless_id
     }
   ]
 

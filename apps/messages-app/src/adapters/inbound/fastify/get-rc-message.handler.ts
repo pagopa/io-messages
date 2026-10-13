@@ -9,10 +9,11 @@ import {
   ValidationError,
   defineRoute,
 } from "@pagopa/hexagonal-core";
-import { lollipopHeadersSchema } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
+import { lollipopRequestHeadersSchema } from "io-messages-common/adapters/lollipop/definitions/request-headers";
 import { messageIDSchema } from "io-messages-common/domain/message";
 import z from "zod";
 
+import { LollipopHeadersBuildError } from "../../../application/ports/lc-params.js";
 import { RemoteContentMessageBadGatewayError } from "../../../application/ports/remote-content-message.js";
 import { GetRemoteContentMessageUseCase } from "../../../application/use-cases/get-rc-message.use-case.js";
 import {
@@ -25,11 +26,14 @@ import {
   mountFastifyHttpResultRoute,
 } from "./mount-fastify-http-result-route.js";
 
+const lollipopRequestHeadersInputSchema =
+  lollipopRequestHeadersSchema.partial();
+
 const getRemoteContentMessageContract = defineRoute({
   method: "get",
   path: "/api/v1/third-party-messages/{id}",
   request: {
-    headers: lollipopHeadersSchema.partial(),
+    headers: lollipopRequestHeadersInputSchema,
     path: z.object({
       id: messageIDSchema,
     }),
@@ -85,6 +89,10 @@ const toGetRemoteContentMessageHttpErrorOutput = (
     return problem(502, "Bad Gateway", error.detail);
   }
 
+  if (error instanceof LollipopHeadersBuildError) {
+    return problem(500, "Internal server error", error.detail);
+  }
+
   if (error instanceof GenericError) {
     return problem(500, "Internal server error", error.message);
   }
@@ -100,10 +108,12 @@ export const mountGetRemoteContentMessageHandler = (
     contract: getRemoteContentMessageContract,
     errorMapper: toGetRemoteContentMessageHttpErrorOutput,
     inputMapper: (request, user) => ({
+      assertionRef: user.assertion_ref,
       fiscalCode: user.fiscal_code,
-      lollipopHeaders: lollipopHeadersSchema.safeParse(request.headers).success
-        ? lollipopHeadersSchema.parse(request.headers)
-        : undefined,
+      lollipopRequestHeaders:
+        Object.keys(request.headers).length > 0
+          ? lollipopRequestHeadersInputSchema.parse(request.headers)
+          : undefined,
       messageId: request.path.id,
     }),
     middlewares: [makeXUserMiddleware()] as const,

@@ -7,7 +7,12 @@ import {
   UseCase,
   ValidationError,
 } from "@pagopa/hexagonal-core";
+import { AssertionRef } from "io-messages-common/adapters/lollipop/definitions/assertion-ref";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
+import {
+  LollipopRequiredHeaders,
+  lollipopRequestHeadersSchema,
+} from "io-messages-common/adapters/lollipop/definitions/request-headers";
 import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import { MessageId } from "io-messages-common/domain/message";
 import { RCConfiguration } from "io-messages-common/domain/remote-content";
@@ -20,6 +25,7 @@ import { Result, err, ok } from "neverthrow";
 
 import { ServiceToRCConfigMap } from "../../adapters/inbound/config/config.js";
 import { MalformedEntityError } from "../ports/error.js";
+import { LollipopHeadersBuildError } from "../ports/lc-params.js";
 import {
   MessageContent,
   MessageContentRepository,
@@ -28,10 +34,12 @@ import { MessageMetadataRepository } from "../ports/message-metadata.js";
 import { RCConfigurationRepository } from "../ports/rc-configuration.js";
 import { RemoteContentMessageBadGatewayError } from "../ports/remote-content-message.js";
 import { RemoteContentProxy } from "../ports/remote-content-proxy.js";
+import { BuildLollipopHeadersUseCase } from "./build-lollipop-headers.use-case.js";
 
 type GetRemoteContentMessageError =
   | ForbiddenError
   | GenericError
+  | LollipopHeadersBuildError
   | MalformedEntityError
   | NotFoundError
   | RemoteContentMessageBadGatewayError
@@ -50,8 +58,11 @@ export interface RemoteContentMessageOutput {
 
 export type GetRemoteContentMessageUseCase = UseCase<
   {
+    assertionRef?: AssertionRef;
     fiscalCode: FiscalCode;
-    lollipopHeaders?: LollipopHeaders;
+    lollipopRequestHeaders?: Partial<
+      Record<keyof LollipopRequiredHeaders, string>
+    >;
     messageId: MessageId;
   },
   RemoteContentMessageOutput,
@@ -94,20 +105,42 @@ const isLollipopRequired = (
     fiscalCodeSchema.parse(fiscalCode),
   );
 
-const getLollipopHeaders = (
+const buildRequiredLollipopHeaders = async (
+  buildLollipopHeaders: BuildLollipopHeadersUseCase,
   configuration: RCConfiguration,
+  assertionRef: AssertionRef | undefined,
   fiscalCode: FiscalCode,
-  lollipopHeaders?: LollipopHeaders,
-): Result<LollipopHeaders | undefined, ValidationError> => {
+  lollipopRequestHeaders?: Partial<
+    Record<keyof LollipopRequiredHeaders, string>
+  >,
+): Promise<Result<LollipopHeaders | undefined, LollipopHeadersBuildError>> => {
   if (!isLollipopRequired(configuration, fiscalCode)) {
     return ok(undefined);
   }
 
-  if (!lollipopHeaders) {
-    return err(new ValidationError("Missing required Lollipop headers"));
+  const parsedRequestHeaders = lollipopRequestHeadersSchema.safeParse(
+    lollipopRequestHeaders,
+  );
+  if (!parsedRequestHeaders.success) {
+    return err(
+      new LollipopHeadersBuildError(
+        `Bad request ${parsedRequestHeaders.error.message}`,
+      ),
+    );
   }
 
-  return ok(lollipopHeaders);
+  const lollipopHeadersResult = await buildLollipopHeaders({
+    assertionRef,
+    fiscalCode: fiscalCodeSchema.parse(fiscalCode),
+    requestHeaders: parsedRequestHeaders.data,
+  });
+  if (lollipopHeadersResult.isErr()) {
+    return err(
+      new LollipopHeadersBuildError("Error extracting lollipop locals"),
+    );
+  }
+
+  return ok(lollipopHeadersResult.value);
 };
 
 const validateAndFilterRemoteMessage = (
@@ -190,10 +223,11 @@ export const makeGetRemoteContentMessageUseCase =
     messageContentRepository: MessageContentRepository,
     remoteContentConfigurationRepository: RCConfigurationRepository,
     remoteContentProxy: RemoteContentProxy,
+    buildLollipopHeaders: BuildLollipopHeadersUseCase,
     pnServiceId: string,
     serviceToRCMap: ServiceToRCConfigMap,
   ): GetRemoteContentMessageUseCase =>
-  async ({ fiscalCode, lollipopHeaders, messageId }) => {
+  async ({ assertionRef, fiscalCode, lollipopRequestHeaders, messageId }) => {
     const [metadataResult, contentResult] = await Promise.all([
       messageMetadataRepository.getMessageMetadataByFiscalCodeAndId(
         fiscalCode,
@@ -229,10 +263,12 @@ export const makeGetRemoteContentMessageUseCase =
 
     const configuration = configurationResult.value;
 
-    const requiredLollipopHeaders = getLollipopHeaders(
+    const requiredLollipopHeaders = await buildRequiredLollipopHeaders(
+      buildLollipopHeaders,
       configuration,
+      assertionRef,
       fiscalCode,
-      lollipopHeaders,
+      lollipopRequestHeaders,
     );
     if (requiredLollipopHeaders.isErr()) {
       return err(requiredLollipopHeaders.error);
