@@ -24,6 +24,7 @@ jobs:
       - run: pnpm --filter mqtt-poc typecheck && pnpm --filter mqtt-poc lint:check && pnpm --filter mqtt-poc test
       - run: pnpm --filter mqtt-poc run setup && pnpm --filter mqtt-poc local:up
       - run: pnpm --filter mqtt-poc test:integration && pnpm --filter mqtt-poc test:reliability && pnpm --filter mqtt-poc test:dx
+      - run: pnpm --filter mqtt-poc test:services --services 6 --creates-per-service 2 --online-window 3 --batch-size 3
       - run: pnpm --filter mqtt-poc local:stop
         if: always()
       - uses: actions/upload-artifact@v4

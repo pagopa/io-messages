@@ -37,3 +37,26 @@ export const syntheticEvent = (
   status: "PROCESSED",
   version,
 });
+
+export const syntheticCreateSequence = (
+  serviceId: string,
+  messageId: string,
+): MessageEvent[] => {
+  const initial = eventSchema.parse({
+    ...syntheticEvent(serviceId),
+    messageId,
+    status: "ACCEPTED",
+  });
+  return [
+    initial,
+    { ...initial, eventId: randomUUID(), status: "PROCESSED", version: 1 },
+    {
+      ...initial,
+      eventId: randomUUID(),
+      eventType: "message.read.changed",
+      isRead: true,
+      status: "PROCESSED",
+      version: 2,
+    },
+  ];
+};

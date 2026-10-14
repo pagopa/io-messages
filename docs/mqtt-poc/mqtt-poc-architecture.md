@@ -4,6 +4,8 @@
 
 The authorization boundary is an IO **serviceId**, not the organization owning multiple services. Synthetic A and B can represent services of the same organization; they still have different keys, topics, identities and sessions. No delegation or cross-service access is supported.
 
+In real IO, this service is registered/enabled in Services CMS and sends CreateMessages requests. Production currently uses `services-func`; `messages-app` does not yet carry production traffic. The existing IO queue flow produces subsequent events for each message. The PoC must model **one service -> many creates/messages -> a sequence per message -> the same service topic**, but never invoke either CreateMessages implementation, Services CMS or actual IO queues/change feeds.
+
 All delivery statuses and `isRead` changes are eligible. `isArchived`, citizen identifiers, subjects, content, payment fields and free-text rejection details are excluded. The strict versioned public schema is [mqtt-poc-event.schema.json](mqtt-poc-event.schema.json). The PoC publishes only synthetic events. Production change feeds remain authoritative and untouched.
 
 MQTT 5, verified TLS, QoS1, JSON, no ordering requirement, no historical replay, no events before first subscription, no business ACK and no broker-failure tests were agreed. Retention and backlog limits are configurable calibration parameters. External business errors belong to the consumer, not PagoPA's DLQ.
@@ -22,7 +24,7 @@ flowchart LR
     Ingress --> Worker[Validation and delivery worker]
     Worker -->|MQTT TLS QoS1| Broker
     Ingress -->|Reject: DLX| DLQ[Private internal DLQ]
-    Broker -->|Session expiry / overflow where applicable| DLQ
+    Broker -->|Message expiry / queue overflow under policy| DLQ
     Broker --> Metrics[Private Prometheus metrics]
     Management[Private Management UI] --> Broker
   end
@@ -90,3 +92,141 @@ After review of [the benchmark](mqtt-poc-benchmark.md) and [assessment](mqtt-poc
 - [MQTT 5 specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html)
 
 Version-specific behavior is verified by the local integration suite, not assumed solely from unversioned documentation.
+
+## Operational Flows and How to Try Them
+
+### Real Business Context vs Synthetic Scope
+
+```mermaid
+flowchart LR
+  subgraph Real[Real IO context - NOT called by this PoC]
+    CMS[Services CMS serviceId] --> Service[Enabled sender service]
+    Service --> Create[CreateMessages - services-func today / messages-app future]
+    Create --> IO[Existing IO queues and processing]
+    IO --> RealEvents[Events correlated to messageId]
+  end
+  subgraph Local[Executable synthetic PoC]
+    Fixture[H runner: synthetic serviceId and key] --> Onboard[Local onboarding API]
+    Onboard --> Topic[One authorized logical topic per service]
+    Fixture --> SimCreates[Several simulated creates per service]
+    SimCreates --> Sequences[Distinct messageId per create - three fixture versions]
+    Sequences --> Ingress[Private AMQP TLS ingress]
+    Ingress --> Worker[Actual PoC publisher worker]
+    Worker --> Broker[MQTT TLS broker]
+    Topic --> Consumer[Standard MQTT consumer]
+    Broker --> Consumer
+  end
+```
+
+The two subgraphs have no integration edge. A real CreateMessages call is **not** simulated by calling a deployed/test IO API: H creates its own synthetic message identities and event fixtures. Topic assignment at onboarding means authorized namespace/ACLs; a MQTT topic is not an administrative object. Session queues/bindings arise when the consumer subscribes.
+
+### Onboarding and Authentication
+
+```mermaid
+sequenceDiagram
+  actor Service as Synthetic service
+  participant API as Onboarding API
+  participant Registry as Local registry
+  participant Broker as RabbitMQ
+  participant Auth as Private mTLS auth callback
+  Service->>API: POST subscriptions, service API key, appId
+  API->>Registry: Create/resume pending registration
+  API->>Broker: Configure user, service topic ACL, exact session queue ACL
+  API->>Broker: Read back permissions
+  API->>Registry: Activate only after verification
+  API-->>Service: MQTT endpoint, credentials, assigned clientId, exact topic
+  Service->>Broker: MQTT CONNECT over verified TLS
+  Broker->>Auth: Validate credentials, active state and clientId
+  Auth->>Registry: Resolve registered service identity
+  Auth-->>Broker: allow or deny
+  Service->>Broker: SUBSCRIBE exact own-service topic, QoS1
+  Broker-->>Service: SUBACK; create session queue/binding internally
+```
+
+Try `pnpm --filter mqtt-poc demo` to obtain a bundle, then run the independent consumer. `test:integration` proves wrong key, forged identity, clientId takeover, wildcard/cross-service subscription and external publish denial; the consumer's own service check is not the isolation boundary.
+
+### Creates and Event Sequences on One Service Topic
+
+```mermaid
+flowchart TD
+  Service[One onboarded serviceId] --> Topic[io/v1/services/serviceId/messages/status]
+  Service --> First[Simulated create 1 - messageId A]
+  Service --> Second[Simulated create 2 - messageId B]
+  First --> A0[ACCEPTED v0 - A]
+  A0 --> A1[PROCESSED v1 - A]
+  A1 --> A2[isRead true v2 - A]
+  Second --> B0[ACCEPTED v0 - B]
+  B0 --> B1[PROCESSED v1 - B]
+  B1 --> B2[isRead true v2 - B]
+  A0 --> Pipeline[AMQP ingress - worker - MQTT]
+  A1 --> Pipeline
+  A2 --> Pipeline
+  B0 --> Pipeline
+  B1 --> Pipeline
+  B2 --> Pipeline
+  Pipeline --> Topic
+  Topic --> Consumer[Single service consumer correlates by messageId and version]
+```
+
+Arrows between fixture states describe the **generated lifecycle**, not guaranteed receive order. Both creates share the service topic but never the message identity. The three-state fixture is deliberately limited, with a simulated read action; it is not the full IO transition graph and does not require every real message to be read.
+
+### Delivery, Acknowledgements and DLQ
+
+```mermaid
+sequenceDiagram
+  participant Simulator as Synthetic create/event source
+  participant Ingress as AMQP ingress
+  participant Worker as Publisher worker
+  participant Broker as MQTT broker
+  participant Consumer as External consumer
+  participant DLQ as Private internal DLQ
+  Simulator->>Ingress: Public event, stable messageId/version/eventId
+  Ingress-->>Simulator: Publisher confirm of ingress acceptance
+  Ingress->>Worker: Deliver event, manual AMQP acknowledgement
+  alt Valid schema and MQTT publish succeeds
+    Worker->>Broker: PUBLISH exact service topic, QoS1
+    Broker-->>Worker: PUBACK - transport ownership only
+    Worker->>Ingress: ACK ingress
+    Broker->>Consumer: PUBLISH or queue for existing offline session
+    Consumer-->>Broker: PUBACK - not business success
+  else Invalid schema or retries exhausted
+    Worker->>Ingress: Reject without requeue
+    Ingress->>DLQ: Dead-letter with x-death metadata
+  end
+```
+
+Try `demo --publish` with a connected consumer, or `test:reliability` for offline/session/message expiry, connection interruption before ACK and the internal DLQ. The consumer's business error handling/DLQ remains outside PagoPA's broker error path.
+
+### Which Test Exercises Which Path
+
+```mermaid
+flowchart LR
+  Unit[Vitest] --> Pure[Schema - per-create fixture - policy - registry]
+  Isolation[test:integration] --> API[Onboarding / revoke API]
+  Isolation --> Negative[Native broker ACLs and explicit negative MQTT codes]
+  Reliability[test:reliability] --> Sessions[Offline - expiry - delayed ACK - interruption]
+  Reliability --> DLQ[Ingress rejection and own eventId plus x-death]
+  DX[test:dx] --> Standalone[Copy/install external consumer outside monorepo]
+  DX --> WorkerPath[Ingress - worker - public MQTT topic]
+  AG[A-G benchmark] --> Direct[Direct MQTT publication - bench envelope and suffix]
+  H[test:services H] --> API
+  H --> Creates[Many services - several simulated creates each]
+  Creates --> WorkerPath
+  WorkerPath --> Ledger[Validate every service, messageId, version and eventId]
+  H --> Windows[Persistent session inventory vs configured online windows]
+  Ledger --> Evidence[Raw run evidence - report - scoped cleanup]
+```
+
+From the repository root, after setup and `local:up`:
+
+```sh
+pnpm --filter mqtt-poc test
+pnpm --filter mqtt-poc test:integration
+pnpm --filter mqtt-poc test:reliability
+pnpm --filter mqtt-poc test:dx
+pnpm --filter mqtt-poc test:services --services 6 --creates-per-service 2 --online-window 3 --batch-size 3
+pnpm --filter mqtt-poc test:services --services 1000 --creates-per-service 3 --online-window 250 --batch-size 25
+pnpm --filter mqtt-poc run report
+```
+
+H's successful local scale point has 1000 distinct services/topics/persistent sessions/queues, 3000 complete message sequences and 9000 received events, with at most 250 observed concurrent consumer connections. The all-online attempt was interrupted by runtime failure during onboarding and is retained as failed evidence. Windowed latency includes queued offline time and inventory refresh, not a production delivery SLO. Results and per-message completion are in [the H report](mqtt-poc-benchmark.md#scenario-h-service-creates-and-correlated-events) and its JSON evidence.

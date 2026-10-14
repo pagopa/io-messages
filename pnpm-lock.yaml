@@ -572,6 +572,9 @@ importers:
       mqtt:
         specifier: ^5.16.0
         version: 5.16.0
+      ulid:
+        specifier: "catalog:"
+        version: 3.0.1
       zod:
         specifier: "catalog:"
         version: 4.4.3

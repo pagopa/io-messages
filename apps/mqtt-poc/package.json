@@ -17,6 +17,7 @@
     "test:integration": "tsx src/integration.ts",
     "benchmark": "tsx src/benchmark.ts",
     "benchmark:matrix": "tsx src/matrix.ts",
+    "test:services": "tsx src/service-scenario.ts",
     "publisher": "tsx src/publisher.ts",
     "demo": "tsx src/demo.ts",
     "test:reliability": "tsx src/reliability.ts",
@@ -29,6 +30,7 @@
     "amqplib": "^2.2.0",
     "fastify": "catalog:",
     "mqtt": "^5.16.0",
+    "ulid": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

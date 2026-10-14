@@ -4,7 +4,7 @@
 
 Proceed to a separately approved non-production design/review; do not infer production readiness from this local PoC. The service-isolation design and SDK integration are demonstrated. Topic/filter cardinality is not the principal proxy for the cost of many persistent sessions.
 
-Evidence: [observed benchmark report](mqtt-poc-benchmark.md), [machine-readable results](mqtt-poc-benchmark-results.json), [real-broker isolation tests](../apps/mqtt-poc/src/integration.ts), [reliability tests](../apps/mqtt-poc/src/reliability.ts), and [standalone DX test](../apps/mqtt-poc/src/dx-test.ts). Results use RabbitMQ 4.3.6, verified TLS, QoS1, one classic-queue node on a local Docker VM. No production resources or personal data were used.
+Evidence: [observed benchmark report](mqtt-poc-benchmark.md), [machine-readable results](mqtt-poc-benchmark-results.json), [real-broker isolation tests](../../apps/mqtt-poc/src/integration.ts), [reliability tests](../../apps/mqtt-poc/src/reliability.ts), [standalone DX test](../../apps/mqtt-poc/src/dx-test.ts), and [service/create scenario H](../../apps/mqtt-poc/src/service-scenario.ts). Results use RabbitMQ 4.3.6, verified TLS, QoS1, one classic-queue node on a local Docker VM. No production resources or personal data were used.
 
 ## Decision Questions
 
@@ -21,7 +21,19 @@ Evidence: [observed benchmark report](mqtt-poc-benchmark.md), [machine-readable 
 11. **What needs further investigation/Design Review?** Authoritative message-to-service enrichment; APIM/IAM key verification, approval, rotation and revocation; durable provisioning transactions; registered-app quotas; per-service storage/backlog policy; persistent-queue capacity at thousands of services; steady-state/soak/open-loop load; auth outage/caching; clustered/quorum durability and DLX behavior; production TLS/DNS; resilient secrets and operator audit; reconnection storms; distributed-clock latency; a tested Java sample. Broker failover was explicitly excluded locally. Azure requires the user's requested new discovery/design round.
 12. **What operational risks and costs precede adoption?** Always-on stateful broker/storage, per-session backlog and fanout duplication, auth/control-plane availability, certificate and credential lifecycle, orphan/session cleanup, poison handling, telemetry cardinality and data privacy, capacity limits/noisy neighbors, backups/upgrade procedures and operational responsibility for public sockets. Real currency/infrastructure cost is unknown and was not estimated as a measurement. A public event service requires security and capacity evidence beyond these local runs.
 
-## Classification
+## Application-Like Scenario H
+
+The sender service's real relationship to CreateMessages is represented synthetically, not integrated: one CMS-shaped serviceId/key/topic, several distinct messageId creates, and three correlated fixture events (ACCEPTED, PROCESSED, read=true) for each create. Production currently uses services-func; messages-app has no production traffic yet. Neither surface, Services CMS nor real IO queues/change feeds are called by this test.
+
+H additionally demonstrates **1000 service-scoped topics, subscriptions, persistent sessions and queue bindings**, with **3000 complete message sequences and all 9000 expected deliveries**, zero observed isolation violations, two explicit negative subscription probes, and successful scoped cleanup. The generator's 1000-service online window was 250: these are not 1000 concurrent connections. Events pass through the actual AMQP ingress and PoC worker instead of A-G's direct MQTT publishing. Completion is checked for every message/version, without requiring ordered reception.
+
+The earlier attempt with 1000 simultaneous consumers failed during onboarding before event publication; Docker became unreachable while Rancher still reported its VM started. Cause remains unverified, so no broker saturation conclusion is drawn. The 950 synthetic records of that interrupted run were cleaned up after an explicitly authorized runtime restart. All original failed evidence is preserved in [the report](mqtt-poc-benchmark.md#scenario-h-service-creates-and-correlated-events).
+
+The A-G statements above refer to their original experiments. H extends the demonstrated scope to 1000 distinct service session queues and correlated message lifecycle delivery, but does not resolve sustained full-concurrency/HA/production IAM or real-source integration gaps. H is a fixture, not the complete IO transition graph; simulated read events do not imply all real messages are read. Offline-window latency is not comparable to direct-MQTT latency. No production SLO or maximum capacity is asserted.
+
+## Classification of the A-G Baseline
+
+The table below classifies the original A-G experiments. The H extension above additionally demonstrates 1000 distinct service-scoped persistent sessions, correlated message sequences and windowed delivery; full 1000-connection concurrency remains unverified.
 
 | Category               | Evidence/status                                                                                                                                                                                                                                             |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

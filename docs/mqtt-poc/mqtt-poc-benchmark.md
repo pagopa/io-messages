@@ -1,6 +1,6 @@
 # MQTT PoC Benchmark Report
 
-Generated from observed local results on 2026-10-13T15:30:12.275Z. No production SLO or maximum capacity is claimed.
+Generated from observed local results on 2026-10-14T08:46:53.045Z. No production SLO or maximum capacity is claimed.
 
 ## Environment
 
@@ -92,3 +92,38 @@ The reliability suite demonstrates five offline queued events recovered, repeate
 ## Conclusion
 
 The measured local results demonstrate service-scoped delivery and independent growth of topic names, filters and session queues. They justify further non-production evaluation, not a production adoption decision. All measured runs have 0 observed isolation violations; inspect individual counts/errors in the evidence. Azure requires a new design/approval round after local review.
+
+The historical A-G limits above describe those runs only. Scenario H below additionally demonstrates 1000 service-scoped persistent sessions with windowed delivery.
+
+## Scenario H: Service Creates and Correlated Events
+
+This separate end-to-end case uses one exact public topic, consumer registration and persistent session per synthetic CMS-shaped serviceId. Each service simulates multiple CreateMessages requests: each create gets a distinct ULID messageId and the approved fixture ACCEPTED(v0), PROCESSED(v1), PROCESSED/isRead=true(v2). All three events use the same messageId and the service's topic. The fixture is not the production transition graph, and receipt order is not asserted. No real messages-app/services-func CreateMessages, Services CMS, IO queue/change feed or Azure resource is invoked.
+
+Unlike A-G, H sends strict public events through the confirmed AMQP TLS ingress, the running publisher worker, and MQTT TLS QoS1. It verifies every eventId, payload, serviceId, messageId and version; every create and service must receive its full sequence. Native queue/binding inventory confirms one exact subscription per service, and cross-service/wildcard attempts require explicit negative SUBACKs.
+
+| Requested services | Outcome | Observed peak consumer connections | Session queues | Complete/expected creates | Received/expected events | Services with all events | Onboarding s | Publication-to-drain s |   p95 ms | Cleanup errors |
+| ------------------ | ------- | ---------------------------------: | -------------: | ------------------------: | -----------------------: | -----------------------: | -----------: | ---------------------: | -------: | -------------: |
+| 3                  | failed  |                                  0 |              3 |                       0/6 |                     0/18 |                        0 |         0.09 |                   0.00 |      n/a |              0 |
+| 3                  | passed  |                                  3 |              3 |                       6/6 |                    18/18 |                        3 |         0.09 |                   0.12 |    12.48 |              0 |
+| 100                | passed  |                                100 |            100 |                   300/300 |                  900/900 |                      100 |         1.64 |                   0.29 |   129.74 |              0 |
+| 1000               | failed  |                                n/a |            n/a |                    0/3000 |                   0/9000 |                        0 |         0.00 |                   0.00 |      n/a |            951 |
+| 6                  | passed  |                                  3 |              6 |                     12/12 |                    36/36 |                        6 |         0.14 |                   9.37 |  4425.85 |              0 |
+| 1000               | passed  |                                250 |           1000 |                 3000/3000 |                9000/9000 |                     1000 |        17.80 |                  18.12 | 13265.55 |              0 |
+| 6                  | passed  |                                  3 |              6 |                     12/12 |                    36/36 |                        6 |         0.16 |                   5.48 |   557.37 |              0 |
+
+The 1000-service passed run verifies 1000 topics, subscriptions, persistent sessions and session queues, 3000 distinct creates and 9000 events. Consumers resume in windows of 250; it does NOT demonstrate 1000 simultaneous connections. Latency in windowed runs includes deliberate offline queueing, sequential window activation and Management inventory refresh delays, not just transport or worker latency. Onboarding includes local synthetic service enablement and credential/session provisioning.
+
+The failed 1000-concurrent attempt stopped during onboarding before publication. The Docker daemon subsequently became unreachable while Rancher reported the VM started; the cause was not established, so this is neither a RabbitMQ capacity verdict nor a successful delivery run. Its 950 synthetic service records were later cleaned up after an explicitly approved runtime restart. The original failure remains in the evidence, alongside any separate cleanup-recovery records. Zero delivered events in that attempt is not evidence of isolation.
+
+Reproduce from the repository root:
+
+```sh
+pnpm --filter mqtt-poc test:services --services 100 --creates-per-service 3
+pnpm --filter mqtt-poc test:services --services 1000 --creates-per-service 3 --online-window 250 --batch-size 25
+# Full concurrency is opt-in after runtime/resource review, not part of the default matrix:
+pnpm --filter mqtt-poc test:services --services 1000 --creates-per-service 3 --online-window 1000 --max-connections 1000
+# Retry scoped cleanup only for an interrupted H manifest:
+pnpm --filter mqtt-poc test:services --cleanup-run H-RUN-ID.json
+```
+
+Default H uses 1000 services, three creates per service and a 250-consumer online window. It has its own explicit connection ceiling and broker memory/disk/FD stop guards; A-G's 500-consumer default is unchanged. Cleanups affect only service IDs recorded in that run and never delete actual IO services. Raw per-service/per-message evidence is retained without credentials.
