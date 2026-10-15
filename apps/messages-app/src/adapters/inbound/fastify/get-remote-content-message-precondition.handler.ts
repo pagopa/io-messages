@@ -3,11 +3,14 @@ import type { FastifyInstance } from "fastify";
 import { ProblemDetailsSchema, defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
 import { lollipopRequestHeadersSchema } from "io-messages-common/adapters/lollipop/definitions/request-headers";
-import { remoteContentMessagePreconditionSchema } from "io-messages-common/domain/remote-content-message-precondition";
 import z from "zod";
 
 import type { GetRemoteContentMessagePreconditionUseCase } from "../../../application/use-cases/get-remote-content-message-precondition.use-case.js";
 
+import {
+  GetRemoteContentMessagePreconditionResponseSchema,
+  toGetRemoteContentMessagePreconditionResponse,
+} from "./dto/get-remote-content-message-precondition.dto.js";
 import { makeXUserMiddleware } from "./middlewares/x-user.middleware.js";
 
 const getRemoteContentMessagePreconditionContract = defineRoute({
@@ -21,7 +24,7 @@ const getRemoteContentMessagePreconditionContract = defineRoute({
     }),
   },
   response: {
-    200: remoteContentMessagePreconditionSchema,
+    200: GetRemoteContentMessagePreconditionResponseSchema,
     400: ProblemDetailsSchema,
     403: ProblemDetailsSchema,
     404: ProblemDetailsSchema,
@@ -45,6 +48,7 @@ export const mountGetRemoteContentMessagePreconditionHandler = (
       messageId: request.path.id,
     }),
     middlewares: [makeXUserMiddleware()],
+    outputMapper: toGetRemoteContentMessagePreconditionResponse,
     useCase,
   });
 };
