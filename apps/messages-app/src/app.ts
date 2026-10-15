@@ -14,6 +14,7 @@ import { AppConfig } from "./adapters/inbound/config/config.js";
 import { mountCreateMessageHandler } from "./adapters/inbound/fastify/create-message.handler.js";
 import { mountGetMessageHandler } from "./adapters/inbound/fastify/get-message.handler.js";
 import { mountGetPaymentInfoHandler } from "./adapters/inbound/fastify/get-payment-info.handler.js";
+import { mountGetRemoteContentMessagePreconditionHandler } from "./adapters/inbound/fastify/get-remote-content-message-precondition.handler.js";
 import { mountGetMessagesByUserHandler } from "./adapters/inbound/fastify/get-user-messages.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
 import { mountInfoHandler } from "./adapters/inbound/fastify/info.handler.js";
@@ -22,6 +23,7 @@ import { CryptoAdapter } from "./adapters/outbound/crypto/crypto.adapter.js";
 import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
 import { LoggerHealthcheckAdapter } from "./adapters/outbound/healthcheckers/logger.adapter.js";
 import { StorageBlobHealthcheckAdapter } from "./adapters/outbound/healthcheckers/storage-blob.adapter.js";
+import { LollipopHttpClientAdapter } from "./adapters/outbound/lollipop/lollipop.adapter.js";
 import { MessageContentBlobAdapter } from "./adapters/outbound/message/message-content.adapter.js";
 import { MessageCreatedEventQueueAdapter } from "./adapters/outbound/message/message-created-event.adapter.js";
 import { MessageMetadataCosmosAdapter } from "./adapters/outbound/message/message-metadata.adapter.js";
@@ -30,10 +32,15 @@ import { BlobProcessingMessagePayloadStore } from "./adapters/outbound/message/p
 import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/package-json-app-info-reader.js";
 import { PagoPAEcommerceHttpClientAdapter } from "./adapters/outbound/pagopa-ecommerce/pagopa-ecommerce.js";
 import { RCConfigurationHttpClientAdapter } from "./adapters/outbound/rc-confguration/rc-configuration.js";
+import { RemoteContentHTTPAdapter } from "./adapters/outbound/remote-content/remote-content-http.js";
+import { RemoteContentProxyAdapter } from "./adapters/outbound/remote-content/remote-content-proxy.adapter.js";
+import { SendHTTPAdapter } from "./adapters/outbound/remote-content/send-http.js";
 import { ServicesCmsHttpClientAdapter } from "./adapters/outbound/services-cms/services-cms.js";
+import { makeBuildLollipopHeadersUseCase } from "./application/use-cases/build-lollipop-headers.use-case.js";
 import { makeCreateMessageUseCase } from "./application/use-cases/create-message.use-case.js";
 import { makeGetMessageUseCase } from "./application/use-cases/get-message.use-case.js";
 import { makeGetPaymentInfoUseCase } from "./application/use-cases/get-payment-info.use-case.js";
+import { makeGetRemoteContentMessagePreconditionUseCase } from "./application/use-cases/get-remote-content-message-precondition.use-case.js";
 import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-messages.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
@@ -243,6 +250,26 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
   mountUpsertMessageStatusHandler(
     server,
     makeUpdateMessageStatusUseCase(messageStatusCosmosAdapter),
+  );
+  mountGetRemoteContentMessagePreconditionHandler(
+    server,
+    makeGetRemoteContentMessagePreconditionUseCase(
+      messageMetadataCosmosAdapter,
+      messageContentBlobAdapter,
+      remoteContentConfigurationRepository,
+      new RemoteContentProxyAdapter(
+        new RemoteContentHTTPAdapter(logger),
+        new SendHTTPAdapter(logger),
+        config.PN_SERVICE_ID,
+      ),
+      makeBuildLollipopHeadersUseCase(
+        new LollipopHttpClientAdapter(
+          config.LOLLIPOP_API_KEY,
+          config.LOLLIPOP_BASE_URL,
+        ),
+      ),
+      config.SERVICE_TO_RC_MAP,
+    ),
   );
 
   return { server };
