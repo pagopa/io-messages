@@ -265,7 +265,7 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
       makeBuildLollipopHeadersUseCase(
         new LollipopHttpClientAdapter(
           config.LOLLIPOP_API_KEY,
-          config.LOLLIPOP_BASE_URL,
+          config.LOLLIPOP_API_URL,
         ),
       ),
       config.SERVICE_TO_RC_MAP,

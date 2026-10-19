@@ -73,7 +73,7 @@ const baseConfigSchema = z.object({
     .transform((value) => value === "true"),
   HOST: z.ipv4(),
   LOLLIPOP_API_KEY: z.string().min(1),
-  LOLLIPOP_BASE_URL: z.url().transform((val) => new URL(val)),
+  LOLLIPOP_API_URL: z.url().transform((val) => new URL(val)),
   MESSAGE_CONTENT_CONTAINER_NAME: z.string().min(3),
   MESSAGE_CREATED_QUEUE_NAME: z.string().min(3),
   MESSAGE_METADATA_CONTAINER_NAME: z.string().min(3),
