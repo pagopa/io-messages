@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.8.0
+
+### Minor Changes
+
+- 6852084: Add the third-party message precondition route
+
 ## 0.7.7
 
 ### Patch Changes
