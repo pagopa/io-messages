@@ -1,7 +1,6 @@
 import type { FiscalCode, UseCase } from "@pagopa/hexagonal-core";
 import type { AssertionRef } from "io-messages-common/adapters/lollipop/definitions/assertion-ref";
 import type { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
-import type { LollipopRequiredHeaders } from "io-messages-common/adapters/lollipop/definitions/request-headers";
 import type { RemoteContentMessagePrecondition } from "io-messages-common/domain/remote-content-message-precondition";
 
 import {
@@ -10,6 +9,7 @@ import {
   TooManyRequestsError,
   ValidationError,
 } from "@pagopa/hexagonal-core";
+import { lollipopRequestHeadersSchema } from "io-messages-common/adapters/lollipop/definitions/request-headers";
 import { err } from "neverthrow";
 
 import type { ServiceToRCConfigMap } from "../../adapters/inbound/config/config.js";
@@ -27,8 +27,7 @@ import { MalformedEntityError } from "../ports/error.js";
 export interface GetRemoteContentMessagePreconditionInput {
   assertionRef: AssertionRef | undefined;
   fiscalCode: FiscalCode;
-  // Undefined when the request does not carry a complete set of lollipop headers.
-  lollipopRequestHeaders: LollipopRequiredHeaders | undefined;
+  lollipopRequestHeaders: unknown;
   messageId: string;
 }
 
@@ -69,7 +68,11 @@ export const makeGetRemoteContentMessagePreconditionUseCase =
     const metadata = metadataResult.value;
     const thirdPartyData = contentResult.value.third_party_data;
     if (!thirdPartyData) {
-      return err(new NotFoundError("ThirdPartyData", messageId));
+      return err(
+        new ValidationError(
+          "The message retrieved is not a valid message with third-party data",
+        ),
+      );
     }
 
     const configurationId =
@@ -96,18 +99,24 @@ export const makeGetRemoteContentMessagePreconditionUseCase =
 
     let lollipopHeaders: LollipopHeaders | undefined;
     if (isLollipopRequired) {
-      if (!lollipopRequestHeaders) {
+      const parsedLollipopRequestHeaders =
+        lollipopRequestHeadersSchema.safeParse(lollipopRequestHeaders);
+      if (!parsedLollipopRequestHeaders.success) {
         return err(
-          new ValidationError("Missing or invalid required lollipop headers"),
+          new GenericError(
+            "Bad request: missing or invalid required lollipop headers",
+          ),
         );
       }
 
       const lollipopResult = await buildLollipopHeaders({
         assertionRef,
         fiscalCode,
-        requestHeaders: lollipopRequestHeaders,
+        requestHeaders: parsedLollipopRequestHeaders.data,
       });
-      if (lollipopResult.isErr()) return err(lollipopResult.error);
+      if (lollipopResult.isErr()) {
+        return err(new GenericError("Error extracting lollipop locals"));
+      }
       lollipopHeaders = lollipopResult.value;
     }
 

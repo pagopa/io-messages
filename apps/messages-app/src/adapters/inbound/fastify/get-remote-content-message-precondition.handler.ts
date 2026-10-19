@@ -2,7 +2,6 @@ import type { FastifyInstance } from "fastify";
 
 import { defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
-import { lollipopRequestHeadersSchema } from "io-messages-common/adapters/lollipop/definitions/request-headers";
 import z from "zod";
 
 import type { GetRemoteContentMessagePreconditionUseCase } from "../../../application/use-cases/get-remote-content-message-precondition.use-case.js";
@@ -18,8 +17,7 @@ const getRemoteContentMessagePreconditionContract = defineRoute({
   method: "get",
   path: "/api/communication/v1/third-party-messages/{id}/precondition",
   request: {
-    // Completeness is enforced by the use case, only when the RC configuration requires lollipop.
-    headers: lollipopRequestHeadersSchema.partial(),
+    headers: z.object({}).passthrough(),
     path: z.object({
       id: z.ulid(),
     }),
@@ -43,9 +41,7 @@ export const mountGetRemoteContentMessagePreconditionHandler = (
     inputMapper: (request, userIdentity) => ({
       assertionRef: userIdentity.assertion_ref,
       fiscalCode: userIdentity.fiscal_code,
-      lollipopRequestHeaders: lollipopRequestHeadersSchema.safeParse(
-        request.headers,
-      ).data,
+      lollipopRequestHeaders: request.headers,
       messageId: request.path.id,
     }),
     middlewares: [makeXUserMiddleware()],

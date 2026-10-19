@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 
-import { ForbiddenError } from "@pagopa/hexagonal-core";
+import { ForbiddenError, GenericError } from "@pagopa/hexagonal-core";
 import fastify from "fastify";
 import { err, ok } from "neverthrow";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -49,9 +49,26 @@ describe("mountGetRemoteContentMessagePreconditionHandler", () => {
     expect(useCase).toHaveBeenCalledWith({
       assertionRef: undefined,
       fiscalCode: "RSSMRA80A01H501U",
-      lollipopRequestHeaders: undefined,
+      lollipopRequestHeaders: expect.objectContaining({ "x-user": xUser }),
       messageId,
     });
+  });
+
+  it("passes malformed lollipop headers to the use case without rejecting the request", async () => {
+    const response = await server.inject({
+      headers: { signature: "malformed", "x-user": xUser },
+      method: "GET",
+      url,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(useCase).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lollipopRequestHeaders: expect.objectContaining({
+          signature: "malformed",
+        }),
+      }),
+    );
   });
 
   it("rejects a request without the x-user header", async () => {
@@ -81,5 +98,19 @@ describe("mountGetRemoteContentMessagePreconditionHandler", () => {
     });
 
     expect(response.statusCode).toBe(403);
+  });
+
+  it("maps Lollipop internal errors to HTTP 500", async () => {
+    vi.mocked(useCase).mockResolvedValue(
+      err(new GenericError("Lollipop error")),
+    );
+
+    const response = await server.inject({
+      headers: { "x-user": xUser },
+      method: "GET",
+      url,
+    });
+
+    expect(response.statusCode).toBe(500);
   });
 });

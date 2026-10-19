@@ -27,6 +27,10 @@ const precondition = { markdown: "a precondition", title: "a title" };
 
 const lollipopRequestHeaders = {
   signature: "sig1=:aSignature:",
+  "signature-input":
+    'sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url"); created=1618884475; keyid="6LvipIvFuhyorHpUqK3HjySC5Y6gshXHFBhU9EJ4DoM="',
+  "x-pagopa-lollipop-original-method": "GET",
+  "x-pagopa-lollipop-original-url": "https://api.example.com/messages",
 } as unknown as LollipopRequiredHeaders;
 
 const lollipopHeaders = { "x-pagopa-lollipop-user-id": fiscalCode };
@@ -108,7 +112,10 @@ beforeEach(() => {
 
 describe("makeGetRemoteContentMessagePreconditionUseCase", () => {
   it("calls the proxy without lollipop headers when lollipop is disabled", async () => {
-    const result = await useCase(input);
+    const result = await useCase({
+      ...input,
+      lollipopRequestHeaders: { signature: "malformed" },
+    });
 
     expect(result._unsafeUnwrap()).toEqual(precondition);
     expect(proxy.getRemoteContentMessagePrecondition).toHaveBeenCalledWith({
@@ -121,12 +128,12 @@ describe("makeGetRemoteContentMessagePreconditionUseCase", () => {
     expect(buildLollipopHeaders).not.toHaveBeenCalled();
   });
 
-  it("returns NotFoundError when the message has no third party data", async () => {
+  it("returns ValidationError when the message has no third party data", async () => {
     setContent(undefined);
 
     const result = await useCase(input);
 
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(ValidationError);
   });
 
   it("falls back to the service to RC map for the configuration id", async () => {
@@ -194,15 +201,29 @@ describe("makeGetRemoteContentMessagePreconditionUseCase", () => {
     expect(buildLollipopHeaders).not.toHaveBeenCalled();
   });
 
-  it("returns ValidationError when lollipop is required but headers are missing", async () => {
+  it("returns GenericError when lollipop is required but headers are missing", async () => {
     vi.mocked(
       rcConfigurationRepository.getRemoteContentConfiguration,
     ).mockResolvedValue(ok(anRCConfiguration({ isLollipopEnabled: true })));
 
     const result = await useCase(input);
 
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(ValidationError);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
     expect(proxy.getRemoteContentMessagePrecondition).not.toHaveBeenCalled();
+  });
+
+  it("returns GenericError when lollipop is required but headers are invalid", async () => {
+    vi.mocked(
+      rcConfigurationRepository.getRemoteContentConfiguration,
+    ).mockResolvedValue(ok(anRCConfiguration({ isLollipopEnabled: true })));
+
+    const result = await useCase({
+      ...input,
+      lollipopRequestHeaders: { signature: "malformed" },
+    });
+
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(buildLollipopHeaders).not.toHaveBeenCalled();
   });
 
   it("returns the lollipop error", async () => {
@@ -213,7 +234,7 @@ describe("makeGetRemoteContentMessagePreconditionUseCase", () => {
 
     const result = await useCase({ ...input, lollipopRequestHeaders });
 
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(ForbiddenError);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
   });
 
   it("forwards proxy errors", async () => {
