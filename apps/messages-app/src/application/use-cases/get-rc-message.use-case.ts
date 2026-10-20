@@ -22,6 +22,7 @@ import {
 } from "io-messages-common/domain/remote-content-message";
 import { SendNotificationResponse } from "io-messages-common/domain/send-notification";
 import { Result, err, ok } from "neverthrow";
+import z from "zod";
 
 import { ServiceToRCConfigMap } from "../../adapters/inbound/config/config.js";
 import { MalformedEntityError } from "../ports/error.js";
@@ -140,6 +141,19 @@ const buildRequiredLollipopHeaders = async (
   return ok(lollipopHeadersResult.value);
 };
 
+const remoteContentDetailsSchema = z
+  .object({
+    markdown: z
+      .string()
+      .min(80, "MARKDOWN_VALIDATION_ERROR")
+      .max(10_000, "MARKDOWN_VALIDATION_ERROR"),
+    subject: z
+      .string()
+      .min(10, "SUBJECT_VALIDATION_ERROR")
+      .max(121, "SUBJECT_VALIDATION_ERROR"),
+  })
+  .passthrough();
+
 const validateAndFilterRemoteMessage = (
   content: MessageContent,
   remoteMessage: RemoteContentMessage,
@@ -155,45 +169,33 @@ const validateAndFilterRemoteMessage = (
 
   const shouldContainAttachments = thirdPartyData.has_attachments;
   const shouldContainRemoteContent = thirdPartyData.has_remote_content;
+  const validation = z
+    .object({
+      attachments: shouldContainAttachments
+        ? z.array(z.unknown()).min(1, "ATTACHMENTS_NOT_PRESENT")
+        : z.array(z.unknown()).optional(),
+      details: shouldContainRemoteContent
+        ? remoteContentDetailsSchema
+        : z.record(z.string(), z.any()).optional(),
+    })
+    .safeParse(remoteMessage);
 
-  if (
-    shouldContainAttachments &&
-    (!remoteMessage.attachments || remoteMessage.attachments.length === 0)
-  ) {
-    return err(
-      new RemoteContentMessageBadGatewayError("ATTACHMENTS_NOT_PRESENT"),
-    );
-  }
+  if (!validation.success) {
+    const issue = validation.error.issues[0];
+    const errorCode =
+      issue.path[0] === "attachments"
+        ? "ATTACHMENTS_NOT_PRESENT"
+        : issue.path[0] === "details"
+          ? issue.path.length === 1
+            ? "REMOTE_CONTENT_NOT_PRESENT"
+            : issue.path[1] === "markdown"
+              ? "MARKDOWN_VALIDATION_ERROR"
+              : issue.path[1] === "subject"
+                ? "SUBJECT_VALIDATION_ERROR"
+                : "INVALID_REMOTE_CONTENT_MESSAGE"
+          : "INVALID_REMOTE_CONTENT_MESSAGE";
 
-  if (shouldContainRemoteContent && !remoteMessage.details) {
-    return err(
-      new RemoteContentMessageBadGatewayError("REMOTE_CONTENT_NOT_PRESENT"),
-    );
-  }
-
-  if (shouldContainRemoteContent) {
-    const markdown = remoteMessage.details?.markdown;
-    const subject = remoteMessage.details?.subject;
-
-    if (
-      typeof markdown !== "string" ||
-      markdown.length < 80 ||
-      markdown.length > 10_000
-    ) {
-      return err(
-        new RemoteContentMessageBadGatewayError("MARKDOWN_VALIDATION_ERROR"),
-      );
-    }
-
-    if (
-      typeof subject !== "string" ||
-      subject.length < 10 ||
-      subject.length > 121
-    ) {
-      return err(
-        new RemoteContentMessageBadGatewayError("SUBJECT_VALIDATION_ERROR"),
-      );
-    }
+    return err(new RemoteContentMessageBadGatewayError(errorCode));
   }
 
   return ok({
