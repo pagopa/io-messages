@@ -8,10 +8,11 @@ import { fiscalCodeSchema as remoteFiscalCodeSchema } from "io-messages-common/d
 import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { MessageContentRepository } from "../../ports/message-content.js";
+import type { MessageMetadataRepository } from "../../ports/message-metadata.js";
 import type { RCConfiguration } from "../../ports/rc-configuration.js";
 import type { RemoteContentProxy } from "../../ports/remote-content-proxy.js";
 import type { BuildLollipopHeadersUseCase } from "../build-lollipop-headers.use-case.js";
-import type { GetMessageUseCase } from "../get-message.use-case.js";
 
 import { LollipopHeadersBuildError } from "../../ports/lc-params.js";
 import { RCConfigurationRepository } from "../../ports/rc-configuration.js";
@@ -42,6 +43,12 @@ const fullLollipopHeaders = lollipopHeadersSchema.parse({
 const rcConfigurationRepository = {
   getRemoteContentConfiguration: vi.fn(),
 } as unknown as RCConfigurationRepository;
+const messageMetadataRepository = {
+  getMessageMetadataByFiscalCodeAndId: vi.fn(),
+} as unknown as MessageMetadataRepository;
+const messageContentRepository = {
+  getMessageContentById: vi.fn(),
+} as unknown as MessageContentRepository;
 
 const genericRemoteMessage = {
   attachments: [],
@@ -55,27 +62,28 @@ const remoteContentProxy = {
   getRemoteContentMessage: vi.fn(),
 } as unknown as RemoteContentProxy;
 const buildLollipopHeaders = vi.fn<BuildLollipopHeadersUseCase>();
-const getMessage = vi.fn<GetMessageUseCase>();
 
-const makeMessage = (
-  senderServiceId = serviceId,
-  thirdPartyMessageId = "third-party-message-id",
-) => ({
-  content: {
-    markdown: "a".repeat(80),
-    subject: "a valid subject",
-    third_party_data: {
-      configuration_id: standardConfigurationId,
-      has_attachments: false,
-      has_remote_content: true,
-      id: thirdPartyMessageId,
-    },
+const makeContent = (thirdPartyMessageId = "third-party-message-id") => ({
+  markdown: "a".repeat(80),
+  subject: "a valid subject",
+  third_party_data: {
+    configuration_id: standardConfigurationId,
+    has_attachments: false,
+    has_remote_content: true,
+    id: thirdPartyMessageId,
   },
-  created_at: "2024-01-01T00:00:00.000Z",
-  fiscal_code: remoteFiscalCode,
+});
+
+const makeMetadata = (senderServiceId = serviceId) => ({
+  createdAt: "2024-01-01T00:00:00.000Z",
+  featureLevelType: "STANDARD" as const,
+  fiscalCode: remoteFiscalCode,
   id: messageId,
-  sender_service_id: senderServiceId,
-  time_to_live: 3600,
+  indexedId: messageId,
+  isPending: false,
+  senderServiceId,
+  senderUserId: "sender",
+  timeToLiveSeconds: 3600,
 });
 
 const sendRemoteMessage = {
@@ -133,10 +141,11 @@ const anRCConfiguration = (
 
 const makeUseCase = () =>
   makeGetRemoteContentMessageUseCase(
+    messageMetadataRepository,
+    messageContentRepository,
     rcConfigurationRepository,
     remoteContentProxy,
     buildLollipopHeaders,
-    getMessage,
     pnServiceId,
     serviceToRcMap,
   );
@@ -144,7 +153,12 @@ const makeUseCase = () =>
 beforeEach(() => {
   vi.clearAllMocks();
   serviceToRcMap.clear();
-  vi.mocked(getMessage).mockResolvedValue(ok({ message: makeMessage() }));
+  vi.mocked(
+    messageMetadataRepository.getMessageMetadataByFiscalCodeAndId,
+  ).mockResolvedValue(ok(makeMetadata()));
+  vi.mocked(messageContentRepository.getMessageContentById).mockResolvedValue(
+    ok(makeContent()),
+  );
   vi.mocked(
     rcConfigurationRepository.getRemoteContentConfiguration,
   ).mockResolvedValue(ok(anRCConfiguration()));
@@ -159,11 +173,12 @@ describe("makeGetRemoteContentMessageUseCase", () => {
     const result = await makeUseCase()({ fiscalCode, messageId });
 
     expect(result.isOk()).toBe(true);
-    expect(getMessage).toHaveBeenCalledWith({
-      fiscalCode,
+    expect(
+      messageMetadataRepository.getMessageMetadataByFiscalCodeAndId,
+    ).toHaveBeenCalledWith(fiscalCode, messageId);
+    expect(messageContentRepository.getMessageContentById).toHaveBeenCalledWith(
       messageId,
-      publicMessage: true,
-    });
+    );
     expect(remoteContentProxy.getRemoteContentMessage).toHaveBeenCalledWith({
       assertionRef: undefined,
       fiscalCode,
@@ -175,9 +190,12 @@ describe("makeGetRemoteContentMessageUseCase", () => {
   });
 
   it("passes SEND notification data through unchanged", async () => {
-    vi.mocked(getMessage).mockResolvedValueOnce(
-      ok({ message: makeMessage(pnServiceId, "pn-iun") }),
-    );
+    vi.mocked(
+      messageMetadataRepository.getMessageMetadataByFiscalCodeAndId,
+    ).mockResolvedValueOnce(ok(makeMetadata(pnServiceId)));
+    vi.mocked(
+      messageContentRepository.getMessageContentById,
+    ).mockResolvedValueOnce(ok(makeContent("pn-iun")));
     vi.mocked(remoteContentProxy.getRemoteContentMessage).mockResolvedValueOnce(
       ok(sendRemoteMessage),
     );

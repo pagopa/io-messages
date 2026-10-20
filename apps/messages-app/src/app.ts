@@ -86,7 +86,6 @@ const makeAppDependencies = (config: AppConfig) => {
     baseProperties: { service: "io-messages-app" },
     client,
   });
-
   const crypto = new CryptoAdapter();
 
   const appInfoReader = new PackageJsonAppInfoReader(
@@ -269,15 +268,17 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
       config.FF_AGE_ELIGIBILITY_ENABLED,
     ),
   );
-  const getMessageUseCase = makeGetMessageUseCase(
-    messageMetadataCosmosAdapter,
-    messageStatusCosmosAdapter,
-    messageContentBlobAdapter,
-    servicesCmsAdapter,
-    config.PN_SERVICE_ID,
-    config.SERVICE_TO_RC_MAP,
+  mountGetMessageHandler(
+    server,
+    makeGetMessageUseCase(
+      messageMetadataCosmosAdapter,
+      messageStatusCosmosAdapter,
+      messageContentBlobAdapter,
+      servicesCmsAdapter,
+      config.PN_SERVICE_ID,
+      config.SERVICE_TO_RC_MAP,
+    ),
   );
-  mountGetMessageHandler(server, getMessageUseCase);
   mountGetPaymentInfoHandler(
     server,
     makeGetPaymentInfoUseCase(pagoPAEcommerceAdapter),
@@ -285,10 +286,11 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
   mountGetRemoteContentMessageHandler(
     server,
     makeGetRemoteContentMessageUseCase(
+      messageMetadataCosmosAdapter,
+      messageContentBlobAdapter,
       remoteContentConfigurationRepository,
       remoteContentProxy,
       buildLollipopHeadersUseCase,
-      getMessageUseCase,
       config.PN_SERVICE_ID,
       config.SERVICE_TO_RC_MAP,
     ),

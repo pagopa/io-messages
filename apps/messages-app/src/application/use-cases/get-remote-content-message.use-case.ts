@@ -27,12 +27,15 @@ import z from "zod";
 import { ServiceToRCConfigMap } from "../../adapters/inbound/config/config.js";
 import { MalformedEntityError } from "../ports/error.js";
 import { LollipopHeadersBuildError } from "../ports/lc-params.js";
-import { MessageContent } from "../ports/message-content.js";
+import {
+  MessageContent,
+  MessageContentRepository,
+} from "../ports/message-content.js";
+import { MessageMetadataRepository } from "../ports/message-metadata.js";
 import { RCConfigurationRepository } from "../ports/rc-configuration.js";
 import { RemoteContentMessageBadGatewayError } from "../ports/remote-content-message.js";
 import { RemoteContentProxy } from "../ports/remote-content-proxy.js";
 import { BuildLollipopHeadersUseCase } from "./build-lollipop-headers.use-case.js";
-import { GetMessageUseCase } from "./get-message.use-case.js";
 
 type GetRemoteContentMessageError =
   | ForbiddenError
@@ -78,11 +81,9 @@ const getConfigurationId = (
     );
   }
 
-  if (content.third_party_data.configuration_id) {
-    return ok(content.third_party_data.configuration_id);
-  }
-
-  const configurationId = serviceToRCMap.get(senderServiceId);
+  const configurationId =
+    content.third_party_data.configuration_id ??
+    serviceToRCMap.get(senderServiceId);
   if (!configurationId) {
     return err(
       new GenericError(
@@ -127,18 +128,18 @@ const buildRequiredLollipopHeaders = async (
     );
   }
 
-  const lollipopHeadersResult = await buildLollipopHeaders({
+  const result = await buildLollipopHeaders({
     assertionRef,
     fiscalCode: fiscalCodeSchema.parse(fiscalCode),
     requestHeaders: parsedRequestHeaders.data,
   });
-  if (lollipopHeadersResult.isErr()) {
+  if (result.isErr()) {
     return err(
       new LollipopHeadersBuildError("Error extracting lollipop locals"),
     );
   }
 
-  return ok(lollipopHeadersResult.value);
+  return ok(result.value);
 };
 
 const remoteContentDetailsSchema = z
@@ -226,30 +227,35 @@ const validateGenericRemoteMessage = (
 
 export const makeGetRemoteContentMessageUseCase =
   (
+    messageMetadataRepository: MessageMetadataRepository,
+    messageContentRepository: MessageContentRepository,
     remoteContentConfigurationRepository: RCConfigurationRepository,
     remoteContentProxy: RemoteContentProxy,
     buildLollipopHeaders: BuildLollipopHeadersUseCase,
-    getMessage: GetMessageUseCase,
     pnServiceId: string,
     serviceToRCMap: ServiceToRCConfigMap,
   ): GetRemoteContentMessageUseCase =>
   async ({ assertionRef, fiscalCode, lollipopRequestHeaders, messageId }) => {
-    const messageResult = await getMessage({
-      fiscalCode,
-      messageId,
-      publicMessage: true,
-    });
-    if (messageResult.isErr()) return err(messageResult.error);
+    const [metadataResult, contentResult] = await Promise.all([
+      messageMetadataRepository.getMessageMetadataByFiscalCodeAndId(
+        fiscalCode,
+        messageId,
+      ),
+      messageContentRepository.getMessageContentById(messageId),
+    ]);
+    if (metadataResult.isErr()) return err(metadataResult.error);
+    if (contentResult.isErr()) return err(contentResult.error);
 
-    const { message } = messageResult.value;
+    const metadata = metadataResult.value;
+    const content = contentResult.value;
     const configurationIdResult = getConfigurationId(
-      message.content,
-      message.sender_service_id,
+      content,
+      metadata.senderServiceId,
       serviceToRCMap,
     );
     if (configurationIdResult.isErr()) return err(configurationIdResult.error);
 
-    const thirdPartyData = message.content.third_party_data;
+    const thirdPartyData = content.third_party_data;
     if (!thirdPartyData) {
       return err(
         new ValidationError("The message is not a remote content message"),
@@ -263,44 +269,38 @@ export const makeGetRemoteContentMessageUseCase =
     if (configurationResult.isErr()) return err(configurationResult.error);
 
     const configuration = configurationResult.value;
-
-    const requiredLollipopHeaders = await buildRequiredLollipopHeaders(
+    const lollipopHeaders = await buildRequiredLollipopHeaders(
       buildLollipopHeaders,
       configuration,
       assertionRef,
       fiscalCode,
       lollipopRequestHeaders,
     );
-    if (requiredLollipopHeaders.isErr()) {
-      return err(requiredLollipopHeaders.error);
-    }
+    if (lollipopHeaders.isErr()) return err(lollipopHeaders.error);
 
     const remoteMessageResult =
       await remoteContentProxy.getRemoteContentMessage({
         fiscalCode,
-        lollipopHeaders: requiredLollipopHeaders.value,
+        lollipopHeaders: lollipopHeaders.value,
         rcConfiguration: configuration,
-        senderServiceId: message.sender_service_id,
+        senderServiceId: metadata.senderServiceId,
         thirdPartyMessageId: thirdPartyData.id,
       });
     if (remoteMessageResult.isErr()) return err(remoteMessageResult.error);
 
     const thirdPartyMessage =
-      message.sender_service_id === pnServiceId
+      metadata.senderServiceId === pnServiceId
         ? ok(remoteMessageResult.value)
-        : validateGenericRemoteMessage(
-            message.content,
-            remoteMessageResult.value,
-          );
+        : validateGenericRemoteMessage(content, remoteMessageResult.value);
     if (thirdPartyMessage.isErr()) return err(thirdPartyMessage.error);
 
     return ok({
-      content: message.content,
-      created_at: message.created_at,
+      content,
+      created_at: metadata.createdAt,
       fiscal_code: fiscalCode,
-      id: message.id,
-      sender_service_id: message.sender_service_id,
+      id: metadata.id,
+      sender_service_id: metadata.senderServiceId,
       third_party_message: thirdPartyMessage.value,
-      time_to_live: message.time_to_live,
+      time_to_live: metadata.timeToLiveSeconds,
     });
   };
