@@ -182,7 +182,7 @@ describe("mountGetRemoteContentMessageHandler", () => {
       "application/problem+json",
     );
     expect(response.json()).toMatchObject({
-      detail: "REMOTE_CONTENT_NOT_PRESENT",
+      detail: "Bad Gateway: REMOTE_CONTENT_NOT_PRESENT",
       status: 502,
     });
   });

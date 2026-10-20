@@ -86,7 +86,7 @@ const toGetRemoteContentMessageHttpErrorOutput = (
   }
 
   if (error instanceof RemoteContentMessageBadGatewayError) {
-    return problem(502, "Bad Gateway", error.detail);
+    return problem(502, "Bad Gateway", `Bad Gateway: ${error.detail}`);
   }
 
   if (error instanceof LollipopHeadersBuildError) {

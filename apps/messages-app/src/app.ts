@@ -269,17 +269,15 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
       config.FF_AGE_ELIGIBILITY_ENABLED,
     ),
   );
-  mountGetMessageHandler(
-    server,
-    makeGetMessageUseCase(
-      messageMetadataCosmosAdapter,
-      messageStatusCosmosAdapter,
-      messageContentBlobAdapter,
-      servicesCmsAdapter,
-      config.PN_SERVICE_ID,
-      config.SERVICE_TO_RC_MAP,
-    ),
+  const getMessageUseCase = makeGetMessageUseCase(
+    messageMetadataCosmosAdapter,
+    messageStatusCosmosAdapter,
+    messageContentBlobAdapter,
+    servicesCmsAdapter,
+    config.PN_SERVICE_ID,
+    config.SERVICE_TO_RC_MAP,
   );
+  mountGetMessageHandler(server, getMessageUseCase);
   mountGetPaymentInfoHandler(
     server,
     makeGetPaymentInfoUseCase(pagoPAEcommerceAdapter),
@@ -287,11 +285,10 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
   mountGetRemoteContentMessageHandler(
     server,
     makeGetRemoteContentMessageUseCase(
-      messageMetadataCosmosAdapter,
-      messageContentBlobAdapter,
       remoteContentConfigurationRepository,
       remoteContentProxy,
       buildLollipopHeadersUseCase,
+      getMessageUseCase,
       config.PN_SERVICE_ID,
       config.SERVICE_TO_RC_MAP,
     ),
