@@ -62,13 +62,12 @@ module "messages_ca" {
 
         MESSAGE_CREATED_QUEUE_NAME        = "message-created-v2"
         PROCESSING_MESSAGE_CONTAINER_NAME = "processing-message"
+
+        LOLLIPOP_API_URL = "https://io-p-itn-auth-lollipop-func-02.azurewebsites.net/api/v1"
+        LOLLIPOP_API_KEY = "dummy"
       }
 
-      secret_names = [
-        "PAGOPA_ECOMMERCE_API_KEY",
-        "PAGOPA_ECOMMERCE_UAT_API_KEY",
-        "LOLLIPOP_API_KEY",
-      ]
+      secret_names = ["PAGOPA_ECOMMERCE_API_KEY", "PAGOPA_ECOMMERCE_UAT_API_KEY", "LOLLIPOP_API_KEY"]
 
       liveness_probe = {
         path = "/api/info"
@@ -98,7 +97,7 @@ module "messages_ca" {
     },
     {
       name                = "LOLLIPOP_API_KEY"
-      key_vault_secret_id = data.azurerm_key_vault_secret.lollipop_func_key.versionless_id
+      key_vault_secret_id = data.azurerm_key_vault_secret.lollipop_api_key.versionless_id
     }
   ]
 

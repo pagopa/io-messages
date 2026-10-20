@@ -13,7 +13,7 @@ data "azurerm_key_vault_secret" "pagopa_proxy_subscription_key" {
   key_vault_id = var.key_vault_id
 }
 
-data "azurerm_key_vault_secret" "lollipop_func_key" {
+data "azurerm_key_vault_secret" "lollipop_api_key" {
   name         = "lollipop-func-key"
   key_vault_id = var.key_vault_id
 }

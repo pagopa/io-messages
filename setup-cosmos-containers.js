@@ -405,6 +405,98 @@ const RCUserConfigurations = [
   },
 ];
 
+// Fixtures to test GET /api/communication/v1/third-party-messages/{id}/precondition.
+// Keep in sync with the blobs in setup-azurite-containers.js and the mocks in mockoon/.
+// The fiscal code matches the `x-user` used in the Bruno collection (send-func-x-user).
+const preconditionFiscalCode = "LVTEST00A00A199X";
+const preconditionSendServiceId = "01JR0QRJ8MX1PD06DE6X5FWXS5"; // PN_SERVICE_ID
+const preconditionGenericServiceId = "01JR0QRJ8MX1PD06DE6X5FWXS6";
+const preconditionId = (prefix, n) => `${prefix}${String(n).padStart(20, "0")}`;
+
+const preconditionRCConfigurations = [
+  { n: 1, provider: "generic", lollipop: false },
+  { n: 2, provider: "generic", lollipop: true },
+  { n: 3, provider: "send", lollipop: false },
+  { n: 4, provider: "send", lollipop: true },
+].map(({ n, provider, lollipop }) => ({
+  configurationId: preconditionId("01K8RC", n),
+  description: `Precondition fixture: ${provider}, lollipop ${lollipop ? "enabled" : "disabled"}`,
+  disableLollipopFor: [],
+  hasPrecondition: "ALWAYS",
+  id: preconditionId("01K8RC", n),
+  isLollipopEnabled: lollipop,
+  name: `precondition-${provider}-lollipop-${lollipop ? "on" : "off"}`,
+  prodEnvironment: {
+    baseUrl:
+      provider === "send"
+        ? "http://localhost:8005/api/v1"
+        : "http://localhost:8011",
+    detailsAuthentication: {
+      headerKeyName: "X-Functions-Key",
+      key: "dummy",
+      type: "API_KEY",
+    },
+  },
+  userId: "local",
+}));
+
+const preconditionMessages = [
+  { n: 1, provider: "generic", cfg: 1, thirdPartyId: "generic-200" },
+  { n: 2, provider: "generic", cfg: 2, thirdPartyId: "generic-200" },
+  { n: 3, provider: "send", cfg: 3, thirdPartyId: "ABCD-EFGH-IJKL-123456-M-7" },
+  { n: 4, provider: "send", cfg: 4, thirdPartyId: "ABCD-EFGH-IJKL-123456-M-7" },
+].map((message) => ({
+  ...message,
+  id: preconditionId("01K8MS", message.n),
+}));
+
+RCMessageConfigurations.push(
+  ...preconditionRCConfigurations.map((document) => ({
+    containerId: "message-configuration",
+    document,
+  })),
+);
+RCUserConfigurations.push(
+  ...preconditionRCConfigurations.map(({ configurationId }) => ({
+    containerId: "user-configurations",
+    document: { id: configurationId, userId: "local" },
+  })),
+);
+messages.push(
+  ...preconditionMessages.map(({ id, provider }) => ({
+    containerId: "messages",
+    document: {
+      id,
+      indexedId: id,
+      fiscalCode: preconditionFiscalCode,
+      senderServiceId:
+        provider === "send"
+          ? preconditionSendServiceId
+          : preconditionGenericServiceId,
+      senderUserId: "local",
+      createdAt: "2026-10-13T10:00:00.000Z",
+      featureLevelType: "STANDARD",
+      isPending: false,
+      timeToLiveSeconds: 604800,
+    },
+  })),
+);
+messageStatuses.push(
+  ...preconditionMessages.map(({ id }) => ({
+    containerId: "message-status",
+    document: {
+      id: `${id}-0000000000000000`,
+      fiscalCode: preconditionFiscalCode,
+      messageId: id,
+      isArchived: false,
+      isRead: false,
+      status: "PROCESSED",
+      updatedAt: "2026-10-13T10:00:00.000Z",
+      version: 0,
+    },
+  })),
+);
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const waitForCosmos = async () => {
