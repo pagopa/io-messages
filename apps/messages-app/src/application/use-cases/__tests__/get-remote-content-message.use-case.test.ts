@@ -16,7 +16,7 @@ import type { GetMessageUseCase } from "../get-message.use-case.js";
 import { LollipopHeadersBuildError } from "../../ports/lc-params.js";
 import { RCConfigurationRepository } from "../../ports/rc-configuration.js";
 import { RemoteContentMessageBadGatewayError } from "../../ports/remote-content-message.js";
-import { makeGetRemoteContentMessageUseCase } from "../get-rc-message.use-case.js";
+import { makeGetRemoteContentMessageUseCase } from "../get-remote-content-message.use-case.js";
 
 const messageId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
 const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");

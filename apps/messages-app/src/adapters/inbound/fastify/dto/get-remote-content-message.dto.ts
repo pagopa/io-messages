@@ -4,7 +4,7 @@ import { SendNotificationResponseSchema } from "io-messages-common/domain/send-n
 import z from "zod";
 
 import { messageContentSchema } from "../../../../application/ports/message-content.js";
-import { RemoteContentMessageOutput } from "../../../../application/use-cases/get-rc-message.use-case.js";
+import { RemoteContentMessageOutput } from "../../../../application/use-cases/get-remote-content-message.use-case.js";
 
 const messageWithRemoteContentSchema = z.object({
   content: messageContentSchema,

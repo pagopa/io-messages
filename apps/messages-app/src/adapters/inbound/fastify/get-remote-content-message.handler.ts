@@ -15,11 +15,11 @@ import z from "zod";
 
 import { LollipopHeadersBuildError } from "../../../application/ports/lc-params.js";
 import { RemoteContentMessageBadGatewayError } from "../../../application/ports/remote-content-message.js";
-import { GetRemoteContentMessageUseCase } from "../../../application/use-cases/get-rc-message.use-case.js";
+import { GetRemoteContentMessageUseCase } from "../../../application/use-cases/get-remote-content-message.use-case.js";
 import {
   GetRemoteContentMessageResponseSchema,
   toGetRemoteContentMessageResponse,
-} from "./dto/get-rc-message.dto.js";
+} from "./dto/get-remote-content-message.dto.js";
 import { makeXUserMiddleware } from "./middlewares/x-user.middleware.js";
 import {
   HttpRouteOutput,

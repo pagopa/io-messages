@@ -9,11 +9,11 @@ import {
 import { err, ok } from "neverthrow";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { GetRemoteContentMessageUseCase } from "../../../../application/use-cases/get-rc-message.use-case.js";
+import type { GetRemoteContentMessageUseCase } from "../../../../application/use-cases/get-remote-content-message.use-case.js";
 
 import { LollipopHeadersBuildError } from "../../../../application/ports/lc-params.js";
 import { RemoteContentMessageBadGatewayError } from "../../../../application/ports/remote-content-message.js";
-import { mountGetRemoteContentMessageHandler } from "../get-rc-message.handler.js";
+import { mountGetRemoteContentMessageHandler } from "../get-remote-content-message.handler.js";
 
 const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
 const messageId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
