@@ -1,6 +1,7 @@
 import type { Result } from "neverthrow";
 
 import {
+  BaseError,
   ForbiddenError,
   GenericError,
   NotFoundError,
@@ -10,6 +11,15 @@ import { AssertionRef } from "io-messages-common/adapters/lollipop/definitions/a
 import { LcParams } from "io-messages-common/adapters/lollipop/definitions/lc-params";
 
 import { MalformedEntityError } from "./error.js";
+
+export class LollipopHeadersBuildError extends BaseError {
+  override readonly kind = "LollipopHeadersBuildError" as const;
+  override tag = "lollipop-headers-build-error";
+
+  constructor(readonly detail: string) {
+    super(detail);
+  }
+}
 
 export type LcParamsError =
   | ForbiddenError

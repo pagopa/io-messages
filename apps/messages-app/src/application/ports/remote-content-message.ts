@@ -1,4 +1,5 @@
 import {
+  BaseError,
   FiscalCode,
   ForbiddenError,
   GenericError,
@@ -11,6 +12,15 @@ import { MessageId } from "io-messages-common/domain/message";
 import { RCAuthenticationConfig } from "io-messages-common/domain/remote-content";
 import { RemoteContentMessage } from "io-messages-common/domain/remote-content-message";
 import { Result } from "neverthrow";
+
+export class RemoteContentMessageBadGatewayError extends BaseError {
+  override readonly kind = "RemoteContentMessageBadGatewayError" as const;
+  override tag = "remote-content-message-bad-gateway";
+
+  constructor(readonly detail: string) {
+    super(detail);
+  }
+}
 
 export interface RemoteContentMessageRepository {
   getRemoteContentMessage: (

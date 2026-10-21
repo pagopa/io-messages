@@ -38,12 +38,47 @@
       "responseMode": null,
       "streamingMode": null,
       "streamingInterval": 0
+    },
+    {
+      "uuid": "ed3b9b64-221c-4f08-9c28-4a2c72f4364e",
+      "type": "http",
+      "documentation": "Generic Remote Content fixture",
+      "method": "get",
+      "endpoint": "messages/:id",
+      "responses": [
+        {
+          "uuid": "c557d87d-c2cf-4ed2-b8eb-7f69f50c71af",
+          "body": "{\n  \"attachments\": [],\n  \"details\": {\n    \"markdown\": \"This is a valid generic Remote Content markdown response used for local endpoint testing.\",\n    \"subject\": \"Generic RC notification\"\n  }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     }
   ],
   "rootChildren": [
     {
       "type": "route",
       "uuid": "20874de3-79e9-45c8-a2b5-bfe8d2b2bb70"
+    },
+    {
+      "type": "route",
+      "uuid": "ed3b9b64-221c-4f08-9c28-4a2c72f4364e"
     }
   ],
   "proxyMode": false,
