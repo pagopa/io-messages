@@ -49,7 +49,6 @@ module "messages_ca" {
         COMMUNICATION_STORAGE_QUEUE_URI   = var.communication_storage_queue_uri
 
         PN_SERVICE_ID    = "01G40DWQGKY5GRWSNM4303VNRP" # PN
-        LOLLIPOP_API_URL = "https://io-p-itn-auth-lollipop-func-02.azurewebsites.net/api/v1"
 
         APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
         APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
