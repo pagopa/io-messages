@@ -57,7 +57,7 @@ describe("ServicesCmsClient", () => {
       );
     }
     expect(fetchApi).toHaveBeenCalledWith(
-      `https://apim.example/base/api/v1/internal/services/${serviceId}`,
+      `https://apim.example/base/services/${serviceId}`,
       { headers: { "Ocp-Apim-Subscription-Key": "subscription-key" } },
     );
   });

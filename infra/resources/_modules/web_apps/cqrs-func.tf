@@ -84,9 +84,9 @@ module "cqrs_func" {
   slot_app_settings = merge(
     local.cqrs_func.app_settings, {
       // disable listeners on staging slot
-      "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled"       = "1"
-      "AzureWebJobs.CosmosApiMessagesChangeFeed.Disabled"                       = "1"
-      "AzureWebJobs.HandleMessageChangeFeedPublishFailures.Disabled"            = "1"
+      "AzureWebJobs.CosmosApiMessageStatusChangeFeedForReminder.Disabled" = "1"
+      "AzureWebJobs.CosmosApiMessagesChangeFeed.Disabled"                 = "1"
+      "AzureWebJobs.HandleMessageChangeFeedPublishFailures.Disabled"      = "1"
     }
   )
 

@@ -119,7 +119,7 @@ const getServiceDetailsUrl = (
   serviceId: NonEmptyString,
 ): string => {
   const serviceDetailsUrl = new URL(baseUrl);
-  serviceDetailsUrl.pathname = `${serviceDetailsUrl.pathname.replace(/\/$/, "")}/api/v1/internal/services/${serviceId}`;
+  serviceDetailsUrl.pathname = `${serviceDetailsUrl.pathname.replace(/\/$/, "")}/services/${serviceId}`;
   return serviceDetailsUrl.toString();
 };
 
