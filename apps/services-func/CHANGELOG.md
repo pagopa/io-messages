@@ -1,5 +1,11 @@
 # services-func
 
+## 2.1.12
+
+### Patch Changes
+
+- a27914e: Use new APIM url in CreateMessage to call the services-app
+
 ## 2.1.11
 
 ### Patch Changes
