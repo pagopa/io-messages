@@ -4,7 +4,6 @@ import {
   ForbiddenError,
   GenericError,
   NotFoundError,
-  ProblemDetailsSchema,
   TooManyRequestsError,
   ValidationError,
   defineRoute,
@@ -20,6 +19,7 @@ import {
   GetRemoteContentMessageResponseSchema,
   toGetRemoteContentMessageResponse,
 } from "./dto/get-remote-content-message.dto.js";
+import { ProblemJsonResponseSchema } from "./dto/problem-json.dto.js";
 import { makeXUserMiddleware } from "./middlewares/x-user.middleware.js";
 import {
   HttpRouteOutput,
@@ -40,22 +40,22 @@ const getRemoteContentMessageContract = defineRoute({
   },
   response: {
     200: GetRemoteContentMessageResponseSchema,
-    400: ProblemDetailsSchema,
-    403: ProblemDetailsSchema,
-    404: ProblemDetailsSchema,
-    429: ProblemDetailsSchema,
-    500: ProblemDetailsSchema,
-    502: ProblemDetailsSchema,
+    400: ProblemJsonResponseSchema,
+    403: ProblemJsonResponseSchema,
+    404: ProblemJsonResponseSchema,
+    429: ProblemJsonResponseSchema,
+    500: ProblemJsonResponseSchema,
+    502: ProblemJsonResponseSchema,
   },
 });
 
 type GetRemoteContentMessageHttpErrorOutput =
-  | HttpRouteOutput<400, z.infer<typeof ProblemDetailsSchema>>
-  | HttpRouteOutput<403, z.infer<typeof ProblemDetailsSchema>>
-  | HttpRouteOutput<404, z.infer<typeof ProblemDetailsSchema>>
-  | HttpRouteOutput<429, z.infer<typeof ProblemDetailsSchema>>
-  | HttpRouteOutput<500, z.infer<typeof ProblemDetailsSchema>>
-  | HttpRouteOutput<502, z.infer<typeof ProblemDetailsSchema>>;
+  | HttpRouteOutput<400, z.infer<typeof ProblemJsonResponseSchema>>
+  | HttpRouteOutput<403, z.infer<typeof ProblemJsonResponseSchema>>
+  | HttpRouteOutput<404, z.infer<typeof ProblemJsonResponseSchema>>
+  | HttpRouteOutput<429, z.infer<typeof ProblemJsonResponseSchema>>
+  | HttpRouteOutput<500, z.infer<typeof ProblemJsonResponseSchema>>
+  | HttpRouteOutput<502, z.infer<typeof ProblemJsonResponseSchema>>;
 
 const problem = (
   status: GetRemoteContentMessageHttpErrorOutput["status"],
