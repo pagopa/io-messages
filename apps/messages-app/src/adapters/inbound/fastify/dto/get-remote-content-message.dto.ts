@@ -1,3 +1,4 @@
+import { ProblemDetailsSchema } from "@pagopa/hexagonal-core";
 import { FiscalCodeSchema } from "@pagopa/hexagonal-core/domain/value-objects";
 import { remoteContentMessageSchema } from "io-messages-common/domain/remote-content-message";
 import { SendNotificationResponseSchema } from "io-messages-common/domain/send-notification";
@@ -5,6 +6,11 @@ import z from "zod";
 
 import { messageContentSchema } from "../../../../application/ports/message-content.js";
 import { RemoteContentMessageOutput } from "../../../../application/use-cases/get-remote-content-message.use-case.js";
+
+export const ProblemJsonResponseSchema = ProblemDetailsSchema.extend({
+  instance: z.url().optional(),
+  status: z.int().min(100).max(599),
+});
 
 const messageWithRemoteContentSchema = z.object({
   content: messageContentSchema,

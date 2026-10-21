@@ -17,9 +17,9 @@ import { RemoteContentMessageBadGatewayError } from "../../../application/ports/
 import { GetRemoteContentMessageUseCase } from "../../../application/use-cases/get-remote-content-message.use-case.js";
 import {
   GetRemoteContentMessageResponseSchema,
+  ProblemJsonResponseSchema,
   toGetRemoteContentMessageResponse,
 } from "./dto/get-remote-content-message.dto.js";
-import { ProblemJsonResponseSchema } from "./dto/problem-json.dto.js";
 import { makeXUserMiddleware } from "./middlewares/x-user.middleware.js";
 import {
   HttpRouteOutput,
