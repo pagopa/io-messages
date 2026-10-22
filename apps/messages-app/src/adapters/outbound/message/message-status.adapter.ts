@@ -55,8 +55,14 @@ const getErrorMessage = (error: unknown): string =>
 const cosmosMessageStatusSchema = z.object({
   fiscalCode: FiscalCodeSchema.optional(),
   id: messageStatusIdSchema,
-  isArchived: z.boolean().default(false),
-  isRead: z.boolean().default(false),
+  isArchived: z
+    .boolean()
+    .nullish()
+    .transform((value) => value ?? false),
+  isRead: z
+    .boolean()
+    .nullish()
+    .transform((value) => value ?? false),
   messageId: z.ulid(),
   status: z.enum(["ACCEPTED", "THROTTLED", "FAILED", "PROCESSED", "REJECTED"]),
   updatedAt: z.string(),
