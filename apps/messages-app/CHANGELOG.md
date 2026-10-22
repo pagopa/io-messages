@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.9.1
+
+### Patch Changes
+
+- a26b414: Align GetMessages with legacy behavior by falling back to the organization fiscal code for payment identifiers, always requiring SEND message preconditions, and fetching remote content configuration only when the message does not specify a precondition.
+
 ## 0.9.0
 
 ### Minor Changes
