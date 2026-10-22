@@ -46,6 +46,9 @@ export const messageStatusSchema = z.object({
     .nullish()
     .transform((value) => value ?? false),
   messageId: z.ulid(),
+  rejectionReason: z
+    .enum(["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"])
+    .optional(),
   status: messageStatusValueSchema,
   updatedAt: z.string(),
   version: z.int().nonnegative(),
