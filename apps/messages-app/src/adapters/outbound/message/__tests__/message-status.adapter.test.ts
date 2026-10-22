@@ -1,6 +1,7 @@
 import {
   CosmosClient,
   CosmosDiagnostics,
+  ErrorResponse,
   FeedResponse,
   ItemResponse,
   RestError,
@@ -307,6 +308,46 @@ describe("createMessageStatus", () => {
     expect(createMock).toHaveBeenCalledWith(
       expect.objectContaining({ fiscalCode: aMessageStatus.fiscalCode }),
     );
+  });
+
+  it.each(["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"] as const)(
+    "preserves rejection reason %s through reading and writing",
+    async (reason) => {
+      const storedStatus = {
+        ...aMessageStatus,
+        rejection_reason: reason,
+        status: "REJECTED" as const,
+      };
+      fetchNextMock.mockResolvedValue(feedResponseWith([storedStatus]));
+
+      const readResult = await adapter.getLatestMessageStatusById(
+        aMessageStatus.messageId,
+      );
+      const domainStatus = readResult._unsafeUnwrap();
+
+      expect(domainStatus.rejectionReason).toBe(reason);
+      expect(messageStatusSchema.parse(domainStatus).rejectionReason).toBe(
+        reason,
+      );
+      const createResult = await adapter.createMessageStatus(domainStatus);
+
+      expect(createResult._unsafeUnwrap()).toEqual(domainStatus);
+      expect(createMock).toHaveBeenCalledWith(storedStatus);
+      expect(createMock.mock.calls[0][0]).not.toHaveProperty("rejectionReason");
+    },
+  );
+
+  it.each([
+    [409, ConflictError],
+    [429, TooManyRequestsError],
+  ])("preserves Cosmos ErrorResponse code %s", async (code, errorType) => {
+    const error = new ErrorResponse("Cosmos failure");
+    error.code = code;
+    createMock.mockRejectedValue(error);
+
+    const result = await adapter.createMessageStatus(aMessageStatus);
+
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(errorType);
   });
 
   it("returns a ConflictError when the version exists", async () => {

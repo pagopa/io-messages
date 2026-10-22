@@ -137,28 +137,25 @@ describe("makeUpdateMessageStatusUseCase", () => {
     [new GenericError("read failed"), GenericError],
     [new MalformedEntityError("invalid status"), GenericError],
     [new NotFoundError("message status", "missing"), NotFoundError],
-    [new TooManyRequestsError(), GenericError],
-  ])(
-    "maps latest-status errors for legacy HTTP parity",
-    async (error, kind) => {
-      const repository = makeRepository();
-      vi.mocked(repository.getLatestMessageStatusById).mockResolvedValue(
-        err(error),
-      );
-      const useCase = makeUpdateMessageStatusUseCase(repository);
+    [new TooManyRequestsError(), TooManyRequestsError],
+  ])("preserves actionable latest-status errors", async (error, kind) => {
+    const repository = makeRepository();
+    vi.mocked(repository.getLatestMessageStatusById).mockResolvedValue(
+      err(error),
+    );
+    const useCase = makeUpdateMessageStatusUseCase(repository);
 
-      const result = await useCase({ fiscalCode, isRead: true, messageId });
+    const result = await useCase({ fiscalCode, isRead: true, messageId });
 
-      expect(result._unsafeUnwrapErr()).toBeInstanceOf(kind);
-      expect(repository.createMessageStatus).not.toHaveBeenCalled();
-    },
-  );
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(kind);
+    expect(repository.createMessageStatus).not.toHaveBeenCalled();
+  });
 
   it.each([
     [new GenericError("create failed"), GenericError],
-    [new ConflictError(messageId), GenericError],
-    [new TooManyRequestsError(), GenericError],
-  ])("maps create errors to internal errors", async (error, kind) => {
+    [new ConflictError(messageId), ConflictError],
+    [new TooManyRequestsError(), TooManyRequestsError],
+  ])("preserves create errors", async (error, kind) => {
     const repository = makeRepository();
     vi.mocked(repository.createMessageStatus).mockResolvedValue(err(error));
     const useCase = makeUpdateMessageStatusUseCase(repository);
@@ -170,5 +167,34 @@ describe("makeUpdateMessageStatusUseCase", () => {
     });
 
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(kind);
+  });
+
+  it("preserves the rejection reason in the next status version", async () => {
+    const repository = makeRepository();
+    vi.mocked(repository.getLatestMessageStatusById).mockResolvedValue(
+      ok({
+        ...latestStatus,
+        rejectionReason: "USER_NOT_FOUND",
+        status: "REJECTED",
+      }),
+    );
+    vi.mocked(repository.createMessageStatus).mockImplementation(
+      async (status) => ok(status),
+    );
+    const useCase = makeUpdateMessageStatusUseCase(repository);
+
+    const result = await useCase({ fiscalCode, isRead: true, messageId });
+
+    expect(repository.createMessageStatus).toHaveBeenCalledWith(
+      expect.objectContaining({
+        rejectionReason: "USER_NOT_FOUND",
+        status: "REJECTED",
+        version: 1,
+      }),
+    );
+    expect(result._unsafeUnwrap()).toMatchObject({
+      rejectionReason: "USER_NOT_FOUND",
+      status: "REJECTED",
+    });
   });
 });
