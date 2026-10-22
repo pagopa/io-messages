@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.9.2
+
+### Patch Changes
+
+- dbd6e1f: Align message content and status codecs with legacy reads by defaulting nullable boolean flags to false, rejecting zero payment amounts and malformed dates, normalizing dates to UTC, and excluding the internal content timestamp from responses.
+
 ## 0.9.1
 
 ### Patch Changes
