@@ -37,8 +37,14 @@ export const createMessageStatusId = (
 export const messageStatusSchema = z.object({
   fiscalCode: FiscalCodeSchema.optional(),
   id: messageStatusIdSchema,
-  isArchived: z.boolean().default(false),
-  isRead: z.boolean().default(false),
+  isArchived: z
+    .boolean()
+    .nullish()
+    .transform((value) => value ?? false),
+  isRead: z
+    .boolean()
+    .nullish()
+    .transform((value) => value ?? false),
   messageId: z.ulid(),
   status: messageStatusValueSchema,
   updatedAt: z.string(),

@@ -18,7 +18,10 @@ import { Logger } from "@pagopa/hexagonal-core/domain/ports";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MalformedEntityError } from "../../../../application/ports/error.js";
-import { MessageStatus } from "../../../../application/ports/message-status.js";
+import {
+  MessageStatus,
+  messageStatusSchema,
+} from "../../../../application/ports/message-status.js";
 import { MessageStatusCosmosAdapter } from "../message-status.adapter.js";
 
 const aMessageStatus: MessageStatus = {
@@ -232,6 +235,28 @@ describe("getLatestMessageStatusById", () => {
 
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
   });
+
+  it.each([null, undefined, false, true])(
+    "normalizes legacy status flags for %j",
+    async (value) => {
+      const rawStatus = { ...aMessageStatus, isArchived: value, isRead: value };
+      fetchNextMock.mockResolvedValue(
+        feedResponseWith([rawStatus as unknown as MessageStatus]),
+      );
+
+      const result = await adapter.getLatestMessageStatusById(
+        aMessageStatus.messageId,
+      );
+      const expected = {
+        ...aMessageStatus,
+        isArchived: value ?? false,
+        isRead: value ?? false,
+      };
+
+      expect(result._unsafeUnwrap()).toEqual(expected);
+      expect(messageStatusSchema.parse(rawStatus)).toEqual(expected);
+    },
+  );
 
   it("returns a TooManyRequestsError when Cosmos throttles the request", async () => {
     fetchNextMock.mockRejectedValue(
