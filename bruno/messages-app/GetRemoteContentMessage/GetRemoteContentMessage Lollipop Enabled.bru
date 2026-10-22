@@ -1,0 +1,28 @@
+meta {
+  name: GetRemoteContentMessage Lollipop Enabled
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{messages_app_base_url}}/api/v1/third-party-messages/{{message_id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-user: {{x-user-value}}
+  signature: {{signature}}
+  signature-input: {{send-func-signature-input}}
+  x-pagopa-lollipop-original-method: GET
+  x-pagopa-lollipop-original-url: https://api.io.pagopa.it/api/v1/third-party-messages/01JXVZETAP064HCWTXBWC693QK
+}
+
+vars:pre-request {
+  message_id: 01JXVZETAP064HCWTXBWC693QK
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

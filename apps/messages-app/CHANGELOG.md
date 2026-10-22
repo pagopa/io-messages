@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.9.0
+
+### Minor Changes
+
+- 7272d1e: Add Get Remote Content Message to messages-app
+
 ## 0.8.0
 
 ### Minor Changes

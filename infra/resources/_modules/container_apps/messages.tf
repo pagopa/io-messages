@@ -48,7 +48,7 @@ module "messages_ca" {
         COMMUNICATION_STORAGE_ACCOUNT_URI = var.communication_storage_account_uri
         COMMUNICATION_STORAGE_QUEUE_URI   = var.communication_storage_queue_uri
 
-        PN_SERVICE_ID = "01G40DWQGKY5GRWSNM4303VNRP" # PN
+        PN_SERVICE_ID    = "01G40DWQGKY5GRWSNM4303VNRP" # PN
 
         APPLICATIONINSIGHTS_CONNECTION_STRING     = var.application_insights.connection_string
         APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"

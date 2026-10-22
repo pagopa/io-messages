@@ -1,0 +1,24 @@
+meta {
+  name: GetRemoteContentMessage
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{messages_app_base_url}}/api/v1/third-party-messages/{{message_id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-user: {{x-user-value}}
+}
+
+vars:pre-request {
+  message_id: 01JXVZETAP064HCWTXBWC693QJ
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -45,6 +45,13 @@ const queues = [
 const tables = ["MessagesDataplanIngestionErrors"];
 
 const paymentFixtureMessageId = "01M0YRTA395JBSZNWG7W63ZJDV";
+const sendFixtureMessageId = "01JXVZETAP064HCWTXBWC693QH";
+const sendFixtureIun = "ABCD-EFGH-IJKL-123456-M-7";
+const sendFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4X";
+const genericFixtureMessageId = "01JXVZETAP064HCWTXBWC693QJ";
+const genericFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4Y";
+const lollipopFixtureMessageId = "01JXVZETAP064HCWTXBWC693QK";
+const lollipopFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4Z";
 const paymentMessageContents = [
   {
     blobName: `${paymentFixtureMessageId}.json`,
@@ -60,6 +67,57 @@ const paymentMessageContents = [
         payee: {
           fiscal_code: "12345678901",
         },
+      },
+    },
+  },
+];
+const sendMessageContents = [
+  {
+    blobName: `${sendFixtureMessageId}.json`,
+    containerName: "message-content",
+    content: {
+      subject: "SEND notification fixture",
+      markdown:
+        "This local message fixture retrieves its notification details from the SEND Mockoon server for endpoint testing.",
+      third_party_data: {
+        configuration_id: sendFixtureConfigurationId,
+        has_attachments: true,
+        has_remote_content: true,
+        id: sendFixtureIun,
+      },
+    },
+  },
+];
+const genericMessageContents = [
+  {
+    blobName: `${genericFixtureMessageId}.json`,
+    containerName: "message-content",
+    content: {
+      subject: "Generic RC fixture",
+      markdown:
+        "This local generic Remote Content message retrieves valid markdown and subject details from the APIM Mockoon server.",
+      third_party_data: {
+        configuration_id: genericFixtureConfigurationId,
+        has_attachments: false,
+        has_remote_content: true,
+        id: "generic-remote-content-message",
+      },
+    },
+  },
+];
+const lollipopMessageContents = [
+  {
+    blobName: `${lollipopFixtureMessageId}.json`,
+    containerName: "message-content",
+    content: {
+      subject: "Generic RC Lollipop fixture",
+      markdown:
+        "This local generic Remote Content message exercises Lollipop header generation before fetching details from APIM Mockoon.",
+      third_party_data: {
+        configuration_id: lollipopFixtureConfigurationId,
+        has_attachments: false,
+        has_remote_content: true,
+        id: "generic-remote-content-lollipop-message",
       },
     },
   },
@@ -148,8 +206,12 @@ const uploadMessageContentIfNotExists = async ({
   ]);
 
   await Promise.all(
-    [...paymentMessageContents, ...preconditionMessageContents].map(
-      uploadMessageContentIfNotExists,
-    ),
+    [
+      ...paymentMessageContents,
+      ...sendMessageContents,
+      ...genericMessageContents,
+      ...lollipopMessageContents,
+      ...preconditionMessageContents,
+    ].map(uploadMessageContentIfNotExists),
   );
 })();
