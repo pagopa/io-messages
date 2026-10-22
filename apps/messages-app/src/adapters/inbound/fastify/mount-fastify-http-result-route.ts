@@ -32,6 +32,7 @@ export interface HttpRouteOutput<
   Body = unknown,
 > {
   readonly body: Body;
+  readonly headers?: Readonly<Record<string, string>>;
   readonly status: Status;
 }
 
@@ -83,6 +84,10 @@ const sendHttpRouteOutput = async (
 
   if (isNoBodyStatus(output.status)) {
     return reply.code(output.status).send();
+  }
+
+  for (const [name, value] of Object.entries(output.headers ?? {})) {
+    reply.header(name, value);
   }
 
   const parsedBody = await getEntrySchema(responseEntry)["~standard"].validate(
