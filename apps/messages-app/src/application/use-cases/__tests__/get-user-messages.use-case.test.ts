@@ -759,42 +759,46 @@ describe("makeGetMessagesByUserUseCase - message category (payment)", () => {
     });
   });
 
-  it("builds the rptId with an empty payee prefix when the payee is missing", async () => {
-    vi.spyOn(
-      messageMetadataRepository,
-      "getMessagesMetadataByUser",
-    ).mockResolvedValue(ok([aMessageMetadata(ULID_A)]));
-    vi.spyOn(
-      messageStatusRepository,
-      "getLatestMessagesStatusByIds",
-    ).mockResolvedValue(ok([aMessageStatus(ULID_A)]));
-    vi.spyOn(
-      messageContentRepository,
-      "getMessagesContentByIds",
-    ).mockResolvedValue(
-      ok(
-        contentMapOf([
-          [
-            ULID_A,
-            ok(
-              aMessageContent({
-                payment_data: {
-                  amount: 100,
-                  invalid_after_due_date: false,
-                  notice_number: "012345678901234567",
-                },
-              }),
-            ),
-          ],
-        ]),
-      ),
-    );
+  it.each([undefined, {}])(
+    "builds the rptId with the organization fiscal code when payee is %j",
+    async (payee) => {
+      vi.spyOn(
+        messageMetadataRepository,
+        "getMessagesMetadataByUser",
+      ).mockResolvedValue(ok([aMessageMetadata(ULID_A)]));
+      vi.spyOn(
+        messageStatusRepository,
+        "getLatestMessagesStatusByIds",
+      ).mockResolvedValue(ok([aMessageStatus(ULID_A)]));
+      vi.spyOn(
+        messageContentRepository,
+        "getMessagesContentByIds",
+      ).mockResolvedValue(
+        ok(
+          contentMapOf([
+            [
+              ULID_A,
+              ok(
+                aMessageContent({
+                  payment_data: {
+                    amount: 100,
+                    invalid_after_due_date: false,
+                    notice_number: "012345678901234567",
+                    payee,
+                  },
+                }),
+              ),
+            ],
+          ]),
+        ),
+      );
 
-    const [item] = (await getMessagesByUser(baseInput))._unsafeUnwrap().items;
-    expect(item).toMatchObject({
-      category: { rptId: "012345678901234567", tag: "PAYMENT" },
-    });
-  });
+      const [item] = (await getMessagesByUser(baseInput))._unsafeUnwrap().items;
+      expect(item).toMatchObject({
+        category: { rptId: "01234567890012345678901234567", tag: "PAYMENT" },
+      });
+    },
+  );
 
   it("tags plain messages as GENERIC", async () => {
     vi.spyOn(
@@ -933,22 +937,71 @@ describe("makeGetMessagesByUserUseCase - remote content (third_party_data)", () 
     expect(getRCConfiguration).toHaveBeenCalledWith(RC_CONFIG_ID_A);
   });
 
-  it("uses the has_precondition from the message over the RC configuration", async () => {
-    mockSingleMessage(
-      ULID_A,
-      aMessageContent({
-        third_party_data: aThirdPartyData({ has_precondition: "NEVER" }),
-      }),
-    );
-    vi.spyOn(
-      remoteContentConfigurationRepository,
-      "getRemoteContentConfiguration",
-    ).mockResolvedValue(ok(anRCConfiguration({ hasPrecondition: "ALWAYS" })));
+  it.each([
+    ["ALWAYS", false, true],
+    ["ALWAYS", true, true],
+    ["ONCE", false, true],
+    ["ONCE", true, false],
+    ["NEVER", false, false],
+    ["NEVER", true, false],
+  ] as const)(
+    "uses explicit %s with isRead=%s without resolving an RC configuration",
+    async (hasPrecondition, isRead, expected) => {
+      mockSingleMessage(
+        ULID_A,
+        aMessageContent({
+          third_party_data: aThirdPartyData({
+            configuration_id: undefined,
+            has_precondition: hasPrecondition,
+          }),
+        }),
+        { isRead },
+      );
+      const getRCConfiguration = vi
+        .spyOn(
+          remoteContentConfigurationRepository,
+          "getRemoteContentConfiguration",
+        )
+        .mockRejectedValue(new Error("RC configuration must not be requested"));
 
-    const [item] = (await getMessagesByUser(baseInput))._unsafeUnwrap().items;
+      const [item] = (await getMessagesByUser(baseInput))._unsafeUnwrap().items;
 
-    expect(item).toMatchObject({ has_precondition: false });
-  });
+      expect(item).toMatchObject({ has_precondition: expected });
+      expect(getRCConfiguration).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    ["NEVER", false],
+    ["NEVER", true],
+    ["ONCE", false],
+    ["ONCE", true],
+  ] as const)(
+    "always requires the PN precondition with explicit %s and isRead=%s",
+    async (hasPrecondition, isRead) => {
+      mockSingleMessage(
+        ULID_A,
+        aMessageContent({
+          third_party_data: aThirdPartyData({
+            has_precondition: hasPrecondition,
+          }),
+        }),
+        { isRead },
+        { senderServiceId: aPnServiceId },
+      );
+      vi.spyOn(
+        remoteContentConfigurationRepository,
+        "getRemoteContentConfiguration",
+      ).mockResolvedValue(ok(anRCConfiguration({ hasPrecondition })));
+
+      const [item] = (await getMessagesByUser(baseInput))._unsafeUnwrap().items;
+
+      expect(item).toMatchObject({
+        category: { tag: "PN" },
+        has_precondition: true,
+      });
+    },
+  );
 
   it("computes has_precondition=true when RC hasPrecondition is ONCE and the message is unread", async () => {
     mockSingleMessage(
@@ -1190,11 +1243,7 @@ describe("getConfigurationIDFromMessageContent", () => {
 describe("computeThirdPartyProperties", () => {
   it("returns undefined when the content is not a remote content message", () => {
     expect(
-      computeThirdPartyProperties(
-        aMessageContent(),
-        anRCConfiguration(),
-        false,
-      ),
+      computeThirdPartyProperties(aMessageContent(), "ALWAYS", false),
     ).toBeUndefined();
   });
 });
