@@ -58,6 +58,7 @@ const computeMessageCategory = (
   content: MessageContent,
   senderServiceId: string,
   pnServiceId: string,
+  organizationFiscalCode: string,
 ): MessageCategory => {
   if (content.eu_covid_cert) {
     return { tag: "EU_COVID_CERT" };
@@ -80,10 +81,8 @@ const computeMessageCategory = (
   }
 
   if (content.payment_data) {
-    // In production the rptId is built by concatenating the payee fiscal code
-    // (when present) with the notice number.
     return {
-      rptId: `${content.payment_data.payee?.fiscal_code ?? ""}${content.payment_data.notice_number}`,
+      rptId: `${content.payment_data.payee?.fiscal_code ?? organizationFiscalCode}${content.payment_data.notice_number}`,
       tag: "PAYMENT",
     };
   }
@@ -124,17 +123,11 @@ export const getConfigurationIDFromMessageContent = (
  */
 export const computeThirdPartyProperties = (
   content: MessageContent,
-  rcConfiguration: RCConfiguration,
+  preconditions: RCConfiguration["hasPrecondition"],
   isRead: boolean,
 ): { has_attachments: boolean; has_precondition: boolean } | undefined => {
   // If the message is not a remote content message, return undefined.
   if (!content.third_party_data) return undefined;
-
-  // Preconditions are taken from the message using the remote content
-  // configuration as fallback.
-  const preconditions = content.third_party_data.has_precondition
-    ? content.third_party_data.has_precondition
-    : rcConfiguration.hasPrecondition;
 
   // `has_precondition` is true if:
   //
@@ -406,53 +399,63 @@ export const makeGetMessagesByUserUseCase =
       }
 
       if (messageContent.third_party_data) {
-        const configurationID = getConfigurationIDFromMessageContent(
-          messageContent.third_party_data.configuration_id,
-          metadata.senderServiceId,
-          serviceToRCMap,
-        );
+        let hasPrecondition = messageContent.third_party_data.has_precondition;
+        if (hasPrecondition === undefined) {
+          const configurationID = getConfigurationIDFromMessageContent(
+            messageContent.third_party_data.configuration_id,
+            metadata.senderServiceId,
+            serviceToRCMap,
+          );
 
-        const rcConfiguration = await resolveRCConfiguration(
-          configurationID,
-          remoteContentConfigurationRepository,
-          rcConfigurationCache,
-        );
+          const rcConfiguration = await resolveRCConfiguration(
+            configurationID,
+            remoteContentConfigurationRepository,
+            rcConfigurationCache,
+          );
 
-        if (rcConfiguration.isErr()) {
-          if (rcConfiguration.error instanceof NotFoundError) {
-            // If the remoteContentConfiguration was not found we simply skip
-            // the message and track an event.
-            logger.trackEvent({
-              name: "GetMessagesByUserUseCase.getRemoteContentConfigurationResponse.failed.notFound",
-              properties: {
-                messageID: metadata.id,
-                rcConfigurationID: configurationID,
-              },
-            });
+          if (rcConfiguration.isErr()) {
+            if (rcConfiguration.error instanceof NotFoundError) {
+              // If the remoteContentConfiguration was not found we simply skip
+              // the message and track an event.
+              logger.trackEvent({
+                name: "GetMessagesByUserUseCase.getRemoteContentConfigurationResponse.failed.notFound",
+                properties: {
+                  messageID: metadata.id,
+                  rcConfigurationID: configurationID,
+                },
+              });
 
-            continue;
+              continue;
+            }
+
+            // Otherwise we simply return the error to the caller.
+            return err(rcConfiguration.error);
           }
 
-          // Otherwise we simply return the error to the caller.
-          return err(rcConfiguration.error);
+          hasPrecondition = rcConfiguration.value.hasPrecondition;
         }
 
         thirdPartyProperties = computeThirdPartyProperties(
           messageContent,
-          rcConfiguration.value,
+          hasPrecondition,
           status.isRead,
         );
       }
 
+      const category = computeMessageCategory(
+        messageContent,
+        metadata.senderServiceId,
+        pnServiceId,
+        serviceDetails.value.organization.fiscal_code,
+      );
+
       items.push({
-        category: computeMessageCategory(
-          content.value,
-          metadata.senderServiceId,
-          pnServiceId,
-        ),
+        category,
         created_at: metadata.createdAt,
         fiscal_code: metadata.fiscalCode,
         ...thirdPartyProperties,
+        // SEND explicitly requires the precondition for every PN message, even when already read.
+        ...(category.tag === "PN" ? { has_precondition: true } : {}),
         id: metadata.id,
         is_archived: status.isArchived,
         is_read: status.isRead,

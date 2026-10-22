@@ -1,5 +1,17 @@
 # messages-app
 
+## 0.9.2
+
+### Patch Changes
+
+- dbd6e1f: Align message content and status codecs with legacy reads by defaulting nullable boolean flags to false, rejecting zero payment amounts and malformed dates, normalizing dates to UTC, and excluding the internal content timestamp from responses.
+
+## 0.9.1
+
+### Patch Changes
+
+- a26b414: Align GetMessages with legacy behavior by falling back to the organization fiscal code for payment identifiers, always requiring SEND message preconditions, and fetching remote content configuration only when the message does not specify a precondition.
+
 ## 0.9.0
 
 ### Minor Changes
