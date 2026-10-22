@@ -21,12 +21,12 @@ import {
   RemoteContentAttachmentUnsupportedMediaTypeError,
   RemoteContentServiceUnavailableError,
 } from "../../../application/ports/remote-content-message-attachment.js";
+import { ProblemJsonResponseSchema } from "./dto/get-remote-content-message-attachment.dto.js";
 import { makeXUserMiddleware } from "./middlewares/x-user.middleware.js";
 import {
   HttpRouteOutput,
   mountFastifyHttpResultRoute,
 } from "./mount-fastify-http-result-route.js";
-import { ProblemJsonResponseSchema } from "./dto/get-remote-content-message-attachment.dto.js";
 
 const getRemoteContentMessageAttachmentContract = defineRoute({
   method: "get",
