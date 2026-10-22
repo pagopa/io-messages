@@ -44,11 +44,27 @@ const queues = [
 ];
 const tables = ["MessagesDataplanIngestionErrors"];
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const waitForAzurite = async () => {
+  for (let attempt = 1; attempt <= 60; attempt += 1) {
+    try {
+      await fetch("http://azurite:10000/devstoreaccount1?comp=list");
+      return;
+    } catch {
+      await sleep(1000);
+    }
+  }
+
+  throw new Error("Azurite did not become ready in time.");
+};
+
 const paymentFixtureMessageId = "01M0YRTA395JBSZNWG7W63ZJDV";
 const sendFixtureMessageId = "01JXVZETAP064HCWTXBWC693QH";
 const sendFixtureIun = "ABCD-EFGH-IJKL-123456-M-7";
 const sendFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4X";
 const genericFixtureMessageId = "01JXVZETAP064HCWTXBWC693QJ";
+const genericAttachmentFixtureMessageId = "01JXVZETAP064HCWTXBWC693QN";
 const genericFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4Y";
 const lollipopFixtureMessageId = "01JXVZETAP064HCWTXBWC693QK";
 const lollipopFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4Z";
@@ -101,6 +117,23 @@ const genericMessageContents = [
         has_attachments: false,
         has_remote_content: true,
         id: "generic-remote-content-message",
+      },
+    },
+  },
+];
+const genericAttachmentMessageContents = [
+  {
+    blobName: `${genericAttachmentFixtureMessageId}.json`,
+    containerName: "message-content",
+    content: {
+      subject: "Generic RC attachment fixture",
+      markdown:
+        "This local generic Remote Content message retrieves a PDF attachment from the APIM Mockoon server.",
+      third_party_data: {
+        configuration_id: genericFixtureConfigurationId,
+        has_attachments: true,
+        has_remote_content: true,
+        id: "generic-attachment-message",
       },
     },
   },
@@ -199,6 +232,8 @@ const uploadMessageContentIfNotExists = async ({
 };
 
 (async () => {
+  await waitForAzurite();
+
   await Promise.all([
     ...containers.map(createContainerIfNotExists),
     ...queues.map(createQueueIfNotExists),
@@ -210,6 +245,7 @@ const uploadMessageContentIfNotExists = async ({
       ...paymentMessageContents,
       ...sendMessageContents,
       ...genericMessageContents,
+      ...genericAttachmentMessageContents,
       ...lollipopMessageContents,
       ...preconditionMessageContents,
     ].map(uploadMessageContentIfNotExists),

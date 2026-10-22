@@ -1,0 +1,28 @@
+meta {
+  name: GetGenericAttachment
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{messages_app_base_url}}/api/v1/third-party-messages/{{message_id}}/attachments/attachments/documents/document.pdf?download=true
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-user: {{x-user-value}}
+}
+
+vars:pre-request {
+  message_id: 01JXVZETAP064HCWTXBWC693QN
+}
+
+docs {
+  Downloads PDF bytes from the local generic Remote Content mock. The query parameter is forwarded upstream.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

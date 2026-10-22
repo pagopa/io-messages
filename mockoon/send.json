@@ -257,7 +257,7 @@
       "responses": [
         {
           "uuid": "fc6c643a-a894-4c61-b079-26fa61c3c0ae",
-          "body": "{\n  \"contentLength\": 54092,\n  \"contentType\": \"application/pdf\",\n  \"filename\": \"documento.pdf\",\n  \"sha256\": \"aValidSha256\",\n  \"url\": \"https://example.com/download/documento.pdf\"\n}",
+          "body": "{\n  \"contentLength\": 54092,\n  \"contentType\": \"application/pdf\",\n  \"filename\": \"documento.pdf\",\n  \"sha256\": \"aValidSha256\",\n  \"url\": \"http://localhost:8005/api/v1/local-attachments/documento.pdf\"\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
@@ -275,6 +275,39 @@
               "operator": "equals"
             }
           ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+          "uuid": "f0f14934-ffb0-4df6-b619-5d26f99eea10",
+      "type": "http",
+      "documentation": "Local PDF bytes for the messages-app attachment fixture.",
+      "method": "get",
+      "endpoint": "local-attachments/documento.pdf",
+      "responses": [
+        {
+          "uuid": "f0f14934-ffb0-4df6-b619-5d26f99eea11",
+          "body": "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 300 144] /Resources << >> /Contents 4 0 R >>\nendobj\n4 0 obj\n<< /Length 0 >>\nstream\n\nendstream\nendobj\nxref\n0 5\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000219 00000 n \ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n268\n%%EOF\n",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Local PDF download",
+          "headers": [
+            { "key": "Content-Type", "value": "application/pdf" }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
@@ -718,6 +751,10 @@
     {
       "type": "route",
       "uuid": "704249c6-0a87-4fb8-a421-1e5c6e89e448"
+    },
+    {
+      "type": "route",
+      "uuid": "f0f14934-ffb0-4df6-b619-5d26f99eea10"
     },
     {
       "type": "route",

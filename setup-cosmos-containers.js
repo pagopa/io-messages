@@ -39,6 +39,7 @@ const sendFixtureMessageId = "01JXVZETAP064HCWTXBWC693QH";
 const sendFixtureIun = "ABCD-EFGH-IJKL-123456-M-7";
 const sendFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4X";
 const genericFixtureMessageId = "01JXVZETAP064HCWTXBWC693QJ";
+const genericAttachmentFixtureMessageId = "01JXVZETAP064HCWTXBWC693QN";
 const genericFixtureServiceId = "01JR0QRJ8MX1PD06DE6X5FWXS6";
 const genericFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4Y";
 const lollipopFixtureMessageId = "01JXVZETAP064HCWTXBWC693QK";
@@ -212,6 +213,20 @@ const messages = [
     document: {
       id: genericFixtureMessageId,
       indexedId: genericFixtureMessageId,
+      fiscalCode: sendFixtureFiscalCode,
+      senderServiceId: genericFixtureServiceId,
+      senderUserId: "local",
+      createdAt: "2025-05-31T10:00:00.000Z",
+      featureLevelType: "STANDARD",
+      isPending: false,
+      timeToLiveSeconds: 3600,
+    },
+  },
+  {
+    containerId: "messages",
+    document: {
+      id: genericAttachmentFixtureMessageId,
+      indexedId: genericAttachmentFixtureMessageId,
       fiscalCode: sendFixtureFiscalCode,
       senderServiceId: genericFixtureServiceId,
       senderUserId: "local",
