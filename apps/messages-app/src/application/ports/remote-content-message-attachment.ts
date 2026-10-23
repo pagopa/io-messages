@@ -1,4 +1,5 @@
 import {
+  BaseError,
   FiscalCode,
   ForbiddenError,
   GenericError,
@@ -19,6 +20,16 @@ import { Result } from "neverthrow";
 export class RemoteContentServiceUnavailableError extends ServiceUnavailableError {
   constructor(readonly retryAfter?: string) {
     super("The Remote Content service returned HTTP status 503.");
+  }
+}
+
+export class RemoteContentAttachmentUnsupportedMediaTypeError extends BaseError {
+  override readonly kind =
+    "RemoteContentAttachmentUnsupportedMediaTypeError" as const;
+  override tag = "remote-content-attachment-unsupported-media-type";
+
+  constructor(readonly detail: string) {
+    super(detail);
   }
 }
 

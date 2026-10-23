@@ -1,0 +1,29 @@
+meta {
+  name: GetSendAttachment
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{messages_app_base_url}}/api/v1/third-party-messages/{{message_id}}/attachments/delivery/notifications/received/{{send_iun}}/attachments/documents/1
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-user: {{x-user-value}}
+}
+
+vars:pre-request {
+  message_id: 01JXVZETAP064HCWTXBWC693QH
+  send_iun: ABCD-EFGH-IJKL-123456-M-7
+}
+
+docs {
+  Downloads PDF bytes through the local SEND metadata and PDF mocks.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

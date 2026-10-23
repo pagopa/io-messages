@@ -69,6 +69,39 @@
       "responseMode": null,
       "streamingMode": null,
       "streamingInterval": 0
+    },
+    {
+      "uuid": "f0f14934-ffb0-4df6-b619-5d26f99eea12",
+      "type": "http",
+      "documentation": "Local PDF bytes for the generic messages-app attachment fixture.",
+      "method": "get",
+      "endpoint": "messages/generic-attachment-message/attachments/documents/document.pdf",
+      "responses": [
+        {
+          "uuid": "f0f14934-ffb0-4df6-b619-5d26f99eea13",
+          "body": "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 300 144] /Resources << >> /Contents 4 0 R >>\nendobj\n4 0 obj\n<< /Length 0 >>\nstream\n\nendstream\nendobj\nxref\n0 5\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000219 00000 n \ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n268\n%%EOF\n",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Local generic PDF attachment",
+          "headers": [
+            { "key": "Content-Type", "value": "application/pdf" }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     }
   ],
   "rootChildren": [
@@ -79,6 +112,10 @@
     {
       "type": "route",
       "uuid": "ed3b9b64-221c-4f08-9c28-4a2c72f4364e"
+    },
+    {
+      "type": "route",
+      "uuid": "f0f14934-ffb0-4df6-b619-5d26f99eea12"
     }
   ],
   "proxyMode": false,
