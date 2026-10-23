@@ -86,9 +86,7 @@ const sendHttpRouteOutput = async (
     return reply.code(output.status).send();
   }
 
-  for (const [name, value] of Object.entries(output.headers ?? {})) {
-    reply.header(name, value);
-  }
+  reply.headers(output.headers ?? {});
 
   const parsedBody = await getEntrySchema(responseEntry)["~standard"].validate(
     output.body,
