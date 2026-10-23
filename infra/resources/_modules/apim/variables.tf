@@ -53,3 +53,8 @@ variable "common_key_vault" {
     vault_uri = string
   })
 }
+
+variable "messages_ca_url" {
+  type        = string
+  description = "FQDN of the messages container app"
+}

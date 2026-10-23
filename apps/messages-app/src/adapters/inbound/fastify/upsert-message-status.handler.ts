@@ -50,6 +50,8 @@ const upsertMessageStatusContract = defineRoute({
     400: ProblemDetailsSchema,
     403: ProblemDetailsSchema,
     404: ProblemDetailsSchema,
+    409: ProblemDetailsSchema,
+    429: ProblemDetailsSchema,
     500: ProblemDetailsSchema,
   },
 });

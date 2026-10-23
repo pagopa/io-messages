@@ -1,10 +1,12 @@
 import type { FastifyInstance } from "fastify";
 
 import {
+  ConflictError,
   FiscalCodeSchema,
   ForbiddenError,
   GenericError,
   NotFoundError,
+  TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
 import fastify from "fastify";
 import { err, ok } from "neverthrow";
@@ -108,6 +110,8 @@ describe("mountUpsertMessageStatusHandler", () => {
   it.each([
     [new ForbiddenError(), 403],
     [new NotFoundError("message status", "missing"), 404],
+    [new ConflictError("version exists"), 409],
+    [new TooManyRequestsError(), 429],
     [new GenericError("failed"), 500],
   ])("maps domain errors to problem responses", async (error, statusCode) => {
     vi.mocked(useCase).mockResolvedValue(err(error));
@@ -119,8 +123,30 @@ describe("mountUpsertMessageStatusHandler", () => {
     });
 
     expect(response.statusCode).toBe(statusCode);
+    expect(response.json().status).toBe(statusCode);
     expect(response.headers["content-type"]).toContain(
       "application/problem+json",
     );
+  });
+
+  it("keeps the rejection reason internal to the persisted status", async () => {
+    vi.mocked(useCase).mockResolvedValue(
+      ok({
+        ...status,
+        rejectionReason: "USER_NOT_FOUND",
+        status: "REJECTED",
+      }),
+    );
+
+    const response = await server.inject({
+      method: "PUT",
+      payload: { change_type: "reading", is_read: true },
+      url: `/api/messages/${fiscalCode}/${messageId}/message-status`,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().status).toBe("REJECTED");
+    expect(response.json()).not.toHaveProperty("rejectionReason");
+    expect(response.json()).not.toHaveProperty("rejection_reason");
   });
 });

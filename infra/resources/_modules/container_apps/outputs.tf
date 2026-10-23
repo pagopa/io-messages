@@ -9,3 +9,9 @@ output "reminder" {
     url = module.reminder_ca_itn_01.url
   }
 }
+
+output "messages" {
+  value = {
+    url = module.messages_ca.url
+  }
+}
