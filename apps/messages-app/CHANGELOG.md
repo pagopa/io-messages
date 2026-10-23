@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.10.0
+
+### Minor Changes
+
+- 94e9268: Add GetRCAttachment endpoint
+
 ## 0.9.3
 
 ### Patch Changes
