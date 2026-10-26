@@ -9,9 +9,50 @@ locals {
   }
 }
 
+data "azuread_client_config" "current" {}
+
+resource "azuread_application" "messages_api" {
+  display_name     = "${var.environment.prefix}-${var.environment.env_short}-messages-api"
+  owners           = [data.azuread_client_config.current.object_id]
+  sign_in_audience = "AzureADMyOrg"
+
+  api {
+    requested_access_token_version = 2
+  }
+}
+
+resource "azuread_application_identifier_uri" "messages_api" {
+  application_id = azuread_application.messages_api.id
+  identifier_uri = "api://${azuread_application.messages_api.client_id}"
+}
+
+resource "azuread_service_principal" "messages_api" {
+  client_id = azuread_application.messages_api.client_id
+}
+
+resource "azuread_application_password" "messages_api" {
+  application_id = azuread_application.messages_api.id
+  display_name   = "messages-container-app-easy-auth"
+}
+
+resource "azurerm_key_vault_secret" "messages_api_easy_auth_client_secret" {
+  name         = "messages-api-easy-auth-client-secret"
+  key_vault_id = var.key_vault_id
+  value        = azuread_application_password.messages_api.value
+  content_type = "Microsoft Entra ID client secret for messages Container App Easy Auth"
+}
+
 module "messages_ca" {
   source  = "pagopa-dx/azure-container-app/azurerm"
   version = "~> 6.1"
+
+  authentication = {
+    azure_active_directory = {
+      client_id                  = azuread_application.messages_api.client_id
+      tenant_id                  = var.tenant_id
+      client_secret_key_vault_id = azurerm_key_vault_secret.messages_api_easy_auth_client_secret.versionless_id
+    }
+  }
 
   environment = local.messages_ca_environment
 
