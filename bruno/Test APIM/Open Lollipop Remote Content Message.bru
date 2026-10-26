@@ -1,0 +1,78 @@
+meta {
+  name: Open Lollipop Remote Content Message
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{basePath}}/api/communication/v1/third-party-messages/{{messageId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+vars:pre-request {
+  id: 
+}
+
+script:pre-request {
+  const crypto = require("node:crypto");
+  const jose = require("node-jose");
+  const mattrglobal = require("@mattrglobal/http-signatures");
+  
+  const nonce = bru.getEnvVar("nonce");
+  const method = req.method;
+  const url = req.url.replace('{{basePath}}', bru.getEnvVar("basePath")).replace('{{messageId}}', bru.getEnvVar("messageId"));
+  
+  const alg = mattrglobal.AlgorithmTypes["ecdsa-p256-sha256"];
+  const keyid = bru.getEnvVar("assertionRef").replace(/^sha(256|384|512)-/, "");
+  const privateKey = JSON.parse(Buffer.from(jose.util.base64url.decode(bru.getEnvVar("privateKey"))));
+  
+  const signEcdsaSha256 =
+    (key) =>
+      async (data) => {
+        const keyObject = crypto.createPrivateKey({ key, format: "jwk" });
+  
+        let prova = null;
+        try {
+          prova = crypto.createSign("SHA256").update(Buffer.from(data)).sign({ key: keyObject, dsaEncoding: "ieee-p1363" });
+        } catch (Error) {
+          console.log("Nell'errore");
+          throw Error;
+        }
+        return prova;
+      };
+  
+  const sign = signEcdsaSha256(privateKey);
+  //const sign = mattrglobal.algMap[alg].sign(privateKey); 
+  
+  const options = {
+    alg,
+    nonce,
+    signer: { keyid, sign },
+    url,
+    method,
+    httpHeaders: {
+      ["x-pagopa-lollipop-original-method"]: method,
+      ["x-pagopa-lollipop-original-url"]: url,
+    },
+    body: undefined,
+    coveredFields: [
+      "x-pagopa-lollipop-original-method",
+      "x-pagopa-lollipop-original-url"
+    ].map(v => [v.toLowerCase(), new Map()])
+  };
+  
+  const result = await mattrglobal.createSignatureHeader(options);
+  
+  req.setHeader("x-pagopa-lollipop-original-method", method)
+  req.setHeader("x-pagopa-lollipop-original-url", url)
+  req.setHeader("signature", result.value.signature)
+  req.setHeader("signature-input", result.value.signatureInput)
+  
+  console.log(result.isOk());
+  console.log(req.headers);
+}
