@@ -1,0 +1,13 @@
+{
+  "name": "io-messages-bruno",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@mattrglobal/http-signatures": "^4.1.0",
+    "@pagopa/ts-commons": "^13.1.2",
+    "crypto": "^1.0.1",
+    "jose": "^6.0.11",
+    "node-jose": "^2.2.0"
+  }
+}

@@ -5,13 +5,14 @@ meta {
 }
 
 get {
-  url: {{citizen_func_url}}/api/v1/messages/{{fiscal_code}}?enrich_result_data=true
+  url: {{citizen_func_url}}/api/v1/messages/{{fiscal_code}}?enrich_result_data=true&page_size=24
   body: none
   auth: none
 }
 
 params:query {
   enrich_result_data: true
+  page_size: 24
 }
 
 vars:post-response {
