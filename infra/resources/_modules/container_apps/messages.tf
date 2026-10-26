@@ -19,6 +19,15 @@ resource "azuread_application" "messages_api" {
   api {
     requested_access_token_version = 2
   }
+
+  app_role {
+    allowed_member_types = ["Application"]
+    description          = "Allows the assigned application to invoke the messages API"
+    display_name         = "Messages API caller"
+    enabled              = true
+    id                   = "ae22b2be-65d5-4484-8137-c52f59c28e34"
+    value                = "Messages.Invoke"
+  }
 }
 
 resource "azuread_application_identifier_uri" "messages_api" {
@@ -27,7 +36,8 @@ resource "azuread_application_identifier_uri" "messages_api" {
 }
 
 resource "azuread_service_principal" "messages_api" {
-  client_id = azuread_application.messages_api.client_id
+  client_id                    = azuread_application.messages_api.client_id
+  app_role_assignment_required = true
 }
 
 resource "azuread_application_password" "messages_api" {

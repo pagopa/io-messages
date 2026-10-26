@@ -11,6 +11,11 @@ module "apim" {
 
   messages_ca_url = module.container_apps.messages.url
 
+  messages_api_role = {
+    app_role_id                 = module.container_apps.messages_api_authentication.app_role_id
+    service_principal_object_id = module.container_apps.messages_api_authentication.service_principal_object_id
+  }
+
   common_key_vault = data.azurerm_key_vault.weu_common
 
 }
