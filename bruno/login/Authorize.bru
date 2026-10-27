@@ -1,0 +1,29 @@
+meta {
+  name: Authorize
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{oidc_redirect_url}}
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  req.setMaxRedirects(0);
+  
+  req.setHeader("x-pagopa-lollipop-assertion-ref", bru.getEnvVar("assertionRef") || "")
+}
+
+script:post-response {
+  console.log("OneID authorize location response ---->",res.getHeader("location"))
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+}

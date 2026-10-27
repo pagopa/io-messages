@@ -1,0 +1,22 @@
+meta {
+  name: UpsertMessageStatus
+  type: http
+  seq: 11
+}
+
+put {
+  url: {{basePath}}/api/communication/v1/messages/{{messageId}}/status
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "change_type": "archiving",
+    "is_archived": false
+  }
+}

@@ -1,0 +1,19 @@
+meta {
+  name: GetMessages
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{basePath}}/api/communication/v1/messages?enrich_result_data=true
+  body: none
+  auth: bearer
+}
+
+params:query {
+  enrich_result_data: true
+}
+
+auth:bearer {
+  token: {{token}}
+}
