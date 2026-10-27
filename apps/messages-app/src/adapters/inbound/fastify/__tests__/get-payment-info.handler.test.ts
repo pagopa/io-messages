@@ -42,7 +42,7 @@ describe("mountGetPaymentInfoHandler", () => {
   it("maps a valid payment-info request", async () => {
     const response = await server.inject({
       method: "GET",
-      url: `/api/payments/${rptId}?test=TRUE`,
+      url: `/api/messages/payments/${rptId}?test=TRUE`,
     });
 
     expect(response.statusCode).toBe(200);
@@ -56,7 +56,7 @@ describe("mountGetPaymentInfoHandler", () => {
   it("defaults test mode to false", async () => {
     const response = await server.inject({
       method: "GET",
-      url: `/api/payments/${rptId}`,
+      url: `/api/messages/payments/${rptId}`,
     });
 
     expect(response.statusCode).toBe(200);
@@ -69,7 +69,7 @@ describe("mountGetPaymentInfoHandler", () => {
   it("returns 400 when rpt_id is invalid", async () => {
     const response = await server.inject({
       method: "GET",
-      url: "/api/payments/not-valid!",
+      url: "/api/messages/payments/not-valid!",
     });
 
     expect(response.statusCode).toBe(400);
@@ -117,7 +117,7 @@ describe("mountGetPaymentInfoHandler", () => {
 
       const response = await server.inject({
         method: "GET",
-        url: `/api/payments/${rptId}`,
+        url: `/api/messages/payments/${rptId}`,
       });
 
       expect(response.statusCode).toBe(statusCode);
@@ -133,7 +133,7 @@ describe("mountGetPaymentInfoHandler", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: `/api/payments/${rptId}`,
+      url: `/api/messages/payments/${rptId}`,
     });
 
     expect(response.statusCode).toBe(500);
@@ -160,7 +160,7 @@ describe("mountGetPaymentInfoHandler", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: `/api/payments/${rptId}`,
+      url: `/api/messages/payments/${rptId}`,
     });
 
     expect(response.statusCode).toBe(500);

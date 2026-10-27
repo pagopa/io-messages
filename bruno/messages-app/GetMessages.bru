@@ -10,15 +10,14 @@ get {
   auth: inherit
 }
 
-headers {
-  x-user: {{x-user-value}}
-}
-
-
 params:query {
   page_size: 1
   archived: false
   ~maximum_id: 
+}
+
+headers {
+  x-user: {{x-user-value}}
 }
 
 settings {

@@ -31,7 +31,7 @@ const lollipopRequestHeadersInputSchema =
 
 const getRemoteContentMessageContract = defineRoute({
   method: "get",
-  path: "/api/v1/third-party-messages/{id}",
+  path: "/api/messages/third-party-messages/{id}",
   request: {
     headers: lollipopRequestHeadersInputSchema,
     path: z.object({

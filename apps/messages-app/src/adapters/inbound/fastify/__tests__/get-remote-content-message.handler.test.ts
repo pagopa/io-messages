@@ -75,7 +75,7 @@ describe("mountGetRemoteContentMessageHandler", () => {
         "x-user": toBase64(userIdentity),
       },
       method: "GET",
-      url: `/api/v1/third-party-messages/${messageId}`,
+      url: `/api/messages/third-party-messages/${messageId}`,
     });
 
     expect(response.statusCode).toBe(200);
@@ -102,7 +102,7 @@ describe("mountGetRemoteContentMessageHandler", () => {
         "x-user": toBase64(userIdentity),
       },
       method: "GET",
-      url: `/api/v1/third-party-messages/${messageId}`,
+      url: `/api/messages/third-party-messages/${messageId}`,
     });
 
     expect(response.statusCode).toBe(200);
@@ -142,7 +142,7 @@ describe("mountGetRemoteContentMessageHandler", () => {
         "x-user": toBase64(userIdentity),
       },
       method: "GET",
-      url: `/api/v1/third-party-messages/${messageId}`,
+      url: `/api/messages/third-party-messages/${messageId}`,
     });
 
     expect(response.statusCode).toBe(200);
@@ -152,7 +152,7 @@ describe("mountGetRemoteContentMessageHandler", () => {
   it("returns 400 and does not call the use case when x-user is missing", async () => {
     const response = await server.inject({
       method: "GET",
-      url: `/api/v1/third-party-messages/${messageId}`,
+      url: `/api/messages/third-party-messages/${messageId}`,
     });
 
     expect(response.statusCode).toBe(400);
@@ -174,7 +174,7 @@ describe("mountGetRemoteContentMessageHandler", () => {
         "x-user": toBase64(userIdentity),
       },
       method: "GET",
-      url: `/api/v1/third-party-messages/${messageId}`,
+      url: `/api/messages/third-party-messages/${messageId}`,
     });
 
     expect(response.statusCode).toBe(502);
@@ -195,7 +195,7 @@ describe("mountGetRemoteContentMessageHandler", () => {
         "x-user": toBase64(userIdentity),
       },
       method: "GET",
-      url: `/api/v1/third-party-messages/${messageId}`,
+      url: `/api/messages/third-party-messages/${messageId}`,
     });
 
     expect(response.statusCode).toBe(500);
@@ -211,7 +211,7 @@ describe("mountGetRemoteContentMessageHandler", () => {
         "x-user": toBase64(userIdentity),
       },
       method: "GET",
-      url: `/api/v1/third-party-messages/${messageId}`,
+      url: `/api/messages/third-party-messages/${messageId}`,
     });
 
     expect(response.statusCode).toBe(500);
