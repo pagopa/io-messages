@@ -1,5 +1,11 @@
 # messages-app
 
+## 0.11.0
+
+### Minor Changes
+
+- 583bcd5: Move the fiscal code from the params to the x-user header for GetMessage, GetMessages and UpsertMessageStatus
+
 ## 0.10.0
 
 ### Minor Changes
