@@ -5,10 +5,15 @@ meta {
 }
 
 get {
-  url: {{messages_app_base_url}}/api/messages/{{fiscal_code}}?page_size=1&archived=false
+  url: {{messages_app_base_url}}/api/messages?page_size=1&archived=false
   body: none
   auth: inherit
 }
+
+headers {
+  x-user: {{x-user-value}}
+}
+
 
 params:query {
   page_size: 1

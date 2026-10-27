@@ -5,13 +5,17 @@ meta {
 }
 
 get {
-  url: {{messages_app_base_url}}/api/messages/{{fiscal_code}}/01M0YRTA395JBSZNWG7W63ZJDV
+  url: {{messages_app_base_url}}/api/messages/01JXVZETAP064HCWTXBWC693QH
   body: none
   auth: inherit
 }
 
+headers {
+  x-user: {{x-user-value}}
+}
+
 vars:pre-request {
-  message_id: 01M0YRTA395JBSZNWG7W63ZJDV
+  message_id: 01JXVZETAP064HCWTXBWC693QH
 }
 
 settings {
