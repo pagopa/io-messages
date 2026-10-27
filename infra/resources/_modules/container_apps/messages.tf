@@ -28,6 +28,10 @@ resource "azuread_application" "messages_api" {
     id                   = "ae22b2be-65d5-4484-8137-c52f59c28e34"
     value                = "Messages.Invoke"
   }
+
+  lifecycle {
+    ignore_changes = [identifier_uris]
+  }
 }
 
 resource "azuread_application_identifier_uri" "messages_api" {
@@ -40,16 +44,30 @@ resource "azuread_service_principal" "messages_api" {
   app_role_assignment_required = true
 }
 
+resource "time_rotating" "messages_api_client_secret" {
+  rotation_days = 180
+}
+
 resource "azuread_application_password" "messages_api" {
   application_id = azuread_application.messages_api.id
   display_name   = "messages-container-app-easy-auth"
+  end_date       = timeadd(time_rotating.messages_api_client_secret.rotation_rfc3339, "${365 * 24}h")
+
+  rotate_when_changed = {
+    rotation = time_rotating.messages_api_client_secret.id
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "azurerm_key_vault_secret" "messages_api_easy_auth_client_secret" {
-  name         = "messages-api-easy-auth-client-secret"
-  key_vault_id = var.key_vault_id
-  value        = azuread_application_password.messages_api.value
-  content_type = "Microsoft Entra ID client secret for messages Container App Easy Auth"
+  name            = "messages-api-easy-auth-client-secret"
+  key_vault_id    = var.key_vault_id
+  value           = azuread_application_password.messages_api.value
+  content_type    = "Microsoft Entra ID client secret for messages Container App Easy Auth"
+  expiration_date = azuread_application_password.messages_api.end_date
 }
 
 module "messages_ca" {
