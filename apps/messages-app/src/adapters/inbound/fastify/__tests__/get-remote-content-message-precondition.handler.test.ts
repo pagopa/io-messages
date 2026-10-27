@@ -10,7 +10,7 @@ import type { GetRemoteContentMessagePreconditionUseCase } from "../../../../app
 import { mountGetRemoteContentMessagePreconditionHandler } from "../get-remote-content-message-precondition.handler.js";
 
 const messageId = "01JAQ4HYBR5JZCS6K0DT7M1EV8";
-const url = `/api/communication/v1/third-party-messages/${messageId}/precondition`;
+const url = `/api/messages/third-party-messages/${messageId}/precondition`;
 const precondition = { markdown: "a precondition", title: "a title" };
 
 const xUser = Buffer.from(
@@ -82,7 +82,7 @@ describe("mountGetRemoteContentMessagePreconditionHandler", () => {
     const response = await server.inject({
       headers: { "x-user": xUser },
       method: "GET",
-      url: "/api/communication/v1/third-party-messages/not-a-ulid/precondition",
+      url: "/api/messages/third-party-messages/not-a-ulid/precondition",
     });
 
     expect(response.statusCode).toBe(400);

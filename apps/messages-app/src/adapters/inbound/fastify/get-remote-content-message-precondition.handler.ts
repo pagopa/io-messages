@@ -15,7 +15,7 @@ import { makeXUserMiddleware } from "./middlewares/x-user.middleware.js";
 
 const getRemoteContentMessagePreconditionContract = defineRoute({
   method: "get",
-  path: "/api/communication/v1/third-party-messages/{id}/precondition",
+  path: "/api/messages/third-party-messages/{id}/precondition",
   request: {
     headers: z.object({}).passthrough(),
     path: z.object({
