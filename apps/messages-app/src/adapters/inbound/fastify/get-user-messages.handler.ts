@@ -1,10 +1,6 @@
 import type { FastifyInstance } from "fastify";
 
-import {
-  FiscalCodeSchema,
-  ProblemDetailsSchema,
-  defineRoute,
-} from "@pagopa/hexagonal-core";
+import { ProblemDetailsSchema, defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
 import z from "zod";
 
@@ -13,14 +9,12 @@ import {
   PaginatedPublicMessagesCollectionSchema,
   toPublicMessage,
 } from "./dto/get-messages.dto.js";
+import { makeXUserMiddleware } from "./middlewares/x-user.middleware.js";
 
 const getMessagesByUserContract = defineRoute({
   method: "get",
-  path: "/api/messages/{fiscal_code}",
+  path: "/api/messages",
   request: {
-    path: z.object({
-      fiscal_code: FiscalCodeSchema,
-    }),
     query: z.object({
       archived: z
         .enum(["true", "false"])
@@ -45,13 +39,14 @@ export const mountGetMessagesByUserHandler = (
 ): void => {
   mountFastifyRoute(server, {
     contract: getMessagesByUserContract,
-    inputMapper: (req) => ({
+    inputMapper: (req, user) => ({
       archived: req.query.archived,
-      fiscalCode: req.path.fiscal_code,
+      fiscalCode: user.fiscal_code,
       maximumID: req.query.maximum_id,
       minimumID: req.query.minimum_id,
       pageSize: req.query.page_size,
     }),
+    middlewares: [makeXUserMiddleware()],
     outputMapper: (output) => ({
       items: output.items.map(toPublicMessage),
       next: output.next,

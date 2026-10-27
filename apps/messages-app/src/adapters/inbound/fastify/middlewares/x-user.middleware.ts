@@ -16,6 +16,7 @@ const headersSchema = z.object({
 
 export const userIdentitySchema = z.object({
   assertion_ref: assertionRefSchema.optional(),
+  created_at: z.number().optional(),
   date_of_birth: z.string(),
   family_name: z.string(),
   fiscal_code: FiscalCodeSchema,
@@ -24,6 +25,7 @@ export const userIdentitySchema = z.object({
   spid_email: z.email().optional(),
   spid_idp: z.string().optional(),
   spid_level: spidLevelSchema,
+  token_remaining_ttl: z.number().optional(),
 });
 export type UserIdentity = z.infer<typeof userIdentitySchema>;
 
