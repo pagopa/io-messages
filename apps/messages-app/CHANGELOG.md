@@ -1,5 +1,11 @@
 # messages-app
 
+## 1.0.0
+
+### Major Changes
+
+- 313d617: Use new rc and payment path
+
 ## 0.11.0
 
 ### Minor Changes
