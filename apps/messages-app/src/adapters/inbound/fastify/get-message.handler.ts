@@ -1,10 +1,6 @@
 import type { FastifyInstance } from "fastify";
 
-import {
-  FiscalCodeSchema,
-  ProblemDetailsSchema,
-  defineRoute,
-} from "@pagopa/hexagonal-core";
+import { ProblemDetailsSchema, defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
 import z from "zod";
 
@@ -13,13 +9,13 @@ import {
   GetMessageResponseSchema,
   toGetMessageResponse,
 } from "./dto/get-message.dto.js";
+import { makeXUserMiddleware } from "./middlewares/x-user.middleware.js";
 
 const getMessageContract = defineRoute({
   method: "get",
-  path: "/api/messages/{fiscal_code}/{id}",
+  path: "/api/messages/{id}",
   request: {
     path: z.object({
-      fiscal_code: FiscalCodeSchema,
       id: z.string().min(1),
     }),
     query: z.object({
@@ -44,11 +40,12 @@ export const mountGetMessageHandler = (
 ): void => {
   mountFastifyRoute(server, {
     contract: getMessageContract,
-    inputMapper: (req) => ({
-      fiscalCode: req.path.fiscal_code,
+    inputMapper: (req, user) => ({
+      fiscalCode: user.fiscal_code,
       messageId: req.path.id,
       publicMessage: req.query.public_message,
     }),
+    middlewares: [makeXUserMiddleware()],
     outputMapper: toGetMessageResponse,
     useCase,
   });

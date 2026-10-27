@@ -1,15 +1,12 @@
 import type { FastifyInstance } from "fastify";
 
-import {
-  FiscalCodeSchema,
-  ProblemDetailsSchema,
-  defineRoute,
-} from "@pagopa/hexagonal-core";
+import { ProblemDetailsSchema, defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
 import z from "zod";
 
 import { messageStatusValueSchema } from "../../../application/ports/message-status.js";
 import { UpdateMessageStatusUseCase } from "../../../application/use-cases/update-message-status.use-case.js";
+import { makeXUserMiddleware } from "./middlewares/x-user.middleware.js";
 
 const messageStatusChangeSchema = z.discriminatedUnion("change_type", [
   z.object({
@@ -37,11 +34,10 @@ const messageStatusWithAttributesSchema = z.object({
 
 const upsertMessageStatusContract = defineRoute({
   method: "put",
-  path: "/api/messages/{fiscal_code}/{id}/message-status",
+  path: "/api/messages/{id}/message-status",
   request: {
     body: messageStatusChangeSchema,
     path: z.object({
-      fiscal_code: FiscalCodeSchema,
       id: z.string().min(1),
     }),
   },
@@ -62,9 +58,9 @@ export const mountUpsertMessageStatusHandler = (
 ): void => {
   mountFastifyRoute(server, {
     contract: upsertMessageStatusContract,
-    inputMapper: (req) => {
+    inputMapper: (req, user) => {
       const commonInput = {
-        fiscalCode: req.path.fiscal_code,
+        fiscalCode: user.fiscal_code,
         messageId: req.path.id,
       };
 
@@ -81,6 +77,7 @@ export const mountUpsertMessageStatusHandler = (
           };
       }
     },
+    middlewares: [makeXUserMiddleware()],
     outputMapper: (output) => ({
       is_archived: output.isArchived,
       is_read: output.isRead,
