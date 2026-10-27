@@ -76,7 +76,7 @@ module "messages_ca" {
 
   autoscaler = {
     replicas = {
-      minimum = 0
+      minimum = 1
       maximum = 8
     }
   }
