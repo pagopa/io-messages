@@ -22,6 +22,11 @@ module "com_cae_env" {
   tags = var.tags
 }
 
+resource "azurerm_subnet_nat_gateway_association" "com_cae_env" {
+  nat_gateway_id = var.nat_gateway_id
+  subnet_id      = module.com_cae_env.subnet.id
+}
+
 resource "azurerm_role_assignment" "key_vault_com_cae_env_secrets_user" {
   scope                = var.key_vault_id
   role_definition_name = "Key Vault Secrets User"

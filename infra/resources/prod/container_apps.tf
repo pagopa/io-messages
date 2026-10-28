@@ -23,6 +23,7 @@ module "container_apps" {
 
   virtual_network                      = data.azurerm_virtual_network.vnet_common_itn
   subnet_cidr                          = "10.20.8.128/25"
+  nat_gateway_id                       = data.azurerm_nat_gateway.itn_ng.id
   subnet_pep_id                        = data.azurerm_subnet.pep.id
   private_dns_zone_resource_group_name = data.azurerm_resource_group.weu_common.name
 
