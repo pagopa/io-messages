@@ -1,5 +1,11 @@
 # messages-app
 
+## 1.1.0
+
+### Minor Changes
+
+- 3949b58: Remove message wrapper on get message response
+
 ## 1.0.4
 
 ### Patch Changes
