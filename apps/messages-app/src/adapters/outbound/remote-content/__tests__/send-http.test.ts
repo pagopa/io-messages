@@ -584,6 +584,8 @@ describe("SendHTTPAdapter - attachment metadata failures", () => {
       properties: {
         attachmentURL: documentAttachmentURL,
         baseURL: baseURL.toString(),
+        details:
+          '{"contentLength":24,"contentType":"application/pdf","filename":"notification.pdf","sha256":"a-sha256-digest","retryAfter":10}',
         iun,
       },
     });
