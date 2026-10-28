@@ -1,5 +1,11 @@
 # messages-app
 
+## 1.0.2
+
+### Patch Changes
+
+- e0423ab: Improve send telemetry
+
 ## 1.0.1
 
 ### Patch Changes
