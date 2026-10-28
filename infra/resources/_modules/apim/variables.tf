@@ -58,3 +58,11 @@ variable "messages_ca_url" {
   type        = string
   description = "FQDN of the messages container app"
 }
+
+variable "messages_api_role" {
+  type = object({
+    app_role_id                 = string
+    service_principal_object_id = string
+  })
+  description = "Application role and service principal for the messages API"
+}
