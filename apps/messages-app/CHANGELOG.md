@@ -1,5 +1,11 @@
 # messages-app
 
+## 1.0.4
+
+### Patch Changes
+
+- aed09c5: Remove response from telemetry
+
 ## 1.0.3
 
 ### Patch Changes
