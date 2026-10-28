@@ -79,11 +79,20 @@ const validAttachmentMetadata = {
   url: attachmentDownloadURL,
 };
 
-const jsonResponse = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), {
+// The adapter re-reads the body for telemetry after the client has consumed it,
+// so json() and text() are made re-readable.
+const jsonResponse = (body: unknown, status = 200) => {
+  const serializedBody = JSON.stringify(body);
+  const response = new Response(serializedBody, {
     headers: { "Content-Type": "application/json" },
     status,
   });
+  Object.defineProperties(response, {
+    json: { value: () => Promise.resolve(JSON.parse(serializedBody)) },
+    text: { value: () => Promise.resolve(serializedBody) },
+  });
+  return response;
+};
 
 const attachmentResponse = (status = 200) =>
   new Response(attachmentContent, {
@@ -207,7 +216,9 @@ describe("SendHTTPAdapter - HTTP error responses", () => {
         name: "SendHTTPAdapter.getNotification.failed",
         properties: {
           baseURL: baseURL.toString(),
+          details: "{}",
           iun,
+          response: {},
         },
       });
     },
@@ -368,7 +379,9 @@ describe("SendHTTPAdapter - precondition HTTP error responses", () => {
         name: "SendHTTPAdapter.getNotificationPrecondition.failed",
         properties: {
           baseURL: baseURL.toString(),
+          details: "{}",
           iun,
+          response: {},
         },
       });
     },
@@ -512,7 +525,9 @@ describe("SendHTTPAdapter - attachment metadata failures", () => {
         properties: {
           attachmentURL,
           baseURL: baseURL.toString(),
+          details: "{}",
           iun,
+          response: {},
         },
       });
     },
@@ -584,9 +599,12 @@ describe("SendHTTPAdapter - attachment metadata failures", () => {
       properties: {
         attachmentURL: documentAttachmentURL,
         baseURL: baseURL.toString(),
-        details:
-          '{"contentLength":24,"contentType":"application/pdf","filename":"notification.pdf","sha256":"a-sha256-digest","retryAfter":10}',
         iun,
+        response: {
+          ...validAttachmentMetadata,
+          retryAfter: 10,
+          url: undefined,
+        },
       },
     });
   });
