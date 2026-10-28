@@ -48,7 +48,7 @@ describe("mountGetRemoteContentMessageAttachmentHandler", () => {
     const response = await server.inject({
       headers: { "x-user": xUser },
       method: "GET",
-      url: `/api/v1/third-party-messages/${messageId}/attachments/${attachmentUrl}`,
+      url: `/api/messages/third-party-messages/${messageId}/attachments/${attachmentUrl}`,
     });
 
     expect(response.statusCode).toBe(200);
@@ -77,7 +77,7 @@ describe("mountGetRemoteContentMessageAttachmentHandler", () => {
     const response = await server.inject({
       headers: { "x-user": xUser },
       method: "GET",
-      url: `/api/v1/third-party-messages/${messageId}/attachments/${attachmentUrl}`,
+      url: `/api/messages/third-party-messages/${messageId}/attachments/${attachmentUrl}`,
     });
 
     expect(response.statusCode).toBe(415);
@@ -98,7 +98,7 @@ describe("mountGetRemoteContentMessageAttachmentHandler", () => {
     const response = await server.inject({
       headers: { "x-user": xUser },
       method: "GET",
-      url: `/api/v1/third-party-messages/${messageId}/attachments/${attachmentUrl}`,
+      url: `/api/messages/third-party-messages/${messageId}/attachments/${attachmentUrl}`,
     });
 
     expect(response.statusCode).toBe(503);
