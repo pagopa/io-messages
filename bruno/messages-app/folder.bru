@@ -6,3 +6,23 @@ meta {
 auth {
   mode: inherit
 }
+
+script:pre-request {
+  // Builds the x-user header from the secret `fiscal_code` env var.
+  const fiscalCode = bru.getEnvVar("fiscal_code");
+  const assertionRef = bru.getEnvVar("assertion_ref");
+  if (fiscalCode) {
+    const xUser = {
+      date_of_birth: "2000-06-02",
+      family_name: "Rossi",
+      fiscal_code: fiscalCode,
+      name: "Mario",
+      assertion_ref: assertionRef,
+      session_tracking_id: "session-tracking-id",
+      spid_level: "https://www.spid.gov.it/SpidL2",
+      created_at: Date.now(),
+      token_remaining_ttl: 2591990,
+    };
+    bru.setVar("x-user-value", btoa(JSON.stringify(xUser)));
+  }
+}

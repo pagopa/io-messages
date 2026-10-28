@@ -31,6 +31,11 @@ variable "subnet_cidr" {
   type = string
 }
 
+variable "nat_gateway_id" {
+  type        = string
+  description = "The ID of the NAT Gateway"
+}
+
 variable "subnet_pep_id" {
   type = string
 }

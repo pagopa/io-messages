@@ -30,7 +30,7 @@ import {
 
 const getRemoteContentMessageAttachmentContract = defineRoute({
   method: "get",
-  path: "/api/v1/third-party-messages/{id}/attachments/*",
+  path: "/api/messages/third-party-messages/{id}/attachments/*",
   request: {
     headers: lollipopRequestHeadersSchema.partial(),
     path: z.object({

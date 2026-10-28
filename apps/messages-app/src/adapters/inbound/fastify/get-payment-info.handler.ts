@@ -38,7 +38,7 @@ type GetPaymentInfoHttpOutput =
 
 const getPaymentInfoContract = defineRoute({
   method: "get",
-  path: "/api/payments/{rpt_id}",
+  path: "/api/messages/payments/{rpt_id}",
   request: {
     path: z.object({
       rpt_id: rptIdSchema,

@@ -30,6 +30,18 @@ const status: MessageStatus = {
   version: 1,
 };
 
+const xUserHeaders = {
+  "x-user": Buffer.from(
+    JSON.stringify({
+      date_of_birth: "1980-01-01",
+      family_name: "Rossi",
+      fiscal_code: fiscalCode,
+      name: "Mario",
+      spid_level: "https://www.spid.gov.it/SpidL2",
+    }),
+  ).toString("base64"),
+};
+
 describe("mountUpsertMessageStatusHandler", () => {
   let server: FastifyInstance;
   let useCase: UpdateMessageStatusUseCase;
@@ -63,9 +75,10 @@ describe("mountUpsertMessageStatusHandler", () => {
     ],
   ])("maps a valid status change", async (payload, expectedInput) => {
     const response = await server.inject({
+      headers: xUserHeaders,
       method: "PUT",
       payload,
-      url: `/api/messages/${fiscalCode}/${messageId}/message-status`,
+      url: `/api/messages/${messageId}/message-status`,
     });
 
     expect(response.statusCode).toBe(200);
@@ -80,30 +93,40 @@ describe("mountUpsertMessageStatusHandler", () => {
   });
 
   it.each([
-    [
-      "invalid fiscal code",
-      "invalid",
-      { change_type: "reading", is_read: true },
-    ],
-    ["reading false", fiscalCode, { change_type: "reading", is_read: false }],
+    ["reading false", { change_type: "reading", is_read: false }],
     [
       "bulk reading false",
-      fiscalCode,
       { change_type: "bulk", is_archived: true, is_read: false },
     ],
-    ["missing archiving flag", fiscalCode, { change_type: "archiving" }],
-    ["unknown change", fiscalCode, { change_type: "unknown" }],
-  ])("returns 400 for %s", async (_label, routeFiscalCode, payload) => {
+    ["missing archiving flag", { change_type: "archiving" }],
+    ["unknown change", { change_type: "unknown" }],
+  ])("returns 400 for %s", async (_label, payload) => {
     const response = await server.inject({
+      headers: xUserHeaders,
       method: "PUT",
       payload,
-      url: `/api/messages/${routeFiscalCode}/${messageId}/message-status`,
+      url: `/api/messages/${messageId}/message-status`,
     });
 
     expect(response.statusCode).toBe(400);
     expect(response.headers["content-type"]).toContain(
       "application/problem+json",
     );
+    expect(useCase).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["missing", undefined],
+    ["invalid", { "x-user": "invalid" }],
+  ])("returns 400 when x-user is %s", async (_label, headers) => {
+    const response = await server.inject({
+      headers,
+      method: "PUT",
+      payload: { change_type: "reading", is_read: true },
+      url: `/api/messages/${messageId}/message-status`,
+    });
+
+    expect(response.statusCode).toBe(400);
     expect(useCase).not.toHaveBeenCalled();
   });
 
@@ -117,9 +140,10 @@ describe("mountUpsertMessageStatusHandler", () => {
     vi.mocked(useCase).mockResolvedValue(err(error));
 
     const response = await server.inject({
+      headers: xUserHeaders,
       method: "PUT",
       payload: { change_type: "archiving", is_archived: true },
-      url: `/api/messages/${fiscalCode}/${messageId}/message-status`,
+      url: `/api/messages/${messageId}/message-status`,
     });
 
     expect(response.statusCode).toBe(statusCode);
@@ -139,9 +163,10 @@ describe("mountUpsertMessageStatusHandler", () => {
     );
 
     const response = await server.inject({
+      headers: xUserHeaders,
       method: "PUT",
       payload: { change_type: "reading", is_read: true },
-      url: `/api/messages/${fiscalCode}/${messageId}/message-status`,
+      url: `/api/messages/${messageId}/message-status`,
     });
 
     expect(response.statusCode).toBe(200);

@@ -1,5 +1,48 @@
 # messages-app
 
+## 1.1.0
+
+### Minor Changes
+
+- 3949b58: Remove message wrapper on get message response
+
+## 1.0.4
+
+### Patch Changes
+
+- aed09c5: Remove response from telemetry
+
+## 1.0.3
+
+### Patch Changes
+
+- def2cdb: Improve send telemetry
+- def2cdb: Use only error in SEND telemetry
+
+## 1.0.2
+
+### Patch Changes
+
+- e0423ab: Improve send telemetry
+
+## 1.0.1
+
+### Patch Changes
+
+- d0f2b1b: Add send telemetry
+
+## 1.0.0
+
+### Major Changes
+
+- 313d617: Use new rc and payment path
+
+## 0.11.0
+
+### Minor Changes
+
+- 583bcd5: Move the fiscal code from the params to the x-user header for GetMessage, GetMessages and UpsertMessageStatus
+
 ## 0.10.0
 
 ### Minor Changes

@@ -207,6 +207,7 @@ describe("SendHTTPAdapter - HTTP error responses", () => {
         name: "SendHTTPAdapter.getNotification.failed",
         properties: {
           baseURL: baseURL.toString(),
+          details: "{}",
           iun,
         },
       });
@@ -368,6 +369,7 @@ describe("SendHTTPAdapter - precondition HTTP error responses", () => {
         name: "SendHTTPAdapter.getNotificationPrecondition.failed",
         properties: {
           baseURL: baseURL.toString(),
+          details: "{}",
           iun,
         },
       });
@@ -512,6 +514,7 @@ describe("SendHTTPAdapter - attachment metadata failures", () => {
         properties: {
           attachmentURL,
           baseURL: baseURL.toString(),
+          details: "{}",
           iun,
         },
       });

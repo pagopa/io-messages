@@ -175,6 +175,7 @@ export class SendHTTPAdapter
       name: "SendHTTPAdapter.getNotification.failed",
       properties: {
         baseURL: baseUrl.toString(),
+        details: JSON.stringify(getNotificationResult.error),
         iun,
       },
     });
@@ -249,6 +250,7 @@ export class SendHTTPAdapter
         properties: {
           attachmentURL,
           baseURL: baseUrl.toString(),
+          details: JSON.stringify(getMetadataResult.error),
           iun,
         },
       });
@@ -296,6 +298,7 @@ export class SendHTTPAdapter
         properties: {
           attachmentURL,
           baseURL: baseUrl.toString(),
+          details: JSON.stringify(getMetadataResult.error),
           iun,
         },
       });
@@ -350,6 +353,7 @@ export class SendHTTPAdapter
       name: "SendHTTPAdapter.getNotificationPrecondition.failed",
       properties: {
         baseURL: baseUrl.toString(),
+        details: JSON.stringify(getPreconditionResult.error),
         iun,
       },
     });
