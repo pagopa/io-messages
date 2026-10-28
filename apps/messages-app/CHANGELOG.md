@@ -1,5 +1,11 @@
 # messages-app
 
+## 1.0.1
+
+### Patch Changes
+
+- d0f2b1b: Add send telemetry
+
 ## 1.0.0
 
 ### Major Changes
