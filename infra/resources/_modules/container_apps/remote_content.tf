@@ -49,7 +49,7 @@ module "remote_content_ca" {
 
   autoscaler = {
     replicas = {
-      minimum = 0
+      minimum = 1
       maximum = 8
     }
   }
