@@ -177,6 +177,7 @@ export class SendHTTPAdapter
         baseURL: baseUrl.toString(),
         details: JSON.stringify(getNotificationResult.error),
         iun,
+        response: await getNotificationResult.response.json(),
       },
     });
 
@@ -252,6 +253,7 @@ export class SendHTTPAdapter
           baseURL: baseUrl.toString(),
           details: JSON.stringify(getMetadataResult.error),
           iun,
+          response: await getMetadataResult.response.json(),
         },
       });
 
@@ -300,6 +302,7 @@ export class SendHTTPAdapter
           baseURL: baseUrl.toString(),
           details: JSON.stringify(getMetadataResult.error),
           iun,
+          response: await getMetadataResult.response.json(),
         },
       });
       return err(
@@ -355,6 +358,7 @@ export class SendHTTPAdapter
         baseURL: baseUrl.toString(),
         details: JSON.stringify(getPreconditionResult.error),
         iun,
+        response: await getPreconditionResult.response.json(),
       },
     });
 
