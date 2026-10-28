@@ -1,5 +1,12 @@
 # messages-app
 
+## 1.0.3
+
+### Patch Changes
+
+- def2cdb: Improve send telemetry
+- def2cdb: Use only error in SEND telemetry
+
 ## 1.0.2
 
 ### Patch Changes
