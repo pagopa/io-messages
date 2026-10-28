@@ -79,20 +79,11 @@ const validAttachmentMetadata = {
   url: attachmentDownloadURL,
 };
 
-// The adapter re-reads the body for telemetry after the client has consumed it,
-// so json() and text() are made re-readable.
-const jsonResponse = (body: unknown, status = 200) => {
-  const serializedBody = JSON.stringify(body);
-  const response = new Response(serializedBody, {
+const jsonResponse = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
     headers: { "Content-Type": "application/json" },
     status,
   });
-  Object.defineProperties(response, {
-    json: { value: () => Promise.resolve(JSON.parse(serializedBody)) },
-    text: { value: () => Promise.resolve(serializedBody) },
-  });
-  return response;
-};
 
 const attachmentResponse = (status = 200) =>
   new Response(attachmentContent, {
@@ -218,7 +209,6 @@ describe("SendHTTPAdapter - HTTP error responses", () => {
           baseURL: baseURL.toString(),
           details: "{}",
           iun,
-          response: {},
         },
       });
     },
@@ -381,7 +371,6 @@ describe("SendHTTPAdapter - precondition HTTP error responses", () => {
           baseURL: baseURL.toString(),
           details: "{}",
           iun,
-          response: {},
         },
       });
     },
@@ -527,7 +516,6 @@ describe("SendHTTPAdapter - attachment metadata failures", () => {
           baseURL: baseURL.toString(),
           details: "{}",
           iun,
-          response: {},
         },
       });
     },
@@ -600,11 +588,6 @@ describe("SendHTTPAdapter - attachment metadata failures", () => {
         attachmentURL: documentAttachmentURL,
         baseURL: baseURL.toString(),
         iun,
-        response: {
-          ...validAttachmentMetadata,
-          retryAfter: 10,
-          url: undefined,
-        },
       },
     });
   });
