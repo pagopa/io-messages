@@ -1,4 +1,5 @@
 import { GenericError } from "@pagopa/hexagonal-core";
+import { toErrorBody } from "io-messages-common/adapters/error";
 import {
   PaymentInfo,
   paymentInfoSchema,
@@ -29,18 +30,6 @@ interface PagoPAEcommerceEnvironment {
   apiKey: string;
   client: Client;
 }
-
-const toErrorBody = (error: unknown): string => {
-  if (typeof error === "string") return error;
-  if (error instanceof Error) return error.message;
-
-  const errorBody = Result.fromThrowable(
-    () => JSON.stringify(error),
-    () => undefined,
-  )().unwrapOr(undefined);
-
-  return errorBody ?? "unreadable response body";
-};
 
 const toPaymentInfoUpstreamError = (
   status: PaymentInfoUpstreamStatus,
