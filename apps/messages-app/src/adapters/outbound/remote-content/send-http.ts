@@ -1,4 +1,5 @@
 import { FiscalCode, GenericError, Logger } from "@pagopa/hexagonal-core";
+import { toErrorBody } from "io-messages-common/adapters/error";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { RCAuthenticationConfig } from "io-messages-common/domain/remote-content";
 import {
@@ -100,18 +101,6 @@ export class SendHTTPAdapter
     );
   }
 
-  private toErrorBody(error: unknown) {
-    if (typeof error === "string") return error;
-    if (error instanceof Error) return error.message;
-
-    const errorBody = Result.fromThrowable(
-      () => JSON.stringify(error),
-      () => undefined,
-    )().unwrapOr(undefined);
-
-    return errorBody ?? "unreadable response body";
-  }
-
   private validateMessageDetailSuccessResponse(
     response: SendNotificationResponse | undefined,
   ): Result<SendNotificationResponse, GenericError> {
@@ -159,9 +148,7 @@ export class SendHTTPAdapter
     });
 
     if (!getNotificationResult.response) {
-      return err(
-        new GenericError(this.toErrorBody(getNotificationResult.error)),
-      );
+      return err(new GenericError(toErrorBody(getNotificationResult.error)));
     }
 
     if (getNotificationResult.response.status === 200) {
@@ -241,7 +228,7 @@ export class SendHTTPAdapter
           });
 
     if (!getMetadataResult.response) {
-      return err(new GenericError(this.toErrorBody(getMetadataResult.error)));
+      return err(new GenericError(toErrorBody(getMetadataResult.error)));
     }
 
     if (getMetadataResult.response.status !== 200) {
@@ -288,7 +275,7 @@ export class SendHTTPAdapter
 
         return ok(Buffer.from(await downloadResponse.arrayBuffer()));
       } catch (error) {
-        return err(new GenericError(this.toErrorBody(error)));
+        return err(new GenericError(toErrorBody(error)));
       }
     }
 
@@ -338,9 +325,7 @@ export class SendHTTPAdapter
     });
 
     if (!getPreconditionResult.response) {
-      return err(
-        new GenericError(this.toErrorBody(getPreconditionResult.error)),
-      );
+      return err(new GenericError(toErrorBody(getPreconditionResult.error)));
     }
 
     if (getPreconditionResult.response.status === 200) {
