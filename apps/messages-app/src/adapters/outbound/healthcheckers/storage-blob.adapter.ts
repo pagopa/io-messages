@@ -1,5 +1,6 @@
 import { BlobServiceClient, RestError } from "@azure/storage-blob";
 import { GenericError } from "@pagopa/hexagonal-core";
+import { getErrorDetail } from "io-messages-common/adapters/error";
 import { Result, err, ok } from "neverthrow";
 
 import { AppHealthchecker } from "../../../application/ports/app-healthcheck.js";
@@ -28,7 +29,7 @@ export class StorageBlobHealthcheckAdapter implements AppHealthchecker {
       }
       return err(
         new GenericError(
-          `unexpected error in blob storage ${this.name}: ${e instanceof Error ? e.message : String(e)}`,
+          `unexpected error in blob storage ${this.name}: ${getErrorDetail(e)}`,
         ),
       );
     }

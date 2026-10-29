@@ -4,6 +4,7 @@ import {
   NotFoundError,
   ValidationError,
 } from "@pagopa/hexagonal-core";
+import { getErrorDetail } from "io-messages-common/adapters/error";
 import { AssertionRef } from "io-messages-common/adapters/lollipop/definitions/assertion-ref";
 import {
   LcParams,
@@ -21,7 +22,7 @@ import { generateLcParams } from "../../../generated/lollipop/sdk.gen.js";
 import { ProblemJson } from "../../../generated/lollipop/types.gen.js";
 
 const toGenericError = (error: unknown): GenericError =>
-  new GenericError(error instanceof Error ? error.message : String(error));
+  new GenericError(getErrorDetail(error));
 
 export class LollipopHttpClientAdapter implements LcParamsRepository {
   private readonly client: ReturnType<typeof createClient>;
