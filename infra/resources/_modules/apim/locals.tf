@@ -10,4 +10,7 @@ locals {
   apim_itn_platform_resource_group_name = "${local.product}-itn-common-rg-01"
 
   key_vault = var.key_vault
+
+  # Extract Messages.Invoke app role ID from entra_auth_app
+  messages_invoke_role_id = [for role in data.azuread_application.entra_auth_app.app_roles : role.id if role.value == "Messages.Invoke"][0]
 }

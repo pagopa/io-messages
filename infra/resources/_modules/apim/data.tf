@@ -16,3 +16,11 @@ data "azurerm_linux_web_app" "session_manager_app_weu" {
   name                = "io-p-weu-session-manager-app-03"
   resource_group_name = "io-p-weu-session-manager-rg-01"
 }
+
+data "azuread_application" "entra_auth_app" {
+  display_name = "io-managed-identity-auth-app"
+}
+
+data "azuread_service_principal" "entra_auth_app" {
+  client_id = data.azuread_application.entra_auth_app.client_id
+}
