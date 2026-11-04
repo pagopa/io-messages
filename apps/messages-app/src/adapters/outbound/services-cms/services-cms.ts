@@ -77,7 +77,7 @@ const servicesCmsDetailSchema = z.object({
       ),
   ),
   description: z.string().min(1),
-  id: z.ulid(),
+  id: z.string().min(1),
   last_update: z.string().datetime(),
   max_allowed_payment_amount: z.number().int().min(0).max(9999999999),
   metadata: serviceMetadataSchema,

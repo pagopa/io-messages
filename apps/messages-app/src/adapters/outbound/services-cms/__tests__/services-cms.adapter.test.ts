@@ -149,6 +149,42 @@ describe("getMessageDetailsByServiceIds", () => {
     expect(trackEventMock).toHaveBeenCalledTimes(1);
   });
 
+  it("accepts a service id that is not a valid ULID", async () => {
+    const aNonUlidServiceID = "a-non-ulid-service-id";
+    const aNonUlidDetail = {
+      ...aServicesAppMessageDetail,
+      id: aNonUlidServiceID,
+    };
+    fetchMock.mockResolvedValue(jsonResponse(aNonUlidDetail));
+
+    const result = await adapter.getServicesCmsDetailsByServiceIds([
+      aNonUlidServiceID,
+    ]);
+
+    expect(result.isOk()).toBe(true);
+    expect(
+      result._unsafeUnwrap().get(aNonUlidServiceID)?._unsafeUnwrap(),
+    ).toEqual(aNonUlidDetail);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("reports a MalformedEntityError per-item when the response service id is empty", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ ...aServicesAppMessageDetail, id: "" }),
+    );
+
+    const result = await adapter.getServicesCmsDetailsByServiceIds([
+      aServiceID,
+    ]);
+
+    expect(result.isOk()).toBe(true);
+    const entry = result._unsafeUnwrap().get(aServiceID);
+
+    expect(entry?.isErr()).toBe(true);
+    expect(entry?._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
+    expect(trackEventMock).toHaveBeenCalledTimes(1);
+  });
+
   it("collects valid and skippable-error entries in the same map", async () => {
     const missingServiceID = "01ARZ3NDEKTSV4RRFFQ69G5FAW";
     fetchMock
