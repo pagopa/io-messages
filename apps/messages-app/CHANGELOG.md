@@ -1,5 +1,11 @@
 # messages-app
 
+## 1.1.2
+
+### Patch Changes
+
+- 040c566: Align upsert message status endpoint with legacy contract
+
 ## 1.1.1
 
 ### Patch Changes
