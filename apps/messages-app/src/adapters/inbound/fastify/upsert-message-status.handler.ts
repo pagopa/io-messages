@@ -5,7 +5,6 @@ import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
 import { messageIDSchema } from "io-messages-common/domain/message";
 import z from "zod";
 
-import { messageStatusValueSchema } from "../../../application/ports/message-status.js";
 import { UpdateMessageStatusUseCase } from "../../../application/use-cases/update-message-status.use-case.js";
 import { makeXUserMiddleware } from "./middlewares/x-user.middleware.js";
 
@@ -25,12 +24,9 @@ const messageStatusChangeSchema = z.discriminatedUnion("change_type", [
   }),
 ]);
 
-const messageStatusWithAttributesSchema = z.object({
+const messageStatusAttributesSchema = z.object({
   is_archived: z.boolean(),
   is_read: z.boolean(),
-  status: messageStatusValueSchema,
-  updated_at: z.string(),
-  version: z.int().nonnegative(),
 });
 
 const upsertMessageStatusContract = defineRoute({
@@ -43,11 +39,10 @@ const upsertMessageStatusContract = defineRoute({
     }),
   },
   response: {
-    200: messageStatusWithAttributesSchema,
+    200: messageStatusAttributesSchema,
     400: ProblemDetailsSchema,
     403: ProblemDetailsSchema,
     404: ProblemDetailsSchema,
-    409: ProblemDetailsSchema,
     429: ProblemDetailsSchema,
     500: ProblemDetailsSchema,
   },
@@ -82,9 +77,6 @@ export const mountUpsertMessageStatusHandler = (
     outputMapper: (output) => ({
       is_archived: output.isArchived,
       is_read: output.isRead,
-      status: output.status,
-      updated_at: output.updatedAt,
-      version: output.version,
     }),
     useCase,
   });

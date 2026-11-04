@@ -1,7 +1,6 @@
 import type { FastifyInstance } from "fastify";
 
 import {
-  ConflictError,
   FiscalCodeSchema,
   ForbiddenError,
   GenericError,
@@ -86,9 +85,6 @@ describe("mountUpsertMessageStatusHandler", () => {
     expect(response.json()).toEqual({
       is_archived: true,
       is_read: true,
-      status: "PROCESSED",
-      updated_at: "2024-02-03T04:05:06.000Z",
-      version: 1,
     });
   });
 
@@ -145,7 +141,6 @@ describe("mountUpsertMessageStatusHandler", () => {
   it.each([
     [new ForbiddenError(), 403],
     [new NotFoundError("message status", "missing"), 404],
-    [new ConflictError("version exists"), 409],
     [new TooManyRequestsError(), 429],
     [new GenericError("failed"), 500],
   ])("maps domain errors to problem responses", async (error, statusCode) => {
@@ -182,8 +177,6 @@ describe("mountUpsertMessageStatusHandler", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.json().status).toBe("REJECTED");
-    expect(response.json()).not.toHaveProperty("rejectionReason");
-    expect(response.json()).not.toHaveProperty("rejection_reason");
+    expect(response.json()).toEqual({ is_archived: true, is_read: true });
   });
 });

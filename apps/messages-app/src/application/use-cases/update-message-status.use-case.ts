@@ -25,7 +25,6 @@ export type UpdateMessageStatusInput = {
 } & MessageStatusFlagsUpdate;
 
 export type UpdateMessageStatusError =
-  | ConflictError
   | ForbiddenError
   | GenericError
   | NotFoundError
@@ -77,7 +76,12 @@ export const makeUpdateMessageStatusUseCase =
     const createResult =
       await messageStatusRepository.createMessageStatus(newStatus);
     if (createResult.isErr()) {
-      return err(createResult.error);
+      // The legacy contract does not expose conflicts: they surface as 500.
+      return err(
+        createResult.error instanceof ConflictError
+          ? new GenericError(createResult.error.message)
+          : createResult.error,
+      );
     }
 
     return ok(createResult.value);
