@@ -153,21 +153,24 @@ describe("makeUpdateMessageStatusUseCase", () => {
 
   it.each([
     [new GenericError("create failed"), GenericError],
-    [new ConflictError(messageId), ConflictError],
+    [new ConflictError(messageId), GenericError],
     [new TooManyRequestsError(), TooManyRequestsError],
-  ])("preserves create errors", async (error, kind) => {
-    const repository = makeRepository();
-    vi.mocked(repository.createMessageStatus).mockResolvedValue(err(error));
-    const useCase = makeUpdateMessageStatusUseCase(repository);
+  ])(
+    "maps create errors (conflicts become generic errors)",
+    async (error, kind) => {
+      const repository = makeRepository();
+      vi.mocked(repository.createMessageStatus).mockResolvedValue(err(error));
+      const useCase = makeUpdateMessageStatusUseCase(repository);
 
-    const result = await useCase({
-      fiscalCode,
-      isArchived: false,
-      messageId,
-    });
+      const result = await useCase({
+        fiscalCode,
+        isArchived: false,
+        messageId,
+      });
 
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(kind);
-  });
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(kind);
+    },
+  );
 
   it("preserves the rejection reason in the next status version", async () => {
     const repository = makeRepository();
