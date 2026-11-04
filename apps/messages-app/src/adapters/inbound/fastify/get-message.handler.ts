@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 
 import { ProblemDetailsSchema, defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
+import { messageIDSchema } from "io-messages-common/domain/message";
 import z from "zod";
 
 import { GetMessageUseCase } from "../../../application/use-cases/get-message.use-case.js";
@@ -16,7 +17,7 @@ const getMessageContract = defineRoute({
   path: "/api/messages/{id}",
   request: {
     path: z.object({
-      id: z.string().min(1),
+      id: messageIDSchema,
     }),
     query: z.object({
       public_message: z

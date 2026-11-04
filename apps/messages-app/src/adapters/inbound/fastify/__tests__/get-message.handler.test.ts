@@ -13,6 +13,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MessageOutput } from "../../../../application/ports/messages.js";
 import type { GetMessageUseCase } from "../../../../application/use-cases/get-message.use-case.js";
 
+import { MalformedEntityError } from "../../../../application/ports/error.js";
 import { mountGetMessageHandler } from "../get-message.handler.js";
 
 const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
@@ -170,6 +171,17 @@ describe("mountGetMessageHandler", () => {
     expect(useCase).not.toHaveBeenCalled();
   });
 
+  it("returns 400 for an id that is not a ULID", async () => {
+    const response = await server.inject({
+      headers: xUserHeaders,
+      method: "GET",
+      url: "/api/messages/not-a-ulid",
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(useCase).not.toHaveBeenCalled();
+  });
+
   it("does not match the legacy route with the fiscal code in the path", async () => {
     const response = await server.inject({
       headers: xUserHeaders,
@@ -185,6 +197,7 @@ describe("mountGetMessageHandler", () => {
     [new NotFoundError("message", messageId), 404],
     [new TooManyRequestsError(), 429],
     [new GenericError("failed"), 500],
+    [new MalformedEntityError("invalid blob"), 500],
   ])("maps domain errors to problem responses", async (error, statusCode) => {
     vi.mocked(useCase).mockResolvedValue(err(error));
 

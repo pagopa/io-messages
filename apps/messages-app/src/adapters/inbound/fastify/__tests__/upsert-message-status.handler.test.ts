@@ -78,7 +78,7 @@ describe("mountUpsertMessageStatusHandler", () => {
       headers: xUserHeaders,
       method: "PUT",
       payload,
-      url: `/api/messages/${messageId}/message-status`,
+      url: `/api/messages/${messageId}/status`,
     });
 
     expect(response.statusCode).toBe(200);
@@ -105,13 +105,25 @@ describe("mountUpsertMessageStatusHandler", () => {
       headers: xUserHeaders,
       method: "PUT",
       payload,
-      url: `/api/messages/${messageId}/message-status`,
+      url: `/api/messages/${messageId}/status`,
     });
 
     expect(response.statusCode).toBe(400);
     expect(response.headers["content-type"]).toContain(
       "application/problem+json",
     );
+    expect(useCase).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 for an id that is not a ULID", async () => {
+    const response = await server.inject({
+      headers: xUserHeaders,
+      method: "PUT",
+      payload: { change_type: "reading", is_read: true },
+      url: "/api/messages/not-a-ulid/status",
+    });
+
+    expect(response.statusCode).toBe(400);
     expect(useCase).not.toHaveBeenCalled();
   });
 
@@ -123,7 +135,7 @@ describe("mountUpsertMessageStatusHandler", () => {
       headers,
       method: "PUT",
       payload: { change_type: "reading", is_read: true },
-      url: `/api/messages/${messageId}/message-status`,
+      url: `/api/messages/${messageId}/status`,
     });
 
     expect(response.statusCode).toBe(400);
@@ -143,7 +155,7 @@ describe("mountUpsertMessageStatusHandler", () => {
       headers: xUserHeaders,
       method: "PUT",
       payload: { change_type: "archiving", is_archived: true },
-      url: `/api/messages/${messageId}/message-status`,
+      url: `/api/messages/${messageId}/status`,
     });
 
     expect(response.statusCode).toBe(statusCode);
@@ -166,7 +178,7 @@ describe("mountUpsertMessageStatusHandler", () => {
       headers: xUserHeaders,
       method: "PUT",
       payload: { change_type: "reading", is_read: true },
-      url: `/api/messages/${messageId}/message-status`,
+      url: `/api/messages/${messageId}/status`,
     });
 
     expect(response.statusCode).toBe(200);
