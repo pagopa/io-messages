@@ -11,6 +11,4 @@ locals {
 
   key_vault = var.key_vault
 
-  # Extract Messages.Invoke app role ID from entra_auth_app
-  # messages_invoke_role_id = one([for role in data.azuread_application.entra_auth_app.app_roles : role.id if role.value == "Messages.Invoke"])
 }
