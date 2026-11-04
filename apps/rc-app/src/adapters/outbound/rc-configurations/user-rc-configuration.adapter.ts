@@ -6,6 +6,7 @@ import {
   StatusCodes,
 } from "@azure/cosmos";
 import { GenericError, TooManyRequestsError } from "@pagopa/hexagonal-core";
+import { getErrorMessage } from "io-messages-common/adapters/error";
 import { Result, ResultAsync, err, ok } from "neverthrow";
 import z from "zod";
 
@@ -24,9 +25,6 @@ const cosmosUserRCConfigurationSchema = z.object({
 type CosmosUserRCConfiguration = z.TypeOf<
   typeof cosmosUserRCConfigurationSchema
 >;
-
-const getErrorMessage = (error: unknown): string =>
-  error instanceof Error ? `${error.name}: ${error.message}` : String(error);
 
 const toUserRCConfiguration = (
   model: CosmosUserRCConfiguration,
