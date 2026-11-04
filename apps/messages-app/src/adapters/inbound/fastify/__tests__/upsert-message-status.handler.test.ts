@@ -115,6 +115,18 @@ describe("mountUpsertMessageStatusHandler", () => {
     expect(useCase).not.toHaveBeenCalled();
   });
 
+  it("returns 400 for an id that is not a ULID", async () => {
+    const response = await server.inject({
+      headers: xUserHeaders,
+      method: "PUT",
+      payload: { change_type: "reading", is_read: true },
+      url: "/api/messages/not-a-ulid/message-status",
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(useCase).not.toHaveBeenCalled();
+  });
+
   it.each([
     ["missing", undefined],
     ["invalid", { "x-user": "invalid" }],

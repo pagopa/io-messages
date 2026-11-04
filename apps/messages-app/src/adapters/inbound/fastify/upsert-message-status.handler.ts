@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 
 import { ProblemDetailsSchema, defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
+import { messageIDSchema } from "io-messages-common/domain/message";
 import z from "zod";
 
 import { messageStatusValueSchema } from "../../../application/ports/message-status.js";
@@ -38,7 +39,7 @@ const upsertMessageStatusContract = defineRoute({
   request: {
     body: messageStatusChangeSchema,
     path: z.object({
-      id: z.string().min(1),
+      id: messageIDSchema,
     }),
   },
   response: {
