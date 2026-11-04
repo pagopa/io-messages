@@ -1,5 +1,11 @@
 # messages-app
 
+## 1.1.1
+
+### Patch Changes
+
+- 06b175e: Less stricter service id validation.
+
 ## 1.1.0
 
 ### Minor Changes
