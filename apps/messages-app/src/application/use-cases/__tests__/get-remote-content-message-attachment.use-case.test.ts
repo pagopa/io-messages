@@ -257,5 +257,23 @@ describe("makeGetRemoteContentMessageAttachmentUseCase", () => {
     expect(unavailable._unsafeUnwrapErr()).toBeInstanceOf(
       RemoteContentServiceUnavailableError,
     );
+    expect(unavailable._unsafeUnwrapErr()).toMatchObject({ retryAfter: "45" });
+  });
+
+  it("defaults Retry-After to 10 when the provider does not send it", async () => {
+    vi.mocked(
+      remoteContentProxy.getRemoteContentMessageAttachment,
+    ).mockResolvedValueOnce(err(new RemoteContentServiceUnavailableError()));
+
+    const result = await makeUseCase()({
+      attachmentUrl,
+      fiscalCode,
+      messageId,
+    });
+
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(
+      RemoteContentServiceUnavailableError,
+    );
+    expect(result._unsafeUnwrapErr()).toMatchObject({ retryAfter: "10" });
   });
 });
