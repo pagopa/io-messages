@@ -35,7 +35,7 @@ const messageStatusWithAttributesSchema = z.object({
 
 const upsertMessageStatusContract = defineRoute({
   method: "put",
-  path: "/api/messages/{id}/message-status",
+  path: "/api/messages/{id}/status",
   request: {
     body: messageStatusChangeSchema,
     path: z.object({
