@@ -137,6 +137,7 @@ describe("SendHTTPAdapter - successful responses", () => {
       `https://send.example/api/delivery/notifications/received/${iun}`,
     );
     expect(request.redirect).toBe("manual");
+    expect(request.headers.get("accept")).toBe("application/io+json");
     expect(request.headers.get("x-pagopa-cx-taxid")).toBe(fiscalCode);
     expect(request.headers.get(authentication.headerKeyName)).toBe(
       authentication.key,
@@ -146,6 +147,24 @@ describe("SendHTTPAdapter - successful responses", () => {
       lollipopHeaders["x-pagopa-lollipop-user-id"],
     );
     expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("accepts an application/io+json response", async () => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(validResponse), {
+        headers: { "Content-Type": "application/io+json" },
+        status: 200,
+      }),
+    );
+
+    const result = await adapter.getNotification(
+      baseURL,
+      authentication,
+      iun,
+      fiscalCode,
+    );
+
+    expect(result.isOk()).toBe(true);
   });
 
   it("sends the fiscal code without Lollipop headers when they are not provided", async () => {
