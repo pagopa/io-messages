@@ -98,7 +98,7 @@ const main = (config: Config) => {
   // @see https://github.com/pagopa/io-ts-commons/blob/master/src/agent.ts#L10
   const httpOrHttpsApiFetch = pipe(
     AbortableFetch(nodeFetch as unknown as typeof fetch),
-    (abortableFetch) => setFetchTimeout(10000 as Millisecond, abortableFetch),
+    (abortableFetch) => setFetchTimeout(8000 as Millisecond, abortableFetch),
     (fetchWithTimeout) => toFetch(fetchWithTimeout),
   );
 
