@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.9.1
+
+### Patch Changes
+
+- 18c4914: Reduce the Session Manager timeout to eight seconds so Notify can fall back to an anonymous notification before the caller's ten-second timeout
+
 ## 2.9.0
 
 ### Minor Changes
