@@ -9,6 +9,37 @@
   "folders": [],
   "routes": [
     {
+      "uuid": "a8d53d89-818c-407c-98bd-e1d7fd89db56",
+      "type": "http",
+      "documentation": "Local notification endpoint used by payment reminders. No real push notification is sent.",
+      "method": "post",
+      "endpoint": "api/v1/messages-sending/internal/notify",
+      "responses": [
+        {
+          "uuid": "f60ba00b-8c24-48b1-96b9-f92d065f69c0",
+          "body": "",
+          "latency": 0,
+          "statusCode": 204,
+          "label": "Notification accepted",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
       "uuid": "20874de3-79e9-45c8-a2b5-bfe8d2b2bb70",
       "type": "http",
       "documentation": "",
@@ -83,9 +114,7 @@
           "latency": 0,
           "statusCode": 200,
           "label": "Local generic PDF attachment",
-          "headers": [
-            { "key": "Content-Type", "value": "application/pdf" }
-          ],
+          "headers": [{ "key": "Content-Type", "value": "application/pdf" }],
           "bodyType": "INLINE",
           "filePath": "",
           "databucketID": "",
@@ -105,6 +134,10 @@
     }
   ],
   "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "a8d53d89-818c-407c-98bd-e1d7fd89db56"
+    },
     {
       "type": "route",
       "uuid": "20874de3-79e9-45c8-a2b5-bfe8d2b2bb70"
