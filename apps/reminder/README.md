@@ -125,7 +125,8 @@ Plain enum values such as `"feature_level_type": "ADVANCED"` and
 are accepted too. All schema fields must be included. New payload IDs are
 needed when repeating tests because existing IDs are not inserted again.
 
-Only values on `reminder-messages` use this plugin; `payment-updates` and
+Only values on `reminder-messages` and payment-updater's `messages-payments`
+use this plugin, as both use the same legacy schema; `payment-updates` and
 `message-reminder-send` remain JSON strings. The plugin also decodes raw Avro
 when browsing the topic. Older messages published as plain JSON will still
 show a deserialization warning and are not converted retroactively.

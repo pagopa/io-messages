@@ -44,6 +44,71 @@ The Development Container is configured to run the application with the `dev` pr
 mvn spring-boot:run -Dspring.profiles.active=your-profile
 ```
 
+### Run locally in Docker
+
+From the repository root:
+
+```bash
+docker compose up --build -d --wait payment-updater kafka-ui
+curl --fail http://127.0.0.1:9091/api/v1/health/ready
+curl --fail http://127.0.0.1:9091/api/v1/health/live
+```
+
+Both endpoints return HTTP 200 with an empty body. In Bruno, select the
+`Development` environment and run `payment-updater / Health`.
+
+The optional `payment-updater` Compose profile uses the shared MongoDB, with
+database `payment-updater`, collections `payment` and `payment-retry`, and
+authentication database `admin`. Both Kafka consumers are enabled. The retry
+job checks `payment-retry` every minute.
+Application Insights instrumentation is disabled, and the pagoPA endpoint is
+overridden to the local mock instead of the development profile's remote URL.
+The application depends on MongoDB, the Event Hubs emulator and the pagoPA mock.
+The container healthcheck checks application readiness and emulator HTTP health;
+the application health endpoints alone do not check dependencies or processing.
+
+#### Local resources
+
+| Resource                     | Address or topic                           | Format / purpose                               |
+| ---------------------------- | ------------------------------------------ | ---------------------------------------------- |
+| MongoDB                      | `mongo:27017`, database `payment-updater`  | Payment index and failed-publication retries   |
+| Kafka broker                 | `eventhubs:9092`                           | SASL_PLAINTEXT with local emulator credentials |
+| Incoming CQRS messages       | `messages-payments`                        | Raw Avro, consumer group `consumer-message`    |
+| Incoming Nodo payment events | `nodo-dei-pagamenti-biz-evt`               | JSON, consumer group `consumer-Payment`        |
+| Outgoing updates             | `payment-updates`                          | JSON, also consumed by reminder when running   |
+| pagoPA payment information   | `http://mock-server-pagopa-ecommerce:3000` | `GET /payment-requests/{rptId}`                |
+
+The existing emulator configuration provisions these topics; no broker restart
+or offset reset is needed. CQRS and Nodo are not started by this command:
+publish synthetic inputs manually to exercise payment processing.
+
+In Kafka UI (`http://localhost:8002`), select cluster `local` and topic
+`messages-payments`. Use **ReminderAvro** as the value serializer, an empty key
+and headers `{}`. This reuses the same legacy schema as reminder, with no Schema
+Registry or Confluent header. Include all schema fields; the schema is
+`src/main/resources/avro/message.json`. Nodo events and outgoing updates use the
+**String** serializer with JSON content, not Avro.
+
+When reminder is running, outgoing updates can mark matching reminder records
+as paid. Use isolated message IDs and RPT IDs for manual tests.
+
+Inspect processing with:
+
+```bash
+docker compose logs -f payment-updater
+```
+
+The HTTP port is bound only to localhost. Set `PAYMENT_UPDATER_LOCAL_PORT` to
+change the host port, and update Bruno's `payment_updater_base_url` accordingly.
+The existing runtime image is unchanged and runs on `linux/amd64`; ARM hosts
+require amd64 emulation.
+
+To stop only this application without stopping shared resources:
+
+```bash
+docker compose stop payment-updater
+```
+
 ### Run tests
 
 Execute unit tests:

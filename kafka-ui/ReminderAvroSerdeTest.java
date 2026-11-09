@@ -69,6 +69,15 @@ public final class ReminderAvroSerdeTest {
     assert Arrays.equals(encoded, serializer.serialize(decoded))
         : "Canonical Avro JSON must also be accepted";
 
+    var paymentSerializer = serde.serializer("messages-payments", Target.VALUE);
+    var paymentDeserializer = serde.deserializer("messages-payments", Target.VALUE);
+    byte[] paymentEncoded = paymentSerializer.serialize(input);
+    assert Arrays.equals(encoded, paymentEncoded)
+        : "Both legacy message topics must use the same raw Avro encoding";
+    assert paymentDeserializer.deserialize(null, paymentEncoded).getResult().equals(decoded);
+    assert !serde.canSerialize("messages-payments", Target.KEY);
+    expectInvalid(() -> serde.serializer("messages-payments", Target.KEY));
+
     ObjectNode nullable = (ObjectNode) mapper.readTree(input);
     nullable.putNull("feature_level_type");
     nullable.putNull("content_type");

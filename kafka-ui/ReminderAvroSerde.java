@@ -46,7 +46,7 @@ public final class ReminderAvroSerde implements Serde {
   @Override
   public Optional<String> getDescription() {
     return Optional.of(
-        "Reminder JSON to raw Avro, without Confluent framing. "
+        "Legacy message JSON to raw Avro, without Confluent framing. "
             + "Enum fields accept plain strings such as ADVANCED and PAYMENT.");
   }
 
@@ -57,7 +57,8 @@ public final class ReminderAvroSerde implements Serde {
 
   @Override
   public boolean canSerialize(String topic, Target type) {
-    return type == Target.VALUE && "reminder-messages".equals(topic);
+    return type == Target.VALUE
+        && ("reminder-messages".equals(topic) || "messages-payments".equals(topic));
   }
 
   @Override
@@ -139,7 +140,8 @@ public final class ReminderAvroSerde implements Serde {
 
   private void requireSupportedTarget(String topic, Target type) {
     if (!canSerialize(topic, type)) {
-      throw new IllegalArgumentException("Reminder Avro supports only reminder-messages values");
+      throw new IllegalArgumentException(
+          "Reminder Avro supports only reminder-messages and messages-payments values");
     }
   }
 }
