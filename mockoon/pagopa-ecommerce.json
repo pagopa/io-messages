@@ -16,6 +16,60 @@
       "endpoint": "payment-requests/:rpt_id",
       "responses": [
         {
+          "uuid": "0fbc2d39-714b-4f44-bc81-7a73f6d67425",
+          "body": "{\n  \"rptId\": \"{{urlParam 'rpt_id'}}\",\n  \"paFiscalCode\": \"99999999999\",\n  \"paName\": \"Reminder Mock PA\",\n  \"description\": \"Local payment reminder\",\n  \"amount\": 11400,\n  \"dueDate\": \"{{dateTimeShift format='yyyy-MM-dd' days=7}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Reminder payment due in seven days",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "rpt_id",
+              "value": "99999999999000000000000000001",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "b7a5f60c-2dc7-4bc2-9c63-49704d38d9d0",
+          "body": "{\n  \"rptId\": \"{{urlParam 'rpt_id'}}\",\n  \"paFiscalCode\": \"99999999999\",\n  \"paName\": \"Reminder Mock PA\",\n  \"description\": \"Local last payment reminder\",\n  \"amount\": 11400,\n  \"dueDate\": \"{{dateTimeShift format='yyyy-MM-dd' days=1}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Reminder payment due tomorrow",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "rpt_id",
+              "value": "99999999999000000000000000002",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
           "uuid": "a1e77870-8f5d-4bf0-9877-f07c8dbfce6d",
           "body": "{\n  \"rptId\": \"{{urlParam 'rpt_id'}}\",\n  \"paFiscalCode\": \"12345678901\",\n  \"paName\": \"PagoPA Mock PA\",\n  \"description\": \"PagoPA Ecommerce mock payment\",\n  \"amount\": 11400,\n  \"dueDate\": \"2025-05-31\"\n}",
           "latency": 0,

@@ -24,6 +24,103 @@ services:
     ports:
       - 3000:3000
 
+  reminder:
+    profiles: ["reminder"]
+    build:
+      context: ./apps/reminder
+      dockerfile: Dockerfile
+      platforms: ["linux/amd64"]
+    platform: linux/amd64
+    ports:
+      - "127.0.0.1:${REMINDER_LOCAL_PORT:-9090}:9090"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      JAVA_TOOL_OPTIONS: "-Dotel.javaagent.enabled=false -Duser.timezone=Europe/Rome"
+      MONGO_DATABASE_URI: "mongodb://root:local@mongo:27017/reminder?authSource=admin"
+      BOOTSTRAP_SERVER_REMINDER: "eventhubs:9092"
+      BOOTSTRAP_SERVER_SHARED: "eventhubs:9092"
+      KAFKA_URL_MESSAGE: &local-kafka-jaas >-
+        org.apache.kafka.common.security.plain.PlainLoginModule required
+        username="$$ConnectionString"
+        password="Endpoint=sb://eventhubs;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";
+      KAFKA_URL_MESSAGESTATUS: *local-kafka-jaas
+      KAFKA_URL_MESSAGESEND: *local-kafka-jaas
+      KAFKA_URL_SHARED: *local-kafka-jaas
+      IS_ACTIVE_MESSAGE_CONSUMER: "true"
+      IS_ACTIVE_MESSAGESTATUS_CONSUMER: "false"
+      IS_ACTIVE_PAYMENT_CONSUMER: "true"
+      IS_ACTIVE_MESSAGESEND_CONSUMER: "true"
+      ENABLE_QUARTZ: "true"
+      SCHEDULER_REMINDER_NOTIFY_ACTIVE: "true"
+      SCHEDULER_REMINDER_DELETE_ACTIVE: "false"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      eventhubs:
+        condition: service_started
+      mock-server-pagopa-ecommerce:
+        condition: service_healthy
+      mock-server-apim:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          wget --quiet --output-document=/dev/null http://127.0.0.1:9090/health
+          && wget --quiet --output-document=/dev/null http://eventhubs:5300/health
+      interval: 5s
+      timeout: 3s
+      start_period: 30s
+      retries: 20
+
+  payment-updater:
+    profiles: ["payment-updater"]
+    build:
+      context: ./apps/payment-updater
+      dockerfile: Dockerfile
+      platforms: ["linux/amd64"]
+    platform: linux/amd64
+    ports:
+      - "127.0.0.1:${PAYMENT_UPDATER_LOCAL_PORT:-9091}:9090"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      JAVA_TOOL_OPTIONS: "-Dotel.javaagent.enabled=false -Duser.timezone=Europe/Rome"
+      MONGO_DATABASE_URI: "mongodb://root:local@mongo:27017/payment-updater?authSource=admin"
+      BOOTSTRAP_SERVER_MESSAGE: "eventhubs:9092"
+      BOOTSTRAP_SERVER_PAYMENT: "eventhubs:9092"
+      BOOTSTRAP_SERVER_PAYMENTUPDATES: "eventhubs:9092"
+      KAFKA_URL_MESSAGE: *local-kafka-jaas
+      KAFKA_URL_PAYMENT: *local-kafka-jaas
+      KAFKA_URL_PAYMENTUPDATES: *local-kafka-jaas
+      KAFKA_MESSAGE: "messages-payments"
+      KAFKA_PAYMENTS: "nodo-dei-pagamenti-biz-evt"
+      KAFKA_PAYMENT_UPDATES: "payment-updates"
+      PAGOPA_ECOMMERCE_ENDPOINT: "http://mock-server-pagopa-ecommerce:3000"
+      PAGOPA_ECOMMERCE_KEY: "not-required"
+      IS_ACTIVE_MESSAGE_CONSUMER: "true"
+      IS_ACTIVE_PAYMENT_CONSUMER: "true"
+      SCHEDULER_RETRY_ACTIVE: "true"
+      QUARTZ_SCHEDULER_TIMER_NOTIFY: "0 0/1 * * * ?"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      eventhubs:
+        condition: service_started
+      mock-server-pagopa-ecommerce:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          wget --quiet --output-document=/dev/null http://127.0.0.1:9090/api/v1/health/ready
+          && wget --quiet --output-document=/dev/null http://eventhubs:5300/health
+      interval: 5s
+      timeout: 3s
+      start_period: 30s
+      retries: 20
+
   redis:
     image: "redis/redis-stack:6.2.6-v19@sha256:93b5454f383821d7279373ff97fcaa48960cc543c53afe1471e2e2a97efee6df"
     ports:
@@ -88,17 +185,26 @@ services:
       ACCEPT_EULA: Y
 
   kafka-ui:
-    image: "provectuslabs/kafka-ui:latest@sha256:8f2ff02d64b0a7a2b71b6b3b3148b85f66d00ec20ad40c30bdcd415d46d31818"
+    build:
+      context: .
+      dockerfile: ./kafka-ui/Dockerfile
     depends_on:
       - "eventhubs"
     ports:
       - "8002:8080"
+    volumes:
+      - "./apps/reminder/src/main/resources/avro/message.json:/etc/kafka-ui/schemas/reminder-message.json:ro"
     environment:
       KAFKA_CLUSTERS_0_NAME: "local"
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "eventhubs:9092"
       KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL: "SASL_PLAINTEXT"
       KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM: "PLAIN"
       KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="$$ConnectionString" password="Endpoint=sb://eventhubs;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";'
+      KAFKA_CLUSTERS_0_SERDE_0_NAME: "ReminderAvro"
+      KAFKA_CLUSTERS_0_SERDE_0_CLASSNAME: "it.ioapp.com.local.ReminderAvroSerde"
+      KAFKA_CLUSTERS_0_SERDE_0_FILEPATH: "/etc/kafka-ui/serdes/reminder-avro-serde.jar"
+      KAFKA_CLUSTERS_0_SERDE_0_TOPICVALUESPATTERN: "^(reminder-messages|messages-payments)$"
+      KAFKA_CLUSTERS_0_SERDE_0_PROPERTIES_SCHEMAFILE: "/etc/kafka-ui/schemas/reminder-message.json"
 
   mailhog:
     image: "mailhog/mailhog@sha256:8d76a3d4ffa32a3661311944007a415332c4bb855657f4f6c57996405c009bea"
@@ -121,6 +227,16 @@ services:
       - "8007:3000"
     volumes:
       - "./mockoon/apim.json:/data:readonly"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/messages/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 5s
+      timeout: 3s
+      start_period: 10s
+      retries: 20
 
   mock-server-services-cms:
     image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
@@ -135,8 +251,20 @@ services:
     command: ["--data", "data", "--port", "3000"]
     ports:
       - "8010:3000"
+    environment:
+      TZ: Europe/Rome
     volumes:
       - "./mockoon/pagopa-ecommerce.json:/data:readonly"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/payment-requests/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 5s
+      timeout: 3s
+      start_period: 10s
+      retries: 20
 
   mock-server-send:
     image: mockoon/cli:latest@sha256:80c4acd9517840b6574784d420de2dc97a8b750d21b6a4b573d042d21e4833ba
@@ -177,6 +305,16 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: "local"
       MYSQL_DATABASE: "reminder"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          MYSQL_PWD="$$MYSQL_ROOT_PASSWORD" mysql
+          --host=127.0.0.1 --user=root --database="$$MYSQL_DATABASE" --execute="SELECT 1"
+      interval: 5s
+      timeout: 3s
+      start_period: 30s
+      retries: 20
 
   phpmyadmin:
     image: "phpmyadmin:5.2.2-apache@sha256:73467128842bc4406372310f068bc9ccb6727a82c7b5dc9c4f3d815ead33eab8"
@@ -197,6 +335,19 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: local
       MONGO_INITDB_DATABASE: "reminder"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          mongosh --quiet --host 127.0.0.1
+          --username "$$MONGO_INITDB_ROOT_USERNAME"
+          --password "$$MONGO_INITDB_ROOT_PASSWORD"
+          --authenticationDatabase admin
+          --eval 'db.adminCommand({ ping: 1 })'
+      interval: 5s
+      timeout: 3s
+      start_period: 30s
+      retries: 20
 
   mongo-express:
     image: mongo-express@sha256:1b23d7976f0210dbec74045c209e52fbb26d29b2e873d6c6fa3d3f0ae32c2a64
