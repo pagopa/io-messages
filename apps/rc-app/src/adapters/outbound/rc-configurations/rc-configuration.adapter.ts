@@ -11,6 +11,7 @@ import {
   NotFoundError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
+import { getErrorMessage } from "io-messages-common/adapters/error";
 import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import { Result, ResultAsync, err, ok } from "neverthrow";
 import z from "zod";
@@ -60,9 +61,6 @@ export const cosmosRCConfigurationSchema = z.object({
 });
 
 type CosmosRCConfiguration = z.TypeOf<typeof cosmosRCConfigurationSchema>;
-
-const getErrorMessage = (error: unknown): string =>
-  error instanceof Error ? `${error.name}: ${error.message}` : String(error);
 
 // Maps the adapter specific Cosmos representation to the domain type expected by
 // the port.

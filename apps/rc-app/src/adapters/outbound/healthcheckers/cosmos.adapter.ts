@@ -1,6 +1,7 @@
 import { AppHealthchecker } from "@/application/ports/app-healthcheck.js";
 import { CosmosClient, RestError } from "@azure/cosmos";
 import { GenericError } from "@pagopa/hexagonal-core";
+import { getErrorDetail } from "io-messages-common/adapters/error";
 import { Result, err, ok } from "neverthrow";
 
 export class CosmosClientHealthcheckAdapter implements AppHealthchecker {
@@ -36,7 +37,7 @@ export class CosmosClientHealthcheckAdapter implements AppHealthchecker {
       }
       return err(
         new GenericError(
-          `unexpected error in cosmos db ${this.name}: ${e instanceof Error ? e.message : String(e)}`,
+          `unexpected error in cosmos db ${this.name}: ${getErrorDetail(e)}`,
         ),
       );
     }

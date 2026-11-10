@@ -2,6 +2,7 @@ import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
 import type { RedisClientType } from "redis";
 
 import { GenericError, NotFoundError } from "@pagopa/hexagonal-core";
+import { getErrorDetail } from "io-messages-common/adapters/error";
 import { Result, ResultAsync, err, ok } from "neverthrow";
 
 import { MalformedEntityError } from "../../../application/ports/error.js";
@@ -36,7 +37,7 @@ export class RCConfigurationCacheAdapter
         `${RC_CONFIGURATION_REDIS_PREFIX}-${configurationId}`,
       ),
       (error) => {
-        const message = error instanceof Error ? error.message : String(error);
+        const message = getErrorDetail(error);
         return new GenericError(`Redis error: ${message}`);
       },
     );

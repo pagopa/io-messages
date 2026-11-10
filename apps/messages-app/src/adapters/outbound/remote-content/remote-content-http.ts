@@ -8,6 +8,7 @@ import {
   TooManyRequestsError,
   ValidationError,
 } from "@pagopa/hexagonal-core";
+import { toErrorBody } from "io-messages-common/adapters/error";
 import { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import { MessageId } from "io-messages-common/domain/message";
 import { RCAuthenticationConfig } from "io-messages-common/domain/remote-content";
@@ -55,18 +56,6 @@ export class RemoteContentHTTPAdapter
   constructor(logger: Logger) {
     this.#client = createClient();
     this.#logger = logger;
-  }
-
-  private toErrorBody(error: unknown): string {
-    if (typeof error === "string") return error;
-    if (error instanceof Error) return error.message;
-
-    const errorBody = Result.fromThrowable(
-      () => JSON.stringify(error),
-      () => undefined,
-    )().unwrapOr(undefined);
-
-    return errorBody ?? "unreadable response body";
   }
 
   private validateMessageAttachmentSuccessResponse(
@@ -133,7 +122,7 @@ export class RemoteContentHTTPAdapter
     });
 
     if (!getRCMessageResult.response) {
-      return err(new GenericError(this.toErrorBody(getRCMessageResult.error)));
+      return err(new GenericError(toErrorBody(getRCMessageResult.error)));
     }
 
     switch (getRCMessageResult.response.status) {
@@ -250,7 +239,7 @@ export class RemoteContentHTTPAdapter
 
     if (!getRCMessageAttachmentResult.response) {
       return err(
-        new GenericError(this.toErrorBody(getRCMessageAttachmentResult.error)),
+        new GenericError(toErrorBody(getRCMessageAttachmentResult.error)),
       );
     }
 
@@ -384,9 +373,7 @@ export class RemoteContentHTTPAdapter
 
     if (!getRCMessagePreconditionResult.response) {
       return err(
-        new GenericError(
-          this.toErrorBody(getRCMessagePreconditionResult.error),
-        ),
+        new GenericError(toErrorBody(getRCMessagePreconditionResult.error)),
       );
     }
 

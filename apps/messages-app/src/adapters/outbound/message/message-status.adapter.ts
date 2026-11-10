@@ -15,6 +15,7 @@ import {
   NotFoundError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
+import { getErrorMessage } from "io-messages-common/adapters/error";
 import { Result, ResultAsync, err, ok } from "neverthrow";
 import z from "zod";
 
@@ -44,9 +45,6 @@ const getStatusCode = (error: unknown): number | undefined => {
 
   return Number.isNaN(statusCode) ? undefined : statusCode;
 };
-
-const getErrorMessage = (error: unknown): string =>
-  error instanceof Error ? `${error.name}: ${error.message}` : String(error);
 
 // The message status as it is persisted on Cosmos. This is the adapter specific
 // representation  and it is intentionally kept separate from the domain
