@@ -1,5 +1,11 @@
 # payment-updater
 
+## 2.7.8
+
+### Patch Changes
+
+- afec4e3: Make payment-updater and reminder run locally
+
 ## 2.7.7
 
 ### Patch Changes
