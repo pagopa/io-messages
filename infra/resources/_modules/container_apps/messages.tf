@@ -164,7 +164,25 @@ module "messages_ca" {
     http_scalers = [
       {
         name                = "http-requests"
-        concurrent_requests = 25
+        concurrent_requests = 1000
+      }
+    ]
+    custom_scalers = [
+      {
+        name             = "cpu-utilization"
+        custom_rule_type = "cpu"
+        metadata = {
+          type  = "Utilization"
+          value = "50"
+        }
+      },
+      {
+        name             = "memory-utilization"
+        custom_rule_type = "memory"
+        metadata = {
+          type  = "Utilization"
+          value = "60"
+        }
       }
     ]
   }
