@@ -158,9 +158,15 @@ module "messages_ca" {
 
   autoscaler = {
     replicas = {
-      minimum = 1
-      maximum = 8
+      minimum = 5
+      maximum = 15
     }
+    http_scalers = [
+      {
+        name                = "http-requests"
+        concurrent_requests = 25
+      }
+    ]
   }
 
   container_port = 3000
