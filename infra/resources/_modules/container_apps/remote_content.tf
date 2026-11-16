@@ -49,9 +49,33 @@ module "remote_content_ca" {
 
   autoscaler = {
     replicas = {
-      minimum = 1
-      maximum = 8
+      minimum = 4
+      maximum = 12
     }
+    http_scalers = [
+      {
+        name                = "http-requests"
+        concurrent_requests = 1000
+      }
+    ]
+    custom_scalers = [
+      {
+        name             = "cpu-utilization"
+        custom_rule_type = "cpu"
+        metadata = {
+          type  = "Utilization"
+          value = "50"
+        }
+      },
+      {
+        name             = "memory-utilization"
+        custom_rule_type = "memory"
+        metadata = {
+          type  = "Utilization"
+          value = "60"
+        }
+      }
+    ]
   }
 
   container_port = 3000
