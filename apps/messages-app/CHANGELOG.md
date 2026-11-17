@@ -1,5 +1,11 @@
 # messages-app
 
+## 1.1.3
+
+### Patch Changes
+
+- 96ca310: Add Accept header into SEND getNotification call
+
 ## 1.1.2
 
 ### Patch Changes
