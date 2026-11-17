@@ -148,6 +148,8 @@ export class SendHTTPAdapter
       baseUrl: baseUrl.toString().replace(/\/+$/, ""),
       client: this.#client,
       headers: {
+        // SEND returns the IO-specific notification format only for this media type.
+        Accept: "application/io+json",
         ...lollipopHeaders,
         // Hey API's `auth` option requires a static security header name,
         // while each Remote Content provider configures its own.

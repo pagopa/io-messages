@@ -60,6 +60,8 @@ export type GetRemoteContentMessageAttachmentUseCase = UseCase<
   GetRemoteContentMessageAttachmentError
 >;
 
+const DEFAULT_RETRY_AFTER = "10";
+
 const getConfigurationId = (
   content: MessageContent,
   senderServiceId: string,
@@ -194,7 +196,16 @@ export const makeGetRemoteContentMessageAttachmentUseCase =
         senderServiceId: metadata.senderServiceId,
         thirdPartyMessageId: thirdPartyData.id,
       });
-    if (attachmentResult.isErr()) return err(attachmentResult.error);
+    if (attachmentResult.isErr()) {
+      const error = attachmentResult.error;
+      // Legacy behavior: clients always receive a Retry-After on 503.
+      return err(
+        error instanceof RemoteContentServiceUnavailableError &&
+          error.retryAfter === undefined
+          ? new RemoteContentServiceUnavailableError(DEFAULT_RETRY_AFTER)
+          : error,
+      );
+    }
 
     return isPdf(attachmentResult.value)
       ? ok(attachmentResult.value)
