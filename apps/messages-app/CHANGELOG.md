@@ -1,5 +1,11 @@
 # messages-app
 
+## 1.2.0
+
+### Minor Changes
+
+- 803cf38: Update node version to 24.22.1
+
 ## 1.1.3
 
 ### Patch Changes
