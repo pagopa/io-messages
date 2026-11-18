@@ -1,5 +1,11 @@
 # rc-app
 
+## 0.6.0
+
+### Minor Changes
+
+- 803cf38: Update node version to 24.22.1
+
 ## 0.5.1
 
 ### Patch Changes
