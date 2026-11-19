@@ -150,6 +150,7 @@ locals {
       QUARTZ_MAXIMUM_POOL_SIZE              = "10",
       QUARTZ_MINIMUM_IDLE_CONNECTIONS       = "5",
       QUARTZ_IDLE_CONNECTIONS_TIMEOUT       = "10000",
+      JAVA_TOOL_OPTIONS                     = "-XX:-UseBASE64Intrinsics"
     }
 
     secrets = [

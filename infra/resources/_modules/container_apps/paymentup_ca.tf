@@ -96,6 +96,7 @@ locals {
       SECURITY_PROTOCOL_PAYMENT             = "SASL_SSL"
       SCHEDULER_RETRY_ACTIVE                = "true"
       SCHEDULER_RETRY_SIZE                  = "100"
+      JAVA_TOOL_OPTIONS                     = "-XX:-UseBASE64Intrinsics"
     }
 
     secrets = [
