@@ -21,6 +21,8 @@ import {
 import { getPaymentRequestInfo } from "../../../generated/pagopa-ecommerce/sdk.gen.js";
 import { ProblemJson } from "../../../generated/pagopa-ecommerce/types.gen.js";
 
+const REQUEST_TIMEOUT_MS = 3000;
+
 interface PagoPAEcommerceEnvironmentData {
   apiKey: string;
   baseURL: URL;
@@ -94,6 +96,7 @@ export class PagoPAEcommerceHttpClientAdapter implements PaymentInfoRepository {
     isTest: boolean,
   ): Promise<Result<PaymentInfo, PaymentInfoError>> {
     const environment = isTest ? this.uatClient : this.productionClient;
+    const signal = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
 
     const paymentRequestInfoResult = await ResultAsync.fromPromise(
       getPaymentRequestInfo({
@@ -102,9 +105,13 @@ export class PagoPAEcommerceHttpClientAdapter implements PaymentInfoRepository {
         path: {
           rpt_id: rptId,
         },
+        signal,
       }),
       (error) => new GenericError(toErrorBody(error)),
     );
+
+    if (signal.aborted)
+      return err(new GenericError(toErrorBody(signal.reason)));
 
     if (paymentRequestInfoResult.isErr())
       return err(paymentRequestInfoResult.error);
