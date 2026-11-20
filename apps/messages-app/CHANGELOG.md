@@ -1,5 +1,13 @@
 # messages-app
 
+## 1.2.1
+
+### Patch Changes
+
+- 3ed5a0f: Fixed 500 on wrongly parsed payment data
+- Updated dependencies [3ed5a0f]
+  - io-messages-common@1.4.7
+
 ## 1.2.0
 
 ### Minor Changes
