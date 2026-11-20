@@ -2,12 +2,10 @@
     <inbound>
         <base />
         <include-fragment fragment-id="ioapp-authenticated-cache" />
-        <set-variable name="canaryUsers" value="{{canary-fiscal-codes}}" />
         <set-variable name="useNewBackend" value="@{
             var rolloutPercentage = 0;
 
-            var canaryUsersJson = context.Variables.GetValueOrDefault("canaryUsers", "[]");
-            var canaryUsers = Newtonsoft.Json.Linq.JArray.Parse(canaryUsersJson).ToObject<string[]>();
+            var canaryUsers = new string[] { "RMLGNN97R06F158N", "CCTDNL87P23A271B", "PIANDR86P16L565G", "CSRMTN01T26A944H", "GSTGLI91E42H501V", "CCCRRT95E28H856C", "BRTSMN97T21H501O", "SCRGMR95T12F158I" };
             var migratedOperations = new string[] {
                 "getUserMessages",
                 "getUserMessage",
