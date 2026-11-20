@@ -58,7 +58,10 @@ export const makeListRcConfigurationUseCase =
     if (missingConfigurationIds.size > 0) {
       logger.trackEvent({
         name: "ListRcConfigurationUseCase.listRemoteContentConfigurations.failed.notFound",
-        properties: { missingCount: missingConfigurationIds.size },
+        properties: {
+          missingConfigurationIds: JSON.stringify([...missingConfigurationIds]),
+          missingCount: missingConfigurationIds.size,
+        },
       });
     }
 

@@ -82,6 +82,7 @@ describe("makeListRcConfigurationUseCase", () => {
   });
 
   it("tracks unresolved configuration IDs once without changing the list", async () => {
+    const thirdConfigurationId = "01BX5ZZKBKACTAV9WEVGEMMVS0";
     const userRCConfigurationRepository = makeUserRCConfigurationRepository();
     const remoteContentRepository = makeRemoteContentRepository();
     vi.mocked(
@@ -91,6 +92,7 @@ describe("makeListRcConfigurationUseCase", () => {
         { id: aConfigurationId, userId: aUserId },
         { id: anotherConfigurationId, userId: aUserId },
         { id: anotherConfigurationId, userId: aUserId },
+        { id: thirdConfigurationId, userId: aUserId },
       ]),
     );
     vi.mocked(
@@ -108,7 +110,13 @@ describe("makeListRcConfigurationUseCase", () => {
     ]);
     expect(logger.trackEvent).toHaveBeenCalledExactlyOnceWith({
       name: "ListRcConfigurationUseCase.listRemoteContentConfigurations.failed.notFound",
-      properties: { missingCount: 1 },
+      properties: {
+        missingConfigurationIds: JSON.stringify([
+          anotherConfigurationId,
+          thirdConfigurationId,
+        ]),
+        missingCount: 2,
+      },
     });
   });
 
