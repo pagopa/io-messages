@@ -1,5 +1,12 @@
 # messages-app
 
+## 1.2.2
+
+### Patch Changes
+
+- 47bb580: Track Remote Content message validation failures and report the count and IDs of
+  unresolved configuration links without changing endpoint responses.
+
 ## 1.2.1
 
 ### Patch Changes
