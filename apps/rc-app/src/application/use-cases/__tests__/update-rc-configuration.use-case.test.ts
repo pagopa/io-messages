@@ -1,5 +1,3 @@
-import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
-
 import {
   ForbiddenError,
   GenericError,
@@ -42,11 +40,6 @@ const makeRepository = (): RemoteContentRepository => ({
   updateRemoteContentConfiguration: vi.fn(),
 });
 
-const makeLogger = (): Logger =>
-  ({
-    trackEvent: vi.fn(),
-  }) as unknown as Logger;
-
 const makeValidInput = () => ({
   configuration: aConfigurationUpdate,
   configurationId: aConfigurationId,
@@ -56,7 +49,6 @@ const makeValidInput = () => ({
 
 describe("makeUpdateRcConfigurationUseCase", () => {
   it("updates the configuration when the caller owns it", async () => {
-    const logger = makeLogger();
     const repository = makeRepository();
     vi.mocked(repository.getRemoteContentConfiguration).mockResolvedValueOnce(
       ok(aValidConfiguration),
@@ -67,10 +59,8 @@ describe("makeUpdateRcConfigurationUseCase", () => {
       ok({ ...aValidConfiguration, ...aConfigurationUpdate }),
     );
 
-    const result = await makeUpdateRcConfigurationUseCase(
-      repository,
-      logger,
-    )(makeValidInput());
+    const result =
+      await makeUpdateRcConfigurationUseCase(repository)(makeValidInput());
 
     expect(result.isOk()).toBe(true);
     expect(repository.updateRemoteContentConfiguration).toHaveBeenCalledWith({
@@ -79,11 +69,9 @@ describe("makeUpdateRcConfigurationUseCase", () => {
       id: aConfigurationId,
       userId: aUserId,
     });
-    expect(logger.trackEvent).not.toHaveBeenCalled();
   });
 
   it("updates the configuration preserving the owner when the caller is internal", async () => {
-    const logger = makeLogger();
     const repository = makeRepository();
     vi.mocked(repository.getRemoteContentConfiguration).mockResolvedValueOnce(
       ok(aValidConfiguration),
@@ -94,10 +82,7 @@ describe("makeUpdateRcConfigurationUseCase", () => {
       ok({ ...aValidConfiguration, ...aConfigurationUpdate }),
     );
 
-    const result = await makeUpdateRcConfigurationUseCase(
-      repository,
-      logger,
-    )({
+    const result = await makeUpdateRcConfigurationUseCase(repository)({
       ...makeValidInput(),
       isInternalUser: true,
       userId: "internal-user",
@@ -113,16 +98,13 @@ describe("makeUpdateRcConfigurationUseCase", () => {
   });
 
   it("returns ForbiddenError when the caller does not own the configuration", async () => {
-    const logger = makeLogger();
     const repository = makeRepository();
     vi.mocked(repository.getRemoteContentConfiguration).mockResolvedValueOnce(
       ok({ ...aValidConfiguration, userId: "another-user" }),
     );
 
-    const result = await makeUpdateRcConfigurationUseCase(
-      repository,
-      logger,
-    )(makeValidInput());
+    const result =
+      await makeUpdateRcConfigurationUseCase(repository)(makeValidInput());
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(ForbiddenError);
@@ -130,24 +112,20 @@ describe("makeUpdateRcConfigurationUseCase", () => {
   });
 
   it("returns NotFoundError when the configuration does not exist", async () => {
-    const logger = makeLogger();
     const repository = makeRepository();
     vi.mocked(repository.getRemoteContentConfiguration).mockResolvedValueOnce(
       err(new NotFoundError("rc-configuration", "not found")),
     );
 
-    const result = await makeUpdateRcConfigurationUseCase(
-      repository,
-      logger,
-    )(makeValidInput());
+    const result =
+      await makeUpdateRcConfigurationUseCase(repository)(makeValidInput());
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
     expect(repository.updateRemoteContentConfiguration).not.toHaveBeenCalled();
   });
 
-  it("returns repository update errors and tracks an event", async () => {
-    const logger = makeLogger();
+  it("returns repository update errors", async () => {
     const repository = makeRepository();
     const error = new TooManyRequestsError();
     vi.mocked(repository.getRemoteContentConfiguration).mockResolvedValueOnce(
@@ -157,35 +135,21 @@ describe("makeUpdateRcConfigurationUseCase", () => {
       repository.updateRemoteContentConfiguration,
     ).mockResolvedValueOnce(err(error));
 
-    const result = await makeUpdateRcConfigurationUseCase(
-      repository,
-      logger,
-    )(makeValidInput());
+    const result =
+      await makeUpdateRcConfigurationUseCase(repository)(makeValidInput());
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
-    expect(logger.trackEvent).toHaveBeenCalledWith({
-      name: "UpdateRcConfigurationUseCase.failed.update",
-      properties: {
-        configurationId: aConfigurationId,
-        error: error.name,
-        message: error.message,
-        userId: aUserId,
-      },
-    });
   });
 
   it("returns GenericError from the read path", async () => {
-    const logger = makeLogger();
     const repository = makeRepository();
     vi.mocked(repository.getRemoteContentConfiguration).mockResolvedValueOnce(
       err(new GenericError("cosmos unavailable")),
     );
 
-    const result = await makeUpdateRcConfigurationUseCase(
-      repository,
-      logger,
-    )(makeValidInput());
+    const result =
+      await makeUpdateRcConfigurationUseCase(repository)(makeValidInput());
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);

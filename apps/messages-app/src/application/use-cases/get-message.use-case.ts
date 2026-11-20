@@ -1,3 +1,5 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import {
   FiscalCode,
   GenericError,
@@ -102,6 +104,7 @@ export const makeGetMessageUseCase =
     servicesCmsRepository: ServicesCmsRepository,
     pnServiceId: string,
     serviceToRCMap: ServiceToRCConfigMap,
+    logger?: Logger,
   ): GetMessageUseCase =>
   async ({ fiscalCode, messageId, publicMessage }) => {
     const [metadataResult, contentResult] = await Promise.all([
@@ -113,7 +116,15 @@ export const makeGetMessageUseCase =
     ]);
 
     if (metadataResult.isErr()) return err(metadataResult.error);
-    if (contentResult.isErr()) return err(contentResult.error);
+    if (contentResult.isErr()) {
+      if (contentResult.error instanceof NotFoundError) {
+        logger?.trackEvent({
+          name: "GetMessageUseCase.content.missing",
+          properties: { messageId },
+        });
+      }
+      return err(contentResult.error);
+    }
 
     const metadata = metadataResult.value;
     let content = contentResult.value;
@@ -142,6 +153,9 @@ export const makeGetMessageUseCase =
     ) {
       const configurationId = serviceToRCMap.get(metadata.senderServiceId);
       if (!configurationId) {
+        logger?.trackEvent({
+          name: "GetMessageUseCase.rcConfiguration.unmapped",
+        });
         return err(
           new GenericError(
             `Cannot find remote content configuration for service ${metadata.senderServiceId}`,
@@ -172,6 +186,12 @@ export const makeGetMessageUseCase =
     const statusResult =
       await messageStatusRepository.getLatestMessageStatusById(messageId);
     if (statusResult.isErr()) {
+      if (statusResult.error instanceof NotFoundError) {
+        logger?.trackEvent({
+          name: "GetMessageUseCase.status.missing",
+          properties: { messageId },
+        });
+      }
       return err(new GenericError(statusResult.error.message));
     }
 

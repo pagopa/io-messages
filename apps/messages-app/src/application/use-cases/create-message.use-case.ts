@@ -35,6 +35,7 @@ import {
   createMessagePermissionSchema,
 } from "../ports/create-message.js";
 import { MalformedEntityError } from "../ports/error.js";
+import { classifyWriteFailure } from "../telemetry.js";
 import { canSendToAge } from "./age-eligibility.js";
 
 export interface CreateMessageInput {
@@ -391,6 +392,10 @@ export const makeCreateMessageUseCase =
     const metadataResult =
       await messageMetadataRepository.createMessageMetadata(metadata);
     if (metadataResult.isErr()) {
+      logger.trackEvent({
+        name: "CreateMessageUseCase.createMessageMetadata.failed",
+        properties: { reason: classifyWriteFailure(metadataResult.error) },
+      });
       return err(metadataResult.error);
     }
 
@@ -419,6 +424,7 @@ export const makeCreateMessageUseCase =
         properties: {
           errorMessage: processingPayloadResult.error.message,
           messageId,
+          reason: classifyWriteFailure(processingPayloadResult.error),
           serviceId: service.id,
         },
       });
@@ -435,6 +441,7 @@ export const makeCreateMessageUseCase =
         properties: {
           errorMessage: publishResult.error.message,
           messageId,
+          reason: classifyWriteFailure(publishResult.error),
           serviceId: service.id,
         },
       });

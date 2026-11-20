@@ -318,7 +318,6 @@ export const makeGetMessagesByUserUseCase =
     // To fetch a page of messages, we need to retrieve metadata, statuses and
     // contents. Metadata and statuses collection (including the buffered
     // pagination) is delegated to `collectSelectedMessages`.
-    //
     // Restructuring the data model (e.g., partitioning the statuses by
     // `fiscalCode`) would improve both the performance and simplicity of this
     // operation.
@@ -366,6 +365,12 @@ export const makeGetMessagesByUserUseCase =
     const contentById = messageContents.value;
     const serviceDetailsByServiceId = serviceDetails.value;
     const items: PublicMessage[] = [];
+    const skipped = {
+      contentInvalid: 0,
+      contentMissing: 0,
+      rcConfigurationMissing: 0,
+      serviceUnavailable: 0,
+    };
 
     // We use a Map in order to avoid calling multiple times the
     // `remoteContentConfigurationRepository.getConfigurationIDFromMessageContent`
@@ -378,6 +383,12 @@ export const makeGetMessagesByUserUseCase =
 
       // Skip messages whose content is missing or invalid.
       if (!content || content.isErr()) {
+        if (
+          !content ||
+          (content.isErr() && content.error instanceof NotFoundError)
+        )
+          skipped.contentMissing++;
+        else skipped.contentInvalid++;
         continue;
       }
 
@@ -394,7 +405,7 @@ export const makeGetMessagesByUserUseCase =
             serviceID: metadata.senderServiceId,
           },
         });
-
+        skipped.serviceUnavailable++;
         continue;
       }
 
@@ -425,6 +436,7 @@ export const makeGetMessagesByUserUseCase =
                 },
               });
 
+              skipped.rcConfigurationMissing++;
               continue;
             }
 
@@ -475,6 +487,17 @@ export const makeGetMessagesByUserUseCase =
     //   used to navigate to the previous (more recent) page.
     // - `next` is the id of the last (oldest) message of the page and it is set
     //   only when there are more messages to retrieve.
+    if (items.length !== selectedMessages.length) {
+      logger.trackEvent({
+        name: "GetMessagesByUserUseCase.page.partial",
+        properties: {
+          ...skipped,
+          returned: items.length,
+          selected: selectedMessages.length,
+        },
+      });
+    }
+
     return ok({
       items,
       next: hasMoreResults ? selectedMessages.at(-1)?.metadata.id : undefined, // 1

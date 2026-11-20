@@ -200,7 +200,15 @@ describe("SendHTTPAdapter - response validation", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: Invalid response shape from SEND service.",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "send",
+        operation: "getNotification",
+        reason: "invalid_response",
+        upstreamStatus: 200,
+      },
+    });
   });
 });
 
@@ -228,6 +236,7 @@ describe("SendHTTPAdapter - HTTP error responses", () => {
           baseURL: baseURL.toString(),
           details: "{}",
           iun,
+          upstreamStatus: status,
         },
       });
     },
@@ -260,7 +269,14 @@ describe("SendHTTPAdapter - response-less errors", () => {
       expect(result._unsafeUnwrapErr().message).toBe(
         `Generic error: ${expectedMessage}`,
       );
-      expect(trackEventMock).not.toHaveBeenCalled();
+      expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+        name: "MessagesApp.upstream.failed",
+        properties: {
+          dependency: "send",
+          operation: "getNotification",
+          reason: "no_response",
+        },
+      });
     },
   );
 
@@ -281,7 +297,14 @@ describe("SendHTTPAdapter - response-less errors", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: unreadable response body",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "send",
+        operation: "getNotification",
+        reason: "no_response",
+      },
+    });
   });
 });
 
@@ -361,7 +384,15 @@ describe("SendHTTPAdapter - precondition response validation", () => {
       expect(result._unsafeUnwrapErr().message).toBe(
         "Generic error: Invalid precondition response shape from SEND service.",
       );
-      expect(trackEventMock).not.toHaveBeenCalled();
+      expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+        name: "MessagesApp.upstream.failed",
+        properties: {
+          dependency: "send",
+          operation: "getNotificationPrecondition",
+          reason: "invalid_response",
+          upstreamStatus: 200,
+        },
+      });
     },
   );
 });
@@ -390,6 +421,7 @@ describe("SendHTTPAdapter - precondition HTTP error responses", () => {
           baseURL: baseURL.toString(),
           details: "{}",
           iun,
+          upstreamStatus: status,
         },
       });
     },
@@ -412,7 +444,14 @@ describe("SendHTTPAdapter - response-less precondition errors", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: network error",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "send",
+        operation: "getNotificationPrecondition",
+        reason: "no_response",
+      },
+    });
   });
 });
 
@@ -535,6 +574,7 @@ describe("SendHTTPAdapter - attachment metadata failures", () => {
           baseURL: baseURL.toString(),
           details: "{}",
           iun,
+          upstreamStatus: status,
         },
       });
     },
@@ -556,7 +596,14 @@ describe("SendHTTPAdapter - attachment metadata failures", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: network error",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "send",
+        operation: "SentNotificationDocument",
+        reason: "no_response",
+      },
+    });
   });
 
   it("returns a GenericError when metadata does not match the SEND schema", async () => {

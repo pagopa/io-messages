@@ -170,7 +170,15 @@ describe("RemoteContentHTTPAdapter - request and response validation", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: Invalid response shape from the Remote Content service.",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "remote-content",
+        operation: "getRemoteContentMessage",
+        reason: "invalid_response",
+        upstreamStatus: 200,
+      },
+    });
   });
 });
 
@@ -245,7 +253,15 @@ describe("RemoteContentHTTPAdapter - HTTP error responses", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: The Remote Content service returned HTTP status 500.",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "remote-content",
+        operation: "getRemoteContentMessage",
+        reason: "http_error",
+        upstreamStatus: 500,
+      },
+    });
   });
 
   it("returns a GenericError on an unexpected response status", async () => {
@@ -263,7 +279,15 @@ describe("RemoteContentHTTPAdapter - HTTP error responses", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: The Remote Content service returned an unexpected HTTP status.",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "remote-content",
+        operation: "getRemoteContentMessage",
+        reason: "http_error",
+        upstreamStatus: 418,
+      },
+    });
   });
 });
 
@@ -293,7 +317,14 @@ describe("RemoteContentHTTPAdapter - response-less errors", () => {
       expect(result._unsafeUnwrapErr().message).toBe(
         `Generic error: ${expectedMessage}`,
       );
-      expect(trackEventMock).not.toHaveBeenCalled();
+      expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+        name: "MessagesApp.upstream.failed",
+        properties: {
+          dependency: "remote-content",
+          operation: "getRemoteContentMessage",
+          reason: "no_response",
+        },
+      });
     },
   );
 
@@ -314,7 +345,14 @@ describe("RemoteContentHTTPAdapter - response-less errors", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: unreadable response body",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "remote-content",
+        operation: "getRemoteContentMessage",
+        reason: "no_response",
+      },
+    });
   });
 });
 
@@ -394,7 +432,15 @@ describe("RemoteContentHTTPAdapter - precondition response validation", () => {
       expect(result._unsafeUnwrapErr().message).toBe(
         "Generic error: Invalid precondition response shape from the Remote Content service.",
       );
-      expect(trackEventMock).not.toHaveBeenCalled();
+      expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+        name: "MessagesApp.upstream.failed",
+        properties: {
+          dependency: "remote-content",
+          operation: "getRemoteContentMessagePrecondition",
+          reason: "invalid_response",
+          upstreamStatus: 200,
+        },
+      });
     },
   );
 });
@@ -470,7 +516,15 @@ describe("RemoteContentHTTPAdapter - precondition HTTP error responses", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: The Remote Content service returned HTTP status 500.",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "remote-content",
+        operation: "getRemoteContentMessagePrecondition",
+        reason: "http_error",
+        upstreamStatus: 500,
+      },
+    });
   });
 
   it("returns a GenericError on an unexpected precondition response status", async () => {
@@ -488,7 +542,15 @@ describe("RemoteContentHTTPAdapter - precondition HTTP error responses", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: The Remote Content service returned an unexpected HTTP status.",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "remote-content",
+        operation: "getRemoteContentMessagePrecondition",
+        reason: "http_error",
+        upstreamStatus: 418,
+      },
+    });
   });
 });
 
@@ -508,7 +570,14 @@ describe("RemoteContentHTTPAdapter - response-less precondition errors", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: network error",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "remote-content",
+        operation: "getRemoteContentMessagePrecondition",
+        reason: "no_response",
+      },
+    });
   });
 });
 
@@ -589,7 +658,15 @@ describe("RemoteContentHTTPAdapter - attachment response validation", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: Invalid attachment response from the Remote Content service.",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "remote-content",
+        operation: "getRemoteContentMessageAttachment",
+        reason: "invalid_response",
+        upstreamStatus: 200,
+      },
+    });
   });
 });
 
@@ -667,7 +744,15 @@ describe("RemoteContentHTTPAdapter - attachment HTTP error responses", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: The Remote Content service returned HTTP status 500.",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "remote-content",
+        operation: "getRemoteContentMessageAttachment",
+        reason: "http_error",
+        upstreamStatus: 500,
+      },
+    });
   });
 
   it.each([
@@ -722,7 +807,15 @@ describe("RemoteContentHTTPAdapter - attachment HTTP error responses", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: The Remote Content service returned an unexpected HTTP status.",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "remote-content",
+        operation: "getRemoteContentMessageAttachment",
+        reason: "http_error",
+        upstreamStatus: 418,
+      },
+    });
   });
 });
 
@@ -743,6 +836,13 @@ describe("RemoteContentHTTPAdapter - response-less attachment errors", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: network error",
     );
-    expect(trackEventMock).not.toHaveBeenCalled();
+    expect(trackEventMock).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "remote-content",
+        operation: "getRemoteContentMessageAttachment",
+        reason: "no_response",
+      },
+    });
   });
 });

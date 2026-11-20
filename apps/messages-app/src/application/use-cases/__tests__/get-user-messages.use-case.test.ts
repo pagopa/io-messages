@@ -552,10 +552,14 @@ describe("makeGetMessagesByUserUseCase - filtering", () => {
     const page = result._unsafeUnwrap();
     expect(page.items.map((i) => i.id)).toEqual([ULID_B]);
     expect(trackEventMock).toHaveBeenCalledWith({
-      name: "GetMessagesByUserUseCase.getMessageDetailResponse.failed.skippable",
+      name: "GetMessagesByUserUseCase.page.partial",
       properties: {
-        messageID: ULID_A,
-        serviceID: "service-a",
+        contentInvalid: 0,
+        contentMissing: 0,
+        rcConfigurationMissing: 0,
+        returned: 1,
+        selected: 2,
+        serviceUnavailable: 1,
       },
     });
   });
@@ -1087,10 +1091,14 @@ describe("makeGetMessagesByUserUseCase - remote content errors and caching", () 
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap().items).toEqual([]);
     expect(trackEventMock).toHaveBeenCalledWith({
-      name: "GetMessagesByUserUseCase.getRemoteContentConfigurationResponse.failed.notFound",
+      name: "GetMessagesByUserUseCase.page.partial",
       properties: {
-        messageID: ULID_A,
-        rcConfigurationID: RC_CONFIG_ID_A,
+        contentInvalid: 0,
+        contentMissing: 0,
+        rcConfigurationMissing: 1,
+        returned: 0,
+        selected: 1,
+        serviceUnavailable: 0,
       },
     });
   });

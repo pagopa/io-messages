@@ -110,6 +110,7 @@ const anRCConfiguration = (
   ...overrides,
 });
 
+const trackEvent = vi.fn();
 const makeUseCase = () =>
   makeGetRemoteContentMessageAttachmentUseCase(
     metadataRepository,
@@ -118,6 +119,7 @@ const makeUseCase = () =>
     remoteContentProxy,
     buildLollipopHeaders,
     serviceToRCMap,
+    { trackEvent },
   );
 
 beforeEach(() => {
@@ -230,6 +232,9 @@ describe("makeGetRemoteContentMessageAttachmentUseCase", () => {
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(
       RemoteContentAttachmentUnsupportedMediaTypeError,
     );
+    expect(trackEvent).toHaveBeenCalledExactlyOnceWith({
+      name: "GetRemoteContentMessageAttachmentUseCase.pdf.invalid",
+    });
   });
 
   it("preserves not-found and service-unavailable provider errors", async () => {

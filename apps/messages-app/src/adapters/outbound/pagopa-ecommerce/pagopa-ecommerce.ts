@@ -1,3 +1,5 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import { GenericError } from "@pagopa/hexagonal-core";
 import {
   PaymentInfo,
@@ -14,6 +16,10 @@ import {
   PaymentInfoUpstreamError,
   PaymentInfoUpstreamStatus,
 } from "../../../application/ports/payment-info.js";
+import {
+  reportUpstreamFailure,
+  reportUpstreamStatus,
+} from "../../../application/telemetry.js";
 import {
   Client,
   createClient,
@@ -74,6 +80,7 @@ export class PagoPAEcommerceHttpClientAdapter implements PaymentInfoRepository {
   constructor(
     private readonly productionEnvironment: PagoPAEcommerceEnvironmentData,
     private readonly uatEnvironment: PagoPAEcommerceEnvironmentData,
+    private readonly logger?: Pick<Logger, "trackEvent">,
   ) {
     this.productionClient = {
       apiKey: this.productionEnvironment.apiKey,
@@ -106,17 +113,32 @@ export class PagoPAEcommerceHttpClientAdapter implements PaymentInfoRepository {
       (error) => new GenericError(toErrorBody(error)),
     );
 
-    if (paymentRequestInfoResult.isErr())
+    const operation = isTest ? "getPaymentInfoUat" : "getPaymentInfo";
+    if (paymentRequestInfoResult.isErr()) {
+      reportUpstreamFailure(this.logger, "pagopa", operation, "no_response");
       return err(paymentRequestInfoResult.error);
+    }
 
     const response = paymentRequestInfoResult.value;
     if (!response.response) {
+      reportUpstreamFailure(this.logger, "pagopa", operation, "no_response");
       return err(new GenericError(toErrorBody(response.error)));
     }
 
-    switch (response.response.status) {
+    const { status } = response.response;
+    if (status !== 200 && status !== 404 && status !== 409) {
+      reportUpstreamStatus(this.logger, "pagopa", operation, status);
+    }
+    switch (status) {
       case 200: {
         if (!response.data) {
+          reportUpstreamFailure(
+            this.logger,
+            "pagopa",
+            operation,
+            "invalid_response",
+            status,
+          );
           return err(
             new MalformedEntityError(
               "invalid json response from pagopa ecommerce",
@@ -126,6 +148,13 @@ export class PagoPAEcommerceHttpClientAdapter implements PaymentInfoRepository {
 
         const parsedResult = paymentInfoSchema.safeParse(response.data);
         if (!parsedResult.success) {
+          reportUpstreamFailure(
+            this.logger,
+            "pagopa",
+            operation,
+            "invalid_response",
+            status,
+          );
           return err(
             new MalformedEntityError(
               `invalid payment info from pagopa ecommerce: ${parsedResult.error.message}`,

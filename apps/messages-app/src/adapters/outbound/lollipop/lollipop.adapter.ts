@@ -1,3 +1,5 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import {
   ForbiddenError,
   GenericError,
@@ -16,9 +18,15 @@ import {
   LcParamsError,
   LcParamsRepository,
 } from "../../../application/ports/lc-params.js";
+import {
+  reportUpstreamFailure,
+  reportUpstreamStatus,
+} from "../../../application/telemetry.js";
 import { createClient } from "../../../generated/lollipop/client/index.js";
 import { generateLcParams } from "../../../generated/lollipop/sdk.gen.js";
 import { ProblemJson } from "../../../generated/lollipop/types.gen.js";
+
+const operation = "generateLcParams";
 
 const toGenericError = (error: unknown): GenericError =>
   new GenericError(error instanceof Error ? error.message : String(error));
@@ -29,6 +37,7 @@ export class LollipopHttpClientAdapter implements LcParamsRepository {
   constructor(
     private readonly apiKey: string,
     private readonly baseURL: URL,
+    private readonly logger?: Logger,
   ) {
     this.client = createClient({
       auth: this.apiKey,
@@ -50,17 +59,27 @@ export class LollipopHttpClientAdapter implements LcParamsRepository {
       toGenericError,
     );
 
-    if (generateLcParamsResult.isErr())
+    if (generateLcParamsResult.isErr()) {
+      reportUpstreamFailure(this.logger, "lollipop", operation, "no_response");
       return err(generateLcParamsResult.error);
+    }
 
     const response = generateLcParamsResult.value;
     if (!response.response) {
+      reportUpstreamFailure(this.logger, "lollipop", operation, "no_response");
       return err(toGenericError(response.error));
     }
 
     switch (response.response.status) {
       case 200: {
         if (!response.data) {
+          reportUpstreamFailure(
+            this.logger,
+            "lollipop",
+            operation,
+            "invalid_response",
+            200,
+          );
           return err(
             new MalformedEntityError("invalid json response from lollipop"),
           );
@@ -68,6 +87,13 @@ export class LollipopHttpClientAdapter implements LcParamsRepository {
 
         const parsedResult = lcParamsSchema.safeParse(response.data);
         if (!parsedResult.success) {
+          reportUpstreamFailure(
+            this.logger,
+            "lollipop",
+            operation,
+            "invalid_response",
+            200,
+          );
           return err(
             new MalformedEntityError(
               `invalid lc params from lollipop: ${parsedResult.error.message}`,
@@ -94,6 +120,12 @@ export class LollipopHttpClientAdapter implements LcParamsRepository {
       }
 
       default: {
+        reportUpstreamStatus(
+          this.logger,
+          "lollipop",
+          operation,
+          response.response.status,
+        );
         const body = response.error as ProblemJson | undefined;
         return err(
           new GenericError(body?.detail ?? "Unexpected error from Lollipop"),

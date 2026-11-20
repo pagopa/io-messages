@@ -886,6 +886,13 @@ describe("makeCreateMessageUseCase", () => {
     const result = await useCase(anInput());
 
     expect(result._unsafeUnwrapErr()).toBe(error);
+    expect(dependencies.trackEvent).toHaveBeenCalledExactlyOnceWith({
+      name: "CreateMessageUseCase.createMessageMetadata.failed",
+      properties: {
+        reason:
+          error instanceof TooManyRequestsError ? "throttled" : "write_failed",
+      },
+    });
     expect(
       dependencies.processingMessagePayloadStore.savePayload,
     ).not.toHaveBeenCalled();
@@ -909,9 +916,8 @@ describe("makeCreateMessageUseCase", () => {
     expect(dependencies.trackEvent).toHaveBeenCalledWith({
       name: "CreateMessageUseCase.saveProcessingMessage.failed",
       properties: {
-        errorMessage: error.message,
         messageId,
-        serviceId,
+        reason: "write_failed",
       },
     });
     expect(
@@ -931,9 +937,8 @@ describe("makeCreateMessageUseCase", () => {
     expect(dependencies.trackEvent).toHaveBeenCalledWith({
       name: "CreateMessageUseCase.publishCreatedMessage.failed",
       properties: {
-        errorMessage: error.message,
         messageId,
-        serviceId,
+        reason: "write_failed",
       },
     });
   });

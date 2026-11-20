@@ -1,3 +1,5 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import {
   ConflictError,
   GenericError,
@@ -26,6 +28,8 @@ const aValidConfiguration = {
 };
 
 const cacheTTLInSeconds = 60;
+
+const makeLogger = (): Logger => ({ trackEvent: vi.fn() }) as unknown as Logger;
 
 const makeMocks = () => {
   const mockGetFromRepo = vi.fn();
@@ -88,6 +92,7 @@ describe("CachingRemoteContentRepository", () => {
         mockSetInCache,
         repository,
       } = makeMocks();
+      const logger = makeLogger();
       mockGetFromCache.mockResolvedValueOnce(
         err(new NotFoundError("rc-configuration", "not found")),
       );
@@ -98,6 +103,7 @@ describe("CachingRemoteContentRepository", () => {
         repository,
         cache,
         cacheTTLInSeconds,
+        logger,
       );
       const result = await sut.getRemoteContentConfiguration(aConfigurationId);
 
@@ -111,6 +117,7 @@ describe("CachingRemoteContentRepository", () => {
         aValidConfiguration,
         cacheTTLInSeconds,
       );
+      expect(logger.trackEvent).not.toHaveBeenCalled();
     });
 
     it("returns the repository error on a cache miss when the repository fails", async () => {
@@ -121,6 +128,7 @@ describe("CachingRemoteContentRepository", () => {
         mockSetInCache,
         repository,
       } = makeMocks();
+      const logger = makeLogger();
       mockGetFromCache.mockResolvedValueOnce(
         err(new NotFoundError("rc-configuration", "not found")),
       );
@@ -132,6 +140,7 @@ describe("CachingRemoteContentRepository", () => {
         repository,
         cache,
         cacheTTLInSeconds,
+        logger,
       );
       const result = await sut.getRemoteContentConfiguration(aConfigurationId);
 
@@ -148,6 +157,7 @@ describe("CachingRemoteContentRepository", () => {
         mockSetInCache,
         repository,
       } = makeMocks();
+      const logger = makeLogger();
       mockGetFromCache.mockResolvedValueOnce(
         err(new MalformedEntityError("malformed")),
       );
@@ -160,6 +170,7 @@ describe("CachingRemoteContentRepository", () => {
         repository,
         cache,
         cacheTTLInSeconds,
+        logger,
       );
       const result = await sut.getRemoteContentConfiguration(aConfigurationId);
 
@@ -167,76 +178,93 @@ describe("CachingRemoteContentRepository", () => {
       expect(result._unsafeUnwrap()).toMatchObject({
         configurationId: aConfigurationId,
       });
+      expect(logger.trackEvent).toHaveBeenCalledWith({
+        name: "CachingRemoteContentRepository.cache.get.failed",
+        properties: {
+          failureType: "malformed_cache_entry",
+          fallback: "cosmos",
+          fallbackOutcome: "success",
+          operation: "get",
+          stage: "cache_read",
+        },
+      });
     });
   });
+});
 
-  describe("createRemoteContentConfiguration", () => {
-    it("delegates to the repository and stores the created configuration in cache", async () => {
-      const { cache, mockCreateInRepo, mockSetInCache, repository } =
-        makeMocks();
-      mockCreateInRepo.mockResolvedValueOnce(ok(aValidConfiguration));
-      mockSetInCache.mockResolvedValueOnce(ok(aValidConfiguration));
+describe("CachingRemoteContentRepository.createRemoteContentConfiguration", () => {
+  it("delegates to the repository and stores the created configuration in cache", async () => {
+    const { cache, mockCreateInRepo, mockSetInCache, repository } = makeMocks();
+    mockCreateInRepo.mockResolvedValueOnce(ok(aValidConfiguration));
+    mockSetInCache.mockResolvedValueOnce(ok(aValidConfiguration));
 
-      const sut = new CachingRemoteContentRepository(
-        repository,
-        cache,
-        cacheTTLInSeconds,
-      );
-      const result =
-        await sut.createRemoteContentConfiguration(aValidConfiguration);
+    const sut = new CachingRemoteContentRepository(
+      repository,
+      cache,
+      cacheTTLInSeconds,
+    );
+    const result =
+      await sut.createRemoteContentConfiguration(aValidConfiguration);
 
-      expect(result.isOk()).toBe(true);
-      expect(result._unsafeUnwrap()).toMatchObject({
-        configurationId: aConfigurationId,
-      });
-      expect(mockCreateInRepo).toHaveBeenCalledWith(aValidConfiguration);
-      expect(mockSetInCache).toHaveBeenCalledWith(
-        aConfigurationId,
-        aValidConfiguration,
-        cacheTTLInSeconds,
-      );
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toMatchObject({
+      configurationId: aConfigurationId,
     });
+    expect(mockCreateInRepo).toHaveBeenCalledWith(aValidConfiguration);
+    expect(mockSetInCache).toHaveBeenCalledWith(
+      aConfigurationId,
+      aValidConfiguration,
+      cacheTTLInSeconds,
+    );
+  });
 
-    it("returns the repository error without touching the cache", async () => {
-      const { cache, mockCreateInRepo, mockSetInCache, repository } =
-        makeMocks();
-      mockCreateInRepo.mockResolvedValueOnce(
-        err(new ConflictError("already exists")),
-      );
+  it("returns the repository error without touching the cache", async () => {
+    const { cache, mockCreateInRepo, mockSetInCache, repository } = makeMocks();
+    mockCreateInRepo.mockResolvedValueOnce(
+      err(new ConflictError("already exists")),
+    );
 
-      const sut = new CachingRemoteContentRepository(
-        repository,
-        cache,
-        cacheTTLInSeconds,
-      );
-      const result =
-        await sut.createRemoteContentConfiguration(aValidConfiguration);
+    const sut = new CachingRemoteContentRepository(
+      repository,
+      cache,
+      cacheTTLInSeconds,
+    );
+    const result =
+      await sut.createRemoteContentConfiguration(aValidConfiguration);
 
-      expect(result.isErr()).toBe(true);
-      expect(result._unsafeUnwrapErr()).toBeInstanceOf(ConflictError);
-      expect(mockSetInCache).not.toHaveBeenCalled();
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(ConflictError);
+    expect(mockSetInCache).not.toHaveBeenCalled();
+  });
+
+  it("returns the created configuration even when storing in cache fails", async () => {
+    const { cache, mockCreateInRepo, mockSetInCache, repository } = makeMocks();
+    const logger = makeLogger();
+    mockCreateInRepo.mockResolvedValueOnce(ok(aValidConfiguration));
+    mockSetInCache.mockResolvedValueOnce(
+      err(new GenericError("redis write failed")),
+    );
+
+    const sut = new CachingRemoteContentRepository(
+      repository,
+      cache,
+      cacheTTLInSeconds,
+      logger,
+    );
+    const result =
+      await sut.createRemoteContentConfiguration(aValidConfiguration);
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toMatchObject({
+      configurationId: aConfigurationId,
     });
-
-    it("returns the created configuration even when storing in cache fails", async () => {
-      const { cache, mockCreateInRepo, mockSetInCache, repository } =
-        makeMocks();
-      mockCreateInRepo.mockResolvedValueOnce(ok(aValidConfiguration));
-      mockSetInCache.mockResolvedValueOnce(
-        err(new GenericError("redis write failed")),
-      );
-
-      const sut = new CachingRemoteContentRepository(
-        repository,
-        cache,
-        cacheTTLInSeconds,
-      );
-      const result =
-        await sut.createRemoteContentConfiguration(aValidConfiguration);
-
-      expect(result.isOk()).toBe(true);
-      expect(result._unsafeUnwrap()).toMatchObject({
-        configurationId: aConfigurationId,
-      });
+    expect(logger.trackEvent).toHaveBeenCalledWith({
+      name: "CachingRemoteContentRepository.cache.set.failed",
+      properties: {
+        failureType: "cache_write_failure",
+        operation: "create",
+        stage: "after_create_commit",
+      },
     });
   });
 });
@@ -308,6 +336,7 @@ describe("CachingRemoteContentRepository.updateRemoteContentConfiguration", () =
 
   it("returns the updated configuration even when storing in cache fails", async () => {
     const { cache, mockSetInCache, mockUpdateInRepo, repository } = makeMocks();
+    const logger = makeLogger();
     mockUpdateInRepo.mockResolvedValueOnce(ok(aValidConfiguration));
     mockSetInCache.mockResolvedValueOnce(
       err(new GenericError("redis write failed")),
@@ -317,6 +346,7 @@ describe("CachingRemoteContentRepository.updateRemoteContentConfiguration", () =
       repository,
       cache,
       cacheTTLInSeconds,
+      logger,
     );
     const result =
       await sut.updateRemoteContentConfiguration(aValidConfiguration);
@@ -324,6 +354,14 @@ describe("CachingRemoteContentRepository.updateRemoteContentConfiguration", () =
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toMatchObject({
       configurationId: aConfigurationId,
+    });
+    expect(logger.trackEvent).toHaveBeenCalledWith({
+      name: "CachingRemoteContentRepository.cache.set.failed",
+      properties: {
+        failureType: "cache_write_failure",
+        operation: "update",
+        stage: "after_update_commit",
+      },
     });
   });
 });

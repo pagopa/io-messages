@@ -1,3 +1,5 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import {
   Container,
   CosmosClient,
@@ -28,6 +30,21 @@ type CosmosUserRCConfiguration = z.TypeOf<
 const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? `${error.name}: ${error.message}` : String(error);
 
+const trackCosmosFailure = (
+  logger: Logger | undefined,
+  failureType: "cosmos_failure" | "invalid_document" | "rate_limited",
+  statusCode?: number,
+): void => {
+  logger?.trackEvent({
+    name: "UserRCConfigurationCosmosAdapter.failed",
+    properties: {
+      failureType,
+      operation: "list",
+      ...(statusCode === undefined ? {} : { statusCode }),
+    },
+  });
+};
+
 const toUserRCConfiguration = (
   model: CosmosUserRCConfiguration,
 ): UserRCConfiguration => ({
@@ -40,7 +57,11 @@ export class UserRCConfigurationCosmosAdapter
 {
   #cosmosContainer: Container;
 
-  constructor(cosmosClient: CosmosClient, databaseName: string) {
+  constructor(
+    cosmosClient: CosmosClient,
+    databaseName: string,
+    private readonly logger?: Logger,
+  ) {
     this.#cosmosContainer = cosmosClient
       .database(databaseName)
       .container(USER_RC_CONFIGURATIONS_COLLECTION_NAME);
@@ -62,13 +83,20 @@ export class UserRCConfigurationCosmosAdapter
         if (error instanceof RestError) {
           switch (error.statusCode) {
             case StatusCodes.TooManyRequests:
+              trackCosmosFailure(this.logger, "rate_limited", error.statusCode);
               return new TooManyRequestsError();
             default:
+              trackCosmosFailure(
+                this.logger,
+                "cosmos_failure",
+                error.statusCode,
+              );
               return new GenericError(
                 `error listing user rc configurations by user id ${userId}: ${getErrorMessage(error)}`,
               );
           }
         } else {
+          trackCosmosFailure(this.logger, "cosmos_failure");
           return new GenericError(
             `error listing user rc configurations by user id ${userId}: ${getErrorMessage(error)}`,
           );
@@ -87,6 +115,7 @@ export class UserRCConfigurationCosmosAdapter
       return ok(parsed.data.map(toUserRCConfiguration));
     }
 
+    trackCosmosFailure(this.logger, "invalid_document");
     return err(
       new GenericError(`error parsing user RC configurations: ${parsed.error}`),
     );

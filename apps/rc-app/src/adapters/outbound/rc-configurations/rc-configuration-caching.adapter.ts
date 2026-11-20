@@ -1,3 +1,5 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import {
   ConflictError,
   GenericError,
@@ -18,7 +20,31 @@ export class CachingRemoteContentRepository implements RemoteContentRepository {
     private readonly repository: RemoteContentRepository,
     private readonly cache: RemoteContentCacheRepository,
     private readonly cacheTtlInSeconds: number,
+    private readonly logger?: Logger,
   ) {}
+
+  private async setCachedAfterCommit(
+    operation: "create" | "update",
+    stage: "after_create_commit" | "after_update_commit",
+    configurationId: RcConfigurationId,
+    configuration: RCConfiguration,
+  ): Promise<void> {
+    const result = await this.cache.setCachedRemoteContentConfiguration(
+      configurationId,
+      configuration,
+      this.cacheTtlInSeconds,
+    );
+    if (result.isErr()) {
+      this.logger?.trackEvent({
+        name: "CachingRemoteContentRepository.cache.set.failed",
+        properties: {
+          failureType: "cache_write_failure",
+          operation,
+          stage,
+        },
+      });
+    }
+  }
 
   async createRemoteContentConfiguration(
     configuration: RCConfiguration,
@@ -31,11 +57,11 @@ export class CachingRemoteContentRepository implements RemoteContentRepository {
       return err(result.error);
     }
 
-    // We simply ignore caching errors.
-    await this.cache.setCachedRemoteContentConfiguration(
+    await this.setCachedAfterCommit(
+      "create",
+      "after_create_commit",
       result.value.configurationId,
       result.value,
-      this.cacheTtlInSeconds,
     );
 
     return ok(result.value);
@@ -54,6 +80,27 @@ export class CachingRemoteContentRepository implements RemoteContentRepository {
 
     const result =
       await this.repository.getRemoteContentConfiguration(configurationId);
+    if (!(cached.error instanceof NotFoundError)) {
+      this.logger?.trackEvent({
+        name: "CachingRemoteContentRepository.cache.get.failed",
+        properties: {
+          failureType:
+            cached.error instanceof GenericError
+              ? "cache_read_failure"
+              : "malformed_cache_entry",
+          fallback: "cosmos",
+          fallbackOutcome: result.isOk()
+            ? "success"
+            : result.error instanceof NotFoundError
+              ? "not_found"
+              : result.error instanceof TooManyRequestsError
+                ? "rate_limited"
+                : "failure",
+          operation: "get",
+          stage: "cache_read",
+        },
+      });
+    }
     if (result.isErr()) {
       return err(result.error);
     }
@@ -84,11 +131,11 @@ export class CachingRemoteContentRepository implements RemoteContentRepository {
       return err(result.error);
     }
 
-    // We simply ignore caching errors.
-    await this.cache.setCachedRemoteContentConfiguration(
+    await this.setCachedAfterCommit(
+      "update",
+      "after_update_commit",
       result.value.configurationId,
       result.value,
-      this.cacheTtlInSeconds,
     );
 
     return ok(result.value);

@@ -74,6 +74,7 @@ describe("makeListRcConfigurationUseCase", () => {
   });
 
   it("ignores malformed linked configuration IDs", async () => {
+    const trackEvent = vi.fn();
     const userRCConfigurationRepository = makeUserRCConfigurationRepository();
     const remoteContentRepository = makeRemoteContentRepository();
     vi.mocked(
@@ -91,9 +92,14 @@ describe("makeListRcConfigurationUseCase", () => {
     const result = await makeListRcConfigurationUseCase(
       userRCConfigurationRepository,
       remoteContentRepository,
+      { trackEvent },
     )({ userId: aUserId });
 
     expect(result.isOk()).toBe(true);
+    expect(trackEvent).toHaveBeenCalledExactlyOnceWith({
+      name: "ListRcConfigurationUseCase.discardedInvalidConfigurationIds",
+      properties: { discardedCount: 1 },
+    });
     expect(
       remoteContentRepository.listRemoteContentConfigurations,
     ).toHaveBeenCalledWith([aConfigurationId]);
