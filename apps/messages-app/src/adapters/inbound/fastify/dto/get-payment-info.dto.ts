@@ -61,7 +61,7 @@ export type PaymentInfoInternalErrorResponse = z.TypeOf<
 export const GetPaymentInfoResponseSchema = z.object({
   amount: z.number(),
   description: z.string().optional(),
-  dueDate: dateStringSchema,
+  dueDate: dateStringSchema.optional(),
   paFiscalCode: z.string().optional(),
   paName: z.string().optional(),
   rptId: z.string().optional(),

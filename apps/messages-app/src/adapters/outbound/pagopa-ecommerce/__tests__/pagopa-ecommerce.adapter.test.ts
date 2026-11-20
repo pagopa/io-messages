@@ -76,6 +76,22 @@ describe("PagoPAEcommerceHttpClientAdapter", () => {
     );
   });
 
+  it.each([
+    { amount: paymentInfo.amount },
+    ...["description", "dueDate", "paFiscalCode", "paName"].map((field) =>
+      Object.fromEntries(
+        Object.entries(paymentInfo).filter(([key]) => key !== field),
+      ),
+    ),
+  ])("accepts optional payment metadata being absent: %j", async (body) => {
+    fetchMock.mockResolvedValue(jsonResponse(body));
+
+    const result = await adapter.getPaymentInfo(rptId, false);
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toEqual(body);
+  });
+
   it("returns a MalformedEntityError when the response is not valid JSON", async () => {
     fetchMock.mockResolvedValue(
       new Response("not-a-json", {

@@ -14,10 +14,16 @@ export const payeeSchema = z.object({
 
 export const paymentInfoSchema = z.object({
   amount: z.number().int().min(0).max(99_999_999),
-  description: z.string().min(1).max(140),
-  dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  paFiscalCode: z.string().regex(/^\d{11}$/),
-  paName: z.string().min(1).max(140),
+  description: z.string().min(1).max(140).optional(),
+  dueDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  paFiscalCode: z
+    .string()
+    .regex(/^\d{11}$/)
+    .optional(),
+  paName: z.string().min(1).max(140).optional(),
   rptId: rptIdSchema.optional(),
 });
 
