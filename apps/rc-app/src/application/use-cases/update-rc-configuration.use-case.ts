@@ -4,7 +4,6 @@ import type {
   TooManyRequestsError,
   UseCase,
 } from "@pagopa/hexagonal-core";
-import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
 
 import { ForbiddenError } from "@pagopa/hexagonal-core";
 import { err } from "neverthrow";
@@ -27,10 +26,7 @@ export type UpdateRcConfigurationUseCase = UseCase<
 >;
 
 export const makeUpdateRcConfigurationUseCase =
-  (
-    repository: RemoteContentRepository,
-    logger: Logger,
-  ): UpdateRcConfigurationUseCase =>
+  (repository: RemoteContentRepository): UpdateRcConfigurationUseCase =>
   async ({ configuration, configurationId, isInternalUser, userId }) => {
     const existing =
       await repository.getRemoteContentConfiguration(configurationId);
@@ -42,24 +38,10 @@ export const makeUpdateRcConfigurationUseCase =
       return err(new ForbiddenError());
     }
 
-    const result = await repository.updateRemoteContentConfiguration({
+    return repository.updateRemoteContentConfiguration({
       ...configuration,
       configurationId,
       id: configurationId,
       userId: existing.value.userId,
     });
-
-    if (result.isErr()) {
-      logger.trackEvent({
-        name: "UpdateRcConfigurationUseCase.failed.update",
-        properties: {
-          configurationId,
-          error: result.error.name,
-          message: result.error.message,
-          userId,
-        },
-      });
-    }
-
-    return result;
   };

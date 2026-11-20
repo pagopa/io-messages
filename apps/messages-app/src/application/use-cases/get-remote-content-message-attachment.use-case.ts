@@ -4,6 +4,7 @@ import type {
   TooManyRequestsError,
   UseCase,
 } from "@pagopa/hexagonal-core";
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
 import type { AssertionRef } from "io-messages-common/adapters/lollipop/definitions/assertion-ref";
 import type { LollipopHeaders } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
 import type { LollipopRequiredHeaders } from "io-messages-common/adapters/lollipop/definitions/request-headers";
@@ -137,6 +138,7 @@ export const makeGetRemoteContentMessageAttachmentUseCase =
     remoteContentProxy: RemoteContentProxy,
     buildLollipopHeaders: BuildLollipopHeadersUseCase,
     serviceToRCMap: ServiceToRCConfigMap,
+    logger?: Pick<Logger, "trackEvent">,
   ): GetRemoteContentMessageAttachmentUseCase =>
   async ({
     assertionRef,
@@ -207,11 +209,15 @@ export const makeGetRemoteContentMessageAttachmentUseCase =
       );
     }
 
-    return isPdf(attachmentResult.value)
-      ? ok(attachmentResult.value)
-      : err(
-          new RemoteContentAttachmentUnsupportedMediaTypeError(
-            "The requested file is not a valid PDF",
-          ),
-        );
+    if (!isPdf(attachmentResult.value)) {
+      logger?.trackEvent({
+        name: "GetRemoteContentMessageAttachmentUseCase.pdf.invalid",
+      });
+      return err(
+        new RemoteContentAttachmentUnsupportedMediaTypeError(
+          "The requested file is not a valid PDF",
+        ),
+      );
+    }
+    return ok(attachmentResult.value);
   };

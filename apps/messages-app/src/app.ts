@@ -177,7 +177,7 @@ const makeAppDependencies = (config: AppConfig) => {
   );
 
   const remoteContentConfigurationRepository =
-    new RCConfigurationHttpClientAdapter(config.RC_APP_BASE_URL);
+    new RCConfigurationHttpClientAdapter(config.RC_APP_BASE_URL, logger);
 
   const remoteContentProxy = new RemoteContentProxyAdapter(
     new RemoteContentHTTPAdapter(logger),
@@ -188,6 +188,7 @@ const makeAppDependencies = (config: AppConfig) => {
     new LollipopHttpClientAdapter(
       config.LOLLIPOP_API_KEY,
       config.LOLLIPOP_API_URL,
+      logger,
     ),
   );
 
@@ -200,6 +201,7 @@ const makeAppDependencies = (config: AppConfig) => {
       apiKey: config.PAGOPA_ECOMMERCE_UAT_API_KEY,
       baseURL: config.PAGOPA_ECOMMERCE_UAT_BASE_URL,
     },
+    logger,
   );
 
   return {
@@ -279,6 +281,7 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
       servicesCmsAdapter,
       config.PN_SERVICE_ID,
       config.SERVICE_TO_RC_MAP,
+      logger,
     ),
   );
   mountGetPaymentInfoHandler(
@@ -306,6 +309,7 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
       remoteContentProxy,
       buildLollipopHeadersUseCase,
       config.SERVICE_TO_RC_MAP,
+      logger,
     ),
   );
   mountGetMessagesByUserHandler(
@@ -323,7 +327,7 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
   );
   mountUpsertMessageStatusHandler(
     server,
-    makeUpdateMessageStatusUseCase(messageStatusCosmosAdapter),
+    makeUpdateMessageStatusUseCase(messageStatusCosmosAdapter, logger),
   );
   mountGetRemoteContentMessagePreconditionHandler(
     server,
@@ -336,12 +340,7 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
         new SendHTTPAdapter(logger),
         config.PN_SERVICE_ID,
       ),
-      makeBuildLollipopHeadersUseCase(
-        new LollipopHttpClientAdapter(
-          config.LOLLIPOP_API_KEY,
-          config.LOLLIPOP_API_URL,
-        ),
-      ),
+      buildLollipopHeadersUseCase,
       config.SERVICE_TO_RC_MAP,
     ),
   );

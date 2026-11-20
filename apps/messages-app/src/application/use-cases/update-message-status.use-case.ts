@@ -39,6 +39,7 @@ export type UpdateMessageStatusUseCase = UseCase<
 export const makeUpdateMessageStatusUseCase =
   (
     messageStatusRepository: MessageStatusRepository,
+    logger?: Logger,
   ): UpdateMessageStatusUseCase =>
   async ({ fiscalCode, isArchived, isRead, messageId }) => {
     const latestStatusResult =
@@ -76,6 +77,12 @@ export const makeUpdateMessageStatusUseCase =
     const createResult =
       await messageStatusRepository.createMessageStatus(newStatus);
     if (createResult.isErr()) {
+      if (createResult.error instanceof ConflictError) {
+        logger?.trackEvent({
+          name: "UpdateMessageStatusUseCase.createMessageStatus.conflict",
+          properties: { version },
+        });
+      }
       // The legacy contract does not expose conflicts: they surface as 500.
       return err(
         createResult.error instanceof ConflictError
@@ -86,3 +93,4 @@ export const makeUpdateMessageStatusUseCase =
 
     return ok(createResult.value);
   };
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";

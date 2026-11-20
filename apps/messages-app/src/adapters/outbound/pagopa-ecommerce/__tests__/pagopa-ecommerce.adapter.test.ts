@@ -37,6 +37,7 @@ const expectFetchRequest = (url: string, apiKey: string) => {
   );
 };
 
+const trackEvent = vi.fn();
 const adapter = new PagoPAEcommerceHttpClientAdapter(
   {
     apiKey: "production-api-key",
@@ -46,10 +47,12 @@ const adapter = new PagoPAEcommerceHttpClientAdapter(
     apiKey: "uat-api-key",
     baseURL: new URL("https://uat.pagopa.example"),
   },
+  { trackEvent },
 );
 
 describe("PagoPAEcommerceHttpClientAdapter", () => {
   beforeEach(() => {
+    trackEvent.mockClear();
     fetchMock.mockReset();
     fetchMock.mockResolvedValue(jsonResponse(paymentInfo));
     vi.stubGlobal("fetch", fetchMock);
@@ -60,6 +63,7 @@ describe("PagoPAEcommerceHttpClientAdapter", () => {
 
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toEqual(paymentInfo);
+    expect(trackEvent).not.toHaveBeenCalled();
     expectFetchRequest(
       `https://pagopa.example/ecommerce/payment-requests/${rptId}`,
       "production-api-key",
@@ -97,6 +101,15 @@ describe("PagoPAEcommerceHttpClientAdapter", () => {
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
+    expect(trackEvent).toHaveBeenCalledExactlyOnceWith({
+      name: "MessagesApp.upstream.failed",
+      properties: {
+        dependency: "pagopa",
+        operation: "getPaymentInfo",
+        reason: "invalid_response",
+        upstreamStatus: 200,
+      },
+    });
   });
 
   it.each([

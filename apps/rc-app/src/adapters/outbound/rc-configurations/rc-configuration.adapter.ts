@@ -1,3 +1,5 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import {
   Container,
   CosmosClient,
@@ -64,6 +66,22 @@ type CosmosRCConfiguration = z.TypeOf<typeof cosmosRCConfigurationSchema>;
 const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? `${error.name}: ${error.message}` : String(error);
 
+const trackCosmosFailure = (
+  logger: Logger | undefined,
+  operation: string,
+  failureType: "cosmos_failure" | "invalid_document" | "rate_limited",
+  statusCode?: number,
+): void => {
+  logger?.trackEvent({
+    name: "RCConfigurationCosmosAdapter.failed",
+    properties: {
+      failureType,
+      operation,
+      ...(statusCode === undefined ? {} : { statusCode }),
+    },
+  });
+};
+
 // Maps the adapter specific Cosmos representation to the domain type expected by
 // the port.
 const toRcConfiguration = (m: CosmosRCConfiguration): RCConfiguration => ({
@@ -82,7 +100,11 @@ const toRcConfiguration = (m: CosmosRCConfiguration): RCConfiguration => ({
 export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
   #cosmosContainer: Container;
 
-  constructor(cosmosClient: CosmosClient, databaseName: string) {
+  constructor(
+    cosmosClient: CosmosClient,
+    databaseName: string,
+    private readonly logger?: Logger,
+  ) {
     this.#cosmosContainer = cosmosClient
       .database(databaseName)
       .container(RC_CONFIGURATION_COLLECTION_NAME);
@@ -112,13 +134,26 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
                 `an rc configuration with id ${configuration.configurationId} already exists`,
               );
             case StatusCodes.TooManyRequests:
+              trackCosmosFailure(
+                this.logger,
+                "create",
+                "rate_limited",
+                error.statusCode,
+              );
               return new TooManyRequestsError();
             default:
+              trackCosmosFailure(
+                this.logger,
+                "create",
+                "cosmos_failure",
+                error.statusCode,
+              );
               return new GenericError(
                 `error creating rc configuration with id ${configuration.configurationId}: ${getErrorMessage(error)}`,
               );
           }
         } else {
+          trackCosmosFailure(this.logger, "create", "cosmos_failure");
           return new GenericError(
             `error creating rc configuration with id ${configuration.configurationId}: ${getErrorMessage(error)}`,
           );
@@ -153,13 +188,26 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
         if (error instanceof RestError) {
           switch (error.statusCode) {
             case StatusCodes.TooManyRequests:
+              trackCosmosFailure(
+                this.logger,
+                "get",
+                "rate_limited",
+                error.statusCode,
+              );
               return new TooManyRequestsError();
             default:
+              trackCosmosFailure(
+                this.logger,
+                "get",
+                "cosmos_failure",
+                error.statusCode,
+              );
               return new GenericError(
                 `error obtaining rc configuration with id ${configurationId}: ${getErrorMessage(error)}`,
               );
           }
         } else {
+          trackCosmosFailure(this.logger, "get", "cosmos_failure");
           return new GenericError(
             `error obtaining rc configuration with id ${configurationId}: ${getErrorMessage(error)}`,
           );
@@ -185,6 +233,7 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
     if (parsed.success) {
       return ok(toRcConfiguration(parsed.data));
     } else {
+      trackCosmosFailure(this.logger, "get", "invalid_document");
       return err(
         new GenericError(`error parsing RC configuration: ${parsed.error}`),
       );
@@ -210,13 +259,26 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
         if (error instanceof RestError) {
           switch (error.statusCode) {
             case StatusCodes.TooManyRequests:
+              trackCosmosFailure(
+                this.logger,
+                "list",
+                "rate_limited",
+                error.statusCode,
+              );
               return new TooManyRequestsError();
             default:
+              trackCosmosFailure(
+                this.logger,
+                "list",
+                "cosmos_failure",
+                error.statusCode,
+              );
               return new GenericError(
                 `error listing rc configurations by id: ${getErrorMessage(error)}`,
               );
           }
         } else {
+          trackCosmosFailure(this.logger, "list", "cosmos_failure");
           return new GenericError(
             `error listing rc configurations by id: ${getErrorMessage(error)}`,
           );
@@ -235,6 +297,7 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
       return ok(parsed.data.map(toRcConfiguration));
     }
 
+    trackCosmosFailure(this.logger, "list", "invalid_document");
     return err(
       new GenericError(`error parsing RC configurations: ${parsed.error}`),
     );
@@ -267,13 +330,26 @@ export class RCConfigurationCosmosAdapter implements RemoteContentRepository {
                 `RC configuration not found: ${configuration.configurationId}`,
               );
             case StatusCodes.TooManyRequests:
+              trackCosmosFailure(
+                this.logger,
+                "update",
+                "rate_limited",
+                error.statusCode,
+              );
               return new TooManyRequestsError();
             default:
+              trackCosmosFailure(
+                this.logger,
+                "update",
+                "cosmos_failure",
+                error.statusCode,
+              );
               return new GenericError(
                 `error updating rc configuration with id ${configuration.configurationId}: ${getErrorMessage(error)}`,
               );
           }
         } else {
+          trackCosmosFailure(this.logger, "update", "cosmos_failure");
           return new GenericError(
             `error updating rc configuration with id ${configuration.configurationId}: ${getErrorMessage(error)}`,
           );

@@ -106,9 +106,11 @@ export const createApp = async (
     new RCConfigurationCosmosAdapter(
       commonCosmosClient,
       config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
+      logger,
     ),
-    new RCConfigurationCacheAdapter(redisClient, logger),
+    new RCConfigurationCacheAdapter(redisClient),
     config.RC_CONFIGURATION_CACHE_TTL,
+    logger,
   );
 
   redisClient.on("error", (err) => {
@@ -128,14 +130,7 @@ export const createApp = async (
   );
 
   const getRcConfigurationUseCase = makeGetRcConfigurationUseCase(
-    new CachingRemoteContentRepository(
-      new RCConfigurationCosmosAdapter(
-        commonCosmosClient,
-        config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
-      ),
-      new RCConfigurationCacheAdapter(redisClient, logger),
-      config.RC_CONFIGURATION_CACHE_TTL,
-    ),
+    remoteContentRepository,
   );
 
   mountGetRcConfigurationHandler(server, getRcConfigurationUseCase);
@@ -157,22 +152,17 @@ export const createApp = async (
       new UserRCConfigurationCosmosAdapter(
         commonCosmosClient,
         config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
+        logger,
       ),
-      new CachingRemoteContentRepository(
-        new RCConfigurationCosmosAdapter(
-          commonCosmosClient,
-          config.REMOTE_CONTENT_COSMOS_DATABASE_NAME,
-        ),
-        new RCConfigurationCacheAdapter(redisClient, logger),
-        config.RC_CONFIGURATION_CACHE_TTL,
-      ),
+      remoteContentRepository,
+      logger,
     ),
     config.INTERNAL_USER_ID,
   );
 
   mountUpdateRcConfigurationHandler(
     server,
-    makeUpdateRcConfigurationUseCase(remoteContentRepository, logger),
+    makeUpdateRcConfigurationUseCase(remoteContentRepository),
     config.INTERNAL_USER_ID,
   );
 

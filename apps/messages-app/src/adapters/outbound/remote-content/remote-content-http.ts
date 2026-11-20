@@ -31,6 +31,10 @@ import {
   RemoteContentServiceUnavailableError,
 } from "../../../application/ports/remote-content-message-attachment.js";
 import { RemoteContentMessagePreconditionRepository } from "../../../application/ports/remote-content-message-precondition.js";
+import {
+  reportUpstreamFailure,
+  reportUpstreamStatus,
+} from "../../../application/telemetry.js";
 import { createClient } from "../../../generated/remote-content/client/client.gen.js";
 import { Client } from "../../../generated/remote-content/client/index.js";
 import {
@@ -55,6 +59,22 @@ export class RemoteContentHTTPAdapter
   constructor(logger: Logger) {
     this.#client = createClient();
     this.#logger = logger;
+  }
+
+  private reportInvalidResponse<T>(
+    operation: string,
+    result: Result<T, GenericError>,
+  ) {
+    if (result.isErr()) {
+      reportUpstreamFailure(
+        this.#logger,
+        "remote-content",
+        operation,
+        "invalid_response",
+        200,
+      );
+    }
+    return result;
   }
 
   private toErrorBody(error: unknown): string {
@@ -132,14 +152,22 @@ export class RemoteContentHTTPAdapter
       redirect: "manual",
     });
 
+    const operation = "getRemoteContentMessage";
     if (!getRCMessageResult.response) {
+      reportUpstreamFailure(
+        this.#logger,
+        "remote-content",
+        operation,
+        "no_response",
+      );
       return err(new GenericError(this.toErrorBody(getRCMessageResult.error)));
     }
 
     switch (getRCMessageResult.response.status) {
       case 200:
-        return this.validateMessageDetailSuccessResponse(
-          getRCMessageResult.data,
+        return this.reportInvalidResponse(
+          operation,
+          this.validateMessageDetailSuccessResponse(getRCMessageResult.data),
         );
 
       case 400:
@@ -206,6 +234,7 @@ export class RemoteContentHTTPAdapter
         return err(new TooManyRequestsError());
 
       case 500:
+        reportUpstreamStatus(this.#logger, "remote-content", operation, 500);
         return err(
           new GenericError(
             `The Remote Content service returned HTTP status 500.`,
@@ -213,6 +242,12 @@ export class RemoteContentHTTPAdapter
         );
 
       default:
+        reportUpstreamStatus(
+          this.#logger,
+          "remote-content",
+          operation,
+          getRCMessageResult.response.status,
+        );
         return err(
           new GenericError(
             `The Remote Content service returned an unexpected HTTP status.`,
@@ -248,7 +283,14 @@ export class RemoteContentHTTPAdapter
       url: `/messages/${externalMessageID}/${attachmentURL}`,
     });
 
+    const operation = "getRemoteContentMessageAttachment";
     if (!getRCMessageAttachmentResult.response) {
+      reportUpstreamFailure(
+        this.#logger,
+        "remote-content",
+        operation,
+        "no_response",
+      );
       return err(
         new GenericError(this.toErrorBody(getRCMessageAttachmentResult.error)),
       );
@@ -256,8 +298,11 @@ export class RemoteContentHTTPAdapter
 
     switch (getRCMessageAttachmentResult.response.status) {
       case 200:
-        return this.validateMessageAttachmentSuccessResponse(
-          getRCMessageAttachmentResult.data,
+        return this.reportInvalidResponse(
+          operation,
+          this.validateMessageAttachmentSuccessResponse(
+            getRCMessageAttachmentResult.data,
+          ),
         );
 
       case 400:
@@ -329,6 +374,7 @@ export class RemoteContentHTTPAdapter
         return err(new TooManyRequestsError());
 
       case 500:
+        reportUpstreamStatus(this.#logger, "remote-content", operation, 500);
         return err(
           new GenericError(
             `The Remote Content service returned HTTP status 500.`,
@@ -352,6 +398,12 @@ export class RemoteContentHTTPAdapter
         );
 
       default:
+        reportUpstreamStatus(
+          this.#logger,
+          "remote-content",
+          operation,
+          getRCMessageAttachmentResult.response.status,
+        );
         return err(
           new GenericError(
             `The Remote Content service returned an unexpected HTTP status.`,
@@ -382,7 +434,14 @@ export class RemoteContentHTTPAdapter
         redirect: "manual",
       });
 
+    const operation = "getRemoteContentMessagePrecondition";
     if (!getRCMessagePreconditionResult.response) {
+      reportUpstreamFailure(
+        this.#logger,
+        "remote-content",
+        operation,
+        "no_response",
+      );
       return err(
         new GenericError(
           this.toErrorBody(getRCMessagePreconditionResult.error),
@@ -392,8 +451,11 @@ export class RemoteContentHTTPAdapter
 
     switch (getRCMessagePreconditionResult.response.status) {
       case 200:
-        return this.validateMessagePreconditionSuccessResponse(
-          getRCMessagePreconditionResult.data,
+        return this.reportInvalidResponse(
+          operation,
+          this.validateMessagePreconditionSuccessResponse(
+            getRCMessagePreconditionResult.data,
+          ),
         );
 
       case 400:
@@ -460,6 +522,7 @@ export class RemoteContentHTTPAdapter
         return err(new TooManyRequestsError());
 
       case 500:
+        reportUpstreamStatus(this.#logger, "remote-content", operation, 500);
         return err(
           new GenericError(
             `The Remote Content service returned HTTP status 500.`,
@@ -467,6 +530,12 @@ export class RemoteContentHTTPAdapter
         );
 
       default:
+        reportUpstreamStatus(
+          this.#logger,
+          "remote-content",
+          operation,
+          getRCMessagePreconditionResult.response.status,
+        );
         return err(
           new GenericError(
             `The Remote Content service returned an unexpected HTTP status.`,

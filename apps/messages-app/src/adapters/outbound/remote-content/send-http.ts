@@ -19,6 +19,10 @@ import { RemoteContentServiceUnavailableError } from "../../../application/ports
 import { SendNotificationRepository } from "../../../application/ports/send-notification.js";
 import { SendNotificationAttachmentRepository } from "../../../application/ports/send-notification-attachment.js";
 import { SendNotificationPreconditionRepository } from "../../../application/ports/send-notification-precondition.js";
+import {
+  reportUpstreamFailure,
+  reportUpstreamStatus,
+} from "../../../application/telemetry.js";
 import { Client, createClient } from "../../../generated/send/client/index.js";
 import {
   getReceivedNotification,
@@ -116,8 +120,16 @@ export class SendHTTPAdapter
     response: SendNotificationResponse | undefined,
   ): Result<SendNotificationResponse, GenericError> {
     const parsedResponse = SendNotificationResponseSchema.safeParse(response);
-    if (!parsedResponse.success)
+    if (!parsedResponse.success) {
+      reportUpstreamFailure(
+        this.#logger,
+        "send",
+        "getNotification",
+        "invalid_response",
+        200,
+      );
       return err(new GenericError(`Invalid response shape from SEND service.`));
+    }
 
     return ok(parsedResponse.data);
   }
@@ -127,12 +139,20 @@ export class SendHTTPAdapter
   ): Result<RemoteContentMessagePrecondition, GenericError> {
     const parsedResponse =
       remoteContentMessagePreconditionSchema.safeParse(response);
-    if (!parsedResponse.success)
+    if (!parsedResponse.success) {
+      reportUpstreamFailure(
+        this.#logger,
+        "send",
+        "getNotificationPrecondition",
+        "invalid_response",
+        200,
+      );
       return err(
         new GenericError(
           `Invalid precondition response shape from SEND service.`,
         ),
       );
+    }
 
     return ok(parsedResponse.data);
   }
@@ -161,6 +181,12 @@ export class SendHTTPAdapter
     });
 
     if (!getNotificationResult.response) {
+      reportUpstreamFailure(
+        this.#logger,
+        "send",
+        "getNotification",
+        "no_response",
+      );
       return err(
         new GenericError(this.toErrorBody(getNotificationResult.error)),
       );
@@ -179,6 +205,7 @@ export class SendHTTPAdapter
         baseURL: baseUrl.toString(),
         details: JSON.stringify(getNotificationResult.error),
         iun,
+        upstreamStatus: getNotificationResult.response.status,
       },
     });
 
@@ -242,7 +269,12 @@ export class SendHTTPAdapter
             },
           });
 
+    const operation =
+      attachmentPath.type === "document"
+        ? "SentNotificationDocument"
+        : "ReceivedNotificationAttachment";
     if (!getMetadataResult.response) {
+      reportUpstreamFailure(this.#logger, "send", operation, "no_response");
       return err(new GenericError(this.toErrorBody(getMetadataResult.error)));
     }
 
@@ -254,13 +286,10 @@ export class SendHTTPAdapter
           baseURL: baseUrl.toString(),
           details: JSON.stringify(getMetadataResult.error),
           iun,
+          upstreamStatus: getMetadataResult.response.status,
         },
       });
 
-      const operation =
-        attachmentPath.type === "document"
-          ? "SentNotificationDocument"
-          : "ReceivedNotificationAttachment";
       return err(
         new GenericError(
           `Failed to fetch PN ${operation}: ${getMetadataResult.response.status}`,
@@ -272,6 +301,13 @@ export class SendHTTPAdapter
       getMetadataResult.data,
     );
     if (!metadata.success) {
+      reportUpstreamFailure(
+        this.#logger,
+        "send",
+        operation,
+        "invalid_response",
+        200,
+      );
       return err(
         new GenericError(`Invalid attachment metadata response from SEND.`),
       );
@@ -281,6 +317,12 @@ export class SendHTTPAdapter
       try {
         const downloadResponse = await fetch(metadata.data.url);
         if (downloadResponse.status !== 200) {
+          reportUpstreamStatus(
+            this.#logger,
+            "send",
+            "downloadAttachment",
+            downloadResponse.status,
+          );
           return err(
             new GenericError(
               `Failed to fetch PN download attachment: ${downloadResponse.status}`,
@@ -290,6 +332,12 @@ export class SendHTTPAdapter
 
         return ok(Buffer.from(await downloadResponse.arrayBuffer()));
       } catch (error) {
+        reportUpstreamFailure(
+          this.#logger,
+          "send",
+          "downloadAttachment",
+          "download_failed",
+        );
         return err(new GenericError(this.toErrorBody(error)));
       }
     }
@@ -311,6 +359,13 @@ export class SendHTTPAdapter
       );
     }
 
+    reportUpstreamFailure(
+      this.#logger,
+      "send",
+      operation,
+      "invalid_response",
+      200,
+    );
     return err(
       new GenericError(
         `The SEND attachment metadata contains neither url nor retryAfter.`,
@@ -340,6 +395,12 @@ export class SendHTTPAdapter
     });
 
     if (!getPreconditionResult.response) {
+      reportUpstreamFailure(
+        this.#logger,
+        "send",
+        "getNotificationPrecondition",
+        "no_response",
+      );
       return err(
         new GenericError(this.toErrorBody(getPreconditionResult.error)),
       );
@@ -357,6 +418,7 @@ export class SendHTTPAdapter
         baseURL: baseUrl.toString(),
         details: JSON.stringify(getPreconditionResult.error),
         iun,
+        upstreamStatus: getPreconditionResult.response.status,
       },
     });
 

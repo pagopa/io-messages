@@ -1,3 +1,5 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import {
   GenericError,
   NotFoundError,
@@ -14,6 +16,10 @@ import {
   RCConfigurationRepository,
   rcConfigurationSchema,
 } from "../../../application/ports/rc-configuration.js";
+import {
+  reportUpstreamFailure,
+  reportUpstreamStatus,
+} from "../../../application/telemetry.js";
 
 type RcEnvironmentResponse = NonNullable<
   RcConfigurationResponse["prod_environment"]
@@ -33,7 +39,10 @@ export class RCConfigurationHttpClientAdapter
 {
   #rcAppBaseURL: URL;
 
-  constructor(rcAppBaseURL: URL) {
+  constructor(
+    rcAppBaseURL: URL,
+    private readonly logger?: Logger,
+  ) {
     this.#rcAppBaseURL = rcAppBaseURL;
   }
 
@@ -79,7 +88,11 @@ export class RCConfigurationHttpClientAdapter
       (err) => new GenericError(String(err)),
     );
 
-    if (response.isErr()) return err(response.error);
+    const operation = "getRemoteContentConfiguration";
+    if (response.isErr()) {
+      reportUpstreamFailure(this.logger, "rc-app", operation, "no_response");
+      return err(response.error);
+    }
 
     if (response.value.status === 200) {
       const jsonResponse = await ResultAsync.fromPromise(
@@ -88,6 +101,13 @@ export class RCConfigurationHttpClientAdapter
       );
 
       if (jsonResponse.isErr()) {
+        reportUpstreamFailure(
+          this.logger,
+          "rc-app",
+          operation,
+          "invalid_response",
+          200,
+        );
         return err(jsonResponse.error);
       }
 
@@ -95,16 +115,42 @@ export class RCConfigurationHttpClientAdapter
         jsonResponse.value,
       );
 
-      if (!parsedResult.success)
+      if (!parsedResult.success) {
+        reportUpstreamFailure(
+          this.logger,
+          "rc-app",
+          operation,
+          "invalid_response",
+          200,
+        );
         return err(
           new GenericError(
             `malformed remote content configuration returned by the rc-app: ${parsedResult.error.message}`,
           ),
         );
+      }
 
-      return this.toDomainRCConfiguration(parsedResult.data);
+      const configuration = this.toDomainRCConfiguration(parsedResult.data);
+      if (configuration.isErr()) {
+        reportUpstreamFailure(
+          this.logger,
+          "rc-app",
+          operation,
+          "invalid_response",
+          200,
+        );
+      }
+      return configuration;
     }
 
+    if (response.value.status !== 404) {
+      reportUpstreamStatus(
+        this.logger,
+        "rc-app",
+        operation,
+        response.value.status,
+      );
+    }
     switch (response.value.status) {
       case 400:
         return err(
