@@ -48,8 +48,10 @@ resource "azurerm_api_management_named_value" "canary_fiscal_codes" {
   display_name        = "canary-fiscal-codes"
   api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
   resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
-  value_from_key_vault {
-    secret_id = "${local.key_vault.vault_uri}secrets/canary-fiscal-codes"
+  value               = "[]"
+  secret              = false
+
+  lifecycle {
+    ignore_changes = [value]
   }
-  secret = true
 }
