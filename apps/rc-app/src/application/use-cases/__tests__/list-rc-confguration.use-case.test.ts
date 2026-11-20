@@ -1,6 +1,6 @@
 import { GenericError, TooManyRequestsError } from "@pagopa/hexagonal-core";
 import { err, ok } from "neverthrow";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RemoteContentRepository } from "../../ports/rc-configuration.js";
 import type { UserRCConfigurationRepository } from "../../ports/user-rc-configuration.js";
@@ -40,7 +40,13 @@ const makeUserRCConfigurationRepository =
     listUserRCConfigurations: vi.fn(),
   });
 
+const logger = { trackEvent: vi.fn() };
+
 describe("makeListRcConfigurationUseCase", () => {
+  beforeEach(() => {
+    logger.trackEvent.mockClear();
+  });
+
   it("lists the configurations linked to the user", async () => {
     const userRCConfigurationRepository = makeUserRCConfigurationRepository();
     const remoteContentRepository = makeRemoteContentRepository();
@@ -61,6 +67,7 @@ describe("makeListRcConfigurationUseCase", () => {
     const result = await makeListRcConfigurationUseCase(
       userRCConfigurationRepository,
       remoteContentRepository,
+      logger,
     )({ userId: aUserId });
 
     expect(result.isOk()).toBe(true);
@@ -71,6 +78,38 @@ describe("makeListRcConfigurationUseCase", () => {
     expect(
       remoteContentRepository.listRemoteContentConfigurations,
     ).toHaveBeenCalledWith([aConfigurationId, anotherConfigurationId]);
+    expect(logger.trackEvent).not.toHaveBeenCalled();
+  });
+
+  it("tracks unresolved configuration IDs once without changing the list", async () => {
+    const userRCConfigurationRepository = makeUserRCConfigurationRepository();
+    const remoteContentRepository = makeRemoteContentRepository();
+    vi.mocked(
+      userRCConfigurationRepository.listUserRCConfigurations,
+    ).mockResolvedValueOnce(
+      ok([
+        { id: aConfigurationId, userId: aUserId },
+        { id: anotherConfigurationId, userId: aUserId },
+        { id: anotherConfigurationId, userId: aUserId },
+      ]),
+    );
+    vi.mocked(
+      remoteContentRepository.listRemoteContentConfigurations,
+    ).mockResolvedValueOnce(ok([aValidConfiguration]));
+
+    const result = await makeListRcConfigurationUseCase(
+      userRCConfigurationRepository,
+      remoteContentRepository,
+      logger,
+    )({ userId: aUserId });
+
+    expect(result._unsafeUnwrap()).toStrictEqual([
+      { ...aValidConfiguration, userId: aUserId },
+    ]);
+    expect(logger.trackEvent).toHaveBeenCalledExactlyOnceWith({
+      name: "ListRcConfigurationUseCase.listRemoteContentConfigurations.failed.notFound",
+      properties: { missingCount: 1 },
+    });
   });
 
   it("ignores malformed linked configuration IDs", async () => {
@@ -91,12 +130,14 @@ describe("makeListRcConfigurationUseCase", () => {
     const result = await makeListRcConfigurationUseCase(
       userRCConfigurationRepository,
       remoteContentRepository,
+      logger,
     )({ userId: aUserId });
 
     expect(result.isOk()).toBe(true);
     expect(
       remoteContentRepository.listRemoteContentConfigurations,
     ).toHaveBeenCalledWith([aConfigurationId]);
+    expect(logger.trackEvent).not.toHaveBeenCalled();
   });
 
   it("returns an empty list when the user has no linked configurations", async () => {
@@ -112,6 +153,7 @@ describe("makeListRcConfigurationUseCase", () => {
     const result = await makeListRcConfigurationUseCase(
       userRCConfigurationRepository,
       remoteContentRepository,
+      logger,
     )({ userId: aUserId });
 
     expect(result.isOk()).toBe(true);
@@ -131,6 +173,7 @@ describe("makeListRcConfigurationUseCase", () => {
     const result = await makeListRcConfigurationUseCase(
       userRCConfigurationRepository,
       remoteContentRepository,
+      logger,
     )({ userId: aUserId });
 
     expect(result.isErr()).toBe(true);
@@ -153,9 +196,11 @@ describe("makeListRcConfigurationUseCase", () => {
     const result = await makeListRcConfigurationUseCase(
       userRCConfigurationRepository,
       remoteContentRepository,
+      logger,
     )({ userId: aUserId });
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(TooManyRequestsError);
+    expect(logger.trackEvent).not.toHaveBeenCalled();
   });
 });
