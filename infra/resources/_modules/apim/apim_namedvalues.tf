@@ -42,3 +42,12 @@ resource "azurerm_api_management_named_value" "app_backend_key" {
 
   secret = true
 }
+
+resource "azurerm_api_management_named_value" "canary_fiscal_codes" {
+  name                = "canary-fiscal-codes"
+  display_name        = "Canary Fiscal Codes (Edit in Portal)"
+  api_management_name = data.azurerm_api_management.apim_itn_platform_api.name
+  resource_group_name = data.azurerm_api_management.apim_itn_platform_api.resource_group_name
+  value               = "[]"
+  secret              = false
+}
