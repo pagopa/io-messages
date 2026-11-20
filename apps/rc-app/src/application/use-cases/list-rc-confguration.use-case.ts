@@ -3,6 +3,7 @@ import type {
   TooManyRequestsError,
   UseCase,
 } from "@pagopa/hexagonal-core";
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
 
 import { err, ok } from "neverthrow";
 
@@ -26,6 +27,7 @@ export const makeListRcConfigurationUseCase =
   (
     userRCConfigurationRepository: UserRCConfigurationRepository,
     remoteContentRepository: RemoteContentRepository,
+    logger: Pick<Logger, "trackEvent">,
   ): ListRcConfigurationUseCase =>
   async ({ userId }) => {
     const userConfigurations =
@@ -47,6 +49,20 @@ export const makeListRcConfigurationUseCase =
       );
     if (configurations.isErr()) {
       return err(configurations.error);
+    }
+
+    const missingConfigurationIds = new Set(configurationIds);
+    for (const { configurationId } of configurations.value) {
+      missingConfigurationIds.delete(configurationId);
+    }
+    if (missingConfigurationIds.size > 0) {
+      logger.trackEvent({
+        name: "ListRcConfigurationUseCase.listRemoteContentConfigurations.failed.notFound",
+        properties: {
+          missingConfigurationIds: JSON.stringify([...missingConfigurationIds]),
+          missingCount: missingConfigurationIds.size,
+        },
+      });
     }
 
     return ok(

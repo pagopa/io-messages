@@ -107,6 +107,7 @@ const sendRemoteMessage = {
 };
 
 const serviceToRcMap = new Map<string, string>();
+const trackEvent = vi.fn();
 
 const anRCConfiguration = (
   overrides: Partial<RCConfiguration> = {},
@@ -148,6 +149,7 @@ const makeUseCase = () =>
     buildLollipopHeaders,
     pnServiceId,
     serviceToRcMap,
+    { trackEvent },
   );
 
 beforeEach(() => {
@@ -173,6 +175,7 @@ describe("makeGetRemoteContentMessageUseCase", () => {
     const result = await makeUseCase()({ fiscalCode, messageId });
 
     expect(result.isOk()).toBe(true);
+    expect(trackEvent).not.toHaveBeenCalled();
     expect(
       messageMetadataRepository.getMessageMetadataByFiscalCodeAndId,
     ).toHaveBeenCalledWith(fiscalCode, messageId);
@@ -206,6 +209,7 @@ describe("makeGetRemoteContentMessageUseCase", () => {
     expect(result._unsafeUnwrap().third_party_message).toEqual(
       sendRemoteMessage,
     );
+    expect(trackEvent).not.toHaveBeenCalled();
   });
 
   it("returns bad gateway when required generic remote content is missing", async () => {
@@ -221,6 +225,26 @@ describe("makeGetRemoteContentMessageUseCase", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "REMOTE_CONTENT_NOT_PRESENT",
     );
+    expect(trackEvent).toHaveBeenCalledExactlyOnceWith({
+      name: "GetRemoteContentMessageUseCase.validateGenericRemoteMessage.failed",
+      properties: {
+        configurationId: standardConfigurationId,
+        errorMessage: "REMOTE_CONTENT_NOT_PRESENT",
+        serviceId,
+      },
+    });
+  });
+
+  it("does not track a proxy failure as a validation error", async () => {
+    const error = new GenericError("Remote content unavailable");
+    vi.mocked(remoteContentProxy.getRemoteContentMessage).mockResolvedValueOnce(
+      err(error),
+    );
+
+    const result = await makeUseCase()({ fiscalCode, messageId });
+
+    expect(result._unsafeUnwrapErr()).toBe(error);
+    expect(trackEvent).not.toHaveBeenCalled();
   });
 
   it.each([

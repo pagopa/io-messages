@@ -1,3 +1,5 @@
+import type { Logger } from "@pagopa/hexagonal-core/domain/ports";
+
 import {
   FiscalCode,
   ForbiddenError,
@@ -234,6 +236,7 @@ export const makeGetRemoteContentMessageUseCase =
     buildLollipopHeaders: BuildLollipopHeadersUseCase,
     pnServiceId: string,
     serviceToRCMap: ServiceToRCConfigMap,
+    logger: Pick<Logger, "trackEvent">,
   ): GetRemoteContentMessageUseCase =>
   async ({ assertionRef, fiscalCode, lollipopRequestHeaders, messageId }) => {
     const [metadataResult, contentResult] = await Promise.all([
@@ -292,7 +295,17 @@ export const makeGetRemoteContentMessageUseCase =
       metadata.senderServiceId === pnServiceId
         ? ok(remoteMessageResult.value)
         : validateGenericRemoteMessage(content, remoteMessageResult.value);
-    if (thirdPartyMessage.isErr()) return err(thirdPartyMessage.error);
+    if (thirdPartyMessage.isErr()) {
+      logger.trackEvent({
+        name: "GetRemoteContentMessageUseCase.validateGenericRemoteMessage.failed",
+        properties: {
+          configurationId: configuration.configurationId,
+          errorMessage: thirdPartyMessage.error.detail,
+          serviceId: metadata.senderServiceId,
+        },
+      });
+      return err(thirdPartyMessage.error);
+    }
 
     return ok({
       content,

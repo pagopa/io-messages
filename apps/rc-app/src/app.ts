@@ -166,6 +166,7 @@ export const createApp = async (
         new RCConfigurationCacheAdapter(redisClient, logger),
         config.RC_CONFIGURATION_CACHE_TTL,
       ),
+      logger,
     ),
     config.INTERNAL_USER_ID,
   );
