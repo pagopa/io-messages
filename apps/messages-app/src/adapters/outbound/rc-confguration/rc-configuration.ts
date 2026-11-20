@@ -15,6 +15,8 @@ import {
   rcConfigurationSchema,
 } from "../../../application/ports/rc-configuration.js";
 
+const RC_REQUEST_TIMEOUT_MS = 3000;
+
 type RcEnvironmentResponse = NonNullable<
   RcConfigurationResponse["prod_environment"]
 >;
@@ -74,8 +76,9 @@ export class RCConfigurationHttpClientAdapter
   ): Promise<
     Result<RCConfiguration, GenericError | NotFoundError | TooManyRequestsError>
   > {
+    const signal = AbortSignal.timeout(RC_REQUEST_TIMEOUT_MS);
     const response = await ResultAsync.fromPromise(
-      fetch(`${this.#rcAppBaseURL}/${id}`),
+      fetch(`${this.#rcAppBaseURL}/${id}`, { signal }),
       (err) => new GenericError(String(err)),
     );
 
@@ -84,7 +87,12 @@ export class RCConfigurationHttpClientAdapter
     if (response.value.status === 200) {
       const jsonResponse = await ResultAsync.fromPromise(
         response.value.json(),
-        () => new GenericError("invalid json response from rc-app"),
+        () =>
+          new GenericError(
+            signal.aborted
+              ? String(signal.reason)
+              : "invalid json response from rc-app",
+          ),
       );
 
       if (jsonResponse.isErr()) {
