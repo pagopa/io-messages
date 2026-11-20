@@ -295,6 +295,7 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
       buildLollipopHeadersUseCase,
       config.PN_SERVICE_ID,
       config.SERVICE_TO_RC_MAP,
+      logger,
     ),
   );
   mountGetRemoteContentMessageAttachmentHandler(
