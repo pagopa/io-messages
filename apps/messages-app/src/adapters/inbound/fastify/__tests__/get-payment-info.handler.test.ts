@@ -66,6 +66,20 @@ describe("mountGetPaymentInfoHandler", () => {
     });
   });
 
+  it("returns the amount when optional payment metadata is absent", async () => {
+    vi.mocked(useCase).mockResolvedValueOnce(
+      ok({ amount: paymentInfo.amount }),
+    );
+
+    const response = await server.inject({
+      method: "GET",
+      url: `/api/messages/payments/${rptId}`,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ amount: paymentInfo.amount });
+  });
+
   it("returns 400 when rpt_id is invalid", async () => {
     const response = await server.inject({
       method: "GET",
