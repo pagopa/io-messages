@@ -77,6 +77,7 @@ describe("getMessageDetailsByServiceIds", () => {
           "Content-Type": "application/json",
           "Ocp-Apim-Subscription-Key": "subscription-key",
         },
+        signal: expect.any(AbortSignal),
       },
     );
     expect(trackEventMock).not.toHaveBeenCalled();
