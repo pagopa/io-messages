@@ -25,6 +25,11 @@ const jsonResponse = (body: unknown, status = 200) =>
     status,
   });
 
+const aTimeoutError = new DOMException(
+  "The operation was aborted due to timeout",
+  "TimeoutError",
+);
+
 const fetchMock = vi.fn<typeof fetch>();
 
 const expectFetchRequest = (url: string, apiKey: string) => {
@@ -216,4 +221,22 @@ describe("PagoPAEcommerceHttpClientAdapter", () => {
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
   });
+
+  it.each([false, true])(
+    "returns a GenericError when the request times out after 3 seconds (test mode: %s)",
+    async (isTest) => {
+      const timeout = vi.spyOn(AbortSignal, "timeout");
+      fetchMock.mockRejectedValue(aTimeoutError);
+
+      try {
+        const result = await adapter.getPaymentInfo(rptId, isTest);
+
+        expect(timeout).toHaveBeenCalledWith(3000);
+        expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+        expect(result._unsafeUnwrapErr().message).toMatch(/timeout/i);
+      } finally {
+        timeout.mockRestore();
+      }
+    },
+  );
 });

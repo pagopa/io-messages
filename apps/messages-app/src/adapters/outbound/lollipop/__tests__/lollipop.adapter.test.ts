@@ -26,6 +26,11 @@ const jsonResponse = (body: unknown, status = 200) =>
     status,
   });
 
+const aTimeoutError = new DOMException(
+  "The operation was aborted due to timeout",
+  "TimeoutError",
+);
+
 const fetchMock = vi.fn<typeof fetch>();
 
 const expectFetchRequest = (url: string, apiKey: string) => {
@@ -171,5 +176,23 @@ describe("LollipopHttpClientAdapter", () => {
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+  });
+
+  it("returns a GenericError when the request times out after 3 seconds", async () => {
+    const timeout = vi.spyOn(AbortSignal, "timeout");
+    fetchMock.mockRejectedValue(aTimeoutError);
+
+    try {
+      const result = await adapter.generateLcParams(
+        anAssertionRef,
+        anOperationId,
+      );
+
+      expect(timeout).toHaveBeenCalledWith(3000);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+      expect(result._unsafeUnwrapErr().message).toMatch(/timeout/i);
+    } finally {
+      timeout.mockRestore();
+    }
   });
 });
