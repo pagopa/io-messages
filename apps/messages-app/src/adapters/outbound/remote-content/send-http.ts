@@ -29,6 +29,9 @@ import {
 import { PreconditionContent } from "../../../generated/send/types.gen.js";
 import { zNotificationAttachmentDownloadMetadataResponse } from "../../../generated/send/zod.gen.js";
 
+const REQUEST_TIMEOUT_MS = 7500;
+const ATTACHMENT_TIMEOUT_MS = 7500;
+
 type SendAttachmentPath =
   | {
       attachmentIdx: number;
@@ -144,6 +147,7 @@ export class SendHTTPAdapter
     fiscalCode: FiscalCode,
     lollipopHeaders?: LollipopHeaders,
   ) {
+    const signal = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
     const getNotificationResult = await getReceivedNotification({
       baseUrl: baseUrl.toString().replace(/\/+$/, ""),
       client: this.#client,
@@ -158,7 +162,11 @@ export class SendHTTPAdapter
       },
       path: { iun },
       redirect: "manual",
+      signal,
     });
+
+    if (signal.aborted)
+      return err(new GenericError(this.toErrorBody(signal.reason)));
 
     if (!getNotificationResult.response) {
       return err(
@@ -208,6 +216,7 @@ export class SendHTTPAdapter
     }
 
     const attachmentPath = attachmentPathResult.value;
+    const signal = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
 
     const baseRequest = {
       baseUrl: baseUrl.toString().replace(/\/+$/, ""),
@@ -220,6 +229,7 @@ export class SendHTTPAdapter
         "x-pagopa-cx-taxid": fiscalCode,
       },
       redirect: "manual",
+      signal,
     } as const;
 
     const getMetadataResult =
@@ -241,6 +251,9 @@ export class SendHTTPAdapter
               attachmentIdx: attachmentPath.attachmentIdx,
             },
           });
+
+    if (signal.aborted)
+      return err(new GenericError(this.toErrorBody(signal.reason)));
 
     if (!getMetadataResult.response) {
       return err(new GenericError(this.toErrorBody(getMetadataResult.error)));
@@ -279,7 +292,9 @@ export class SendHTTPAdapter
 
     if (metadata.data.url) {
       try {
-        const downloadResponse = await fetch(metadata.data.url);
+        const downloadResponse = await fetch(metadata.data.url, {
+          signal: AbortSignal.timeout(ATTACHMENT_TIMEOUT_MS),
+        });
         if (downloadResponse.status !== 200) {
           return err(
             new GenericError(
@@ -325,6 +340,7 @@ export class SendHTTPAdapter
     fiscalCode: FiscalCode,
     lollipopHeaders?: LollipopHeaders,
   ) {
+    const signal = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
     const getPreconditionResult = await getReceivedNotificationPrecondition({
       baseUrl: baseUrl.toString().replace(/\/+$/, ""),
       client: this.#client,
@@ -337,7 +353,11 @@ export class SendHTTPAdapter
       },
       path: { iun },
       redirect: "manual",
+      signal,
     });
+
+    if (signal.aborted)
+      return err(new GenericError(this.toErrorBody(signal.reason)));
 
     if (!getPreconditionResult.response) {
       return err(

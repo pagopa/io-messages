@@ -91,6 +91,11 @@ const attachmentResponse = (status = 200) =>
     status,
   });
 
+const aTimeoutError = new DOMException(
+  "The operation was aborted due to timeout",
+  "TimeoutError",
+);
+
 const fetchMock = vi.fn<typeof fetch>();
 const trackEventMock = vi.fn();
 const adapter = new SendHTTPAdapter({
@@ -676,5 +681,75 @@ describe("SendHTTPAdapter - attachment download failures", () => {
     expect(result._unsafeUnwrapErr().message).toBe(
       "Generic error: download error",
     );
+  });
+});
+
+describe("SendHTTPAdapter - timeouts", () => {
+  it.each([
+    {
+      call: () =>
+        adapter.getNotification(baseURL, authentication, iun, fiscalCode),
+      name: "notification details",
+    },
+    {
+      call: () =>
+        adapter.getNotificationPrecondition(
+          baseURL,
+          authentication,
+          iun,
+          fiscalCode,
+        ),
+      name: "precondition",
+    },
+    {
+      call: () =>
+        adapter.getNotificationAttachment(
+          baseURL,
+          authentication,
+          iun,
+          documentAttachmentURL,
+          fiscalCode,
+        ),
+      name: "attachment metadata",
+    },
+  ])(
+    "returns a GenericError when the $name request times out after 7.5 seconds",
+    async ({ call }) => {
+      const timeout = vi.spyOn(AbortSignal, "timeout");
+      fetchMock.mockRejectedValue(aTimeoutError);
+
+      try {
+        const result = await call();
+
+        expect(timeout).toHaveBeenCalledWith(7500);
+        expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+        expect(result._unsafeUnwrapErr().message).toMatch(/timeout/i);
+      } finally {
+        timeout.mockRestore();
+      }
+    },
+  );
+
+  it("returns a GenericError when the attachment download request times out after 7.5 seconds", async () => {
+    const timeout = vi.spyOn(AbortSignal, "timeout");
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(validAttachmentMetadata))
+      .mockRejectedValueOnce(aTimeoutError);
+
+    try {
+      const result = await adapter.getNotificationAttachment(
+        baseURL,
+        authentication,
+        iun,
+        documentAttachmentURL,
+        fiscalCode,
+      );
+
+      expect(timeout).toHaveBeenCalledWith(7500);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+      expect(result._unsafeUnwrapErr().message).toMatch(/timeout/i);
+    } finally {
+      timeout.mockRestore();
+    }
   });
 });

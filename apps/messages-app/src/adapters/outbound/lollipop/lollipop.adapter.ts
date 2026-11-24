@@ -20,6 +20,8 @@ import { createClient } from "../../../generated/lollipop/client/index.js";
 import { generateLcParams } from "../../../generated/lollipop/sdk.gen.js";
 import { ProblemJson } from "../../../generated/lollipop/types.gen.js";
 
+const REQUEST_TIMEOUT_MS = 5000;
+
 const toGenericError = (error: unknown): GenericError =>
   new GenericError(error instanceof Error ? error.message : String(error));
 
@@ -40,15 +42,19 @@ export class LollipopHttpClientAdapter implements LcParamsRepository {
     assertionRef: AssertionRef,
     operationId: string,
   ): Promise<Result<LcParams, LcParamsError>> {
+    const signal = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
     const generateLcParamsResult = await ResultAsync.fromPromise(
       generateLcParams({
         auth: this.apiKey,
         body: { operation_id: operationId },
         client: this.client,
         path: { assertion_ref: assertionRef },
+        signal,
       }),
       toGenericError,
     );
+
+    if (signal.aborted) return err(toGenericError(signal.reason));
 
     if (generateLcParamsResult.isErr())
       return err(generateLcParamsResult.error);

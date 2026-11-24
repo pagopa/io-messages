@@ -43,6 +43,9 @@ import {
   RemoteContentDetailsResponse,
 } from "../../../generated/remote-content/types.gen.js";
 
+const REQUEST_TIMEOUT_MS = 7500;
+const ATTACHMENT_TIMEOUT_MS = 7500;
+
 export class RemoteContentHTTPAdapter
   implements
     RemoteContentMessageRepository,
@@ -118,6 +121,7 @@ export class RemoteContentHTTPAdapter
     fiscalCode: FiscalCode,
     lollipopHeaders?: LollipopHeaders,
   ) {
+    const signal = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
     const getRCMessageResult = await getRemoteContentMessageDetails({
       baseUrl: baseURL.toString().replace(/\/+$/, ""),
       client: this.#client,
@@ -130,7 +134,11 @@ export class RemoteContentHTTPAdapter
       },
       path: { id: externalMessageID },
       redirect: "manual",
+      signal,
     });
+
+    if (signal.aborted)
+      return err(new GenericError(this.toErrorBody(signal.reason)));
 
     if (!getRCMessageResult.response) {
       return err(new GenericError(this.toErrorBody(getRCMessageResult.error)));
@@ -229,6 +237,7 @@ export class RemoteContentHTTPAdapter
     fiscalCode: FiscalCode,
     lollipopHeaders?: LollipopHeaders,
   ) {
+    const signal = AbortSignal.timeout(ATTACHMENT_TIMEOUT_MS);
     const getRCMessageAttachmentResult = await this.#client.get<
       ArrayBuffer,
       GetRemoteContentMessageAttachmentErrors
@@ -243,10 +252,14 @@ export class RemoteContentHTTPAdapter
       },
       parseAs: "arrayBuffer",
       redirect: "manual",
+      signal,
       // The generated SDK percent-encodes path parameters, while attachment
       // paths may contain slashes and query parameters that must stay intact.
       url: `/messages/${externalMessageID}/${attachmentURL}`,
     });
+
+    if (signal.aborted)
+      return err(new GenericError(this.toErrorBody(signal.reason)));
 
     if (!getRCMessageAttachmentResult.response) {
       return err(
@@ -367,6 +380,7 @@ export class RemoteContentHTTPAdapter
     fiscalCode: FiscalCode,
     lollipopHeaders?: LollipopHeaders,
   ) {
+    const signal = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
     const getRCMessagePreconditionResult =
       await getRemoteContentMessagePrecondition({
         baseUrl: baseURL.toString().replace(/\/+$/, ""),
@@ -380,7 +394,11 @@ export class RemoteContentHTTPAdapter
         },
         path: { id: externalMessageID },
         redirect: "manual",
+        signal,
       });
+
+    if (signal.aborted)
+      return err(new GenericError(this.toErrorBody(signal.reason)));
 
     if (!getRCMessagePreconditionResult.response) {
       return err(

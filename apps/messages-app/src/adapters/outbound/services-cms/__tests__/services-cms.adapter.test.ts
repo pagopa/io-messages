@@ -39,6 +39,11 @@ const jsonResponse = (body: unknown, status = 200) =>
     status,
   });
 
+const aTimeoutError = new DOMException(
+  "The operation was aborted due to timeout",
+  "TimeoutError",
+);
+
 const fetchMock = vi.fn<typeof fetch>();
 const trackEventMock = vi.fn();
 
@@ -77,6 +82,7 @@ describe("getMessageDetailsByServiceIds", () => {
           "Content-Type": "application/json",
           "Ocp-Apim-Subscription-Key": "subscription-key",
         },
+        signal: expect.any(AbortSignal),
       },
     );
     expect(trackEventMock).not.toHaveBeenCalled();
@@ -244,5 +250,31 @@ describe("getMessageDetailsByServiceIds", () => {
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
     expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("getMessageDetailsByServiceIds - timeout", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+    trackEventMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  it("fails with a GenericError, not a skipped service, when the request times out after 5 seconds", async () => {
+    const timeout = vi.spyOn(AbortSignal, "timeout");
+    fetchMock.mockRejectedValue(aTimeoutError);
+
+    try {
+      const result = await adapter.getServicesCmsDetailsByServiceIds([
+        aServiceID,
+      ]);
+
+      expect(timeout).toHaveBeenCalledWith(5000);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+      expect(result._unsafeUnwrapErr().message).toMatch(/timeout/i);
+      expect(trackEventMock).not.toHaveBeenCalled();
+    } finally {
+      timeout.mockRestore();
+    }
   });
 });

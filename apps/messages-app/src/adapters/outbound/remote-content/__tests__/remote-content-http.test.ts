@@ -80,6 +80,11 @@ const attachmentResponse = (
     status,
   });
 
+const aTimeoutError = new DOMException(
+  "The operation was aborted due to timeout",
+  "TimeoutError",
+);
+
 const fetchMock = vi.fn<typeof fetch>();
 const trackEventMock = vi.fn();
 const adapter = new RemoteContentHTTPAdapter({
@@ -745,4 +750,59 @@ describe("RemoteContentHTTPAdapter - response-less attachment errors", () => {
     );
     expect(trackEventMock).not.toHaveBeenCalled();
   });
+});
+
+describe("RemoteContentHTTPAdapter - timeouts", () => {
+  it.each([
+    {
+      call: () =>
+        adapter.getRemoteContentMessage(
+          baseURL,
+          authentication,
+          externalMessageID,
+          fiscalCode,
+        ),
+      name: "message details",
+      timeoutMs: 7500,
+    },
+    {
+      call: () =>
+        adapter.getRemoteContentMessagePrecondition(
+          baseURL,
+          authentication,
+          externalMessageID,
+          fiscalCode,
+        ),
+      name: "precondition",
+      timeoutMs: 7500,
+    },
+    {
+      call: () =>
+        adapter.getRemoteContentMessageAttachment(
+          baseURL,
+          authentication,
+          externalMessageID,
+          attachmentURL,
+          fiscalCode,
+        ),
+      name: "attachment",
+      timeoutMs: 7500,
+    },
+  ])(
+    "returns a GenericError when the $name request times out after $timeoutMs ms",
+    async ({ call, timeoutMs }) => {
+      const timeout = vi.spyOn(AbortSignal, "timeout");
+      fetchMock.mockRejectedValue(aTimeoutError);
+
+      try {
+        const result = await call();
+
+        expect(timeout).toHaveBeenCalledWith(timeoutMs);
+        expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+        expect(result._unsafeUnwrapErr().message).toMatch(/timeout/i);
+      } finally {
+        timeout.mockRestore();
+      }
+    },
+  );
 });
