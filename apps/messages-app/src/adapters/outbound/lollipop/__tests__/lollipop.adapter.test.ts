@@ -178,7 +178,7 @@ describe("LollipopHttpClientAdapter", () => {
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
   });
 
-  it("returns a GenericError when the request times out after 3 seconds", async () => {
+  it("returns a GenericError when the request times out after 5 seconds", async () => {
     const timeout = vi.spyOn(AbortSignal, "timeout");
     fetchMock.mockRejectedValue(aTimeoutError);
 
@@ -188,7 +188,7 @@ describe("LollipopHttpClientAdapter", () => {
         anOperationId,
       );
 
-      expect(timeout).toHaveBeenCalledWith(3000);
+      expect(timeout).toHaveBeenCalledWith(5000);
       expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
       expect(result._unsafeUnwrapErr().message).toMatch(/timeout/i);
     } finally {

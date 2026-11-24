@@ -763,7 +763,7 @@ describe("RemoteContentHTTPAdapter - timeouts", () => {
           fiscalCode,
         ),
       name: "message details",
-      timeoutMs: 3000,
+      timeoutMs: 7500,
     },
     {
       call: () =>
@@ -774,7 +774,7 @@ describe("RemoteContentHTTPAdapter - timeouts", () => {
           fiscalCode,
         ),
       name: "precondition",
-      timeoutMs: 3000,
+      timeoutMs: 7500,
     },
     {
       call: () =>
@@ -786,7 +786,7 @@ describe("RemoteContentHTTPAdapter - timeouts", () => {
           fiscalCode,
         ),
       name: "attachment",
-      timeoutMs: 5000,
+      timeoutMs: 7500,
     },
   ])(
     "returns a GenericError when the $name request times out after $timeoutMs ms",

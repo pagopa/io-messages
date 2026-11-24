@@ -126,7 +126,7 @@ describe("RCConfigurationHttpClientAdapter - getRemoteContentConfiguration", () 
           const result =
             await client.getRemoteContentConfiguration(RC_CONFIG_ID);
 
-          expect(timeout).toHaveBeenCalledWith(3000);
+          expect(timeout).toHaveBeenCalledWith(7500);
           expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
           expect(result._unsafeUnwrapErr().message).toContain("TimeoutError");
         } finally {
@@ -136,6 +136,7 @@ describe("RCConfigurationHttpClientAdapter - getRemoteContentConfiguration", () 
           });
         }
       },
+      10_000,
     );
   });
 

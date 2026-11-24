@@ -223,7 +223,7 @@ describe("PagoPAEcommerceHttpClientAdapter", () => {
   });
 
   it.each([false, true])(
-    "returns a GenericError when the request times out after 3 seconds (test mode: %s)",
+    "returns a GenericError when the request times out after 7.5 seconds (test mode: %s)",
     async (isTest) => {
       const timeout = vi.spyOn(AbortSignal, "timeout");
       fetchMock.mockRejectedValue(aTimeoutError);
@@ -231,7 +231,7 @@ describe("PagoPAEcommerceHttpClientAdapter", () => {
       try {
         const result = await adapter.getPaymentInfo(rptId, isTest);
 
-        expect(timeout).toHaveBeenCalledWith(3000);
+        expect(timeout).toHaveBeenCalledWith(7500);
         expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
         expect(result._unsafeUnwrapErr().message).toMatch(/timeout/i);
       } finally {

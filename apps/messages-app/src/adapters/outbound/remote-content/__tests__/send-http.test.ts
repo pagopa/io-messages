@@ -713,7 +713,7 @@ describe("SendHTTPAdapter - timeouts", () => {
       name: "attachment metadata",
     },
   ])(
-    "returns a GenericError when the $name request times out after 3 seconds",
+    "returns a GenericError when the $name request times out after 7.5 seconds",
     async ({ call }) => {
       const timeout = vi.spyOn(AbortSignal, "timeout");
       fetchMock.mockRejectedValue(aTimeoutError);
@@ -721,7 +721,7 @@ describe("SendHTTPAdapter - timeouts", () => {
       try {
         const result = await call();
 
-        expect(timeout).toHaveBeenCalledWith(3000);
+        expect(timeout).toHaveBeenCalledWith(7500);
         expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
         expect(result._unsafeUnwrapErr().message).toMatch(/timeout/i);
       } finally {
@@ -730,7 +730,7 @@ describe("SendHTTPAdapter - timeouts", () => {
     },
   );
 
-  it("returns a GenericError when the attachment download request times out after 5 seconds", async () => {
+  it("returns a GenericError when the attachment download request times out after 7.5 seconds", async () => {
     const timeout = vi.spyOn(AbortSignal, "timeout");
     fetchMock
       .mockResolvedValueOnce(jsonResponse(validAttachmentMetadata))
@@ -745,7 +745,7 @@ describe("SendHTTPAdapter - timeouts", () => {
         fiscalCode,
       );
 
-      expect(timeout).toHaveBeenCalledWith(5000);
+      expect(timeout).toHaveBeenCalledWith(7500);
       expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
       expect(result._unsafeUnwrapErr().message).toMatch(/timeout/i);
     } finally {

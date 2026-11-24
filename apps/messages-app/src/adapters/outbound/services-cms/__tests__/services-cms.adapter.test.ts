@@ -260,7 +260,7 @@ describe("getMessageDetailsByServiceIds - timeout", () => {
     vi.stubGlobal("fetch", fetchMock);
   });
 
-  it("fails with a GenericError, not a skipped service, when the request times out after 3 seconds", async () => {
+  it("fails with a GenericError, not a skipped service, when the request times out after 5 seconds", async () => {
     const timeout = vi.spyOn(AbortSignal, "timeout");
     fetchMock.mockRejectedValue(aTimeoutError);
 
@@ -269,7 +269,7 @@ describe("getMessageDetailsByServiceIds - timeout", () => {
         aServiceID,
       ]);
 
-      expect(timeout).toHaveBeenCalledWith(3000);
+      expect(timeout).toHaveBeenCalledWith(5000);
       expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
       expect(result._unsafeUnwrapErr().message).toMatch(/timeout/i);
       expect(trackEventMock).not.toHaveBeenCalled();
