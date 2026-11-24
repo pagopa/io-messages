@@ -15,7 +15,7 @@ import {
   rcConfigurationSchema,
 } from "../../../application/ports/rc-configuration.js";
 
-const RC_REQUEST_TIMEOUT_MS = 3000;
+const RC_REQUEST_TIMEOUT_MS = 7500;
 
 type RcEnvironmentResponse = NonNullable<
   RcConfigurationResponse["prod_environment"]

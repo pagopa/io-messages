@@ -43,8 +43,8 @@ import {
   RemoteContentDetailsResponse,
 } from "../../../generated/remote-content/types.gen.js";
 
-const REQUEST_TIMEOUT_MS = 3000;
-const ATTACHMENT_TIMEOUT_MS = 5000;
+const REQUEST_TIMEOUT_MS = 7500;
+const ATTACHMENT_TIMEOUT_MS = 7500;
 
 export class RemoteContentHTTPAdapter
   implements

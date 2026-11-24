@@ -12,7 +12,7 @@ import { MalformedEntityError } from "../../../application/ports/error.js";
 import { ServicesCmsRepository } from "../../../application/ports/services-cms.js";
 import { authorizedCidrSchema } from "../../../domain/client-ip.js";
 
-const REQUEST_TIMEOUT_MS = 3000;
+const REQUEST_TIMEOUT_MS = 5000;
 
 const organizationSchema = z.object({
   fiscal_code: z.string().regex(new RegExp("^\\d{11}$")),

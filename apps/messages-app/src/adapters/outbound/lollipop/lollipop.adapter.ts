@@ -20,7 +20,7 @@ import { createClient } from "../../../generated/lollipop/client/index.js";
 import { generateLcParams } from "../../../generated/lollipop/sdk.gen.js";
 import { ProblemJson } from "../../../generated/lollipop/types.gen.js";
 
-const REQUEST_TIMEOUT_MS = 3000;
+const REQUEST_TIMEOUT_MS = 5000;
 
 const toGenericError = (error: unknown): GenericError =>
   new GenericError(error instanceof Error ? error.message : String(error));

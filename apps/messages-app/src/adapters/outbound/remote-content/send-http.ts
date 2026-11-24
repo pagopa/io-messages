@@ -29,8 +29,8 @@ import {
 import { PreconditionContent } from "../../../generated/send/types.gen.js";
 import { zNotificationAttachmentDownloadMetadataResponse } from "../../../generated/send/zod.gen.js";
 
-const REQUEST_TIMEOUT_MS = 3000;
-const ATTACHMENT_TIMEOUT_MS = 5000;
+const REQUEST_TIMEOUT_MS = 7500;
+const ATTACHMENT_TIMEOUT_MS = 7500;
 
 type SendAttachmentPath =
   | {

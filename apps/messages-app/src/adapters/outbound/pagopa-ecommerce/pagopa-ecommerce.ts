@@ -21,7 +21,7 @@ import {
 import { getPaymentRequestInfo } from "../../../generated/pagopa-ecommerce/sdk.gen.js";
 import { ProblemJson } from "../../../generated/pagopa-ecommerce/types.gen.js";
 
-const REQUEST_TIMEOUT_MS = 3000;
+const REQUEST_TIMEOUT_MS = 7500;
 
 interface PagoPAEcommerceEnvironmentData {
   apiKey: string;
