@@ -34,6 +34,7 @@ import {
 import {
   CreateMessageHandler,
   canPaymentAmount,
+  canSendMessageToRecipientAge,
   canWriteMessage,
   createMessageDocument,
 } from "../handler";
@@ -194,6 +195,19 @@ describe("canPaymentAmount", () => {
   });
 });
 
+describe("canSendMessageToRecipientAge", () => {
+  it("should bypass eligibility when Services API lookup is disabled", () => {
+    const response = canSendMessageToRecipientAge(
+      anotherFiscalCode,
+      { min: 999 },
+      false,
+      aSandboxFiscalCode,
+    );
+
+    expect(E.isRight(response)).toBeTruthy();
+  });
+});
+
 describe("createMessageDocument", () => {
   const messageIdArb = alphaStringArb(16);
   const senderUserIdArb = alphaStringArb(16);
@@ -254,6 +268,125 @@ describe("createMessageDocument", () => {
 
 //eslint-disable-next-line max-lines-per-function
 describe("CreateMessageHandler", () => {
+  it("should reject an ineligible recipient before creating the message", async () => {
+    const messageModel = {
+      create: vi.fn(() => TE.of({})),
+    } as unknown as MessageModel;
+    const createMessageHandler = CreateMessageHandler(
+      mockTelemetryClient,
+      remoteContentClient,
+      messageModel,
+      vi.fn(() => "mocked-message-id" as NonEmptyString),
+      mockSaveBlob,
+      aSandboxFiscalCode,
+      {} as FunctionOutput,
+      true,
+    );
+
+    const response = await createMessageHandler(
+      createContext(),
+      anAzureApiAuthorization,
+      undefined as any,
+      {
+        ...anAzureUserAttributes,
+        service: { ...anAzureUserAttributes.service, age: { min: 999 } },
+      } as any,
+      {
+        content: { markdown: "md", subject: "subject" },
+      } as ApiNewMessageWithDefaults,
+      some(anotherFiscalCode),
+    );
+
+    const expressResponse = {
+      json: vi.fn(),
+      set: vi.fn().mockReturnThis(),
+      status: vi.fn().mockReturnThis(),
+    };
+    response.apply(expressResponse as any);
+
+    expect(expressResponse.status).toHaveBeenCalledWith(422);
+    expect(response.detail).toBe(
+      "Validation Error: Recipient age not eligible",
+    );
+    expect(messageModel.create).not.toHaveBeenCalled();
+  });
+
+  it("should reject a malformed service age range before creating the message", async () => {
+    const messageModel = {
+      create: vi.fn(() => TE.of({})),
+    } as unknown as MessageModel;
+    const createMessageHandler = CreateMessageHandler(
+      mockTelemetryClient,
+      remoteContentClient,
+      messageModel,
+      vi.fn(() => "mocked-message-id" as NonEmptyString),
+      mockSaveBlob,
+      aSandboxFiscalCode,
+      {} as FunctionOutput,
+      true,
+    );
+
+    const response = await createMessageHandler(
+      createContext(),
+      anAzureApiAuthorization,
+      undefined as any,
+      {
+        ...anAzureUserAttributes,
+        service: {
+          ...anAzureUserAttributes.service,
+          age: { max: 18, min: 19 },
+        },
+      } as any,
+      {
+        content: { markdown: "md", subject: "subject" },
+      } as ApiNewMessageWithDefaults,
+      some(anotherFiscalCode),
+    );
+
+    const expressResponse = {
+      json: vi.fn(),
+      set: vi.fn().mockReturnThis(),
+      status: vi.fn().mockReturnThis(),
+    };
+    response.apply(expressResponse as any);
+
+    expect(expressResponse.status).toHaveBeenCalledWith(500);
+    expect(messageModel.create).not.toHaveBeenCalled();
+  });
+
+  it("should bypass eligibility for the sandbox recipient", async () => {
+    const messageModel = {
+      create: vi.fn(() => TE.of({})),
+    } as unknown as MessageModel;
+    const createMessageHandler = CreateMessageHandler(
+      mockTelemetryClient,
+      remoteContentClient,
+      messageModel,
+      vi.fn(() => "mocked-message-id" as NonEmptyString),
+      mockSaveBlob,
+      aSandboxFiscalCode,
+      {} as FunctionOutput,
+      true,
+    );
+
+    const response = await createMessageHandler(
+      createContext(),
+      anAzureApiAuthorization,
+      undefined as any,
+      {
+        ...anAzureUserAttributes,
+        service: { ...anAzureUserAttributes.service, age: { min: 999 } },
+      } as any,
+      {
+        content: { markdown: "md", subject: "subject" },
+      } as ApiNewMessageWithDefaults,
+      some(aSandboxFiscalCode as any),
+    );
+
+    expect(response.kind).toBe("IResponseSuccessRedirectToResource");
+    expect(messageModel.create).toHaveBeenCalledTimes(1);
+  });
+
   it("should return a validation error if fiscalcode is specified both in path and payload", async () => {
     await fc.assert(
       fc.asyncProperty(fiscalCodeArb, async (fiscalCode) => {

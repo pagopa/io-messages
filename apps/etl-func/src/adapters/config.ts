@@ -26,6 +26,10 @@ export const common = z.object({
     accountUri: z.url(),
     eventsCollectorDatabaseName: z.string().min(1),
     messageIngestionSummaryContainerName: z.string().min(1),
+    remoteContentDatabaseName: z.string().min(1),
+    remoteContentLeaseContainerName: z.string().min(1),
+    remoteContentMessageConfigurationContainerName: z.string().min(1),
+    remoteContentUserConfigurationContainerName: z.string().min(1),
   }),
   messageStatusErrorTable: tableStorageConfigSchema,
   messagesRedis: redisConfigSchema,
@@ -118,6 +122,12 @@ const mapEnvironmentVariablesToConfig = (env: Env) => {
       eventsCollectorDatabaseName: env.IOCOM_COSMOS_EVENTS_COLLECTOR_DBNAME,
       messageIngestionSummaryContainerName:
         env.IOCOM_COSMOS_INGESTION_SUMMARY_COLLECTION_NAME,
+      remoteContentDatabaseName: env.RC_COSMOS_DBNAME,
+      remoteContentLeaseContainerName: env.RC_LEASE_CONTAINER_NAME,
+      remoteContentMessageConfigurationContainerName:
+        env.RC_MESSAGE_CONFIGURATION_CONTAINER_NAME,
+      remoteContentUserConfigurationContainerName:
+        env.RC_USER_CONFIGURATION_CONTAINER_NAME,
     },
     messageContentStorage: messageContentStorage,
     messageIngestionErrorTable: messageIngestionErrorTable,

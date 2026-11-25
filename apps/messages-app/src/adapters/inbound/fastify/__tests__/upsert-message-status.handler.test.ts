@@ -1,9 +1,11 @@
 import type { FastifyInstance } from "fastify";
 
 import {
+  FiscalCodeSchema,
   ForbiddenError,
   GenericError,
   NotFoundError,
+  TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
 import fastify from "fastify";
 import { err, ok } from "neverthrow";
@@ -14,7 +16,7 @@ import type { UpdateMessageStatusUseCase } from "../../../../application/use-cas
 
 import { mountUpsertMessageStatusHandler } from "../upsert-message-status.handler.js";
 
-const fiscalCode = "RSSMRA80A01H501U";
+const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
 const messageId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
 const status: MessageStatus = {
   fiscalCode,
@@ -25,6 +27,18 @@ const status: MessageStatus = {
   status: "PROCESSED",
   updatedAt: "2024-02-03T04:05:06.000Z",
   version: 1,
+};
+
+const xUserHeaders = {
+  "x-user": Buffer.from(
+    JSON.stringify({
+      date_of_birth: "1980-01-01",
+      family_name: "Rossi",
+      fiscal_code: fiscalCode,
+      name: "Mario",
+      spid_level: "https://www.spid.gov.it/SpidL2",
+    }),
+  ).toString("base64"),
 };
 
 describe("mountUpsertMessageStatusHandler", () => {
@@ -60,9 +74,10 @@ describe("mountUpsertMessageStatusHandler", () => {
     ],
   ])("maps a valid status change", async (payload, expectedInput) => {
     const response = await server.inject({
+      headers: xUserHeaders,
       method: "PUT",
       payload,
-      url: `/api/messages/${fiscalCode}/${messageId}/message-status`,
+      url: `/api/messages/${messageId}/status`,
     });
 
     expect(response.statusCode).toBe(200);
@@ -70,31 +85,23 @@ describe("mountUpsertMessageStatusHandler", () => {
     expect(response.json()).toEqual({
       is_archived: true,
       is_read: true,
-      status: "PROCESSED",
-      updated_at: "2024-02-03T04:05:06.000Z",
-      version: 1,
     });
   });
 
   it.each([
-    [
-      "invalid fiscal code",
-      "invalid",
-      { change_type: "reading", is_read: true },
-    ],
-    ["reading false", fiscalCode, { change_type: "reading", is_read: false }],
+    ["reading false", { change_type: "reading", is_read: false }],
     [
       "bulk reading false",
-      fiscalCode,
       { change_type: "bulk", is_archived: true, is_read: false },
     ],
-    ["missing archiving flag", fiscalCode, { change_type: "archiving" }],
-    ["unknown change", fiscalCode, { change_type: "unknown" }],
-  ])("returns 400 for %s", async (_label, routeFiscalCode, payload) => {
+    ["missing archiving flag", { change_type: "archiving" }],
+    ["unknown change", { change_type: "unknown" }],
+  ])("returns 400 for %s", async (_label, payload) => {
     const response = await server.inject({
+      headers: xUserHeaders,
       method: "PUT",
       payload,
-      url: `/api/messages/${routeFiscalCode}/${messageId}/message-status`,
+      url: `/api/messages/${messageId}/status`,
     });
 
     expect(response.statusCode).toBe(400);
@@ -104,22 +111,72 @@ describe("mountUpsertMessageStatusHandler", () => {
     expect(useCase).not.toHaveBeenCalled();
   });
 
+  it("returns 400 for an id that is not a ULID", async () => {
+    const response = await server.inject({
+      headers: xUserHeaders,
+      method: "PUT",
+      payload: { change_type: "reading", is_read: true },
+      url: "/api/messages/not-a-ulid/status",
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(useCase).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["missing", undefined],
+    ["invalid", { "x-user": "invalid" }],
+  ])("returns 400 when x-user is %s", async (_label, headers) => {
+    const response = await server.inject({
+      headers,
+      method: "PUT",
+      payload: { change_type: "reading", is_read: true },
+      url: `/api/messages/${messageId}/status`,
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(useCase).not.toHaveBeenCalled();
+  });
+
   it.each([
     [new ForbiddenError(), 403],
     [new NotFoundError("message status", "missing"), 404],
+    [new TooManyRequestsError(), 429],
     [new GenericError("failed"), 500],
   ])("maps domain errors to problem responses", async (error, statusCode) => {
     vi.mocked(useCase).mockResolvedValue(err(error));
 
     const response = await server.inject({
+      headers: xUserHeaders,
       method: "PUT",
       payload: { change_type: "archiving", is_archived: true },
-      url: `/api/messages/${fiscalCode}/${messageId}/message-status`,
+      url: `/api/messages/${messageId}/status`,
     });
 
     expect(response.statusCode).toBe(statusCode);
+    expect(response.json().status).toBe(statusCode);
     expect(response.headers["content-type"]).toContain(
       "application/problem+json",
     );
+  });
+
+  it("keeps the rejection reason internal to the persisted status", async () => {
+    vi.mocked(useCase).mockResolvedValue(
+      ok({
+        ...status,
+        rejectionReason: "USER_NOT_FOUND",
+        status: "REJECTED",
+      }),
+    );
+
+    const response = await server.inject({
+      headers: xUserHeaders,
+      method: "PUT",
+      payload: { change_type: "reading", is_read: true },
+      url: `/api/messages/${messageId}/status`,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ is_archived: true, is_read: true });
   });
 });

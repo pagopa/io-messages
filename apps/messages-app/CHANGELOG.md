@@ -1,5 +1,185 @@
 # messages-app
 
+## 1.2.3
+
+### Patch Changes
+
+- e8d6c5d: Use native three-second timeouts for outbound HTTP calls to Services CMS, Lollipop, pagoPA eCommerce, Remote Content and SEND, and five-second timeouts for attachment downloads. Include response body reads and preserve existing error handling without a global request budget.
+
+## 1.2.2
+
+### Patch Changes
+
+- 47bb580: Track Remote Content message validation failures and report the count and IDs of
+  unresolved configuration links without changing endpoint responses.
+
+## 1.2.1
+
+### Patch Changes
+
+- 3ed5a0f: Fixed 500 on wrongly parsed payment data
+- Updated dependencies [3ed5a0f]
+  - io-messages-common@1.4.7
+
+## 1.2.0
+
+### Minor Changes
+
+- 803cf38: Update node version to 24.22.1
+
+## 1.1.3
+
+### Patch Changes
+
+- 96ca310: Add Accept header into SEND getNotification call
+
+## 1.1.2
+
+### Patch Changes
+
+- 040c566: Align upsert message status endpoint with legacy contract
+
+## 1.1.1
+
+### Patch Changes
+
+- 06b175e: Less stricter service id validation.
+
+## 1.1.0
+
+### Minor Changes
+
+- 3949b58: Remove message wrapper on get message response
+
+## 1.0.4
+
+### Patch Changes
+
+- aed09c5: Remove response from telemetry
+
+## 1.0.3
+
+### Patch Changes
+
+- def2cdb: Improve send telemetry
+- def2cdb: Use only error in SEND telemetry
+
+## 1.0.2
+
+### Patch Changes
+
+- e0423ab: Improve send telemetry
+
+## 1.0.1
+
+### Patch Changes
+
+- d0f2b1b: Add send telemetry
+
+## 1.0.0
+
+### Major Changes
+
+- 313d617: Use new rc and payment path
+
+## 0.11.0
+
+### Minor Changes
+
+- 583bcd5: Move the fiscal code from the params to the x-user header for GetMessage, GetMessages and UpsertMessageStatus
+
+## 0.10.0
+
+### Minor Changes
+
+- 94e9268: Add GetRCAttachment endpoint
+
+## 0.9.3
+
+### Patch Changes
+
+- efd527a: Preserve rejection reasons when updating message status and return HTTP 409 for version conflicts and HTTP 429 for storage throttling without overriding platform error messages.
+
+## 0.9.2
+
+### Patch Changes
+
+- dbd6e1f: Align message content and status codecs with legacy reads by defaulting nullable boolean flags to false, rejecting zero payment amounts and malformed dates, normalizing dates to UTC, and excluding the internal content timestamp from responses.
+
+## 0.9.1
+
+### Patch Changes
+
+- a26b414: Align GetMessages with legacy behavior by falling back to the organization fiscal code for payment identifiers, always requiring SEND message preconditions, and fetching remote content configuration only when the message does not specify a precondition.
+
+## 0.9.0
+
+### Minor Changes
+
+- 7272d1e: Add Get Remote Content Message to messages-app
+
+## 0.8.0
+
+### Minor Changes
+
+- 6852084: Add the third-party message precondition route
+
+## 0.7.7
+
+### Patch Changes
+
+- 860cd08: Add remote content proxy for generic third party messages and SEND messages
+
+## 0.7.6
+
+### Patch Changes
+
+- 9e41784: Add build lollipop headers use case
+
+## 0.7.5
+
+### Patch Changes
+
+- 3ad7cb0: Refactor pagopaecommerce adapter
+
+## 0.7.4
+
+### Patch Changes
+
+- 29497b0: Add lollipop adapter and lc-params repository
+
+## 0.7.3
+
+### Patch Changes
+
+- 0f43f39: Adding age check for services
+
+## 0.7.2
+
+### Patch Changes
+
+- 74d7d6f: Add remote content ports and adapters
+- Updated dependencies [74d7d6f]
+  - io-messages-common@1.4.6
+
+## 0.7.1
+
+### Patch Changes
+
+- ea5a255: Update dockerfile to include generate command
+
+## 0.7.0
+
+### Minor Changes
+
+- 2eb46e6: Add GetPaymentInfo endpoint
+
+## 0.6.2
+
+### Patch Changes
+
+- f9db689: Update zod version
+
 ## 0.6.1
 
 ### Patch Changes

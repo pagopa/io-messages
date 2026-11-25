@@ -25,15 +25,13 @@ const enrichedMessageWithContentSchema = messageWithContentSchema.extend({
   service_name: z.string(),
 });
 
-export const GetMessageResponseSchema = z.object({
-  message: z.union([
-    enrichedMessageWithContentSchema,
-    messageWithContentSchema,
-  ]),
-});
+export const GetMessageResponseSchema = z.union([
+  enrichedMessageWithContentSchema,
+  messageWithContentSchema,
+]);
 
 export type GetMessageResponse = z.infer<typeof GetMessageResponseSchema>;
 
 export const toGetMessageResponse = (
   output: MessageOutput,
-): GetMessageResponse => output;
+): GetMessageResponse => output.message;

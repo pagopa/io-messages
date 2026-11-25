@@ -1,0 +1,28 @@
+meta {
+  name: CreateOrUpdateInstallation
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{basePath}}/api/communication/v1/installations/{{installationID}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "platform": "fcmv1",
+    "pushChannel": {{pushChannel}}
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}

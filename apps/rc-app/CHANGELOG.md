@@ -1,5 +1,36 @@
 # rc-app
 
+## 0.6.1
+
+### Patch Changes
+
+- 47bb580: Track Remote Content message validation failures and report the count and IDs of
+  unresolved configuration links without changing endpoint responses.
+
+## 0.6.0
+
+### Minor Changes
+
+- 803cf38: Update node version to 24.22.1
+
+## 0.5.1
+
+### Patch Changes
+
+- f9db689: Update zod version
+
+## 0.5.0
+
+### Minor Changes
+
+- 192e8c6: Add ListRCConfiguration endpoint
+
+## 0.4.1
+
+### Patch Changes
+
+- b1efa70: Add list rc-configuration to RCConfigurationCosmosAdapter
+
 ## 0.4.0
 
 ### Minor Changes

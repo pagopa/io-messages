@@ -1,6 +1,7 @@
 import {
   CosmosClient,
   CosmosDiagnostics,
+  ErrorResponse,
   FeedResponse,
   ItemResponse,
   RestError,
@@ -8,6 +9,8 @@ import {
 } from "@azure/cosmos";
 import {
   ConflictError,
+  FiscalCode,
+  FiscalCodeSchema,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -16,11 +19,14 @@ import { Logger } from "@pagopa/hexagonal-core/domain/ports";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MalformedEntityError } from "../../../../application/ports/error.js";
-import { MessageStatus } from "../../../../application/ports/message-status.js";
+import {
+  MessageStatus,
+  messageStatusSchema,
+} from "../../../../application/ports/message-status.js";
 import { MessageStatusCosmosAdapter } from "../message-status.adapter.js";
 
 const aMessageStatus: MessageStatus = {
-  fiscalCode: "RSSMRA80A01H501U",
+  fiscalCode: FiscalCodeSchema.parse("RSSMRA80A01H501U"),
   id: "01ARZ3NDEKTSV4RRFFQ69G5FAV-0000000000000000",
   isArchived: false,
   isRead: false,
@@ -219,7 +225,9 @@ describe("getLatestMessageStatusById", () => {
 
   it("returns a MalformedEntityError when the fiscal code is invalid", async () => {
     fetchNextMock.mockResolvedValue(
-      feedResponseWith([{ ...aMessageStatus, fiscalCode: "invalid" }]),
+      feedResponseWith([
+        { ...aMessageStatus, fiscalCode: "invalid" as FiscalCode },
+      ]),
     );
 
     const result = await adapter.getLatestMessageStatusById(
@@ -228,6 +236,28 @@ describe("getLatestMessageStatusById", () => {
 
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
   });
+
+  it.each([null, undefined, false, true])(
+    "normalizes legacy status flags for %j",
+    async (value) => {
+      const rawStatus = { ...aMessageStatus, isArchived: value, isRead: value };
+      fetchNextMock.mockResolvedValue(
+        feedResponseWith([rawStatus as unknown as MessageStatus]),
+      );
+
+      const result = await adapter.getLatestMessageStatusById(
+        aMessageStatus.messageId,
+      );
+      const expected = {
+        ...aMessageStatus,
+        isArchived: value ?? false,
+        isRead: value ?? false,
+      };
+
+      expect(result._unsafeUnwrap()).toEqual(expected);
+      expect(messageStatusSchema.parse(rawStatus)).toEqual(expected);
+    },
+  );
 
   it("returns a TooManyRequestsError when Cosmos throttles the request", async () => {
     fetchNextMock.mockRejectedValue(
@@ -278,6 +308,46 @@ describe("createMessageStatus", () => {
     expect(createMock).toHaveBeenCalledWith(
       expect.objectContaining({ fiscalCode: aMessageStatus.fiscalCode }),
     );
+  });
+
+  it.each(["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"] as const)(
+    "preserves rejection reason %s through reading and writing",
+    async (reason) => {
+      const storedStatus = {
+        ...aMessageStatus,
+        rejection_reason: reason,
+        status: "REJECTED" as const,
+      };
+      fetchNextMock.mockResolvedValue(feedResponseWith([storedStatus]));
+
+      const readResult = await adapter.getLatestMessageStatusById(
+        aMessageStatus.messageId,
+      );
+      const domainStatus = readResult._unsafeUnwrap();
+
+      expect(domainStatus.rejectionReason).toBe(reason);
+      expect(messageStatusSchema.parse(domainStatus).rejectionReason).toBe(
+        reason,
+      );
+      const createResult = await adapter.createMessageStatus(domainStatus);
+
+      expect(createResult._unsafeUnwrap()).toEqual(domainStatus);
+      expect(createMock).toHaveBeenCalledWith(storedStatus);
+      expect(createMock.mock.calls[0][0]).not.toHaveProperty("rejectionReason");
+    },
+  );
+
+  it.each([
+    [409, ConflictError],
+    [429, TooManyRequestsError],
+  ])("preserves Cosmos ErrorResponse code %s", async (code, errorType) => {
+    const error = new ErrorResponse("Cosmos failure");
+    error.code = code;
+    createMock.mockRejectedValue(error);
+
+    const result = await adapter.createMessageStatus(aMessageStatus);
+
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(errorType);
   });
 
   it("returns a ConflictError when the version exists", async () => {

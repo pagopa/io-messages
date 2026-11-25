@@ -1,21 +1,76 @@
 <policies>
-  <inbound>
-    <base />
-    <include-fragment fragment-id="ioapp-authenticated-cache" />
-    <set-backend-service id="apim-pool-app-backend"
-      backend-id="app-backend-pool" />
-    <set-header name="x-appbackend-api-key" exists-action="override">
-      <value>{{io-communications-app-backend-key}}</value>
-    </set-header>
-    <rewrite-uri template="@(context.Request.OriginalUrl.Path)" />
-  </inbound>
-  <backend>
-    <base />
-  </backend>
-  <outbound>
-    <base />
-  </outbound>
-  <on-error>
-    <base />
-  </on-error>
+    <inbound>
+        <base />
+        <include-fragment fragment-id="ioapp-authenticated-cache" />
+        <set-variable name="canaryUsers" value="{{canary-fiscal-codes}}" />
+        <set-variable name="useNewBackend" value="@{
+            var rolloutPercentage = 0;
+
+            var canaryUsersJson = context.Variables.GetValueOrDefault("canaryUsers", "[]");
+            var canaryUsers = Newtonsoft.Json.Linq.JArray.Parse(canaryUsersJson).ToObject<string[]>();
+            var migratedOperations = new string[] {
+                "getUserMessages",
+                "getUserMessage",
+                "upsertMessageStatusAttributes",
+                "getThirdPartyMessagePrecondition",
+                "getThirdPartyMessage",
+                "getThirdPartyMessageAttachment",
+                "get-attachment-wildcard",
+                "getPaymentInfoV2",
+                "createOrUpdateInstallation"
+            };
+
+            if (!migratedOperations.Contains(context.Operation.Id)) {
+                return false;
+            }
+
+            try {
+                string xUserBase64 = context.Request.Headers.GetValueOrDefault("x-user", "");
+                var base64Bytes = System.Convert.FromBase64String(xUserBase64);
+                var xUserJson = System.Text.Encoding.UTF8.GetString(base64Bytes);
+                var userObj = Newtonsoft.Json.Linq.JObject.Parse(xUserJson);
+                var fiscalCode = (string)userObj["fiscal_code"];
+
+                if (string.IsNullOrWhiteSpace(fiscalCode)) {
+                    return false;
+                }
+                fiscalCode = fiscalCode.ToUpperInvariant();
+
+                if (canaryUsers.Contains(fiscalCode)) {
+                    return true;
+                }
+
+                var bucket = 0;
+                foreach (var c in fiscalCode) {
+                    bucket = (bucket * 31 + c) % 100003;
+                }
+                return rolloutPercentage > (bucket % 100);
+            } catch {
+                return false;
+            }
+        }" />
+        <choose>
+            <when condition="@((bool)context.Variables["useNewBackend"])">
+                <authentication-managed-identity resource="d519e546-3281-4237-b91e-40471b5c546b" ignore-error="false" />
+                <set-backend-service backend-id="io-p-itn-messages-ca-01" />
+                <rewrite-uri template="@(System.Text.RegularExpressions.Regex.Replace(context.Request.OriginalUrl.Path, "^/api/communication/v1(;rev=[0-9]+)?/messages", "/api/messages"))" />
+            </when>
+            <otherwise>
+                <set-backend-service id="apim-pool-app-backend" backend-id="app-backend-pool" />
+                <set-header name="x-appbackend-api-key" exists-action="override">
+                    <value>{{io-communications-app-backend-key}}</value>
+                </set-header>
+                <rewrite-uri template="@(System.Text.RegularExpressions.Regex.Replace(context.Request.OriginalUrl.Path, ";rev=[0-9]+", ""))" />
+            </otherwise>
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
 </policies>

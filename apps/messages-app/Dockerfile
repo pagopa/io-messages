@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM public.ecr.aws/docker/library/node:24.16.0-alpine AS base
+FROM public.ecr.aws/docker/library/node:24.22.1-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
@@ -18,11 +18,12 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
   pnpm install --frozen-lockfile
 
 COPY --from=pruner /repo/out/full/ ./
+RUN pnpm --filter messages-app... generate
 RUN pnpm --filter messages-app... build
 
 RUN pnpm --filter messages-app --prod deploy --legacy /repo/deploy
 
-FROM public.ecr.aws/docker/library/node:24.16.0-alpine AS runtime
+FROM public.ecr.aws/docker/library/node:24.22.1-alpine AS runtime
 WORKDIR /app
 
 COPY --chown=node:node --from=builder /repo/deploy/node_modules ./node_modules

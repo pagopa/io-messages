@@ -1,5 +1,17 @@
 ### Changelog
 
+## 2.9.1
+
+### Patch Changes
+
+- 18c4914: Reduce the Session Manager timeout to eight seconds so Notify can fall back to an anonymous notification before the caller's ten-second timeout
+
+## 2.9.0
+
+### Minor Changes
+
+- cd62e1d: Add the Communication API endpoint for creating or updating push notification installations.
+
 ## 2.8.16
 
 ### Patch Changes

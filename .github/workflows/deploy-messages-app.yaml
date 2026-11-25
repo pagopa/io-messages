@@ -15,6 +15,7 @@ jobs:
     name: Deploy
     secrets: inherit
     with:
+      enable_auto_deploy: false
       dockerfile_path: ./apps/messages-app/Dockerfile
       dockerfile_context: .
       docker_image_name: pagopa/io-com-messages

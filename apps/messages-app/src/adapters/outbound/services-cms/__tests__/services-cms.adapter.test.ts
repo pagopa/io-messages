@@ -39,6 +39,11 @@ const jsonResponse = (body: unknown, status = 200) =>
     status,
   });
 
+const aTimeoutError = new DOMException(
+  "The operation was aborted due to timeout",
+  "TimeoutError",
+);
+
 const fetchMock = vi.fn<typeof fetch>();
 const trackEventMock = vi.fn();
 
@@ -77,6 +82,7 @@ describe("getMessageDetailsByServiceIds", () => {
           "Content-Type": "application/json",
           "Ocp-Apim-Subscription-Key": "subscription-key",
         },
+        signal: expect.any(AbortSignal),
       },
     );
     expect(trackEventMock).not.toHaveBeenCalled();
@@ -135,6 +141,42 @@ describe("getMessageDetailsByServiceIds", () => {
   it("reports a MalformedEntityError per-item when the response does not match the schema", async () => {
     fetchMock.mockResolvedValue(
       jsonResponse({ ...aServicesAppMessageDetail, name: "" }),
+    );
+
+    const result = await adapter.getServicesCmsDetailsByServiceIds([
+      aServiceID,
+    ]);
+
+    expect(result.isOk()).toBe(true);
+    const entry = result._unsafeUnwrap().get(aServiceID);
+
+    expect(entry?.isErr()).toBe(true);
+    expect(entry?._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
+    expect(trackEventMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("accepts a service id that is not a valid ULID", async () => {
+    const aNonUlidServiceID = "a-non-ulid-service-id";
+    const aNonUlidDetail = {
+      ...aServicesAppMessageDetail,
+      id: aNonUlidServiceID,
+    };
+    fetchMock.mockResolvedValue(jsonResponse(aNonUlidDetail));
+
+    const result = await adapter.getServicesCmsDetailsByServiceIds([
+      aNonUlidServiceID,
+    ]);
+
+    expect(result.isOk()).toBe(true);
+    expect(
+      result._unsafeUnwrap().get(aNonUlidServiceID)?._unsafeUnwrap(),
+    ).toEqual(aNonUlidDetail);
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
+  it("reports a MalformedEntityError per-item when the response service id is empty", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ ...aServicesAppMessageDetail, id: "" }),
     );
 
     const result = await adapter.getServicesCmsDetailsByServiceIds([
@@ -208,5 +250,31 @@ describe("getMessageDetailsByServiceIds", () => {
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
     expect(trackEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("getMessageDetailsByServiceIds - timeout", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+    trackEventMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  it("fails with a GenericError, not a skipped service, when the request times out after 5 seconds", async () => {
+    const timeout = vi.spyOn(AbortSignal, "timeout");
+    fetchMock.mockRejectedValue(aTimeoutError);
+
+    try {
+      const result = await adapter.getServicesCmsDetailsByServiceIds([
+        aServiceID,
+      ]);
+
+      expect(timeout).toHaveBeenCalledWith(5000);
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+      expect(result._unsafeUnwrapErr().message).toMatch(/timeout/i);
+      expect(trackEventMock).not.toHaveBeenCalled();
+    } finally {
+      timeout.mockRestore();
+    }
   });
 });

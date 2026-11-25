@@ -1,0 +1,15 @@
+meta {
+  name: GetIntrospect
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{basePath}}/api/auth/v1/user-identity
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

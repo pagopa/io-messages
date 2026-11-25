@@ -2,6 +2,7 @@
  * Implements the API handlers for the Message resource.
  */
 import { RemoteContentClient } from "@/clients/remote-content";
+import { ServicesCmsClient } from "@/clients/services";
 import { FunctionOutput, InvocationContext } from "@azure/functions";
 import { EUCovidCert } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/EUCovidCert";
 import { FeatureLevelTypeEnum } from "@pagopa/io-functions-commons/dist/generated/definitions/v2/FeatureLevelType";
@@ -29,7 +30,7 @@ import {
 } from "@pagopa/io-functions-commons/dist/src/utils/response";
 import {
   checkSourceIpForHandler,
-  clientIPAndCidrTuple as ipTuple,
+  clientIPAndCidrTuple,
 } from "@pagopa/io-functions-commons/dist/src/utils/source_ip_check";
 import {
   ObjectIdGenerator,
@@ -70,11 +71,17 @@ import { TaskEither } from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import * as t from "io-ts";
 
+import { canSendToAge } from "../../utils/age-eligibility";
 import {
   CommonMessageData,
   CreatedMessageEvent,
 } from "../../utils/events/message";
 import { commonCreateMessageMiddlewares } from "../../utils/message_middlewares";
+import {
+  CosmosUserAttributesMiddleware,
+  ICreateMessageUserAttributes,
+  ServicesUserAttributesMiddleware,
+} from "../../utils/services-user-attributes-middleware";
 import {
   ApiNewMessageWithAdvancedFeatures,
   ApiNewMessageWithContentOf,
@@ -95,7 +102,7 @@ type ICreateMessageHandler = (
   context: InvocationContext,
   auth: IAzureApiAuthorization,
   clientIp: ClientIp,
-  attrs: IAzureUserAttributes,
+  attrs: ICreateMessageUserAttributes,
   messagePayload: ApiNewMessageWithDefaults,
   maybeFiscalCode: Option<FiscalCode>,
 ) => Promise<
@@ -110,6 +117,7 @@ type ICreateMessageHandler = (
   | IResponseErrorInternal
   | IResponseErrorNotFound
   | IResponseErrorQuery
+  | IResponseErrorRecipientAgeNotEligible
   | IResponseErrorValidation
   | IResponseSuccessRedirectToResource<Message, object>
 >;
@@ -123,7 +131,7 @@ export type CreateMessageHandlerResponse = PromiseType<
  */
 export const canWriteMessage = (
   authGroups: IAzureApiAuthorization["groups"],
-  authorizedRecipients: IAzureUserAttributes["service"]["authorizedRecipients"],
+  authorizedRecipients: ICreateMessageUserAttributes["service"]["authorizedRecipients"],
   fiscalCode: FiscalCode,
 ): Either<
   | IResponseErrorForbiddenNotAuthorizedForProduction
@@ -144,6 +152,45 @@ export const canWriteMessage = (
   }
 
   return E.right(true);
+};
+
+export type IResponseErrorRecipientAgeNotEligible =
+  IResponse<"IResponseErrorRecipientAgeNotEligible">;
+
+export const ResponseErrorRecipientAgeNotEligible: IResponseErrorRecipientAgeNotEligible =
+  {
+    ...ResponseErrorGeneric(
+      HttpStatusCodeEnum.HTTP_STATUS_422,
+      "Validation Error",
+      "Recipient age not eligible",
+    ),
+    kind: "IResponseErrorRecipientAgeNotEligible",
+  };
+
+export const canSendMessageToRecipientAge = (
+  fiscalCode: FiscalCode,
+  ageRange: ICreateMessageUserAttributes["service"]["age"],
+  isServiceDetailsApiEnabled: boolean,
+  sandboxFiscalCode: NonEmptyString,
+): Either<
+  IResponseErrorInternal | IResponseErrorRecipientAgeNotEligible,
+  true
+> => {
+  if (
+    !isServiceDetailsApiEnabled ||
+    fiscalCode.toString() === sandboxFiscalCode.toString()
+  ) {
+    return E.right(true);
+  }
+
+  switch (canSendToAge(fiscalCode, ageRange).kind) {
+    case "ELIGIBLE":
+      return E.right(true);
+    case "INELIGIBLE":
+      return E.left(ResponseErrorRecipientAgeNotEligible);
+    case "MALFORMED_SERVICE_AGE_RANGE":
+      return E.left(ResponseErrorInternal("Invalid service age range"));
+  }
 };
 
 /**
@@ -200,7 +247,7 @@ export const ResponseErrorForbiddenNotAuthorizedForAttachments: IResponseErrorFo
  */
 export const canPaymentAmount = (
   messageContent: ApiNewMessage["content"],
-  maxAllowedPaymentAmount: IAzureUserAttributes["service"]["maxAllowedPaymentAmount"],
+  maxAllowedPaymentAmount: ICreateMessageUserAttributes["service"]["maxAllowedPaymentAmount"],
 ): Either<IResponseErrorValidation, true> => {
   const requestedAmount = messageContent.payment_data
     ? messageContent.payment_data.amount
@@ -234,7 +281,7 @@ export const createMessageDocument = (
   recipientFiscalCode: FiscalCode,
   timeToLiveSeconds: ApiNewMessageWithDefaults["time_to_live"],
   featureLevelType: ApiNewMessageWithDefaults["feature_level_type"],
-  serviceId: IAzureUserAttributes["service"]["serviceId"],
+  serviceId: ICreateMessageUserAttributes["service"]["serviceId"],
 ): TaskEither<
   IResponseErrorInternal | IResponseErrorQuery,
   NewMessageWithoutContent
@@ -311,6 +358,7 @@ export function CreateMessageHandler(
   saveProcessingMessage: ReturnType<typeof makeUpsertBlobFromObject>,
   sandboxFiscalCode: NonEmptyString,
   createdMessageOutput: FunctionOutput,
+  isServiceDetailsApiEnabled = false,
 ): ICreateMessageHandler {
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, max-lines-per-function
   return async (
@@ -457,6 +505,16 @@ export function CreateMessageHandler(
         canWriteMessage(auth.groups, authorizedRecipients, fiscalCode),
       ),
       TE.chainW(() =>
+        TE.fromEither(
+          canSendMessageToRecipientAge(
+            fiscalCode,
+            service.age,
+            isServiceDetailsApiEnabled,
+            sandboxFiscalCode,
+          ),
+        ),
+      ),
+      TE.chainW(() =>
         // check whether the client can ask for payment
         TE.fromEither(
           canPaymentAmount(
@@ -494,7 +552,7 @@ export function CreateMessageHandler(
                     ? messagePayload.content.require_secure_channels
                     : service.requireSecureChannels,
                 serviceCategory: pipe(
-                  O.fromNullable(service.serviceMetadata?.category),
+                  O.fromNullable(service.serviceCategory),
                   O.getOrElseW(() => StandardServiceCategoryEnum.STANDARD),
                 ),
                 serviceName: service.serviceName,
@@ -516,7 +574,7 @@ export function CreateMessageHandler(
           {
             defaultAddresses: {}, // deprecated feature
             messageId: newMessageWithoutContent.id,
-            serviceVersion: service.version,
+            serviceVersion: service.serviceVersion,
           },
           CreatedMessageEvent.decode,
           TE.fromEither,
@@ -552,6 +610,8 @@ export function CreateMessage(
   telemetryClient: ReturnType<typeof initAppInsights>,
   remoteContentClient: RemoteContentClient,
   serviceModel: ServiceModel,
+  servicesCmsClient: ServicesCmsClient,
+  isServiceDetailsApiEnabled: boolean,
   messageModel: MessageModel,
   saveProcessingMessage: ReturnType<typeof makeUpsertBlobFromObject>,
   sandboxFiscalCode: NonEmptyString,
@@ -565,10 +625,15 @@ export function CreateMessage(
     saveProcessingMessage,
     sandboxFiscalCode,
     createdMessageOutput,
+    isServiceDetailsApiEnabled,
   );
   const middlewares = [
     // Common CreateMessage Middlewares
-    ...commonCreateMessageMiddlewares(serviceModel),
+    ...commonCreateMessageMiddlewares(
+      isServiceDetailsApiEnabled
+        ? ServicesUserAttributesMiddleware(servicesCmsClient)
+        : CosmosUserAttributesMiddleware(serviceModel),
+    ),
     AzureAllowBodyPayloadMiddleware(
       ApiNewMessageWithContentOf(t.type({ eu_covid_cert: EUCovidCert })),
       new Set([UserGroup.ApiMessageWriteEUCovidCert]),
@@ -605,8 +670,8 @@ export function CreateMessage(
         _: InvocationContext,
         __: IAzureApiAuthorization,
         c: ClientIp,
-        u: IAzureUserAttributes,
-      ) => ipTuple(c, u),
+        u: ICreateMessageUserAttributes,
+      ) => clientIPAndCidrTuple(c, u as IAzureUserAttributes),
     ),
   );
 }

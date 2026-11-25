@@ -1,15 +1,12 @@
 import type { FastifyInstance } from "fastify";
 
-import {
-  FiscalCodeSchema,
-  ProblemDetailsSchema,
-  defineRoute,
-} from "@pagopa/hexagonal-core";
+import { ProblemDetailsSchema, defineRoute } from "@pagopa/hexagonal-core";
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
+import { messageIDSchema } from "io-messages-common/domain/message";
 import z from "zod";
 
-import { messageStatusValueSchema } from "../../../application/ports/message-status.js";
 import { UpdateMessageStatusUseCase } from "../../../application/use-cases/update-message-status.use-case.js";
+import { makeXUserMiddleware } from "./middlewares/x-user.middleware.js";
 
 const messageStatusChangeSchema = z.discriminatedUnion("change_type", [
   z.object({
@@ -27,29 +24,26 @@ const messageStatusChangeSchema = z.discriminatedUnion("change_type", [
   }),
 ]);
 
-const messageStatusWithAttributesSchema = z.object({
+const messageStatusAttributesSchema = z.object({
   is_archived: z.boolean(),
   is_read: z.boolean(),
-  status: messageStatusValueSchema,
-  updated_at: z.string(),
-  version: z.int().nonnegative(),
 });
 
 const upsertMessageStatusContract = defineRoute({
   method: "put",
-  path: "/api/messages/{fiscal_code}/{id}/message-status",
+  path: "/api/messages/{id}/status",
   request: {
     body: messageStatusChangeSchema,
     path: z.object({
-      fiscal_code: FiscalCodeSchema,
-      id: z.string().min(1),
+      id: messageIDSchema,
     }),
   },
   response: {
-    200: messageStatusWithAttributesSchema,
+    200: messageStatusAttributesSchema,
     400: ProblemDetailsSchema,
     403: ProblemDetailsSchema,
     404: ProblemDetailsSchema,
+    429: ProblemDetailsSchema,
     500: ProblemDetailsSchema,
   },
 });
@@ -60,9 +54,9 @@ export const mountUpsertMessageStatusHandler = (
 ): void => {
   mountFastifyRoute(server, {
     contract: upsertMessageStatusContract,
-    inputMapper: (req) => {
+    inputMapper: (req, user) => {
       const commonInput = {
-        fiscalCode: req.path.fiscal_code,
+        fiscalCode: user.fiscal_code,
         messageId: req.path.id,
       };
 
@@ -79,12 +73,10 @@ export const mountUpsertMessageStatusHandler = (
           };
       }
     },
+    middlewares: [makeXUserMiddleware()],
     outputMapper: (output) => ({
       is_archived: output.isArchived,
       is_read: output.isRead,
-      status: output.status,
-      updated_at: output.updatedAt,
-      version: output.version,
     }),
     useCase,
   });

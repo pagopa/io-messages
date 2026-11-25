@@ -29,7 +29,22 @@ const containers = [
 
 const remoteContentContainers = [
   { id: "message-configuration", partitionKey: "/configurationId" },
+  { id: "user-configurations", partitionKey: "/userId" },
 ];
+
+const paymentFixtureFiscalCode = "LVTEST00A00A200X";
+const paymentFixtureMessageId = "01M0YRTA395JBSZNWG7W63ZJDV";
+const paymentFixtureServiceId = "01JR0QRJ8MX1PD06DE6X5FWXS5";
+const sendFixtureFiscalCode = "LVTEST00A00A199X";
+const sendFixtureMessageId = "01JXVZETAP064HCWTXBWC693QH";
+const sendFixtureIun = "ABCD-EFGH-IJKL-123456-M-7";
+const sendFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4X";
+const genericFixtureMessageId = "01JXVZETAP064HCWTXBWC693QJ";
+const genericAttachmentFixtureMessageId = "01JXVZETAP064HCWTXBWC693QN";
+const genericFixtureServiceId = "01JR0QRJ8MX1PD06DE6X5FWXS6";
+const genericFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4Y";
+const lollipopFixtureMessageId = "01JXVZETAP064HCWTXBWC693QK";
+const lollipopFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4Z";
 
 const profiles = [
   {
@@ -232,6 +247,134 @@ const services = [
   },
 ];
 
+const messages = [
+  {
+    containerId: "messages",
+    document: {
+      id: paymentFixtureMessageId,
+      indexedId: paymentFixtureMessageId,
+      fiscalCode: paymentFixtureFiscalCode,
+      senderServiceId: paymentFixtureServiceId,
+      senderUserId: "local",
+      createdAt: "2025-05-31T10:00:00.000Z",
+      featureLevelType: "STANDARD",
+      isPending: false,
+      timeToLiveSeconds: 3600,
+    },
+  },
+  {
+    containerId: "messages",
+    document: {
+      id: sendFixtureMessageId,
+      indexedId: sendFixtureMessageId,
+      fiscalCode: sendFixtureFiscalCode,
+      senderServiceId: paymentFixtureServiceId,
+      senderUserId: "local",
+      createdAt: "2025-05-31T10:00:00.000Z",
+      featureLevelType: "STANDARD",
+      isPending: false,
+      timeToLiveSeconds: 3600,
+    },
+  },
+  {
+    containerId: "messages",
+    document: {
+      id: genericFixtureMessageId,
+      indexedId: genericFixtureMessageId,
+      fiscalCode: sendFixtureFiscalCode,
+      senderServiceId: genericFixtureServiceId,
+      senderUserId: "local",
+      createdAt: "2025-05-31T10:00:00.000Z",
+      featureLevelType: "STANDARD",
+      isPending: false,
+      timeToLiveSeconds: 3600,
+    },
+  },
+  {
+    containerId: "messages",
+    document: {
+      id: genericAttachmentFixtureMessageId,
+      indexedId: genericAttachmentFixtureMessageId,
+      fiscalCode: sendFixtureFiscalCode,
+      senderServiceId: genericFixtureServiceId,
+      senderUserId: "local",
+      createdAt: "2025-05-31T10:00:00.000Z",
+      featureLevelType: "STANDARD",
+      isPending: false,
+      timeToLiveSeconds: 3600,
+    },
+  },
+  {
+    containerId: "messages",
+    document: {
+      id: lollipopFixtureMessageId,
+      indexedId: lollipopFixtureMessageId,
+      fiscalCode: sendFixtureFiscalCode,
+      senderServiceId: genericFixtureServiceId,
+      senderUserId: "local",
+      createdAt: "2025-05-31T10:00:00.000Z",
+      featureLevelType: "STANDARD",
+      isPending: false,
+      timeToLiveSeconds: 3600,
+    },
+  },
+];
+
+const messageStatuses = [
+  {
+    containerId: "message-status",
+    document: {
+      id: `${paymentFixtureMessageId}-0000000000000000`,
+      fiscalCode: paymentFixtureFiscalCode,
+      messageId: paymentFixtureMessageId,
+      isArchived: false,
+      isRead: false,
+      status: "PROCESSED",
+      updatedAt: "2025-05-31T10:00:00.000Z",
+      version: 0,
+    },
+  },
+  {
+    containerId: "message-status",
+    document: {
+      id: `${sendFixtureMessageId}-0000000000000000`,
+      fiscalCode: sendFixtureFiscalCode,
+      messageId: sendFixtureMessageId,
+      isArchived: false,
+      isRead: false,
+      status: "PROCESSED",
+      updatedAt: "2025-05-31T10:00:00.000Z",
+      version: 0,
+    },
+  },
+  {
+    containerId: "message-status",
+    document: {
+      id: `${genericFixtureMessageId}-0000000000000000`,
+      fiscalCode: sendFixtureFiscalCode,
+      messageId: genericFixtureMessageId,
+      isArchived: false,
+      isRead: false,
+      status: "PROCESSED",
+      updatedAt: "2025-05-31T10:00:00.000Z",
+      version: 0,
+    },
+  },
+  {
+    containerId: "message-status",
+    document: {
+      id: `${lollipopFixtureMessageId}-0000000000000000`,
+      fiscalCode: sendFixtureFiscalCode,
+      messageId: lollipopFixtureMessageId,
+      isArchived: false,
+      isRead: false,
+      status: "PROCESSED",
+      updatedAt: "2025-05-31T10:00:00.000Z",
+      version: 0,
+    },
+  },
+];
+
 const RCMessageConfigurations = [
   {
     containerId: "message-configuration",
@@ -250,7 +393,196 @@ const RCMessageConfigurations = [
       _ts: 1,
     },
   },
+  {
+    containerId: "message-configuration",
+    document: {
+      configurationId: sendFixtureConfigurationId,
+      description: "SEND Mockoon fixture configuration",
+      disableLollipopFor: [],
+      hasPrecondition: "NEVER",
+      id: sendFixtureConfigurationId,
+      isLollipopEnabled: false,
+      name: "SEND Mockoon fixture",
+      testEnvironment: {
+        baseUrl: "http://localhost:8005/api/v1",
+        detailsAuthentication: {
+          headerKeyName: "x-api-key",
+          key: "mock-api-key",
+          type: "API_KEY",
+        },
+        testUsers: [sendFixtureFiscalCode],
+      },
+      userId: "local",
+    },
+  },
+  {
+    containerId: "message-configuration",
+    document: {
+      configurationId: genericFixtureConfigurationId,
+      description: "Generic Remote Content Mockoon fixture configuration",
+      disableLollipopFor: [],
+      hasPrecondition: "NEVER",
+      id: genericFixtureConfigurationId,
+      isLollipopEnabled: false,
+      name: "Generic Remote Content Mockoon fixture",
+      testEnvironment: {
+        baseUrl: "http://localhost:8007",
+        detailsAuthentication: {
+          headerKeyName: "x-api-key",
+          key: "mock-api-key",
+          type: "API_KEY",
+        },
+        testUsers: [sendFixtureFiscalCode],
+      },
+      userId: "local",
+    },
+  },
+  {
+    containerId: "message-configuration",
+    document: {
+      configurationId: lollipopFixtureConfigurationId,
+      description: "Lollipop-enabled generic Remote Content fixture",
+      disableLollipopFor: [],
+      hasPrecondition: "NEVER",
+      id: lollipopFixtureConfigurationId,
+      isLollipopEnabled: true,
+      name: "Lollipop-enabled generic Remote Content fixture",
+      testEnvironment: {
+        baseUrl: "http://localhost:8007",
+        detailsAuthentication: {
+          headerKeyName: "x-api-key",
+          key: "mock-api-key",
+          type: "API_KEY",
+        },
+        testUsers: [sendFixtureFiscalCode],
+      },
+      userId: "local",
+    },
+  },
 ];
+
+const RCUserConfigurations = [
+  {
+    containerId: "user-configurations",
+    document: {
+      id: "01HMVMCDD3JFYTPKT4ZN4WQ73B",
+      userId: "local",
+    },
+  },
+  {
+    containerId: "user-configurations",
+    document: {
+      id: sendFixtureConfigurationId,
+      userId: "local",
+    },
+  },
+  {
+    containerId: "user-configurations",
+    document: {
+      id: genericFixtureConfigurationId,
+      userId: "local",
+    },
+  },
+  {
+    containerId: "user-configurations",
+    document: {
+      id: lollipopFixtureConfigurationId,
+      userId: "local",
+    },
+  },
+];
+
+// Fixtures to test GET /api/communication/v1/third-party-messages/{id}/precondition.
+// Keep in sync with the blobs in setup-azurite-containers.js and the mocks in mockoon/.
+// The fiscal code matches the `x-user` used in the Bruno collection (send-func-x-user).
+const preconditionFiscalCode = "LVTEST00A00A199X";
+const preconditionSendServiceId = "01JR0QRJ8MX1PD06DE6X5FWXS5"; // PN_SERVICE_ID
+const preconditionGenericServiceId = "01JR0QRJ8MX1PD06DE6X5FWXS6";
+const preconditionId = (prefix, n) => `${prefix}${String(n).padStart(20, "0")}`;
+
+const preconditionRCConfigurations = [
+  { n: 1, provider: "generic", lollipop: false },
+  { n: 2, provider: "generic", lollipop: true },
+  { n: 3, provider: "send", lollipop: false },
+  { n: 4, provider: "send", lollipop: true },
+].map(({ n, provider, lollipop }) => ({
+  configurationId: preconditionId("01K8RC", n),
+  description: `Precondition fixture: ${provider}, lollipop ${lollipop ? "enabled" : "disabled"}`,
+  disableLollipopFor: [],
+  hasPrecondition: "ALWAYS",
+  id: preconditionId("01K8RC", n),
+  isLollipopEnabled: lollipop,
+  name: `precondition-${provider}-lollipop-${lollipop ? "on" : "off"}`,
+  prodEnvironment: {
+    baseUrl:
+      provider === "send"
+        ? "http://localhost:8005/api/v1"
+        : "http://localhost:8011",
+    detailsAuthentication: {
+      headerKeyName: "X-Functions-Key",
+      key: "dummy",
+      type: "API_KEY",
+    },
+  },
+  userId: "local",
+}));
+
+const preconditionMessages = [
+  { n: 1, provider: "generic", cfg: 1, thirdPartyId: "generic-200" },
+  { n: 2, provider: "generic", cfg: 2, thirdPartyId: "generic-200" },
+  { n: 3, provider: "send", cfg: 3, thirdPartyId: "ABCD-EFGH-IJKL-123456-M-7" },
+  { n: 4, provider: "send", cfg: 4, thirdPartyId: "ABCD-EFGH-IJKL-123456-M-7" },
+].map((message) => ({
+  ...message,
+  id: preconditionId("01K8MS", message.n),
+}));
+
+RCMessageConfigurations.push(
+  ...preconditionRCConfigurations.map((document) => ({
+    containerId: "message-configuration",
+    document,
+  })),
+);
+RCUserConfigurations.push(
+  ...preconditionRCConfigurations.map(({ configurationId }) => ({
+    containerId: "user-configurations",
+    document: { id: configurationId, userId: "local" },
+  })),
+);
+messages.push(
+  ...preconditionMessages.map(({ id, provider }) => ({
+    containerId: "messages",
+    document: {
+      id,
+      indexedId: id,
+      fiscalCode: preconditionFiscalCode,
+      senderServiceId:
+        provider === "send"
+          ? preconditionSendServiceId
+          : preconditionGenericServiceId,
+      senderUserId: "local",
+      createdAt: "2026-10-13T10:00:00.000Z",
+      featureLevelType: "STANDARD",
+      isPending: false,
+      timeToLiveSeconds: 604800,
+    },
+  })),
+);
+messageStatuses.push(
+  ...preconditionMessages.map(({ id }) => ({
+    containerId: "message-status",
+    document: {
+      id: `${id}-0000000000000000`,
+      fiscalCode: preconditionFiscalCode,
+      messageId: id,
+      isArchived: false,
+      isRead: false,
+      status: "PROCESSED",
+      updatedAt: "2026-10-13T10:00:00.000Z",
+      version: 0,
+    },
+  })),
+);
 
 // maps containerId → partition key field path (used to derive the pk value for replace)
 const containerPartitionKeyMap = Object.fromEntries(
@@ -346,6 +678,18 @@ const addDocumentToContainer = async (database, containerId, document) => {
       addDocumentToContainer(database, containerId, document),
     ),
   );
+
+  await Promise.all(
+    messages.map(({ containerId, document }) =>
+      addDocumentToContainer(database, containerId, document),
+    ),
+  );
+
+  await Promise.all(
+    messageStatuses.map(({ containerId, document }) =>
+      addDocumentToContainer(database, containerId, document),
+    ),
+  );
 })();
 
 //remote content containers creation
@@ -365,6 +709,12 @@ const addDocumentToContainer = async (database, containerId, document) => {
 
   await Promise.all(
     RCMessageConfigurations.map(({ containerId, document }) =>
+      addDocumentToContainer(database, containerId, document),
+    ),
+  );
+
+  await Promise.all(
+    RCUserConfigurations.map(({ containerId, document }) =>
       addDocumentToContainer(database, containerId, document),
     ),
   );

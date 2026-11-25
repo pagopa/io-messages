@@ -1,5 +1,23 @@
 # services-func
 
+## 2.1.12
+
+### Patch Changes
+
+- a27914e: Use new APIM url in CreateMessage to call the services-app
+
+## 2.1.11
+
+### Patch Changes
+
+- 0f43f39: Adding age check for services
+
+## 2.1.10
+
+### Patch Changes
+
+- 4b45004: Added HTTP Service client middleware
+
 ## 2.1.9
 
 ### Patch Changes

@@ -22,10 +22,10 @@ import { lollipopOriginalURLSchema } from "io-messages-common/adapters/lollipop/
 import { lollipopSignatureSchema } from "io-messages-common/adapters/lollipop/definitions/signature";
 import { lollipopSignatureInputSchema } from "io-messages-common/adapters/lollipop/definitions/signature-input";
 import { thumbprintSchema } from "io-messages-common/adapters/lollipop/definitions/thumbprint";
-import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import { Mock, vi } from "vitest";
 
-export const aFiscalCode = fiscalCodeSchema.parse("RMLGNN97R06F158N");
+export const aFiscalCode =
+  sendHeadersSchema.shape["x-pagopa-cx-taxid"].parse("RMLGNN97R06F158N");
 
 export const aCheckQrMandateResponse = checkQrMandateResponseSchema.parse({
   iun: "ABCD-EFGH-IJKL-123456-M-7",

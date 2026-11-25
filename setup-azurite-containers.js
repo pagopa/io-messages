@@ -44,6 +44,143 @@ const queues = [
 ];
 const tables = ["MessagesDataplanIngestionErrors"];
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const waitForAzurite = async () => {
+  for (let attempt = 1; attempt <= 60; attempt += 1) {
+    try {
+      await fetch("http://azurite:10000/devstoreaccount1?comp=list");
+      return;
+    } catch {
+      await sleep(1000);
+    }
+  }
+
+  throw new Error("Azurite did not become ready in time.");
+};
+
+const paymentFixtureMessageId = "01M0YRTA395JBSZNWG7W63ZJDV";
+const sendFixtureMessageId = "01JXVZETAP064HCWTXBWC693QH";
+const sendFixtureIun = "ABCD-EFGH-IJKL-123456-M-7";
+const sendFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4X";
+const genericFixtureMessageId = "01JXVZETAP064HCWTXBWC693QJ";
+const genericAttachmentFixtureMessageId = "01JXVZETAP064HCWTXBWC693QN";
+const genericFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4Y";
+const lollipopFixtureMessageId = "01JXVZETAP064HCWTXBWC693QK";
+const lollipopFixtureConfigurationId = "01HC4K5M6N7P8Q9R0S1T2V3W4Z";
+const paymentMessageContents = [
+  {
+    blobName: `${paymentFixtureMessageId}.json`,
+    containerName: "message-content",
+    content: {
+      subject: "Payment fixture message",
+      markdown:
+        "This is a local payment fixture message used to query a valid RPT ID during local development and Bruno testing.",
+      payment_data: {
+        amount: 100,
+        invalid_after_due_date: false,
+        notice_number: "312345678901234567",
+        payee: {
+          fiscal_code: "12345678901",
+        },
+      },
+    },
+  },
+];
+const sendMessageContents = [
+  {
+    blobName: `${sendFixtureMessageId}.json`,
+    containerName: "message-content",
+    content: {
+      subject: "SEND notification fixture",
+      markdown:
+        "This local message fixture retrieves its notification details from the SEND Mockoon server for endpoint testing.",
+      third_party_data: {
+        configuration_id: sendFixtureConfigurationId,
+        has_attachments: true,
+        has_remote_content: true,
+        id: sendFixtureIun,
+      },
+    },
+  },
+];
+const genericMessageContents = [
+  {
+    blobName: `${genericFixtureMessageId}.json`,
+    containerName: "message-content",
+    content: {
+      subject: "Generic RC fixture",
+      markdown:
+        "This local generic Remote Content message retrieves valid markdown and subject details from the APIM Mockoon server.",
+      third_party_data: {
+        configuration_id: genericFixtureConfigurationId,
+        has_attachments: false,
+        has_remote_content: true,
+        id: "generic-remote-content-message",
+      },
+    },
+  },
+];
+const genericAttachmentMessageContents = [
+  {
+    blobName: `${genericAttachmentFixtureMessageId}.json`,
+    containerName: "message-content",
+    content: {
+      subject: "Generic RC attachment fixture",
+      markdown:
+        "This local generic Remote Content message retrieves a PDF attachment from the APIM Mockoon server.",
+      third_party_data: {
+        configuration_id: genericFixtureConfigurationId,
+        has_attachments: true,
+        has_remote_content: true,
+        id: "generic-attachment-message",
+      },
+    },
+  },
+];
+const lollipopMessageContents = [
+  {
+    blobName: `${lollipopFixtureMessageId}.json`,
+    containerName: "message-content",
+    content: {
+      subject: "Generic RC Lollipop fixture",
+      markdown:
+        "This local generic Remote Content message exercises Lollipop header generation before fetching details from APIM Mockoon.",
+      third_party_data: {
+        configuration_id: lollipopFixtureConfigurationId,
+        has_attachments: false,
+        has_remote_content: true,
+        id: "generic-remote-content-lollipop-message",
+      },
+    },
+  },
+];
+
+// Fixtures to test GET /api/communication/v1/third-party-messages/{id}/precondition.
+// Keep in sync with setup-cosmos-containers.js and the mocks in mockoon/.
+const preconditionId = (prefix, n) => `${prefix}${String(n).padStart(20, "0")}`;
+const preconditionMessageContents = [
+  { n: 1, cfg: 1, thirdPartyId: "generic-200" },
+  { n: 2, cfg: 2, thirdPartyId: "generic-200" },
+  { n: 3, cfg: 3, thirdPartyId: "ABCD-EFGH-IJKL-123456-M-7" },
+  { n: 4, cfg: 4, thirdPartyId: "ABCD-EFGH-IJKL-123456-M-7" },
+].map(({ n, cfg, thirdPartyId }) => ({
+  blobName: `${preconditionId("01K8MS", n)}.json`,
+  containerName: "message-content",
+  content: {
+    subject: `Precondition fixture message ${n}`,
+    markdown:
+      "This is a local third party message used to test the remote content precondition during local development and Bruno testing.",
+    third_party_data: {
+      configuration_id: preconditionId("01K8RC", cfg),
+      has_attachments: false,
+      has_precondition: "ALWAYS",
+      has_remote_content: true,
+      id: thirdPartyId,
+    },
+  },
+}));
+
 const createContainerIfNotExists = async (name) => {
   try {
     const containerClient = blobServiceClient.getContainerClient(name);
@@ -77,10 +214,40 @@ const createTableIfNotExists = async (name) => {
   }
 };
 
+const uploadMessageContentIfNotExists = async ({
+  blobName,
+  containerName,
+  content,
+}) => {
+  try {
+    const containerClient = blobServiceClient.getContainerClient(containerName);
+    const blobClient = containerClient.getBlockBlobClient(blobName);
+    await blobClient.uploadData(Buffer.from(JSON.stringify(content)), {
+      blobHTTPHeaders: { blobContentType: "application/json" },
+    });
+    console.log(`Blob ${blobName} ready in container ${containerName}.`);
+  } catch (error) {
+    console.error(`Error uploading blob ${blobName}:`, error);
+  }
+};
+
 (async () => {
+  await waitForAzurite();
+
   await Promise.all([
     ...containers.map(createContainerIfNotExists),
     ...queues.map(createQueueIfNotExists),
     ...tables.map(createTableIfNotExists),
   ]);
+
+  await Promise.all(
+    [
+      ...paymentMessageContents,
+      ...sendMessageContents,
+      ...genericMessageContents,
+      ...genericAttachmentMessageContents,
+      ...lollipopMessageContents,
+      ...preconditionMessageContents,
+    ].map(uploadMessageContentIfNotExists),
+  );
 })();

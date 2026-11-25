@@ -1,7 +1,7 @@
 {
   "name": "io-messages-common",
   "license": "UNLICENSED",
-  "version": "1.4.5",
+  "version": "1.4.7",
   "private": true,
   "type": "module",
   "exports": {
@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@azure/functions": "catalog:",
+    "@pagopa/hexagonal-core": "catalog:",
     "pino": "catalog:",
     "ulid": "catalog:",
     "zod": "catalog:"

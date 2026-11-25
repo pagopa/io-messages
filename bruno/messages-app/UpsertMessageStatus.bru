@@ -1,14 +1,19 @@
 meta {
   name: UpsertMessageStatus
   type: http
-  seq: 3
+  seq: 7
 }
 
 put {
-  url: {{messages_app_base_url}}/api/messages/{{fiscal_code}}/01KKV4T39HGAY3278B8GRP9KG2/message-status
+  url: {{messages_app_base_url}}/api/messages/01JXVZETAP064HCWTXBWC693QJ/status
   body: json
   auth: inherit
 }
+
+headers {
+  x-user: {{x-user-value}}
+}
+
 
 body:json {
   {

@@ -1,8 +1,10 @@
 import {
+  ConflictError,
   FiscalCode,
   ForbiddenError,
   GenericError,
   NotFoundError,
+  TooManyRequestsError,
   UseCase,
 } from "@pagopa/hexagonal-core";
 import { err, ok } from "neverthrow";
@@ -25,7 +27,8 @@ export type UpdateMessageStatusInput = {
 export type UpdateMessageStatusError =
   | ForbiddenError
   | GenericError
-  | NotFoundError;
+  | NotFoundError
+  | TooManyRequestsError;
 
 export type UpdateMessageStatusUseCase = UseCase<
   UpdateMessageStatusInput,
@@ -45,7 +48,10 @@ export const makeUpdateMessageStatusUseCase =
       if (latestStatusResult.error instanceof NotFoundError) {
         return err(latestStatusResult.error);
       }
-      if (latestStatusResult.error instanceof GenericError) {
+      if (
+        latestStatusResult.error instanceof GenericError ||
+        latestStatusResult.error instanceof TooManyRequestsError
+      ) {
         return err(latestStatusResult.error);
       }
       return err(new GenericError(latestStatusResult.error.message));
@@ -70,10 +76,12 @@ export const makeUpdateMessageStatusUseCase =
     const createResult =
       await messageStatusRepository.createMessageStatus(newStatus);
     if (createResult.isErr()) {
-      if (createResult.error instanceof GenericError) {
-        return err(createResult.error);
-      }
-      return err(new GenericError(createResult.error.message));
+      // The legacy contract does not expose conflicts: they surface as 500.
+      return err(
+        createResult.error instanceof ConflictError
+          ? new GenericError(createResult.error.message)
+          : createResult.error,
+      );
     }
 
     return ok(createResult.value);

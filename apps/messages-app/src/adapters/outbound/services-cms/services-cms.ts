@@ -12,6 +12,8 @@ import { MalformedEntityError } from "../../../application/ports/error.js";
 import { ServicesCmsRepository } from "../../../application/ports/services-cms.js";
 import { authorizedCidrSchema } from "../../../domain/client-ip.js";
 
+const REQUEST_TIMEOUT_MS = 5000;
+
 const organizationSchema = z.object({
   fiscal_code: z.string().regex(new RegExp("^\\d{11}$")),
   name: z.string().min(1),
@@ -77,7 +79,7 @@ const servicesCmsDetailSchema = z.object({
       ),
   ),
   description: z.string().min(1),
-  id: z.ulid(),
+  id: z.string().min(1),
   last_update: z.string().datetime(),
   max_allowed_payment_amount: z.number().int().min(0).max(9999999999),
   metadata: serviceMetadataSchema,
@@ -109,6 +111,7 @@ export class ServicesCmsHttpClientAdapter implements ServicesCmsRepository {
   > {
     const serviceDetailURL = new URL(this.#apimBaseURL);
     serviceDetailURL.pathname = `${serviceDetailURL.pathname.replace(/\/$/, "")}/api/v1/internal/services/${serviceID}`;
+    const signal = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
 
     const response = await ResultAsync.fromPromise(
       fetch(serviceDetailURL.toString(), {
@@ -116,6 +119,7 @@ export class ServicesCmsHttpClientAdapter implements ServicesCmsRepository {
           "Content-Type": "application/json",
           "Ocp-Apim-Subscription-Key": this.apimSubscriptionKey,
         },
+        signal,
       }),
       (err) => new GenericError(String(err)),
     );
@@ -127,9 +131,11 @@ export class ServicesCmsHttpClientAdapter implements ServicesCmsRepository {
         const jsonResponse = await ResultAsync.fromPromise(
           response.value.json(),
           () =>
-            new MalformedEntityError(
-              `invalid json response while retrieving service detail for service ${serviceID}`,
-            ),
+            signal.aborted
+              ? new GenericError(String(signal.reason))
+              : new MalformedEntityError(
+                  `invalid json response while retrieving service detail for service ${serviceID}`,
+                ),
         );
 
         if (jsonResponse.isErr()) return err(jsonResponse.error);

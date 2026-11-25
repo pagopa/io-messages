@@ -1,10 +1,10 @@
 import { CosmosClient } from "@azure/cosmos";
-import { GenericError } from "@pagopa/hexagonal-core";
+import { FiscalCodeSchema, GenericError } from "@pagopa/hexagonal-core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MessageReadAuthorizationCosmosAdapter } from "../message-read-authorization.adapter.js";
 
-const fiscalCode = "RSSMRA80A01H501U";
+const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
 const fetchProfile = vi.fn();
 const readPreference = vi.fn();
 const query = vi.fn(() => ({ fetchNext: fetchProfile }));

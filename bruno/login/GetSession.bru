@@ -1,0 +1,19 @@
+meta {
+  name: GetSession
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{basePath}}/api/auth/v1/session?filter=(spidLevel,bpdToken,fimsToken,myPortalToken,walletToken)
+  body: none
+  auth: bearer
+}
+
+params:query {
+  filter: (spidLevel,bpdToken,fimsToken,myPortalToken,walletToken)
+}
+
+auth:bearer {
+  token: {{token}}
+}

@@ -1,4 +1,4 @@
-import { CosmosDBHandler, InvocationContext, app } from "@azure/functions";
+import { app } from "@azure/functions";
 import {
   RC_CONFIGURATION_COLLECTION_NAME,
   RCConfigurationModel,
@@ -9,7 +9,6 @@ import {
 } from "@pagopa/io-functions-commons/dist/src/models/user_rc_configuration";
 import { ulidGeneratorAsUlid } from "@pagopa/io-functions-commons/dist/src/utils/strings";
 
-import { handleRemoteContentMessageConfigurationChange } from "./functions/CosmosRemoteContentMessageConfigurationChangeFeed/handler";
 import { getCreateRCConfigurationHandler } from "./functions/CreateRCConfiguration/handler";
 import { getRCConfigurationHandler } from "./functions/GetRCConfiguration/handler";
 import { getInfoHandler } from "./functions/Info/handler";
@@ -87,32 +86,4 @@ app.http("UpdateRCConfiguration", {
   }),
   methods: ["PUT"],
   route: "v1/remote-contents/configurations/{configurationId}",
-});
-
-const cosmosChangeFeedHandler: CosmosDBHandler = async (
-  documents: unknown[],
-  context: InvocationContext,
-): Promise<void> => {
-  await handleRemoteContentMessageConfigurationChange(
-    context,
-    userRCConfigurationModel,
-    telemetryClient,
-    0,
-  )(documents);
-};
-
-app.cosmosDB("CosmosRemoteContentMessageConfigurationChangeFeed", {
-  connection: "REMOTE_CONTENT_COSMOSDB",
-  containerName: "message-configuration",
-  createLeaseContainerIfNotExists: false,
-  databaseName: "remote-content-cosmos-01",
-  handler: cosmosChangeFeedHandler,
-  leaseContainerName: "remote-content-leases",
-  leaseContainerPrefix: "RemoteContentMessageConfigurationChangeFeed-00",
-  retry: {
-    delayInterval: 10000,
-    maxRetryCount: -1,
-    strategy: "fixedDelay",
-  },
-  startFromBeginning: true,
 });

@@ -3,6 +3,7 @@ import {
   NotFoundError,
   TooManyRequestsError,
 } from "@pagopa/hexagonal-core";
+import { createServer } from "node:http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { RCConfigurationHttpClientAdapter } from "../rc-configuration.js";
@@ -94,7 +95,49 @@ describe("RCConfigurationHttpClientAdapter - getRemoteContentConfiguration", () 
       },
       userId: "a-user-id",
     });
-    expect(fetch).toHaveBeenCalledWith(`${aBaseURL}/${RC_CONFIG_ID}`);
+    expect(fetch).toHaveBeenCalledWith(`${aBaseURL}/${RC_CONFIG_ID}`, {
+      signal: expect.any(AbortSignal),
+    });
+  });
+
+  describe("RCConfigurationHttpClientAdapter - request timeout", () => {
+    it.each([false, true])(
+      "aborts a slow rc-app request, including its body (headers sent: %s)",
+      async (sendHeaders) => {
+        const server = createServer((_request, response) => {
+          if (sendHeaders) {
+            response.writeHead(200, { "Content-Type": "application/json" });
+            response.write('{"configuration_id":');
+          }
+        });
+        await new Promise<void>((resolve) => {
+          server.listen(0, "127.0.0.1", resolve);
+        });
+        const timeout = vi.spyOn(AbortSignal, "timeout");
+
+        try {
+          const address = server.address();
+          if (!address || typeof address === "string") {
+            throw new Error("Expected a TCP listening address");
+          }
+          const client = new RCConfigurationHttpClientAdapter(
+            new URL(`http://127.0.0.1:${address.port}/rc-configurations`),
+          );
+          const result =
+            await client.getRemoteContentConfiguration(RC_CONFIG_ID);
+
+          expect(timeout).toHaveBeenCalledWith(7500);
+          expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+          expect(result._unsafeUnwrapErr().message).toContain("TimeoutError");
+        } finally {
+          server.closeAllConnections();
+          await new Promise<void>((resolve, reject) => {
+            server.close((error) => (error ? reject(error) : resolve()));
+          });
+        }
+      },
+      10_000,
+    );
   });
 
   it("returns a GenericError when the fetch itself rejects", async () => {

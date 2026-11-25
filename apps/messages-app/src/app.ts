@@ -13,6 +13,10 @@ import fastify from "fastify";
 import { AppConfig } from "./adapters/inbound/config/config.js";
 import { mountCreateMessageHandler } from "./adapters/inbound/fastify/create-message.handler.js";
 import { mountGetMessageHandler } from "./adapters/inbound/fastify/get-message.handler.js";
+import { mountGetPaymentInfoHandler } from "./adapters/inbound/fastify/get-payment-info.handler.js";
+import { mountGetRemoteContentMessageHandler } from "./adapters/inbound/fastify/get-remote-content-message.handler.js";
+import { mountGetRemoteContentMessageAttachmentHandler } from "./adapters/inbound/fastify/get-remote-content-message-attachment.handler.js";
+import { mountGetRemoteContentMessagePreconditionHandler } from "./adapters/inbound/fastify/get-remote-content-message-precondition.handler.js";
 import { mountGetServiceMessageHandler } from "./adapters/inbound/fastify/get-service-message.handler.js";
 import { mountGetMessagesByUserHandler } from "./adapters/inbound/fastify/get-user-messages.handler.js";
 import { mountHealthcheckHandler } from "./adapters/inbound/fastify/healthcheck.handler.js";
@@ -22,6 +26,7 @@ import { CryptoAdapter } from "./adapters/outbound/crypto/crypto.adapter.js";
 import { CosmosClientHealthcheckAdapter } from "./adapters/outbound/healthcheckers/cosmos.adapter.js";
 import { LoggerHealthcheckAdapter } from "./adapters/outbound/healthcheckers/logger.adapter.js";
 import { StorageBlobHealthcheckAdapter } from "./adapters/outbound/healthcheckers/storage-blob.adapter.js";
+import { LollipopHttpClientAdapter } from "./adapters/outbound/lollipop/lollipop.adapter.js";
 import { MessageContentBlobAdapter } from "./adapters/outbound/message/message-content.adapter.js";
 import { MessageCreatedEventQueueAdapter } from "./adapters/outbound/message/message-created-event.adapter.js";
 import { MessageMetadataCosmosAdapter } from "./adapters/outbound/message/message-metadata.adapter.js";
@@ -29,11 +34,20 @@ import { MessageStatusCosmosAdapter } from "./adapters/outbound/message/message-
 import { BlobProcessingMessagePayloadStore } from "./adapters/outbound/message/processing-message.adapter.js";
 import { MessageReadAuthorizationCosmosAdapter } from "./adapters/outbound/message-read-authorization/message-read-authorization.adapter.js";
 import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/package-json-app-info-reader.js";
+import { PagoPAEcommerceHttpClientAdapter } from "./adapters/outbound/pagopa-ecommerce/pagopa-ecommerce.js";
 import { PagoPaEcommercePaymentStatusAdapter } from "./adapters/outbound/pagopa-ecommerce/payment-status.adapter.js";
 import { RCConfigurationHttpClientAdapter } from "./adapters/outbound/rc-confguration/rc-configuration.js";
+import { RemoteContentHTTPAdapter } from "./adapters/outbound/remote-content/remote-content-http.js";
+import { RemoteContentProxyAdapter } from "./adapters/outbound/remote-content/remote-content-proxy.adapter.js";
+import { SendHTTPAdapter } from "./adapters/outbound/remote-content/send-http.js";
 import { ServicesCmsHttpClientAdapter } from "./adapters/outbound/services-cms/services-cms.js";
+import { makeBuildLollipopHeadersUseCase } from "./application/use-cases/build-lollipop-headers.use-case.js";
 import { makeCreateMessageUseCase } from "./application/use-cases/create-message.use-case.js";
 import { makeGetMessageUseCase } from "./application/use-cases/get-message.use-case.js";
+import { makeGetPaymentInfoUseCase } from "./application/use-cases/get-payment-info.use-case.js";
+import { makeGetRemoteContentMessageUseCase } from "./application/use-cases/get-remote-content-message.use-case.js";
+import { makeGetRemoteContentMessageAttachmentUseCase } from "./application/use-cases/get-remote-content-message-attachment.use-case.js";
+import { makeGetRemoteContentMessagePreconditionUseCase } from "./application/use-cases/get-remote-content-message-precondition.use-case.js";
 import { makeGetServiceMessageUseCase } from "./application/use-cases/get-service-message.use-case.js";
 import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-messages.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
@@ -45,47 +59,40 @@ const getQueueUrl = (queueServiceUri: URL, queueName: string): string => {
   queueUrl.pathname = `${queueUrl.pathname.replace(/\/$/, "")}/${queueName}`;
   return queueUrl.toString();
 };
-/* eslint-disable max-lines-per-function */
-export const createApp = (
-  config: AppConfig,
-): {
-  server: FastifyInstance;
-} => {
-  const aiLogger = logs.getLogger("io-messages-app");
-  const stringify = (p?: Record<string, unknown>): Record<string, string> =>
-    Object.fromEntries(Object.entries(p ?? {}).map(([k, v]) => [k, String(v)]));
 
-  const client: AppInsightsTelemetryClient = {
-    trackEvent: ({ name, properties }) =>
-      emitCustomEvent(name, stringify(properties))(),
-    trackException: ({ exception, properties }) =>
-      aiLogger.emit({
-        attributes: {
-          ...stringify(properties),
-          "exception.stack": exception.stack ?? "",
-        },
-        body: exception.message,
-        severityNumber: SeverityNumber.ERROR,
-      }),
-    trackTrace: ({ message, properties, severity }) =>
-      aiLogger.emit({
-        attributes: stringify(properties),
-        body: message,
-        severityNumber: severity as unknown as SeverityNumber,
-      }),
-  };
+const stringify = (p?: Record<string, unknown>): Record<string, string> =>
+  Object.fromEntries(Object.entries(p ?? {}).map(([k, v]) => [k, String(v)]));
+
+const makeTelemetryClient = (
+  aiLogger: ReturnType<typeof logs.getLogger>,
+): AppInsightsTelemetryClient => ({
+  trackEvent: ({ name, properties }) =>
+    emitCustomEvent(name, stringify(properties))(),
+  trackException: ({ exception, properties }) =>
+    aiLogger.emit({
+      attributes: {
+        ...stringify(properties),
+        "exception.stack": exception.stack ?? "",
+      },
+      body: exception.message,
+      severityNumber: SeverityNumber.ERROR,
+    }),
+  trackTrace: ({ message, properties, severity }) =>
+    aiLogger.emit({
+      attributes: stringify(properties),
+      body: message,
+      severityNumber: severity as unknown as SeverityNumber,
+    }),
+});
+
+const makeAppDependencies = (config: AppConfig) => {
+  const client = makeTelemetryClient(logs.getLogger("io-messages-app"));
 
   const logger = makeApplicationInsightsLogger({
     baseProperties: { service: "io-messages-app" },
     client,
   });
-
   const crypto = new CryptoAdapter();
-
-  const server = fastify({
-    // We only enable access logs during local development.
-    logger: config.NODE_ENV === "development",
-  });
 
   const appInfoReader = new PackageJsonAppInfoReader(
     config.npm_package_name,
@@ -190,6 +197,74 @@ export const createApp = (
   const remoteContentConfigurationRepository =
     new RCConfigurationHttpClientAdapter(config.RC_APP_BASE_URL);
 
+  const remoteContentProxy = new RemoteContentProxyAdapter(
+    new RemoteContentHTTPAdapter(logger),
+    new SendHTTPAdapter(logger),
+    config.PN_SERVICE_ID,
+  );
+  const buildLollipopHeadersUseCase = makeBuildLollipopHeadersUseCase(
+    new LollipopHttpClientAdapter(
+      config.LOLLIPOP_API_KEY,
+      config.LOLLIPOP_API_URL,
+    ),
+  );
+
+  const pagoPAEcommerceAdapter = new PagoPAEcommerceHttpClientAdapter(
+    {
+      apiKey: config.PAGOPA_ECOMMERCE_API_KEY,
+      baseURL: config.PAGOPA_ECOMMERCE_BASE_URL,
+    },
+    {
+      apiKey: config.PAGOPA_ECOMMERCE_UAT_API_KEY,
+      baseURL: config.PAGOPA_ECOMMERCE_UAT_BASE_URL,
+    },
+  );
+
+  return {
+    appInfoReader,
+    buildLollipopHeadersUseCase,
+    commonCosmosClient,
+    commonStorageAccountClient,
+    logger,
+    messageContentBlobAdapter,
+    messageCreatedEventPublisher,
+    messageMetadataCosmosAdapter,
+    messageReadAuthorizationAdapter,
+    messageStatusCosmosAdapter,
+    pagoPAEcommerceAdapter,
+    paymentStatusAdapter,
+    processingMessagePayloadStore,
+    remoteContentConfigurationRepository,
+    remoteContentProxy,
+    servicesCmsAdapter,
+  };
+};
+
+export const createApp = (config: AppConfig): { server: FastifyInstance } => {
+  const server = fastify({
+    // We only enable access logs during local development.
+    logger: config.NODE_ENV === "development",
+  });
+
+  const {
+    appInfoReader,
+    buildLollipopHeadersUseCase,
+    commonCosmosClient,
+    commonStorageAccountClient,
+    logger,
+    messageContentBlobAdapter,
+    messageCreatedEventPublisher,
+    messageMetadataCosmosAdapter,
+    messageReadAuthorizationAdapter,
+    messageStatusCosmosAdapter,
+    pagoPAEcommerceAdapter,
+    paymentStatusAdapter,
+    processingMessagePayloadStore,
+    remoteContentConfigurationRepository,
+    remoteContentProxy,
+    servicesCmsAdapter,
+  } = makeAppDependencies(config);
+
   mountInfoHandler(server, makeGetInfoUseCase(appInfoReader));
   mountHealthcheckHandler(
     server,
@@ -212,6 +287,9 @@ export const createApp = (
       processingMessagePayloadStore,
       messageCreatedEventPublisher,
       logger,
+      undefined,
+      undefined,
+      config.FF_AGE_ELIGIBILITY_ENABLED,
     ),
   );
   mountGetMessageHandler(
@@ -235,6 +313,34 @@ export const createApp = (
       paymentStatusAdapter,
     ),
   );
+  mountGetPaymentInfoHandler(
+    server,
+    makeGetPaymentInfoUseCase(pagoPAEcommerceAdapter),
+  );
+  mountGetRemoteContentMessageHandler(
+    server,
+    makeGetRemoteContentMessageUseCase(
+      messageMetadataCosmosAdapter,
+      messageContentBlobAdapter,
+      remoteContentConfigurationRepository,
+      remoteContentProxy,
+      buildLollipopHeadersUseCase,
+      config.PN_SERVICE_ID,
+      config.SERVICE_TO_RC_MAP,
+      logger,
+    ),
+  );
+  mountGetRemoteContentMessageAttachmentHandler(
+    server,
+    makeGetRemoteContentMessageAttachmentUseCase(
+      messageMetadataCosmosAdapter,
+      messageContentBlobAdapter,
+      remoteContentConfigurationRepository,
+      remoteContentProxy,
+      buildLollipopHeadersUseCase,
+      config.SERVICE_TO_RC_MAP,
+    ),
+  );
   mountGetMessagesByUserHandler(
     server,
     makeGetMessagesByUserUseCase(
@@ -251,6 +357,26 @@ export const createApp = (
   mountUpsertMessageStatusHandler(
     server,
     makeUpdateMessageStatusUseCase(messageStatusCosmosAdapter),
+  );
+  mountGetRemoteContentMessagePreconditionHandler(
+    server,
+    makeGetRemoteContentMessagePreconditionUseCase(
+      messageMetadataCosmosAdapter,
+      messageContentBlobAdapter,
+      remoteContentConfigurationRepository,
+      new RemoteContentProxyAdapter(
+        new RemoteContentHTTPAdapter(logger),
+        new SendHTTPAdapter(logger),
+        config.PN_SERVICE_ID,
+      ),
+      makeBuildLollipopHeadersUseCase(
+        new LollipopHttpClientAdapter(
+          config.LOLLIPOP_API_KEY,
+          config.LOLLIPOP_API_URL,
+        ),
+      ),
+      config.SERVICE_TO_RC_MAP,
+    ),
   );
 
   return { server };

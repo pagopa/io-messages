@@ -1,4 +1,5 @@
 import {
+  FiscalCodeSchema,
   ForbiddenError,
   GenericError,
   NotFoundError,
@@ -13,7 +14,7 @@ import { MessageStatusRepository } from "../../ports/message-status.js";
 import { PaymentStatusRepository } from "../../ports/payment-status.js";
 import { makeGetServiceMessageUseCase } from "../get-service-message.use-case.js";
 
-const fiscalCode = "RSSMRA80A01H501U";
+const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
 const messageId = "01JAQ4HYBR5JZCS6K0DT7M1EV8";
 const serviceId = "01JHYBR5JZCS6K0DT7M1EV8N2F";
 const baseInput = {

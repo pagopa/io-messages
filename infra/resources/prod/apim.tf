@@ -9,6 +9,8 @@ module "apim" {
 
   key_vault = module.key_vaults.com
 
+  messages_ca_url = module.container_apps.messages.url
+
   common_key_vault = data.azurerm_key_vault.weu_common
 
 }

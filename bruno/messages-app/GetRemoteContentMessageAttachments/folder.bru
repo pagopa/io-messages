@@ -1,0 +1,19 @@
+meta {
+  name: GetRemoteContentMessageAttachments
+  seq: 13
+}
+
+auth {
+  mode: inherit
+}
+
+docs {
+  Local setup from the io-messages repository root:
+
+  1. docker compose up -d azurite redis mock-server-send mock-server-apim
+  2. docker compose run --rm azurite-setup
+  3. docker compose --profile local-test up -d rc-app (starts Cosmos and its fixture seeder)
+  4. From another terminal, run: pnpm --filter messages-app dev
+
+  Copy apps/messages-app/.env.example to apps/messages-app/.env before starting messages-app.
+}

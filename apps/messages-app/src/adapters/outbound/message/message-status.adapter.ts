@@ -55,9 +55,18 @@ const getErrorMessage = (error: unknown): string =>
 const cosmosMessageStatusSchema = z.object({
   fiscalCode: FiscalCodeSchema.optional(),
   id: messageStatusIdSchema,
-  isArchived: z.boolean().default(false),
-  isRead: z.boolean().default(false),
+  isArchived: z
+    .boolean()
+    .nullish()
+    .transform((value) => value ?? false),
+  isRead: z
+    .boolean()
+    .nullish()
+    .transform((value) => value ?? false),
   messageId: z.ulid(),
+  rejection_reason: z
+    .enum(["SERVICE_NOT_ALLOWED", "USER_NOT_FOUND", "UNKNOWN"])
+    .optional(),
   status: z.enum(["ACCEPTED", "THROTTLED", "FAILED", "PROCESSED", "REJECTED"]),
   updatedAt: z.string(),
   version: z.number(),
@@ -72,6 +81,9 @@ const toMessageStatus = (s: CosmosMessageStatus): MessageStatus => ({
   isArchived: s.isArchived,
   isRead: s.isRead,
   messageId: s.messageId,
+  ...(s.rejection_reason === undefined
+    ? {}
+    : { rejectionReason: s.rejection_reason }),
   status: s.status,
   updatedAt: s.updatedAt,
   version: s.version,
@@ -96,8 +108,14 @@ export class MessageStatusCosmosAdapter implements MessageStatusRepository {
   ): Promise<
     Result<MessageStatus, ConflictError | GenericError | TooManyRequestsError>
   > {
+    const { rejectionReason, ...persistedStatus } = messageStatus;
     const createResult = await ResultAsync.fromPromise(
-      this.#cosmosContainer.items.create(messageStatus),
+      this.#cosmosContainer.items.create({
+        ...persistedStatus,
+        ...(rejectionReason === undefined
+          ? {}
+          : { rejection_reason: rejectionReason }),
+      }),
       (err) => {
         switch (getStatusCode(err)) {
           case StatusCodes.Conflict:

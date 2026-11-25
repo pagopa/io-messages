@@ -5,7 +5,7 @@ COPY . .
 RUN mvn clean package -DskipTests -Dfmt.skip
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
-FROM public.ecr.aws/docker/library/eclipse-temurin:17-jdk-alpine@sha256:ca5c0c9763d21cf1617cb68ef8c17228a202cd0358fa6d7510a1bbdbd49c74da
+FROM public.ecr.aws/docker/library/eclipse-temurin:17-jdk-alpine@sha256:efefbce46b0d79073a3a676d91ac6c4bf370d348af18e388bbf7482543d7866a
 
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring

@@ -4,6 +4,20 @@ This Azure Function Project manages all the aspects related to the Push Notifica
 
 It uses the Azure Notification Hub to enable the push notifications and the device management.
 
+## HTTP endpoints
+
+### Create or update an installation
+
+`PUT /api/communication/v1/installations/{id}` registers the authenticated
+user's device in Azure Notification Hubs. APIM validates the bearer token and
+forwards the user identity in the `x-user` header.
+
+The request body accepts `platform` (`apns` or `fcmv1`) and `pushChannel`. The
+client installation ID is validated for compatibility with the legacy API, but
+the Notification Hubs installation ID is the SHA-256 hash of the user's fiscal
+code. Processing starts after a ten-second queue visibility delay to preserve
+the ordering workaround used by `io-backend`.
+
 ## Start locally
 
 ```shell

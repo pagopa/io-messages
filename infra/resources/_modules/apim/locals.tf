@@ -10,4 +10,5 @@ locals {
   apim_itn_platform_resource_group_name = "${local.product}-itn-common-rg-01"
 
   key_vault = var.key_vault
+
 }

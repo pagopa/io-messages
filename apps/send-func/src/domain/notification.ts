@@ -1,5 +1,4 @@
 import { lollipopHeadersSchema } from "io-messages-common/adapters/lollipop/definitions/lollipop-headers";
-import { fiscalCodeSchema } from "io-messages-common/domain/fiscal-code";
 import * as z from "zod";
 
 export const attachmentNameSchema = z.enum(["PAGOPA", "F24"]);
@@ -53,7 +52,7 @@ export type CheckQrMandateResponse = z.TypeOf<
 
 export const sendHeadersSchema = z.object({
   ...lollipopHeadersSchema.shape,
-  "x-pagopa-cx-taxid": fiscalCodeSchema,
+  "x-pagopa-cx-taxid": lollipopHeadersSchema.shape["x-pagopa-lollipop-user-id"],
   "x-pagopa-pn-io-src": z.string().optional(),
 });
 export type SendHeaders = z.TypeOf<typeof sendHeadersSchema>;

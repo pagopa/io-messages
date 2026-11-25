@@ -68,7 +68,13 @@ const baseConfigSchema = z.object({
   APIM_BASE_URL: z.url().transform((val) => new URL(val)),
   APIM_SUBSCRIPTION_KEY: z.string().min(1),
   COMMON_COSMOS_DATABASE_NAME: z.string().min(2),
+  FF_AGE_ELIGIBILITY_ENABLED: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
   HOST: z.ipv4(),
+  LOLLIPOP_API_KEY: z.string().min(1),
+  LOLLIPOP_API_URL: z.url().transform((val) => new URL(val)),
   MESSAGE_CONTENT_CONTAINER_NAME: z.string().min(3),
   MESSAGE_CREATED_QUEUE_NAME: z.string().min(3),
   MESSAGE_METADATA_CONTAINER_NAME: z.string().min(3),
@@ -78,6 +84,8 @@ const baseConfigSchema = z.object({
     .refine((value) => valid(value) !== null, "Invalid semantic version"),
   PAGOPA_ECOMMERCE_API_KEY: z.string().min(1),
   PAGOPA_ECOMMERCE_BASE_URL: z.url().transform((val) => new URL(val)),
+  PAGOPA_ECOMMERCE_UAT_API_KEY: z.string().min(1),
+  PAGOPA_ECOMMERCE_UAT_BASE_URL: z.url().transform((val) => new URL(val)),
   PN_SERVICE_ID: z.string().min(1),
   PORT: z.coerce.number().int().min(1025).max(65_535), // Read as string, parsed as integer.
   PROCESSING_MESSAGE_CONTAINER_NAME: z.string().min(3),

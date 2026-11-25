@@ -4,6 +4,11 @@
   "type": "collection",
   "ignore": ["node_modules", ".git"],
   "scripts": {
-    "moduleWhitelist": ["crypto"]
+    "moduleWhitelist": [
+      "crypto",
+      "node-jose",
+      "@mattrglobal/http-signatures",
+      "@pagopa/ts-commons"
+    ]
   }
 }

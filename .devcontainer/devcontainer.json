@@ -34,12 +34,11 @@
       "installTerraformDocs": true
     },
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "24.16.0",
+      "version": "24.22.1",
       "installYarnUsingApt": false,
       "pnpmVersion": "none",
       "nvmInstallPath": "/opt/nvm"
     },
-    "ghcr.io/pagopa/devcontainer-features/azure-functions-core-tools:1": {},
     "ghcr.io/devcontainers/features/java:1": {
       "version": "17",
       "jdkDistro": "tem",

@@ -1,5 +1,4 @@
 import { apply } from "@pagopa/io-app-email-templates/MessagePreview/index";
-import { CreatedMessageEventSenderMetadata } from "@pagopa/io-functions-commons/dist/src/models/created_message_sender_metadata";
 import { markdownToHtml } from "@pagopa/io-functions-commons/dist/src/utils/markdown";
 import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
@@ -7,6 +6,7 @@ import { flow, pipe } from "fp-ts/lib/function";
 import * as S from "fp-ts/string";
 
 import { MessageContent } from "../../generated/definitions/MessageContent";
+import { CreatedMessageEventSenderMetadata } from "../../utils/events/message";
 
 // eslint-disable-next-line
 const removeMd = require("remove-markdown");

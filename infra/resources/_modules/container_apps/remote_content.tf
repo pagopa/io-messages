@@ -49,9 +49,33 @@ module "remote_content_ca" {
 
   autoscaler = {
     replicas = {
-      minimum = 0
-      maximum = 8
+      minimum = 4
+      maximum = 12
     }
+    http_scalers = [
+      {
+        name                = "http-requests"
+        concurrent_requests = 1000
+      }
+    ]
+    custom_scalers = [
+      {
+        name             = "cpu-utilization"
+        custom_rule_type = "cpu"
+        metadata = {
+          type  = "Utilization"
+          value = "50"
+        }
+      },
+      {
+        name             = "memory-utilization"
+        custom_rule_type = "memory"
+        metadata = {
+          type  = "Utilization"
+          value = "60"
+        }
+      }
+    ]
   }
 
   container_port = 3000
@@ -83,6 +107,14 @@ module "remote_content_ca_role_assignments" {
       role                = "writer"
       database            = "remote-content-cosmos-01"
       collections         = ["message-configuration"]
+    },
+    {
+      account_name        = var.communication_cosmos_account.name
+      resource_group_name = var.communication_cosmos_account.resource_group_name
+      description         = "Allow web app to read on cosmos containers"
+      role                = "reader"
+      database            = "remote-content-cosmos-01"
+      collections         = ["user-configurations"]
     }
   ]
 

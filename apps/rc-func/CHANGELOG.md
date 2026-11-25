@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.0.12
+
+### Patch Changes
+
+- efb105a: Remove handleRemoteContentMessageConfigurationChange
+
 ## 2.0.11
 
 ### Patch Changes

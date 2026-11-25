@@ -1,4 +1,8 @@
-import { GenericError, NotFoundError } from "@pagopa/hexagonal-core";
+import {
+  FiscalCodeSchema,
+  GenericError,
+  NotFoundError,
+} from "@pagopa/hexagonal-core";
 import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -9,7 +13,7 @@ import { ServicesCmsRepository } from "../../ports/services-cms.js";
 import { makeGetMessageUseCase } from "../get-message.use-case.js";
 
 const messageId = "01JAQ4HYBR5JZCS6K0DT7M1EV8";
-const fiscalCode = "RSSMRA80A01H501U";
+const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
 const serviceId = "01JHYBR5JZCS6K0DT7M1EV8N2F";
 
 const metadataRepository = {

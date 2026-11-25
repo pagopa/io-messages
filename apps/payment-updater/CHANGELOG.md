@@ -1,5 +1,17 @@
 # payment-updater
 
+## 2.7.8
+
+### Patch Changes
+
+- afec4e3: Make payment-updater and reminder run locally
+
+## 2.7.7
+
+### Patch Changes
+
+- 333404d: Remove duplicate `org.apache.avro:avro` dependency from pom.xml that broke the release build
+
 ## 2.7.6
 
 ### Patch Changes

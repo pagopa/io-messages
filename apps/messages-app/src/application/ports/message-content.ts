@@ -14,13 +14,19 @@ export const hasPreconditionSchema = z
 export type HasPrecondition = z.TypeOf<typeof hasPreconditionSchema>;
 
 export const messageContentSchema = z.object({
-  due_date: z.string().optional(),
+  due_date: z.iso
+    .datetime({ offset: true })
+    .transform((value) => new Date(value).toISOString())
+    .optional(),
   eu_covid_cert: z.object({ auth_code: z.string().optional() }).optional(),
   markdown: z.string().min(80).max(10000),
   payment_data: z
     .object({
-      amount: z.number().int().min(0).max(9999999999),
-      invalid_after_due_date: z.boolean().default(false),
+      amount: z.number().int().min(1).max(9999999999),
+      invalid_after_due_date: z
+        .boolean()
+        .nullish()
+        .transform((value) => value ?? false),
       notice_number: z.string().regex(new RegExp("^[0123][0-9]{17}$")),
       payee: z
         .object({
@@ -34,16 +40,24 @@ export const messageContentSchema = z.object({
   third_party_data: z
     .object({
       configuration_id: z.ulid().optional(),
-      has_attachments: z.boolean().default(false),
+      has_attachments: z
+        .boolean()
+        .nullish()
+        .transform((value) => value ?? false),
       has_precondition: hasPreconditionSchema,
-      has_remote_content: z.boolean().default(false),
+      has_remote_content: z
+        .boolean()
+        .nullish()
+        .transform((value) => value ?? false),
       id: z.string().min(1),
-      original_receipt_date: z.string().optional(),
+      original_receipt_date: z.iso
+        .datetime({ offset: true })
+        .transform((value) => new Date(value).toISOString())
+        .optional(),
       original_sender: z.string().min(1).optional(),
       summary: z.string().min(1).optional(),
     })
     .optional(),
-  timestamp: z.string().optional(),
 });
 export type MessageContent = z.TypeOf<typeof messageContentSchema>;
 

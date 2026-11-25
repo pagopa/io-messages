@@ -7,6 +7,7 @@ import {
   GenericError,
   NotFoundError,
   TooManyRequestsError,
+  UnprocessableEntityError,
   UseCase,
   ValidationError,
 } from "@pagopa/hexagonal-core";
@@ -34,6 +35,7 @@ import {
   createMessagePermissionSchema,
 } from "../ports/create-message.js";
 import { MalformedEntityError } from "../ports/error.js";
+import { canSendToAge } from "./age-eligibility.js";
 
 export interface CreateMessageInput {
   clientIp: ClientIp;
@@ -50,6 +52,7 @@ export type CreateMessageError =
   | GenericError
   | NotFoundError
   | TooManyRequestsError
+  | UnprocessableEntityError
   | ValidationError;
 
 export type CreateMessageUseCase = UseCase<
@@ -253,6 +256,25 @@ const validatePayment = (
     : ok(undefined);
 };
 
+const validateRecipientAge = (
+  fiscalCode: FiscalCode,
+  service: ServicesCmsDetail,
+  isAgeEligibilityEnabled: boolean,
+): Result<void, GenericError | UnprocessableEntityError> => {
+  if (!isAgeEligibilityEnabled) {
+    return ok(undefined);
+  }
+
+  switch (canSendToAge(fiscalCode, service.age).kind) {
+    case "ELIGIBLE":
+      return ok(undefined);
+    case "INELIGIBLE":
+      return err(new UnprocessableEntityError("Recipient age not eligible"));
+    case "MALFORMED_SERVICE_AGE_RANGE":
+      return err(new GenericError("Invalid service age range"));
+  }
+};
+
 export const makeCreateMessageUseCase =
   (
     messageMetadataRepository: MessageMetadataRepository,
@@ -263,6 +285,7 @@ export const makeCreateMessageUseCase =
     logger: Logger,
     generateMessageId: MessageIdGenerator = ulid,
     clock: Clock = () => new Date(),
+    isAgeEligibilityEnabled = false,
   ): CreateMessageUseCase =>
   async (input) => {
     const serviceResult = await getService(
@@ -334,6 +357,15 @@ export const makeCreateMessageUseCase =
     );
     if (recipientResult.isErr()) {
       return err(recipientResult.error);
+    }
+
+    const recipientAgeResult = validateRecipientAge(
+      fiscalCode,
+      service,
+      isAgeEligibilityEnabled,
+    );
+    if (recipientAgeResult.isErr()) {
+      return err(recipientAgeResult.error);
     }
 
     const paymentResult = validatePayment(

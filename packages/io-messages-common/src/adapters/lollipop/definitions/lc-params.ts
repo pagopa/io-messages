@@ -1,3 +1,5 @@
+import type { FiscalCode } from "@pagopa/hexagonal-core";
+
 import { z } from "zod";
 
 import { fiscalCodeSchema } from "../../../domain/fiscal-code.js";
@@ -11,7 +13,20 @@ const assertionFileNameSchema = z
     /^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]-(sha256-[A-Za-z0-9-_=]{1,44}|sha384-[A-Za-z0-9-_=]{1,66}|sha512-[A-Za-z0-9-_=]{1,88})$/,
   );
 
-export const lcParamsSchema = z.object({
+export interface LcParams {
+  assertion_file_name: string;
+  assertion_ref: z.infer<typeof assertionRefSchema>;
+  assertion_type: z.infer<typeof assertionTypeSchema>;
+  expired_at: Date;
+  fiscal_code: FiscalCode;
+  lc_authentication_bearer: string;
+  pub_key: string;
+  status: z.infer<typeof pubKeyStatusSchema>;
+  ttl: number;
+  version: number;
+}
+
+export const lcParamsSchema: z.ZodType<LcParams> = z.object({
   assertion_file_name: assertionFileNameSchema,
   assertion_ref: assertionRefSchema,
   assertion_type: assertionTypeSchema,
@@ -23,5 +38,3 @@ export const lcParamsSchema = z.object({
   ttl: z.number().int(),
   version: z.number().int(),
 });
-
-export type LcParams = z.infer<typeof lcParamsSchema>;

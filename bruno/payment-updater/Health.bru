@@ -1,0 +1,15 @@
+meta {
+  name: Health
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{payment_updater_base_url}}/api/v1/health/ready
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

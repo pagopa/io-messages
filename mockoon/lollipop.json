@@ -17,7 +17,7 @@
       "responses": [
         {
           "uuid": "6bac4028-527a-4d2c-84e4-e25b873444eb",
-          "body": "{\n  \"assertion_file_name\": \"RSSMRA85M01H501U-sha256-abc123XYZ\",\n  \"assertion_ref\": \"sha256-7onKGsz_QxMU6IGAYvir-iezJt5OTflkKK1Eourci4I\",\n  \"assertion_type\": \"OIDC\",\n  \"expired_at\": \"2025-12-30\",\n  \"fiscal_code\": \"LVTEST00A00A199X\",\n  \"lc_authentication_bearer\": \"lc_authentication_bearer\",\n  \"pub_key\": \"pub_key\",\n  \"status\": \"VALID\",\n  \"ttl\": 11059200,\n  \"version\": 1\n}\n  ",
+          "body": "{\n  \"assertion_file_name\": \"LVTEST00A00A199X-sha256-_UTjwGAMLPpkmUsH5M_c4sI9UBmwmmmnZ9QHqxcfksI\",\n  \"assertion_ref\": \"sha256-_UTjwGAMLPpkmUsH5M_c4sI9UBmwmmmnZ9QHqxcfksI\",\n  \"assertion_type\": \"OIDC\",\n  \"expired_at\": \"2035-12-30\",\n  \"fiscal_code\": \"LVTEST00A00A199X\",\n  \"lc_authentication_bearer\": \"lc_authentication_bearer\",\n  \"pub_key\": \"pub_key\",\n  \"status\": \"VALID\",\n  \"ttl\": 11059200,\n  \"version\": 1\n}\n  ",
           "latency": 0,
           "statusCode": 200,
           "label": "",
