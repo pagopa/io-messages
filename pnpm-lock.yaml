@@ -236,6 +236,9 @@ importers:
       '@devcontainers/cli':
         specifier: ^0.75.0
         version: 0.75.0
+      '@pagopa/openapi-codegen-ts':
+        specifier: 'catalog:'
+        version: 14.0.1(chokidar@3.6.0)(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 4.1.10(vitest@4.1.10)

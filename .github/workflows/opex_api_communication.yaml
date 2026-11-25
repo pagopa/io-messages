@@ -1,0 +1,126 @@
+name: Opex Dashboard api_communication
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - main
+    paths:
+      - "openapi/**"
+      - ".opex/api_communication/**"
+      - ".github/workflows/opex_api_communication.yaml"
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Apply the Terraform plan (only allowed on main); otherwise plan only"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: opex-api-communication-prod
+  cancel-in-progress: false
+
+jobs:
+  opex:
+    name: ${{ inputs.apply && 'Apply' || 'Plan' }} Communication Opex
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    environment: ${{ inputs.apply && 'opex-prod-cd' || 'opex-prod-ci' }}
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_USE_OIDC: "true"
+      ARM_USE_AZUREAD: "true"
+      TF_INPUT: "false"
+      TF_IN_AUTOMATION: "true"
+      DOCKER_IMAGE: ghcr.io/pagopa/opex-dashboard-azure-action@sha256:eb3354b7e5c07e9557182828489fc0bf8092dd80886035429268d019250f5cd3
+
+    steps:
+      - name: Guard apply branch
+        if: inputs.apply && github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Communication Opex can only be applied from main."
+          exit 1
+
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Azure Login
+        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+        with:
+          client-id: ${{ env.ARM_CLIENT_ID }}
+          tenant-id: ${{ env.ARM_TENANT_ID }}
+          subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
+
+      - name: Generate dashboard
+        run: |
+          docker run --rm \
+            --workdir /github/workspace \
+            -v "$GITHUB_WORKSPACE:/github/workspace" \
+            "$DOCKER_IMAGE" azure-dashboard .opex/api_communication/env/prod/config.yaml
+          cp -R .opex/api_communication/env azure-dashboard/
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36
+        with:
+          terraform_version: 1.6.6
+          terraform_wrapper: false
+
+      - name: Terraform Plan
+        working-directory: azure-dashboard
+        run: |
+          set -euo pipefail
+          bash ./terraform.sh plan prod -lock=false -no-color -out="$RUNNER_TEMP/communication.tfplan" \
+            | tee "$RUNNER_TEMP/communication-plan.txt"
+          {
+            echo '### Communication Opex plan'
+            echo '```hcl'
+            cat "$RUNNER_TEMP/communication-plan.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Post Plan on PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          PLAN_FILE: ${{ runner.temp }}/communication-plan.txt
+        with:
+          script: |
+            const fs = require("fs");
+            const marker = "<!-- opex-communication-plan -->";
+            const output = fs
+              .readFileSync(process.env.PLAN_FILE, "utf8")
+              .split("\n")
+              .filter((line) => !line.includes("Refreshing state"))
+              .join("\n")
+              .slice(-60000);
+            const body = `${marker}\n#### Terraform Plan - Communication Opex\n<details>\n<summary>Terraform Plan</summary>\n\n\`\`\`hcl\n${output}\n\`\`\`\n</details>`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+            });
+            const existing = comments.find((c) => c.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+
+      - name: Terraform Apply
+        if: github.event_name == 'workflow_dispatch' && inputs.apply
+        working-directory: azure-dashboard
+        run: terraform apply -input=false -lock-timeout=120s "$RUNNER_TEMP/communication.tfplan"

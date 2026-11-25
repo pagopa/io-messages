@@ -79,6 +79,12 @@ coverage
 yarn-error.log
 
 generated
+!/openapi/generated/
+!/openapi/generated/api_communication.yaml
+!/.opex/api_communication/env/
+!/.opex/api_communication/env/prod/
+!/.opex/api_communication/env/prod/*
+azure-dashboard/
 *.zip
 
 # ESLint files
