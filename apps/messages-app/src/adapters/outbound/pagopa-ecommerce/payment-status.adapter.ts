@@ -1,121 +1,109 @@
 import { GenericError } from "@pagopa/hexagonal-core";
-import { Result, ResultAsync, err, ok } from "neverthrow";
+import { Result, err, ok } from "neverthrow";
 import z from "zod";
 
 import {
   PaymentStatus,
   PaymentStatusRepository,
 } from "../../../application/ports/payment-status.js";
+import {
+  Client,
+  createClient,
+} from "../../../generated/pagopa-ecommerce/client/index.js";
+import { getPaymentRequestInfo } from "../../../generated/pagopa-ecommerce/sdk.gen.js";
+import { PaymentRequestsGetResponse } from "../../../generated/pagopa-ecommerce/types.gen.js";
+import {
+  zPaymentCanceledStatusFaultPaymentProblemJson,
+  zPaymentDuplicatedStatusFaultPaymentProblemJson,
+  zPaymentExpiredStatusFaultPaymentProblemJson,
+  zPaymentOngoingStatusFaultPaymentProblemJson,
+  zPaymentRequestsGetResponse,
+  zValidationFaultPaymentDataErrorProblemJson,
+  zValidationFaultPaymentUnknownProblemJson,
+} from "../../../generated/pagopa-ecommerce/zod.gen.js";
 
-const paymentResponseSchema = z.object({
-  amount: z.number().int().min(0).max(99_999_999),
-  description: z.string().min(1).max(141).optional(),
-  dueDate: z
-    .string()
-    .regex(/^\d{4}-(1[0-2]|0[1-9])-(0[1-9]|[12]\d|3[01])$/)
-    .optional(),
-  paFiscalCode: z.string().min(11).max(12).optional(),
-  paName: z.string().min(1).max(141).optional(),
-  rptId: z
-    .string()
-    .regex(/^([a-zA-Z\d]{1,35}|RF\d{2}[a-zA-Z\d]{1,21})$/)
-    .optional(),
-});
+const REQUEST_TIMEOUT_MS = 10_000;
 
-const paymentNotFoundSchema = z.discriminatedUnion("faultCodeCategory", [
-  z.object({
-    faultCodeCategory: z.literal("PAYMENT_DATA_ERROR"),
-    faultCodeDetail: z.enum([
-      "PPT_SINTASSI_EXTRAXSD",
-      "PPT_SINTASSI_XSD",
-      "PPT_DOMINIO_SCONOSCIUTO",
-      "PPT_STAZIONE_INT_PA_SCONOSCIUTA",
-    ]),
-    title: z.string().optional(),
-  }),
-  z.object({
-    faultCodeCategory: z.literal("PAYMENT_UNKNOWN"),
-    faultCodeDetail: z.literal("PAA_PAGAMENTO_SCONOSCIUTO"),
-    title: z.string().optional(),
-  }),
+// Hey API does not interpret Swagger 2.0's x-one-of extension as a union.
+const paymentNotFoundSchema = z.union([
+  zValidationFaultPaymentDataErrorProblemJson,
+  zValidationFaultPaymentUnknownProblemJson,
 ]);
 
-const paymentConflictSchema = z.discriminatedUnion("faultCodeCategory", [
-  z.object({
-    faultCodeCategory: z.literal("PAYMENT_ONGOING"),
-    faultCodeDetail: z.enum([
-      "PPT_PAGAMENTO_IN_CORSO",
-      "PAA_PAGAMENTO_IN_CORSO",
-    ]),
-    title: z.string().optional(),
-  }),
-  z.object({
-    faultCodeCategory: z.literal("PAYMENT_EXPIRED"),
-    faultCodeDetail: z.literal("PAA_PAGAMENTO_SCADUTO"),
-    title: z.string().optional(),
-  }),
-  z.object({
-    faultCodeCategory: z.literal("PAYMENT_CANCELED"),
-    faultCodeDetail: z.literal("PAA_PAGAMENTO_ANNULLATO"),
-    title: z.string().optional(),
-  }),
-  z.object({
-    faultCodeCategory: z.literal("PAYMENT_DUPLICATED"),
-    faultCodeDetail: z.enum([
-      "PAA_PAGAMENTO_DUPLICATO",
-      "PPT_PAGAMENTO_DUPLICATO",
-    ]),
-    title: z.string().optional(),
-  }),
+const paymentConflictSchema = z.union([
+  zPaymentOngoingStatusFaultPaymentProblemJson,
+  zPaymentExpiredStatusFaultPaymentProblemJson,
+  zPaymentCanceledStatusFaultPaymentProblemJson,
+  zPaymentDuplicatedStatusFaultPaymentProblemJson,
 ]);
 
 export class PagoPaEcommercePaymentStatusAdapter
   implements PaymentStatusRepository
 {
+  readonly #client: Client;
+
   constructor(
     private baseURL: URL,
     private apiKey: string,
-  ) {}
+  ) {
+    this.#client = createClient();
+  }
+
+  private validatePaymentSuccessResponse(
+    response: PaymentRequestsGetResponse | undefined,
+    rptId: string,
+  ): Result<PaymentStatus, GenericError> {
+    const parsedResponse = zPaymentRequestsGetResponse.safeParse(response);
+    if (!parsedResponse.success) {
+      return err(
+        new GenericError(
+          `malformed response retrieving payment status for rptId ${rptId}`,
+        ),
+      );
+    }
+
+    return ok("NOT_PAID");
+  }
 
   async getPaymentStatus(
     rptId: string,
   ): Promise<Result<PaymentStatus, GenericError>> {
-    const paymentRequestURL = new URL(this.baseURL);
-    paymentRequestURL.pathname = `${paymentRequestURL.pathname.replace(/\/$/, "")}/payment-requests/${rptId}`;
+    const signal = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+    const response = await getPaymentRequestInfo({
+      auth: this.apiKey,
+      baseUrl: this.baseURL.toString().replace(/\/+$/, ""),
+      client: this.#client,
+      path: { rpt_id: rptId },
+      redirect: "manual",
+      signal,
+    });
 
-    const responseResult = await ResultAsync.fromPromise(
-      fetch(paymentRequestURL, {
-        headers: { "Ocp-Apim-Subscription-Key": this.apiKey },
-        signal: AbortSignal.timeout(10_000),
-      }),
-      (error) =>
+    if (signal.aborted) {
+      return err(
         new GenericError(
-          `error retrieving payment status for rptId ${rptId}: ${String(error)}`,
+          `error retrieving payment status for rptId ${rptId}: ${String(signal.reason)}`,
         ),
-    );
-    if (responseResult.isErr()) return err(responseResult.error);
-
-    const response = responseResult.value;
-    if (
-      response.status === 200 ||
-      response.status === 404 ||
-      response.status === 409
-    ) {
-      const bodyResult = await ResultAsync.fromPromise(
-        response.json(),
-        () =>
-          new GenericError(
-            `invalid response retrieving payment status for rptId ${rptId}`,
-          ),
       );
-      if (bodyResult.isErr()) return err(bodyResult.error);
+    }
 
+    if (!response.response) {
+      return err(
+        new GenericError(
+          `error retrieving payment status for rptId ${rptId}: ${String(response.error)}`,
+        ),
+      );
+    }
+
+    const status = response.response.status;
+    if (status === 200) {
+      return this.validatePaymentSuccessResponse(response.data, rptId);
+    }
+
+    if (status === 404 || status === 409) {
       const parsedResponse =
-        response.status === 200
-          ? paymentResponseSchema.safeParse(bodyResult.value)
-          : response.status === 404
-            ? paymentNotFoundSchema.safeParse(bodyResult.value)
-            : paymentConflictSchema.safeParse(bodyResult.value);
+        status === 404
+          ? paymentNotFoundSchema.safeParse(response.error)
+          : paymentConflictSchema.safeParse(response.error);
       if (!parsedResponse.success) {
         return err(
           new GenericError(
@@ -124,11 +112,8 @@ export class PagoPaEcommercePaymentStatusAdapter
         );
       }
 
-      if (response.status !== 409) return ok("NOT_PAID");
-
-      const conflictResponse = paymentConflictSchema.parse(bodyResult.value);
       return ok(
-        conflictResponse.faultCodeCategory === "PAYMENT_DUPLICATED"
+        parsedResponse.data.faultCodeCategory === "PAYMENT_DUPLICATED"
           ? "PAID"
           : "NOT_PAID",
       );
@@ -136,7 +121,7 @@ export class PagoPaEcommercePaymentStatusAdapter
 
     return err(
       new GenericError(
-        `unexpected response retrieving payment status for rptId ${rptId}: ${response.status}`,
+        `unexpected response retrieving payment status for rptId ${rptId}: ${status}`,
       ),
     );
   }

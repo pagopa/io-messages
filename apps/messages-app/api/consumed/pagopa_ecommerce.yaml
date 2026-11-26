@@ -1,3 +1,4 @@
+# Source: https://github.com/pagopa/io-backend/blob/d75e74049bc2f2268881e052ecfd92391305bcbd/openapi/consumed/pagopa_ecommerce.yaml
 swagger: "2.0"
 info:
   version: 0.0.1
@@ -76,7 +77,7 @@ definitions:
       rptId:
         description: Digital payment request id
         type: string
-        pattern: ([a-zA-Z\\d]{1,35})|(RF\\d{2}[a-zA-Z\\d]{1,21})
+        pattern: "([a-zA-Z\\d]{1,35})|(RF\\d{2}[a-zA-Z\\d]{1,21})"
       paFiscalCode:
         description: Fiscal code associated to the payment notice
         type: string
