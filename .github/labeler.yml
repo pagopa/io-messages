@@ -30,6 +30,10 @@ messages-app:
   - changed-files:
       - any-glob-to-any-file: ["apps/messages-app/**"]
 
+messages-func:
+  - changed-files:
+      - any-glob-to-any-file: ["apps/messages-func/**"]
+
 rc-app:
   - changed-files:
       - any-glob-to-any-file: ["apps/rc-app/**"]

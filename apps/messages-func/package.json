@@ -1,0 +1,41 @@
+{
+  "name": "messages-func",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist/func.js",
+  "files": [
+    "dist/*",
+    "host.json",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "shx rm -rf dist",
+    "build": "esbuild --bundle ./src/func.ts --format=esm --platform=node --target=node24 --outdir=dist --packages=external",
+    "build:watch": "pnpm run build --watch",
+    "start": "func start --port 7077",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint --fix src",
+    "lint:check": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@azure/functions": "catalog:",
+    "@pagopa/hexagonal-core": "catalog:",
+    "neverthrow": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@pagopa/eslint-config": "catalog:",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "esbuild": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "license": "UNLICENSED"
+}
