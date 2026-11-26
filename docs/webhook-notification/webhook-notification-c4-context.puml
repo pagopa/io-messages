@@ -2,7 +2,7 @@
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
 
-title C4 Context Diagram - Webhook Notification System 
+title C4 Context Diagram - Webhook Notification System
 
 System_Boundary("io_messages", "IO") {
     System(webhook_solution, "Webhook System", "Handle message status updates delivery")
