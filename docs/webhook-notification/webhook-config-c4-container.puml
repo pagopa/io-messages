@@ -1,0 +1,28 @@
+@startuml webhook-config-container
+!include <C4/C4_Container>
+
+title C4 Container Diagram - Webhook Configuration
+LAYOUT_LEFT_RIGHT()
+
+Person_Ext(ente, "Ente", "Sender organization")
+
+Container(apim, "APIM", "Azure API Management", "Platform API gateway")
+
+System_Boundary(messages_app, "messages-app (Container App)") {
+    Container(webhook_config_api, "Webhook configuration API", "HTTP API", "Create and update webhook configuration")
+}
+
+System_Boundary(cosmos, "Azure Cosmos DB") {
+    ContainerDb(webhook_db, "webhook", "Cosmos DB container", "Webhook configuration")
+}
+
+ContainerDb(webhook_cache, "webhookCache", "Azure Cache for Redis", "Webhook configuration cache")
+
+Rel(ente, apim, "Manage webhook configuration", "HTTPS")
+Rel(apim, webhook_config_api, "Forward request", "HTTPS")
+Rel(webhook_config_api, webhook_db, "Create/update webhook configuration")
+Rel(webhook_config_api, webhook_cache, "Update cached webhook configuration")
+
+SHOW_LEGEND()
+
+@enduml

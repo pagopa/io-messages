@@ -1,0 +1,21 @@
+@startuml webhook-notification-system-context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+
+title C4 Context Diagram - Webhook Notification System 
+
+System_Boundary("io_messages", "IO") {
+    System(webhook_solution, "Webhook System", "Handle message status updates delivery")
+}
+
+System_Boundary("send", "SEND") {
+    System(send_orchestrator, "Orchestrator")
+}
+
+
+Rel_Left(webhook_solution, send_orchestrator, "Sends message\nstatus updates")
+Rel_Right(send_orchestrator, webhook_solution, "Requests\nwebhook activation and update")
+
+SHOW_LEGEND()
+
+@enduml

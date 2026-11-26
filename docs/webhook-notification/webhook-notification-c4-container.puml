@@ -1,0 +1,108 @@
+@startuml webhook-notification-system-container
+!include <C4/C4_Container>
+
+title C4 Container Diagram - Webhook Notification System
+LAYOUT_LEFT_RIGHT()
+
+Person_Ext(ente, "Ente", "External organization")
+Person_Ext(io_app, "App IO", "IO mobile/web application")
+Person_Ext(webhook_url, "Webhook URL", "External webhook callback endpoint")
+
+System_Boundary(messages_app_boundary, "messages-app (Azure App Service)") {
+    Container(create_message, "Create Message", "API Endpoint", "Create new messages")
+    Container(upsert_message, "Upsert Message", "API Endpoint", "Update existing messages")
+    Container(message_event_consumer, "Message Event Consumer", "Event Hub Consumer", "Consume message events from Event Hub")
+}
+
+System_Boundary(services_func_boundary, "services-func (Azure Functions)") {
+    Container(process_message, "Process Message", "Azure Function", "Process and route messages")
+}
+
+System_Boundary(messages_func_boundary, "messages-func (Azure Functions)") {
+    Container(webhook_data_failover, "WebhookDataFailoverFunction", "Azure Function", "Handle webhook data failover")
+    Container(message_event_function, "MessageEventFunction", "Azure Function", "Process message events")
+}
+
+
+Container(platform_apim, "io-p-itn-platform", "Platform APIM", "")
+Container(itn_apim, "io-p-itn-apim-01", "ITN APIM", "")
+
+
+System_Boundary(eventhub_boundary, "Azure Event Hub") {
+    ContainerQueue(upsert_message_topic, "upsertedMessageTopic", "Event Hub Topic", "upserted message events")
+    ContainerQueue(read_message_topic, "readMessageTopic", "Event Hub Topic", "read message events")
+    ContainerQueue(archived_message_topic, "archivedMessageTopic", "Event Hub Topic", "archived message events")
+}
+
+System_Boundary(cosmos_boundary, "io-p-webhook-cosno-01 (Azure Cosmos DB)") {
+    ContainerDb(webhook_db, "webhook", "Cosmos DB Container", "Webhook configuration data")
+    ContainerDb(webhook_events_archive_db, "webhook-events-archive", "Cosmos DB Container", "Archived webhook event data")
+}
+
+System_Boundary(storage_boundary, "iopitncomst01 (Azure Storage Account)") {
+    ContainerQueue(process_message_queue, "ProcessMessageQueue", "Storage Queue")
+}
+
+System_Boundary(new_storage_boundary, "newStorageAccount (Azure Storage Account)") {
+    ContainerQueue(webhook_retrieve_error_queue, "WebhookRetrieveErrorQueue", "Storage Queue", "Failed webhook retrieval attempts")
+    ContainerQueue(new_message_event_queue, "newMessageEventQueue", "Storage Queue", "New message events")
+    ContainerQueue(new_message_event_poison_queue, "newMessageEventPoisonQueue", "Storage Queue", "Dead-letter queue for failed messages")
+}
+
+System_Boundary(new_redis, "newRedis (Azure Redis Cache)") {
+    ContainerDb(webhook_cache, "WebhookCache", "Azure Redis Cache", "Cache for webhook configuration data")
+}
+
+
+Rel(ente, platform_apim, "Create\nmessage\nrequest")
+Rel(platform_apim, create_message, "Create\nmessage\nrequest")
+Rel_R(create_message, process_message_queue, "Enqueue for processing")
+Rel_R(process_message_queue, process_message, "Trigger processing")
+Rel(create_message, upsert_message_topic, "Publish event")
+Rel(process_message, upsert_message_topic, "Publish event")
+Rel(upsert_message, read_message_topic, "Publish event")
+Rel(upsert_message, archived_message_topic, "Publish event")
+
+Rel(io_app, itn_apim, "Update\nmessage\nstatus")
+Rel(itn_apim, upsert_message, "Update\nmessage\nstatus")
+
+
+Rel(message_event_consumer, upsert_message_topic, "Subscribe and consume")
+Rel(message_event_consumer, read_message_topic, "Subscribe and consume")
+Rel(message_event_consumer, archived_message_topic, "Subscribe and consume")
+Rel(message_event_consumer, new_message_event_queue, "Enqueue for processing")
+Rel(message_event_consumer, webhook_cache, "Get webhook config")
+
+Rel(new_message_event_queue, message_event_function, "Queue trigger")
+Rel(message_event_function, webhook_db, "Query webhook config")
+Rel(message_event_consumer, webhook_retrieve_error_queue, "Webhook retrieve failure")
+Rel(message_event_function, webhook_events_archive_db, "Archive webhook event")
+Rel(message_event_function, webhook_url, "Call webhook callback")
+
+Rel(webhook_retrieve_error_queue, webhook_data_failover, "Process failed deliveries")
+Rel(webhook_data_failover, webhook_db, "Query webhook config")
+Rel(webhook_data_failover, webhook_url, "Retry webhook callback")
+Rel(webhook_data_failover, webhook_events_archive_db, "Archive retry events")
+
+Rel(new_message_event_poison_queue, webhook_data_failover, "Handle poison messages")
+
+' Layout: messages-app, services-func and iopitncomst01 stacked in the left column
+' (with LAYOUT_LEFT_RIGHT, Lay_R stacks vertically and Lay_D goes left to right)
+Lay_D(ente, create_message)
+Lay_D(io_app, upsert_message)
+Lay_R(ente, io_app)
+Lay_R(message_event_consumer, upsert_message)
+Lay_R(upsert_message, create_message)
+Lay_R(create_message, process_message)
+Lay_R(process_message, process_message_queue)
+
+Lay_D(create_message, upsert_message_topic)
+Lay_D(process_message, upsert_message_topic)
+Lay_D(process_message_queue, upsert_message_topic)
+Lay_D(upsert_message_topic, new_message_event_queue)
+Lay_D(new_message_event_queue, message_event_function)
+Lay_D(message_event_function, webhook_db)
+
+SHOW_LEGEND()
+
+@enduml
