@@ -17,6 +17,7 @@ import type {
 import type { GetServiceMessageUseCase } from "../../../../application/use-cases/get-service-message.use-case.js";
 
 import { MalformedEntityError } from "../../../../application/ports/error.js";
+import { makeGetMessageForServiceUseCase } from "../../../../application/use-cases/get-service-message.use-case.js";
 import { mountGetServiceMessageHandler } from "../get-service-message.handler.js";
 
 const fiscalCode = "RSSMRA80A01H501U";
@@ -291,4 +292,80 @@ describe("GetMessageForService authorization pipeline", () => {
     expect(response.statusCode).toBe(200);
     expect(useCase).toHaveBeenCalledOnce();
   });
+});
+
+describe("GetMessageForService dependency throttling", () => {
+  it.each(["metadata", "content", "status"] as const)(
+    "returns HTTP 500 for throttled %s reads",
+    async (resource) => {
+      const metadataRepository = {
+        createMessageMetadata: vi.fn(),
+        getMessageMetadata: vi.fn().mockResolvedValue(
+          ok({
+            createdAt: "2024-01-01T00:00:00.000Z",
+            featureLevelType: "STANDARD",
+            fiscalCode,
+            id: messageId,
+            indexedId: messageId,
+            isPending: false,
+            senderServiceId: service.id,
+            senderUserId: "user-id",
+            timeToLiveSeconds: 3600,
+          }),
+        ),
+        getMessagesMetadataByUser: vi.fn(),
+      };
+      const contentRepository = {
+        getMessageContentById: vi
+          .fn()
+          .mockResolvedValue(err(new NotFoundError("content", "not found"))),
+        getMessagesContentByIds: vi.fn(),
+      };
+      const statusRepository = {
+        createMessageStatus: vi.fn(),
+        getLatestMessageStatusById: vi
+          .fn()
+          .mockResolvedValue(err(new NotFoundError("status", "not found"))),
+        getLatestMessagesStatusByIds: vi.fn(),
+      };
+      const throttlingError = new TooManyRequestsError();
+      if (resource === "metadata") {
+        metadataRepository.getMessageMetadata.mockResolvedValueOnce(
+          err(throttlingError),
+        );
+      } else if (resource === "content") {
+        contentRepository.getMessageContentById.mockResolvedValueOnce(
+          err(throttlingError),
+        );
+      } else {
+        statusRepository.getLatestMessageStatusById.mockResolvedValueOnce(
+          err(throttlingError),
+        );
+      }
+
+      vi.mocked(useCase).mockImplementationOnce(
+        makeGetMessageForServiceUseCase(
+          metadataRepository,
+          statusRepository,
+          contentRepository,
+          { getProfile: vi.fn() },
+          { getServicePreferences: vi.fn() },
+          { getPaymentStatus: vi.fn() },
+          "2.0.0",
+        ),
+      );
+
+      const response = await server.inject({
+        headers: validHeaders,
+        method: "GET",
+        url: `/api/services/messages/${fiscalCode}/${messageId}`,
+      });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.json()).toMatchObject({
+        detail: expect.stringContaining(throttlingError.message),
+        status: 500,
+      });
+    },
+  );
 });

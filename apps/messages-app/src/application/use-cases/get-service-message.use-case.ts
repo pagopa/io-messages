@@ -33,8 +33,7 @@ export type GetServiceMessageError =
   | ForbiddenError
   | GenericError
   | MalformedEntityError
-  | NotFoundError
-  | TooManyRequestsError;
+  | NotFoundError;
 
 export interface GetServiceMessageInput {
   readonly fiscalCode: FiscalCode;
@@ -49,6 +48,14 @@ export type GetServiceMessageUseCase = UseCase<
   ServiceMessage,
   GetServiceMessageError
 >;
+
+// Preserve the legacy server-error response for throttled dependency reads.
+const normalizeMessageReadError = (
+  error: GetServiceMessageError | TooManyRequestsError,
+): GetServiceMessageError =>
+  error instanceof TooManyRequestsError
+    ? new GenericError(error.message)
+    : error;
 
 const canReadAdvancedMessageInfo = (
   metadata: MessageMetadata,
@@ -109,7 +116,9 @@ export const makeGetMessageForServiceUseCase =
       fiscalCode,
       messageId,
     );
-    if (metadataResult.isErr()) return err(metadataResult.error);
+    if (metadataResult.isErr()) {
+      return err(normalizeMessageReadError(metadataResult.error));
+    }
 
     const metadata = metadataResult.value;
     if (metadata.senderServiceId !== serviceId) {
@@ -140,8 +149,12 @@ export const makeGetMessageForServiceUseCase =
           : err(error),
       );
 
-    if (contentResult.isErr()) return err(contentResult.error);
-    if (statusResult.isErr()) return err(statusResult.error);
+    if (contentResult.isErr()) {
+      return err(normalizeMessageReadError(contentResult.error));
+    }
+    if (statusResult.isErr()) {
+      return err(normalizeMessageReadError(statusResult.error));
+    }
 
     const { isRead, status } = statusResult.value;
     const response: ServiceMessage = {

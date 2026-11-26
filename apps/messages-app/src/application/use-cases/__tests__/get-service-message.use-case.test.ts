@@ -226,10 +226,8 @@ describe("makeGetMessageForServiceUseCase - read normalization", () => {
   it.each([
     ["content", new GenericError("content read failed")],
     ["content", new MalformedEntityError("invalid content")],
-    ["content", new TooManyRequestsError()],
     ["status", new GenericError("status read failed")],
     ["status", new MalformedEntityError("invalid status")],
-    ["status", new TooManyRequestsError()],
   ] as const)(
     "propagates %s read error %s even when the other resource is absent",
     async (resource, dependencyError) => {
@@ -253,6 +251,52 @@ describe("makeGetMessageForServiceUseCase - read normalization", () => {
       const result = await getServiceMessage(baseInput);
 
       expect(result._unsafeUnwrapErr()).toBe(dependencyError);
+    },
+  );
+});
+
+describe("makeGetMessageForServiceUseCase - dependency throttling", () => {
+  it.each(["metadata", "content", "status"] as const)(
+    "normalizes %s throttling to a server error",
+    async (resource) => {
+      const throttlingError = new TooManyRequestsError();
+      if (resource === "metadata") {
+        vi.mocked(metadataRepository.getMessageMetadata).mockResolvedValueOnce(
+          err(throttlingError),
+        );
+      } else {
+        vi.mocked(
+          contentRepository.getMessageContentById,
+        ).mockResolvedValueOnce(
+          err(
+            resource === "content"
+              ? throttlingError
+              : new NotFoundError("content", "not found"),
+          ),
+        );
+        vi.mocked(
+          statusRepository.getLatestMessageStatusById,
+        ).mockResolvedValueOnce(
+          err(
+            resource === "status"
+              ? throttlingError
+              : new NotFoundError("status", "not found"),
+          ),
+        );
+      }
+
+      const result = await getServiceMessage(baseInput);
+
+      expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+      expect(result._unsafeUnwrapErr().message).toContain(
+        throttlingError.message,
+      );
+      if (resource === "metadata") {
+        expect(contentRepository.getMessageContentById).not.toHaveBeenCalled();
+        expect(
+          statusRepository.getLatestMessageStatusById,
+        ).not.toHaveBeenCalled();
+      }
     },
   );
 });
