@@ -12,6 +12,12 @@ import { mountGetServiceMessageHandler } from "../get-service-message.handler.js
 
 const fiscalCode = "RSSMRA80A01H501U";
 const messageId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
+const validHeaders = {
+  "x-service-id": "service-id",
+  "x-subscription-id": "subscription-id",
+  "x-user-groups": "ApiMessageRead,ApiMessageReadAdvanced",
+  "x-user-id": "user-id",
+};
 const responseBody = {
   message: {
     created_at: "2024-01-01T00:00:00.000Z",
@@ -39,11 +45,7 @@ describe("mountGetServiceMessageHandler", () => {
 
   it("maps trusted caller headers and returns the service response", async () => {
     const response = await server.inject({
-      headers: {
-        "x-service-id": "service-id",
-        "x-subscription-id": "subscription-id",
-        "x-user-groups": "ApiMessageRead, ApiMessageReadAdvanced",
-      },
+      headers: validHeaders,
       method: "GET",
       url: `/api/services/messages/${fiscalCode}/${messageId}`,
     });
@@ -59,12 +61,54 @@ describe("mountGetServiceMessageHandler", () => {
     });
   });
 
-  it("returns 400 when a trusted caller header is missing", async () => {
+  it.each(["x-user-id", "x-subscription-id", "x-user-groups"] as const)(
+    "returns 403 when the authentication header %s is missing",
+    async (header) => {
+      const headers = Object.fromEntries(
+        Object.entries(validHeaders).filter(([name]) => name !== header),
+      );
+      const response = await server.inject({
+        headers,
+        method: "GET",
+        url: `/api/services/messages/${fiscalCode}/${messageId}`,
+      });
+
+      expect(response.statusCode).toBe(403);
+      expect(useCase).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["ApiMessageWrite", "ApiMessageReadAdvanced", ""])(
+    "returns 403 for groups %s before validating the request",
+    async (groups) => {
+      const response = await server.inject({
+        headers: { ...validHeaders, "x-user-groups": groups },
+        method: "GET",
+        url: `/api/services/messages/invalid-fiscal-code/${messageId}`,
+      });
+
+      expect(response.statusCode).toBe(403);
+      expect(useCase).not.toHaveBeenCalled();
+    },
+  );
+
+  it("returns 400 for an invalid path when authorization succeeds", async () => {
     const response = await server.inject({
-      headers: {
-        "x-service-id": "service-id",
-        "x-user-groups": "ApiMessageRead",
-      },
+      headers: validHeaders,
+      method: "GET",
+      url: `/api/services/messages/invalid-fiscal-code/${messageId}`,
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(useCase).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when the service id is missing after authorization succeeds", async () => {
+    const headers = Object.fromEntries(
+      Object.entries(validHeaders).filter(([name]) => name !== "x-service-id"),
+    );
+    const response = await server.inject({
+      headers,
       method: "GET",
       url: `/api/services/messages/${fiscalCode}/${messageId}`,
     });
@@ -78,9 +122,8 @@ describe("mountGetServiceMessageHandler", () => {
 
     const response = await server.inject({
       headers: {
+        ...validHeaders,
         "x-service-id": "another-service",
-        "x-subscription-id": "subscription-id",
-        "x-user-groups": "ApiMessageRead",
       },
       method: "GET",
       url: `/api/services/messages/${fiscalCode}/${messageId}`,
@@ -96,11 +139,7 @@ describe("mountGetServiceMessageHandler", () => {
     vi.mocked(useCase).mockResolvedValueOnce(err(error));
 
     const response = await server.inject({
-      headers: {
-        "x-service-id": "service-id",
-        "x-subscription-id": "subscription-id",
-        "x-user-groups": "ApiMessageReadAdvanced",
-      },
+      headers: validHeaders,
       method: "GET",
       url: `/api/services/messages/${fiscalCode}/${messageId}`,
     });

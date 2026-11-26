@@ -13,6 +13,7 @@ import {
   GetServiceMessageResponseSchema,
   toGetServiceMessageResponse,
 } from "./dto/get-service-message.dto.js";
+import { makeGetMessageForServiceAuthorizationMiddleware } from "./middlewares/get-message-for-service-authorization.middleware.js";
 
 const getServiceMessageContract = defineRoute({
   method: "get",
@@ -20,8 +21,6 @@ const getServiceMessageContract = defineRoute({
   request: {
     headers: z.object({
       "x-service-id": z.string().min(1),
-      "x-subscription-id": z.string().min(1),
-      "x-user-groups": z.string(),
     }),
     path: z.object({
       fiscal_code: FiscalCodeSchema,
@@ -44,18 +43,14 @@ export const mountGetServiceMessageHandler = (
 ): void => {
   mountFastifyRoute(server, {
     contract: getServiceMessageContract,
-    inputMapper: (req) => ({
+    inputMapper: (req, context) => ({
       fiscalCode: req.path.fiscal_code,
-      groups: new Set(
-        req.headers["x-user-groups"]
-          .split(",")
-          .map((group) => group.trim())
-          .filter(Boolean),
-      ),
+      groups: context.groups,
       messageId: req.path.id,
       serviceId: req.headers["x-service-id"],
-      subscriptionId: req.headers["x-subscription-id"],
+      subscriptionId: context.subscriptionId,
     }),
+    middlewares: [makeGetMessageForServiceAuthorizationMiddleware()],
     outputMapper: toGetServiceMessageResponse,
     useCase,
   });
