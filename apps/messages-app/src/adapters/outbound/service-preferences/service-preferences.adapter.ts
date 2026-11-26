@@ -32,11 +32,15 @@ const servicePreferenceSchema = z.discriminatedUnion("isInboxEnabled", [
   baseServicePreferenceSchema.extend({
     accessReadMessageStatus: z
       .enum(["ALLOW", "DENY", "UNKNOWN"])
-      .default("UNKNOWN"),
+      .nullish()
+      .transform((value) => value ?? "UNKNOWN"),
     isInboxEnabled: z.literal(true),
   }),
   baseServicePreferenceSchema.extend({
-    accessReadMessageStatus: z.enum(["DENY", "UNKNOWN"]).default("UNKNOWN"),
+    accessReadMessageStatus: z
+      .enum(["DENY", "UNKNOWN"])
+      .nullish()
+      .transform((value) => value ?? "UNKNOWN"),
     isInboxEnabled: z.literal(false),
   }),
 ]);

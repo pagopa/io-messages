@@ -1,3 +1,5 @@
+import type { CosmosClient } from "@azure/cosmos";
+
 import {
   FiscalCodeSchema,
   ForbiddenError,
@@ -8,6 +10,8 @@ import {
 import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ProfileCosmosAdapter } from "../../../adapters/outbound/profile/profile.adapter.js";
+import { ServicePreferencesCosmosAdapter } from "../../../adapters/outbound/service-preferences/service-preferences.adapter.js";
 import { MalformedEntityError } from "../../ports/error.js";
 import { MessageContentRepository } from "../../ports/message-content.js";
 import { MessageMetadataRepository } from "../../ports/message-metadata.js";
@@ -531,4 +535,113 @@ describe("makeGetMessageForServiceUseCase - read authorization policy", () => {
     });
     expect(paymentStatusRepository.getPaymentStatus).toHaveBeenCalledOnce();
   });
+});
+
+describe("makeGetMessageForServiceUseCase - persisted legacy defaults", () => {
+  const storedProfile = {
+    fiscalCode,
+    id: `${fiscalCode}-0000000000000001`,
+    lastAppVersion: "2.1.0",
+    servicePreferencesSettings: { mode: "AUTO", version: 1 },
+    version: 1,
+  };
+  const storedPreference = {
+    accessReadMessageStatus: "ALLOW",
+    fiscalCode,
+    id: `${fiscalCode}-subscription-id-0000000000000001`,
+    isEmailEnabled: true,
+    isInboxEnabled: true,
+    isWebhookEnabled: true,
+    serviceId: baseInput.subscriptionId,
+    settingsVersion: 1,
+  };
+  const fetchProfile = vi.fn();
+  const readPreference = vi.fn();
+  const cosmosClient = {
+    database: () => ({
+      container: () => ({
+        item: () => ({ read: readPreference }),
+        items: { query: () => ({ fetchNext: fetchProfile }) },
+      }),
+    }),
+  } as unknown as CosmosClient;
+  const getMessage = makeGetMessageForServiceUseCase(
+    metadataRepository,
+    statusRepository,
+    contentRepository,
+    new ProfileCosmosAdapter(cosmosClient, "db", "profiles"),
+    new ServicePreferencesCosmosAdapter(
+      cosmosClient,
+      "db",
+      "services-preferences",
+    ),
+    paymentStatusRepository,
+    "2.0.0",
+  );
+
+  beforeEach(() => {
+    fetchProfile.mockResolvedValue({ resources: [storedProfile] });
+    readPreference.mockResolvedValue({ resource: storedPreference });
+    vi.mocked(metadataRepository.getMessageMetadata).mockResolvedValueOnce(
+      ok({
+        createdAt: "2023-01-01T00:00:00.000Z",
+        featureLevelType: "ADVANCED",
+        fiscalCode,
+        id: messageId,
+        indexedId: messageId,
+        isPending: false,
+        senderServiceId: serviceId,
+        senderUserId: "sender",
+        timeToLiveSeconds: 3600,
+      }),
+    );
+  });
+
+  it.each([
+    ["servicePreferencesSettings", undefined, "UNAVAILABLE"],
+    ["servicePreferencesSettings", null, "UNAVAILABLE"],
+    ["lastAppVersion", undefined, "UNAVAILABLE"],
+    ["lastAppVersion", null, "UNAVAILABLE"],
+    ["accessReadMessageStatus", undefined, "READ"],
+    ["accessReadMessageStatus", null, "READ"],
+  ] as const)(
+    "normalizes persisted %s=%j and returns read status %s",
+    async (field, value, readStatus) => {
+      const isPreference = field === "accessReadMessageStatus";
+      const storedDocument: Record<string, unknown> = {
+        ...(isPreference ? storedPreference : storedProfile),
+      };
+      const document = Object.fromEntries(
+        Object.entries(storedDocument).filter(([key]) => key !== field),
+      );
+      if (value !== undefined) {
+        document[field] = value;
+      }
+      if (isPreference) {
+        readPreference.mockResolvedValueOnce({ resource: document });
+      } else {
+        fetchProfile.mockResolvedValueOnce({ resources: [document] });
+      }
+
+      const result = await getMessage({
+        ...baseInput,
+        groups: new Set(["ApiMessageReadAdvanced"]),
+      });
+
+      expect(result._unsafeUnwrap()).toEqual({
+        message: {
+          content,
+          created_at: "2023-01-01T00:00:00.000Z",
+          feature_level_type: "ADVANCED",
+          fiscal_code: fiscalCode,
+          id: messageId,
+          sender_service_id: serviceId,
+          time_to_live: 3600,
+        },
+        read_status: readStatus,
+        status: "PROCESSED",
+      });
+      expect(readPreference).toHaveBeenCalledTimes(isPreference ? 1 : 0);
+    },
+  );
 });

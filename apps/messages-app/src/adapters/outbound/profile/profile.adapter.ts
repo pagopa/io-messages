@@ -29,8 +29,15 @@ const servicePreferencesSettingsSchema = z.discriminatedUnion("mode", [
 const profileSchema = z.object({
   fiscalCode: FiscalCodeSchema,
   id: z.string().min(1),
-  lastAppVersion: appVersionSchema.optional().default("UNKNOWN"),
-  servicePreferencesSettings: servicePreferencesSettingsSchema,
+  lastAppVersion: appVersionSchema
+    .nullish()
+    .transform((value) => value ?? "UNKNOWN"),
+  servicePreferencesSettings: servicePreferencesSettingsSchema
+    .nullish()
+    .transform(
+      (value): z.infer<typeof servicePreferencesSettingsSchema> =>
+        value ?? { mode: "LEGACY", version: -1 },
+    ),
   version: z.number().int().min(0),
 });
 

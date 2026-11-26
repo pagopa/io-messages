@@ -45,24 +45,45 @@ describe("ProfileCosmosAdapter", () => {
     );
   });
 
-  it("defaults a missing app version to UNKNOWN", async () => {
-    fetchProfile.mockResolvedValueOnce({
-      resources: [{ ...profile, lastAppVersion: undefined }],
-    });
+  it.each([undefined, null])(
+    "defaults app version %j to UNKNOWN",
+    async (lastAppVersion) => {
+      fetchProfile.mockResolvedValueOnce({
+        resources: [{ ...profile, lastAppVersion }],
+      });
 
-    const result = await adapter.getProfile(fiscalCode);
+      const result = await adapter.getProfile(fiscalCode);
 
-    expect(result._unsafeUnwrap().lastAppVersion).toBe("UNKNOWN");
-  });
+      expect(result._unsafeUnwrap().lastAppVersion).toBe("UNKNOWN");
+    },
+  );
+
+  it.each([undefined, null])(
+    "defaults preference settings %j to LEGACY/-1",
+    async (servicePreferencesSettings) => {
+      fetchProfile.mockResolvedValueOnce({
+        resources: [{ ...profile, servicePreferencesSettings }],
+      });
+
+      const result = await adapter.getProfile(fiscalCode);
+
+      expect(result._unsafeUnwrap()).toEqual({
+        lastAppVersion: "2.1.0.7",
+        servicePreferencesSettings: { mode: "LEGACY", version: -1 },
+      });
+    },
+  );
 
   it.each([
     { ...profile, lastAppVersion: "invalid" },
     { ...profile, lastAppVersion: "02.1.0" },
+    { ...profile, lastAppVersion: 42 },
     {
       lastAppVersion: "2.1.0",
       servicePreferencesSettings: { mode: "AUTO", version: 1 },
     },
     { ...profile, servicePreferencesSettings: { mode: "LEGACY", version: 1 } },
+    { ...profile, servicePreferencesSettings: {} },
   ])("rejects a malformed profile %j", async (document) => {
     fetchProfile.mockResolvedValueOnce({ resources: [document] });
 

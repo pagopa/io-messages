@@ -60,21 +60,29 @@ describe("ServicePreferencesCosmosAdapter", () => {
     },
   );
 
-  it("defaults a missing access preference to UNKNOWN", async () => {
-    readPreference.mockResolvedValueOnce({
-      resource: { ...preference, accessReadMessageStatus: undefined },
-    });
+  it.each([
+    { accessReadMessageStatus: undefined, isInboxEnabled: true },
+    { accessReadMessageStatus: null, isInboxEnabled: true },
+    { accessReadMessageStatus: undefined, isInboxEnabled: false },
+    { accessReadMessageStatus: null, isInboxEnabled: false },
+  ])(
+    "defaults a nullish access preference to UNKNOWN: %j",
+    async (overrides) => {
+      readPreference.mockResolvedValueOnce({
+        resource: { ...preference, ...overrides },
+      });
 
-    const result = await adapter.getServicePreferences(
-      fiscalCode,
-      "subscription-id",
-      1,
-    );
+      const result = await adapter.getServicePreferences(
+        fiscalCode,
+        "subscription-id",
+        1,
+      );
 
-    expect(result._unsafeUnwrap()).toEqual({
-      accessReadMessageStatus: "UNKNOWN",
-    });
-  });
+      expect(result._unsafeUnwrap()).toEqual({
+        accessReadMessageStatus: "UNKNOWN",
+      });
+    },
+  );
 
   it("reports a missing resource without deciding authorization", async () => {
     readPreference.mockResolvedValueOnce({ resource: undefined });
@@ -120,6 +128,8 @@ describe("ServicePreferencesCosmosAdapter", () => {
   it.each([
     { accessReadMessageStatus: "ALLOW" },
     { ...preference, isInboxEnabled: false },
+    { ...preference, accessReadMessageStatus: "INVALID" },
+    { ...preference, accessReadMessageStatus: false },
   ])("rejects a malformed preference %j", async (document) => {
     readPreference.mockResolvedValueOnce({ resource: document });
 
