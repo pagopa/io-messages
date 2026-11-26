@@ -1,0 +1,33 @@
+name: PR - Opex Dashboard api_communication
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - main
+    paths:
+      - "openapi/generated/api_communication.yaml"
+      - ".opex/api_communication/**"
+      - ".github/workflows/pr_opex_api_communication.yaml"
+      - ".github/workflows/opex_api_communication.yaml"
+      - ".github/workflows/call_opex_api.yaml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: Plan changes against Production
+    uses: ./.github/workflows/call_opex_api.yaml
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    with:
+      api_name: api_communication
+      apply: false

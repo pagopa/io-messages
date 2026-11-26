@@ -13,12 +13,14 @@
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "generate": "turbo run generate",
+    "openapi:bundle": "bundle-api-spec -i openapi/api_communication.template.yaml -o openapi/generated/api_communication.yaml",
     "version": "changeset version && pnpm install --lockfile-only && turbo run version",
     "release": "changeset tag"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.2",
     "@devcontainers/cli": "^0.75.0",
+    "@pagopa/openapi-codegen-ts": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "prettier": "catalog:",
     "shx": "^0.3.4",
