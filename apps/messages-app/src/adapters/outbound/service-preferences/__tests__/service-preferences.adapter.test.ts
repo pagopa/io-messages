@@ -17,7 +17,6 @@ const preference = {
   isEmailEnabled: true,
   isInboxEnabled: true,
   isWebhookEnabled: true,
-  kind: "IRetrievedServicePreference",
   serviceId: "subscription-id",
   settingsVersion: 1,
 };
@@ -41,7 +40,7 @@ beforeEach(() => {
 
 describe("ServicePreferencesCosmosAdapter", () => {
   it.each(["ALLOW", "UNKNOWN", "DENY"])(
-    "returns preference %s without applying authorization policy",
+    "maps persisted preference %s without requiring kind",
     async (accessReadMessageStatus) => {
       readPreference.mockResolvedValueOnce({
         resource: { ...preference, accessReadMessageStatus },

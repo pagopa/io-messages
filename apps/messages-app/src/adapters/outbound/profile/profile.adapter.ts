@@ -29,7 +29,6 @@ const servicePreferencesSettingsSchema = z.discriminatedUnion("mode", [
 const profileSchema = z.object({
   fiscalCode: FiscalCodeSchema,
   id: z.string().min(1),
-  kind: z.literal("IRetrievedProfile"),
   lastAppVersion: appVersionSchema.optional().default("UNKNOWN"),
   servicePreferencesSettings: servicePreferencesSettingsSchema,
   version: z.number().int().min(0),

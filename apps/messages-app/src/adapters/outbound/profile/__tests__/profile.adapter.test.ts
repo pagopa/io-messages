@@ -9,7 +9,6 @@ const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
 const profile = {
   fiscalCode,
   id: `${fiscalCode}-0000000000000001`,
-  kind: "IRetrievedProfile",
   lastAppVersion: "2.1.0.7",
   servicePreferencesSettings: { mode: "AUTO", version: 1 },
   version: 1,
@@ -29,7 +28,7 @@ beforeEach(() => {
 });
 
 describe("ProfileCosmosAdapter", () => {
-  it("queries the latest profile in the fiscal code partition and maps it", async () => {
+  it("queries and maps the latest persisted profile without requiring kind", async () => {
     const result = await adapter.getProfile(fiscalCode);
 
     expect(result._unsafeUnwrap()).toEqual({

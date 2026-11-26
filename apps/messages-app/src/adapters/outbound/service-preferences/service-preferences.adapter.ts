@@ -24,7 +24,6 @@ const baseServicePreferenceSchema = z.object({
   id: z.string().min(1),
   isEmailEnabled: z.boolean(),
   isWebhookEnabled: z.boolean(),
-  kind: z.literal("IRetrievedServicePreference"),
   serviceId: z.string().min(1),
   settingsVersion: z.number().int().min(0),
 });
