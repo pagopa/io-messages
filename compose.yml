@@ -21,6 +21,8 @@ services:
       context: .
       dockerfile: ./apps/messages-app/Dockerfile
     env_file: ./apps/messages-app/.env
+    environment:
+      SERVICE_PREFERENCES_CONTAINER_NAME: services-preferences
     ports:
       - 3000:3000
 

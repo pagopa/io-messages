@@ -72,7 +72,7 @@ module "messages_ca" {
         },
         {
           name  = "SERVICE_PREFERENCES_CONTAINER_NAME"
-          value = "service-preferences"
+          value = "services-preferences"
         },
         {
           name  = "MIN_APP_VERSION_WITH_READ_AUTH"
@@ -245,7 +245,7 @@ module "azure-role-assignments" {
       description         = "Allow web app to read on cosmos containers"
       role                = "writer"
       database            = "db"
-      collections         = ["messages", "message-status", "profiles", "service-preferences"]
+      collections         = ["messages", "message-status", "profiles", "services-preferences"]
     }
   ]
 

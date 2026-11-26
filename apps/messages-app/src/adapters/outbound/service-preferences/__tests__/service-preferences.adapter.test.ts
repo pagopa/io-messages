@@ -30,7 +30,7 @@ const cosmosClient = {
 const adapter = new ServicePreferencesCosmosAdapter(
   cosmosClient,
   "db",
-  "service-preferences",
+  "services-preferences",
 );
 
 beforeEach(() => {

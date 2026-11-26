@@ -22,7 +22,7 @@ const containers = [
   { id: "messages", partitionKey: "/fiscalCode" },
   { id: "message-status", partitionKey: "/messageId" },
   { id: "profiles", partitionKey: "/fiscalCode" },
-  { id: "service-preferences", partitionKey: "/fiscalCode" },
+  { id: "services-preferences", partitionKey: "/fiscalCode" },
   { id: "services", partitionKey: "/serviceId" },
   { id: "notifications", partitionKey: "/messageId" },
 ];
@@ -207,7 +207,7 @@ const profiles = [
 
 const servicePreferences = [
   {
-    containerId: "service-preferences",
+    containerId: "services-preferences",
     document: {
       accessReadMessageStatus: "ALLOW",
       fiscalCode: "LVTEST00A00A200X",
