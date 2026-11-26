@@ -32,14 +32,15 @@ import { MessageCreatedEventQueueAdapter } from "./adapters/outbound/message/mes
 import { MessageMetadataCosmosAdapter } from "./adapters/outbound/message/message-metadata.adapter.js";
 import { MessageStatusCosmosAdapter } from "./adapters/outbound/message/message-status.adapter.js";
 import { BlobProcessingMessagePayloadStore } from "./adapters/outbound/message/processing-message.adapter.js";
-import { MessageReadAuthorizationCosmosAdapter } from "./adapters/outbound/message-read-authorization/message-read-authorization.adapter.js";
 import { PackageJsonAppInfoReader } from "./adapters/outbound/package-json/package-json-app-info-reader.js";
 import { PagoPAEcommerceHttpClientAdapter } from "./adapters/outbound/pagopa-ecommerce/pagopa-ecommerce.js";
 import { PagoPaEcommercePaymentStatusAdapter } from "./adapters/outbound/pagopa-ecommerce/payment-status.adapter.js";
+import { ProfileCosmosAdapter } from "./adapters/outbound/profile/profile.adapter.js";
 import { RCConfigurationHttpClientAdapter } from "./adapters/outbound/rc-confguration/rc-configuration.js";
 import { RemoteContentHTTPAdapter } from "./adapters/outbound/remote-content/remote-content-http.js";
 import { RemoteContentProxyAdapter } from "./adapters/outbound/remote-content/remote-content-proxy.adapter.js";
 import { SendHTTPAdapter } from "./adapters/outbound/remote-content/send-http.js";
+import { ServicePreferencesCosmosAdapter } from "./adapters/outbound/service-preferences/service-preferences.adapter.js";
 import { ServicesCmsHttpClientAdapter } from "./adapters/outbound/services-cms/services-cms.js";
 import { makeBuildLollipopHeadersUseCase } from "./application/use-cases/build-lollipop-headers.use-case.js";
 import { makeCreateMessageUseCase } from "./application/use-cases/create-message.use-case.js";
@@ -48,7 +49,7 @@ import { makeGetPaymentInfoUseCase } from "./application/use-cases/get-payment-i
 import { makeGetRemoteContentMessageUseCase } from "./application/use-cases/get-remote-content-message.use-case.js";
 import { makeGetRemoteContentMessageAttachmentUseCase } from "./application/use-cases/get-remote-content-message-attachment.use-case.js";
 import { makeGetRemoteContentMessagePreconditionUseCase } from "./application/use-cases/get-remote-content-message-precondition.use-case.js";
-import { makeGetServiceMessageUseCase } from "./application/use-cases/get-service-message.use-case.js";
+import { makeGetMessageForServiceUseCase } from "./application/use-cases/get-service-message.use-case.js";
 import { makeGetMessagesByUserUseCase } from "./application/use-cases/get-user-messages.use-case.js";
 import { makeHealthcheckUseCase } from "./application/use-cases/healthcheck.use-case.js";
 import { makeGetInfoUseCase } from "./application/use-cases/info.use-case.js";
@@ -180,14 +181,16 @@ const makeAppDependencies = (config: AppConfig) => {
     logger,
   );
 
-  const messageReadAuthorizationAdapter =
-    new MessageReadAuthorizationCosmosAdapter(
-      commonCosmosClient,
-      config.COMMON_COSMOS_DATABASE_NAME,
-      config.PROFILE_CONTAINER_NAME,
-      config.SERVICE_PREFERENCES_CONTAINER_NAME,
-      config.MIN_APP_VERSION_WITH_READ_AUTH,
-    );
+  const profileAdapter = new ProfileCosmosAdapter(
+    commonCosmosClient,
+    config.COMMON_COSMOS_DATABASE_NAME,
+    config.PROFILE_CONTAINER_NAME,
+  );
+  const servicePreferencesAdapter = new ServicePreferencesCosmosAdapter(
+    commonCosmosClient,
+    config.COMMON_COSMOS_DATABASE_NAME,
+    config.SERVICE_PREFERENCES_CONTAINER_NAME,
+  );
 
   const paymentStatusAdapter = new PagoPaEcommercePaymentStatusAdapter(
     config.PAGOPA_ECOMMERCE_BASE_URL,
@@ -229,13 +232,14 @@ const makeAppDependencies = (config: AppConfig) => {
     messageContentBlobAdapter,
     messageCreatedEventPublisher,
     messageMetadataCosmosAdapter,
-    messageReadAuthorizationAdapter,
     messageStatusCosmosAdapter,
     pagoPAEcommerceAdapter,
     paymentStatusAdapter,
     processingMessagePayloadStore,
+    profileAdapter,
     remoteContentConfigurationRepository,
     remoteContentProxy,
+    servicePreferencesAdapter,
     servicesCmsAdapter,
   };
 };
@@ -255,13 +259,14 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
     messageContentBlobAdapter,
     messageCreatedEventPublisher,
     messageMetadataCosmosAdapter,
-    messageReadAuthorizationAdapter,
     messageStatusCosmosAdapter,
     pagoPAEcommerceAdapter,
     paymentStatusAdapter,
     processingMessagePayloadStore,
+    profileAdapter,
     remoteContentConfigurationRepository,
     remoteContentProxy,
+    servicePreferencesAdapter,
     servicesCmsAdapter,
   } = makeAppDependencies(config);
 
@@ -305,12 +310,14 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
   );
   mountGetServiceMessageHandler(
     server,
-    makeGetServiceMessageUseCase(
+    makeGetMessageForServiceUseCase(
       messageMetadataCosmosAdapter,
       messageStatusCosmosAdapter,
       messageContentBlobAdapter,
-      messageReadAuthorizationAdapter,
+      profileAdapter,
+      servicePreferencesAdapter,
       paymentStatusAdapter,
+      config.MIN_APP_VERSION_WITH_READ_AUTH,
     ),
   );
   mountGetPaymentInfoHandler(

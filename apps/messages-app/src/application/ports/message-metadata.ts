@@ -42,7 +42,7 @@ export interface MessageMetadataRepository {
    *
    * Returns a `NotFoundError` when no such message exists.
    */
-  getMessageMetadataByFiscalCodeAndId(
+  getMessageMetadata(
     fiscalCode: FiscalCode,
     messageId: string,
   ): Promise<

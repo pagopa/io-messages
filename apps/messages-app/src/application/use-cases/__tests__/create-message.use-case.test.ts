@@ -142,7 +142,7 @@ const makeDependencies = (
     createMessageMetadata: vi
       .fn<MessageMetadataRepository["createMessageMetadata"]>()
       .mockImplementation(async (metadata) => ok(metadata)),
-    getMessageMetadataByFiscalCodeAndId: vi.fn(),
+    getMessageMetadata: vi.fn(),
     getMessagesMetadataByUser: vi.fn(),
   };
   const servicesCmsRepository: ServicesCmsRepository = {

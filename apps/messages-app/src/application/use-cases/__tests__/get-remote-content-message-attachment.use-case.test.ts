@@ -44,7 +44,7 @@ const fullLollipopHeaders = lollipopHeadersSchema.parse({
 });
 
 const metadataRepository = {
-  getMessageMetadataByFiscalCodeAndId: vi.fn(),
+  getMessageMetadata: vi.fn(),
 } as unknown as MessageMetadataRepository;
 const contentRepository = {
   getMessageContentById: vi.fn(),
@@ -123,9 +123,9 @@ const makeUseCase = () =>
 beforeEach(() => {
   vi.clearAllMocks();
   serviceToRCMap.clear();
-  vi.mocked(
-    metadataRepository.getMessageMetadataByFiscalCodeAndId,
-  ).mockResolvedValue(ok(makeMetadata()));
+  vi.mocked(metadataRepository.getMessageMetadata).mockResolvedValue(
+    ok(makeMetadata()),
+  );
   vi.mocked(contentRepository.getMessageContentById).mockResolvedValue(
     ok(makeContent()),
   );
@@ -147,9 +147,10 @@ describe("makeGetRemoteContentMessageAttachmentUseCase", () => {
     });
 
     expect(result.isOk()).toBe(true);
-    expect(
-      metadataRepository.getMessageMetadataByFiscalCodeAndId,
-    ).toHaveBeenCalledWith(fiscalCode, messageId);
+    expect(metadataRepository.getMessageMetadata).toHaveBeenCalledWith(
+      fiscalCode,
+      messageId,
+    );
     expect(contentRepository.getMessageContentById).toHaveBeenCalledWith(
       messageId,
     );
@@ -166,9 +167,9 @@ describe("makeGetRemoteContentMessageAttachmentUseCase", () => {
   });
 
   it("uses the SEND provider based on sender service ID", async () => {
-    vi.mocked(
-      metadataRepository.getMessageMetadataByFiscalCodeAndId,
-    ).mockResolvedValueOnce(ok(makeMetadata(pnServiceId)));
+    vi.mocked(metadataRepository.getMessageMetadata).mockResolvedValueOnce(
+      ok(makeMetadata(pnServiceId)),
+    );
     vi.mocked(contentRepository.getMessageContentById).mockResolvedValueOnce(
       ok(makeContent("send-iun")),
     );

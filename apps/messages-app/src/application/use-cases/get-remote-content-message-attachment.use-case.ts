@@ -146,10 +146,7 @@ export const makeGetRemoteContentMessageAttachmentUseCase =
     messageId,
   }) => {
     const [metadataResult, contentResult] = await Promise.all([
-      messageMetadataRepository.getMessageMetadataByFiscalCodeAndId(
-        fiscalCode,
-        messageId,
-      ),
+      messageMetadataRepository.getMessageMetadata(fiscalCode, messageId),
       messageContentRepository.getMessageContentById(messageId),
     ]);
     if (metadataResult.isErr()) return err(metadataResult.error);

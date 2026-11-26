@@ -95,7 +95,7 @@ export class MessageMetadataCosmosAdapter implements MessageMetadataRepository {
     return createResult.isErr() ? err(createResult.error) : ok(metadata);
   }
 
-  async getMessageMetadataByFiscalCodeAndId(
+  async getMessageMetadata(
     fiscalCode: FiscalCode,
     messageId: string,
   ): Promise<

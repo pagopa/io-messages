@@ -6,7 +6,8 @@ import {
   TooManyRequestsError,
   UseCase,
 } from "@pagopa/hexagonal-core";
-import { err, ok } from "neverthrow";
+import { Result, err, ok } from "neverthrow";
+import { clean, gte } from "semver";
 
 import { MalformedEntityError } from "../ports/error.js";
 import { MessageContentRepository } from "../ports/message-content.js";
@@ -14,12 +15,19 @@ import {
   MessageMetadata,
   MessageMetadataRepository,
 } from "../ports/message-metadata.js";
-import { MessageReadAuthorizationRepository } from "../ports/message-read-authorization.js";
-import { MessageStatusRepository } from "../ports/message-status.js";
+import {
+  MessageStatus,
+  MessageStatusRepository,
+} from "../ports/message-status.js";
 import { PaymentStatusRepository } from "../ports/payment-status.js";
+import { ProfileRepository } from "../ports/profile.js";
 import { ServiceMessage } from "../ports/service-message.js";
+import { ServicePreferencesRepository } from "../ports/service-preferences.js";
 
 const ADVANCED_READ_GROUP = "ApiMessageReadAdvanced";
+
+type MessageContentFields = Pick<ServiceMessage["message"], "content">;
+type MessageStatusFields = Pick<MessageStatus, "isRead" | "status">;
 
 export type GetServiceMessageError =
   | ForbiddenError
@@ -50,20 +58,57 @@ const canReadAdvancedMessageInfo = (
   metadata.featureLevelType === "ADVANCED" &&
   groups.has(ADVANCED_READ_GROUP);
 
-export const makeGetServiceMessageUseCase =
+const canAccessReadStatus = async (
+  profileRepository: ProfileRepository,
+  servicePreferencesRepository: ServicePreferencesRepository,
+  minAppVersion: string,
+  subscriptionId: string,
+  fiscalCode: FiscalCode,
+): Promise<Result<boolean, GenericError | MalformedEntityError>> => {
+  const profileResult = await profileRepository.getProfile(fiscalCode);
+  if (profileResult.isErr()) return err(profileResult.error);
+
+  const profile = profileResult.value;
+  const currentVersion = clean(
+    profile.lastAppVersion.split(".").slice(0, 3).join("."),
+  );
+  if (!currentVersion || !gte(currentVersion, minAppVersion)) {
+    return ok(false);
+  }
+
+  const settingsVersion = profile.servicePreferencesSettings.version;
+  if (settingsVersion === -1) return ok(false);
+
+  const preferencesResult =
+    await servicePreferencesRepository.getServicePreferences(
+      fiscalCode,
+      subscriptionId,
+      settingsVersion,
+    );
+  if (preferencesResult.isErr()) {
+    return preferencesResult.error instanceof NotFoundError
+      ? ok(true)
+      : err(preferencesResult.error);
+  }
+
+  return ok(preferencesResult.value.accessReadMessageStatus !== "DENY");
+};
+
+export const makeGetMessageForServiceUseCase =
   (
     messageMetadataRepository: MessageMetadataRepository,
     messageStatusRepository: MessageStatusRepository,
     messageContentRepository: MessageContentRepository,
-    messageReadAuthorizationRepository: MessageReadAuthorizationRepository,
+    profileRepository: ProfileRepository,
+    servicePreferencesRepository: ServicePreferencesRepository,
     paymentStatusRepository: PaymentStatusRepository,
+    minAppVersionWithReadAuth: string,
   ): GetServiceMessageUseCase =>
   async ({ fiscalCode, groups, messageId, serviceId, subscriptionId }) => {
-    const metadataResult =
-      await messageMetadataRepository.getMessageMetadataByFiscalCodeAndId(
-        fiscalCode,
-        messageId,
-      );
+    const metadataResult = await messageMetadataRepository.getMessageMetadata(
+      fiscalCode,
+      messageId,
+    );
     if (metadataResult.isErr()) return err(metadataResult.error);
 
     const metadata = metadataResult.value;
@@ -71,29 +116,37 @@ export const makeGetServiceMessageUseCase =
       return err(new ForbiddenError());
     }
 
-    const [contentResult, statusResult] = await Promise.all([
+    const [contentReadResult, statusReadResult] = await Promise.all([
       messageContentRepository.getMessageContentById(messageId),
       messageStatusRepository.getLatestMessageStatusById(messageId),
     ]);
 
-    if (
-      contentResult.isErr() &&
-      !(contentResult.error instanceof NotFoundError)
-    ) {
-      return err(contentResult.error);
-    }
-    if (
-      statusResult.isErr() &&
-      !(statusResult.error instanceof NotFoundError)
-    ) {
-      return err(statusResult.error);
-    }
+    // A 404 is expected when:
+    // - asynchronous processing has created metadata but not content/status yet;
+    // - processing rejected the message without storing its content.
+    // Omit missing content and default a missing status to ACCEPTED.
+    const contentResult = contentReadResult
+      .map<MessageContentFields>((content) => ({ content }))
+      .orElse((error) =>
+        error instanceof NotFoundError
+          ? ok<MessageContentFields>({})
+          : err(error),
+      );
+    const statusResult = statusReadResult
+      .map<MessageStatusFields>(({ isRead, status }) => ({ isRead, status }))
+      .orElse((error) =>
+        error instanceof NotFoundError
+          ? ok<MessageStatusFields>({ isRead: false, status: "ACCEPTED" })
+          : err(error),
+      );
 
-    const content = contentResult.isOk() ? contentResult.value : undefined;
-    const status = statusResult.isOk() ? statusResult.value.status : "ACCEPTED";
+    if (contentResult.isErr()) return err(contentResult.error);
+    if (statusResult.isErr()) return err(statusResult.error);
+
+    const { isRead, status } = statusResult.value;
     const response: ServiceMessage = {
       message: {
-        ...(content ? { content } : {}),
+        ...contentResult.value,
         created_at: metadata.createdAt,
         feature_level_type: metadata.featureLevelType,
         fiscal_code: metadata.fiscalCode,
@@ -107,23 +160,25 @@ export const makeGetServiceMessageUseCase =
     const canReadAdvancedInfo = canReadAdvancedMessageInfo(metadata, groups);
     if (!canReadAdvancedInfo) return ok(response);
 
-    const authorizationResult =
-      await messageReadAuthorizationRepository.canAccessReadStatus(
-        subscriptionId,
-        fiscalCode,
-      );
+    const authorizationResult = await canAccessReadStatus(
+      profileRepository,
+      servicePreferencesRepository,
+      minAppVersionWithReadAuth,
+      subscriptionId,
+      fiscalCode,
+    );
     if (authorizationResult.isErr()) return err(authorizationResult.error);
 
     const advancedResponse: ServiceMessage = {
       ...response,
       read_status: authorizationResult.value
-        ? statusResult.isOk() && statusResult.value.isRead
+        ? isRead
           ? "READ"
           : "UNREAD"
         : "UNAVAILABLE",
     };
 
-    const paymentData = content?.payment_data;
+    const paymentData = response.message.content?.payment_data;
     const payeeFiscalCode = paymentData?.payee?.fiscal_code;
     if (status !== "PROCESSED" || !paymentData || !payeeFiscalCode) {
       return ok(advancedResponse);

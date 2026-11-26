@@ -44,7 +44,7 @@ const rcConfigurationRepository = {
   getRemoteContentConfiguration: vi.fn(),
 } as unknown as RCConfigurationRepository;
 const messageMetadataRepository = {
-  getMessageMetadataByFiscalCodeAndId: vi.fn(),
+  getMessageMetadata: vi.fn(),
 } as unknown as MessageMetadataRepository;
 const messageContentRepository = {
   getMessageContentById: vi.fn(),
@@ -155,9 +155,9 @@ const makeUseCase = () =>
 beforeEach(() => {
   vi.clearAllMocks();
   serviceToRcMap.clear();
-  vi.mocked(
-    messageMetadataRepository.getMessageMetadataByFiscalCodeAndId,
-  ).mockResolvedValue(ok(makeMetadata()));
+  vi.mocked(messageMetadataRepository.getMessageMetadata).mockResolvedValue(
+    ok(makeMetadata()),
+  );
   vi.mocked(messageContentRepository.getMessageContentById).mockResolvedValue(
     ok(makeContent()),
   );
@@ -176,9 +176,10 @@ describe("makeGetRemoteContentMessageUseCase", () => {
 
     expect(result.isOk()).toBe(true);
     expect(trackEvent).not.toHaveBeenCalled();
-    expect(
-      messageMetadataRepository.getMessageMetadataByFiscalCodeAndId,
-    ).toHaveBeenCalledWith(fiscalCode, messageId);
+    expect(messageMetadataRepository.getMessageMetadata).toHaveBeenCalledWith(
+      fiscalCode,
+      messageId,
+    );
     expect(messageContentRepository.getMessageContentById).toHaveBeenCalledWith(
       messageId,
     );
@@ -194,7 +195,7 @@ describe("makeGetRemoteContentMessageUseCase", () => {
 
   it("passes SEND notification data through unchanged", async () => {
     vi.mocked(
-      messageMetadataRepository.getMessageMetadataByFiscalCodeAndId,
+      messageMetadataRepository.getMessageMetadata,
     ).mockResolvedValueOnce(ok(makeMetadata(pnServiceId)));
     vi.mocked(
       messageContentRepository.getMessageContentById,

@@ -105,10 +105,7 @@ export const makeGetMessageUseCase =
   ): GetMessageUseCase =>
   async ({ fiscalCode, messageId, publicMessage }) => {
     const [metadataResult, contentResult] = await Promise.all([
-      messageMetadataRepository.getMessageMetadataByFiscalCodeAndId(
-        fiscalCode,
-        messageId,
-      ),
+      messageMetadataRepository.getMessageMetadata(fiscalCode, messageId),
       messageContentRepository.getMessageContentById(messageId),
     ]);
 
