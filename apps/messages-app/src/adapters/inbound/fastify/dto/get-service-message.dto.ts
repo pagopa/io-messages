@@ -1,3 +1,4 @@
+import { FiscalCodeSchema } from "@pagopa/hexagonal-core";
 import z from "zod";
 
 import { messageContentSchema } from "../../../../application/ports/message-content.js";
@@ -13,7 +14,7 @@ export const GetServiceMessageResponseSchema = z.object({
     content: messageContentSchema.optional(),
     created_at: z.string(),
     feature_level_type: z.enum(["ADVANCED", "STANDARD"]),
-    fiscal_code: z.string(),
+    fiscal_code: FiscalCodeSchema,
     id: z.string(),
     sender_service_id: z.string().min(1),
     time_to_live: z.number().optional(),

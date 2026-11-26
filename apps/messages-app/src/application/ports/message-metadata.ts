@@ -1,5 +1,6 @@
 import {
   FiscalCode,
+  FiscalCodeSchema,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -17,7 +18,7 @@ export type FeatureLevel = z.TypeOf<typeof featureLevelSchema>;
 export const messageMetadataSchema = z.object({
   createdAt: z.string(),
   featureLevelType: featureLevelSchema,
-  fiscalCode: z.string(),
+  fiscalCode: FiscalCodeSchema,
   id: z.ulid(),
   indexedId: z.ulid(),
   isPending: z.boolean().default(true),

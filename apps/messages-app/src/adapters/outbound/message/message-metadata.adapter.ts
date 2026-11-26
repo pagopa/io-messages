@@ -9,6 +9,7 @@ import {
 } from "@azure/cosmos";
 import {
   FiscalCode,
+  FiscalCodeSchema,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -30,7 +31,7 @@ import {
 const cosmosMessageMetadataSchema = z.object({
   createdAt: z.string(),
   featureLevelType: z.enum(["ADVANCED", "STANDARD"]).default("STANDARD"),
-  fiscalCode: z.string(),
+  fiscalCode: FiscalCodeSchema,
   id: z.ulid(),
   indexedId: z.ulid(),
   isPending: z.boolean().default(true),
