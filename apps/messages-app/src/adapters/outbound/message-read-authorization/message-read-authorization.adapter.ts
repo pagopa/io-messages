@@ -1,4 +1,9 @@
-import { CosmosClient, RestError, SqlQuerySpec } from "@azure/cosmos";
+import {
+  Container,
+  CosmosClient,
+  RestError,
+  SqlQuerySpec,
+} from "@azure/cosmos";
 import {
   FiscalCode,
   FiscalCodeSchema,
@@ -8,6 +13,7 @@ import { Result, ResultAsync, err, ok } from "neverthrow";
 import { clean, gte } from "semver";
 import z from "zod";
 
+import { MalformedEntityError } from "../../../application/ports/error.js";
 import { MessageReadAuthorizationRepository } from "../../../application/ports/message-read-authorization.js";
 
 const appVersionSchema = z.union([
@@ -65,28 +71,36 @@ const makeServicePreferenceDocumentId = (
 export class MessageReadAuthorizationCosmosAdapter
   implements MessageReadAuthorizationRepository
 {
+  #profileContainer: Container;
+  #servicePreferenceContainer: Container;
+
   constructor(
-    private cosmosClient: CosmosClient,
-    private databaseName: string,
-    private profileContainerName: string,
-    private servicePreferenceContainerName: string,
+    cosmosClient: CosmosClient,
+    databaseName: string,
+    profileContainerName: string,
+    servicePreferenceContainerName: string,
     private minAppVersion: string,
-  ) {}
+  ) {
+    const database = cosmosClient.database(databaseName);
+    this.#profileContainer = database.container(profileContainerName);
+    this.#servicePreferenceContainer = database.container(
+      servicePreferenceContainerName,
+    );
+  }
 
   async canAccessReadStatus(
     subscriptionId: string,
     fiscalCode: FiscalCode,
-  ): Promise<Result<boolean, GenericError>> {
+  ): Promise<Result<boolean, GenericError | MalformedEntityError>> {
     const profileQuery: SqlQuerySpec = {
       parameters: [{ name: "@fiscalCode", value: fiscalCode }],
       query:
         "SELECT * FROM c WHERE c.fiscalCode = @fiscalCode ORDER BY c.version DESC OFFSET 0 LIMIT 1",
     };
+
     const profileResult = await ResultAsync.fromPromise(
-      this.cosmosClient
-        .database(this.databaseName)
-        .container(this.profileContainerName)
-        .items.query(profileQuery, { partitionKey: fiscalCode })
+      this.#profileContainer.items
+        .query(profileQuery, { partitionKey: fiscalCode })
         .fetchNext(),
       (error) =>
         new GenericError(`error retrieving user profile: ${String(error)}`),
@@ -98,7 +112,7 @@ export class MessageReadAuthorizationCosmosAdapter
 
     const parsedProfile = profileSchema.safeParse(rawProfile);
     if (!parsedProfile.success) {
-      return err(new GenericError("malformed user profile"));
+      return err(new MalformedEntityError("invalid user profile"));
     }
 
     const currentVersion = clean(
@@ -120,9 +134,7 @@ export class MessageReadAuthorizationCosmosAdapter
       settingsVersion,
     );
     const preferenceResult = await ResultAsync.fromPromise(
-      this.cosmosClient
-        .database(this.databaseName)
-        .container(this.servicePreferenceContainerName)
+      this.#servicePreferenceContainer
         .item(preferenceDocumentId, fiscalCode)
         .read(),
       (error) => error,
@@ -143,7 +155,7 @@ export class MessageReadAuthorizationCosmosAdapter
 
     const parsedPreference = servicePreferenceSchema.safeParse(rawPreference);
     if (!parsedPreference.success) {
-      return err(new GenericError("malformed user service preference"));
+      return err(new MalformedEntityError("invalid user service preference"));
     }
 
     return ok(parsedPreference.data.accessReadMessageStatus !== "DENY");

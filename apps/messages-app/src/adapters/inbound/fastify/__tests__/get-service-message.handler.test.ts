@@ -1,12 +1,13 @@
 import type { FastifyInstance } from "fastify";
 
-import { ForbiddenError } from "@pagopa/hexagonal-core";
+import { ForbiddenError, GenericError } from "@pagopa/hexagonal-core";
 import fastify from "fastify";
 import { err, ok } from "neverthrow";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { GetServiceMessageUseCase } from "../../../../application/use-cases/get-service-message.use-case.js";
 
+import { MalformedEntityError } from "../../../../application/ports/error.js";
 import { mountGetServiceMessageHandler } from "../get-service-message.handler.js";
 
 const fiscalCode = "RSSMRA80A01H501U";
@@ -86,5 +87,28 @@ describe("mountGetServiceMessageHandler", () => {
     });
 
     expect(response.statusCode).toBe(403);
+  });
+
+  it.each([
+    ["generic", new GenericError("authorization failed")],
+    ["malformed", new MalformedEntityError("invalid user profile")],
+  ])("maps %s authorization failures to 500", async (_, error) => {
+    vi.mocked(useCase).mockResolvedValueOnce(err(error));
+
+    const response = await server.inject({
+      headers: {
+        "x-service-id": "service-id",
+        "x-subscription-id": "subscription-id",
+        "x-user-groups": "ApiMessageReadAdvanced",
+      },
+      method: "GET",
+      url: `/api/services/messages/${fiscalCode}/${messageId}`,
+    });
+
+    expect(response.statusCode).toBe(500);
+    expect(response.json()).toMatchObject({
+      status: 500,
+      title: "Internal Server Error",
+    });
   });
 });

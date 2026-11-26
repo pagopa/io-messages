@@ -2,6 +2,7 @@ import { CosmosClient } from "@azure/cosmos";
 import { FiscalCodeSchema, GenericError } from "@pagopa/hexagonal-core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { MalformedEntityError } from "../../../../application/ports/error.js";
 import { MessageReadAuthorizationCosmosAdapter } from "../message-read-authorization.adapter.js";
 
 const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
@@ -88,7 +89,7 @@ describe("MessageReadAuthorizationCosmosAdapter", () => {
       fiscalCode,
     );
 
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
     expect(readPreference).not.toHaveBeenCalled();
   });
 
@@ -170,7 +171,7 @@ describe("MessageReadAuthorizationCosmosAdapter", () => {
       fiscalCode,
     );
 
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
   });
 
   it("rejects a partial service preference document", async () => {
@@ -183,7 +184,7 @@ describe("MessageReadAuthorizationCosmosAdapter", () => {
       fiscalCode,
     );
 
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(MalformedEntityError);
   });
 
   it("fails when the profile is missing", async () => {

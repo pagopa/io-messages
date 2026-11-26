@@ -7,6 +7,7 @@ import {
 import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { MalformedEntityError } from "../../ports/error.js";
 import { MessageContentRepository } from "../../ports/message-content.js";
 import { MessageMetadataRepository } from "../../ports/message-metadata.js";
 import { MessageReadAuthorizationRepository } from "../../ports/message-read-authorization.js";
@@ -253,7 +254,10 @@ describe("makeGetServiceMessageUseCase", () => {
     },
   );
 
-  it("propagates advanced dependency failures", async () => {
+  it.each([
+    ["generic", new GenericError("authorization failed")],
+    ["malformed", new MalformedEntityError("invalid user profile")],
+  ])("propagates %s authorization failures", async (_, dependencyError) => {
     vi.mocked(
       metadataRepository.getMessageMetadataByFiscalCodeAndId,
     ).mockResolvedValueOnce(
@@ -269,7 +273,6 @@ describe("makeGetServiceMessageUseCase", () => {
         timeToLiveSeconds: 3600,
       }),
     );
-    const dependencyError = new GenericError("authorization failed");
     vi.mocked(
       readAuthorizationRepository.canAccessReadStatus,
     ).mockResolvedValueOnce(err(dependencyError));
