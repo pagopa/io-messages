@@ -1,0 +1,24 @@
+name: Deploy (messages-func)
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  messages_func_deploy:
+    uses: pagopa/dx/.github/workflows/release-azure-appsvc-v1.yaml@7e6e88cf29984e3a54589e1ed51a335e016b3f47
+    name: Deploy
+    secrets: inherit
+    with:
+      workspace_name: messages-func
+      environment: app-prod
+      resource_group_name: io-p-itn-com-rg-01
+      web_app_name: io-p-itn-com-messages-func-01
+      use_private_agent: true
+      disable_auto_staging_deploy: true
+    permissions:
+      attestations: write
+      contents: read
+      id-token: write

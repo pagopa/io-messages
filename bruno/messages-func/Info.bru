@@ -1,0 +1,18 @@
+meta {
+  name: Info
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{messages_func_base_url}}/api/info
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.name: eq messages-func
+  res.body.version: isString
+  res.body.version.length: gt 0
+}
