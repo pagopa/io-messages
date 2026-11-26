@@ -8,6 +8,7 @@ on:
       - "openapi/generated/api_communication.yaml"
       - ".opex/api_communication/**"
       - ".github/workflows/opex_api_communication.yaml"
+      - ".github/workflows/call_opex_api.yaml"
   workflow_dispatch:
 
 concurrency:
@@ -20,67 +21,11 @@ permissions:
 jobs:
   apply:
     name: Apply changes to Production
-    runs-on: ubuntu-22.04
-    environment: opex-prod-cd
+    uses: ./.github/workflows/call_opex_api.yaml
     permissions:
       contents: read
       id-token: write
-    env:
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      ARM_USE_OIDC: "true"
-      ARM_USE_AZUREAD: "true"
-      TF_INPUT: "false"
-      TF_IN_AUTOMATION: "true"
-      DOCKER_IMAGE: ghcr.io/pagopa/opex-dashboard-azure-action@sha256:eb3354b7e5c07e9557182828489fc0bf8092dd80886035429268d019250f5cd3
-
-    steps:
-      - name: Guard apply branch
-        if: github.ref != 'refs/heads/main'
-        run: |
-          echo "::error::Communication Opex can only be applied from main."
-          exit 1
-
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Azure Login
-        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
-        with:
-          client-id: ${{ env.ARM_CLIENT_ID }}
-          tenant-id: ${{ env.ARM_TENANT_ID }}
-          subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
-
-      - name: Generate dashboard
-        run: |
-          docker run --rm \
-            --workdir /github/workspace \
-            -v "$GITHUB_WORKSPACE:/github/workspace" \
-            "$DOCKER_IMAGE" azure-dashboard .opex/api_communication/env/prod/config.yaml
-          cp -R .opex/api_communication/env azure-dashboard/
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36
-        with:
-          terraform_version: 1.6.6
-          terraform_wrapper: false
-
-      - name: Terraform Plan
-        working-directory: azure-dashboard
-        run: |
-          set -euo pipefail
-          bash ./terraform.sh plan prod -no-color -out="$RUNNER_TEMP/communication.tfplan" \
-            | tee "$RUNNER_TEMP/communication-plan.txt"
-          {
-            echo '### Communication Opex plan'
-            echo '```hcl'
-            cat "$RUNNER_TEMP/communication-plan.txt"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Terraform Apply
-        working-directory: azure-dashboard
-        run: terraform apply -input=false -lock-timeout=120s "$RUNNER_TEMP/communication.tfplan"
+      pull-requests: write
+    with:
+      api_name: api_communication
+      apply: true
