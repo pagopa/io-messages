@@ -11,10 +11,11 @@ get {
 }
 
 headers {
-  x-service-id: {{sender_subscription_id}}
   x-subscription-id: {{sender_subscription_id}}
   x-user-groups: ApiMessageRead,ApiMessageReadAdvanced
   x-user-id: {{sender_user_id}}
+  x-user-email: {{sender_email}}
+  x-forwarded-for: {{receipt_id}}
 }
 
 vars:pre-request {

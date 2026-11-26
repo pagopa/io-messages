@@ -1,10 +1,19 @@
 import type { FastifyInstance } from "fastify";
 
-import { ForbiddenError, GenericError } from "@pagopa/hexagonal-core";
+import {
+  ForbiddenError,
+  GenericError,
+  NotFoundError,
+  TooManyRequestsError,
+} from "@pagopa/hexagonal-core";
 import fastify from "fastify";
 import { err, ok } from "neverthrow";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type {
+  ServicesCmsDetail,
+  ServicesCmsRepository,
+} from "../../../../application/ports/services-cms.js";
 import type { GetServiceMessageUseCase } from "../../../../application/use-cases/get-service-message.use-case.js";
 
 import { MalformedEntityError } from "../../../../application/ports/error.js";
@@ -13,8 +22,9 @@ import { mountGetServiceMessageHandler } from "../get-service-message.handler.js
 const fiscalCode = "RSSMRA80A01H501U";
 const messageId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
 const validHeaders = {
-  "x-service-id": "service-id",
+  "x-forwarded-for": "192.0.2.10",
   "x-subscription-id": "subscription-id",
+  "x-user-email": "user@example.com",
   "x-user-groups": "ApiMessageRead,ApiMessageReadAdvanced",
   "x-user-id": "user-id",
 };
@@ -30,20 +40,38 @@ const responseBody = {
   read_status: "UNREAD" as const,
   status: "PROCESSED" as const,
 };
+const service: ServicesCmsDetail = {
+  authorized_cidrs: ["192.0.2.0/24"],
+  authorized_recipients: [],
+  description: "Service description",
+  id: "service-id",
+  last_update: "2026-01-01T00:00:00.000Z",
+  max_allowed_payment_amount: 10_000,
+  metadata: { scope: "NATIONAL" },
+  name: "Service",
+  organization: { fiscal_code: "01234567890", name: "Organization" },
+  require_secure_channel: false,
+  status: { value: "published" },
+};
+
+let server: FastifyInstance;
+let useCase: GetServiceMessageUseCase;
+let repository: ServicesCmsRepository;
+
+beforeEach(() => {
+  server = fastify();
+  useCase = vi.fn().mockResolvedValue(ok(responseBody));
+  repository = {
+    getServiceCmsDetails: vi.fn().mockResolvedValue(ok(service)),
+    getServicesCmsDetailsByServiceIds: vi.fn(),
+  };
+  mountGetServiceMessageHandler(server, useCase, repository);
+});
+
+afterEach(async () => server.close());
 
 describe("mountGetServiceMessageHandler", () => {
-  let server: FastifyInstance;
-  let useCase: GetServiceMessageUseCase;
-
-  beforeEach(() => {
-    server = fastify();
-    useCase = vi.fn().mockResolvedValue(ok(responseBody));
-    mountGetServiceMessageHandler(server, useCase);
-  });
-
-  afterEach(async () => server.close());
-
-  it("maps trusted caller headers and returns the service response", async () => {
+  it("maps the resolved service without requiring x-service-id", async () => {
     const response = await server.inject({
       headers: validHeaders,
       method: "GET",
@@ -103,18 +131,17 @@ describe("mountGetServiceMessageHandler", () => {
     expect(useCase).not.toHaveBeenCalled();
   });
 
-  it("returns 400 when the service id is missing after authorization succeeds", async () => {
-    const headers = Object.fromEntries(
-      Object.entries(validHeaders).filter(([name]) => name !== "x-service-id"),
-    );
+  it("ignores an x-service-id that differs from the resolved service", async () => {
     const response = await server.inject({
-      headers,
+      headers: { ...validHeaders, "x-service-id": "another-service" },
       method: "GET",
       url: `/api/services/messages/${fiscalCode}/${messageId}`,
     });
 
-    expect(response.statusCode).toBe(400);
-    expect(useCase).not.toHaveBeenCalled();
+    expect(response.statusCode).toBe(200);
+    expect(useCase).toHaveBeenCalledWith(
+      expect.objectContaining({ serviceId: service.id }),
+    );
   });
 
   it("maps ownership failures to 403", async () => {
@@ -149,5 +176,119 @@ describe("mountGetServiceMessageHandler", () => {
       status: 500,
       title: "Internal Server Error",
     });
+  });
+});
+
+describe("GetMessageForService authorization pipeline", () => {
+  it.each([
+    ["missing", undefined],
+    ["empty", ""],
+    ["invalid", "invalid-email"],
+  ])(
+    "returns 500 for a %s user email before service lookup",
+    async (_, email) => {
+      const headers: Record<string, string> = { ...validHeaders };
+      if (email === undefined) {
+        delete headers["x-user-email"];
+      } else {
+        headers["x-user-email"] = email;
+      }
+
+      const response = await server.inject({
+        headers,
+        method: "GET",
+        url: `/api/services/messages/invalid-fiscal-code/${messageId}`,
+      });
+
+      expect(response.statusCode).toBe(500);
+      expect(repository.getServiceCmsDetails).not.toHaveBeenCalled();
+      expect(useCase).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["", "invalid-ip"])(
+    "returns 500 for an unextractable IP %j even with an empty allowlist",
+    async (ip) => {
+      vi.mocked(repository.getServiceCmsDetails).mockResolvedValue(
+        ok({ ...service, authorized_cidrs: [] }),
+      );
+      const response = await server.inject({
+        headers: { ...validHeaders, "x-forwarded-for": ip },
+        method: "GET",
+        url: `/api/services/messages/${fiscalCode}/${messageId}`,
+      });
+
+      expect(response.statusCode).toBe(500);
+      expect(repository.getServiceCmsDetails).not.toHaveBeenCalled();
+      expect(useCase).not.toHaveBeenCalled();
+    },
+  );
+
+  it("extracts the IP before validating the email and resolving the service", async () => {
+    const headers = Object.fromEntries(
+      Object.entries(validHeaders).filter(
+        ([name]) => name !== "x-forwarded-for",
+      ),
+    );
+    const response = await server.inject({
+      headers: { ...headers, "x-user-email": "invalid-email" },
+      method: "GET",
+      url: `/api/services/messages/invalid-fiscal-code/${messageId}`,
+    });
+
+    expect(response.statusCode).toBe(500);
+    expect(response.json().detail).toContain(
+      "IP address cannot be extracted from the request",
+    );
+    expect(repository.getServiceCmsDetails).not.toHaveBeenCalled();
+    expect(useCase).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["absent", new NotFoundError("service", "Service not found"), 403],
+    ["unavailable", new GenericError("Service lookup failed"), 500],
+    ["malformed", new MalformedEntityError("Invalid service"), 500],
+    ["throttled", new TooManyRequestsError(), 500],
+  ])(
+    "rejects a %s service before request validation",
+    async (_, error, status) => {
+      vi.mocked(repository.getServiceCmsDetails).mockResolvedValue(err(error));
+      const response = await server.inject({
+        headers: validHeaders,
+        method: "GET",
+        url: `/api/services/messages/invalid-fiscal-code/${messageId}`,
+      });
+
+      expect(response.statusCode).toBe(status);
+      expect(useCase).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([fiscalCode, "invalid-fiscal-code"])(
+    "returns 403 for a disallowed IP before validating fiscal code %s",
+    async (pathFiscalCode) => {
+      const response = await server.inject({
+        headers: { ...validHeaders, "x-forwarded-for": "198.51.100.10" },
+        method: "GET",
+        url: `/api/services/messages/${pathFiscalCode}/${messageId}`,
+      });
+
+      expect(response.statusCode).toBe(403);
+      expect(useCase).not.toHaveBeenCalled();
+    },
+  );
+
+  it("allows a valid IP outside any range when the allowlist is empty", async () => {
+    vi.mocked(repository.getServiceCmsDetails).mockResolvedValue(
+      ok({ ...service, authorized_cidrs: [] }),
+    );
+    const response = await server.inject({
+      headers: { ...validHeaders, "x-forwarded-for": "198.51.100.10" },
+      method: "GET",
+      url: `/api/services/messages/${fiscalCode}/${messageId}`,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(useCase).toHaveBeenCalledOnce();
   });
 });

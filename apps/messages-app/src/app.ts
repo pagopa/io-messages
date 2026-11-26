@@ -319,6 +319,7 @@ export const createApp = (config: AppConfig): { server: FastifyInstance } => {
       paymentStatusAdapter,
       config.MIN_APP_VERSION_WITH_READ_AUTH,
     ),
+    servicesCmsAdapter,
   );
   mountGetPaymentInfoHandler(
     server,

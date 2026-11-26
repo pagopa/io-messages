@@ -8,20 +8,22 @@ import {
 import { mountFastifyRoute } from "@pagopa/hexagonal-fastify";
 import z from "zod";
 
+import { ServicesCmsRepository } from "../../../application/ports/services-cms.js";
 import { GetServiceMessageUseCase } from "../../../application/use-cases/get-service-message.use-case.js";
 import {
   GetServiceMessageResponseSchema,
   toGetServiceMessageResponse,
 } from "./dto/get-service-message.dto.js";
+import { makeClientIpMiddleware } from "./middlewares/client-ip.middleware.js";
 import { makeGetMessageForServiceAuthorizationMiddleware } from "./middlewares/get-message-for-service-authorization.middleware.js";
+import { makeServiceResolutionMiddleware } from "./middlewares/service-resolution.middleware.js";
+import { makeSourceIpAuthorizationMiddleware } from "./middlewares/source-ip-authorization.middleware.js";
+import { makeUserEmailMiddleware } from "./middlewares/user-email.middleware.js";
 
 const getServiceMessageContract = defineRoute({
   method: "get",
   path: "/api/services/messages/{fiscal_code}/{id}",
   request: {
-    headers: z.object({
-      "x-service-id": z.string().min(1),
-    }),
     path: z.object({
       fiscal_code: FiscalCodeSchema,
       id: z.string().min(1),
@@ -40,6 +42,7 @@ const getServiceMessageContract = defineRoute({
 export const mountGetServiceMessageHandler = (
   server: FastifyInstance,
   useCase: GetServiceMessageUseCase,
+  servicesCmsRepository: ServicesCmsRepository,
 ): void => {
   mountFastifyRoute(server, {
     contract: getServiceMessageContract,
@@ -47,10 +50,16 @@ export const mountGetServiceMessageHandler = (
       fiscalCode: req.path.fiscal_code,
       groups: context.groups,
       messageId: req.path.id,
-      serviceId: req.headers["x-service-id"],
+      serviceId: context.service.id,
       subscriptionId: context.subscriptionId,
     }),
-    middlewares: [makeGetMessageForServiceAuthorizationMiddleware()],
+    middlewares: [
+      makeGetMessageForServiceAuthorizationMiddleware(),
+      makeClientIpMiddleware(),
+      makeUserEmailMiddleware(),
+      makeServiceResolutionMiddleware(servicesCmsRepository),
+      makeSourceIpAuthorizationMiddleware(),
+    ],
     outputMapper: toGetServiceMessageResponse,
     useCase,
   });

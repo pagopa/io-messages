@@ -12,7 +12,6 @@ import {
   ValidationError,
 } from "@pagopa/hexagonal-core";
 import { type Result, err, ok } from "neverthrow";
-import { BlockList } from "node:net";
 import { ulid } from "ulid";
 
 import type { ClientIp } from "../../domain/client-ip.js";
@@ -28,6 +27,7 @@ import type {
   ServicesCmsRepository,
 } from "../ports/services-cms.js";
 
+import { isClientIpAuthorized } from "../../domain/client-ip.js";
 import {
   type CreateMessagePermission,
   type CreatedMessage,
@@ -106,36 +106,6 @@ const validatePayloadPermissions = (
   }
 
   return ok(undefined);
-};
-
-const validateClientIp = (
-  clientIp: ClientIp,
-  authorizedCidrs: readonly string[],
-): Result<void, ForbiddenError> => {
-  // As in services-func, an empty allowlist means that the service does not
-  // restrict message creation by source IP.
-  if (authorizedCidrs.length === 0) {
-    return ok(undefined);
-  }
-
-  const blockList = new BlockList();
-  for (const cidr of authorizedCidrs) {
-    // BlockList expects address and prefix separately. The legacy
-    // implementation treats an address without a prefix as a single-host /32.
-    const separatorIndex = cidr.lastIndexOf("/");
-    const address =
-      separatorIndex === -1 ? cidr : cidr.slice(0, separatorIndex);
-    const prefixLength =
-      separatorIndex === -1 ? 32 : Number(cidr.slice(separatorIndex + 1));
-    blockList.addSubnet(address, prefixLength, "ipv4");
-  }
-
-  // ClientIp is already validated by its schema. Here the colon only selects
-  // the address family required by BlockList; it does not validate it again.
-  const clientIpFamily = clientIp.includes(":") ? "ipv6" : "ipv4";
-  return blockList.check(clientIp, clientIpFamily)
-    ? ok(undefined)
-    : err(new ForbiddenError());
 };
 
 const getService = async (
@@ -317,12 +287,8 @@ export const makeCreateMessageUseCase =
       return err(payloadPermissionsResult.error);
     }
 
-    const clientIpResult = validateClientIp(
-      input.clientIp,
-      service.authorized_cidrs,
-    );
-    if (clientIpResult.isErr()) {
-      return err(clientIpResult.error);
+    if (!isClientIpAuthorized(input.clientIp, service.authorized_cidrs)) {
+      return err(new ForbiddenError());
     }
 
     const fiscalCodeResult = getFiscalCode(
