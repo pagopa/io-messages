@@ -73,6 +73,11 @@ data "azurerm_resource_group" "dashboards" {
   name = "dashboards"
 }
 
+data "azurerm_storage_account" "opex_state" {
+  name                = "tfappprodio"
+  resource_group_name = "terraform-state-rg"
+}
+
 data "azuread_group" "admins" {
   display_name = local.adgroups.admins_name
 }
@@ -129,6 +134,18 @@ module "repo" {
   opex_resource_group_id             = data.azurerm_resource_group.dashboards.id
 
   tags = local.tags
+}
+
+resource "azurerm_role_assignment" "opex_ci_state_reader" {
+  scope                = "${data.azurerm_storage_account.opex_state.id}/blobServices/default/containers/terraform-state"
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = module.repo.identities.opex.ci.principal_id
+}
+
+resource "azurerm_role_assignment" "opex_cd_state_contributor" {
+  scope                = "${data.azurerm_storage_account.opex_state.id}/blobServices/default/containers/terraform-state"
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = module.repo.identities.opex.cd.principal_id
 }
 
 resource "azurerm_key_vault_access_policy" "infra_cd_kv_common" {
