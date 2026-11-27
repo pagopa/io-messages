@@ -245,7 +245,15 @@ module "azure-role-assignments" {
       description         = "Allow web app to read on cosmos containers"
       role                = "writer"
       database            = "db"
-      collections         = ["messages", "message-status", "profiles", "services-preferences"]
+      collections         = ["messages", "message-status"]
+    },
+    {
+      account_name        = var.common_cosmos_account.name
+      resource_group_name = var.common_cosmos_account.resource_group_name
+      description         = "Allow web app to read profiles and service preferences"
+      role                = "reader"
+      database            = "db"
+      collections         = ["profiles", "services-preferences"]
     }
   ]
 
