@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{messages_app_base_url}}/api/services/messages/{{fiscal_code}}/01M1EGM45AYC90TETN5C00SWHM
+  url: {{messages_app_base_url}}/api/services/messages/{{fixture_fiscal_code}}/{{message_id}}
   body: none
   auth: inherit
 }
@@ -19,7 +19,8 @@ headers {
 }
 
 vars:pre-request {
-  message_id: 01M0YRTA395JBSZNWG7W63ZJDV
+  fixture_fiscal_code: LVTEST00A00A199X
+  message_id: 01M1FX00000000000000000053
 }
 
 settings {

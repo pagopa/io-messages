@@ -1,6 +1,7 @@
 // this script creates the necessary database and containers in the Cosmos DB emulator
 
 const { CosmosClient } = require("@azure/cosmos");
+const localMessages = require("./fixtures/local-messages.cjs");
 
 const endpoint = process.env.COSMOSDB_URI || "http://cosmos:8081";
 const key =
@@ -363,6 +364,19 @@ const messageStatuses = [
   {
     containerId: "message-status",
     document: {
+      id: `${genericAttachmentFixtureMessageId}-0000000000000000`,
+      fiscalCode: sendFixtureFiscalCode,
+      messageId: genericAttachmentFixtureMessageId,
+      isArchived: false,
+      isRead: false,
+      status: "PROCESSED",
+      updatedAt: "2025-05-31T10:00:00.000Z",
+      version: 0,
+    },
+  },
+  {
+    containerId: "message-status",
+    document: {
       id: `${lollipopFixtureMessageId}-0000000000000000`,
       fiscalCode: sendFixtureFiscalCode,
       messageId: lollipopFixtureMessageId,
@@ -410,7 +424,7 @@ const RCMessageConfigurations = [
           key: "mock-api-key",
           type: "API_KEY",
         },
-        testUsers: [sendFixtureFiscalCode],
+        testUsers: localMessages.recipients,
       },
       userId: "local",
     },
@@ -432,7 +446,7 @@ const RCMessageConfigurations = [
           key: "mock-api-key",
           type: "API_KEY",
         },
-        testUsers: [sendFixtureFiscalCode],
+        testUsers: localMessages.recipients,
       },
       userId: "local",
     },
@@ -454,7 +468,7 @@ const RCMessageConfigurations = [
           key: "mock-api-key",
           type: "API_KEY",
         },
-        testUsers: [sendFixtureFiscalCode],
+        testUsers: localMessages.recipients,
       },
       userId: "local",
     },
@@ -584,6 +598,29 @@ messageStatuses.push(
   })),
 );
 
+profiles.push(
+  ...localMessages.profiles.map((document) => ({
+    containerId: "profiles",
+    document,
+  })),
+);
+servicePreferences.push(
+  ...localMessages.servicePreferences.map((document) => ({
+    containerId: "services-preferences",
+    document,
+  })),
+);
+for (const fixture of [
+  ...localMessages.processedMessages,
+  ...localMessages.rejectedMessages,
+]) {
+  messages.push({ containerId: "messages", document: fixture.metadata });
+  messageStatuses.push({
+    containerId: "message-status",
+    document: fixture.status,
+  });
+}
+
 // maps containerId → partition key field path (used to derive the pk value for replace)
 const containerPartitionKeyMap = Object.fromEntries(
   [...containers, ...remoteContentContainers].map(({ id, partitionKey }) => [
@@ -689,6 +726,15 @@ const addDocumentToContainer = async (database, containerId, document) => {
     messageStatuses.map(({ containerId, document }) =>
       addDocumentToContainer(database, containerId, document),
     ),
+  );
+
+  console.table(
+    localMessages.processedMessages.map(({ label, metadata }) => ({
+      messageId: metadata.id,
+      fiscalCode: metadata.fiscalCode,
+      subscriptionId: metadata.senderServiceId,
+      scenario: label,
+    })),
   );
 })();
 

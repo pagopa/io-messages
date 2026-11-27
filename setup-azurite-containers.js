@@ -3,6 +3,7 @@
 const { BlobServiceClient } = require("@azure/storage-blob");
 const { QueueServiceClient } = require("@azure/storage-queue");
 const { TableServiceClient } = require("@azure/data-tables");
+const localMessages = require("./fixtures/local-messages.cjs");
 
 const connectionString =
   "DefaultEndpointsProtocol=http;" +
@@ -248,6 +249,11 @@ const uploadMessageContentIfNotExists = async ({
       ...genericAttachmentMessageContents,
       ...lollipopMessageContents,
       ...preconditionMessageContents,
+      ...localMessages.processedMessages.map(({ metadata, content }) => ({
+        blobName: `${metadata.id}.json`,
+        containerName: "message-content",
+        content,
+      })),
     ].map(uploadMessageContentIfNotExists),
   );
 })();
