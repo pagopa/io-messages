@@ -245,7 +245,7 @@ describe("getMessagesMetadataByUser", () => {
   });
 });
 
-describe("getMessageMetadataByFiscalCodeAndId", () => {
+describe("getMessageMetadata", () => {
   beforeEach(() => {
     readMock.mockReset();
     readMock.mockResolvedValue({
@@ -255,7 +255,7 @@ describe("getMessageMetadataByFiscalCodeAndId", () => {
   });
 
   it("returns the metadata for an existing message", async () => {
-    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
+    const result = await adapter.getMessageMetadata(
       aFiscalCode,
       aMessageMetadata.id,
     );
@@ -265,15 +265,29 @@ describe("getMessageMetadataByFiscalCodeAndId", () => {
     expect(trackEventMock).not.toHaveBeenCalled();
   });
 
+  it("treats metadata without isPending as pending", async () => {
+    const metadataWithoutPending: Partial<MessageMetadata> = {
+      ...aMessageMetadata,
+    };
+    delete metadataWithoutPending.isPending;
+    readMock.mockResolvedValue({
+      resource: metadataWithoutPending,
+    } as unknown as ItemResponse<never>);
+
+    const result = await adapter.getMessageMetadata(
+      aFiscalCode,
+      aMessageMetadata.id,
+    );
+
+    expect(result._unsafeUnwrap().isPending).toBe(true);
+  });
+
   it("returns a NotFoundError when the resource is undefined", async () => {
     readMock.mockResolvedValue({
       resource: undefined,
     } as unknown as ItemResponse<never>);
 
-    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
-      aFiscalCode,
-      "missing-id",
-    );
+    const result = await adapter.getMessageMetadata(aFiscalCode, "missing-id");
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
@@ -283,10 +297,7 @@ describe("getMessageMetadataByFiscalCodeAndId", () => {
   it("returns a NotFoundError when Cosmos throws a 404 RestError", async () => {
     readMock.mockRejectedValue(new RestError("not found", { statusCode: 404 }));
 
-    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
-      aFiscalCode,
-      "missing-id",
-    );
+    const result = await adapter.getMessageMetadata(aFiscalCode, "missing-id");
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
@@ -298,7 +309,7 @@ describe("getMessageMetadataByFiscalCodeAndId", () => {
       resource: { ...aMessageMetadata, id: "not-a-ulid" },
     } as unknown as ItemResponse<never>);
 
-    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
+    const result = await adapter.getMessageMetadata(
       aFiscalCode,
       "malformed-id",
     );
@@ -311,7 +322,7 @@ describe("getMessageMetadataByFiscalCodeAndId", () => {
   it("returns a TooManyRequestsError when Cosmos throttles the request", async () => {
     readMock.mockRejectedValue(new RestError("throttled", { statusCode: 429 }));
 
-    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
+    const result = await adapter.getMessageMetadata(
       aFiscalCode,
       aMessageMetadata.id,
     );
@@ -324,7 +335,7 @@ describe("getMessageMetadataByFiscalCodeAndId", () => {
   it("returns a GenericError on an unexpected Cosmos RestError", async () => {
     readMock.mockRejectedValue(new RestError("boom", { statusCode: 500 }));
 
-    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
+    const result = await adapter.getMessageMetadata(
       aFiscalCode,
       aMessageMetadata.id,
     );
@@ -337,7 +348,7 @@ describe("getMessageMetadataByFiscalCodeAndId", () => {
   it("returns a GenericError on a non-RestError failure", async () => {
     readMock.mockRejectedValue(new Error("unexpected"));
 
-    const result = await adapter.getMessageMetadataByFiscalCodeAndId(
+    const result = await adapter.getMessageMetadata(
       aFiscalCode,
       aMessageMetadata.id,
     );

@@ -1,6 +1,7 @@
 // this script creates the necessary database and containers in the Cosmos DB emulator
 
 const { CosmosClient } = require("@azure/cosmos");
+const localMessages = require("./fixtures/local-messages.cjs");
 
 const endpoint = process.env.COSMOSDB_URI || "http://cosmos:8081";
 const key =
@@ -22,6 +23,7 @@ const containers = [
   { id: "messages", partitionKey: "/fiscalCode" },
   { id: "message-status", partitionKey: "/messageId" },
   { id: "profiles", partitionKey: "/fiscalCode" },
+  { id: "services-preferences", partitionKey: "/fiscalCode" },
   { id: "services", partitionKey: "/serviceId" },
   { id: "notifications", partitionKey: "/messageId" },
 ];
@@ -60,12 +62,42 @@ const profiles = [
         mode: "AUTO",
         version: 1,
       },
+      lastAppVersion: "2.1.0.0",
+      pushNotificationsContentType: "UNSET",
+      reminderStatus: "ENABLED",
+      id: "LVTEST00A00A200X-0000000000000001",
+      version: 1,
+      kind: "IRetrievedProfile",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
+    },
+  },
+  {
+    containerId: "profiles",
+    document: {
+      fiscalCode: "LVTEST00A00A200X",
+      isEmailEnabled: true,
+      isEmailValidated: true,
+      isInboxEnabled: true,
+      isTestProfile: false,
+      isWebhookEnabled: true,
+      email: "lvtest@example.com",
+      servicePreferencesSettings: {
+        mode: "AUTO",
+        version: 1,
+      },
       lastAppVersion: "UNKNOWN",
       pushNotificationsContentType: "UNSET",
       reminderStatus: "ENABLED",
       id: "LVTEST00A00A200X-0000000000000000",
       version: 0,
-      kind: "INewProfile",
+      kind: "IRetrievedProfile",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
     },
   },
   {
@@ -87,7 +119,11 @@ const profiles = [
       reminderStatus: "ENABLED",
       id: "LVTEST00A00A199X-0000000000000000",
       version: 0,
-      kind: "INewProfile",
+      kind: "IRetrievedProfile",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
     },
   },
   {
@@ -109,7 +145,11 @@ const profiles = [
       reminderStatus: "ENABLED",
       id: "LVTEST00A00A198X-0000000000000000",
       version: 0,
-      kind: "INewProfile",
+      kind: "IRetrievedProfile",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
     },
   },
   {
@@ -131,7 +171,11 @@ const profiles = [
       reminderStatus: "ENABLED",
       id: "LVTEST00A00A197X-0000000000000000",
       version: 0,
-      kind: "INewProfile",
+      kind: "IRetrievedProfile",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
     },
   },
   {
@@ -153,7 +197,28 @@ const profiles = [
       reminderStatus: "ENABLED",
       id: "LVTEST00A00A196X-0000000000000000",
       version: 0,
-      kind: "INewProfile",
+      kind: "IRetrievedProfile",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
+    },
+  },
+];
+
+const servicePreferences = [
+  {
+    containerId: "services-preferences",
+    document: {
+      accessReadMessageStatus: "ALLOW",
+      fiscalCode: "LVTEST00A00A200X",
+      id: "LVTEST00A00A200X-subscription-id-0000000000000001",
+      isEmailEnabled: true,
+      isInboxEnabled: true,
+      isWebhookEnabled: true,
+      kind: "IRetrievedServicePreference",
+      serviceId: "subscription-id",
+      settingsVersion: 1,
     },
   },
 ];
@@ -174,7 +239,11 @@ const services = [
       organizationName: "Wilkinson LLC",
       requireSecureChannels: false,
       version: 0,
-      kind: "INewService",
+      kind: "IRetrievedService",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
     },
   },
 ];
@@ -295,6 +364,19 @@ const messageStatuses = [
   {
     containerId: "message-status",
     document: {
+      id: `${genericAttachmentFixtureMessageId}-0000000000000000`,
+      fiscalCode: sendFixtureFiscalCode,
+      messageId: genericAttachmentFixtureMessageId,
+      isArchived: false,
+      isRead: false,
+      status: "PROCESSED",
+      updatedAt: "2025-05-31T10:00:00.000Z",
+      version: 0,
+    },
+  },
+  {
+    containerId: "message-status",
+    document: {
       id: `${lollipopFixtureMessageId}-0000000000000000`,
       fiscalCode: sendFixtureFiscalCode,
       messageId: lollipopFixtureMessageId,
@@ -319,6 +401,10 @@ const RCMessageConfigurations = [
       isLollipopEnabled: false,
       name: "Updated configuration",
       userId: "local",
+      _etag: '"seed"',
+      _rid: "seed",
+      _self: "seed",
+      _ts: 1,
     },
   },
   {
@@ -338,7 +424,7 @@ const RCMessageConfigurations = [
           key: "mock-api-key",
           type: "API_KEY",
         },
-        testUsers: [sendFixtureFiscalCode],
+        testUsers: localMessages.recipients,
       },
       userId: "local",
     },
@@ -360,7 +446,7 @@ const RCMessageConfigurations = [
           key: "mock-api-key",
           type: "API_KEY",
         },
-        testUsers: [sendFixtureFiscalCode],
+        testUsers: localMessages.recipients,
       },
       userId: "local",
     },
@@ -382,7 +468,7 @@ const RCMessageConfigurations = [
           key: "mock-api-key",
           type: "API_KEY",
         },
-        testUsers: [sendFixtureFiscalCode],
+        testUsers: localMessages.recipients,
       },
       userId: "local",
     },
@@ -512,6 +598,37 @@ messageStatuses.push(
   })),
 );
 
+profiles.push(
+  ...localMessages.profiles.map((document) => ({
+    containerId: "profiles",
+    document,
+  })),
+);
+servicePreferences.push(
+  ...localMessages.servicePreferences.map((document) => ({
+    containerId: "services-preferences",
+    document,
+  })),
+);
+for (const fixture of [
+  ...localMessages.processedMessages,
+  ...localMessages.rejectedMessages,
+]) {
+  messages.push({ containerId: "messages", document: fixture.metadata });
+  messageStatuses.push({
+    containerId: "message-status",
+    document: fixture.status,
+  });
+}
+
+// maps containerId → partition key field path (used to derive the pk value for replace)
+const containerPartitionKeyMap = Object.fromEntries(
+  [...containers, ...remoteContentContainers].map(({ id, partitionKey }) => [
+    id,
+    partitionKey,
+  ]),
+);
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const waitForCosmos = async () => {
@@ -548,9 +665,17 @@ const createContainerIfNotExists = async (database, { id, partitionKey }) => {
 
 const addDocumentToContainer = async (database, containerId, document) => {
   try {
-    await database.container(containerId).items.upsert(document, {
-      disableAutomaticIdGeneration: true,
-    });
+    const container = database.container(containerId);
+    // Use create + replace instead of upsert: the Linux CosmosDB emulator (vnext)
+    // does not initialize _etag correctly on upsert-as-insert.
+    const partitionKeyField = containerPartitionKeyMap[containerId].slice(1);
+    const partitionKeyValue = document[partitionKeyField];
+    try {
+      await container.items.create(document);
+    } catch (createError) {
+      if (createError.code !== 409) throw createError;
+      await container.item(document.id, partitionKeyValue).replace(document);
+    }
     console.log(`Document ${document.id} ready in container ${containerId}.`);
   } catch (error) {
     console.error(`Error adding document to container ${containerId}:`, error);
@@ -580,6 +705,12 @@ const addDocumentToContainer = async (database, containerId, document) => {
   );
 
   await Promise.all(
+    servicePreferences.map(({ containerId, document }) =>
+      addDocumentToContainer(database, containerId, document),
+    ),
+  );
+
+  await Promise.all(
     services.map(({ containerId, document }) =>
       addDocumentToContainer(database, containerId, document),
     ),
@@ -595,6 +726,15 @@ const addDocumentToContainer = async (database, containerId, document) => {
     messageStatuses.map(({ containerId, document }) =>
       addDocumentToContainer(database, containerId, document),
     ),
+  );
+
+  console.table(
+    localMessages.processedMessages.map(({ label, metadata }) => ({
+      messageId: metadata.id,
+      fiscalCode: metadata.fiscalCode,
+      subscriptionId: metadata.senderServiceId,
+      scenario: label,
+    })),
   );
 })();
 

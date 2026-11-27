@@ -1,5 +1,6 @@
 import {
   FiscalCode,
+  FiscalCodeSchema,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -17,10 +18,10 @@ export type FeatureLevel = z.TypeOf<typeof featureLevelSchema>;
 export const messageMetadataSchema = z.object({
   createdAt: z.string(),
   featureLevelType: featureLevelSchema,
-  fiscalCode: z.string(),
+  fiscalCode: FiscalCodeSchema,
   id: z.ulid(),
   indexedId: z.ulid(),
-  isPending: z.boolean().default(false),
+  isPending: z.boolean().default(true),
   senderServiceId: z.string().min(1),
   senderUserId: z.string().min(1),
   timeToLiveSeconds: z.number(),
@@ -41,7 +42,7 @@ export interface MessageMetadataRepository {
    *
    * Returns a `NotFoundError` when no such message exists.
    */
-  getMessageMetadataByFiscalCodeAndId(
+  getMessageMetadata(
     fiscalCode: FiscalCode,
     messageId: string,
   ): Promise<

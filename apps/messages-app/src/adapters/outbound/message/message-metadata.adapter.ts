@@ -9,6 +9,7 @@ import {
 } from "@azure/cosmos";
 import {
   FiscalCode,
+  FiscalCodeSchema,
   GenericError,
   NotFoundError,
   TooManyRequestsError,
@@ -30,10 +31,10 @@ import {
 const cosmosMessageMetadataSchema = z.object({
   createdAt: z.string(),
   featureLevelType: z.enum(["ADVANCED", "STANDARD"]).default("STANDARD"),
-  fiscalCode: z.string(),
+  fiscalCode: FiscalCodeSchema,
   id: z.ulid(),
   indexedId: z.ulid(),
-  isPending: z.boolean().default(false),
+  isPending: z.boolean().default(true),
   senderServiceId: z.string().min(1),
   senderUserId: z.string().min(1),
   timeToLiveSeconds: z.number(),
@@ -94,7 +95,7 @@ export class MessageMetadataCosmosAdapter implements MessageMetadataRepository {
     return createResult.isErr() ? err(createResult.error) : ok(metadata);
   }
 
-  async getMessageMetadataByFiscalCodeAndId(
+  async getMessageMetadata(
     fiscalCode: FiscalCode,
     messageId: string,
   ): Promise<

@@ -50,7 +50,7 @@ const anRCConfiguration = (
 });
 
 const metadataRepository = {
-  getMessageMetadataByFiscalCodeAndId: vi.fn(),
+  getMessageMetadata: vi.fn(),
 } as unknown as MessageMetadataRepository;
 
 const contentRepository = {
@@ -98,9 +98,9 @@ const setContent = (thirdPartyData: unknown) =>
 beforeEach(() => {
   vi.resetAllMocks();
   serviceToRcMap.clear();
-  vi.mocked(
-    metadataRepository.getMessageMetadataByFiscalCodeAndId,
-  ).mockResolvedValue(ok({ senderServiceId: serviceId } as never));
+  vi.mocked(metadataRepository.getMessageMetadata).mockResolvedValue(
+    ok({ senderServiceId: serviceId } as never),
+  );
   setContent({ configuration_id: configurationId, id: "tp-id" });
   vi.mocked(
     rcConfigurationRepository.getRemoteContentConfiguration,
@@ -156,9 +156,9 @@ describe("makeGetRemoteContentMessagePreconditionUseCase", () => {
   });
 
   it("returns the metadata error", async () => {
-    vi.mocked(
-      metadataRepository.getMessageMetadataByFiscalCodeAndId,
-    ).mockResolvedValue(err(new NotFoundError("Message", "missing")));
+    vi.mocked(metadataRepository.getMessageMetadata).mockResolvedValue(
+      err(new NotFoundError("Message", "missing")),
+    );
 
     const result = await useCase(input);
 

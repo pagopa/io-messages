@@ -21,6 +21,8 @@ services:
       context: .
       dockerfile: ./apps/messages-app/Dockerfile
     env_file: ./apps/messages-app/.env
+    environment:
+      SERVICE_PREFERENCES_CONTAINER_NAME: services-preferences
     ports:
       - 3000:3000
 
@@ -144,6 +146,7 @@ services:
     working_dir: /app
     volumes:
       - ./setup-azurite-containers.js:/app/setup-azurite-containers.js
+      - ./fixtures/local-messages.cjs:/app/fixtures/local-messages.cjs:ro
     command: sh -c "npm install @azure/storage-blob@^12.28.0 @azure/storage-queue@^12.28.1 @azure/data-tables@^13.3.2 && node setup-azurite-containers.js"
 
   cosmos:
@@ -162,6 +165,7 @@ services:
     working_dir: /app
     volumes:
       - ./setup-cosmos-containers.js:/app/setup-cosmos-containers.js
+      - ./fixtures/local-messages.cjs:/app/fixtures/local-messages.cjs:ro
     environment:
       COSMOSDB_URI: "http://cosmos:8081"
       COSMOSDB_KEY: "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="

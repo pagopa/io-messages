@@ -17,7 +17,7 @@ const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
 const serviceId = "01JHYBR5JZCS6K0DT7M1EV8N2F";
 
 const metadataRepository = {
-  getMessageMetadataByFiscalCodeAndId: vi.fn().mockResolvedValue(
+  getMessageMetadata: vi.fn().mockResolvedValue(
     ok({
       createdAt: "2023-01-01T00:00:00.000Z",
       featureLevelType: "STANDARD",
@@ -146,9 +146,9 @@ describe("makeGetMessageUseCase - retrieval", () => {
 
   it("propagates a missing recipient-scoped metadata error", async () => {
     const notFound = new NotFoundError("message", "message not found");
-    vi.mocked(
-      metadataRepository.getMessageMetadataByFiscalCodeAndId,
-    ).mockResolvedValueOnce(err(notFound));
+    vi.mocked(metadataRepository.getMessageMetadata).mockResolvedValueOnce(
+      err(notFound),
+    );
 
     const result = await getMessage({
       fiscalCode,
@@ -245,9 +245,7 @@ describe("makeGetMessageUseCase - enrichment", () => {
         },
       }),
     );
-    vi.mocked(
-      metadataRepository.getMessageMetadataByFiscalCodeAndId,
-    ).mockResolvedValueOnce(
+    vi.mocked(metadataRepository.getMessageMetadata).mockResolvedValueOnce(
       ok({
         createdAt: "2023-01-01T00:00:00.000Z",
         featureLevelType: "STANDARD",

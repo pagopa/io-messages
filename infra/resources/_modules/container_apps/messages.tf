@@ -67,6 +67,18 @@ module "messages_ca" {
           value = "message-content"
         },
         {
+          name  = "PROFILE_CONTAINER_NAME"
+          value = "profiles"
+        },
+        {
+          name  = "SERVICE_PREFERENCES_CONTAINER_NAME"
+          value = "services-preferences"
+        },
+        {
+          name  = "MIN_APP_VERSION_WITH_READ_AUTH"
+          value = "2.14.0"
+        },
+        {
           name  = "RC_APP_BASE_URL"
           value = "https://${module.remote_content_ca.url}/api/internal/rc-configurations"
         },
@@ -234,6 +246,14 @@ module "azure-role-assignments" {
       role                = "writer"
       database            = "db"
       collections         = ["messages", "message-status"]
+    },
+    {
+      account_name        = var.common_cosmos_account.name
+      resource_group_name = var.common_cosmos_account.resource_group_name
+      description         = "Allow web app to read profiles and service preferences"
+      role                = "reader"
+      database            = "db"
+      collections         = ["profiles", "services-preferences"]
     }
   ]
 

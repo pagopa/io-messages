@@ -1,0 +1,29 @@
+meta {
+  name: GetMessageForService
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{messages_app_base_url}}/api/services/messages/{{fixture_fiscal_code}}/{{message_id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-subscription-id: {{sender_subscription_id}}
+  x-user-groups: ApiMessageRead,ApiMessageReadAdvanced
+  x-user-id: {{sender_user_id}}
+  x-user-email: {{sender_email}}
+  x-forwarded-for: {{receipt_id}}
+}
+
+vars:pre-request {
+  fixture_fiscal_code: LVTEST00A00A199X
+  message_id: 01M1FX00000000000000000053
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
