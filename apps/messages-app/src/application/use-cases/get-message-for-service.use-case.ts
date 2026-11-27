@@ -29,13 +29,13 @@ const ADVANCED_READ_GROUP = "ApiMessageReadAdvanced";
 type MessageContentFields = Pick<ServiceMessage["message"], "content">;
 type MessageStatusFields = Pick<MessageStatus, "isRead" | "status">;
 
-export type GetServiceMessageError =
+export type GetMessageForServiceError =
   | ForbiddenError
   | GenericError
   | MalformedEntityError
   | NotFoundError;
 
-export interface GetServiceMessageInput {
+export interface GetMessageForServiceInput {
   readonly fiscalCode: FiscalCode;
   readonly groups: ReadonlySet<string>;
   readonly messageId: string;
@@ -43,16 +43,16 @@ export interface GetServiceMessageInput {
   readonly subscriptionId: string;
 }
 
-export type GetServiceMessageUseCase = UseCase<
-  GetServiceMessageInput,
+export type GetMessageForServiceUseCase = UseCase<
+  GetMessageForServiceInput,
   ServiceMessage,
-  GetServiceMessageError
+  GetMessageForServiceError
 >;
 
 // Preserve the legacy server-error response for throttled dependency reads.
 const normalizeMessageReadError = (
-  error: GetServiceMessageError | TooManyRequestsError,
-): GetServiceMessageError =>
+  error: GetMessageForServiceError | TooManyRequestsError,
+): GetMessageForServiceError =>
   error instanceof TooManyRequestsError
     ? new GenericError(error.message)
     : error;
@@ -110,7 +110,7 @@ export const makeGetMessageForServiceUseCase =
     servicePreferencesRepository: ServicePreferencesRepository,
     paymentStatusRepository: PaymentStatusRepository,
     minAppVersionWithReadAuth: string,
-  ): GetServiceMessageUseCase =>
+  ): GetMessageForServiceUseCase =>
   async ({ fiscalCode, groups, messageId, serviceId, subscriptionId }) => {
     const metadataResult = await messageMetadataRepository.getMessageMetadata(
       fiscalCode,

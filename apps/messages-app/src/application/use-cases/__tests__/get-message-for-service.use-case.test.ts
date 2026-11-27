@@ -19,7 +19,7 @@ import { MessageStatusRepository } from "../../ports/message-status.js";
 import { PaymentStatusRepository } from "../../ports/payment-status.js";
 import { ProfileRepository } from "../../ports/profile.js";
 import { ServicePreferencesRepository } from "../../ports/service-preferences.js";
-import { makeGetMessageForServiceUseCase } from "../get-service-message.use-case.js";
+import { makeGetMessageForServiceUseCase } from "../get-message-for-service.use-case.js";
 
 const fiscalCode = FiscalCodeSchema.parse("RSSMRA80A01H501U");
 const messageId = "01JAQ4HYBR5JZCS6K0DT7M1EV8";
@@ -94,7 +94,7 @@ const paymentStatusRepository = {
   getPaymentStatus: vi.fn().mockResolvedValue(ok("NOT_PAID")),
 } as unknown as PaymentStatusRepository;
 
-const getServiceMessage = makeGetMessageForServiceUseCase(
+const getMessageForService = makeGetMessageForServiceUseCase(
   metadataRepository,
   statusRepository,
   contentRepository,
@@ -108,7 +108,7 @@ beforeEach(() => vi.clearAllMocks());
 
 describe("makeGetMessageForServiceUseCase", () => {
   it("returns the service contract without advanced fields", async () => {
-    const result = await getServiceMessage(baseInput);
+    const result = await getMessageForService(baseInput);
 
     expect(result._unsafeUnwrap()).toEqual({
       message: {
@@ -130,7 +130,7 @@ describe("makeGetMessageForServiceUseCase", () => {
   });
 
   it("returns forbidden before reading content for another service", async () => {
-    const result = await getServiceMessage({
+    const result = await getMessageForService({
       ...baseInput,
       serviceId: "another-service",
     });
@@ -150,7 +150,7 @@ describe("makeGetMessageForServiceUseCase - read normalization", () => {
       statusRepository.getLatestMessageStatusById,
     ).mockResolvedValueOnce(err(new NotFoundError("status", "not found")));
 
-    const result = await getServiceMessage(baseInput);
+    const result = await getMessageForService(baseInput);
 
     expect(result._unsafeUnwrap()).toEqual({
       message: {
@@ -183,7 +183,7 @@ describe("makeGetMessageForServiceUseCase - read normalization", () => {
       }),
     );
 
-    const result = await getServiceMessage(baseInput);
+    const result = await getMessageForService(baseInput);
 
     expect(result._unsafeUnwrap().status).toBe("REJECTED");
     expect(result._unsafeUnwrap().message).not.toHaveProperty("content");
@@ -210,7 +210,7 @@ describe("makeGetMessageForServiceUseCase - read normalization", () => {
       statusRepository.getLatestMessageStatusById,
     ).mockResolvedValueOnce(err(new NotFoundError("status", "not found")));
 
-    const result = await getServiceMessage({
+    const result = await getMessageForService({
       ...baseInput,
       groups: new Set(["ApiMessageReadAdvanced"]),
     });
@@ -248,7 +248,7 @@ describe("makeGetMessageForServiceUseCase - read normalization", () => {
         ),
       );
 
-      const result = await getServiceMessage(baseInput);
+      const result = await getMessageForService(baseInput);
 
       expect(result._unsafeUnwrapErr()).toBe(dependencyError);
     },
@@ -285,7 +285,7 @@ describe("makeGetMessageForServiceUseCase - dependency throttling", () => {
         );
       }
 
-      const result = await getServiceMessage(baseInput);
+      const result = await getMessageForService(baseInput);
 
       expect(result._unsafeUnwrapErr()).toBeInstanceOf(GenericError);
       expect(result._unsafeUnwrapErr().message).toContain(
@@ -326,7 +326,7 @@ describe("makeGetMessageForServiceUseCase - advanced fields", () => {
       ok("PAID"),
     );
 
-    const result = await getServiceMessage({
+    const result = await getMessageForService({
       ...baseInput,
       groups: new Set(["ApiMessageReadAdvanced"]),
     });
@@ -399,7 +399,7 @@ describe("makeGetMessageForServiceUseCase - advanced fields", () => {
         }),
       );
 
-      const result = await getServiceMessage({
+      const result = await getMessageForService({
         ...baseInput,
         groups: new Set(["ApiMessageReadAdvanced"]),
       });
@@ -430,7 +430,7 @@ describe("makeGetMessageForServiceUseCase - advanced fields", () => {
       err(dependencyError),
     );
 
-    const result = await getServiceMessage({
+    const result = await getMessageForService({
       ...baseInput,
       groups: new Set(["ApiMessageReadAdvanced"]),
     });
@@ -474,7 +474,7 @@ describe("makeGetMessageForServiceUseCase - read authorization policy", () => {
         }),
       );
 
-      const result = await getServiceMessage(advancedInput);
+      const result = await getMessageForService(advancedInput);
 
       expect(result._unsafeUnwrap().read_status).toBe("UNAVAILABLE");
       expect(
@@ -491,7 +491,7 @@ describe("makeGetMessageForServiceUseCase - read authorization policy", () => {
       }),
     );
 
-    const result = await getServiceMessage(advancedInput);
+    const result = await getMessageForService(advancedInput);
 
     expect(result._unsafeUnwrap().read_status).toBe("UNAVAILABLE");
     expect(
@@ -509,7 +509,7 @@ describe("makeGetMessageForServiceUseCase - read authorization policy", () => {
         }),
       );
 
-      const result = await getServiceMessage(advancedInput);
+      const result = await getMessageForService(advancedInput);
 
       expect(result._unsafeUnwrap().read_status).toBe("READ");
       expect(
@@ -529,7 +529,7 @@ describe("makeGetMessageForServiceUseCase - read authorization policy", () => {
         servicePreferencesRepository.getServicePreferences,
       ).mockResolvedValueOnce(ok({ accessReadMessageStatus }));
 
-      const result = await getServiceMessage(advancedInput);
+      const result = await getMessageForService(advancedInput);
 
       expect(result._unsafeUnwrap().read_status).toBe(expected);
     },
@@ -542,7 +542,7 @@ describe("makeGetMessageForServiceUseCase - read authorization policy", () => {
       err(new NotFoundError("Service preferences", "not found")),
     );
 
-    const result = await getServiceMessage(advancedInput);
+    const result = await getMessageForService(advancedInput);
 
     expect(result._unsafeUnwrap().read_status).toBe("READ");
   });
@@ -557,7 +557,7 @@ describe("makeGetMessageForServiceUseCase - read authorization policy", () => {
         servicePreferencesRepository.getServicePreferences,
       ).mockResolvedValueOnce(err(dependencyError));
 
-      const result = await getServiceMessage(advancedInput);
+      const result = await getMessageForService(advancedInput);
 
       expect(result._unsafeUnwrapErr()).toBe(dependencyError);
     },
@@ -571,7 +571,7 @@ describe("makeGetMessageForServiceUseCase - read authorization policy", () => {
       ok({ ...content, payment_data: paymentData }),
     );
 
-    const result = await getServiceMessage(advancedInput);
+    const result = await getMessageForService(advancedInput);
 
     expect(result._unsafeUnwrap()).toMatchObject({
       payment_status: "NOT_PAID",

@@ -9,7 +9,7 @@ import {
   readStatusSchema,
 } from "../../../../application/ports/service-message.js";
 
-export const GetServiceMessageResponseSchema = z.object({
+export const GetMessageForServiceResponseSchema = z.object({
   message: z.object({
     content: messageContentSchema.optional(),
     created_at: z.string(),
@@ -24,10 +24,10 @@ export const GetServiceMessageResponseSchema = z.object({
   status: messageStatusValueSchema,
 });
 
-export type GetServiceMessageResponse = z.infer<
-  typeof GetServiceMessageResponseSchema
+export type GetMessageForServiceResponse = z.infer<
+  typeof GetMessageForServiceResponseSchema
 >;
 
-export const toGetServiceMessageResponse = (
+export const toGetMessageForServiceResponse = (
   output: ServiceMessage,
-): GetServiceMessageResponse => output;
+): GetMessageForServiceResponse => output;

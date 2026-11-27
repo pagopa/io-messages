@@ -14,11 +14,11 @@ import type {
   ServicesCmsDetail,
   ServicesCmsRepository,
 } from "../../../../application/ports/services-cms.js";
-import type { GetServiceMessageUseCase } from "../../../../application/use-cases/get-service-message.use-case.js";
+import type { GetMessageForServiceUseCase } from "../../../../application/use-cases/get-message-for-service.use-case.js";
 
 import { MalformedEntityError } from "../../../../application/ports/error.js";
-import { makeGetMessageForServiceUseCase } from "../../../../application/use-cases/get-service-message.use-case.js";
-import { mountGetServiceMessageHandler } from "../get-service-message.handler.js";
+import { makeGetMessageForServiceUseCase } from "../../../../application/use-cases/get-message-for-service.use-case.js";
+import { mountGetMessageForServiceHandler } from "../get-message-for-service.handler.js";
 
 const fiscalCode = "RSSMRA80A01H501U";
 const messageId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
@@ -56,7 +56,7 @@ const service: ServicesCmsDetail = {
 };
 
 let server: FastifyInstance;
-let useCase: GetServiceMessageUseCase;
+let useCase: GetMessageForServiceUseCase;
 let repository: ServicesCmsRepository;
 
 beforeEach(() => {
@@ -66,12 +66,12 @@ beforeEach(() => {
     getServiceCmsDetails: vi.fn().mockResolvedValue(ok(service)),
     getServicesCmsDetailsByServiceIds: vi.fn(),
   };
-  mountGetServiceMessageHandler(server, useCase, repository);
+  mountGetMessageForServiceHandler(server, useCase, repository);
 });
 
 afterEach(async () => server.close());
 
-describe("mountGetServiceMessageHandler", () => {
+describe("mountGetMessageForServiceHandler", () => {
   it("maps the resolved service without requiring x-service-id", async () => {
     const response = await server.inject({
       headers: validHeaders,
